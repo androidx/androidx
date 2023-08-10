@@ -16,7 +16,7 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothGattService as FwkService
 import androidx.annotation.RestrictTo
 import java.util.UUID
 
@@ -25,7 +25,7 @@ import java.util.UUID
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattService internal constructor(
-    internal val fwkService: BluetoothGattService,
+    internal val fwkService: FwkService,
     characteristics: List<GattCharacteristic>? = null
 ) {
     val uuid: UUID
@@ -44,7 +44,7 @@ class GattService internal constructor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 fun GattService(uuid: UUID, characteristics: List<GattCharacteristic>): GattService {
-    val fwkService = BluetoothGattService(uuid, BluetoothGattService.SERVICE_TYPE_PRIMARY)
+    val fwkService = FwkService(uuid, FwkService.SERVICE_TYPE_PRIMARY)
     characteristics.forEach { fwkService.addCharacteristic(it.fwkCharacteristic) }
     return GattService(fwkService, characteristics)
 }

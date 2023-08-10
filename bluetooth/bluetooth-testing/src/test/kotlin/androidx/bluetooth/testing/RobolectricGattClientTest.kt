@@ -25,7 +25,7 @@ import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY
 import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
 import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE
 import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.bluetooth.BluetoothDevice
@@ -72,10 +72,10 @@ class RobolectricGattClientTest {
 
         private val cccdUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
-        private val service1 = BluetoothGattService(serviceUuid1,
-            BluetoothGattService.SERVICE_TYPE_PRIMARY)
-        private val service2 = BluetoothGattService(serviceUuid2,
-            BluetoothGattService.SERVICE_TYPE_PRIMARY)
+        private val service1 = FwkService(serviceUuid1,
+            FwkService.SERVICE_TYPE_PRIMARY)
+        private val service2 = FwkService(serviceUuid2,
+            FwkService.SERVICE_TYPE_PRIMARY)
 
         private val readCharacteristic = FwkCharacteristic(readCharUuid,
             PROPERTY_READ, /*permissions=*/0)
@@ -86,7 +86,7 @@ class RobolectricGattClientTest {
         private val noPropertyCharacteristic = FwkCharacteristic(noPropertyCharUuid,
             /*properties=*/0, /*permissions=*/0)
 
-        private val sampleServices: List<BluetoothGattService> = listOf(service1, service2)
+        private val sampleServices: List<FwkService> = listOf(service1, service2)
         init {
             notifyCharacteristic.addDescriptor(
                 BluetoothGattDescriptor(cccdUuid, /*permissions=*/0))
@@ -379,7 +379,7 @@ class RobolectricGattClientTest {
     class StubClientFrameworkAdapter(
         private val baseAdapter: GattClient.FrameworkAdapter
     ) : GattClient.FrameworkAdapter {
-        var gattServices: List<BluetoothGattService> = listOf()
+        var gattServices: List<FwkService> = listOf()
         var callback: BluetoothGattCallback? = null
         override var bluetoothGatt: BluetoothGatt?
             get() = baseAdapter.bluetoothGatt
@@ -415,11 +415,11 @@ class RobolectricGattClientTest {
             onDiscoverServicesListener?.onDiscoverServices()
         }
 
-        override fun getServices(): List<BluetoothGattService> {
+        override fun getServices(): List<FwkService> {
             return gattServices
         }
 
-        override fun getService(uuid: UUID): BluetoothGattService? {
+        override fun getService(uuid: UUID): FwkService? {
             return gattServices.find { it.uuid == uuid }
         }
 

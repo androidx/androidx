@@ -18,10 +18,10 @@ package androidx.bluetooth.testing
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice as FwkDevice
-import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
-import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.bluetooth.BluetoothLe
@@ -429,14 +429,14 @@ class RobolectricGattServerTest {
             baseAdapter.clearServices()
         }
 
-        override fun addService(service: BluetoothGattService) {
+        override fun addService(service: FwkService) {
             baseAdapter.addService(service)
             onAddServiceListener?.onAddService(service)
         }
 
         override fun notifyCharacteristicChanged(
             device: FwkDevice,
-            characteristic: BluetoothGattCharacteristic,
+            characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
         ) {
@@ -459,7 +459,7 @@ class RobolectricGattServerTest {
             fun onOpenGattServer()
         }
         fun interface OnAddServiceListener {
-            fun onAddService(service: BluetoothGattService)
+            fun onAddService(service: FwkService)
         }
         fun interface OnCloseGattServerListener {
             fun onCloseGattServer()
@@ -467,7 +467,7 @@ class RobolectricGattServerTest {
         fun interface OnNotifyCharacteristicChangedListener {
             fun onNotifyCharacteristicChanged(
                 device: FwkDevice,
-                characteristic: BluetoothGattCharacteristic,
+                characteristic: FwkCharacteristic,
                 confirm: Boolean,
                 value: ByteArray
             )
