@@ -21,7 +21,6 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
-import com.android.build.gradle.internal.lint.AndroidLintTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
@@ -180,13 +179,8 @@ private fun Project.configureLintForAidlAfterEvaluate() {
         sourceProvider.javaDirectories.withChangesAllowed { from(mainAidl, variantAidl) }
     }
 
-    // Lint for libraries is split into two tasks - analysis, and reporting. We need to
-    // add the new sources to both, so all parts of the pipeline are aware.
+    // Add the new sources to the lint analysis tasks.
     project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
-        it.variantInputs.addSourceSets()
-    }
-
-    project.tasks.withType<AndroidLintTask>().configureEach {
         it.variantInputs.addSourceSets()
     }
 
@@ -276,13 +270,10 @@ private fun Project.addSourceSetsForAndroidMultiplatformAfterEvaluate() {
         }
     }
 
-    // Lint for libraries is split into two tasks - analysis, and reporting. We need to
-    // add the new sources to both, so all parts of the pipeline are aware.
+    // Add the new sources to the lint analysis tasks.
     project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
         it.variantInputs.addSourceSets()
     }
-
-    project.tasks.withType<AndroidLintTask>().configureEach { it.variantInputs.addSourceSets() }
 
     // Also configure the model writing task, so that we don't run into mismatches between
     // analyzed sources in one module and a downstream module
