@@ -140,7 +140,7 @@ internal sealed class KspMethodElement(
     override fun isExtensionFunction() = declaration.extensionReceiver != null
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-        return env.resolver.overrides(this, other, owner as? KspTypeElement)
+        return env.resolver.overrides(this, other)
     }
 
     override fun isKotlinPropertyMethod() = false

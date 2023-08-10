@@ -45,8 +45,7 @@ private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration = when
 
 internal fun Resolver.overrides(
     overriderElement: XMethodElement,
-    overrideeElement: XMethodElement,
-    owner: KspTypeElement? = null
+    overrideeElement: XMethodElement
 ): Boolean {
     // in addition to functions declared in kotlin, we also synthesize getter/setter functions for
     // properties which means we cannot simply send the declaration to KSP for override check
@@ -61,10 +60,7 @@ internal fun Resolver.overrides(
 
     val ksOverrider = overriderElement.getDeclarationForOverride()
     val ksOverridee = overrideeElement.getDeclarationForOverride()
-    if (
-        owner?.let { overrides(ksOverrider, ksOverridee, it.declaration) } == true ||
-        overrides(ksOverrider, ksOverridee)
-    ) {
+    if (overrides(ksOverrider, ksOverridee)) {
         // Make sure it also overrides in JVM descriptors as well.
         // This happens in cases where parent class has `<T>` type argument and child class
         // declares it has `Int` (a type that might map to a primitive). In those cases,

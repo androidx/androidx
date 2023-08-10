@@ -2383,32 +2383,6 @@ class XTypeElementTest(
         }
     }
 
-    @Test
-    fun overrideConsideringOwner() {
-        val src = Source.kotlin(
-            "Subject.kt",
-            """
-            abstract class MyDatabase : RoomDatabase(), MyInterface
-
-            abstract class RoomDatabase {
-              open fun runInTransaction(body: Runnable) {
-
-              }
-            }
-
-            interface MyInterface {
-              fun runInTransaction(body: Runnable)
-            }
-            """.trimIndent()
-        )
-        runProcessorTest(sources = listOf(src)) {
-            val subject = it.processingEnv.requireTypeElement("MyDatabase")
-            val methods = subject.getAllMethods().filter { it.name == "runInTransaction" }.toList()
-            assertThat(methods.size).isEqualTo(1)
-            assertThat(methods.single().isAbstract()).isFalse()
-        }
-    }
-
     /**
      * it is good to exclude methods coming from Object when testing as they differ between KSP
      * and KAPT but irrelevant for Room.
