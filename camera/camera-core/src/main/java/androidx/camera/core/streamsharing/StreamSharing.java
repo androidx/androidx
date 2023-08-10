@@ -325,6 +325,11 @@ public class StreamSharing extends UseCase {
                 updateSessionConfig(
                         createPipelineAndUpdateChildrenSpecs(cameraId, config, streamSpec));
                 notifyReset();
+                // Connect the latest {@link Surface} to newly created children edges. Currently
+                // children UseCase does not have additional logic in SessionConfig error listener
+                // so this is OK. If they do, we need to invoke the children's SessionConfig
+                // error listeners instead.
+                mVirtualCamera.resetChildren();
             }
         });
     }
@@ -380,5 +385,11 @@ public class StreamSharing extends UseCase {
     @Nullable
     SurfaceProcessorNode getSharingNode() {
         return mSharingNode;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    VirtualCamera getVirtualCamera() {
+        return mVirtualCamera;
     }
 }
