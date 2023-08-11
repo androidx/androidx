@@ -1590,7 +1590,7 @@ class VideoCaptureTest {
         surfaceManager = FakeCameraDeviceSurfaceManager()
 
         val cameraXConfig = CameraXConfig.Builder.fromConfig(FakeAppConfig.create())
-            .setCameraFactoryProvider { _, _, _ -> cameraFactory }
+            .setCameraFactoryProvider { _, _, _, _ -> cameraFactory }
             .setDeviceSurfaceManagerProvider { _, _, _ -> surfaceManager }
             .build()
         CameraXUtil.initialize(context, cameraXConfig).get()

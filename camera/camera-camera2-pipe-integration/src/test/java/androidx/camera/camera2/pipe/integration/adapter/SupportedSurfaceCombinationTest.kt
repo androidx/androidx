@@ -1873,7 +1873,8 @@ class SupportedSurfaceCombinationTest {
             }
             .setCameraFactoryProvider { _: Context?,
                 _: CameraThreadConfig?,
-                _: CameraSelector?
+                _: CameraSelector?,
+                _: Long
                 ->
                 cameraFactory!!
             }

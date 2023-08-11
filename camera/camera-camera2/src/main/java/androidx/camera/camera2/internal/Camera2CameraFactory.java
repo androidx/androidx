@@ -58,12 +58,14 @@ public final class Camera2CameraFactory implements CameraFactory {
     private final CameraManagerCompat mCameraManager;
     private final List<String> mAvailableCameraIds;
     private final DisplayInfoManager mDisplayInfoManager;
+    private final long mCameraOpenRetryMaxTimeoutInMs;
     private final Map<String, Camera2CameraInfoImpl> mCameraInfos = new HashMap<>();
 
     /** Creates a Camera2 implementation of CameraFactory */
     public Camera2CameraFactory(@NonNull Context context,
             @NonNull CameraThreadConfig threadConfig,
-            @Nullable CameraSelector availableCamerasSelector) throws InitializationException {
+            @Nullable CameraSelector availableCamerasSelector,
+            long cameraOpenRetryMaxTimeoutInMs) throws InitializationException {
         mThreadConfig = threadConfig;
         mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
         mDisplayInfoManager = DisplayInfoManager.getInstance(context);
@@ -75,6 +77,7 @@ public final class Camera2CameraFactory implements CameraFactory {
         mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
                 DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
         mCameraCoordinator.addListener(mCameraStateRegistry);
+        mCameraOpenRetryMaxTimeoutInMs = cameraOpenRetryMaxTimeoutInMs;
     }
 
     @Override
@@ -91,7 +94,8 @@ public final class Camera2CameraFactory implements CameraFactory {
                 mCameraStateRegistry,
                 mThreadConfig.getCameraExecutor(),
                 mThreadConfig.getSchedulerHandler(),
-                mDisplayInfoManager);
+                mDisplayInfoManager,
+                mCameraOpenRetryMaxTimeoutInMs);
     }
 
     Camera2CameraInfoImpl getCameraInfo(@NonNull String cameraId)

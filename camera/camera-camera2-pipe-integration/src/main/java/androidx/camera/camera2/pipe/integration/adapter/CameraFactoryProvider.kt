@@ -21,6 +21,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -47,11 +48,17 @@ class CameraFactoryProvider(
     @GuardedBy("lock")
     private var cachedCameraPipe: Pair<Context, Lazy<CameraPipe>>? = null
 
+    private var cameraOpenRetryMaxTimeoutNs: DurationNs? = null
+
     override fun newInstance(
         context: Context,
         threadConfig: CameraThreadConfig,
-        availableCamerasLimiter: CameraSelector?
+        availableCamerasLimiter: CameraSelector?,
+        cameraOpenRetryMaxTimeoutInMs: Long
     ): CameraFactory {
+
+        this.cameraOpenRetryMaxTimeoutNs = if (cameraOpenRetryMaxTimeoutInMs != -1L) null
+        else DurationNs(cameraOpenRetryMaxTimeoutInMs)
 
         val lazyCameraPipe = getOrCreateCameraPipe(context)
 
@@ -94,7 +101,8 @@ class CameraFactoryProvider(
                 appContext = context.applicationContext,
                 cameraInteropConfig = CameraPipe.CameraInteropConfig(
                     cameraInteropStateCallbackRepository.deviceStateCallback,
-                    cameraInteropStateCallbackRepository.sessionStateCallback
+                    cameraInteropStateCallbackRepository.sessionStateCallback,
+                    cameraOpenRetryMaxTimeoutNs
                 )
             )
         )

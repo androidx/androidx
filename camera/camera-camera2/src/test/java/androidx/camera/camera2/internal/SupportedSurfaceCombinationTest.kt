@@ -3354,7 +3354,7 @@ class SupportedSurfaceCombinationTest {
             }
         val cameraXConfig = CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
             .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-            .setCameraFactoryProvider { _, _, _ -> cameraFactory!! }
+            .setCameraFactoryProvider { _, _, _, _ -> cameraFactory!! }
             .build()
         val cameraX: CameraX = try {
             CameraXUtil.getOrCreateInstance(context) { cameraXConfig }.get()

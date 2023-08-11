@@ -227,7 +227,8 @@ constructor(
     private val cameraErrorListener: CameraErrorListener,
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
     private val timeSource: TimeSource,
-    private val devicePolicyManager: DevicePolicyManagerWrapper
+    private val devicePolicyManager: DevicePolicyManagerWrapper,
+    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?,
 ) {
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
@@ -271,6 +272,7 @@ constructor(
                         elapsed,
                         devicePolicyManager.camerasDisabled,
                         isForeground,
+                        cameraInteropConfig?.cameraOpenRetryMaxTimeoutNs
                     )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
@@ -310,10 +312,11 @@ constructor(
             elapsedNs: DurationNs,
             camerasDisabledByDevicePolicy: Boolean,
             isForeground: Boolean = false,
+            cameraOpenRetryMaxTimeoutNs: DurationNs? = null
         ): Boolean {
             val shouldActiveResume = shouldActivateActiveResume(isForeground, errorCode)
             if (shouldActiveResume) Log.debug { "shouldRetry: Active resume mode is activated" }
-            if (elapsedNs > getRetryTimeoutNs(shouldActiveResume)) {
+            if (elapsedNs > getRetryTimeoutNs(shouldActiveResume, cameraOpenRetryMaxTimeoutNs)) {
                 return false
             }
             return when (errorCode) {
@@ -386,11 +389,13 @@ constructor(
                 errorCode == CameraError.ERROR_CAMERA_LIMIT_EXCEEDED ||
                 errorCode == CameraError.ERROR_CAMERA_DISCONNECTED)
 
-        internal fun getRetryTimeoutNs(activeResumeActivated: Boolean) =
-            if (!activeResumeActivated) {
-                defaultCameraRetryTimeoutNs
+        internal fun getRetryTimeoutNs(
+            activeResumeActivated: Boolean,
+            cameraOpenRetryMaxTimeoutNs: DurationNs? = null
+        ) = if (!activeResumeActivated) {
+                min(defaultCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
             } else {
-                activeResumeCameraRetryTimeoutNs
+                min(activeResumeCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)
             }
 
         internal fun getRetryDelayMs(elapsedNs: DurationNs, activeResumeActivated: Boolean): Long {
@@ -403,6 +408,17 @@ constructor(
                 activeResumeCameraRetryDelayBaseMs * 4L
             } else {
                 activeResumeCameraRetryDelayBaseMs * 8L
+            }
+        }
+
+        private fun min(d1: DurationNs, d2: DurationNs?): DurationNs {
+            if (d2 == null) {
+                return d1
+            }
+            return if (d1.compareTo(d2) == -1) {
+                d1
+            } else {
+                d2
             }
         }
     }
