@@ -121,7 +121,7 @@ class FontScalingScreenshotTest {
 
     @Test
     fun fontScaling1x_drawText() {
-        AndroidFontScaleHelper.setSystemFontScale(2f, rule.activityRule.scenario)
+        AndroidFontScaleHelper.setSystemFontScale(1f, rule.activityRule.scenario)
         rule.waitForIdle()
 
         rule.setContent {

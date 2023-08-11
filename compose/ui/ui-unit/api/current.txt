@@ -46,24 +46,19 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static long offset(long, optional int horizontal, optional int vertical);
   }
 
-  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density {
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScalable {
     method public float getDensity();
-    method public float getFontScale();
     method @androidx.compose.runtime.Stable public default int roundToPx(float);
     method @androidx.compose.runtime.Stable public default int roundToPx(long);
     method @androidx.compose.runtime.Stable public default float toDp(float);
     method @androidx.compose.runtime.Stable public default float toDp(int);
-    method @androidx.compose.runtime.Stable public default float toDp(long);
     method @androidx.compose.runtime.Stable public default long toDpSize(long);
     method @androidx.compose.runtime.Stable public default float toPx(float);
     method @androidx.compose.runtime.Stable public default float toPx(long);
     method @androidx.compose.runtime.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.DpRect);
     method @androidx.compose.runtime.Stable public default long toSize(long);
-    method @androidx.compose.runtime.Stable public default long toSp(float);
-    method @androidx.compose.runtime.Stable public default long toSp(float);
     method @androidx.compose.runtime.Stable public default long toSp(int);
     property public abstract float density;
-    property public abstract float fontScale;
   }
 
   public final class DensityKt {
@@ -195,6 +190,13 @@ package androidx.compose.ui.unit {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalUnitApi {
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface FontScalable {
+    method public float getFontScale();
+    method @androidx.compose.runtime.Stable public default float toDp(long);
+    method @androidx.compose.runtime.Stable public default long toSp(float);
+    property public abstract float fontScale;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
