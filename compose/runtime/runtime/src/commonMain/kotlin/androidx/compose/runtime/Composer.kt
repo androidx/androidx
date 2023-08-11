@@ -1676,6 +1676,19 @@ internal class ComposerImpl(
         reusing = reusingGroup >= 0
     }
 
+    fun startReuseFromRoot() {
+        reusingGroup = rootKey
+        reusing = true
+    }
+
+    fun endReuseFromRoot() {
+        require(!isComposing && reusingGroup == rootKey) {
+            "Cannot disable reuse from root if it was caused by other groups"
+        }
+        reusingGroup = -1
+        reusing = false
+    }
+
     override val currentMarker: Int
         get() = if (inserting) -writer.parent else reader.parent
 
@@ -1738,7 +1751,9 @@ internal class ComposerImpl(
     internal fun nextSlot(): Any? = if (inserting) {
         validateNodeNotExpected()
         Composer.Empty
-    } else reader.next().let { if (reusing) Composer.Empty else it }
+    } else reader.next().let {
+        if (reusing && it !is ReusableRememberObserver) Composer.Empty else it
+    }
 
     /**
      * Determine if the current slot table value is equal to the given value, if true, the value
@@ -3474,7 +3489,7 @@ internal class ComposerImpl(
     @Suppress("RemoveRedundantQualifierName")
     private class CompositionContextHolder(
         val ref: ComposerImpl.CompositionContextImpl
-    ) : RememberObserver {
+    ) : ReusableRememberObserver {
         override fun onRemembered() { }
         override fun onAbandoned() {
             ref.dispose()
@@ -3830,13 +3845,18 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
         }
 
         forEachData(group) { index, data ->
-            if (data is RememberObserver) {
-                removeData(group, index, data)
-                rememberManager.forgetting(data)
-            }
-            if (data is RecomposeScopeImpl) {
-                removeData(group, index, data)
-                data.release()
+            when (data) {
+                is ReusableRememberObserver -> {
+                    // do nothing, the value should be preserved on reuse
+                }
+                is RememberObserver -> {
+                    removeData(group, index, data)
+                    rememberManager.forgetting(data)
+                }
+                is RecomposeScopeImpl -> {
+                    removeData(group, index, data)
+                    data.release()
+                }
             }
         }
     }
@@ -4038,6 +4058,12 @@ private value class GroupKind private constructor(val value: Int) {
         val ReusableNode = GroupKind(2)
     }
 }
+
+/*
+ * Remember observer which is not removed during reuse/deactivate of the group.
+ * It is used to preserve composition locals between group deactivation.
+ */
+internal interface ReusableRememberObserver : RememberObserver
 
 /*
  * Integer keys are arbitrary values in the biload range. The do not need to be unique as if

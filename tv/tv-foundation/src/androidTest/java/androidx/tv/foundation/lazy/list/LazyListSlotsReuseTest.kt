@@ -23,13 +23,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -336,9 +337,24 @@ class LazyListSlotsReuseTest {
     fun scrollingBackReusesTheSameSlot() {
         lateinit var state: TvLazyListState
         var counter0 = 0
-        var counter1 = 10
-        var rememberedValue0 = -1
-        var rememberedValue1 = -1
+        var counter1 = 0
+
+        val measureCountModifier0 = Modifier.layout { measurable, constraints ->
+            counter0++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
+        val measureCountModifier1 = Modifier.layout { measurable, constraints ->
+            counter1++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(IntOffset.Zero)
+            }
+        }
+
         rule.setContent {
             state = rememberTvLazyListState()
             TvLazyColumn(
@@ -347,30 +363,35 @@ class LazyListSlotsReuseTest {
                 pivotOffsets = PivotOffsets(parentFraction = 0f)
             ) {
                 items(100) {
-                    if (it == 0) {
-                        rememberedValue0 = remember { counter0++ }
+                    val modifier = when (it) {
+                        0 -> measureCountModifier0
+                        1 -> measureCountModifier1
+                        else -> Modifier
                     }
-                    if (it == 1) {
-                        rememberedValue1 = remember { counter1++ }
-                    }
-                    Box(
-                        Modifier.height(itemsSizeDp).fillParentMaxWidth().testTag("$it")
-                        .focusable())
+                    Spacer(
+                        Modifier
+                            .height(itemsSizeDp)
+                            .fillParentMaxWidth()
+                            .testTag("$it")
+                            .then(modifier)
+                    )
                 }
             }
         }
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2) // buffer is [0, 1]
+                counter0 = 0
+                counter1 = 0
                 state.scrollToItem(0) // scrolled back, 0 and 1 are reused back. buffer: [2, 3]
             }
         }
 
         rule.runOnIdle {
-            Truth.assertWithMessage("Item 0 restored remembered value is $rememberedValue0")
-                .that(rememberedValue0).isEqualTo(0)
-            Truth.assertWithMessage("Item 1 restored remembered value is $rememberedValue1")
-                .that(rememberedValue1).isEqualTo(10)
+            Truth.assertWithMessage("Item 0 measured $counter0 times, expected 0.")
+                .that(counter0).isEqualTo(0)
+            Truth.assertWithMessage("Item 1 measured $counter1 times, expected 0.")
+                .that(counter1).isEqualTo(0)
         }
 
         rule.onNodeWithTag("0")
