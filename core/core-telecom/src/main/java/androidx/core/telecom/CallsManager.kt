@@ -70,7 +70,7 @@ class CallsManager constructor(context: Context) {
     private val mDirectExecutor = Executor { it.run() }
 
     companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
         @IntDef(
             CAPABILITY_BASELINE,
