@@ -346,7 +346,7 @@ class ScatterMapTest {
     @Test
     fun removeThenAdd() {
         // Use a size of 6 to fit in a single entry in the metadata table
-        val map = MutableScatterMap<String?, String?>(6)
+        val map = MutableScatterMap<String, String>(6)
         map["Hello"] = "World"
         map["Bonjour"] = "Monde"
         map["Hallo"] = "Welt"
@@ -372,6 +372,23 @@ class ScatterMapTest {
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun removeIf() {
+        val map = MutableScatterMap<String, String>()
+        map["Hello"] = "World"
+        map["Bonjour"] = "Monde"
+        map["Hallo"] = "Welt"
+        map["Konnichiwa"] = "Sekai"
+        map["Ciao"] = "Mondo"
+        map["Annyeong"] = "Sesang"
+
+        map.removeIf { key, value -> key.startsWith('H') || value.startsWith('S') }
+
+        assertEquals(2, map.size)
+        assertEquals("Monde", map["Bonjour"])
+        assertEquals("Mondo", map["Ciao"])
     }
 
     @Test
