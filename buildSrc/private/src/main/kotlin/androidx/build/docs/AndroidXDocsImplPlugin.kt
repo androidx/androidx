@@ -289,8 +289,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 it.isCanBeResolved = false
                 it.isCanBeConsumed = false
             }
-        val apiSinceDocsConfiguration =
-            project.configurations.create("apiSinceDocs") {
+        // This exists for libraries that are deprecated or not hosted in the AndroidX repo
+        val docsWithoutApiSinceConfiguration =
+            project.configurations.create("docsWithoutApiSince") {
                 it.isCanBeResolved = false
                 it.isCanBeConsumed = false
             }
@@ -335,7 +336,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         docsSourcesConfiguration =
             project.configurations.create("docs-sources") {
                 it.setResolveSources()
-                it.extendsFrom(docsConfiguration, apiSinceDocsConfiguration)
+                it.extendsFrom(docsConfiguration, docsWithoutApiSinceConfiguration)
             }
         multiplatformDocsSourcesConfiguration =
             project.configurations.create("multiplatform-docs-sources") { configuration ->
@@ -379,7 +380,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     project.objects.named<Bundling>(Bundling.EXTERNAL)
                 )
 
-                it.extendsFrom(apiSinceDocsConfiguration, multiplatformDocsConfiguration)
+                it.extendsFrom(docsConfiguration, multiplatformDocsConfiguration)
             }
 
         fun Configuration.setResolveClasspathForUsage(usage: String) {
@@ -399,7 +400,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 docsConfiguration,
                 samplesConfiguration,
                 stubsConfiguration,
-                apiSinceDocsConfiguration
+                docsWithoutApiSinceConfiguration
             )
         }
 
