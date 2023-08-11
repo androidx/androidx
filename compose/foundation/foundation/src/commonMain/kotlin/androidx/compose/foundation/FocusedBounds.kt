@@ -68,25 +68,22 @@ private class FocusedBoundsObserverElement(
     }
 }
 
-private fun interface InvokeOnLayoutCoordinates {
-    fun invoke(focusedBounds: LayoutCoordinates?)
-}
-
-private class FocusedBoundsObserverNode(
+internal class FocusedBoundsObserverNode(
     var onPositioned: (LayoutCoordinates?) -> Unit
-) : Modifier.Node(), ModifierLocalModifierNode, InvokeOnLayoutCoordinates {
+) : Modifier.Node(), ModifierLocalModifierNode {
     private val parent: ((LayoutCoordinates?) -> Unit)?
         get() = if (isAttached) ModifierLocalFocusedBoundsObserver.current else null
 
-    override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to { invoke(it) })
-
     /** Called when a child gains/loses focus or is focused and changes position. */
-    override fun invoke(focusedBounds: LayoutCoordinates?) {
-        if (!isAttached) return
-        onPositioned(focusedBounds)
-        parent?.invoke(focusedBounds)
+    private val focusBoundsObserver: (LayoutCoordinates?) -> Unit = { focusedBounds ->
+        if (isAttached) {
+            onPositioned(focusedBounds)
+            parent?.invoke(focusedBounds)
+        }
     }
+
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(entry = ModifierLocalFocusedBoundsObserver to focusBoundsObserver)
 }
 
 /**

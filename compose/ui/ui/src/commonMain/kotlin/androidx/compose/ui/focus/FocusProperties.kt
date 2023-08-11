@@ -182,7 +182,7 @@ fun Modifier.focusProperties(
 ): Modifier = this then FocusPropertiesElement(scope)
 
 private data class FocusPropertiesElement(
-    val scope: InvokeOnFocusProperties
+    val scope: FocusPropertiesScope
 ) : ModifierNodeElement<FocusPropertiesNode>() {
     override fun create() = FocusPropertiesNode(scope)
 
@@ -197,10 +197,10 @@ private data class FocusPropertiesElement(
 }
 
 private class FocusPropertiesNode(
-    var focusPropertiesScope: InvokeOnFocusProperties,
+    var focusPropertiesScope: FocusPropertiesScope,
 ) : FocusPropertiesModifierNode, Modifier.Node() {
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        focusPropertiesScope.invoke(focusProperties)
+        focusPropertiesScope.apply(focusProperties)
     }
 }
