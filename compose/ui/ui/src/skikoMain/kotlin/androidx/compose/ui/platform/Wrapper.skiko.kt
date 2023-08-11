@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReusableComposition
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutNode
 
@@ -52,7 +53,7 @@ internal fun SkiaBasedOwner.setContent(
 internal actual fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): Composition = Composition(
+): ReusableComposition = ReusableComposition(
     DefaultUiApplier(container),
     parent
 )
