@@ -34,34 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Deprecated(
-    level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
-            "rememberScrollState(), properties, content)",
-        "androidx.compose.foundation.rememberScrollState"
-    ),
-    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
-)
-@Composable
-fun DropdownMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
-    content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = rememberScrollState(),
-    properties = properties,
-    content = content
-)
-
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design dropdown menu</a>.
  *
@@ -148,6 +120,34 @@ fun DropdownMenu(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
+            "rememberScrollState(), properties, content)",
+        "androidx.compose.foundation.rememberScrollState"
+    ),
+    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
+)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    properties: PopupProperties = PopupProperties(focusable = true),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = rememberScrollState(),
+    properties = properties,
+    content = content
+)
 
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design dropdown menu</a> item.
