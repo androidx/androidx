@@ -49,6 +49,8 @@ abstract class DackkaTask
 constructor(private val workerExecutor: WorkerExecutor, private val objects: ObjectFactory) :
     DefaultTask() {
 
+    @Input lateinit var outputFilePath: String
+
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val projectStructureMetadataFile: RegularFileProperty
 
@@ -217,8 +219,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
             )
 
         val json = gson.toJson(jsonMap)
-        val outputFile = File.createTempFile("dackkaArgs", ".json")
-        outputFile.deleteOnExit()
+        val outputFile = File(outputFilePath)
         outputFile.writeText(json)
         return outputFile
     }

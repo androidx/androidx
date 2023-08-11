@@ -63,6 +63,7 @@ dependencies {
     docs(project(":camera:camera-lifecycle"))
     docs(project(":camera:camera-mlkit-vision"))
     // camera-previewview is not hosted in androidx
+    docs(project(":camera:camera-testing"))
     docs(project(":camera:camera-video"))
     docs(project(":camera:camera-view"))
     docs(project(":camera:camera-viewfinder"))

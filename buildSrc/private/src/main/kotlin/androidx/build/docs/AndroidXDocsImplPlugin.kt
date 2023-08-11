@@ -486,6 +486,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val dackkaTask =
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
+                task.outputFilePath = project.rootProject.getDistributionDirectory().absolutePath +
+                    "dackkaArgs-${project.name}.json"
                 task.apply {
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
