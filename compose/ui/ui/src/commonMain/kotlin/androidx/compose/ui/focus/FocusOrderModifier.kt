@@ -158,10 +158,10 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
 fun Modifier.focusOrder(
     @Suppress("DEPRECATION")
     focusOrderReceiver: FocusOrder.() -> Unit
-): Modifier {
-    val scope = FocusOrderToProperties(focusOrderReceiver)
-    return focusProperties { scope.apply(this) }
-}
+): Modifier =
+    focusProperties({
+        FocusOrderToProperties(focusOrderReceiver).invoke(this)
+    })
 
 /**
  * A modifier that lets you specify a [FocusRequester] for the current composable so that this
@@ -190,24 +190,21 @@ fun Modifier.focusOrder(
     focusRequester: FocusRequester,
     @Suppress("DEPRECATION")
     focusOrderReceiver: FocusOrder.() -> Unit
-): Modifier {
-    val scope = FocusOrderToProperties(focusOrderReceiver)
-    return this
-        .focusRequester(focusRequester)
-        .focusProperties { scope.apply(this) }
-}
+): Modifier = this
+    .focusRequester(focusRequester)
+    .focusProperties({
+        FocusOrderToProperties(focusOrderReceiver).invoke(this)
+    })
 
 @Suppress("DEPRECATION")
 internal class FocusOrderToProperties(
     val focusOrderReceiver: FocusOrder.() -> Unit
-) : FocusPropertiesScope {
-    override fun apply(focusProperties: FocusProperties) {
+) : InvokeOnFocusProperties {
+    override fun invoke(focusProperties: FocusProperties) {
         focusOrderReceiver(FocusOrder(focusProperties))
     }
 }
 
-// Note: Implementing function interface is prohibited in K/JS (class A: () -> Unit)
-// therefore we workaround this limitation by inheriting a fun interface instead
-internal fun interface FocusPropertiesScope {
-    fun apply(focusProperties: FocusProperties)
+fun interface InvokeOnFocusProperties {
+    fun invoke(focusProperties: FocusProperties)
 }

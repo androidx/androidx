@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -55,7 +56,7 @@ internal fun LazyGrid(
     /** State controlling the scroll position */
     state: LazyGridState,
     /** Prefix sums of cross axis sizes of slots per line, e.g. the columns for vertical grid. */
-    slots: LazyGridSlotsProvider,
+    slots: Density.(Constraints) -> LazyGridSlots,
     /** The inner padding to be added for the whole content (not for each individual item) */
     contentPadding: PaddingValues = PaddingValues(0.dp),
     /** reverse the direction of scrolling and layout */
@@ -159,7 +160,7 @@ private fun rememberLazyGridMeasurePolicy(
     /** The state of the list. */
     state: LazyGridState,
     /** Prefix sums of cross axis sizes of slots of the grid. */
-    slots: LazyGridSlotsProvider,
+    slots: Density.(Constraints) -> LazyGridSlots,
     /** The inner padding to be added for the whole content(nor for each individual item) */
     contentPadding: PaddingValues,
     /** reverse the direction of scrolling and layout */
@@ -218,7 +219,7 @@ private fun rememberLazyGridMeasurePolicy(
 
         val itemProvider = itemProviderLambda()
         val spanLayoutProvider = itemProvider.spanLayoutProvider
-        val resolvedSlots = slots.invoke(density = this, constraints = containerConstraints)
+        val resolvedSlots = slots(containerConstraints)
         val slotsPerLine = resolvedSlots.sizes.size
         spanLayoutProvider.slotsPerLine = slotsPerLine
 
