@@ -950,6 +950,18 @@ public class MutableScatterMap<K, V>(
     }
 
     /**
+     * Removes any mapping for which the specified [predicate] returns true.
+     */
+    public fun removeIf(predicate: (K, V) -> Boolean) {
+        forEachIndexed { index ->
+            @Suppress("UNCHECKED_CAST")
+            if (predicate(keys[index] as K, values[index] as V)) {
+                removeValueAt(index)
+            }
+        }
+    }
+
+    /**
      * Removes the specified [key] and its associated value from the map.
      */
     public inline operator fun minusAssign(key: K) {
