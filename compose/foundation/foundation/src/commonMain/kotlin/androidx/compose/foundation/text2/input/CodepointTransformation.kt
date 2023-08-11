@@ -28,6 +28,7 @@ import androidx.compose.runtime.Stable
  * of input needs to remain but rendered content should look different, e.g. password obscuring.
  */
 @ExperimentalFoundationApi
+@Stable
 fun interface CodepointTransformation {
 
     /**
@@ -39,41 +40,21 @@ fun interface CodepointTransformation {
     // TODO: add more codepoint explanation or doc referral
     fun transform(codepointIndex: Int, codepoint: Int): Int
 
-    companion object {
-
-        @Stable
-        val None = CodepointTransformation { _, codepoint -> codepoint }
-    }
+    companion object
 }
 
 /**
  * Creates a masking [CodepointTransformation] that maps all codepoints to a specific [character].
  */
 @ExperimentalFoundationApi
+@Stable
 fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
     MaskCodepointTransformation(character)
 
 @OptIn(ExperimentalFoundationApi::class)
-private class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
+private data class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
     override fun transform(codepointIndex: Int, codepoint: Int): Int {
         return character.code
-    }
-
-    override fun toString(): String {
-        return "MaskCodepointTransformation(character=$character)"
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MaskCodepointTransformation) return false
-
-        if (character != other.character) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return character.hashCode()
     }
 }
 
