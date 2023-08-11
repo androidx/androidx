@@ -247,13 +247,13 @@ internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
 }
 
 /**
- * Helper function to convert [TypographyKeyTokens] to [TextStyle].
+ * Converts the [TypographyKeyTokens] to the local text style provided by the theme.
+ * The text style refers to the [LocalTypography].
  */
-@Composable
-@ReadOnlyComposable
-internal fun TypographyKeyTokens.toTextStyle(): TextStyle {
-    return MaterialTheme.typography.fromToken(this)
-}
+internal val TypographyKeyTokens.value: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.typography.fromToken(this)
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
