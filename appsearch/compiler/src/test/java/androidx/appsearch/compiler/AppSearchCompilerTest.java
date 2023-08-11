@@ -517,6 +517,43 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testClassSpecialValues() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "    @Document.Namespace\n"
+                        + "    String mNamespace;\n"
+                        + "    @Document.Id\n"
+                        + "    String mId;\n"
+                        + "    @Document.CreationTimestampMillis\n"
+                        + "    Long mCreationTimestampMillis;\n"
+                        + "    @Document.Score\n"
+                        + "    Integer mScore;\n"
+                        + "    @Document.TtlMillis\n"
+                        + "    private Long mTtlMillis;\n"
+                        + "    public Long getTtlMillis() {\n"
+                        + "        return mTtlMillis;\n"
+                        + "    }   \n"
+                        + "    public void setTtlMillis(Long ttlMillis) {\n"
+                        + "        mTtlMillis = ttlMillis;\n"
+                        + "    }   \n"
+                        + "    @Document.StringProperty\n"
+                        + "    String mString;\n"
+                        + "}\n");
+
+        checkResultContains(/*className=*/"Gift.java",
+                /*content=*/"builder.setCreationTimestampMillis((document.mCreationTimestampMillis "
+                        + "!= null) ? document.mCreationTimestampMillis.longValue() : 0L)");
+        checkResultContains(/*className=*/"Gift.java",
+                /*content=*/"builder.setTtlMillis((document.getTtlMillis() != null) ? document"
+                        + ".getTtlMillis().longValue() : 0L)");
+        checkResultContains(/*className=*/"Gift.java",
+                /*content=*/"builder.setScore((document.mScore != null) ? document.mScore.intValue"
+                        + "() : 0)");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testCantRead_noGetter() {
         Compilation compilation = compile(
                 "@Document\n"
