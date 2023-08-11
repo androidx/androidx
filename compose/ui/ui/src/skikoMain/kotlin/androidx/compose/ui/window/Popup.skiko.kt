@@ -69,17 +69,43 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
-    val clippingEnabled: Boolean = true,
+    actual val clippingEnabled: Boolean = true,
     val usePlatformDefaultWidth: Boolean = false,
 ) {
-    actual constructor(
-        focusable: Boolean,
-        dismissOnBackPress: Boolean,
-        dismissOnClickOutside: Boolean
+    // Constructor with all non-experimental arguments.
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        clippingEnabled: Boolean = true,
     ) : this(
         focusable = focusable,
         dismissOnBackPress = dismissOnBackPress,
         dismissOnClickOutside = dismissOnClickOutside,
+        clippingEnabled = clippingEnabled,
+        usePlatformDefaultWidth = false,
+    )
+
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+
+        /*
+         * Temporary hack to skip unsupported arguments from Android source set.
+         * Should be removed after upstreaming changes from JetBrains' fork.
+         *
+         * After skip this unsupported argument, you must name all subsequent arguments.
+         */
+        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
+        vararg unsupported: Nothing,
+
+        clippingEnabled: Boolean,
+    ) : this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = false,
     )
 

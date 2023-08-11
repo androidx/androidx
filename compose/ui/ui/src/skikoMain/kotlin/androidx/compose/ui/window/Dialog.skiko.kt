@@ -63,16 +63,39 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
 actual class DialogProperties @ExperimentalComposeUiApi constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
-    val usePlatformDefaultWidth: Boolean = true,
+    actual val usePlatformDefaultWidth: Boolean = true,
     val scrimColor: Color = DefaultScrimColor,
 ) {
-    actual constructor(
-        dismissOnBackPress: Boolean,
-        dismissOnClickOutside: Boolean
+    // Constructor with all non-experimental arguments.
+    constructor(
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        usePlatformDefaultWidth: Boolean = true,
     ) : this(
         dismissOnBackPress = dismissOnBackPress,
         dismissOnClickOutside = dismissOnClickOutside,
-        usePlatformDefaultWidth = true,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        scrimColor = DefaultScrimColor
+    )
+
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+
+        /*
+         * Temporary hack to skip unsupported arguments from Android source set.
+         * Should be removed after upstreaming changes from JetBrains' fork.
+         *
+         * After skip this unsupported argument, you must name all subsequent arguments.
+         */
+        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
+        vararg unsupported: Nothing,
+
+        usePlatformDefaultWidth: Boolean,
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
         scrimColor = DefaultScrimColor
     )
 
