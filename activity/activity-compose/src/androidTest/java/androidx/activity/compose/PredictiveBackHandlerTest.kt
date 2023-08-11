@@ -42,6 +42,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +72,10 @@ class PredictiveBackHandlerTestApi {
     fun testHandleOnStart() {
         var onStart = false
         rule.setContent {
-            PredictiveBackHandler { onStart = true }
+            PredictiveBackHandler { progress ->
+                onStart = true
+                progress.collect()
+            }
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.startGestureBack() }) {
                 Text(text = "backPress")
@@ -91,7 +95,7 @@ class PredictiveBackHandlerTestApi {
 
         rule.setContent {
             PredictiveBackHandler { progress ->
-                progress.collect { }
+                progress.collect()
                 counter++
             }
             dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
@@ -119,12 +123,16 @@ class PredictiveBackHandlerTestApi {
             dispatcherOwner =
                 TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
             CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
-                PredictiveBackHandler(enabled) { result += "onBack" }
+                PredictiveBackHandler(enabled) { progress ->
+                    progress.collect()
+                    result += "onBack"
+                }
                 dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             }
         }
 
         dispatcher.startGestureBack()
+        dispatcher.api34Complete()
         rule.runOnIdle {
             assertThat(result).isEqualTo(listOf("onBack"))
         }
@@ -132,6 +140,7 @@ class PredictiveBackHandlerTestApi {
         enabled = false
         rule.runOnIdle {
             dispatcher.startGestureBack()
+            dispatcher.api34Complete()
             assertThat(result).isEqualTo(listOf("onBack"))
             assertThat(dispatcherOwner.fallbackCount).isEqualTo(1)
         }
@@ -139,11 +148,12 @@ class PredictiveBackHandlerTestApi {
         enabled = true
         rule.runOnIdle {
             dispatcher.startGestureBack()
+            dispatcher.api34Complete()
             assertThat(result).isEqualTo(listOf("onBack", "onBack"))
         }
     }
 
-    @Test
+    @Test(expected = IllegalStateException::class)
     fun testNoCollection() {
         val result = mutableListOf<String>()
         lateinit var dispatcher: OnBackPressedDispatcher
@@ -179,8 +189,9 @@ class PredictiveBackHandlerTestApi {
         lateinit var dispatcher: OnBackPressedDispatcher
 
         rule.setContent {
-            PredictiveBackHandler { _ ->
+            PredictiveBackHandler { progress ->
                 result += "start"
+                progress.collect()
                 async {
                     asyncStarted = true
                     delay(300) // simulate some work
@@ -191,8 +202,10 @@ class PredictiveBackHandlerTestApi {
         }
 
         dispatcher.startGestureBack()
+        dispatcher.api34Complete()
         rule.waitUntil { asyncStarted }
         dispatcher.startGestureBack()
+        dispatcher.api34Complete()
         rule.waitUntil(1000) {
             result.size >= 3
         }
@@ -207,11 +220,17 @@ class PredictiveBackHandlerTestApi {
     fun testChildBackHandler() {
         val result = mutableListOf<String>()
         rule.setContent {
-            PredictiveBackHandler { result += "parent" }
+            PredictiveBackHandler { progress ->
+                result += "parent"
+                progress.collect()
+            }
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.startGestureBack() }) {
                 // only this second handler should be applied
-                PredictiveBackHandler() { result += "child" }
+                PredictiveBackHandler { progress ->
+                    result += "child"
+                    progress.collect()
+                }
                 Text(text = "backPress")
             }
         }
@@ -227,10 +246,16 @@ class PredictiveBackHandlerTestApi {
         val result = mutableListOf<String>()
         rule.setContent {
             // only first handler should be applied
-            PredictiveBackHandler { result += "parent" }
+            PredictiveBackHandler { progress ->
+                result += "parent"
+                progress.collect()
+            }
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.startGestureBack() }) {
-                PredictiveBackHandler(false) { result += "child" }
+                PredictiveBackHandler(false) { progress ->
+                    result += "child"
+                    progress.collect()
+                }
                 Text(text = "backPress")
             }
         }
@@ -245,9 +270,15 @@ class PredictiveBackHandlerTestApi {
     fun testSiblingBackHandlers() {
         val result = mutableListOf<String>()
         rule.setContent {
-            PredictiveBackHandler { result += "first" }
+            PredictiveBackHandler { progress ->
+                result += "first"
+                progress.collect()
+            }
             // only this second handler should be applied
-            PredictiveBackHandler { result += "second" }
+            PredictiveBackHandler { progress ->
+                result += "second"
+                progress.collect()
+            }
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.startGestureBack() }) {
                 Text(text = "backPress")
@@ -264,8 +295,14 @@ class PredictiveBackHandlerTestApi {
     fun testDisabledSiblingBackHandlers() {
         val result = mutableListOf<String>()
         rule.setContent {
-            PredictiveBackHandler { result += "first" }
-            PredictiveBackHandler(false) { result += "second" }
+            PredictiveBackHandler { progress ->
+                result += "first"
+                progress.collect()
+            }
+            PredictiveBackHandler(false) { progress ->
+                result += "second"
+                progress.collect()
+            }
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             Button(onClick = { dispatcher.startGestureBack() }) {
                 // only this second handler should be applied
@@ -282,8 +319,11 @@ class PredictiveBackHandlerTestApi {
     @Test
     fun testBackHandlerOnBackChanged() {
         val results = mutableListOf<String>()
-        var handler by mutableStateOf<(Flow<BackEventCompat>) -> Unit>(
-            { results += "first" }
+        var handler by mutableStateOf<suspend (Flow<BackEventCompat>) -> Unit>(
+            { progress ->
+                results += "first"
+                progress.collect()
+            }
         )
         rule.setContent {
             PredictiveBackHandler(onBack = handler)
@@ -293,7 +333,10 @@ class PredictiveBackHandlerTestApi {
             }
         }
         rule.onNodeWithText("backPress").performClick()
-        rule.runOnIdle { handler = { results += "second" } }
+        rule.runOnIdle { handler = { progress ->
+            results += "second"
+            progress.collect()
+        } }
         rule.onNodeWithText("backPress").performClick()
 
         rule.runOnIdle {
@@ -316,7 +359,10 @@ class PredictiveBackHandlerTestApi {
                 LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
                 LocalLifecycleOwner provides lifecycleOwner
             ) {
-                PredictiveBackHandler { interceptedBack = true }
+                PredictiveBackHandler { progress ->
+                    interceptedBack = true
+                    progress.collect()
+                }
             }
             Button(onClick = { dispatcher.startGestureBack() }) {
                 Text(text = "backPressed")
@@ -454,13 +500,14 @@ class PredictiveBackHandlerTestApi34 {
         lateinit var dispatcher: OnBackPressedDispatcher
 
         rule.setContent {
-            PredictiveBackHandler { _ ->
+            PredictiveBackHandler { progress ->
                 result += "start"
                 async {
                     asyncStarted = true
                     delay(300) // simulate some work
                     result += "async"
                 }
+                progress.collect()
             }
             dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
         }
