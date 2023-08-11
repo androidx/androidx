@@ -157,10 +157,10 @@ import kotlin.math.max
 
 // Indicates that all the slot in a [Group] are empty
 // 0x8080808080808080UL, see explanation in [BitmaskMsb]
-private const val AllEmpty = -0x7f7f7f7f7f7f7f80L
+internal const val AllEmpty = -0x7f7f7f7f7f7f7f80L
 
-private const val Empty = 0b10000000L
-private const val Deleted = 0b11111110L
+internal const val Empty = 0b10000000L
+internal const val Deleted = 0b11111110L
 
 // Used to mark the end of the actual storage, used to end iterations
 @PublishedApi
@@ -183,19 +183,19 @@ internal val EmptyGroup = longArrayOf(
 // means we can only store up to 8 slots in a group. Ideally we could use
 // 128-bit data types to benefit from NEON/SSE instructions and manipulate
 // groups of 16 slots at a time.
-private const val GroupWidth = 8
+internal const val GroupWidth = 8
 
 // A group is made of 8 metadata, or 64 bits
-private typealias Group = Long
+internal typealias Group = Long
 
 // Number of metadata present both at the beginning and at the end of
 // the metadata array so we can use a [GroupWidth] probing window from
 // any index in the table.
-private const val ClonedMetadataCount = GroupWidth - 1
+internal const val ClonedMetadataCount = GroupWidth - 1
 
 // Capacity to use as the first bump when capacity is initially 0
 // We choose 6 so that the "unloaded" capacity maps to 7
-private const val DefaultCapacity = 6
+internal const val DefaultScatterCapacity = 6
 
 // Default empty map to avoid allocations
 private val EmptyScatterMap = MutableScatterMap<Any?, Nothing>(0)
@@ -745,7 +745,7 @@ public sealed class ScatterMap<K, V> {
  * @see Map
  */
 public class MutableScatterMap<K, V>(
-    initialCapacity: Int = DefaultCapacity
+    initialCapacity: Int = DefaultScatterCapacity
 ) : ScatterMap<K, V>() {
     // Number of entries we can add before we need to grow
     private var growthLimit = 0
@@ -1534,30 +1534,34 @@ public class MutableScatterMap<K, V>(
  * Returns the hash code of [k]. This follows the [HashMap] default behavior on Android
  * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
  */
-private inline fun hash(k: Any?): Int {
+internal inline fun hash(k: Any?): Int {
     val hash = k.hashCode()
     return hash xor (hash ushr 16)
 }
 
 // Returns the "H1" part of the specified hash code. In our implementation,
 // it is simply the top-most 25 bits
-private inline fun h1(hash: Int) = hash ushr 7
+internal inline fun h1(hash: Int) = hash ushr 7
 
 // Returns the "H2" part of the specified hash code. In our implementation,
 // this corresponds to the lower 7 bits
-private inline fun h2(hash: Int) = hash and 0x7F
+internal inline fun h2(hash: Int) = hash and 0x7F
 
 // Assumes [capacity] was normalized with [normalizedCapacity].
 // Returns the next 2^m - 1
-private fun nextCapacity(capacity: Int) = if (capacity == 0) DefaultCapacity else capacity * 2 + 1
+internal fun nextCapacity(capacity: Int) = if (capacity == 0) {
+    DefaultScatterCapacity
+} else {
+    capacity * 2 + 1
+}
 
 // n -> nearest 2^m - 1
-private fun normalizeCapacity(n: Int) =
+internal fun normalizeCapacity(n: Int) =
     if (n > 0) (0xFFFFFFFF.toInt() ushr n.countLeadingZeroBits()) else 0
 
 // Computes the growth based on a load factor of 7/8 for the general case.
 // When capacity is < GroupWidth - 1, we use a load factor of 1 instead
-private fun loadedCapacity(capacity: Int): Int {
+internal fun loadedCapacity(capacity: Int): Int {
     // Special cases where x - x / 8 fails
     if (GroupWidth <= 8 && capacity == 7) {
         return 6
@@ -1568,7 +1572,7 @@ private fun loadedCapacity(capacity: Int): Int {
 }
 
 // Inverse of loadedCapacity()
-private fun unloadedCapacity(capacity: Int): Int {
+internal fun unloadedCapacity(capacity: Int): Int {
     // Special cases where x + (x - 1) / 7
     if (GroupWidth <= 8 && capacity == 7) {
         return 8
@@ -1591,7 +1595,7 @@ internal inline fun readRawMetadata(data: LongArray, offset: Int): Long {
  * NOTE: [value] must be a single byte, accepted here as a Long to avoid
  * unnecessary conversions.
  */
-private inline fun writeRawMetadata(data: LongArray, offset: Int, value: Long) {
+internal inline fun writeRawMetadata(data: LongArray, offset: Int, value: Long) {
     // See [group()] for details. First find the index i in the LongArray,
     // then find the number of bits we need to shift by
     val i = offset shr 3
@@ -1601,12 +1605,12 @@ private inline fun writeRawMetadata(data: LongArray, offset: Int, value: Long) {
     data[i] = (data[i] and (0xFFL shl b).inv()) or (value shl b)
 }
 
-private inline fun isEmpty(metadata: LongArray, index: Int) =
+internal inline fun isEmpty(metadata: LongArray, index: Int) =
     readRawMetadata(metadata, index) == Empty
-private inline fun isDeleted(metadata: LongArray, index: Int) =
+internal inline fun isDeleted(metadata: LongArray, index: Int) =
     readRawMetadata(metadata, index) == Deleted
 
-private inline fun isFull(metadata: LongArray, index: Int): Boolean =
+internal inline fun isFull(metadata: LongArray, index: Int): Boolean =
     readRawMetadata(metadata, index) < 0x80L
 
 @PublishedApi
@@ -1629,12 +1633,12 @@ internal inline fun isFull(value: Long): Boolean = value < 0x80L
 //
 // A static bitmask is a read-only bitmask that allows performing simple
 // queries such as [lowestBitSet].
-private typealias StaticBitmask = Long
+internal typealias StaticBitmask = Long
 // A dynamic bitmask is a bitmask that can be iterated on to retrieve,
 // for instance, the index of all the "abstract bits" set on the group.
 // This assumes the abstract bits are set to either 0x00 (for unset) and
 // 0x80 (for set).
-private typealias Bitmask = Long
+internal typealias Bitmask = Long
 
 @PublishedApi
 internal inline fun StaticBitmask.lowestBitSet(): Int = countTrailingZeroBits() shr 3
@@ -1643,19 +1647,19 @@ internal inline fun StaticBitmask.lowestBitSet(): Int = countTrailingZeroBits() 
  * Returns the index of the next set bit in this mask. If invoked before checking
  * [hasNext], this function returns an invalid index (8).
  */
-private inline fun Bitmask.get() = lowestBitSet()
+internal inline fun Bitmask.get() = lowestBitSet()
 
 /**
  * Moves to the next set bit and returns the modified bitmask, call [get] to
  * get the actual index. If this function is called before checking [hasNext],
  * the result is invalid.
  */
-private inline fun Bitmask.next() = this and (this - 1L)
+internal inline fun Bitmask.next() = this and (this - 1L)
 
 /**
  * Returns true if this [Bitmask] contains more set bits.
  */
-private inline fun Bitmask.hasNext() = this != 0L
+internal inline fun Bitmask.hasNext() = this != 0L
 
 // Least significant bits in the bitmask, one for each metadata in the group
 @PublishedApi
@@ -1675,7 +1679,7 @@ internal const val BitmaskMsb: Long = -0x7f7f7f7f7f7f7f80L // srsly Kotlin @#!
  * Creates a [Group] from a metadata array, starting at the specified offset.
  * [offset] must be a valid index in the source array.
  */
-private inline fun group(metadata: LongArray, offset: Int): Group {
+internal inline fun group(metadata: LongArray, offset: Int): Group {
     // A Group is a Long read at an arbitrary byte-grained offset inside the
     // Long array. To read the Group, we need to read 2 Longs: one for the
     // most significant bits (MSBs) and one for the least significant bits
@@ -1739,7 +1743,7 @@ internal inline fun Group.match(m: Int): Bitmask {
 /**
  * Returns a [Bitmask] in which every abstract bit set indicates an empty slot.
  */
-private inline fun Group.maskEmpty(): Bitmask {
+internal inline fun Group.maskEmpty(): Bitmask {
     return (this and (this.inv() shl 6)) and BitmaskMsb
 }
 
