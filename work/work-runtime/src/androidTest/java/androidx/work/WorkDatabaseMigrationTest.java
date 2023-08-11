@@ -27,7 +27,9 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_15;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_16;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_17;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_19;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_20;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_5;
@@ -629,6 +631,34 @@ public class WorkDatabaseMigrationTest {
         assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(idTwo));
         assertThat(workSpecs.getString(workSpecs.getColumnIndex("input_merger_class_name")),
                 is(OverwritingInputMerger.class.getName()));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion19_20() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_19);
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+
+        ContentValues values1 = contentValuesPre16(id1);
+        ContentValues values2 = contentValuesPre16(id2);
+        values2.put(LAST_ENQUEUE_TIME, 500L);
+        database.insert("workspec", CONFLICT_FAIL, values1);
+        database.insert("workspec", CONFLICT_FAIL, values2);
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_20, true);
+        Cursor workSpecs = database.query("SELECT id, last_enqueue_time FROM WorkSpec");
+        assertThat(workSpecs.getCount(), is(2));
+        assertThat(workSpecs.moveToNext(), is(true));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(id1));
+        assertThat(workSpecs.getLong(workSpecs.getColumnIndex("last_enqueue_time")),
+                is(-1L));
+        assertThat(workSpecs.moveToNext(), is(true));
+        assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(id2));
+        assertThat(workSpecs.getLong(workSpecs.getColumnIndex("last_enqueue_time")),
+                is(500L));
+
         database.close();
     }
 
