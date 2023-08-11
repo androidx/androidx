@@ -64,7 +64,17 @@ package androidx.bluetooth {
   public final class BluetoothLe {
     ctor public BluetoothLe(android.content.Context context);
     method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public kotlinx.coroutines.flow.Flow<java.lang.Integer> advertise(androidx.bluetooth.AdvertiseParams advertiseParams);
+    method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super kotlin.Result<? extends R>>);
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
+  }
+
+  public static interface BluetoothLe.GattClientScope {
+    method public suspend Object? awaitClose(kotlin.jvm.functions.Function0<kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.bluetooth.GattService? getService(java.util.UUID uuid);
+    method public java.util.List<androidx.bluetooth.GattService> getServices();
+    method public suspend Object? readCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, kotlin.coroutines.Continuation<? super kotlin.Result<? extends byte[]>>);
+    method public kotlinx.coroutines.flow.Flow<byte[]> subscribeToCharacteristic(androidx.bluetooth.GattCharacteristic characteristic);
+    method public suspend Object? writeCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
   }
 
   public final class GattCharacteristic {

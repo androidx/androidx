@@ -246,6 +246,7 @@ class ScannerFragment : Fragment() {
         return newTab
     }
 
+    @SuppressLint("MissingPermission")
     private fun connectTo(deviceConnection: DeviceConnection) {
         Log.d(TAG, "connectTo() called with: deviceConnection = $deviceConnection")
 
