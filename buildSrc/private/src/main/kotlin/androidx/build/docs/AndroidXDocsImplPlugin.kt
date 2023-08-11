@@ -379,7 +379,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     project.objects.named<Bundling>(Bundling.EXTERNAL)
                 )
 
-                it.extendsFrom(apiSinceDocsConfiguration)
+                it.extendsFrom(apiSinceDocsConfiguration, multiplatformDocsConfiguration)
             }
 
         fun Configuration.setResolveClasspathForUsage(usage: String) {
