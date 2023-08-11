@@ -501,9 +501,11 @@ internal val LocalColorScheme = staticCompositionLocalOf<ColorScheme> { ColorSch
 internal fun Color.toDisabledColor(disabledAlpha: Float = ContentAlpha.disabled) =
     this.copy(alpha = this.alpha * disabledAlpha)
 
-/** Converts a color token key to the local color scheme provided by the theme */
-@ReadOnlyComposable
-@Composable
-internal fun ColorSchemeKeyTokens.toColor(): Color {
-    return MaterialTheme.colorScheme.fromToken(this)
-}
+/**
+ * Converts a color token key to the local color scheme provided by the theme.
+ * The color references the [LocalColorScheme].
+ */
+internal val ColorSchemeKeyTokens.value: Color
+    @ReadOnlyComposable
+    @Composable
+    get() = MaterialTheme.colorScheme.fromToken(this)
