@@ -20,9 +20,13 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.wear.protolayout.DeviceParametersBuilders;
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.TypeBuilders.FloatProp;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -101,5 +105,22 @@ public class Helper {
         byte[] metadataTag = getMetadataTagBytes(modifiers.getMetadata());
         byte[] tag = Arrays.copyOf(metadataTag, validPrefix.length());
         return metadataTag.length == validBase.length && validPrefix.equals(getTagName(tag));
+    }
+
+    /** Returns true if the given DeviceParameters belong to the round screen device. */
+    public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
+        return deviceParameters.getScreenShape() == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
+    }
+
+    /** Returns a {@link StringProp} for the given string value. */
+    @NonNull
+    public static StringProp staticString(@NonNull String value) {
+        return new StringProp.Builder(value).build();
+    }
+
+    /** Returns a {@link FloatProp} for the given float value. */
+    @NonNull
+    public static FloatProp staticFloat(float staticValue) {
+        return new FloatProp.Builder(staticValue).build();
     }
 }

@@ -23,11 +23,11 @@ import static androidx.wear.protolayout.material.ButtonDefaults.DEFAULT_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.EXTRA_LARGE_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.LARGE_SIZE;
 import static androidx.wear.protolayout.material.ButtonDefaults.PRIMARY_COLORS;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.Helper.radiusOf;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.radiusOf;
 
 import android.content.Context;
 

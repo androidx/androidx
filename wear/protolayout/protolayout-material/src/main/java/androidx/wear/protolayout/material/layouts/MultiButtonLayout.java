@@ -17,16 +17,16 @@
 package androidx.wear.protolayout.material.layouts;
 
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_1_BUTTON;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_2_BUTTONS;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.BUTTON_SIZE_FOR_3_PLUS_BUTTONS;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.MAX_BUTTONS;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.SPACER_HEIGHT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MultiButtonLayoutDefaults.SPACER_WIDTH;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
