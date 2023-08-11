@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -112,7 +110,7 @@ public class CompactChipTest {
     private void assertChipIsEqual(CompactChip actualCompactChip, ChipColors colors) {
         assertThat(actualCompactChip.getMetadataTag()).isEqualTo(CompactChip.METADATA_TAG);
         assertThat(actualCompactChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
-        assertThat(areChipColorsEqual(actualCompactChip.getChipColors(), colors)).isTrue();
+        assertThat(Utils.areChipColorsEqual(actualCompactChip.getChipColors(), colors)).isTrue();
         assertThat(actualCompactChip.getText()).isEqualTo(MAIN_TEXT);
     }
 
