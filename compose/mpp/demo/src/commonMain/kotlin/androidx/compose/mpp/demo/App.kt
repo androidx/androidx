@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 
 val MainScreen = Screen.Selection(
     "Demo",
+    BugReproducers,
     Screen.Example("Example1") { Example1() },
     Screen.Example("ImageViewer") { ImageViewer() },
-    Screen.Example("RoundedCornerCrashOnJS") { RoundedCornerCrashOnJS() },
     Screen.Example("TextDirection") { TextDirection() },
     Screen.Example("FontFamilies") { FontFamilies() },
     Screen.Example("LottieAnimation") { LottieAnimation() },
