@@ -25,7 +25,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.platform.PlatformTextInputSession
@@ -58,7 +58,7 @@ internal fun setInputConnectionCreatedListenerForTests(
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TextFieldState,
     imeOptions: ImeOptions,
-    filter: TextEditFilter?,
+    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     val composeImm = ComposeInputMethodManager(view)

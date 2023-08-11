@@ -29,7 +29,7 @@ import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
@@ -492,7 +492,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = RejectAllTextFilter,
+                inputTransformation = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -508,7 +508,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = RejectAllTextFilter,
+                inputTransformation = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -523,7 +523,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = RejectAllTextFilter,
+                inputTransformation = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -538,7 +538,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = RejectAllTextFilter,
+                inputTransformation = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -556,11 +556,11 @@ internal class BasicTextField2Test {
         }
 
         val state = TextFieldState()
-        var filter by mutableStateOf<TextEditFilter?>(null)
+        var filter by mutableStateOf<InputTransformation?>(null)
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = filter,
+                inputTransformation = filter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -583,11 +583,11 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toSetTextSemanticsAction_afterChanging() {
         val state = TextFieldState()
-        var filter by mutableStateOf<TextEditFilter?>(null)
+        var filter by mutableStateOf<InputTransformation?>(null)
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = filter,
+                inputTransformation = filter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -609,11 +609,11 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toInsertTextSemanticsAction_afterChanging() {
         val state = TextFieldState()
-        var filter by mutableStateOf<TextEditFilter?>(null)
+        var filter by mutableStateOf<InputTransformation?>(null)
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = filter,
+                inputTransformation = filter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -635,11 +635,11 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toKeyEvents_afterChanging() {
         val state = TextFieldState()
-        var filter by mutableStateOf<TextEditFilter?>(null)
+        var filter by mutableStateOf<InputTransformation?>(null)
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = filter,
+                inputTransformation = filter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -670,7 +670,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -701,7 +701,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -732,7 +732,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -769,7 +769,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -800,7 +800,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -827,7 +827,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -853,7 +853,7 @@ internal class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     if (new.changes.changeCount > 0) {
                         changes = new.changes
                     }
@@ -887,7 +887,7 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
-                filter = filter,
+                inputTransformation = filter,
             )
         }
         requestFocus(Tag)
@@ -910,7 +910,7 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
-                filter = filter,
+                inputTransformation = filter,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )
         }
@@ -934,7 +934,7 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
-                filter = filter,
+                inputTransformation = filter,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             )
         }
@@ -963,7 +963,7 @@ internal class BasicTextField2Test {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
-                filter = filter,
+                inputTransformation = filter,
             )
         }
         requestFocus(Tag)
@@ -1387,8 +1387,8 @@ internal class BasicTextField2Test {
         endBatchEdit()
     }
 
-    private object RejectAllTextFilter : TextEditFilter {
-        override fun filter(
+    private object RejectAllTextFilter : InputTransformation {
+        override fun transformInput(
             originalValue: TextFieldCharSequence,
             valueWithChanges: TextFieldBuffer
         ) {
@@ -1397,8 +1397,8 @@ internal class BasicTextField2Test {
     }
 
     private class KeyboardOptionsFilter(override val keyboardOptions: KeyboardOptions) :
-        TextEditFilter {
-        override fun filter(
+        InputTransformation {
+        override fun transformInput(
             originalValue: TextFieldCharSequence,
             valueWithChanges: TextFieldBuffer
         ) {

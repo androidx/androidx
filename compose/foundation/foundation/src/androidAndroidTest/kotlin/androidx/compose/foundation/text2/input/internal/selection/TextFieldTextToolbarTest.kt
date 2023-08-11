@@ -27,7 +27,7 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
@@ -661,7 +661,7 @@ class TextFieldTextToolbarTest {
         toolbar: TextToolbar = FakeTextToolbar(),
         singleLine: Boolean = false,
         clipboardManager: ClipboardManager = FakeClipboardManager(),
-        filter: TextEditFilter? = null
+        filter: InputTransformation? = null
     ) {
         rule.setContent {
             CompositionLocalProvider(
@@ -682,7 +682,7 @@ class TextFieldTextToolbarTest {
                     } else {
                         TextFieldLineLimits.Default
                     },
-                    filter = filter
+                    inputTransformation = filter
                 )
             }
         }
