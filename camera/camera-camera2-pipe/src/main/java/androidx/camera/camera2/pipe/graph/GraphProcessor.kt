@@ -534,7 +534,7 @@ constructor(
                 "Quirk: Waiting for 10 repeating requests to complete before submitting requests"
             }
             if (!repeatingRequestsCompleted.await(2, TimeUnit.SECONDS)) {
-                warn { "Failed to wait for 10 repeating requests to complete after 5 seconds" }
+                warn { "Failed to wait for 10 repeating requests to complete after 2 seconds" }
             }
         }
 

@@ -112,7 +112,7 @@ internal class AndroidLSessionFactory @Inject constructor(private val threads: T
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            captureSessionState.disconnect()
+            captureSessionState.onSessionFinalized()
         }
         return emptyMap()
     }
@@ -154,7 +154,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
                 Log.warn {
                     "Failed to create captures session from $cameraDevice for $captureSessionState!"
                 }
-                captureSessionState.disconnect()
+                captureSessionState.onSessionFinalized()
             }
         }
         return emptyMap()
@@ -230,7 +230,7 @@ constructor(
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            captureSessionState.disconnect()
+            captureSessionState.onSessionFinalized()
         }
         return emptyMap()
     }
@@ -296,7 +296,7 @@ constructor(
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
-            captureSessionState.disconnect()
+            captureSessionState.onSessionFinalized()
         }
         return outputs.deferred
     }
