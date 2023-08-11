@@ -50,16 +50,139 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupPositionProvider
 import kotlin.math.max
 import kotlin.math.min
+
+/**
+ * Contains default values used for [DropdownMenuItem].
+ */
+object MenuDefaults {
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text and icon colors used in a
+     * [DropdownMenuItemContent].
+     *
+     * @param textColor the text color of this [DropdownMenuItemContent] when enabled
+     * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
+     * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
+     * enabled
+     * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
+     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
+     * not enabled
+     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
+     * when not enabled
+     */
+    @Composable
+    fun itemColors(
+        textColor: Color = MenuTokens.ListItemLabelTextColor.value,
+        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.value,
+        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.value,
+        disabledTextColor: Color =
+            MenuTokens.ListItemDisabledLabelTextColor.value
+                .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
+        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.value
+            .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
+        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.value
+            .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+    ): MenuItemColors = MenuItemColors(
+        textColor = textColor,
+        leadingIconColor = leadingIconColor,
+        trailingIconColor = trailingIconColor,
+        disabledTextColor = disabledTextColor,
+        disabledLeadingIconColor = disabledLeadingIconColor,
+        disabledTrailingIconColor = disabledTrailingIconColor,
+    )
+
+    /**
+     * Default padding used for [DropdownMenuItem].
+     */
+    val DropdownMenuItemContentPadding = PaddingValues(
+        horizontal = DropdownMenuItemHorizontalPadding,
+        vertical = 0.dp
+    )
+}
+
+/**
+ * Represents the text and icon colors used in a menu item at different states.
+ *
+ * @constructor create an instance with arbitrary colors.
+ * See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
+ *
+ * @param textColor the text color of this [DropdownMenuItemContent] when enabled
+ * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
+ * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
+ * enabled
+ * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
+ * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
+ * not enabled
+ * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
+ * when not enabled
+ */
+@Immutable
+class MenuItemColors(
+    val textColor: Color,
+    val leadingIconColor: Color,
+    val trailingIconColor: Color,
+    val disabledTextColor: Color,
+    val disabledLeadingIconColor: Color,
+    val disabledTrailingIconColor: Color,
+) {
+    /**
+     * Represents the text color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Composable
+    internal fun textColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) textColor else disabledTextColor)
+    }
+
+    /**
+     * Represents the leading icon color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Composable
+    internal fun leadingIconColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) leadingIconColor else disabledLeadingIconColor)
+    }
+
+    /**
+     * Represents the trailing icon color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Composable
+    internal fun trailingIconColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) trailingIconColor else disabledTrailingIconColor)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is MenuItemColors) return false
+
+        if (textColor != other.textColor) return false
+        if (leadingIconColor != other.leadingIconColor) return false
+        if (trailingIconColor != other.trailingIconColor) return false
+        if (disabledTextColor != other.disabledTextColor) return false
+        if (disabledLeadingIconColor != other.disabledLeadingIconColor) return false
+        if (disabledTrailingIconColor != other.disabledTrailingIconColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = textColor.hashCode()
+        result = 31 * result + leadingIconColor.hashCode()
+        result = 31 * result + trailingIconColor.hashCode()
+        result = 31 * result + disabledTextColor.hashCode()
+        result = 31 * result + disabledLeadingIconColor.hashCode()
+        result = 31 * result + disabledTrailingIconColor.hashCode()
+        return result
+    }
+}
 
 @Composable
 internal fun DropdownMenuContent(
@@ -201,262 +324,33 @@ internal fun DropdownMenuItemContent(
     }
 }
 
-/**
- * Contains default values used for [DropdownMenuItem].
- */
-object MenuDefaults {
-
-    /**
-     * Creates a [MenuItemColors] that represents the default text and icon colors used in a
-     * [DropdownMenuItemContent].
-     *
-     * @param textColor the text color of this [DropdownMenuItemContent] when enabled
-     * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
-     * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
-     * enabled
-     * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
-     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
-     * not enabled
-     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
-     * when not enabled
-     */
-    @Composable
-    fun itemColors(
-        textColor: Color = MenuTokens.ListItemLabelTextColor.value,
-        leadingIconColor: Color = MenuTokens.ListItemLeadingIconColor.value,
-        trailingIconColor: Color = MenuTokens.ListItemTrailingIconColor.value,
-        disabledTextColor: Color =
-            MenuTokens.ListItemDisabledLabelTextColor.value
-                .copy(alpha = MenuTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = MenuTokens.ListItemDisabledLeadingIconColor.value
-            .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = MenuTokens.ListItemDisabledTrailingIconColor.value
-            .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
-    ): MenuItemColors = MenuItemColors(
-        textColor = textColor,
-        leadingIconColor = leadingIconColor,
-        trailingIconColor = trailingIconColor,
-        disabledTextColor = disabledTextColor,
-        disabledLeadingIconColor = disabledLeadingIconColor,
-        disabledTrailingIconColor = disabledTrailingIconColor,
-    )
-
-    /**
-     * Default padding used for [DropdownMenuItem].
-     */
-    val DropdownMenuItemContentPadding = PaddingValues(
-        horizontal = DropdownMenuItemHorizontalPadding,
-        vertical = 0.dp
-    )
-}
-
 internal fun calculateTransformOrigin(
-    parentBounds: IntRect,
+    anchorBounds: IntRect,
     menuBounds: IntRect
 ): TransformOrigin {
     val pivotX = when {
-        menuBounds.left >= parentBounds.right -> 0f
-        menuBounds.right <= parentBounds.left -> 1f
+        menuBounds.left >= anchorBounds.right -> 0f
+        menuBounds.right <= anchorBounds.left -> 1f
         menuBounds.width == 0 -> 0f
         else -> {
             val intersectionCenter =
-                (
-                    max(parentBounds.left, menuBounds.left) +
-                        min(parentBounds.right, menuBounds.right)
-                    ) / 2
+                (max(anchorBounds.left, menuBounds.left) +
+                    min(anchorBounds.right, menuBounds.right)) / 2
             (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
         }
     }
     val pivotY = when {
-        menuBounds.top >= parentBounds.bottom -> 0f
-        menuBounds.bottom <= parentBounds.top -> 1f
+        menuBounds.top >= anchorBounds.bottom -> 0f
+        menuBounds.bottom <= anchorBounds.top -> 1f
         menuBounds.height == 0 -> 0f
         else -> {
             val intersectionCenter =
-                (
-                    max(parentBounds.top, menuBounds.top) +
-                        min(parentBounds.bottom, menuBounds.bottom)
-                    ) / 2
+                (max(anchorBounds.top, menuBounds.top) +
+                    min(anchorBounds.bottom, menuBounds.bottom)) / 2
             (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
         }
     }
     return TransformOrigin(pivotX, pivotY)
-}
-
-// Menu positioning.
-
-/**
- * Calculates the position of a Material [DropdownMenu].
- */
-@Immutable
-internal data class DropdownMenuPositionProvider(
-    val contentOffset: DpOffset,
-    val density: Density,
-    val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
-    val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
-) : PopupPositionProvider {
-    // Horizontal position
-    private val startToAnchorStart: MenuPosition.Horizontal
-    private val endToAnchorEnd: MenuPosition.Horizontal
-    private val leftToWindowLeft: MenuPosition.Horizontal
-    private val rightToWindowRight: MenuPosition.Horizontal
-    // Vertical position
-    private val topToAnchorBottom: MenuPosition.Vertical
-    private val bottomToAnchorTop: MenuPosition.Vertical
-    private val centerToAnchorTop: MenuPosition.Vertical
-    private val topToWindowTop: MenuPosition.Vertical
-    private val bottomToWindowBottom: MenuPosition.Vertical
-
-    init {
-        // Horizontal position
-        val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
-        startToAnchorStart = MenuPosition.startToAnchorStart(offset = contentOffsetX)
-        endToAnchorEnd = MenuPosition.endToAnchorEnd(offset = contentOffsetX)
-        leftToWindowLeft = MenuPosition.leftToWindowLeft(margin = 0)
-        rightToWindowRight = MenuPosition.rightToWindowRight(margin = 0)
-        // Vertical position
-        val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
-        topToAnchorBottom = MenuPosition.topToAnchorBottom(offset = contentOffsetY)
-        bottomToAnchorTop = MenuPosition.bottomToAnchorTop(offset = contentOffsetY)
-        centerToAnchorTop = MenuPosition.centerToAnchorTop(offset = contentOffsetY)
-        topToWindowTop = MenuPosition.topToWindowTop(margin = verticalMargin)
-        bottomToWindowBottom = MenuPosition.bottomToWindowBottom(margin = verticalMargin)
-    }
-
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        val xCandidates = listOf(
-            startToAnchorStart,
-            endToAnchorEnd,
-            if (anchorBounds.center.x < windowSize.width / 2) {
-                leftToWindowLeft
-            } else {
-                rightToWindowRight
-            }
-        ).map {
-            it.position(
-                anchorBounds = anchorBounds,
-                windowSize = windowSize,
-                menuWidth = popupContentSize.width,
-                layoutDirection = layoutDirection
-            )
-        }
-        val x = xCandidates.firstOrNull {
-            it >= 0 && it + popupContentSize.width <= windowSize.width
-        } ?: xCandidates.last()
-
-        val yCandidates = listOf(
-            topToAnchorBottom,
-            bottomToAnchorTop,
-            centerToAnchorTop,
-            if (anchorBounds.center.y < windowSize.height / 2) {
-                topToWindowTop
-            } else {
-                bottomToWindowBottom
-            }
-        ).map {
-            it.position(
-                anchorBounds = anchorBounds,
-                windowSize = windowSize,
-                menuHeight = popupContentSize.height
-            )
-        }
-        val y = yCandidates.firstOrNull {
-            it >= verticalMargin &&
-                it + popupContentSize.height <= windowSize.height - verticalMargin
-        } ?: yCandidates.last()
-
-        val menuOffset = IntOffset(x, y)
-        onPositionCalculated(
-            /* anchorBounds = */anchorBounds,
-            /* menuBounds = */IntRect(offset = menuOffset, size = popupContentSize)
-        )
-        return menuOffset
-    }
-}
-
-/**
- * Represents the text and icon colors used in a menu item at different states.
- *
- * @constructor create an instance with arbitrary colors.
- * See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
- *
- * @param textColor the text color of this [DropdownMenuItemContent] when enabled
- * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
- * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
- * enabled
- * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
- * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
- * not enabled
- * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
- * when not enabled
- */
-@Immutable
-class MenuItemColors constructor(
-    val textColor: Color,
-    val leadingIconColor: Color,
-    val trailingIconColor: Color,
-    val disabledTextColor: Color,
-    val disabledLeadingIconColor: Color,
-    val disabledTrailingIconColor: Color,
-) {
-    /**
-     * Represents the text color for a menu item, depending on its [enabled] state.
-     *
-     * @param enabled whether the menu item is enabled
-     */
-    @Composable
-    internal fun textColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) textColor else disabledTextColor)
-    }
-
-    /**
-     * Represents the leading icon color for a menu item, depending on its [enabled] state.
-     *
-     * @param enabled whether the menu item is enabled
-     */
-    @Composable
-    internal fun leadingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) leadingIconColor else disabledLeadingIconColor)
-    }
-
-    /**
-     * Represents the trailing icon color for a menu item, depending on its [enabled] state.
-     *
-     * @param enabled whether the menu item is enabled
-     */
-    @Composable
-    internal fun trailingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) trailingIconColor else disabledTrailingIconColor)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is MenuItemColors) return false
-
-        if (textColor != other.textColor) return false
-        if (leadingIconColor != other.leadingIconColor) return false
-        if (trailingIconColor != other.trailingIconColor) return false
-        if (disabledTextColor != other.disabledTextColor) return false
-        if (disabledLeadingIconColor != other.disabledLeadingIconColor) return false
-        if (disabledTrailingIconColor != other.disabledTrailingIconColor) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = textColor.hashCode()
-        result = 31 * result + leadingIconColor.hashCode()
-        result = 31 * result + trailingIconColor.hashCode()
-        result = 31 * result + disabledTextColor.hashCode()
-        result = 31 * result + disabledLeadingIconColor.hashCode()
-        result = 31 * result + disabledTrailingIconColor.hashCode()
-        return result
-    }
 }
 
 // Size defaults.
