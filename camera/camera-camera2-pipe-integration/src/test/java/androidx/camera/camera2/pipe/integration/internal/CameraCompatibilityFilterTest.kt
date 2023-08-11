@@ -70,7 +70,7 @@ class CameraCompatibilityFilterTest {
         val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null
+            ), null, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "1", "2")
@@ -87,7 +87,7 @@ class CameraCompatibilityFilterTest {
         val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), CameraSelector.DEFAULT_BACK_CAMERA
+            ), CameraSelector.DEFAULT_BACK_CAMERA, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "2")
@@ -100,7 +100,7 @@ class CameraCompatibilityFilterTest {
         val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null
+            ), null, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds)

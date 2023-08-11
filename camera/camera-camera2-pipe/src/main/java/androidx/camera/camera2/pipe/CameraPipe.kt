@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.config.ExternalCameraGraphComponent
 import androidx.camera.camera2.pipe.config.ExternalCameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
+import androidx.camera.camera2.pipe.core.DurationNs
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
@@ -132,7 +133,8 @@ class CameraPipe(config: Config) {
      */
     data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
-        val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null
+        val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null,
+        val cameraOpenRetryMaxTimeoutNs: DurationNs? = null
     )
 
     /**
