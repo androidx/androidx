@@ -51,7 +51,8 @@ internal class LayoutNodeLayoutDelegate(
      * automatically gets unset in `measure` when the measure call comes from parent with
      * layoutState being LookaheadMeasuring or LookaheadLayingOut.
      */
-    private var detachedFromParentLookaheadPass: Boolean = false
+    internal var detachedFromParentLookaheadPass: Boolean = false
+        private set
 
     /**
      * The layout state the node is currently in.
@@ -1268,7 +1269,8 @@ internal class LayoutNodeLayoutDelegate(
             onNodePlacedCalled = false
             if (position != lastPosition) {
                 if (coordinatesAccessedDuringModifierPlacement ||
-                    coordinatesAccessedDuringPlacement) {
+                    coordinatesAccessedDuringPlacement
+                ) {
                     lookaheadLayoutPending = true
                 }
                 notifyChildrenUsingCoordinatesWhilePlacing()
@@ -1537,13 +1539,6 @@ internal class LayoutNodeLayoutDelegate(
     }
 
     /**
-     * Returns if the we are at the lookahead root of the tree, by checking if the parent is
-     * has a lookahead root.
-     */
-    private fun LayoutNode.isOutMostLookaheadRoot(): Boolean =
-        lookaheadRoot != null && (parent?.lookaheadRoot == null || detachedFromParentLookaheadPass)
-
-    /**
      * Performs measure with the given constraints and perform necessary state mutations before
      * and after the measurement.
      */
@@ -1623,6 +1618,14 @@ internal class LayoutNodeLayoutDelegate(
         lookaheadPassDelegate?.let { it.childDelegatesDirty = true }
     }
 }
+
+/**
+ * Returns if the we are at the lookahead root of the tree, by checking if the parent is
+ * has a lookahead root.
+ */
+internal fun LayoutNode.isOutMostLookaheadRoot(): Boolean =
+    lookaheadRoot != null &&
+        (parent?.lookaheadRoot == null || layoutDelegate.detachedFromParentLookaheadPass)
 
 private inline fun <T : Measurable> LayoutNode.updateChildMeasurables(
     destination: MutableVector<T>,
