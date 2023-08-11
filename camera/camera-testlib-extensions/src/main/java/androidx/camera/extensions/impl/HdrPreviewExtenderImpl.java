@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
@@ -224,5 +225,10 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
                 // handle exception
             }
         }
+    }
+
+    @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
     }
 }

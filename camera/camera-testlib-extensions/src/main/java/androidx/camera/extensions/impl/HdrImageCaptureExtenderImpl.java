@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -106,6 +107,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return false;
     }
 
+    @NonNull
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         // Under exposed capture stage
@@ -133,6 +135,8 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return captureStages;
     }
 
+
+    @Nullable
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -154,6 +158,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
@@ -166,12 +171,14 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
@@ -183,6 +190,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return 4;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
@@ -204,7 +212,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
             Log.d(TAG, "Started HDR CaptureProcessor");
 
             // Check for availability of all requested images
@@ -299,8 +307,8 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
-                ProcessResultImpl resultCallback, Executor executor) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
 
         }
 
@@ -313,12 +321,56 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         public void onImageFormatUpdate(int imageFormat) {
 
         }
+
+        @Override
+        public void onPostviewOutputSurface(@NonNull Surface surface) {
+
+        }
+
+        @Override
+        public void onResolutionUpdate(@NonNull Size size, @NonNull Size postviewSize) {
+
+        }
+
+        @Override
+        public void processWithPostview(
+                @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+
+        }
     }
 
     @NonNull
     @Override
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
         return null;
+    }
+
+    @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
+
+    @Nullable
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        return null;
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        return false;
     }
 
     @NonNull
