@@ -68,7 +68,7 @@ class CallAttributesCompat constructor(
     }
 
     companion object {
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(DIRECTION_INCOMING, DIRECTION_OUTGOING)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
@@ -84,7 +84,7 @@ class CallAttributesCompat constructor(
          */
         const val DIRECTION_OUTGOING = 2
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(CALL_TYPE_AUDIO_CALL, CALL_TYPE_VIDEO_CALL)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY)
@@ -101,7 +101,7 @@ class CallAttributesCompat constructor(
          */
         const val CALL_TYPE_VIDEO_CALL = 2
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(SUPPORTS_SET_INACTIVE, SUPPORTS_STREAM, SUPPORTS_TRANSFER, flag = true)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
