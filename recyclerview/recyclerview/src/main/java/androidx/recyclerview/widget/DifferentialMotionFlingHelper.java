@@ -233,8 +233,8 @@ class DifferentialMotionFlingHelper {
     }
 
     private static float getCurrentVelocity(VelocityTracker vt, MotionEvent event, int axis) {
-        vt.addMovement(event);
-        vt.computeCurrentVelocity(1000);
+        VelocityTrackerCompat.addMovement(vt, event);
+        VelocityTrackerCompat.computeCurrentVelocity(vt, 1000);
         return VelocityTrackerCompat.getAxisVelocity(vt, axis);
     }
 }
