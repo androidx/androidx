@@ -3,8 +3,6 @@ AddedAbstractMethod: androidx.kruth.FailureStrategy#fail(Error):
     Added method androidx.kruth.FailureStrategy.fail(Error)
 
 
-AddedFinal: androidx.kruth.ComparableSubject#isEquivalentAccordingToCompareTo(T):
-    Method androidx.kruth.ComparableSubject.isEquivalentAccordingToCompareTo has added 'final' qualifier
 AddedFinal: androidx.kruth.IterableSubject#isInOrder():
     Method androidx.kruth.IterableSubject.isInOrder has added 'final' qualifier
 AddedFinal: androidx.kruth.IterableSubject#isInStrictOrder():
@@ -89,8 +87,6 @@ RemovedClass: androidx.kruth.FloatSubject:
     Removed class androidx.kruth.FloatSubject
 RemovedClass: androidx.kruth.GuavaOptionalSubject:
     Removed class androidx.kruth.GuavaOptionalSubject
-RemovedClass: androidx.kruth.IntegerSubject:
-    Removed class androidx.kruth.IntegerSubject
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
     Removed class androidx.kruth.IterableSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.LongSubject:
@@ -141,6 +137,8 @@ RemovedMethod: androidx.kruth.ComparableSubject#isNotIn(com.google.common.collec
     Removed method androidx.kruth.ComparableSubject.isNotIn(com.google.common.collect.Range<T>)
 RemovedMethod: androidx.kruth.FailureStrategy#fail(AssertionError):
     Removed method androidx.kruth.FailureStrategy.fail(AssertionError)
+RemovedMethod: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer):
+    Removed constructor androidx.kruth.IntegerSubject(androidx.kruth.FailureMetadata,Integer)
 RemovedMethod: androidx.kruth.IterableSubject#IterableSubject(androidx.kruth.FailureMetadata, Iterable<?>):
     Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
 RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>):

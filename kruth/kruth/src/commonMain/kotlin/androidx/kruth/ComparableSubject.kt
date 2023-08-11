@@ -27,17 +27,17 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
 ) : Subject<T>(actual = actual, metadata = metadata) {
 
     /**
-     * Checks that the subject is equivalent to [expected] according to [Comparable.compareTo],
+     * Checks that the subject is equivalent to [other] according to [Comparable.compareTo],
      * (i.e., checks that `a.comparesTo(b) == 0`).
      *
      * **Note:** Do not use this method for checking object equality. Instead, use [isEqualTo].
      */
-    fun isEquivalentAccordingToCompareTo(expected: T?) {
+    open fun isEquivalentAccordingToCompareTo(other: T?) {
         requireNonNull(actual)
-        requireNonNull(expected)
+        requireNonNull(other)
 
-        if (actual.compareTo(expected) != 0) {
-            failWithActual("Expected value that sorts equal to", expected)
+        if (actual.compareTo(other) != 0) {
+            failWithActual("Expected value that sorts equal to", other)
         }
     }
 

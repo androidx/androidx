@@ -9,7 +9,7 @@ package androidx.kruth {
   public class ComparableSubject<T extends java.lang.Comparable<? super T>> extends androidx.kruth.Subject<T> {
     method public final void isAtLeast(T? other);
     method public final void isAtMost(T? other);
-    method public final void isEquivalentAccordingToCompareTo(T? expected);
+    method public void isEquivalentAccordingToCompareTo(T? other);
     method public final void isGreaterThan(T? other);
     method public final void isLessThan(T? other);
   }
@@ -75,6 +75,10 @@ package androidx.kruth {
     method public Void fail(Error failure);
   }
 
+  public class IntegerSubject extends androidx.kruth.ComparableSubject<java.lang.Integer> {
+    method @Deprecated public void isEquivalentAccordingToCompareTo(Integer? other);
+  }
+
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
     method public final void contains(Object? element);
     method public final void containsAnyIn(Iterable<?>? expected);
@@ -111,6 +115,7 @@ package androidx.kruth {
     method public static <S extends androidx.kruth.Subject<? extends T>, T> androidx.kruth.SimpleSubjectBuilder<S,T> assertAbout(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
+    method public static androidx.kruth.IntegerSubject assertThat(Integer? actual);
     method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
     method public static androidx.kruth.StringSubject assertThat(String? actual);
     method public static <K, V> androidx.kruth.MapSubject<K,V> assertThat(java.util.Map<K,? extends V>? actual);

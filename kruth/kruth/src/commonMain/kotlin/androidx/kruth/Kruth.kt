@@ -40,6 +40,10 @@ fun assertThat(actual: Double?): DoubleSubject {
     return DoubleSubject(actual)
 }
 
+fun assertThat(actual: Int?): IntegerSubject {
+    return IntegerSubject(actual)
+}
+
 fun assertThat(actual: String?): StringSubject {
     return StringSubject(actual)
 }
