@@ -113,7 +113,8 @@ class RobolectricGattServerTest {
                 closed.complete(Unit)
             }
 
-        bluetoothLe.openGattServer(listOf()).first().accept {
+        bluetoothLe.openGattServer(listOf()) {
+            connectRequest.first().accept {}
         }
 
         Assert.assertTrue(opened.isCompleted)
@@ -138,16 +139,16 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.reject()
-                Assert.assertThrows(
-                    IllegalStateException::class.java
-                ) {
-                    runBlocking {
-                        it.accept {}
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.reject()
+                    Assert.assertThrows(IllegalStateException::class.java) {
+                        runBlocking {
+                            it.accept {}
+                        }
                     }
+                    this@launch.cancel()
                 }
-                this@launch.cancel()
             }
         }.join()
 
@@ -173,16 +174,14 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.accept {}
-                Assert.assertThrows(
-                    IllegalStateException::class.java
-                ) {
-                    runBlocking {
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.accept {}
+                    Assert.assertThrows(IllegalStateException::class.java) {
                         it.reject()
                     }
+                    this@launch.cancel()
                 }
-                this@launch.cancel()
             }
         }.join()
 
@@ -209,16 +208,18 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.accept {
-                    when (val request = requests.first()) {
-                        is GattServerRequest.ReadCharacteristicRequest -> {
-                            request.sendResponse(true, valueToRead.toByteArray())
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.accept {
+                        when (val request = requests.first()) {
+                            is GattServerRequest.ReadCharacteristicRequest -> {
+                                request.sendResponse(true, valueToRead.toByteArray())
+                            }
+                            else -> fail("unexpected request")
                         }
-                        else -> fail("unexpected request")
+                        // Close the server
+                        this@launch.cancel()
                     }
-                    // Close the server
-                    this@launch.cancel()
                 }
             }
         }.join()
@@ -250,17 +251,20 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.accept {
-                    when (val request = requests.first()) {
-                        is GattServerRequest.ReadCharacteristicRequest -> {
-                            Assert.assertEquals(readCharacteristic, request.characteristic)
-                            request.sendResponse(true, valueToRead.toByteArray())
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.accept {
+                        when (val request = requests.first()) {
+                            is GattServerRequest.ReadCharacteristicRequest -> {
+                                Assert.assertEquals(readCharacteristic, request.characteristic)
+                                request.sendResponse(true, valueToRead.toByteArray())
+                            }
+
+                            else -> fail("unexpected request")
                         }
-                        else -> fail("unexpected request")
+                        // Close the server
+                        this@launch.cancel()
                     }
-                    // Close the server
-                    this@launch.cancel()
                 }
             }
         }.join()
@@ -288,17 +292,20 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.accept {
-                    when (val request = requests.first()) {
-                        is GattServerRequest.WriteCharacteristicRequest -> {
-                            Assert.assertEquals(valueToWrite, request.value?.toInt())
-                            request.sendResponse(true)
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.accept {
+                        when (val request = requests.first()) {
+                            is GattServerRequest.WriteCharacteristicRequest -> {
+                                Assert.assertEquals(valueToWrite, request.value?.toInt())
+                                request.sendResponse(true, request.value)
+                            }
+
+                            else -> fail("unexpected request")
                         }
-                        else -> fail("unexpected request")
+                        // Close the server
+                        this@launch.cancel()
                     }
-                    // Close the server
-                    this@launch.cancel()
                 }
             }
         }.join()
@@ -333,11 +340,13 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services).collect {
-                it.accept {
-                    notify(notifyCharacteristic, valueToNotify.toByteArray())
-                    // Close the server
-                    this@launch.cancel()
+            bluetoothLe.openGattServer(services) {
+                connectRequest.collect {
+                    it.accept {
+                        notify(notifyCharacteristic, valueToNotify.toByteArray())
+                        // Close the server
+                        this@launch.cancel()
+                    }
                 }
             }
         }.join()
@@ -363,11 +372,9 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            opened.await()
-            bluetoothLe.updateServices(listOf(service2))
-        }
-        launch {
-            bluetoothLe.openGattServer(listOf(service1)).first().accept {
+            bluetoothLe.openGattServer(listOf(service1)) {
+                updateServices(listOf(service2))
+                connectRequest.first().accept {}
             }
         }.join()
 
