@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.view.Display;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
@@ -126,6 +127,32 @@ public class MultiDisplayTest extends BaseTest {
         } finally {
             mDevice.executeShellCommand(
                     String.format("wm size reset -d %d", secondaryDisplayId));
+        }
+    }
+
+    @Test
+    public void testMultiDisplay_orientations() throws Exception {
+        int secondaryDisplayId = getSecondaryDisplayId();
+
+        try {
+            mDevice.setOrientationNatural(secondaryDisplayId);
+            assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation(secondaryDisplayId));
+
+            mDevice.setOrientationLeft(secondaryDisplayId);
+            assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation(secondaryDisplayId));
+
+            mDevice.setOrientationRight(secondaryDisplayId);
+            assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation(secondaryDisplayId));
+
+            mDevice.setOrientationPortrait(secondaryDisplayId);
+            assertTrue(mDevice.getDisplayHeight(secondaryDisplayId) >= mDevice.getDisplayWidth(
+                    secondaryDisplayId));
+
+            mDevice.setOrientationLandscape(secondaryDisplayId);
+            assertTrue(mDevice.getDisplayHeight(secondaryDisplayId) <= mDevice.getDisplayWidth(
+                    secondaryDisplayId));
+        } finally {
+            mDevice.setOrientationNatural(secondaryDisplayId);
         }
     }
 
