@@ -2885,11 +2885,16 @@ package androidx.core.view {
   }
 
   public final class VelocityTrackerCompat {
+    method public static void addMovement(android.view.VelocityTracker, android.view.MotionEvent);
+    method public static void clear(android.view.VelocityTracker);
+    method public static void computeCurrentVelocity(android.view.VelocityTracker, int);
+    method public static void computeCurrentVelocity(android.view.VelocityTracker, int, float);
     method public static float getAxisVelocity(android.view.VelocityTracker, int);
     method public static float getAxisVelocity(android.view.VelocityTracker, int, int);
     method @Deprecated public static float getXVelocity(android.view.VelocityTracker!, int);
     method @Deprecated public static float getYVelocity(android.view.VelocityTracker!, int);
     method public static boolean isAxisSupported(android.view.VelocityTracker, int);
+    method public static void recycle(android.view.VelocityTracker);
   }
 
   public class ViewCompat {
