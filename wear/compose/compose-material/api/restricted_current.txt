@@ -695,12 +695,14 @@ package androidx.wear.compose.material {
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToRevealAction {
-    ctor public SwipeToRevealAction(kotlin.jvm.functions.Function0<kotlin.Unit>? icon, kotlin.jvm.functions.Function0<kotlin.Unit>? label, androidx.compose.ui.Modifier modifier, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    ctor public SwipeToRevealAction(kotlin.jvm.functions.Function0<kotlin.Unit>? icon, kotlin.jvm.functions.Function0<kotlin.Unit>? label, androidx.compose.ui.Modifier modifier, int actionType, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public int getActionType();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getIcon();
     method public androidx.compose.foundation.interaction.MutableInteractionSource getInteractionSource();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getLabel();
     method public androidx.compose.ui.Modifier getModifier();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getOnClick();
+    property public final int actionType;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? icon;
     property public final androidx.compose.foundation.interaction.MutableInteractionSource interactionSource;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? label;
@@ -709,29 +711,29 @@ package androidx.wear.compose.material {
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToRevealActionColors {
-    ctor public SwipeToRevealActionColors(long actionBackgroundColor, long actionContentColor, long additionalActionBackgroundColor, long additionalActionContentColor, long undoActionBackgroundColor, long undoActionContentColor);
-    method public long getActionBackgroundColor();
-    method public long getActionContentColor();
-    method public long getAdditionalActionBackgroundColor();
-    method public long getAdditionalActionContentColor();
+    ctor public SwipeToRevealActionColors(long primaryActionBackgroundColor, long primaryActionContentColor, long secondaryActionBackgroundColor, long secondaryActionContentColor, long undoActionBackgroundColor, long undoActionContentColor);
+    method public long getPrimaryActionBackgroundColor();
+    method public long getPrimaryActionContentColor();
+    method public long getSecondaryActionBackgroundColor();
+    method public long getSecondaryActionContentColor();
     method public long getUndoActionBackgroundColor();
     method public long getUndoActionContentColor();
-    property public final long actionBackgroundColor;
-    property public final long actionContentColor;
-    property public final long additionalActionBackgroundColor;
-    property public final long additionalActionContentColor;
+    property public final long primaryActionBackgroundColor;
+    property public final long primaryActionContentColor;
+    property public final long secondaryActionBackgroundColor;
+    property public final long secondaryActionContentColor;
     property public final long undoActionBackgroundColor;
     property public final long undoActionContentColor;
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToRevealDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction action(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealActionColors actionColors(optional long actionBackgroundColor, optional long actionContentColor, optional long additionalActionBackgroundColor, optional long additionalActionContentColor, optional long undoActionBackgroundColor, optional long undoActionContentColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction additionalAction(kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealActionColors actionColors(optional long primaryActionBackgroundColor, optional long primaryActionContentColor, optional long secondaryActionBackgroundColor, optional long secondaryActionContentColor, optional long undoActionBackgroundColor, optional long undoActionContentColor);
     method public androidx.compose.foundation.shape.RoundedCornerShape getCardActionShape();
     method public androidx.compose.ui.graphics.vector.ImageVector getDelete();
     method public androidx.compose.ui.graphics.vector.ImageVector getMoreOptions();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction undoAction(kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction primaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional int actionType, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction secondaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional int actionType, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.SwipeToRevealAction undoAction(kotlin.jvm.functions.Function0<kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional int actionType, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
     property public final androidx.compose.foundation.shape.RoundedCornerShape CardActionShape;
     property public final androidx.compose.ui.graphics.vector.ImageVector Delete;
     property public final androidx.compose.ui.graphics.vector.ImageVector MoreOptions;
@@ -739,8 +741,8 @@ package androidx.wear.compose.material {
   }
 
   public final class SwipeToRevealKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToRevealCard(androidx.wear.compose.material.SwipeToRevealAction action, androidx.wear.compose.foundation.RevealState revealState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToRevealAction? additionalAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoAction, optional androidx.wear.compose.material.SwipeToRevealActionColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToRevealChip(androidx.wear.compose.material.SwipeToRevealAction action, androidx.wear.compose.foundation.RevealState revealState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToRevealAction? additionalAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoAction, optional androidx.wear.compose.material.SwipeToRevealActionColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToRevealCard(androidx.wear.compose.material.SwipeToRevealAction primaryAction, androidx.wear.compose.foundation.RevealState revealState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToRevealAction? secondaryAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoPrimaryAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoSecondaryAction, optional androidx.wear.compose.material.SwipeToRevealActionColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material.ExperimentalWearMaterialApi public static void SwipeToRevealChip(androidx.wear.compose.material.SwipeToRevealAction primaryAction, androidx.wear.compose.foundation.RevealState revealState, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToRevealAction? secondaryAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoPrimaryAction, optional androidx.wear.compose.material.SwipeToRevealAction? undoSecondaryAction, optional androidx.wear.compose.material.SwipeToRevealActionColors colors, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeableDefaults {
