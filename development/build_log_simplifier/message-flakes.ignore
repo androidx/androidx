@@ -33,6 +33,7 @@ Calculating task graph as configuration cache cannot be reused because file '[^ 
 Calculating task graph as no configuration cache is available for tasks:.*
 Reusing configuration cache\.
 Calculating task graph as configuration cache cannot be reused because an input to task '[^ ]*' has changed\.
+Calculating task graph as configuration cache cannot be reused because the set of paths ignored in file\-system\-check input tracking has changed\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # Some messages that encode the number of a certain type of other error
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
