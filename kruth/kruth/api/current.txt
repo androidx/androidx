@@ -36,6 +36,23 @@ package androidx.kruth {
     method public abstract void of(double expected);
   }
 
+  public final class Fact {
+    method public static androidx.kruth.Fact fact(String key, optional Object? value);
+    method public String getKey();
+    method public String? getValue();
+    method public static String makeMessage(java.util.List<java.lang.String> messages, java.util.List<androidx.kruth.Fact> facts);
+    method public static androidx.kruth.Fact simpleFact(String key);
+    property public final String key;
+    property public final String? value;
+    field public static final androidx.kruth.Fact.Companion Companion;
+  }
+
+  public static final class Fact.Companion {
+    method public androidx.kruth.Fact fact(String key, optional Object? value);
+    method public String makeMessage(java.util.List<java.lang.String> messages, java.util.List<androidx.kruth.Fact> facts);
+    method public androidx.kruth.Fact simpleFact(String key);
+  }
+
   public final class FailureMetadata {
     method public java.util.List<java.lang.String> component1();
     method public androidx.kruth.FailureMetadata copy(java.util.List<java.lang.String> messagesToPrepend);
@@ -142,7 +159,8 @@ package androidx.kruth {
   public class Subject<T> {
     ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
     method protected final androidx.kruth.StandardSubjectBuilder check();
-    method protected final Void failWithActual(java.lang.String... messages);
+    method protected final Void failWithActual(androidx.kruth.Fact... facts);
+    method protected final Void failWithoutActual(androidx.kruth.Fact... facts);
     method public final T? getActual();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isEqualTo(Object? expected);

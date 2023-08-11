@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.simpleFact
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -705,7 +706,7 @@ class SubjectTest {
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
-                    failWithActual("msg3", "msg4")
+                    failWithActual(simpleFact("msg3"), simpleFact("msg4"))
                 }
             }
 
@@ -728,7 +729,7 @@ class SubjectTest {
                 metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
             ) {
                 fun fail() {
-                    failWithActual("msg3", "msg4")
+                    failWithActual(simpleFact("msg3"), simpleFact("msg4"))
                 }
             }
 
@@ -741,6 +742,50 @@ class SubjectTest {
                 But was:
                     a
                     b
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
+    @Test
+    fun failWithoutActual_printsAllMessagesPlusActualValue() {
+        val subject =
+            object : Subject<Int>(
+                actual = 0,
+                metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
+            ) {
+                fun fail() {
+                    failWithoutActual(simpleFact("msg3"), simpleFact("msg4"))
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                msg1
+                msg2
+                msg3
+                msg4
+            """.trimIndent()
+        ) { subject.fail() }
+    }
+
+    @Test
+    fun failWithoutActual_printsAllMessagesPlusMultilineActualValue() {
+        val subject =
+            object : Subject<String>(
+                actual = "a\nb",
+                metadata = FailureMetadata(messagesToPrepend = listOf("msg1", "msg2")),
+            ) {
+                fun fail() {
+                    failWithoutActual(simpleFact("msg3"), simpleFact("msg4"))
+                }
+            }
+
+        assertFailsWithMessage(
+            """
+                msg1
+                msg2
+                msg3
+                msg4
             """.trimIndent()
         ) { subject.fail() }
     }

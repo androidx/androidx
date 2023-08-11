@@ -79,8 +79,6 @@ RemovedClass: androidx.kruth.Expect:
     Removed class androidx.kruth.Expect
 RemovedClass: androidx.kruth.ExpectFailure:
     Removed class androidx.kruth.ExpectFailure
-RemovedClass: androidx.kruth.Fact:
-    Removed class androidx.kruth.Fact
 RemovedClass: androidx.kruth.FloatSubject:
     Removed class androidx.kruth.FloatSubject
 RemovedClass: androidx.kruth.GuavaOptionalSubject:
@@ -125,6 +123,8 @@ RemovedClass: androidx.kruth.TruthJUnit:
     Removed class androidx.kruth.TruthJUnit
 
 
+RemovedInterface: androidx.kruth.Fact:
+    Class androidx.kruth.Fact no longer implements java.io.Serializable
 RemovedInterface: androidx.kruth.FailureStrategy:
     Removed class androidx.kruth.FailureStrategy
 

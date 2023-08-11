@@ -17,6 +17,7 @@
 package androidx.kruth.extension
 
 import androidx.kruth.ComparableSubject
+import androidx.kruth.Fact.Companion.simpleFact
 import androidx.kruth.FailureMetadata
 import androidx.kruth.StringSubject
 import androidx.kruth.Subject
@@ -59,14 +60,14 @@ class EmployeeSubject(
     fun isCeo() {
         requireNonNull(actual) { "Expected to be CEO, but was null" }
         if (!actual!!.isCeo) {
-            asserter.fail("Expected to be CEO")
+            failWithActual(simpleFact("expected to be CEO"))
         }
     }
 
     fun isNotCeo() {
         requireNonNull(actual) { "Expected to not be CEO, but was null" }
         if (actual!!.isCeo) {
-            asserter.fail("Expected to not be CEO")
+            failWithActual(simpleFact("expected to not be CEO"))
         }
     }
 
