@@ -16,14 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
-import static androidx.wear.tiles.material.Helper.getTagBytes;
-
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -99,15 +91,15 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
         private final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
                 mDeviceParameters;
 
-        @NonNull private ChipColors mChipColors = COMPACT_PRIMARY_COLORS;
+        @NonNull private ChipColors mChipColors = ChipDefaults.COMPACT_PRIMARY_COLORS;
 
         /**
          * Creates a builder for the {@link CompactChip} with associated action and the given text
          *
          * @param context The application's context.
          * @param text The text to be displayed in this compact chip.
-         * @param clickable Associated {@link Clickable} for click events. When the CompactChip is
-         *     clicked it will fire the associated action.
+         * @param clickable Associated {@link androidx.wear.tiles.ModifiersBuilders.Clickable} for
+         *     click events. When the CompactChip is clicked it will fire the associated action.
          * @param deviceParameters The device parameters used for styling text.
          */
         public Builder(
@@ -148,9 +140,9 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
                                     androidx.wear.tiles.LayoutElementBuilders
                                             .HORIZONTAL_ALIGN_CENTER)
                             .setWidth(androidx.wear.tiles.DimensionBuilders.wrap())
-                            .setHeight(COMPACT_HEIGHT)
+                            .setHeight(ChipDefaults.COMPACT_HEIGHT)
                             .setMaxLines(1)
-                            .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
+                            .setHorizontalPadding(ChipDefaults.COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
                             .setIsPrimaryLabelScalable(false);
@@ -163,11 +155,14 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
                                             .setMetadata(
                                                     new androidx.wear.tiles.ModifiersBuilders
                                                                     .ElementMetadata.Builder()
-                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .setTagData(
+                                                                    androidx.wear.tiles.material
+                                                                            .Helper.getTagBytes(
+                                                                            METADATA_TAG))
                                                             .build())
                                             .build())
                             .setWidth(androidx.wear.tiles.DimensionBuilders.wrap())
-                            .setHeight(COMPACT_HEIGHT_TAPPABLE)
+                            .setHeight(ChipDefaults.COMPACT_HEIGHT_TAPPABLE)
                             .setVerticalAlignment(
                                     androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .addContent(chipBuilder.build())
@@ -192,7 +187,7 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryLabelContent());
+        return androidx.wear.tiles.material.Helper.checkNotNull(mElement.getPrimaryLabelContent());
     }
 
     /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */
@@ -218,7 +213,8 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
         }
         androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now to check that inner content of the androidx.wear.tiles.LayoutElementBuilders.Box is
@@ -230,7 +226,8 @@ public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.La
         }
         androidx.wear.tiles.LayoutElementBuilders.Box innerBoxElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Box) innerElement;
-        if (!checkTag(innerBoxElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                innerBoxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
 
