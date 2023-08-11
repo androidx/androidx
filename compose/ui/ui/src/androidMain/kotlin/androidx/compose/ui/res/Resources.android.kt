@@ -29,6 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 @ReadOnlyComposable
 internal fun resources(): Resources {
-    LocalConfiguration.current
-    return LocalContext.current.resources
+    val configuration = LocalConfiguration.current
+    return configuration.resources
 }
