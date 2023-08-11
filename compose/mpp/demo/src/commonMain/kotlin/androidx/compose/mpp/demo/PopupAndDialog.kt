@@ -1,6 +1,11 @@
 package androidx.compose.mpp.demo
 
+import androidx.compose.material3.AlertDialog as AlertDialog3
+import androidx.compose.material3.DropdownMenu as DropdownMenu3
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,11 +13,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.mpp.demo.textfield.android.loremIpsum
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,25 +41,103 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PopupAndDialog() {
-    Column(Modifier.padding(5.dp)) {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier
+            .padding(5.dp)
+            .verticalScroll(scrollState)
+    ) {
         PopupSample()
-        DialogSample(
-            modifier = Modifier.size(400.dp, 300.dp),
-            text = "Dialog: 400x300"
+        DialogSamples()
+        AlertDialogSample()
+        AlertDialog3Sample()
+        DropdownMenuSample()
+        DropdownMenu3Sample()
+    }
+}
+
+@Composable
+private fun AlertDialogSample() {
+    var short by remember { mutableStateOf(false) }
+    var long by remember { mutableStateOf(false) }
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Button(onClick = { short = true }) {
+            Text("AlertDialog (short)")
+        }
+        Button(onClick = { long = true }) {
+            Text("AlertDialog (long)")
+        }
+    }
+    if (short) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(onClick = { short = false }) {
+                    Text("OK")
+                }
+            },
+            text = { Text("Meow") },
         )
-        DialogSample(
-            modifier = Modifier.fillMaxSize(),
-            text = "Dialog: max size"
+    }
+    if (long) {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(onClick = { long = false }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { long = false }) {
+                    Text("Cancel")
+                }
+            },
+            title = { Text("Alert Dialog") },
+            text = { Text(loremIpsum()) },
         )
-        DialogSample(
-            modifier = Modifier.fillMaxSize(),
-            text = "Dialog: max size (unrestricted)",
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false
-            )
+    }
+}
+
+@Composable
+private fun AlertDialog3Sample() {
+    var short by remember { mutableStateOf(false) }
+    var long by remember { mutableStateOf(false) }
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Button(onClick = { short = true }) {
+            Text("AlertDialog3 (short)")
+        }
+        Button(onClick = { long = true }) {
+            Text("AlertDialog3 (long)")
+        }
+    }
+    if (short) {
+        AlertDialog3(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(onClick = { short = false }) {
+                    Text("OK")
+                }
+            },
+            text = { Text("Meow") },
+        )
+    }
+    if (long) {
+        AlertDialog3(
+            onDismissRequest = { },
+            confirmButton = {
+                Button(onClick = { long = false }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { long = false }) {
+                    Text("Cancel")
+                }
+            },
+            title = { Text("Alert Dialog") },
+            text = { Text(loremIpsum()) },
         )
     }
 }
@@ -57,8 +147,10 @@ private fun PopupSample() {
     var popup1 by remember { mutableStateOf(0) }
     var popup2 by remember { mutableStateOf(0) }
     var popup3 by remember { mutableStateOf(0) }
-    Button(onClick = { popup1++ }) {
-        Text("Popup")
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Button(onClick = { popup1++ }) {
+            Text("Popup")
+        }
     }
     if (popup1 > 0) {
         MyPopup(
@@ -69,7 +161,6 @@ private fun PopupSample() {
             onNext = { popup2++ }
         )
     }
-
     if (popup2 > 0) {
         MyPopup(
             text = "Click count = $popup2",
@@ -79,7 +170,6 @@ private fun PopupSample() {
             onNext = { popup3++ }
         )
     }
-
     if (popup3 > 0) {
         MyPopup(
             text = "Click count = $popup3",
@@ -142,6 +232,28 @@ private fun MyPopup(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun DialogSamples() {
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        DialogSample(
+            modifier = Modifier.size(400.dp, 300.dp),
+            text = "Dialog: 400x300"
+        )
+        DialogSample(
+            modifier = Modifier.fillMaxSize(),
+            text = "Dialog: max size"
+        )
+        DialogSample(
+            modifier = Modifier.fillMaxSize(),
+            text = "Dialog: max size (unrestricted)",
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
+        )
+    }
+}
+
 @Composable
 private fun DialogSample(
     modifier: Modifier = Modifier,
@@ -175,5 +287,75 @@ private fun DialogSample(
         onClick = { showDialog = true }
     ) {
         Text(text = text)
+    }
+}
+
+@Composable
+private fun DropdownMenuSample() {
+    val horizontalScrollState = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .background(Color.Gray)
+            .horizontalScroll(horizontalScrollState),
+        horizontalArrangement = Arrangement.spacedBy(100.dp)
+    ) {
+        repeat(10) {
+            Column {
+                var expanded by remember { mutableStateOf(false) }
+                Button(
+                    onClick = { expanded = true },
+                    modifier = Modifier.width(180.dp)
+                ) {
+                    Text("DropdownMenu")
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.width(180.dp),
+                    properties = PopupProperties(focusable = false)
+                ) {
+                    repeat(it + 5) {
+                        DropdownMenuItem(onClick = { expanded = false }) {
+                            Text("Item $it")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownMenu3Sample() {
+    val horizontalScrollState = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .background(Color.Gray)
+            .horizontalScroll(horizontalScrollState),
+        horizontalArrangement = Arrangement.spacedBy(100.dp)
+    ) {
+        repeat(10) {
+            Column {
+                var expanded by remember { mutableStateOf(false) }
+                Button(
+                    onClick = { expanded = true },
+                    modifier = Modifier.width(180.dp)
+                ) {
+                    Text("DropdownMenu3")
+                }
+                DropdownMenu3(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.width(180.dp),
+                    properties = PopupProperties(focusable = false)
+                ) {
+                    repeat(it + 5) {
+                        DropdownMenuItem(onClick = { expanded = false }) {
+                            Text("Item $it")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
