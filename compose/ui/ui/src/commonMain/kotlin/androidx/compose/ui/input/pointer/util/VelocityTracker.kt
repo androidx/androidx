@@ -374,7 +374,7 @@ private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChan
     if (!event.changedToUpIgnoreConsumed() && !event.changedToDownIgnoreConsumed()) {
         lastMoveEventTimeStamp = event.uptimeMillis
         if (event.historical.isEmpty()) {
-            val delta = event.position - event.previousPosition
+            val delta = event.position - currentPointerPositionAccumulator
             currentPointerPositionAccumulator += delta
             addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
         } else {

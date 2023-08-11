@@ -93,7 +93,7 @@ class VelocityTrackingParityTest {
         // Act: Use system to send motion events and collect them.
         swipeView(R.id.draggable_view)
 
-        val childAtTheTopOfView = draggableView.latestVelocity.y
+        val latestVelocityInView = draggableView.latestVelocity.y
 
         // switch visibility
         rule.runOnUiThread {
@@ -110,11 +110,11 @@ class VelocityTrackingParityTest {
         for (event in draggableView.motionEvents) {
             composeView.dispatchTouchEvent(event)
         }
-        val currentTopInCompose = latestComposeVelocity
+        val latestVelocityInCompose = latestComposeVelocity
 
+        val diff = kotlin.math.abs(latestVelocityInView - latestVelocityInCompose)
         // assert
-        assertThat(childAtTheTopOfView).isWithin(VelocityDifferenceTolerance)
-            .of(currentTopInCompose)
+        assertThat(diff).isWithin(VelocityDifferenceTolerance * latestVelocityInView)
     }
 
     private fun createActivity() {
@@ -137,16 +137,6 @@ class VelocityTrackingParityTest {
     private fun swipeView(id: Int) {
         controlledSwipeUp(id)
         rule.waitForIdle()
-    }
-
-    /**
-     * Checks the contents of [events] represents a swipe gesture.
-     */
-    private fun isValidGesture(events: List<MotionEvent>): Boolean {
-        val down = events.filter { it.action == MotionEvent.ACTION_DOWN }
-        val move = events.filter { it.action == MotionEvent.ACTION_MOVE }
-        val up = events.filter { it.action == MotionEvent.ACTION_UP }
-        return down.size == 1 && move.isNotEmpty() && up.size == 1
     }
 }
 
@@ -236,4 +226,15 @@ private class VelocityTrackingView(context: Context, attributeSet: AttributeSet)
     }
 }
 
-private const val VelocityDifferenceTolerance = 10f
+/**
+ * Checks the contents of [events] represents a swipe gesture.
+ */
+internal fun isValidGesture(events: List<MotionEvent>): Boolean {
+    val down = events.filter { it.action == MotionEvent.ACTION_DOWN }
+    val move = events.filter { it.action == MotionEvent.ACTION_MOVE }
+    val up = events.filter { it.action == MotionEvent.ACTION_UP }
+    return down.size == 1 && move.isNotEmpty() && up.size == 1
+}
+
+// 1% tolerance
+private const val VelocityDifferenceTolerance = 0.01f
