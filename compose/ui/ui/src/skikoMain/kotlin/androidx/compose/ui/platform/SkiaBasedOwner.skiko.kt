@@ -313,7 +313,7 @@ internal class SkiaBasedOwner(
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
-    ) = SkiaLayer(
+    ) = RenderNodeLayer(
         density,
         invalidateParentLayer = {
             invalidateParentLayer()

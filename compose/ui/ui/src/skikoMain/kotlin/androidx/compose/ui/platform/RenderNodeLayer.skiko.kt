@@ -27,7 +27,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import org.jetbrains.skia.*
 
-internal class SkiaLayer(
+internal class RenderNodeLayer(
     private var density: Density,
     private val invalidateParentLayer: () -> Unit,
     private val drawBlock: (Canvas) -> Unit,
@@ -258,7 +258,7 @@ internal class SkiaLayer(
                 canvas.saveLayer(
                     bounds,
                     Paint().apply {
-                        alpha = this@SkiaLayer.alpha
+                        alpha = this@RenderNodeLayer.alpha
                         asFrameworkPaint().imageFilter = currentRenderEffect?.asSkiaImageFilter()
                     }
                 )

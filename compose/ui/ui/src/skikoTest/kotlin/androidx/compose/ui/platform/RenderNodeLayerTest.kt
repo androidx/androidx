@@ -27,9 +27,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class SkiaLayerTest {
+class RenderNodeLayerTest {
 
-    private val layer = TestSkiaLayer()
+    private val layer = TestRenderNodeLayer()
     private val cos45 = cos(PI / 4).toFloat()
 
     private val matrix get() = layer.matrix
@@ -464,7 +464,7 @@ class SkiaLayerTest {
         assertTrue(layer.isInLayer(Offset(50f, 100f)))
     }
 
-    private fun TestSkiaLayer() = SkiaLayer(
+    private fun TestRenderNodeLayer() = RenderNodeLayer(
         Density(1f, 1f),
         invalidateParentLayer = {},
         drawBlock = {}
@@ -481,7 +481,7 @@ class SkiaLayerTest {
         assertEquals(expected.y, actual.y, absoluteTolerance, message)
     }
 
-    private fun SkiaLayer.updateProperties(
+    private fun RenderNodeLayer.updateProperties(
         scaleX: Float = 1f,
         scaleY: Float = 1f,
         alpha: Float = 1f,
