@@ -126,12 +126,10 @@ internal class ComposeLayer(
 
     fun dispose() {
         check(!isDisposed)
-
-        isDisposed = true
-
-        scene.close()
         layer.detach()
+        scene.close()
         _initContent = null
+        isDisposed = true
     }
 
     fun setSize(width: Int, height: Int) {
@@ -166,6 +164,7 @@ internal class ComposeLayer(
                 content = content
             )
         }
+
         initContent()
     }
 

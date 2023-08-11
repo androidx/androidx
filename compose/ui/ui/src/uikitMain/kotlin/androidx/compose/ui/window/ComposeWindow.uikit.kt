@@ -33,14 +33,12 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.*
 import kotlin.math.roundToInt
-import kotlin.native.internal.Cleaner
-import kotlin.native.internal.createCleaner
-import kotlin.native.ref.WeakReference
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
 import org.jetbrains.skiko.SkikoUIView
 import org.jetbrains.skiko.TextActions
+import org.jetbrains.skiko.currentSystemTheme
 import org.jetbrains.skiko.ios.SkikoUITextInputTraits
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
@@ -83,6 +81,19 @@ fun ComposeUIViewController(
             .apply(configure)
         setContent(content)
     }
+
+private class AttachedComposeContext(
+    val composeLayer: ComposeLayer,
+    val skiaLayer: org.jetbrains.skiko.SkiaLayer,
+    val view: SkikoUIView,
+    val inputTraits: SkikoUITextInputTraits,
+    val platform: Platform
+) {
+    fun dispose() {
+        composeLayer.dispose()
+        view.removeFromSuperview()
+    }
+}
 
 @OptIn(InternalComposeApi::class)
 @ExportObjCClass
@@ -145,12 +156,11 @@ internal actual class ComposeWindow : UIViewController {
         }
 
     private val density: Density
-        get() = Density(composeLayer.layer.contentScale, fontScale)
+        get() = Density(attachedComposeContext?.skiaLayer?.contentScale ?: 1f, fontScale)
 
-    private lateinit var composeLayer: ComposeLayer
-    private lateinit var composeLayerCleaner: Cleaner
     private lateinit var content: @Composable () -> Unit
-    private var _skikoUITextInputTraits: SkikoUITextInputTraits? = null
+
+    private var attachedComposeContext: AttachedComposeContext? = null
 
     private val keyboardVisibilityListener = object : NSObject() {
         @Suppress("unused")
@@ -169,6 +179,8 @@ internal actual class ComposeWindow : UIViewController {
             if (bottomIndent < keyboardHeight) {
                 keyboardOverlapHeightState.value = (keyboardHeight - bottomIndent).toFloat()
             }
+
+            val composeLayer = attachedComposeContext?.composeLayer ?: return
 
             if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
                 val focusedRect = composeLayer.getActiveFocusRect()
@@ -190,8 +202,12 @@ internal actual class ComposeWindow : UIViewController {
         }
 
         private fun calcFocusedLiftingY(focusedRect: DpRect, keyboardHeight: Double): Double {
+            val viewHeight = attachedComposeContext?.view?.frame?.useContents {
+                size.height
+            } ?: 0.0
+
             val hiddenPartOfFocusedElement: Double =
-                keyboardHeight - composeLayer.layer.height + focusedRect.bottom.value
+                keyboardHeight - viewHeight + focusedRect.bottom.value
             return if (hiddenPartOfFocusedElement > 0) {
                 // If focused element is partially hidden by the keyboard, we need to lift it upper
                 val focusedTopY = focusedRect.top.value
@@ -245,15 +261,111 @@ internal actual class ComposeWindow : UIViewController {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun loadView() {
-        val weakThis = WeakReference(this)
+        view = UIView().apply {
+            backgroundColor = UIColor.whiteColor
+            setClipsToBounds(true)
+        } // rootView needs to interop with UIKit
+    }
+
+    override fun traitCollectionDidChange(previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        systemTheme.value = traitCollection.userInterfaceStyle.asComposeSystemTheme()
+    }
+
+    override fun viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+
+        // UIKit possesses all required info for layout at this point
+        currentInterfaceOrientation?.let {
+            interfaceOrientationState.value = it
+        }
+
+        val composeLayer = attachedComposeContext?.composeLayer ?: return
+
+        val (width, height) = getViewFrameSize()
+        val scale = density.density
+
+        composeLayer.setDensity(density)
+        composeLayer.setSize((width * scale).roundToInt(), (height * scale).roundToInt())
+    }
+
+    override fun viewWillAppear(animated: Boolean) {
+        super.viewWillAppear(animated)
+
+        attachComposeIfNeeded()
+    }
+
+    override fun viewDidAppear(animated: Boolean) {
+        super.viewDidAppear(animated)
+        NSNotificationCenter.defaultCenter.addObserver(
+            observer = keyboardVisibilityListener,
+            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardDidShow.name + ":"),
+            name = UIKeyboardDidShowNotification,
+            `object` = null
+        )
+        NSNotificationCenter.defaultCenter.addObserver(
+            observer = keyboardVisibilityListener,
+            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardWillHide.name + ":"),
+            name = UIKeyboardWillHideNotification,
+            `object` = null
+        )
+    }
+
+    // viewDidUnload() is deprecated and not called.
+    override fun viewWillDisappear(animated: Boolean) {
+        super.viewWillDisappear(animated)
+
+        NSNotificationCenter.defaultCenter.removeObserver(
+            observer = keyboardVisibilityListener,
+            name = UIKeyboardDidShowNotification,
+            `object` = null
+        )
+        NSNotificationCenter.defaultCenter.removeObserver(
+            observer = keyboardVisibilityListener,
+            name = UIKeyboardWillHideNotification,
+            `object` = null
+        )
+    }
+
+    override fun viewDidDisappear(animated: Boolean) {
+        super.viewDidDisappear(animated)
+
+        dispose()
+
+        dispatch_async(dispatch_get_main_queue()) {
+            kotlin.native.internal.GC.collect()
+        }
+    }
+
+    override fun didReceiveMemoryWarning() {
+        println("didReceiveMemoryWarning")
+        kotlin.native.internal.GC.collect()
+        super.didReceiveMemoryWarning()
+    }
+
+    actual fun setContent(
+        content: @Composable () -> Unit
+    ) {
+        this.content = content
+    }
+
+    actual fun dispose() {
+        attachedComposeContext?.dispose()
+        attachedComposeContext = null
+    }
+
+    private fun attachComposeIfNeeded() {
+        if (attachedComposeContext != null) {
+            return // already attached
+        }
 
         val skiaLayer = createSkiaLayer()
         val skikoUIView = SkikoUIView(
             skiaLayer = skiaLayer,
             pointInside = { point, _ ->
-                val composeLayer = weakThis.get()?.composeLayer
+                val composeLayer = attachedComposeContext?.composeLayer
 
                 if (composeLayer == null) {
                     false
@@ -261,26 +373,22 @@ internal actual class ComposeWindow : UIViewController {
                     !composeLayer.hitInteropView(point, isTouchEvent = true)
                 }
             },
-            skikoUITextInputTrains = DelegateSkikoUITextInputTraits {
-                weakThis.get()?._skikoUITextInputTraits
-            }
+            skikoUITextInputTrains = DelegateSkikoUITextInputTraits { attachedComposeContext?.inputTraits }
         ).load()
-        val rootView = UIView() // rootView needs to interop with UIKit
-        rootView.backgroundColor = UIColor.whiteColor
-        rootView.setClipsToBounds(true)
 
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
-        rootView.addSubview(skikoUIView)
+        view.addSubview(skikoUIView)
 
-        NSLayoutConstraint.activateConstraints(listOf(
-            skikoUIView.leadingAnchor.constraintEqualToAnchor(rootView.leadingAnchor),
-            skikoUIView.trailingAnchor.constraintEqualToAnchor(rootView.trailingAnchor),
-            skikoUIView.topAnchor.constraintEqualToAnchor(rootView.topAnchor),
-            skikoUIView.bottomAnchor.constraintEqualToAnchor(rootView.bottomAnchor)
-        ))
+        NSLayoutConstraint.activateConstraints(
+            listOf(
+                skikoUIView.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
+                skikoUIView.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
+                skikoUIView.topAnchor.constraintEqualToAnchor(view.topAnchor),
+                skikoUIView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
+            )
+        )
 
-        view = rootView
-        val uiKitTextInputService = UIKitTextInputService(
+        val inputServices = UIKitTextInputService(
             showSoftwareKeyboard = {
                 skikoUIView.showScreenKeyboard()
             },
@@ -297,9 +405,10 @@ internal actual class ComposeWindow : UIViewController {
             selectionWillChange = { skikoUIView.selectionWillChange() },
             selectionDidChange = { skikoUIView.selectionDidChange() },
         )
-        _skikoUITextInputTraits = uiKitTextInputService.skikoUITextInputTraits
-        val uiKitPlatform = object : Platform by Platform.Empty {
-            override val textInputService: PlatformTextInputService = uiKitTextInputService
+        val inputTraits = inputServices.skikoUITextInputTraits
+
+        val platform = object : Platform by Platform.Empty {
+            override val textInputService: PlatformTextInputService = inputServices
             override val viewConfiguration =
                 object : ViewConfiguration {
                     override val longPressTimeoutMillis: Long get() = 500
@@ -307,12 +416,7 @@ internal actual class ComposeWindow : UIViewController {
                     override val doubleTapMinTimeMillis: Long get() = 40
 
                     // this value is originating from iOS 16 drag behavior reverse-engenering
-                    override val touchSlop: Float
-                        get() {
-                            val density = weakThis.get()?.density ?: return 0f
-
-                            return with(density) { 10.dp.toPx() }
-                        }
+                    override val touchSlop: Float get() = with(density) { 10.dp.toPx() }
                 }
             override val textToolbar = object : TextToolbar {
                 override fun showMenu(
@@ -322,15 +426,14 @@ internal actual class ComposeWindow : UIViewController {
                     onCutRequested: (() -> Unit)?,
                     onSelectAllRequested: (() -> Unit)?
                 ) {
-                    val density = weakThis.get()?.density?.density ?: return
-
-                    val skiaRect = org.jetbrains.skia.Rect.makeLTRB(
-                        l = rect.left / density,
-                        t = rect.top / density,
-                        r = rect.right / density,
-                        b = rect.bottom / density,
-                    )
-
+                    val skiaRect = with(density) {
+                        org.jetbrains.skia.Rect.makeLTRB(
+                            l = rect.left / density,
+                            t = rect.top / density,
+                            r = rect.right / density,
+                            b = rect.bottom / density,
+                        )
+                    }
                     skikoUIView.showTextMenu(
                         targetRect = skiaRect,
                         textActions = object : TextActions {
@@ -356,120 +459,31 @@ internal actual class ComposeWindow : UIViewController {
 
             override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         }
-
-        composeLayer = ComposeLayer(
+        val composeLayer = ComposeLayer(
             layer = skiaLayer,
-            platform = uiKitPlatform,
-            input = uiKitTextInputService.skikoInput,
+            platform = platform,
+            input = inputServices.skikoInput,
         )
 
-        // weakThis is not reusable because WeakReference<ComposeWindow> is not convertible to WeakReference<UIViewController>
-        val weakViewController = WeakReference<UIViewController>(this)
-        val keyboardOverlapHeightState = keyboardOverlapHeightState
-        val safeAreaState = safeAreaState
-        val layoutMarginsState = layoutMarginsState
-        val interfaceOrientationState = interfaceOrientationState
-        val systemTheme = systemTheme
-
         composeLayer.setContent(
-            onPreviewKeyEvent = uiKitTextInputService::onPreviewKeyEvent,
+            onPreviewKeyEvent = inputServices::onPreviewKeyEvent,
             content = {
                 CompositionLocalProvider(
-                    LocalLayerContainer provides rootView,
-                    LocalUIViewController provides weakViewController,
+                    LocalLayerContainer provides view,
+                    LocalUIViewController provides this,
                     LocalKeyboardOverlapHeightState provides keyboardOverlapHeightState,
                     LocalSafeAreaState provides safeAreaState,
                     LocalLayoutMarginsState provides layoutMarginsState,
                     LocalInterfaceOrientationState provides interfaceOrientationState,
                     LocalSystemTheme provides systemTheme.value
                 ) {
-                    weakThis.get()?.content?.invoke()
+                    content()
                 }
             },
         )
 
-        composeLayerCleaner = createCleaner(composeLayer) {
-            it.dispose()
-        }
-    }
-
-    override fun traitCollectionDidChange(previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        systemTheme.value = traitCollection.userInterfaceStyle.asComposeSystemTheme()
-    }
-
-    override fun viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-
-        // UIKit possesses all required info for layout at this point
-        currentInterfaceOrientation?.let {
-            interfaceOrientationState.value = it
-        }
-
-        val (width, height) = getViewFrameSize()
-        composeLayer.setDensity(density)
-        val scale = density.density
-        composeLayer.setSize((width * scale).roundToInt(), (height * scale).roundToInt())
-    }
-
-    override fun viewDidAppear(animated: Boolean) {
-        super.viewDidAppear(animated)
-        NSNotificationCenter.defaultCenter.addObserver(
-            observer = keyboardVisibilityListener,
-            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardDidShow.name + ":"),
-            name = UIKeyboardDidShowNotification,
-            `object` = null
-        )
-        NSNotificationCenter.defaultCenter.addObserver(
-            observer = keyboardVisibilityListener,
-            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardWillHide.name + ":"),
-            name = UIKeyboardWillHideNotification,
-            `object` = null
-        )
-    }
-
-    // viewDidUnload() is deprecated and not called.
-    @OptIn(ExperimentalStdlibApi::class)
-    override fun viewWillDisappear(animated: Boolean) {
-        // TODO call dispose() function, but check how it will works with SwiftUI interop between different screens.
-        super.viewWillDisappear(animated)
-        NSNotificationCenter.defaultCenter.removeObserver(
-            observer = keyboardVisibilityListener,
-            name = UIKeyboardDidShowNotification,
-            `object` = null
-        )
-        NSNotificationCenter.defaultCenter.removeObserver(
-            observer = keyboardVisibilityListener,
-            name = UIKeyboardWillHideNotification,
-            `object` = null
-        )
-    }
-
-    override fun viewDidDisappear(animated: Boolean) {
-        super.viewDidDisappear(animated)
-
-        // Attempt to collect on next run loop cycle, if this ComposeWindow is gone for good
-        dispatch_async(dispatch_get_main_queue()) {
-            kotlin.native.internal.GC.collect()
-        }
-    }
-
-    override fun didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-
-        println("didReceiveMemoryWarning")
-        kotlin.native.internal.GC.collect()
-    }
-
-    actual fun setContent(
-        content: @Composable () -> Unit
-    ) {
-        this.content = content
-    }
-
-    actual fun dispose() {
-        composeLayer.dispose()
+        attachedComposeContext =
+            AttachedComposeContext(composeLayer, skiaLayer, skikoUIView, inputTraits, platform)
     }
 
     private fun getViewFrameSize(): IntSize {
@@ -478,8 +492,8 @@ internal actual class ComposeWindow : UIViewController {
     }
 }
 
-private fun UIUserInterfaceStyle.asComposeSystemTheme() : SystemTheme {
-    return when(this){
+private fun UIUserInterfaceStyle.asComposeSystemTheme(): SystemTheme {
+    return when (this) {
         UIUserInterfaceStyle.UIUserInterfaceStyleLight -> SystemTheme.Light
         UIUserInterfaceStyle.UIUserInterfaceStyleDark -> SystemTheme.Dark
         else -> SystemTheme.Unknown
