@@ -1466,7 +1466,7 @@ private constructor(
                 get() = displayNameInternal.toCharSequence()
 
             /** Backing field for [screenReaderName]. */
-            override var screenReaderNameInternal: DisplayText?
+            final override var screenReaderNameInternal: DisplayText?
 
             /**
              * Optional localized human readable name for the setting, used by screen readers. This
@@ -2250,7 +2250,7 @@ private constructor(
                 get() = displayNameInternal.toCharSequence()
 
             /** Backing field for [screenReaderName]. */
-            override var screenReaderNameInternal: DisplayText?
+            final override var screenReaderNameInternal: DisplayText?
 
             /**
              * Optional localized human readable name for the setting, used by screen readers. This

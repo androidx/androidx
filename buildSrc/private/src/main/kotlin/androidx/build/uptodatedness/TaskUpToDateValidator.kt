@@ -127,7 +127,10 @@ val ALLOW_RERUNNING_TASKS =
         ":privacysandbox:tools:tools-core:extractIncludeTestProto",
         ":test:screenshot:screenshot-proto:extractIncludeTestProto",
         ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
-        ":wear:tiles:tiles-proto:extractIncludeTestProto"
+        ":wear:tiles:tiles-proto:extractIncludeTestProto",
+
+        // https://youtrack.jetbrains.com/issue/KT-61931
+        "checkKotlinGradlePluginConfigurationErrors"
     )
 
 // Additional tasks that are expected to be temporarily out-of-date after running once
