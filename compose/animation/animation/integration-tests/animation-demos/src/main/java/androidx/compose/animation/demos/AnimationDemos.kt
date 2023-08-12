@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.core.samples.PathEasingSample
 import androidx.compose.animation.core.samples.SeekingAnimationSample
 import androidx.compose.animation.demos.fancy.AnimatedClockDemo
 import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
@@ -190,6 +191,7 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Column Arrangements Demo") { ColumnConfigurationDemo() },
                 ComposableDemo("Row Arrangements Demo (Landscape)") { RowConfigurationDemo() },
                 ComposableDemo("Easing Functions Demo") { EasingInfoDemo() },
+                ComposableDemo("Path Easing Function Demo") { PathEasingSample() },
             )
         ),
 
