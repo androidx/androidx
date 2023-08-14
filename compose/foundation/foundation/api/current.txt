@@ -1452,18 +1452,16 @@ package androidx.compose.foundation.text2.input {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.TextEditFilter allCaps(androidx.compose.foundation.text2.input.TextEditFilter.Companion, androidx.compose.ui.text.intl.Locale locale);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface CodepointTransformation {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface CodepointTransformation {
     method public int transform(int codepointIndex, int codepoint);
     field public static final androidx.compose.foundation.text2.input.CodepointTransformation.Companion Companion;
   }
 
   public static final class CodepointTransformation.Companion {
-    method public androidx.compose.foundation.text2.input.CodepointTransformation getNone();
-    property public final androidx.compose.foundation.text2.input.CodepointTransformation None;
   }
 
   public final class CodepointTransformationKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.CodepointTransformation mask(androidx.compose.foundation.text2.input.CodepointTransformation.Companion, char character);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.CodepointTransformation mask(androidx.compose.foundation.text2.input.CodepointTransformation.Companion, char character);
   }
 
   public final class MaxLengthFilterKt {
