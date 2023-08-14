@@ -1,0 +1,101 @@
+// Signature format: 4.0
+package androidx.car.app.activity {
+
+  public abstract class BaseCarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public BaseCarAppActivity();
+    method public void bindToViewModel(androidx.car.app.SessionInfo);
+    method public android.content.ComponentName? getServiceComponentName();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public android.content.ComponentName? retrieveServiceComponentName();
+  }
+
+  public final class CarAppActivity extends androidx.car.app.activity.BaseCarAppActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public CarAppActivity();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class LauncherActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public LauncherActivity();
+  }
+
+}
+
+package androidx.car.app.activity.renderer.surface {
+
+  @SuppressCompatibility public final class LegacySurfacePackage {
+    ctor public LegacySurfacePackage(androidx.car.app.activity.renderer.surface.SurfaceControlCallback);
+  }
+
+  public interface SurfaceControlCallback {
+    method public default void onError(String, Throwable);
+    method public void onKeyEvent(android.view.KeyEvent);
+    method public void onTouchEvent(android.view.MotionEvent);
+    method public void onWindowFocusChanged(boolean, boolean);
+    method public void setSurfaceWrapper(androidx.car.app.activity.renderer.surface.SurfaceWrapper);
+  }
+
+  @SuppressCompatibility public final class SurfaceWrapper {
+    ctor public SurfaceWrapper(android.os.IBinder?, @Dimension int, @Dimension int, int, int, android.view.Surface);
+    method public int getDensityDpi();
+    method public int getDisplayId();
+    method @Dimension public int getHeight();
+    method public android.os.IBinder? getHostToken();
+    method public android.view.Surface getSurface();
+    method @Dimension public int getWidth();
+  }
+
+}
+
+package androidx.car.app.hardware {
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class AutomotiveCarHardwareManager implements androidx.car.app.hardware.CarHardwareManager {
+    ctor public AutomotiveCarHardwareManager(android.content.Context);
+  }
+
+}
+
+package androidx.car.app.hardware.common {
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneAreaIdConstants {
+    field public static final int AREA_ID_GLOBAL = 0; // 0x0
+  }
+
+  public static final class CarZoneAreaIdConstants.VehicleAreaSeat {
+    field public static final int COL_ALL = 1911; // 0x777
+    field public static final int COL_CENTER = 546; // 0x222
+    field public static final int COL_LEFT = 273; // 0x111
+    field public static final int COL_RIGHT = 1092; // 0x444
+    field public static final int ROW_1_CENTER = 2; // 0x2
+    field public static final int ROW_1_LEFT = 1; // 0x1
+    field public static final int ROW_1_RIGHT = 4; // 0x4
+    field public static final int ROW_2_CENTER = 32; // 0x20
+    field public static final int ROW_2_LEFT = 16; // 0x10
+    field public static final int ROW_2_RIGHT = 64; // 0x40
+    field public static final int ROW_3_CENTER = 512; // 0x200
+    field public static final int ROW_3_LEFT = 256; // 0x100
+    field public static final int ROW_3_RIGHT = 1024; // 0x400
+    field public static final int ROW_ALL = 1911; // 0x777
+    field public static final int ROW_FIRST = 7; // 0x7
+    field public static final int ROW_SECOND = 112; // 0x70
+    field public static final int ROW_THIRD = 1792; // 0x700
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface CarZoneAreaIdConverter {
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class CarZoneUtils {
+    method public static com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int, int);
+    method public static androidx.car.app.hardware.common.CarZoneAreaIdConverter getZoneAreaIdConverter(int);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public class GlobalCarZoneAreaIdConverter implements androidx.car.app.hardware.common.CarZoneAreaIdConverter {
+    ctor public GlobalCarZoneAreaIdConverter();
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public class SeatCarZoneAreaIdConverter implements androidx.car.app.hardware.common.CarZoneAreaIdConverter {
+    ctor public SeatCarZoneAreaIdConverter();
+    method public com.google.common.collect.ImmutableSet<androidx.car.app.hardware.common.CarZone!> convertAreaIdToCarZones(int);
+  }
+
+}
+
