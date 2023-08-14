@@ -37,17 +37,21 @@ import kotlinx.coroutines.launch
  */
 internal object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
+    private val sent = AtomicBoolean(false)
 
     fun ensureStarted() {
         if (started.compareAndSet(false, true)) {
-            val channel = Channel<Unit>(Channel.CONFLATED)
+            val channel = Channel<Unit>(1)
             CoroutineScope(AndroidUiDispatcher.Main).launch {
                 channel.consumeEach {
+                    sent.set(false)
                     Snapshot.sendApplyNotifications()
                 }
             }
             Snapshot.registerGlobalWriteObserver {
-                channel.trySend(Unit)
+                if (sent.compareAndSet(false, true)) {
+                    channel.trySend(Unit)
+                }
             }
         }
     }
