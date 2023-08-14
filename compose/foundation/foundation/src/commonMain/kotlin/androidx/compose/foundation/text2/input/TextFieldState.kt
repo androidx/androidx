@@ -460,12 +460,3 @@ suspend fun TextFieldState.forEachTextValue(
     textAsFlow().collectLatest(block)
     error("textAsFlow expected not to complete without exception")
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun TextFieldState.deselect() {
-    if (!text.selectionInChars.collapsed) {
-        edit {
-            selectCharsIn(TextRange(text.selectionInChars.max))
-        }
-    }
-}

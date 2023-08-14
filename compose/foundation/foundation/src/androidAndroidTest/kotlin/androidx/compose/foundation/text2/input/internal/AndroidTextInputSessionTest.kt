@@ -219,9 +219,12 @@ class AndroidTextInputSessionTest {
         imeOptions: ImeOptions = ImeOptions.Default,
         onImeAction: (ImeAction) -> Unit = {}
     ): Nothing = platformSpecificTextInputSession(
-        state = state,
+        state = TransformedTextFieldState(
+            textFieldState = state,
+            inputTransformation = null,
+            codepointTransformation = null
+        ),
         imeOptions = imeOptions,
-        filter = null,
         onImeAction = onImeAction
     )
 

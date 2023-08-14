@@ -26,7 +26,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.runtime.snapshotFlow
@@ -78,11 +77,10 @@ import kotlinx.coroutines.withContext
  *
  * This modifier mostly handles layout and draw.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldCoreModifier(
     private val isFocused: Boolean,
     private val textLayoutState: TextLayoutState,
-    private val textFieldState: TextFieldState,
+    private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
     private val cursorBrush: Brush,
     private val writeable: Boolean,
@@ -124,7 +122,7 @@ internal data class TextFieldCoreModifier(
 internal class TextFieldCoreModifierNode(
     private var isFocused: Boolean,
     private var textLayoutState: TextLayoutState,
-    private var textFieldState: TextFieldState,
+    private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var cursorBrush: Brush,
     private var writeable: Boolean,
@@ -177,7 +175,7 @@ internal class TextFieldCoreModifierNode(
     fun updateNode(
         isFocused: Boolean,
         textLayoutState: TextLayoutState,
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         cursorBrush: Brush,
         writeable: Boolean,

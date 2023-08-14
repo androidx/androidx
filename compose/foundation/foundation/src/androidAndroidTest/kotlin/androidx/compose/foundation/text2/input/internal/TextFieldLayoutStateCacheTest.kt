@@ -57,7 +57,11 @@ class TextFieldLayoutStateCacheTest {
     val rule = createComposeRule()
 
     private var textFieldState = TextFieldState()
-    private var codepointTransformation: CodepointTransformation? = null
+    private var transformedTextFieldState = TransformedTextFieldState(
+        textFieldState,
+        inputTransformation = null,
+        codepointTransformation = null
+    )
     private var textStyle = TextStyle()
     private var singleLine = false
     private var softWrap = false
@@ -120,7 +124,12 @@ class TextFieldLayoutStateCacheTest {
     @Test
     fun updateNonMeasureInputs_invalidatesSnapshot_whenCodepointTransformationChanged() {
         assertInvalidationsOnChange(1) {
-            codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+            val codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+            transformedTextFieldState = TransformedTextFieldState(
+                textFieldState,
+                inputTransformation = null,
+                codepointTransformation
+            )
             updateNonMeasureInputs()
         }
     }
@@ -264,12 +273,16 @@ class TextFieldLayoutStateCacheTest {
     fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingSameVisualText() {
         var transformationState by mutableStateOf(1)
         var transformationInvocations = 0
-        codepointTransformation = CodepointTransformation { _, codepoint ->
+        val codepointTransformation = CodepointTransformation { _, codepoint ->
             transformationInvocations++
             @Suppress("UNUSED_EXPRESSION")
             transformationState
             codepoint + 1
         }
+        transformedTextFieldState = TransformedTextFieldState(
+            textFieldState, inputTransformation = null,
+            codepointTransformation
+        )
         // Transformation isn't applied if there's no text. Keep this at 1 char to make the math
         // simpler.
         textFieldState.setTextAndPlaceCursorAtEnd("h")
@@ -295,14 +308,14 @@ class TextFieldLayoutStateCacheTest {
                 primaryInvalidations++
                 assertVisualText()
             }) { assertVisualText() }
-            assertThat(transformationInvocations).isEqualTo(2)
+            assertThat(transformationInvocations).isEqualTo(1)
 
             // This should be a full cache hit.
             secondaryObserver.observeReads(Unit, onValueChangedForScope = {
                 secondaryInvalidations++
                 assertVisualText()
             }) { assertVisualText() }
-            assertThat(transformationInvocations).isEqualTo(3)
+            assertThat(transformationInvocations).isEqualTo(1)
 
             // Invalidate the transformation.
             transformationState++
@@ -312,7 +325,7 @@ class TextFieldLayoutStateCacheTest {
         }
 
         assertVisualText()
-        assertThat(transformationInvocations).isEqualTo(6)
+        assertThat(transformationInvocations).isEqualTo(2)
         assertThat(primaryInvalidations).isEqualTo(1)
         assertThat(secondaryInvalidations).isEqualTo(1)
     }
@@ -321,10 +334,15 @@ class TextFieldLayoutStateCacheTest {
     fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingNewVisualText() {
         var transformationState by mutableStateOf(1)
         var transformationInvocations = 0
-        codepointTransformation = CodepointTransformation { _, codepoint ->
+        val codepointTransformation = CodepointTransformation { _, codepoint ->
             transformationInvocations++
             codepoint + transformationState
         }
+        transformedTextFieldState = TransformedTextFieldState(
+            textFieldState,
+            inputTransformation = null,
+            codepointTransformation
+        )
         // Transformation isn't applied if there's no text. Keep this at 1 char to make the math
         // simpler.
         textFieldState.setTextAndPlaceCursorAtEnd("h")
@@ -350,14 +368,14 @@ class TextFieldLayoutStateCacheTest {
                 primaryInvalidations++
                 assertVisualText()
             }) { assertVisualText() }
-            assertThat(transformationInvocations).isEqualTo(2)
+            assertThat(transformationInvocations).isEqualTo(1)
 
             // This should be a full cache hit.
             secondaryObserver.observeReads(Unit, onValueChangedForScope = {
                 secondaryInvalidations++
                 assertVisualText()
             }) { assertVisualText() }
-            assertThat(transformationInvocations).isEqualTo(3)
+            assertThat(transformationInvocations).isEqualTo(1)
 
             // Invalidate the transformation.
             expectedVisualText = "j"
@@ -369,7 +387,7 @@ class TextFieldLayoutStateCacheTest {
 
         assertVisualText()
         // Two more reads means two more applications of the transformation.
-        assertThat(transformationInvocations).isEqualTo(6)
+        assertThat(transformationInvocations).isEqualTo(2)
         assertThat(primaryInvalidations).isEqualTo(1)
         assertThat(secondaryInvalidations).isEqualTo(1)
     }
@@ -413,10 +431,20 @@ class TextFieldLayoutStateCacheTest {
     @Test
     fun value_returnsNewLayout_whenCodepointTransformationInstanceChangedWithDifferentOutput() {
         textFieldState.setTextAndPlaceCursorAtEnd("h")
-        codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+        var codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+        transformedTextFieldState = TransformedTextFieldState(
+            textFieldState,
+            inputTransformation = null,
+            codepointTransformation
+        )
         assertLayoutChange(
             change = {
                 codepointTransformation = CodepointTransformation { _, codepoint -> codepoint + 1 }
+                transformedTextFieldState = TransformedTextFieldState(
+                    textFieldState,
+                    inputTransformation = null,
+                    codepointTransformation
+                )
                 updateNonMeasureInputs()
             }
         ) { old, new ->
@@ -428,10 +456,20 @@ class TextFieldLayoutStateCacheTest {
     @Test
     fun value_returnsCachedLayout_whenCodepointTransformationInstanceChangedWithSameOutput() {
         textFieldState.setTextAndPlaceCursorAtEnd("h")
-        codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+        var codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+        transformedTextFieldState = TransformedTextFieldState(
+            textFieldState,
+            inputTransformation = null,
+            codepointTransformation
+        )
         assertLayoutChange(
             change = {
                 codepointTransformation = CodepointTransformation { _, codepoint -> codepoint }
+                transformedTextFieldState = TransformedTextFieldState(
+                    textFieldState,
+                    inputTransformation = null,
+                    codepointTransformation
+                )
                 updateNonMeasureInputs()
             }
         ) { old, new ->
@@ -706,8 +744,7 @@ class TextFieldLayoutStateCacheTest {
 
     private fun updateNonMeasureInputs() {
         cache.updateNonMeasureInputs(
-            textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
+            textFieldState = transformedTextFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = softWrap
