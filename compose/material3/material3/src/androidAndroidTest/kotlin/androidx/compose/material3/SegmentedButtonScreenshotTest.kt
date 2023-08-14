@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -53,7 +54,11 @@ class SegmentedButtonScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
-                    SegmentedButton(checked = false, onCheckedChange = {}) {
+                    SegmentedButton(
+                        checked = false,
+                        onCheckedChange = {},
+                        shape = RectangleShape,
+                    ) {
                         Text(it)
                     }
                 }
@@ -68,7 +73,7 @@ class SegmentedButtonScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
-                    SegmentedButton(checked = true, onCheckedChange = {}) {
+                    SegmentedButton(checked = true, onCheckedChange = {}, shape = RectangleShape) {
                         Text(it)
                     }
                 }
@@ -83,7 +88,11 @@ class SegmentedButtonScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
-                    SegmentedButton(checked = index == 1, onCheckedChange = {}) {
+                    SegmentedButton(
+                        checked = index == 1,
+                        onCheckedChange = {},
+                        shape = RectangleShape,
+                    ) {
                         Text(item)
                     }
                 }
@@ -111,7 +120,8 @@ class SegmentedButtonScreenshotTest {
                                     modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
                                 )
                             }
-                        }
+                        },
+                        shape = RectangleShape,
                     ) {
                         Text(item)
                     }
@@ -134,7 +144,8 @@ class SegmentedButtonScreenshotTest {
                     SegmentedButton(
                         checked = index == 1,
                         onCheckedChange = {},
-                        colors = colors
+                        colors = colors,
+                        shape = RectangleShape,
                     ) {
                         Text(item)
                     }
@@ -154,7 +165,7 @@ class SegmentedButtonScreenshotTest {
             )
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
-                    val shape = SegmentedButtonDefaults.shape(index, values.size)
+                    val shape = SegmentedButtonDefaults.itemShape(index, values.size)
 
                     SegmentedButton(
                         checked = index == 1,
@@ -176,7 +187,11 @@ class SegmentedButtonScreenshotTest {
         rule.setMaterialContent(darkColorScheme()) {
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
-                    SegmentedButton(checked = false, onCheckedChange = {}) {
+                    SegmentedButton(
+                        checked = false,
+                        onCheckedChange = {},
+                        shape = RectangleShape,
+                    ) {
                         Text(it)
                     }
                 }
@@ -191,7 +206,7 @@ class SegmentedButtonScreenshotTest {
         rule.setMaterialContent(darkColorScheme()) {
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEach {
-                    SegmentedButton(checked = true, onCheckedChange = {}) {
+                    SegmentedButton(checked = true, onCheckedChange = {}, shape = RectangleShape) {
                         Text(it)
                     }
                 }
