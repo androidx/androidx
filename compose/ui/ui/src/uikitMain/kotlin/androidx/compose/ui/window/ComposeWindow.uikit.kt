@@ -165,7 +165,7 @@ internal actual class ComposeWindow : UIViewController {
     private val keyboardVisibilityListener = object : NSObject() {
         @Suppress("unused")
         @ObjCAction
-        fun keyboardDidShow(arg: NSNotification) {
+        fun keyboardWillShow(arg: NSNotification) {
             val keyboardInfo = arg.userInfo!!["UIKeyboardFrameEndUserInfoKey"] as NSValue
             val keyboardHeight = keyboardInfo.CGRectValue().useContents { size.height }
             val screenHeight = UIScreen.mainScreen.bounds.useContents { size.height }
@@ -301,8 +301,8 @@ internal actual class ComposeWindow : UIViewController {
         super.viewDidAppear(animated)
         NSNotificationCenter.defaultCenter.addObserver(
             observer = keyboardVisibilityListener,
-            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardDidShow.name + ":"),
-            name = UIKeyboardDidShowNotification,
+            selector = NSSelectorFromString(keyboardVisibilityListener::keyboardWillShow.name + ":"),
+            name = UIKeyboardWillShowNotification,
             `object` = null
         )
         NSNotificationCenter.defaultCenter.addObserver(
@@ -319,7 +319,7 @@ internal actual class ComposeWindow : UIViewController {
 
         NSNotificationCenter.defaultCenter.removeObserver(
             observer = keyboardVisibilityListener,
-            name = UIKeyboardDidShowNotification,
+            name = UIKeyboardWillShowNotification,
             `object` = null
         )
         NSNotificationCenter.defaultCenter.removeObserver(
