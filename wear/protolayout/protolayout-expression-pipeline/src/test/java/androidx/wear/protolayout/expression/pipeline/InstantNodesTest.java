@@ -70,4 +70,23 @@ public class InstantNodesTest {
         node.destroy();
         assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(0);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPlatformTimeSourceNode_noEpochTime() {
+        PlatformTimeUpdateNotifier notifier = mock(PlatformTimeUpdateNotifier.class);
+        DynamicTypeValueReceiverWithPreUpdate<Instant> downstream =
+                mock(DynamicTypeValueReceiverWithPreUpdate.class);
+
+        PlatformTimeSourceNode node = new PlatformTimeSourceNode(
+                /* epochTimePlatformDataSource= */ null, downstream);
+
+        node.preInit();
+        verify(downstream).onPreUpdate();
+
+        node.init();
+        verify(downstream).onInvalidated();
+
+        node.destroy();
+    }
 }
