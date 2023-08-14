@@ -16,9 +16,9 @@
 
 package androidx.wear.protolayout.material.test;
 
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 
 import android.app.Activity;
 import android.content.Context;

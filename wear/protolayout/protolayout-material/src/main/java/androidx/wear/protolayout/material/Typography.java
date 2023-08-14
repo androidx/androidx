@@ -24,7 +24,7 @@ import static androidx.wear.protolayout.LayoutElementBuilders.FONT_VARIANT_TITLE
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_BOLD;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_MEDIUM;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_NORMAL;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -25,8 +25,8 @@ import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
 
 import android.content.Context;
 

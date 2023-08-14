@@ -18,27 +18,26 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin-android")
     id("com.android.library")
+}
+
+android {
+    defaultConfig {
+        minSdk 26
+    }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    namespace "androidx.wear.protolayout.materialcore"
 }
 
 dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
     api(project(":wear:protolayout:protolayout"))
-    implementation(project(":wear:protolayout:protolayout-material-core"))
     implementation(project(":wear:protolayout:protolayout-proto"))
-    implementation("androidx.annotation:annotation-experimental:1.3.0")
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.core:core:1.7.0")
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
-    androidTestRuntimeOnly(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
-    androidTestImplementation(libs.protobuf)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
@@ -51,25 +50,10 @@ dependencies {
     testImplementation(libs.truth)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 26
-    }
-
-    sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-protolayout-material"
-    }
-
-    defaultConfig {
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    namespace "androidx.wear.protolayout.material"
-}
-
 androidx {
-    name = "androidx.wear.protolayout:protolayout-material"
+    name = "androidx.wear.protolayout:protolayout-material-core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
-    description = "Material components library for ProtoLayout."
+    description = "Material Core components library for ProtoLayout. This library contains" +
+            "themeless components that are shared with ProtoLayout Material libraries."
 }

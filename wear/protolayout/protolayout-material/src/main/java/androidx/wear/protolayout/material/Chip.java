@@ -29,11 +29,11 @@ import static androidx.wear.protolayout.material.ChipDefaults.ICON_SPACER_WIDTH;
 import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_WIDTH;
 import static androidx.wear.protolayout.material.ChipDefaults.PRIMARY_COLORS;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.Helper.radiusOf;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.radiusOf;
 
 import static java.lang.Math.max;
 
