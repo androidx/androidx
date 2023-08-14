@@ -16,13 +16,37 @@
 
 package androidx.playground
 
+import androidx.build.AndroidXPlaygroundRootImplPlugin
+import androidx.build.AndroidXPlaygroundRootPlugin
+import androidx.build.AndroidXRootImplPlugin
+import androidx.build.AndroidXRootPlugin
+import java.io.File
 import org.gradle.api.Plugin
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.FileCollection
 import org.gradle.api.initialization.Settings
+import org.gradle.api.initialization.dsl.ScriptHandler
+import org.gradle.api.internal.file.collections.DefaultConfigurableFileCollection
 
 class PlaygroundPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         settings.apply(mapOf("plugin" to "playground-ge-conventions"))
         settings.extensions.create("playground", PlaygroundExtension::class.java, settings)
+//        settings.pluginManagement.includeBuild("../buildSrc") {
+//            it.name = "notBuildSrc"
+//        }
+//        settings.pluginManagement.includeBuild("../buildSrc") {
+//            it.name = "notBuildSrc2"
+//        }
+        settings.pluginManagement.repositories.apply {
+            this.gradlePluginPortal()
+            this.mavenCentral()
+            this.google()
+        }
+//        settings.gradle.rootProject { rootProject ->
+//            rootProject.pluginManager.apply(AndroidXRootPlugin::class.java)
+//            rootProject.pluginManager.apply(AndroidXPlaygroundRootPlugin::class.java)
+//        }
         validateJvm(settings)
     }
 

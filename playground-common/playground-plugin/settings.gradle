@@ -17,24 +17,32 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal().content {
-            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
-        }
+        google()
+        gradlePluginPortal()
+//        content {
+//            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+//        }
     }
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        gradlePluginPortal().content {
-            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
-            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
-        }
+        google()
+        gradlePluginPortal()
+//                .content {
+//            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+//            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+//            it.includeModule("org.spdx", "spdx-gradle-plugin")
+//            it.includeModule("gradle.plugin.com.github.johnrengelman", "shadow")
+//        }
     }
 }
 
 rootProject.name = "playground-plugin"
-
+includeBuild("../../buildSrc") {
+    name = "notBuildSrc"
+}
 // Build cache configuration is duplicated here from the GradleEnterpriseConventionsPlugin,
 // so that when building the `playground-plugin` included build the same build cache settings will be used.
 // Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.

@@ -16,7 +16,10 @@
 
 package androidx.playground
 
+import androidx.build.AndroidXPlaygroundRootPlugin
+import androidx.build.AndroidXRootPlugin
 import androidx.build.SettingsParser
+import androidx.build.setSupportRootFolder
 import org.gradle.api.GradleException
 import org.gradle.api.initialization.Settings
 import java.io.File
@@ -103,6 +106,7 @@ open class PlaygroundExtension @Inject constructor(
                     "org.jetbrains.kotlin.plugin.serialization",
                     "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
                 )
+                it.includeGroup("org.spdx")
             }
         }
         val projectDir = settings.rootProject.projectDir
@@ -134,6 +138,10 @@ open class PlaygroundExtension @Inject constructor(
 
         // specify out dir location
         System.setProperty("CHECKOUT_ROOT", supportRoot.path)
+
+        settings.gradle.rootProject { rootProject ->
+            rootProject.setSupportRootFolder(supportRoot)
+        }
     }
 
     /**
