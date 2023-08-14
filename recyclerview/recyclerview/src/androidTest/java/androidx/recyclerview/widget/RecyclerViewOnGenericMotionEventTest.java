@@ -32,6 +32,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.core.view.DifferentialMotionFlingHelper;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.ViewConfigurationCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -342,7 +343,21 @@ public class RecyclerViewOnGenericMotionEventTest {
 
     private TestDifferentialMotionFlingHelper createDummyFlingHelper() {
         return new TestDifferentialMotionFlingHelper(
-                mRecyclerView.getContext(), new TestDifferentialMotionFlingTarget());
+                mRecyclerView.getContext(),
+                new DifferentialMotionFlingHelper.DifferentialMotionFlingTarget() {
+                    @Override
+                    public boolean startDifferentialMotionFling(float velocity) {
+                        return false;
+                    }
+
+                    @Override
+                    public void stopDifferentialMotionFling() {}
+
+                    @Override
+                    public float getScaledScrollFactor() {
+                        return 0;
+                    }
+                });
     }
 
     private static class TestDifferentialMotionFlingHelper extends DifferentialMotionFlingHelper {
