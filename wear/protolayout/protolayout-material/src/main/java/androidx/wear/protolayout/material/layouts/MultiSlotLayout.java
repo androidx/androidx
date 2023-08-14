@@ -19,11 +19,11 @@ package androidx.wear.protolayout.material.layouts;
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagName;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagName;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
 
 import android.annotation.SuppressLint;
 

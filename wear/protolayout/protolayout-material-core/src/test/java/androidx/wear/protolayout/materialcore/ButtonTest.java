@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.wear.protolayout.material;
+package androidx.wear.protolayout.materialcore;
 
 import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
-import static androidx.wear.protolayout.material.ButtonDefaults.DEFAULT_SIZE;
-import static androidx.wear.protolayout.material.ButtonDefaults.EXTRA_LARGE_SIZE;
-import static androidx.wear.protolayout.material.ButtonDefaults.LARGE_SIZE;
-import static androidx.wear.protolayout.material.ButtonDefaults.PRIMARY_COLORS;
+import static androidx.wear.protolayout.materialcore.Button.Builder.CUSTOM_CONTENT;
+import static androidx.wear.protolayout.materialcore.Button.Builder.ICON;
+import static androidx.wear.protolayout.materialcore.Button.Builder.IMAGE;
+import static androidx.wear.protolayout.materialcore.Button.Builder.TEXT;
 import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_CUSTOM_CONTENT;
-import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_ICON;
-import static androidx.wear.protolayout.materialcore.Button.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import android.content.Context;
+import android.graphics.Color;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
@@ -54,12 +52,10 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class ButtonTest {
-    private static final String RESOURCE_ID = "icon";
-    private static final String TEXT = "ABC";
     private static final StringProp CONTENT_DESCRIPTION =
             new StringProp.Builder("clickable button").build();
     private static final StringProp DYNAMIC_CONTENT_DESCRIPTION =
-            new StringProp.Builder("static value")
+            new StringProp.Builder("static")
                     .setDynamicValue(DynamicString.constant("clickable button"))
                     .build();
     private static final Clickable CLICKABLE =
@@ -67,111 +63,42 @@ public class ButtonTest {
                     .setOnClick(new LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
-    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final LayoutElement CONTENT =
-            new Text.Builder(CONTEXT, "ABC").setColor(argb(0)).build();
+
+    // Material core Button doesn't care what content is inside, so we can re-use this object in all
+    // tests.
+    private static final LayoutElement CONTENT = new Box.Builder().build();
+    private static final DpProp SIZE = dp(50f);
+    private static final int COLOR = Color.YELLOW;
 
     @Test
-    public void testButtonCustomAddedContentNoContentDesc() {
-        Button button = new Button.Builder(CONTEXT, CLICKABLE).setCustomContent(CONTENT).build();
-
-        assertButton(
-                button,
-                DEFAULT_SIZE,
-                new ButtonColors(Colors.PRIMARY, 0),
-                null,
-                METADATA_TAG_CUSTOM_CONTENT,
-                null,
-                null,
-                null,
-                CONTENT);
-    }
-
-    @Test
-    public void testButtonCustom() {
-        DpProp mSize = LARGE_SIZE;
-        ButtonColors mButtonColors = new ButtonColors(0x11223344, 0);
-
+    public void testButtonCustomContentNoContentDescNoColor() {
         Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setCustomContent(CONTENT)
-                        .setSize(mSize)
-                        .setButtonColors(mButtonColors)
-                        .setContentDescription(CONTENT_DESCRIPTION)
+                new Button.Builder(CLICKABLE)
+                        .setSize(SIZE)
+                        .setContent(CONTENT, CUSTOM_CONTENT)
                         .build();
 
         assertButton(
-                button,
-                mSize,
-                mButtonColors,
-                CONTENT_DESCRIPTION,
-                METADATA_TAG_CUSTOM_CONTENT,
-                null,
-                null,
-                null,
-                CONTENT);
+                button, Color.BLACK, null, METADATA_TAG_CUSTOM_CONTENT, null, null, null, CONTENT);
     }
 
     @Test
     public void testButtonSetIcon() {
-
         Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setIconContent(RESOURCE_ID)
+                new Button.Builder(CLICKABLE)
+                        .setSize(SIZE)
+                        .setContent(CONTENT, ICON)
+                        .setBackgroundColor(argb(COLOR))
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
+                COLOR,
                 CONTENT_DESCRIPTION,
-                METADATA_TAG_ICON,
+                Button.METADATA_TAG_ICON,
                 null,
-                RESOURCE_ID,
-                null,
-                null);
-    }
-
-    @Test
-    public void testButtonSetIconSetSize() {
-        Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setIconContent(RESOURCE_ID)
-                        .setSize(LARGE_SIZE)
-                        .setContentDescription(CONTENT_DESCRIPTION)
-                        .build();
-
-        assertButton(
-                button,
-                LARGE_SIZE,
-                PRIMARY_COLORS,
-                CONTENT_DESCRIPTION,
-                METADATA_TAG_ICON,
-                null,
-                RESOURCE_ID,
-                null,
-                null);
-    }
-
-    @Test
-    public void testButtonSetIconCustomSize() {
-        DpProp mSize = dp(36);
-
-        Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setIconContent(RESOURCE_ID, mSize)
-                        .setContentDescription(CONTENT_DESCRIPTION)
-                        .build();
-
-        assertButton(
-                button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
-                CONTENT_DESCRIPTION,
-                METADATA_TAG_ICON,
-                null,
-                RESOURCE_ID,
+                CONTENT,
                 null,
                 null);
     }
@@ -179,41 +106,42 @@ public class ButtonTest {
     @Test
     public void testButtonSetText() {
         Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setTextContent(TEXT)
+                new Button.Builder(CLICKABLE)
+                        .setSize(SIZE)
+                        .setContent(CONTENT, TEXT)
+                        .setBackgroundColor(argb(COLOR))
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
         assertButton(
                 button,
-                DEFAULT_SIZE,
-                PRIMARY_COLORS,
+                COLOR,
                 CONTENT_DESCRIPTION,
-                METADATA_TAG_TEXT,
-                TEXT,
+                Button.METADATA_TAG_TEXT,
+                CONTENT,
                 null,
                 null,
                 null);
     }
 
     @Test
-    public void testButtonSetTextSetSize() {
+    public void testButtonSetImage() {
         Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setTextContent(TEXT)
+                new Button.Builder(CLICKABLE)
+                        .setSize(SIZE)
+                        .setContent(CONTENT, IMAGE)
+                        .setBackgroundColor(argb(COLOR))
                         .setContentDescription(CONTENT_DESCRIPTION)
-                        .setSize(EXTRA_LARGE_SIZE)
                         .build();
 
         assertButton(
                 button,
-                EXTRA_LARGE_SIZE,
-                PRIMARY_COLORS,
+                COLOR,
                 CONTENT_DESCRIPTION,
-                METADATA_TAG_TEXT,
-                TEXT,
+                Button.METADATA_TAG_IMAGE,
                 null,
                 null,
+                CONTENT,
                 null);
     }
 
@@ -250,10 +178,10 @@ public class ButtonTest {
     @Test
     public void testDynamicContentDescription() {
         Button button =
-                new Button.Builder(CONTEXT, CLICKABLE)
-                        .setTextContent(TEXT)
+                new Button.Builder(CLICKABLE)
+                        .setSize(SIZE)
+                        .setContent(CONTENT, TEXT)
                         .setContentDescription(DYNAMIC_CONTENT_DESCRIPTION)
-                        .setSize(EXTRA_LARGE_SIZE)
                         .build();
 
         assertThat(button.getContentDescription().toProto())
@@ -262,18 +190,16 @@ public class ButtonTest {
 
     private void assertButton(
             @NonNull Button actualButton,
-            @NonNull DpProp expectedSize,
-            @NonNull ButtonColors expectedButtonColors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
-            @Nullable String expectedTextContent,
-            @Nullable String expectedIconContent,
-            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedTextContent,
+            @Nullable LayoutElement expectedIconContent,
+            @Nullable LayoutElement expectedImageContent,
             @Nullable LayoutElement expectedCustomContent) {
         assertButtonIsEqual(
                 actualButton,
-                expectedSize,
-                expectedButtonColors,
+                expectedBackgroundColor,
                 expectedContentDescription,
                 expectedMetadataTag,
                 expectedTextContent,
@@ -283,8 +209,7 @@ public class ButtonTest {
 
         assertFromLayoutElementButtonIsEqual(
                 actualButton,
-                expectedSize,
-                expectedButtonColors,
+                expectedBackgroundColor,
                 expectedContentDescription,
                 expectedMetadataTag,
                 expectedTextContent,
@@ -297,23 +222,24 @@ public class ButtonTest {
 
     private void assertButtonIsEqual(
             @NonNull Button actualButton,
-            @NonNull DpProp expectedSize,
-            @NonNull ButtonColors expectedButtonColors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
-            @Nullable String expectedTextContent,
-            @Nullable String expectedIconContent,
-            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedTextContent,
+            @Nullable LayoutElement expectedIconContent,
+            @Nullable LayoutElement expectedImageContent,
             @Nullable LayoutElement expectedCustomContent) {
         // Mandatory
         assertThat(actualButton.getMetadataTag()).isEqualTo(expectedMetadataTag);
         assertThat(actualButton.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
-        assertThat(actualButton.getSize().toContainerDimensionProto())
-                .isEqualTo(expectedSize.toContainerDimensionProto());
-        assertThat(actualButton.getButtonColors().getBackgroundColor().getArgb())
-                .isEqualTo(expectedButtonColors.getBackgroundColor().getArgb());
-        assertThat(actualButton.getButtonColors().getContentColor().getArgb())
-                .isEqualTo(expectedButtonColors.getContentColor().getArgb());
+        assertThat(
+                        actualButton
+                                .getSize()
+                                .toContainerDimensionProto()
+                                .getLinearDimension()
+                                .getValue())
+                .isEqualTo(SIZE.getValue());
+        assertThat(actualButton.getBackgroundColor().getArgb()).isEqualTo(expectedBackgroundColor);
 
         // Nullable
         if (expectedContentDescription == null) {
@@ -323,41 +249,36 @@ public class ButtonTest {
                     .isEqualTo(expectedContentDescription.toProto());
         }
 
-        if (expectedTextContent == null) {
-            assertThat(actualButton.getTextContent()).isNull();
-        } else {
-            assertThat(actualButton.getTextContent()).isEqualTo(expectedTextContent);
+        LayoutElement expectedContent = null;
+
+        if (expectedTextContent != null) {
+            expectedContent = expectedTextContent;
         }
 
-        if (expectedIconContent == null) {
-            assertThat(actualButton.getIconContent()).isNull();
-        } else {
-            assertThat(actualButton.getIconContent()).isEqualTo(expectedIconContent);
+        if (expectedIconContent != null) {
+            expectedContent = expectedIconContent;
         }
 
-        if (expectedImageContent == null) {
-            assertThat(actualButton.getImageContent()).isNull();
-        } else {
-            assertThat(actualButton.getImageContent()).isEqualTo(expectedImageContent);
+        if (expectedImageContent != null) {
+            expectedContent = expectedImageContent;
         }
 
-        if (expectedCustomContent == null) {
-            assertThat(actualButton.getCustomContent()).isNull();
-        } else {
-            assertThat(actualButton.getCustomContent().toLayoutElementProto())
-                    .isEqualTo(expectedCustomContent.toLayoutElementProto());
+        if (expectedCustomContent != null) {
+            expectedContent = expectedCustomContent;
         }
+
+        assertThat(actualButton.getContent().toLayoutElementProto())
+                .isEqualTo(expectedContent.toLayoutElementProto());
     }
 
     private void assertFromLayoutElementButtonIsEqual(
             @NonNull Button button,
-            @NonNull DpProp expectedSize,
-            @NonNull ButtonColors expectedButtonColors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContentDescription,
             @NonNull String expectedMetadataTag,
-            @Nullable String expectedTextContent,
-            @Nullable String expectedIconContent,
-            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedTextContent,
+            @Nullable LayoutElement expectedIconContent,
+            @Nullable LayoutElement expectedImageContent,
             @Nullable LayoutElement expectedCustomContent) {
         Box box = new Box.Builder().addContent(button).build();
 
@@ -366,8 +287,7 @@ public class ButtonTest {
         assertThat(newButton).isNotNull();
         assertButtonIsEqual(
                 newButton,
-                expectedSize,
-                expectedButtonColors,
+                expectedBackgroundColor,
                 expectedContentDescription,
                 expectedMetadataTag,
                 expectedTextContent,
