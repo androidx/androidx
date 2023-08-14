@@ -16,9 +16,12 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.util.Log;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 
@@ -39,10 +42,17 @@ import java.util.ServiceLoader;
 @AnyThread
 public abstract class AppSearchDocumentClassMap {
 
+    private static final String TAG = "AppSearchDocumentClassM";
+
     /**
      * The cached value of {@link #getMergedMap()}.
      */
     private static volatile Map<String, List<String>> sMergedMap = null;
+
+    /**
+     * The cached value of {@code Class.forName(className)} for AppSearch document classes.
+     */
+    private static volatile Map<String, Class<?>> sCachedAppSearchClasses = new ArrayMap<>();
 
     /**
      * Collects all of the instances of the generated {@link AppSearchDocumentClassMap} classes
@@ -64,11 +74,58 @@ public abstract class AppSearchDocumentClassMap {
     }
 
     /**
+     * Looks up the merged map to find a class for {@code schemaName} that is assignable to
+     * {@code documentClass}. Returns null if such class is not found.
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static <T> Class<? extends T> getAssignableClassBySchemaName(@NonNull String schemaName,
+            @NonNull Class<T> documentClass) {
+        Map<String, List<String>> map = getMergedMap();
+        List<String> classNames = map.get(schemaName);
+        if (classNames == null) {
+            return null;
+        }
+        // If there are multiple classes that correspond to the schema name, then we will:
+        // 1. skip any classes that are not assignable to documentClass.
+        // 2. if there are still multiple candidates, return the first one in the merged map.
+        for (int i = 0; i < classNames.size(); ++i) {
+            String className = classNames.get(i);
+            try {
+                Class<?> clazz = getAppSearchDocumentClass(className);
+                if (documentClass.isAssignableFrom(clazz)) {
+                    return clazz.asSubclass(documentClass);
+                }
+            } catch (ClassNotFoundException e) {
+                Log.w(TAG, "Failed to load document class \"" + className + "\". Perhaps the "
+                        + "class was proguarded out?");
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the map from schema type names to the list of the fully qualified names of the
      * corresponding document classes.
      */
     @NonNull
     protected abstract Map<String, List<String>> getMap();
+
+    @NonNull
+    private static Class<?> getAppSearchDocumentClass(@NonNull String className)
+            throws ClassNotFoundException {
+        Class<?> result;
+        synchronized (AppSearchDocumentClassMap.class) {
+            result = sCachedAppSearchClasses.get(className);
+        }
+        if (result == null) {
+            result = Class.forName(className);
+            synchronized (AppSearchDocumentClassMap.class) {
+                sCachedAppSearchClasses.put(className, result);
+            }
+        }
+        return result;
+    }
 
     @NonNull
     @GuardedBy("AppSearchDocumentClassMap.class")

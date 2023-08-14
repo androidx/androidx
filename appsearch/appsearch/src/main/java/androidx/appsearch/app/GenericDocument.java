@@ -936,6 +936,13 @@ public class GenericDocument {
      * assigned into fields of the given document class. As such, the most likely outcome of
      * supplying the wrong document class would be an empty or partially populated result.
      *
+     * <p>If this GenericDocument's type is recorded as a subtype of the provided
+     * {@code documentClass}, the method will find an AppSearch document class that is the most
+     * concrete and assignable to {@code documentClass}, and then deserialize to that class
+     * instead. This allows for more specific and accurate deserialization of GenericDocuments.
+     * Parent types are specified via {@link AppSearchSchema.Builder#addParentType(String)} or
+     * the annotation parameter {@link Document#parent()}.
+     *
      * @param documentClass a class annotated with {@link Document}
      * @return an instance of the document class after being converted from a
      * {@link GenericDocument}
@@ -947,8 +954,43 @@ public class GenericDocument {
     public <T> T toDocumentClass(@NonNull Class<T> documentClass) throws AppSearchException {
         Preconditions.checkNotNull(documentClass);
         DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-        DocumentClassFactory<T> factory = registry.getOrCreateFactory(documentClass);
+        Class<? extends T> targetClass = findTargetClassToDeserialize(documentClass);
+        DocumentClassFactory<? extends T> factory = registry.getOrCreateFactory(targetClass);
         return factory.fromGenericDocument(this);
+    }
+
+    /**
+     * Find a target class that is assignable to {@code documentClass} to deserialize this document.
+     *
+     * <p>This method first tries to find a target class corresponding to the document's own type.
+     * If that fails, it then tries to find a class corresponding to the document's parent type.
+     * If that still fails, {@code documentClass} itself will be returned.
+     */
+    @NonNull
+    private <T> Class<? extends T> findTargetClassToDeserialize(@NonNull Class<T> documentClass) {
+        // Find the target class by the doc's original type.
+        Class<? extends T> targetClass = AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                getSchemaType(), documentClass);
+        if (targetClass != null) {
+            return targetClass;
+        }
+
+        // Find the target class by parent types.
+        List<String> parentTypes = getParentTypes();
+        if (parentTypes != null) {
+            for (int i = 0; i < parentTypes.size(); ++i) {
+                targetClass = AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                        parentTypes.get(i), documentClass);
+                if (targetClass != null) {
+                    return targetClass;
+                }
+            }
+        }
+
+        Log.w(TAG, "Cannot find any compatible target class to deserialize. Perhaps the annotation "
+                + "processor was not run or the generated document class map was proguarded out?\n"
+                + "Try to deserialize to " + documentClass.getCanonicalName() + " directly.");
+        return documentClass;
     }
 // @exportToFramework:endStrip()
 

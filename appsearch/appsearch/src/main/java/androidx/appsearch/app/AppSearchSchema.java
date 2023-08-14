@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -187,7 +188,7 @@ public final class AppSearchSchema {
     public static final class Builder {
         private final String mSchemaType;
         private ArrayList<Bundle> mPropertyBundles = new ArrayList<>();
-        private ArraySet<String> mParentTypes = new ArraySet<>();
+        private LinkedHashSet<String> mParentTypes = new LinkedHashSet<>();
         private final Set<String> mPropertyNames = new ArraySet<>();
         private boolean mBuilt = false;
 
@@ -299,7 +300,7 @@ public final class AppSearchSchema {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mPropertyBundles = new ArrayList<>(mPropertyBundles);
-                mParentTypes = new ArraySet<>(mParentTypes);
+                mParentTypes = new LinkedHashSet<>(mParentTypes);
                 mBuilt = false;
             }
         }
