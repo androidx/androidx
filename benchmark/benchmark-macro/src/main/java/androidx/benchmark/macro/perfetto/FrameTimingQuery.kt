@@ -35,7 +35,8 @@ internal object FrameTimingQuery {
             INNER JOIN thread USING(utid)
             INNER JOIN process USING(upid)
         WHERE (
-            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid ) OR
+            ---- parent_stack_id = 0 to filter to top of trace stack
+            ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid AND slice.parent_stack_id = 0) OR
             ( slice.name LIKE "DrawFrame%" AND thread.name like "RenderThread" )
         ) AND ${processNameLikePkg(packageName)}
         ------ Add in actual frame slices (prepended with "actual " to differentiate)
