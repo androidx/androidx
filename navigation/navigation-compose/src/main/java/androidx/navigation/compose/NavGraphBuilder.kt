@@ -33,6 +33,7 @@ import androidx.navigation.get
  * Add the [Composable] to the [NavGraphBuilder]
  *
  * @param route route for the destination
+ * @param label label for the destination
  * @param arguments list of arguments to associate with destination
  * @param deepLinks list of deep links to associate with the destinations
  * @param content composable for the destination
@@ -43,6 +44,7 @@ import androidx.navigation.get
 )
 public fun NavGraphBuilder.composable(
     route: String,
+    label: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable (NavBackStackEntry) -> Unit
@@ -53,6 +55,7 @@ public fun NavGraphBuilder.composable(
             content(entry)
         }.apply {
             this.route = route
+            this.label = label
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
@@ -67,6 +70,7 @@ public fun NavGraphBuilder.composable(
  * Add the [Composable] to the [NavGraphBuilder]
  *
  * @param route route for the destination
+ * @param label label for the destination
  * @param arguments list of arguments to associate with destination
  * @param deepLinks list of deep links to associate with the destinations
  * @param enterTransition callback to determine the destination's enter transition
@@ -77,6 +81,7 @@ public fun NavGraphBuilder.composable(
  */
 public fun NavGraphBuilder.composable(
     route: String,
+    label: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
     enterTransition: (@JvmSuppressWildcards
@@ -97,6 +102,7 @@ public fun NavGraphBuilder.composable(
             content
         ).apply {
             this.route = route
+            this.label = label
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
