@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.recyclerview.widget;
+package androidx.core.view;
 
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.view.VelocityTrackerCompat;
-import androidx.core.view.ViewConfigurationCompat;
 
 /**
  * Helper for controlling differential motion flings.
@@ -43,7 +42,7 @@ import androidx.core.view.ViewConfigurationCompat;
  * start/stop fling, and it's up to the client to choose the fling direction based on its specific
  * internal configurations and/or preferences.
  */
-class DifferentialMotionFlingHelper {
+public class DifferentialMotionFlingHelper {
     private final Context mContext;
     private final DifferentialMotionFlingTarget mTarget;
 
@@ -102,7 +101,7 @@ class DifferentialMotionFlingHelper {
      * Represents an entity that may be flung by a differential motion or an entity that initiates
      * fling on a target View.
      */
-    interface DifferentialMotionFlingTarget {
+    public interface DifferentialMotionFlingTarget {
         /**
          * Start flinging on the target View by a given velocity.
          *
@@ -128,9 +127,9 @@ class DifferentialMotionFlingHelper {
     }
 
     /** Constructs an instance for a given {@link DifferentialMotionFlingTarget}. */
-    DifferentialMotionFlingHelper(
-            Context context,
-            DifferentialMotionFlingTarget target) {
+    public DifferentialMotionFlingHelper(
+            @NonNull Context context,
+            @NonNull DifferentialMotionFlingTarget target) {
         this(context,
                 target,
                 DifferentialMotionFlingHelper::calculateFlingVelocityThresholds,
@@ -155,11 +154,15 @@ class DifferentialMotionFlingHelper {
      * @param event the {@link MotionEvent} being reported.
      * @param axis the axis being processed by the target View.
      */
-    void onMotionEvent(MotionEvent event, int axis) {
+    public void onMotionEvent(@NonNull MotionEvent event, int axis) {
         boolean flingParamsChanged = calculateFlingVelocityThresholds(event, axis);
         if (mFlingVelocityThresholds[0] == Integer.MAX_VALUE) {
             // Integer.MAX_VALUE means that the device does not support fling for the current
             // configuration. Do not proceed any further.
+            if (mVelocityTracker != null) {
+                mVelocityTracker.recycle();
+                mVelocityTracker = null;
+            }
             return;
         }
 

@@ -72,6 +72,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.DifferentialMotionFlingHelper;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild2;
