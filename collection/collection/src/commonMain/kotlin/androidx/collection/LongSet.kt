@@ -26,57 +26,51 @@
 
 package androidx.collection
 
-import androidx.collection.internal.EMPTY_OBJECTS
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 
-// This is a copy of ScatterMap, but without values
+// This is a copy of ScatterSet, but with Long elements
 
 // Default empty set to avoid allocations
-private val EmptyScatterSet = MutableScatterSet<Any?>(0)
+private val EmptyLongSet = MutableLongSet(0)
+
+// An empty array of Longs
+private val EmptyLongArray = LongArray(0)
 
 /**
- * Returns an empty, read-only [ScatterSet].
+ * Returns an empty, read-only [LongSet].
  */
-@Suppress("UNCHECKED_CAST")
-public fun <E> emptyScatterSet(): ScatterSet<E> = EmptyScatterSet as ScatterSet<E>
+public fun emptyLongSet(): LongSet = EmptyLongSet
 
 /**
- * Returns a new [MutableScatterSet].
+ * Returns a new [MutableLongSet].
  */
-public fun <E> mutableScatterSetOf(): MutableScatterSet<E> = MutableScatterSet()
+public fun mutableLongSetOf(): MutableLongSet = MutableLongSet()
 
 /**
- * Returns a new [MutableScatterSet] with the specified contents.
+ * Returns a new [MutableLongSet] with the specified elements.
  */
-public fun <E> mutableScatterSetOf(vararg elements: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(elements.size).apply {
+public fun mutableLongSetOf(vararg elements: Long): MutableLongSet =
+    MutableLongSet(elements.size).apply {
         addAll(elements)
     }
 
 /**
- * [ScatterSet] is a container with a [Set]-like interface based on a flat
- * hash table implementation. The underlying implementation is designed to avoid
- * all allocations on insertion, removal, retrieval, and iteration. Allocations
- * may still happen on insertion when the underlying storage needs to grow to
- * accommodate newly added elements to the set.
+ * [LongSet] is a container with a [Set]-like interface designed to avoid
+ * allocations, including boxing.
  *
  * This implementation makes no guarantee as to the order of the elements,
  * nor does it make guarantees that the order remains constant over time.
  *
- * Though [ScatterSet] offers a read-only interface, it is always backed
- * by a [MutableScatterSet]. Read operations alone are thread-safe. However,
- * any mutations done through the backing [MutableScatterSet] while reading
+ * Though [LongSet] offers a read-only interface, it is always backed
+ * by a [MutableLongSet]. Read operations alone are thread-safe. However,
+ * any mutations done through the backing [MutableLongSet] while reading
  * on another thread are not safe and the developer must protect the set
  * from such changes during read operations.
  *
- * **Note**: when a [Set] is absolutely necessary, you can use the method
- * [asSet] to create a thin wrapper around a [ScatterSet]. Please refer to
- * [asSet] for more details and caveats.
- *
- * @see [MutableScatterSet]
+ * @see [MutableLongSet]
  */
-public sealed class ScatterSet<E> {
+public sealed class LongSet {
     // NOTE: Our arrays are marked internal to implement inlined forEach{}
     // The backing array for the metadata bytes contains
     // `capacity + 1 + ClonedMetadataCount` elements, including when
@@ -87,7 +81,7 @@ public sealed class ScatterSet<E> {
 
     @PublishedApi
     @JvmField
-    internal var elements: Array<Any?> = EMPTY_OBJECTS
+    internal var elements: LongArray = EmptyLongArray
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the capacity
@@ -138,35 +132,28 @@ public sealed class ScatterSet<E> {
      * Returns the first element in the collection.
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): E {
+    public inline fun first(): Long {
         forEach { return it }
-        throw NoSuchElementException("The ScatterSet is empty")
+        throw NoSuchElementException("The LongSet is empty")
     }
 
     /**
-     * Returns the first element in the collection for which [predicate] returns `true`
-     * @param predicate called with each element until it returns `true`.
-     * @return The element for which [predicate] returns `true`.
+     * Returns the first element in the collection for which [predicate] returns `true`.
+     *
+     * **Note** There is no mechanism for both determining if there is an element that matches
+     * [predicate] _and_ returning it if it exists. Developers should use [forEach] to achieve
+     * this behavior.
+     *
+     * @param predicate Called on elements of the set, returning `true` for an element that matches
+     * or `false` if it doesn't
+     * @return An element in the set for which [predicate] returns `true`.
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      * collection is empty.
      */
-    public inline fun first(predicate: (element: E) -> Boolean): E {
+    public inline fun first(predicate: (element: Long) -> Boolean): Long {
         contract { callsInPlace(predicate) }
         forEach { if (predicate(it)) return it }
         throw NoSuchElementException("Could not find a match")
-    }
-
-    /**
-     * Returns the first element in the collection for which [predicate] returns `true` or
-     * `null` if there are no elements that match [predicate].
-     * @param predicate called with each element until it returns `true`.
-     * @return The element for which [predicate] returns `true` or `null` if there are no elements
-     * in the set or [predicate] returned `false` for every element in the set.
-     */
-    public inline fun firstOrNull(predicate: (element: E) -> Boolean): E? {
-        contract { callsInPlace(predicate) }
-        forEach { if (predicate(it)) return it }
-        return null
     }
 
     /**
@@ -204,23 +191,21 @@ public sealed class ScatterSet<E> {
      * the specified [block] lambda.
      * @param block called with each element in the set
      */
-    public inline fun forEach(block: (element: E) -> Unit) {
+    public inline fun forEach(block: (element: Long) -> Unit) {
         contract { callsInPlace(block) }
         val k = elements
 
         forEachIndex { index ->
-            @Suppress("UNCHECKED_CAST")
-            block(k[index] as E)
+            block(k[index])
         }
     }
 
     /**
-     * Returns true if all elements match the given [predicate]. If there are no elements in the
-     * set, `true` is returned.
+     * Returns true if all elements match the given [predicate].
      * @param predicate called for elements in the set to determine if it returns return `true` for
      * all elements.
      */
-    public inline fun all(predicate: (element: E) -> Boolean): Boolean {
+    public inline fun all(predicate: (element: Long) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         forEach { element ->
             if (!predicate(element)) return false
@@ -233,7 +218,7 @@ public sealed class ScatterSet<E> {
      * @param predicate called for elements in the set to determine if it returns `true` for any
      * elements.
      */
-    public inline fun any(predicate: (element: E) -> Boolean): Boolean {
+    public inline fun any(predicate: (element: Long) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         forEach { element ->
             if (predicate(element)) return true
@@ -245,7 +230,7 @@ public sealed class ScatterSet<E> {
      * Returns the number of elements in this set.
      */
     @androidx.annotation.IntRange(from = 0)
-    public fun count(): Int = size
+    public fun count(): Int = _size
 
     /**
      * Returns the number of elements matching the given [predicate].
@@ -253,7 +238,7 @@ public sealed class ScatterSet<E> {
      * `true`.
      */
     @androidx.annotation.IntRange(from = 0)
-    public inline fun count(predicate: (element: E) -> Boolean): Int {
+    public inline fun count(predicate: (element: Long) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var count = 0
         forEach { element ->
@@ -263,16 +248,15 @@ public sealed class ScatterSet<E> {
     }
 
     /**
-     * Returns true if the specified [element] is present in this hash set, false
+     * Returns `true` if the specified [element] is present in this set, `false`
      * otherwise.
      * @param element The element to look for in this set
      */
-    public operator fun contains(element: E): Boolean = findElementIndex(element) >= 0
+    public operator fun contains(element: Long): Boolean = findElementIndex(element) >= 0
 
     /**
-     * Returns the hash code value for this set. The hash code of a set is defined to
-     * be the sum of the hash codes of the elements in the set, where the hash code
-     * of a null element is defined to be zero
+     * Returns the hash code value for this set. The hash code of a set is defined to be the
+     * sum of the hash codes of the elements in the set.
      */
     public override fun hashCode(): Int {
         var hash = 0
@@ -285,9 +269,9 @@ public sealed class ScatterSet<E> {
     }
 
     /**
-     * Compares the specified object [other] with this hash set for equality.
+     * Compares the specified object [other] with this set for equality.
      * The two objects are considered equal if [other]:
-     * - Is a [ScatterSet]
+     * - Is a [LongSet]
      * - Has the same [size] as this set
      * - Contains elements equal to this set's elements
      */
@@ -296,18 +280,15 @@ public sealed class ScatterSet<E> {
             return true
         }
 
-        if (other !is ScatterSet<*>) {
+        if (other !is LongSet) {
             return false
         }
-        if (other.size != size) {
+        if (other._size != _size) {
             return false
         }
-
-        @Suppress("UNCHECKED_CAST")
-        val o = other as ScatterSet<Any?>
 
         forEach { element ->
-            if (element !in o) {
+            if (element !in other) {
                 return false
             }
         }
@@ -317,7 +298,7 @@ public sealed class ScatterSet<E> {
 
     /**
      * Returns a string representation of this set. The set is denoted in the
-     * string by the `[]`. Each element is separated by `, `.
+     * string by the `{}`. Each element is separated by `, `.
      */
     public override fun toString(): String {
         if (isEmpty()) {
@@ -328,7 +309,7 @@ public sealed class ScatterSet<E> {
         val last = _size - 1
         var index = 0
         forEach { element ->
-            s.append(if (element === this) "(this)" else element)
+            s.append(element)
             if (index++ < last) {
                 s.append(',').append(' ')
             }
@@ -341,7 +322,7 @@ public sealed class ScatterSet<E> {
      * Scans the set to find the index in the backing arrays of the
      * specified [element]. Returns -1 if the element is not present.
      */
-    internal inline fun findElementIndex(element: E): Int {
+    internal inline fun findElementIndex(element: Long): Int {
         val hash = hash(element)
         val hash2 = h2(hash)
 
@@ -369,50 +350,10 @@ public sealed class ScatterSet<E> {
 
         return -1
     }
-
-    /**
-     * Wraps this [ScatterSet] with a [Set] interface. The [Set] is backed
-     * by the [ScatterSet], so changes to the [ScatterSet] are reflected
-     * in the [Set]. If the [ScatterSet] is modified while an iteration over
-     * the [Set] is in progress, the results of the iteration are undefined.
-     *
-     * **Note**: while this method is useful to use this [ScatterSet] with APIs
-     * accepting [Set] interfaces, it is less efficient to do so than to use
-     * [ScatterSet]'s APIs directly. While the [Set] implementation returned by
-     * this method tries to be as efficient as possible, the semantics of [Set]
-     * may require the allocation of temporary objects for access and iteration.
-     */
-    public fun asSet(): Set<E> = SetWrapper()
-
-    internal open inner class SetWrapper : Set<E> {
-        override val size: Int get() = this@ScatterSet._size
-        override fun containsAll(elements: Collection<E>): Boolean {
-            elements.forEach { element ->
-                if (!this@ScatterSet.contains(element)) {
-                    return false
-                }
-            }
-            return true
-        }
-
-        @Suppress("KotlinOperator")
-        override fun contains(element: E): Boolean {
-            return this@ScatterSet.contains(element)
-        }
-
-        override fun isEmpty(): Boolean = this@ScatterSet.isEmpty()
-        override fun iterator(): Iterator<E> {
-            return iterator {
-                this@ScatterSet.forEach { element ->
-                    yield(element)
-                }
-            }
-        }
-    }
 }
 
 /**
- * [MutableScatterSet] is a container with a [MutableSet]-like interface based on a flat
+ * [MutableLongSet] is a container with a [MutableSet]-like interface based on a flat
  * hash table implementation. The underlying implementation is designed to avoid
  * all allocations on insertion, removal, retrieval, and iteration. Allocations
  * may still happen on insertion when the underlying storage needs to grow to
@@ -426,25 +367,15 @@ public sealed class ScatterSet<E> {
  * the set (insertion or removal for instance), the calling code must provide
  * the appropriate synchronization. Concurrent reads are however safe.
  *
- * **Note**: when a [Set] is absolutely necessary, you can use the method
- * [asSet] to create a thin wrapper around a [MutableScatterSet]. Please refer
- * to [asSet] for more details and caveats.
- *
- * **Note**: when a [MutableSet] is absolutely necessary, you can use the
- * method [asMutableSet] to create a thin wrapper around a [MutableScatterSet].
- * Please refer to [asMutableSet] for more details and caveats.
- *
- * @constructor Creates a new [MutableScatterSet]
+ * @constructor Creates a new [MutableLongSet]
  * @param initialCapacity The initial desired capacity for this container.
- * the container will honor this value by guaranteeing its internal structures
+ * The container will honor this value by guaranteeing its internal structures
  * can hold that many elements without requiring any allocations. The initial
  * capacity can be set to 0.
- *
- * @see Set
  */
-public class MutableScatterSet<E>(
+public class MutableLongSet(
     initialCapacity: Int = DefaultScatterCapacity
-) : ScatterSet<E>() {
+) : LongSet() {
     // Number of elements we can add before we need to grow
     private var growthLimit = 0
 
@@ -463,7 +394,7 @@ public class MutableScatterSet<E>(
         }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
-        elements = arrayOfNulls(newCapacity)
+        elements = LongArray(newCapacity)
     }
 
     private fun initializeMetadata(capacity: Int) {
@@ -490,18 +421,18 @@ public class MutableScatterSet<E>(
      * @return `true` if the element has been added or `false` if the element is already
      * contained within the set.
      */
-    public fun add(element: E): Boolean {
-        val oldSize = size
+    public fun add(element: Long): Boolean {
+        val oldSize = _size
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
-        return size != oldSize
+        return _size != oldSize
     }
 
     /**
      * Adds the specified element to the set.
      * @param element The element to add to the set.
      */
-    public operator fun plusAssign(element: E) {
+    public operator fun plusAssign(element: Long) {
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
     }
@@ -512,73 +443,17 @@ public class MutableScatterSet<E>(
      * @return `true` if any of the specified elements were added to the collection,
      * `false` if the collection was not modified.
      */
-    public fun addAll(@Suppress("ArrayReturn") elements: Array<out E>): Boolean {
-        val oldSize = size
+    public fun addAll(@Suppress("ArrayReturn") elements: LongArray): Boolean {
+        val oldSize = _size
         plusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Adds all the [elements] into this set.
-     * @param elements Iterable elements to add to the set.
-     * @return `true` if any of the specified elements were added to the collection,
-     * `false` if the collection was not modified.
-     */
-    public fun addAll(elements: Iterable<E>): Boolean {
-        val oldSize = size
-        plusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Adds all the [elements] into this set.
-     * @param elements The sequence of elements to add to the set.
-     * @return `true` if any of the specified elements were added to the collection,
-     * `false` if the collection was not modified.
-     */
-    public fun addAll(elements: Sequence<E>): Boolean {
-        val oldSize = size
-        plusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Adds all the elements in the [elements] set into this set.
-     * @param elements A [ScatterSet] whose elements are to be added to the set
-     * @return `true` if any of the specified elements were added to the collection,
-     * `false` if the collection was not modified.
-     */
-    public fun addAll(elements: ScatterSet<E>): Boolean {
-        val oldSize = size
-        plusAssign(elements)
-        return oldSize != size
+        return oldSize != _size
     }
 
     /**
      * Adds all the [elements] into this set.
      * @param elements An array of elements to add to the set.
      */
-    public operator fun plusAssign(@Suppress("ArrayReturn") elements: Array<out E>) {
-        elements.forEach { element ->
-            plusAssign(element)
-        }
-    }
-
-    /**
-     * Adds all the [elements] into this set.
-     * @param elements Iterable elements to add to the set.
-     */
-    public operator fun plusAssign(elements: Iterable<E>) {
-        elements.forEach { element ->
-            plusAssign(element)
-        }
-    }
-
-    /**
-     * Adds all the [elements] into this set.
-     * @param elements The sequence of elements to add to the set.
-     */
-    public operator fun plusAssign(elements: Sequence<E>) {
+    public operator fun plusAssign(@Suppress("ArrayReturn") elements: LongArray) {
         elements.forEach { element ->
             plusAssign(element)
         }
@@ -586,9 +461,21 @@ public class MutableScatterSet<E>(
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [ScatterSet] whose elements are to be added to the set
+     * @param elements A [LongSet] of elements to add to this set.
+     * @return `true` if any of the specified elements were added to the collection,
+     * `false` if the collection was not modified.
      */
-    public operator fun plusAssign(elements: ScatterSet<E>) {
+    public fun addAll(elements: LongSet): Boolean {
+        val oldSize = _size
+        plusAssign(elements)
+        return oldSize != _size
+    }
+
+    /**
+     * Adds all the elements in the [elements] set into this set.
+     * @param elements A [LongSet] of elements to add to this set.
+     */
+    public operator fun plusAssign(elements: LongSet) {
         elements.forEach { element ->
             plusAssign(element)
         }
@@ -596,11 +483,11 @@ public class MutableScatterSet<E>(
 
     /**
      * Removes the specified [element] from the set.
-     * @param element The element to be removed from the set.
+     * @param element The element to remove from the set.
      * @return `true` if the [element] was present in the set, or `false` if it wasn't
      * present before removal.
      */
-    public fun remove(element: E): Boolean {
+    public fun remove(element: Long): Boolean {
         val index = findElementIndex(element)
         val exists = index >= 0
         if (exists) {
@@ -611,9 +498,9 @@ public class MutableScatterSet<E>(
 
     /**
      * Removes the specified [element] from the set if it is present.
-     * @param element The element to be removed from the set.
+     * @param element The element to remove from the set.
      */
-    public operator fun minusAssign(element: E) {
+    public operator fun minusAssign(element: Long) {
         val index = findElementIndex(element)
         if (index >= 0) {
             removeElementAt(index)
@@ -625,50 +512,17 @@ public class MutableScatterSet<E>(
      * @param elements An array of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public fun removeAll(@Suppress("ArrayReturn") elements: Array<out E>): Boolean {
-        val oldSize = size
+    public fun removeAll(@Suppress("ArrayReturn") elements: LongArray): Boolean {
+        val oldSize = _size
         minusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Removes the specified [elements] from the set, if present.
-     * @param elements A sequence of elements to be removed from the set.
-     * @return `true` if the set was changed or `false` if none of the elements were present.
-     */
-    public fun removeAll(elements: Sequence<E>): Boolean {
-        val oldSize = size
-        minusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Removes the specified [elements] from the set, if present.
-     * @param elements A Iterable of elements to be removed from the set.
-     * @return `true` if the set was changed or `false` if none of the elements were present.
-     */
-    public fun removeAll(elements: Iterable<E>): Boolean {
-        val oldSize = size
-        minusAssign(elements)
-        return oldSize != size
-    }
-
-    /**
-     * Removes the specified [elements] from the set, if present.
-     * @param elements A [ScatterSet] whose elements should be removed from the set.
-     * @return `true` if the set was changed or `false` if none of the elements were present.
-     */
-    public fun removeAll(elements: ScatterSet<E>): Boolean {
-        val oldSize = size
-        minusAssign(elements)
-        return oldSize != size
+        return oldSize != _size
     }
 
     /**
      * Removes the specified [elements] from the set, if present.
      * @param elements An array of elements to be removed from the set.
      */
-    public operator fun minusAssign(@Suppress("ArrayReturn") elements: Array<out E>) {
+    public operator fun minusAssign(@Suppress("ArrayReturn") elements: LongArray) {
         elements.forEach { element ->
             minusAssign(element)
         }
@@ -676,29 +530,20 @@ public class MutableScatterSet<E>(
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements A sequence of elements to be removed from the set.
+     * @param elements An [LongSet] of elements to be removed from the set.
+     * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public operator fun minusAssign(elements: Sequence<E>) {
-        elements.forEach { element ->
-            minusAssign(element)
-        }
+    public fun removeAll(elements: LongSet): Boolean {
+        val oldSize = _size
+        minusAssign(elements)
+        return oldSize != _size
     }
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements A Iterable of elements to be removed from the set.
+     * @param elements An [LongSet] of elements to be removed from the set.
      */
-    public operator fun minusAssign(elements: Iterable<E>) {
-        elements.forEach { element ->
-            minusAssign(element)
-        }
-    }
-
-    /**
-     * Removes the specified [elements] from the set, if present.
-     * @param elements A [ScatterSet] whose elements should be removed from the set.
-     */
-    public operator fun minusAssign(elements: ScatterSet<E>) {
+    public operator fun minusAssign(elements: LongSet) {
         elements.forEach { element ->
             minusAssign(element)
         }
@@ -710,7 +555,6 @@ public class MutableScatterSet<E>(
         // TODO: We could just mark the element as empty if there's a group
         //       window around this element that was already empty
         writeMetadata(index, Deleted)
-        elements[index] = null
     }
 
     /**
@@ -722,18 +566,17 @@ public class MutableScatterSet<E>(
             metadata.fill(AllEmpty)
             writeRawMetadata(metadata, _capacity, Sentinel)
         }
-        elements.fill(null, 0, _capacity)
         initializeGrowth()
     }
 
     /**
-     * Scans the set to find the index at which we can store the given [element].
+     * Scans the set to find the index at which we can store a given [element].
      * If the element already exists in the set, its index
      * will be returned, otherwise the index of an empty slot will be returned.
      * Calling this function may cause the internal storage to be reallocated
      * if the set is full.
      */
-    private fun findAbsoluteInsertIndex(element: E): Int {
+    private fun findAbsoluteInsertIndex(element: Long): Int {
         val hash = hash(element)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -776,7 +619,7 @@ public class MutableScatterSet<E>(
 
     /**
      * Finds the first empty or deleted slot in the set in which we can
-     * store an element without resizing the internal storage.
+     * store a value without resizing the internal storage.
      */
     private fun findFirstAvailableSlot(hash1: Int): Int {
         val probeMask = _capacity
@@ -794,7 +637,7 @@ public class MutableScatterSet<E>(
     }
 
     /**
-     * Trims this [MutableScatterSet]'s storage so it is sized appropriately
+     * Trims this [MutableLongSet]'s storage so it is sized appropriately
      * to hold the current elements.
      *
      * Returns the number of empty elements removed from this set's storage.
@@ -863,76 +706,13 @@ public class MutableScatterSet<E>(
             (ClonedMetadataCount and c)
         writeRawMetadata(m, cloneIndex, value)
     }
+}
 
-    /**
-     * Wraps this [ScatterSet] with a [MutableSet] interface. The [MutableSet]
-     * is backed by the [ScatterSet], so changes to the [ScatterSet] are
-     * reflected in the [MutableSet] and vice-versa. If the [ScatterSet] is
-     * modified while an iteration over the [MutableSet] is in progress (and vice-
-     * versa), the results of the iteration are undefined.
-     *
-     * **Note**: while this method is useful to use this [MutableScatterSet]
-     * with APIs accepting [MutableSet] interfaces, it is less efficient to do
-     * so than to use [MutableScatterSet]'s APIs directly. While the [MutableSet]
-     * implementation returned by this method tries to be as efficient as possible,
-     * the semantics of [MutableSet] may require the allocation of temporary
-     * objects for access and iteration.
-     */
-    public fun asMutableSet(): MutableSet<E> = MutableSetWrapper()
-
-    private inner class MutableSetWrapper : SetWrapper(), MutableSet<E> {
-        override fun add(element: E): Boolean = this@MutableScatterSet.add(element)
-
-        override fun addAll(elements: Collection<E>): Boolean =
-            this@MutableScatterSet.addAll(elements)
-
-        override fun clear() {
-            this@MutableScatterSet.clear()
-        }
-
-        override fun iterator(): MutableIterator<E> = object : MutableIterator<E> {
-            var current = -1
-            val iterator = iterator<E> {
-                this@MutableScatterSet.forEachIndex { index ->
-                    current = index
-                    @Suppress("UNCHECKED_CAST")
-                    yield(elements[index] as E)
-                }
-            }
-
-            override fun hasNext(): Boolean = iterator.hasNext()
-
-            override fun next(): E = iterator.next()
-
-            override fun remove() {
-                if (current != -1) {
-                    this@MutableScatterSet.removeElementAt(current)
-                    current = -1
-                }
-            }
-        }
-
-        override fun remove(element: E): Boolean = this@MutableScatterSet.remove(element)
-
-        override fun retainAll(elements: Collection<E>): Boolean {
-            var changed = false
-            this@MutableScatterSet.forEachIndex { index ->
-                @Suppress("UNCHECKED_CAST")
-                val element = this@MutableScatterSet.elements[index] as E
-                if (element !in elements) {
-                    this@MutableScatterSet.removeElementAt(index)
-                    changed = true
-                }
-            }
-            return changed
-        }
-
-        override fun removeAll(elements: Collection<E>): Boolean {
-            val oldSize = this@MutableScatterSet.size
-            for (element in elements) {
-                this@MutableScatterSet -= element
-            }
-            return oldSize != this@MutableScatterSet.size
-        }
-    }
+/**
+ * Returns the hash code of [k]. This follows the [HashSet] default behavior on Android
+ * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
+ */
+private inline fun hash(k: Long): Int {
+    val hash = k.hashCode()
+    return hash xor (hash ushr 16)
 }

@@ -73,8 +73,9 @@ class ScatterSetTest {
 
         assertEquals(2, set.size)
         val elements = Array(2) { "" }
-        set.forEachIndexed { index, element ->
-            elements[index] = element
+        var index = 0
+        set.forEach { element ->
+            elements[index++] = element
         }
         elements.sort()
         assertEquals("Hello", elements[0])
@@ -416,27 +417,6 @@ class ScatterSetTest {
             elements.forEach { element ->
                 assertEquals(element, index)
                 index++
-            }
-        }
-    }
-
-    @Test
-    fun forEachIndexed() {
-        for (i in 0..48) {
-            val set = MutableScatterSet<Int>()
-
-            for (j in 0 until i) {
-                set += j
-            }
-
-            val elements = Array(i) { -1 }
-            set.forEachIndexed { index, element ->
-                elements[index] = element
-            }
-            elements.sort()
-
-            elements.forEachIndexed { index, element ->
-                assertEquals(element, index)
             }
         }
     }
