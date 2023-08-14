@@ -16,15 +16,29 @@
 
 package androidx.compose.material3.catalog.library.model
 
-import androidx.compose.runtime.saveable.Saver
-
 data class Theme(
     val themeMode: ThemeMode = ThemeMode.System,
     val colorMode: ColorMode = ColorMode.Baseline,
     val fontScale: Float = 1.0f,
     val fontScaleMode: FontScaleMode = FontScaleMode.System,
     val textDirection: TextDirection = TextDirection.System,
-)
+) {
+    constructor(map: Map<String, Float>) : this(
+        themeMode = ThemeMode.values()[map.getValue(ThemeModeKey).toInt()],
+        colorMode = ColorMode.values()[map.getValue(ColorModeKey).toInt()],
+        fontScale = map.getValue(FontScaleKey).toFloat(),
+        fontScaleMode = FontScaleMode.values()[map.getValue(FontScaleModeKey).toInt()],
+        textDirection = TextDirection.values()[map.getValue(TextDirectionKey).toInt()],
+    )
+
+    fun toMap() = mapOf(
+        ThemeModeKey to themeMode.ordinal.toFloat(),
+        ColorModeKey to colorMode.ordinal.toFloat(),
+        FontScaleKey to fontScale,
+        FontScaleModeKey to fontScaleMode.ordinal.toFloat(),
+        TextDirectionKey to textDirection.ordinal.toFloat(),
+    )
+}
 
 /**
  * A class for defining layout directions.
@@ -79,30 +93,11 @@ enum class ThemeMode {
     Dark,
 }
 
-val ThemeSaver =
-    Saver<Theme, Map<String, Int>>(
-        save = { theme ->
-            mapOf(
-                ThemeModeKey to theme.themeMode.ordinal,
-                ColorModeKey to theme.colorMode.ordinal,
-                FontScaleKey to theme.fontScale.toInt(),
-                TextDirectionKey to theme.textDirection.ordinal,
-            )
-        },
-        restore = { map ->
-            Theme(
-                themeMode = ThemeMode.values()[map.getValue(ThemeModeKey)],
-                colorMode = ColorMode.values()[map.getValue(ColorModeKey)],
-                fontScale = map.getValue(FontScaleKey).toFloat(),
-                textDirection = TextDirection.values()[map.getValue(TextDirectionKey)],
-            )
-        }
-    )
-
 const val MinFontScale = 0.4f
 const val MaxFontScale = 2f
 
 private const val ThemeModeKey = "themeMode"
 private const val ColorModeKey = "colorMode"
 private const val FontScaleKey = "fontScale"
+private const val FontScaleModeKey = "fontScaleMode"
 private const val TextDirectionKey = "textDirection"
