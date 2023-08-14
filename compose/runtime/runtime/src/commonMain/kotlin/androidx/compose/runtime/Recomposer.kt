@@ -730,6 +730,24 @@ class Recomposer(
                 deriveStateLocked()
             }
         } else {
+            // withFrameNanos uses `runCatching` to ensure that crashes are not propagated to
+            // AndroidUiDispatcher. This means that errors that happen during recomposition might
+            // be delayed by a frame and swallowed if composed into inconsistent state caused by
+            // the error.
+            // Common case is subcomposition: if measure occurs after recomposition has thrown,
+            // composeInitial will throw because of corrupted composition while original exception
+            // won't be recorded.
+            synchronized(stateLock) {
+                val errorState = errorState
+                if (errorState == null) {
+                    // Record exception if current error state is empty.
+                    this.errorState = RecomposerErrorState(recoverable = false, e)
+                } else {
+                    // Re-throw original cause if we recorded it previously.
+                    throw errorState.cause
+                }
+            }
+
             throw e
         }
     }
