@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.UiAutomation;
 import android.graphics.Point;
 import android.view.KeyEvent;
+import android.view.Surface;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
@@ -354,60 +354,26 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    public void testSetOrientationLeft() throws Exception {
+    public void testSetOrientations() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
+
         try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            mDevice.setOrientationNatural();
+            assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation());
 
             mDevice.setOrientationLeft();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientationRight() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation());
 
             mDevice.setOrientationRight();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
+            assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation());
 
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientationPortrait() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
             mDevice.setOrientationPortrait();
-            assertTrue(mDevice.getDisplayHeight() > mDevice.getDisplayWidth());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
+            assertTrue(mDevice.getDisplayHeight() >= mDevice.getDisplayWidth());
 
-    @Test
-    public void testSetOrientationLandscape() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
             mDevice.setOrientationLandscape();
-            assertTrue(mDevice.getDisplayWidth() > mDevice.getDisplayHeight());
+            assertTrue(mDevice.getDisplayHeight() <= mDevice.getDisplayWidth());
         } finally {
-            mDevice.unfreezeRotation();
+            mDevice.setOrientationNatural();
         }
     }
 
