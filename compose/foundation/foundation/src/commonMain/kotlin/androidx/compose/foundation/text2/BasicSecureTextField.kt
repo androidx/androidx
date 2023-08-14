@@ -167,9 +167,7 @@ fun BasicSecureTextField(
             CodepointTransformation.mask('\u2022')
         }
 
-        else -> {
-            CodepointTransformation.None
-        }
+        else -> null
     }
 
     val secureTextFieldModifier = modifier

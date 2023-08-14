@@ -85,7 +85,7 @@ class TextFieldCodepointTransformationTest {
         rule.mainClock.autoAdvance = false
         val state = TextFieldState()
         state.setTextAndPlaceCursorAtEnd("Hello")
-        var codepointTransformation by mutableStateOf(CodepointTransformation.None)
+        var codepointTransformation: CodepointTransformation? by mutableStateOf(null)
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -201,7 +201,7 @@ class TextFieldCodepointTransformationTest {
             BasicTextField2(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                codepointTransformation = CodepointTransformation.None,
+                codepointTransformation = { _, codepoint -> codepoint },
                 modifier = Modifier.testTag(Tag)
             )
         }
