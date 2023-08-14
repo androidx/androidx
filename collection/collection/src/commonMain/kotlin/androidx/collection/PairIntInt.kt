@@ -22,6 +22,11 @@ import kotlin.jvm.JvmInline
 
 /**
  * Container to ease passing around a tuple of two [Int] values.
+ *
+ * *Note*: This class is optimized by using a value class, a Kotlin language featured
+ * not available from Java code. Java developers can get the same functionality by
+ * using [Pair] or by constructing a custom implementation using Int parameters
+ * directly (see [PairLongLong] for an example).
  */
 @JvmInline
 public value class PairIntInt internal constructor(
