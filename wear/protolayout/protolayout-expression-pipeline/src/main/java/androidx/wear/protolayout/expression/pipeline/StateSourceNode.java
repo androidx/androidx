@@ -49,7 +49,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void preInit() {
-        mDownstream.onPreUpdate();
+        this.onPreUpdate();
     }
 
     @Override
