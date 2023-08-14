@@ -137,6 +137,31 @@ package androidx.collection {
     method public static inline androidx.collection.MutableFloatList mutableFloatListOf(float... elements);
   }
 
+  public abstract sealed class FloatSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final operator boolean contains(float element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline float first();
+    method public final inline float first(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class FloatSetKt {
+    method public static androidx.collection.FloatSet emptyFloatSet();
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf();
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float... elements);
+  }
+
   public abstract sealed class IntList {
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
@@ -180,6 +205,31 @@ package androidx.collection {
     method public static inline androidx.collection.MutableIntList mutableIntListOf(int... elements);
   }
 
+  public abstract sealed class IntSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final operator boolean contains(int element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline int first();
+    method public final inline int first(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class IntSetKt {
+    method public static androidx.collection.IntSet emptyIntSet();
+    method public static androidx.collection.MutableIntSet mutableIntSetOf();
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int... elements);
+  }
+
   public abstract sealed class LongList {
     method public final boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
@@ -221,6 +271,31 @@ package androidx.collection {
   public final class LongListKt {
     method public static inline androidx.collection.MutableLongList mutableLongListOf();
     method public static inline androidx.collection.MutableLongList mutableLongListOf(long... elements);
+  }
+
+  public abstract sealed class LongSet {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final operator boolean contains(long element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline long first();
+    method public final inline long first(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super java.lang.Long,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final boolean none();
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class LongSetKt {
+    method public static androidx.collection.LongSet emptyLongSet();
+    method public static androidx.collection.MutableLongSet mutableLongSetOf();
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long... elements);
   }
 
   public class LongSparseArray<E> implements java.lang.Cloneable {
@@ -321,6 +396,24 @@ package androidx.collection {
     property public final inline int capacity;
   }
 
+  public final class MutableFloatSet extends androidx.collection.FloatSet {
+    ctor public MutableFloatSet(optional int initialCapacity);
+    method public boolean add(float element);
+    method public boolean addAll(androidx.collection.FloatSet elements);
+    method public boolean addAll(float[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.FloatSet elements);
+    method public operator void minusAssign(float element);
+    method public operator void minusAssign(float[] elements);
+    method public operator void plusAssign(androidx.collection.FloatSet elements);
+    method public operator void plusAssign(float element);
+    method public operator void plusAssign(float[] elements);
+    method public boolean remove(float element);
+    method public boolean removeAll(androidx.collection.FloatSet elements);
+    method public boolean removeAll(float[] elements);
+    method @IntRange(from=0L) public int trim();
+  }
+
   public final class MutableIntList extends androidx.collection.IntList {
     ctor public MutableIntList(optional int initialCapacity);
     method public boolean add(int element);
@@ -352,6 +445,24 @@ package androidx.collection {
     property public final inline int capacity;
   }
 
+  public final class MutableIntSet extends androidx.collection.IntSet {
+    ctor public MutableIntSet(optional int initialCapacity);
+    method public boolean add(int element);
+    method public boolean addAll(androidx.collection.IntSet elements);
+    method public boolean addAll(int[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.IntSet elements);
+    method public operator void minusAssign(int element);
+    method public operator void minusAssign(int[] elements);
+    method public operator void plusAssign(androidx.collection.IntSet elements);
+    method public operator void plusAssign(int element);
+    method public operator void plusAssign(int[] elements);
+    method public boolean remove(int element);
+    method public boolean removeAll(androidx.collection.IntSet elements);
+    method public boolean removeAll(int[] elements);
+    method @IntRange(from=0L) public int trim();
+  }
+
   public final class MutableLongList extends androidx.collection.LongList {
     ctor public MutableLongList(optional int initialCapacity);
     method public void add(@IntRange(from=0L) int index, long element);
@@ -381,6 +492,24 @@ package androidx.collection {
     method public void sortDescending();
     method public void trim(optional int minCapacity);
     property public final inline int capacity;
+  }
+
+  public final class MutableLongSet extends androidx.collection.LongSet {
+    ctor public MutableLongSet(optional int initialCapacity);
+    method public boolean add(long element);
+    method public boolean addAll(androidx.collection.LongSet elements);
+    method public boolean addAll(long[] elements);
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.LongSet elements);
+    method public operator void minusAssign(long element);
+    method public operator void minusAssign(long[] elements);
+    method public operator void plusAssign(androidx.collection.LongSet elements);
+    method public operator void plusAssign(long element);
+    method public operator void plusAssign(long[] elements);
+    method public boolean remove(long element);
+    method public boolean removeAll(androidx.collection.LongSet elements);
+    method public boolean removeAll(long[] elements);
+    method @IntRange(from=0L) public int trim();
   }
 
   public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
@@ -511,7 +640,6 @@ package androidx.collection {
     method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
-    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super E,kotlin.Unit> block);
     method @IntRange(from=0L) public final int getCapacity();
     method @IntRange(from=0L) public final int getSize();
     method public final boolean isEmpty();
