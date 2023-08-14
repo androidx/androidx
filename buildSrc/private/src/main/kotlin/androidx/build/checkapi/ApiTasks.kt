@@ -17,13 +17,11 @@
 package androidx.build.checkapi
 
 import androidx.build.AndroidXExtension
-import androidx.build.LibraryType
 import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.Version
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
-import androidx.build.libabigail.NativeApiTasks
 import androidx.build.metalava.MetalavaTasks
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
@@ -199,14 +197,6 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             builtApiLocation,
             outputApiLocations
         )
-
-        if (extension.type == LibraryType.PUBLISHED_NATIVE_LIBRARY) {
-            NativeApiTasks.setupProject(
-                project = project,
-                builtApiLocation = builtApiLocation.nativeApiDirectory,
-                outputApiLocations = outputApiLocations.map { it.nativeApiDirectory }
-            )
-        }
 
         project.setupWithStableAidlPlugin()
 
