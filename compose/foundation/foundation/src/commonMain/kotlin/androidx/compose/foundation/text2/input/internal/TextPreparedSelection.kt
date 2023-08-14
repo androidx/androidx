@@ -89,19 +89,14 @@ internal class TextFieldPreparedSelection(
     private val text: String = initialValue.toString()
 
     /**
-     * If there is a non-collapsed selection, delete its contents. Or execute the given [or] block.
-     * Either way this function returns list of [EditCommand]s that should be applied on
-     * [TextFieldState].
+     * If there is a non-collapsed selection, delete its contents. If the selection is collapsed,
+     * execute the given [or] block.
      */
-    fun deleteIfSelectedOr(or: TextFieldPreparedSelection.() -> EditCommand?): List<EditCommand>? {
-        return if (selection.collapsed) {
-            or(this)?.let { editCommand -> listOf(editCommand) }
-        } else {
-            listOf(
-                CommitTextCommand("", 0),
-                SetSelectionCommand(selection.min, selection.min)
-            )
-        }
+    fun EditingBuffer.deleteIfSelected(): Boolean {
+        if (selection.collapsed) return false
+        commitText("", 0)
+        setSelection(selection.min, selection.min)
+        return true
     }
 
     /**

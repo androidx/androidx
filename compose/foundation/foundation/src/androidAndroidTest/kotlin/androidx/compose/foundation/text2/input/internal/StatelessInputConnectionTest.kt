@@ -20,6 +20,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -27,7 +28,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,8 +50,8 @@ class StatelessInputConnectionTest {
             this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
         }
 
-        override fun requestEdits(editCommands: List<EditCommand>) {
-            onRequestEdits?.invoke(editCommands)
+        override fun requestEdit(block: EditingBuffer.() -> Unit) {
+            onRequestEdit?.invoke(block)
         }
 
         override fun sendKeyEvent(keyEvent: KeyEvent) {
@@ -59,8 +59,13 @@ class StatelessInputConnectionTest {
         }
     }
 
+    private var state: TextFieldState = TextFieldState()
     private var value: TextFieldCharSequence = TextFieldCharSequence()
-    private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
+        set(value) {
+            field = value
+            state = TextFieldState(value.toString(), value.selectionInChars)
+        }
+    private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
 
@@ -160,30 +165,11 @@ class StatelessInputConnectionTest {
     }
 
     @Test
-    fun commitTextTest() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
-
-        // Inserting "Hello, " into the empty text field.
-        assertThat(ic.commitText("Hello, ", 1)).isTrue()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(CommitTextCommand("Hello, ", 1))
-    }
-
-    @Test
     fun commitTextTest_batchSession() {
-        var editCommands = listOf<EditCommand>()
         var requestEditsCalled = 0
-        onRequestEdits = {
+        onRequestEdit = {
             requestEditsCalled++
-            editCommands = it
+            state.mainBuffer.it()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -200,290 +186,16 @@ class StatelessInputConnectionTest {
         ic.endBatchEdit()
 
         assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(CommitTextCommand("Hello, ", 1))
-        assertThat(editCommands[1]).isEqualTo(CommitTextCommand("World.", 1))
-    }
-
-    @Test
-    fun setComposingRegion() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
-
-        // Mark first "H" as composition.
-        assertThat(ic.setComposingRegion(0, 1)).isTrue()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(SetComposingRegionCommand(0, 1))
-    }
-
-    @Test
-    fun setComposingRegion_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
-
-        // Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.setComposingRegion(0, 1)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.setComposingRegion(1, 2)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(SetComposingRegionCommand(0, 1))
-        assertThat(editCommands[1]).isEqualTo(SetComposingRegionCommand(1, 2))
-    }
-
-    @Test
-    fun setComposingTextTest() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
-
-        // Inserting "Hello, " into the empty text field.
-        assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
-    }
-
-    @Test
-    fun setComposingTextTest_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
-
-        // IME set text "Hello, World." with two setComposingText API within the single batch
-        // session. Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.setComposingText("World.", 1)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
-        assertThat(editCommands[1]).isEqualTo(SetComposingTextCommand("World.", 1))
-    }
-
-    @Test
-    fun deleteSurroundingText() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
-
-        // Delete first "Hello, " characters
-        assertTrue(ic.deleteSurroundingText(0, 6))
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextCommand(0, 6))
-    }
-
-    @Test
-    fun deleteSurroundingText_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
-
-        // Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.deleteSurroundingText(0, 6)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.deleteSurroundingText(0, 5)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextCommand(0, 6))
-        assertThat(editCommands[1]).isEqualTo(DeleteSurroundingTextCommand(0, 5))
-    }
-
-    @Test
-    fun deleteSurroundingTextInCodePoints() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
-
-        // Delete first "Hello, " characters
-        assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 6))
-    }
-
-    @Test
-    fun deleteSurroundingTextInCodePoints_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
-
-        // Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.deleteSurroundingTextInCodePoints(0, 5)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 6))
-        assertThat(editCommands[1]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 5))
-    }
-
-    @Test
-    fun setSelection() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
-
-        // Select "Hello, "
-        assertThat(ic.setSelection(0, 6)).isTrue()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(SetSelectionCommand(0, 6))
-    }
-
-    @Test
-    fun setSelection_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
-
-        // Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.setSelection(0, 6)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.setSelection(6, 11)).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(SetSelectionCommand(0, 6))
-        assertThat(editCommands[1]).isEqualTo(SetSelectionCommand(6, 11))
-    }
-
-    @Test
-    fun finishComposingText() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
-
-        // Cancel any ongoing composition. In this example, there is no composition range, but
-        // should record the API call
-        assertTrue(ic.finishComposingText())
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(1)
-        assertThat(editCommands[0]).isEqualTo(FinishComposingTextCommand)
-    }
-
-    @Test
-    fun finishComposingText_batchSession() {
-        var editCommands = listOf<EditCommand>()
-        var requestEditsCalled = 0
-        onRequestEdits = {
-            requestEditsCalled++
-            editCommands = it
-        }
-        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
-
-        // Do not callback to listener during batch session.
-        ic.beginBatchEdit()
-
-        assertThat(ic.finishComposingText()).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        assertThat(ic.finishComposingText()).isTrue()
-        assertThat(requestEditsCalled).isEqualTo(0)
-
-        ic.endBatchEdit()
-
-        assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(2)
-        assertThat(editCommands[0]).isEqualTo(FinishComposingTextCommand)
-        assertThat(editCommands[1]).isEqualTo(FinishComposingTextCommand)
+        assertThat(state.mainBuffer.toString()).isEqualTo("Hello, World.")
+        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(13))
     }
 
     @Test
     fun mixedAPICalls_batchSession() {
-        var editCommands = listOf<EditCommand>()
         var requestEditsCalled = 0
-        onRequestEdits = {
+        onRequestEdit = {
             requestEditsCalled++
-            editCommands = it
+            state.mainBuffer.it()
         }
         value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
@@ -508,12 +220,8 @@ class StatelessInputConnectionTest {
         ic.endBatchEdit()
 
         assertThat(requestEditsCalled).isEqualTo(1)
-        assertThat(editCommands.size).isEqualTo(5)
-        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
-        assertThat(editCommands[1]).isEqualTo(FinishComposingTextCommand)
-        assertThat(editCommands[2]).isEqualTo(CommitTextCommand("World.", 1))
-        assertThat(editCommands[3]).isEqualTo(SetSelectionCommand(0, 12))
-        assertThat(editCommands[4]).isEqualTo(CommitTextCommand("", 1))
+        assertThat(state.mainBuffer.toString()).isEqualTo(".")
+        assertThat(state.mainBuffer.selection).isEqualTo(TextRange(0))
     }
 
     @Test
@@ -526,7 +234,7 @@ class StatelessInputConnectionTest {
     @Test
     fun do_not_callback_if_only_readonly_ops() {
         var requestEditsCalled = 0
-        onRequestEdits = { requestEditsCalled++ }
+        onRequestEdit = { requestEditsCalled++ }
         ic.beginBatchEdit()
         ic.getSelectedText(1)
         ic.endBatchEdit()

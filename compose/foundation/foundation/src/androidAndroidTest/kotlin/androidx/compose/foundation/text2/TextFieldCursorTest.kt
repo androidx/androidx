@@ -28,8 +28,8 @@ import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -769,9 +769,7 @@ class TextFieldCursorTest {
                         val currValue = state.text
                         if (currValue.isNotEmpty()) {
                             val newText = currValue.dropLast(1)
-                            val newValue =
-                                TextFieldCharSequence(newText.toString(), TextRange(newText.length))
-                            state.editProcessor.reset(newValue)
+                            state.setTextAndPlaceCursorAtEnd(newText.toString())
                         }
 
                         val p = measurable.measure(constraints)
