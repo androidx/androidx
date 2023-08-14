@@ -44,6 +44,7 @@ import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -84,7 +85,12 @@ fun SwipeToDismissDemo(
             // What to show behind the content whilst swiping.
             when (demoState.value) {
                 SwipeDismissDemoState.List -> {
-                    DisplayDemoList(SwipeToDismissDemos, {})
+                    DisplayDemoList(
+                        SwipeToDismissDemos,
+                        {},
+                        0,
+                        remember { mutableListOf(ScalingLazyListState()) }
+                    )
                 }
                 SwipeDismissDemoState.Detail -> {
                     SwipeToDismissOptionsList()
