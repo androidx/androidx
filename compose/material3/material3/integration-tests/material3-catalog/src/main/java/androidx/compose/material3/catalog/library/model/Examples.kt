@@ -21,6 +21,9 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
 import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
@@ -718,6 +721,23 @@ val NavigationDrawerExamples = listOf(
         DismissibleNavigationDrawerSample()
     }
 )
+
+private const val NavigationSuiteScaffoldExampleDescription = "Navigation suite scaffold examples"
+private const val NavigationSuiteScaffoldExampleSourceUrl =
+    "$AdaptiveSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
+val NavigationSuiteScaffoldExamples =
+    listOf(
+        Example(
+            name = ::NavigationSuiteScaffoldSample.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) { NavigationSuiteScaffoldSample() },
+        Example(
+            name = ::NavigationSuiteScaffoldCustomConfigSample.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) { NavigationSuiteScaffoldCustomConfigSample() },
+    )
 
 private const val ProgressIndicatorsExampleDescription = "Progress indicators examples"
 private const val ProgressIndicatorsExampleSourceUrl = "$SampleSourceUrl/" +
