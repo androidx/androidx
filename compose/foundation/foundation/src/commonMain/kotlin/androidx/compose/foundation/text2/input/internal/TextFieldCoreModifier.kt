@@ -27,8 +27,8 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
-import androidx.compose.foundation.text2.selection.textFieldMagnifierNode
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Rect

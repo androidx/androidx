@@ -24,7 +24,7 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager

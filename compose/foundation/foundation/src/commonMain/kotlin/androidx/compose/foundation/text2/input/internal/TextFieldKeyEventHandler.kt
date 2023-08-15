@@ -27,7 +27,7 @@ import androidx.compose.foundation.text.showCharacterPalette
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
