@@ -1,0 +1,11 @@
+// configures the pluginManagement section of the settings file.
+// each settings file applies this to its pluginManagement block so that we can
+// do common configuration in 1 place before plugin classpaths are loaded.
+
+def srcFile = buildscript.getSourceFile()
+includeBuild new File(srcFile.parentFile, "playground-plugin").canonicalPath
+repositories {
+    mavenCentral()
+    google()
+    gradlePluginPortal()
+}
