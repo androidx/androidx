@@ -20,6 +20,7 @@ import android.app.UiAutomation
 import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
+import android.opengl.GLES30
 import android.opengl.Matrix
 import android.os.Build
 import android.view.SurfaceHolder
@@ -27,6 +28,7 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.SurfaceViewTestActivity
+import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -41,6 +43,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.IllegalStateException
 import kotlin.math.roundToInt
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
@@ -1589,6 +1592,150 @@ class GLFrontBufferedRendererTest {
             }
         } finally {
             renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetPixelFormat() {
+        val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
+            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+        // First verify if another format other than RGBA_8888 is supported
+        if (!HardwareBuffer.isSupported(
+                1, // width
+                1, // height
+                HardwareBuffer.RGBA_FP16, // format
+                1, // layers
+                flags // flags
+            )) {
+            return
+        }
+
+        var configLoaded = false
+        val configLatch = CountDownLatch(1)
+        val glRenderer = GLRenderer(eglConfigFactory = {
+            val config = loadConfig(EGLConfigAttributes.RGBA_F16)
+            configLoaded = config != null
+            configLatch.countDown()
+            config ?: loadConfig(EGLConfigAttributes.RGBA_8888)!!
+        }).apply {
+            start("glRenderer")
+        }
+
+        data class ColorDepths(val red: Int, val green: Int, val blue: Int, val alpha: Int)
+
+        fun obtainColorDepths(): ColorDepths {
+            val result = IntArray(1)
+            GLES20.glGetFramebufferAttachmentParameteriv(
+                GLES20.GL_FRAMEBUFFER,
+                GLES20.GL_COLOR_ATTACHMENT0,
+                GLES30.GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE,
+                result,
+                0
+            )
+            val alpha = result[0]
+            GLES20.glGetFramebufferAttachmentParameteriv(
+                GLES20.GL_FRAMEBUFFER,
+                GLES20.GL_COLOR_ATTACHMENT0,
+                GLES30.GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE,
+                result,
+                0
+            )
+            val red = result[0]
+            GLES20.glGetFramebufferAttachmentParameteriv(
+                GLES20.GL_FRAMEBUFFER,
+                GLES20.GL_COLOR_ATTACHMENT0,
+                GLES30.GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE,
+                result,
+                0
+            )
+            val green = result[0]
+            GLES20.glGetFramebufferAttachmentParameteriv(
+                GLES20.GL_FRAMEBUFFER,
+                GLES20.GL_COLOR_ATTACHMENT0,
+                GLES30.GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE,
+                result,
+                0
+            )
+            val blue = result[0]
+            return ColorDepths(red, green, blue, alpha)
+        }
+
+        var frontBufferColorDepth: ColorDepths? = null
+        var multiBufferedColorDepth: ColorDepths? = null
+        val latch = CountDownLatch(2)
+
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Any
+            ) {
+                frontBufferColorDepth = obtainColorDepths()
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Any>
+            ) {
+                multiBufferedColorDepth = obtainColorDepths()
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                latch.countDown()
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                latch.countDown()
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView?
+        val rendererCreatedLatch = CountDownLatch(1)
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(
+                        surfaceView!!,
+                        callbacks,
+                        glRenderer,
+                        bufferFormat = HardwareBuffer.RGBA_FP16
+                    )
+                    rendererCreatedLatch.countDown()
+                }
+            scenario.moveToState(Lifecycle.State.RESUMED)
+
+            configLatch.await(3000, TimeUnit.MILLISECONDS)
+            if (!configLoaded) {
+                // RBGAF16 not supported
+                return
+            }
+
+            assertTrue(rendererCreatedLatch.await(3000, TimeUnit.MILLISECONDS))
+            renderer!!.renderFrontBufferedLayer(Any())
+
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+            Assert.assertNotNull(renderer)
+            assertTrue(renderer!!.isValid())
+            assertEquals(HardwareBuffer.RGBA_FP16, renderer?.bufferFormat)
+            val rgb16 = ColorDepths(16, 16, 16, 16)
+            assertEquals(rgb16, frontBufferColorDepth)
+            assertEquals(rgb16, multiBufferedColorDepth)
+        } finally {
+            renderer.blockingRelease()
+            glRenderer.stop(true)
         }
     }
 

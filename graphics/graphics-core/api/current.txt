@@ -39,15 +39,18 @@ package androidx.graphics.lowlatency {
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class GLFrontBufferedRenderer<T> {
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
     ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer, optional int bufferFormat);
     method public void cancel();
     method public void clear();
     method public void commit();
     method public void execute(Runnable runnable);
+    method public int getBufferFormat();
     method public boolean isValid();
     method public void release(boolean cancelPending);
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
+    property public final int bufferFormat;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
