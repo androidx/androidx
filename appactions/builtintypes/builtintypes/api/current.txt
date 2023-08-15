@@ -20,16 +20,16 @@ package androidx.appactions.builtintypes.properties {
   @androidx.appsearch.annotation.Document(name="bitprop:DisambiguatingDescription") public final class DisambiguatingDescription {
     ctor public DisambiguatingDescription(androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue canonicalValue);
     ctor public DisambiguatingDescription(String text);
-    method public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? getAsCanonicalValue();
     method @androidx.appsearch.annotation.Document.StringProperty public String? getAsText();
     method public <R> R mapWhen(androidx.appactions.builtintypes.properties.DisambiguatingDescription.Mapper<R> mapper);
-    property public final androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? asCanonicalValue;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public final androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue? asCanonicalValue;
     property @androidx.appsearch.annotation.Document.StringProperty public final String? asText;
   }
 
-  public abstract static class DisambiguatingDescription.CanonicalValue {
-    method public abstract String getTextValue();
-    property public abstract String textValue;
+  @androidx.appsearch.annotation.Document(name="bitprop:DisambiguatingDescription:CanonicalValue") public static class DisambiguatingDescription.CanonicalValue {
+    method @androidx.appsearch.annotation.Document.StringProperty public final String getTextValue();
+    property @androidx.appsearch.annotation.Document.StringProperty public final String textValue;
   }
 
   public static interface DisambiguatingDescription.Mapper<R> {
@@ -700,9 +700,7 @@ package androidx.appactions.builtintypes.types {
     method @androidx.appsearch.annotation.Document.BuilderProducer public androidx.appactions.builtintypes.types.Alarm.Builder<?> Builder();
   }
 
-  public static final class Alarm.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
-    method public String getTextValue();
-    property public String textValue;
+  @androidx.appsearch.annotation.Document(name="bit:Alarm:DisambiguatingDescriptionValue", parent={DisambiguatingDescription.CanonicalValue::class}) public static final class Alarm.DisambiguatingDescriptionValue extends androidx.appactions.builtintypes.properties.DisambiguatingDescription.CanonicalValue {
     field public static final androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue.Companion Companion;
     field public static final androidx.appactions.builtintypes.types.Alarm.DisambiguatingDescriptionValue FAMILY_BELL;
   }
