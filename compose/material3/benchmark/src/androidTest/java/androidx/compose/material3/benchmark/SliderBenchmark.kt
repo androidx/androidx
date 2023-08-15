@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +40,7 @@ class SliderBenchmark {
 
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstPixelUntilStable(sliderTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(sliderTestCaseFactory)
     }
 
     @Test

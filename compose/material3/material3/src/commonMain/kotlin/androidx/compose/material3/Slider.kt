@@ -280,6 +280,7 @@ fun Slider(
             onValueChangeFinished
         )
     }
+
     state.value = value
     state.onValueChange = onValueChange
     state.onValueChangeFinished = onValueChangeFinished
@@ -629,7 +630,6 @@ fun RangeSlider(
     startInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     endInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     startThumb: @Composable (RangeSliderState) -> Unit = {
-        state.activeRangeStart
         SliderDefaults.Thumb(
             interactionSource = startInteractionSource,
             colors = colors,
@@ -1443,7 +1443,7 @@ private fun Modifier.sliderTapModifier(
     factory = {
         if (enabled) {
             val scope = rememberCoroutineScope()
-            pointerInput(state.draggableState, interactionSource, state.totalWidth, state.isRtl) {
+            pointerInput(state, interactionSource) {
                 detectTapGestures(
                     onPress = state.press,
                     onTap = {
@@ -1825,13 +1825,13 @@ class SliderState(
 
     internal val tickFractions = stepsToTickFractions(steps)
 
-    private var thumbWidth by mutableFloatStateOf(ThumbWidth.value)
     internal var totalWidth by mutableIntStateOf(0)
 
     private var rawOffset by mutableFloatStateOf(scaleToOffset(0f, 0f, value))
     private var pressOffset by mutableFloatStateOf(0f)
 
     internal var isRtl = false
+    internal var thumbWidth by mutableFloatStateOf(0f)
 
     internal val coercedValueAsFraction
         get() = calcFraction(
