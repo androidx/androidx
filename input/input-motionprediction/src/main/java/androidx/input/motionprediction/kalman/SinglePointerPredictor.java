@@ -82,10 +82,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private final DVector2 mJank = new DVector2();
 
     /* pointer of the gesture that requires prediction */
-    private int mPointerId = 0;
+    private int mPointerId;
 
     /* tool type of the gesture that requires prediction */
-    private int mToolType = MotionEvent.TOOL_TYPE_UNKNOWN;
+    private int mToolType;
 
     private double mPressure = 0;
     private double mLastOrientation = 0;
@@ -99,13 +99,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
      * achieving close-to-zero latency, prediction errors can be more visible and the target should
      * be reduced to 20ms.
      */
-    public SinglePointerPredictor() {
-        mKalman.reset();
-        mPrevEventTime = 0;
-        mDownEventTime = 0;
-    }
-
-    void initStrokePrediction(int pointerId, int toolType) {
+    public SinglePointerPredictor(int pointerId, int toolType) {
         mKalman.reset();
         mPrevEventTime = 0;
         mDownEventTime = 0;
