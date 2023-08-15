@@ -172,7 +172,7 @@ private class PinState(val maxDigits: Int) {
             originalValue: TextFieldCharSequence,
             valueWithChanges: TextFieldBuffer
         ) {
-            if (!valueWithChanges.isDigitsOnly()) {
+            if (!valueWithChanges.asCharSequence().isDigitsOnly()) {
                 valueWithChanges.revertAllChanges()
             }
         }
