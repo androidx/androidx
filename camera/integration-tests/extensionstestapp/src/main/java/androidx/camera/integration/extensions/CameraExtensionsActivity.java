@@ -65,6 +65,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -590,8 +591,20 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         previewView.getMeteringPointFactory().createPoint(
                                 motionEvent.getX(), motionEvent.getY());
 
-                mCamera.getCameraControl().startFocusAndMetering(
-                        new FocusMeteringAction.Builder(point).build()).addListener(() -> {},
+                Futures.addCallback(
+                        mCamera.getCameraControl().startFocusAndMetering(
+                                new FocusMeteringAction.Builder(point).build()),
+                        new FutureCallback<FocusMeteringResult>() {
+                            @Override
+                            public void onSuccess(FocusMeteringResult result) {
+                                Log.d(TAG, "Focus and metering succeeded.");
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Throwable t) {
+                                Log.e(TAG, "Focus and metering failed.", t);
+                            }
+                        },
                         ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
             }
             return true;
