@@ -76,6 +76,8 @@ public class PerfettoSdkHandshake(
     /**
      * Attempts to prepare cold startup tracing in the app.
      *
+     * Leaves the app process in a terminated state.
+     *
      * @param persistent if set to true, cold start tracing mode is persisted between app runs and
      * must be cleared using [disableTracingColdStart]. Otherwise, cold start tracing is enabled
      * only for the first app start since enabling.
@@ -113,10 +115,12 @@ public class PerfettoSdkHandshake(
             libPath,
             persistent = persistent
         )
-        if (response.resultCode == ResponseResultCodes.RESULT_CODE_SUCCESS) {
-            // terminate the app process (that we woke up by issuing a broadcast earlier)
-            killAppProcess()
-        }
+
+        // Terminate the app process regardless of the response:
+        // - if enabling tracing is successful, the process needs to be terminated for cold tracing
+        // - if enabling tracing is unsuccessful, we still want to terminate the app process to
+        // achieve deterministic behaviour of this method
+        killAppProcess()
 
         response
     }
