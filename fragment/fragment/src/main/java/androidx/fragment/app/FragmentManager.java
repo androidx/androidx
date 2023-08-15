@@ -453,7 +453,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     private boolean mExecutingActions;
 
     private final FragmentStore mFragmentStore = new FragmentStore();
-    ArrayList<BackStackRecord> mBackStack;
+    ArrayList<BackStackRecord> mBackStack = new ArrayList<>();
     private ArrayList<Fragment> mCreatedMenus;
     private final FragmentLayoutInflaterFactory mLayoutInflaterFactory =
             new FragmentLayoutInflaterFactory(this);
@@ -1024,7 +1024,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * Return the number of entries currently in the back stack.
      */
     public int getBackStackEntryCount() {
-        return (mBackStack != null ? mBackStack.size() : 0) + (mTransitioningOp != null ? 1 : 0);
+        return mBackStack.size() + (mTransitioningOp != null ? 1 : 0);
     }
 
     /**
@@ -1466,19 +1466,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
-        if (mBackStack != null) {
-            count = mBackStack.size();
-            if (count > 0) {
-                writer.print(prefix); writer.println("Back Stack:");
-                for (int i = 0; i < count; i++) {
-                    BackStackRecord bs = mBackStack.get(i);
-                    writer.print(prefix);
-                    writer.print("  #");
-                    writer.print(i);
-                    writer.print(": ");
-                    writer.println(bs.toString());
-                    bs.dump(innerPrefix, writer);
-                }
+        count = mBackStack.size();
+        if (count > 0) {
+            writer.print(prefix); writer.println("Back Stack:");
+            for (int i = 0; i < count; i++) {
+                BackStackRecord bs = mBackStack.get(i);
+                writer.print(prefix);
+                writer.print("  #");
+                writer.print(i);
+                writer.print(": ");
+                writer.println(bs.toString());
+                bs.dump(innerPrefix, writer);
             }
         }
 
@@ -2275,9 +2273,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     void addBackStackState(BackStackRecord state) {
-        if (mBackStack == null) {
-            mBackStack = new ArrayList<>();
-        }
         mBackStack.add(state);
     }
 
@@ -2488,7 +2483,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return
      */
     private int findBackStackIndex(@Nullable String name, int id, boolean inclusive) {
-        if (mBackStack == null || mBackStack.isEmpty()) {
+        if (mBackStack.isEmpty()) {
             return -1;
         }
         if (name == null && id < 0) {
@@ -2587,16 +2582,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
             // Now save back stack.
             BackStackRecordState[] backStack = null;
-            if (mBackStack != null) {
-                int size = mBackStack.size();
-                if (size > 0) {
-                    backStack = new BackStackRecordState[size];
-                    for (int i = 0; i < size; i++) {
-                        backStack[i] = new BackStackRecordState(mBackStack.get(i));
-                        if (isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(TAG, "saveAllState: adding back stack #" + i
-                                    + ": " + mBackStack.get(i));
-                        }
+            int size = mBackStack.size();
+            if (size > 0) {
+                backStack = new BackStackRecordState[size];
+                for (int i = 0; i < size; i++) {
+                    backStack[i] = new BackStackRecordState(mBackStack.get(i));
+                    if (isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(TAG, "saveAllState: adding back stack #" + i
+                                + ": " + mBackStack.get(i));
                     }
                 }
             }
@@ -2758,7 +2751,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mBackStack.add(bse);
             }
         } else {
-            mBackStack = null;
+            mBackStack = new ArrayList<>();
         }
         mBackStackIndex.set(fms.mBackStackIndex);
 
