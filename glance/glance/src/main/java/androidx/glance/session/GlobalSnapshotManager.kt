@@ -36,17 +36,21 @@ import kotlinx.coroutines.launch
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
+    private val sent = AtomicBoolean(false)
 
     fun ensureStarted() {
         if (started.compareAndSet(false, true)) {
-            val channel = Channel<Unit>(Channel.CONFLATED)
+            val channel = Channel<Unit>(1)
             CoroutineScope(Dispatchers.Default).launch {
                 channel.consumeEach {
+                    sent.set(false)
                     Snapshot.sendApplyNotifications()
                 }
             }
             Snapshot.registerGlobalWriteObserver {
-                channel.trySend(Unit)
+                if (sent.compareAndSet(false, true)) {
+                    channel.trySend(Unit)
+                }
             }
         }
     }
@@ -56,12 +60,16 @@ object GlobalSnapshotManager {
  * Monitors global snapshot state writes and sends apply notifications.
  */
 internal suspend fun globalSnapshotMonitor() {
-    val channel = Channel<Unit>(Channel.CONFLATED)
+    val channel = Channel<Unit>(1)
+    val sent = AtomicBoolean(false)
     val observerHandle = Snapshot.registerGlobalWriteObserver {
-        channel.trySend(Unit)
+        if (sent.compareAndSet(false, true)) {
+            channel.trySend(Unit)
+        }
     }
     try {
         channel.consumeEach {
+            sent.set(false)
             Snapshot.sendApplyNotifications()
         }
     } finally {
