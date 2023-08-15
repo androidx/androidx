@@ -118,8 +118,10 @@ internal class PublicKeyCredentialControllerUtility {
      */
     @JvmStatic
     fun convert(request: CreatePublicKeyCredentialRequest): PublicKeyCredentialCreationOptions {
-      val requestJson = request.requestJson
-      val json = JSONObject(requestJson)
+      return convertJSON(JSONObject(request.requestJson))
+    }
+
+    internal fun convertJSON(json: JSONObject): PublicKeyCredentialCreationOptions {
       val builder = PublicKeyCredentialCreationOptions.Builder()
 
       parseRequiredChallengeAndUser(json, builder)
