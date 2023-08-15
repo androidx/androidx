@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.CardDefaults
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.AppCardSample
@@ -77,15 +74,7 @@ private fun AppCardWithImageDemo() {
     AppCard(
         onClick = { /* Do something */ },
         appName = { Text("App name") },
-        appImage = {
-            Icon(
-                painter = painterResource(id = android.R.drawable.star_big_off),
-                contentDescription = "favourites",
-                modifier = Modifier
-                    .size(CardDefaults.AppImageSize)
-                    .wrapContentSize(align = Alignment.Center),
-            )
-        },
+        appImage = { StandardIcon(CardDefaults.AppImageSize) },
         title = { Text("With image") },
         time = { Text("now") },
     ) {
