@@ -152,3 +152,7 @@ Using fallback strategy: Compile without Kotlin daemon
 Try \./gradlew \-\-stop if this issue persists\.
 # b/ 279739438
 w\: Detected multiple Kotlin daemon sessions at kotlin/sessions
+# > Task :compose:ui:ui:compileReleaseKotlinAndroid
+e: Daemon compilation failed: Could not connect to Kotlin compile daemon
+java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
+Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
