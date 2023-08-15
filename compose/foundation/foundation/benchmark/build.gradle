@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -39,6 +40,15 @@ dependencies {
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    it.kotlinOptions {
+        freeCompilerArgs += [
+                // Enable experimental benchmark APIs internally
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
+        ]
+    }
 }
 
 android {
