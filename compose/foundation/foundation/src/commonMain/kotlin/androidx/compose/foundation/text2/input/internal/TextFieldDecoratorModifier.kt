@@ -359,7 +359,7 @@ internal class TextFieldDecoratorModifierNode(
 
     // This function is called inside a snapshot observer.
     override fun SemanticsPropertyReceiver.applySemantics() {
-        val text = textFieldState.untransformedText
+        val text = textFieldState.outputText
         val selection = text.selectionInChars
         editableText = AnnotatedString(text.toString())
         textSelectionRange = selection

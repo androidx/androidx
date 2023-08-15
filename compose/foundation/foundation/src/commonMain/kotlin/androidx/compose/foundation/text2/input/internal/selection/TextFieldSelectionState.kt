@@ -32,10 +32,21 @@ import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.getSelectedText
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Deletion
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Insertion
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Replacement
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Untransformed
+import androidx.compose.foundation.text2.input.internal.SelectionWedgeAffinity
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text2.input.internal.WedgeAffinity
 import androidx.compose.foundation.text2.input.internal.coerceIn
+import androidx.compose.foundation.text2.input.internal.findClosestRect
 import androidx.compose.foundation.text2.input.internal.fromDecorationToTextLayout
+import androidx.compose.foundation.text2.input.internal.getIndexTransformationType
+import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.Cursor
+import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.None
+import androidx.compose.foundation.text2.input.internal.selection.TextToolbarState.Selection
 import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -438,12 +449,7 @@ internal class TextFieldSelectionState(
                     // do not show any TextToolbar.
                     updateTextToolbarState(TextToolbarState.None)
 
-                    // find the cursor position
-                    val cursorIndex = textLayoutState.getOffsetForPosition(offset)
-                    // update the state
-                    if (cursorIndex >= 0) {
-                        textFieldState.placeCursorBeforeCharAt(cursorIndex)
-                    }
+                    placeCursorAtNearestOffset(offset)
                 }
             },
             onDoubleTap = { offset ->
@@ -470,6 +476,85 @@ internal class TextFieldSelectionState(
                 textFieldState.selectCharsIn(newSelection)
             }
         )
+    }
+
+    /**
+     * Calculates the valid cursor position nearest to [decorationOffset] and sets the cursor to it.
+     * Takes into account text transformations ([TransformedTextFieldState]) to avoid putting the
+     * cursor in the middle of replacements.
+     *
+     * If the cursor would end up in the middle of an insertion or replacement, it is instead pushed
+     * to the nearest edge of the wedge to the [decorationOffset].
+     *
+     * @return true if the cursor moved, false if the cursor position did not need to change.
+     */
+    private fun placeCursorAtNearestOffset(decorationOffset: Offset): Boolean {
+        // All layoutResult methods expect offsets relative to the layout itself, not the decoration
+        // box.
+        val offset = textLayoutState.fromDecorationToTextLayout(decorationOffset)
+        val layoutResult = textLayoutState.layoutResult ?: return false
+
+        // First step: calculate the proposed cursor index.
+        val index = layoutResult.getOffsetForPosition(offset)
+        if (index == -1) return false
+
+        // Second step: if a transformation is applied, determine if the proposed cursor position
+        // would be in a range where the cursor is not allowed to be. If so, push it to the
+        // appropriate edge of that range.
+        var newAffinity: SelectionWedgeAffinity? = null
+        val untransformedCursor =
+            textFieldState.getIndexTransformationType(index) { type, untransformed, retransformed ->
+                when (type) {
+                    Untransformed -> untransformed.start
+
+                    // Deletion. Doesn't matter which end of the deleted range we put the cursor,
+                    // they'll both map to the same transformed offset.
+                    Deletion -> untransformed.start
+
+                    // The untransformed offset will be the same no matter which side we put the
+                    // cursor on, so we need to set the affinity to the closer edge.
+                    Insertion -> {
+                        val wedgeStartCursorRect = layoutResult.getCursorRect(retransformed.start)
+                        val wedgeEndCursorRect = layoutResult.getCursorRect(retransformed.end)
+                        newAffinity = if (offset.findClosestRect(
+                                wedgeStartCursorRect,
+                                wedgeEndCursorRect
+                            ) < 0
+                        ) {
+                            SelectionWedgeAffinity(WedgeAffinity.Start)
+                        } else {
+                            SelectionWedgeAffinity(WedgeAffinity.End)
+                        }
+                        untransformed.start
+                    }
+
+                    // Set the untransformed cursor to the edge that corresponds to the closer edge
+                    // in the transformed text.
+                    Replacement -> {
+                        val wedgeStartCursorRect = layoutResult.getCursorRect(retransformed.start)
+                        val wedgeEndCursorRect = layoutResult.getCursorRect(retransformed.end)
+                        if (offset.findClosestRect(wedgeStartCursorRect, wedgeEndCursorRect) < 0) {
+                            untransformed.start
+                        } else {
+                            untransformed.end
+                        }
+                    }
+                }
+            }
+        val untransformedCursorRange = TextRange(untransformedCursor)
+
+        // Nothing changed, skip onValueChange and hapticFeedback.
+        if (untransformedCursorRange == textFieldState.untransformedText.selectionInChars &&
+            (newAffinity == null || newAffinity == textFieldState.selectionWedgeAffinity)
+        ) {
+            return false
+        }
+
+        textFieldState.selectUntransformedCharsIn(untransformedCursorRange)
+        newAffinity?.let {
+            textFieldState.selectionWedgeAffinity = it
+        }
+        return true
     }
 
     private suspend fun PointerInputScope.detectCursorHandleDragGestures() {
@@ -503,18 +588,11 @@ internal class TextFieldSelectionState(
 
                     updateHandleDragging(Handle.Cursor, cursorDragStart + cursorDragDelta)
 
-                    val layoutResult = textLayoutState.layoutResult ?: return@onDrag
-                    val offset = layoutResult.getOffsetForPosition(handleDragPosition)
-
-                    val newSelection = TextRange(offset)
-
-                    // Nothing changed, skip onValueChange hand hapticFeedback.
-                    if (newSelection == textFieldState.visualText.selectionInChars) return@onDrag
-
-                    change.consume()
-                    // TODO: only perform haptic feedback if filter does not override the change
-                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    textFieldState.selectCharsIn(newSelection)
+                    if (placeCursorAtNearestOffset(handleDragPosition)) {
+                        change.consume()
+                        // TODO: only perform haptic feedback if filter does not override the change
+                        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    }
                 }
             )
         } finally {

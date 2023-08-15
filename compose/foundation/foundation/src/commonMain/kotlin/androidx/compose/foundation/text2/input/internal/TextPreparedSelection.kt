@@ -16,11 +16,17 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
 import androidx.compose.foundation.text.findPrecedingBreak
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Deletion
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Insertion
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Replacement
+import androidx.compose.foundation.text2.input.internal.IndexTransformationType.Untransformed
+import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextLayoutResult
@@ -238,13 +244,19 @@ internal class TextFieldPreparedSelection(
     fun getNextCharacterIndex() = text.findFollowingBreak(selection.end)
 
     private fun moveCursorPrev() = applyIfNotEmpty {
-        val prev = getPrecedingCharacterIndex()
-        if (prev != -1) setCursor(prev)
+        val oldCursor = selection.end
+        val newCursor = calculateAdjacentCursorPosition(text, oldCursor, forward = false, state)
+        if (newCursor != oldCursor) {
+            setCursor(newCursor)
+        }
     }
 
     private fun moveCursorNext() = applyIfNotEmpty {
-        val next = getNextCharacterIndex()
-        if (next != -1) setCursor(next)
+        val oldCursor = selection.end
+        val newCursor = calculateAdjacentCursorPosition(text, oldCursor, forward = true, state)
+        if (newCursor != oldCursor) {
+            setCursor(newCursor)
+        }
     }
 
     fun moveCursorToHome() = applyIfNotEmpty {
@@ -427,5 +439,82 @@ internal class TextFieldPreparedSelection(
          * This is equivalent to `BreakIterator.DONE` on JVM/Android.
          */
         const val NoCharacterFound = -1
+    }
+}
+
+/**
+ * Given some transformed text and the current cursor offset in that text, calculates the offset of
+ * the nearest next position of the cursor in the transformed text. Takes into account text
+ * transformations ([TransformedTextFieldState]) to avoid putting the cursor in the middle of
+ * replacements.
+ */
+@VisibleForTesting
+internal fun calculateAdjacentCursorPosition(
+    transformedText: String,
+    cursor: Int,
+    forward: Boolean,
+    state: TransformedTextFieldState,
+): Int {
+    // First step: find the index of the next cursor position in the visual text. In most cases this
+    // will be the final result, however if transformations are applied we may need to jump the
+    // cursor forward or backward.
+    val proposedCursor = if (forward) {
+        transformedText.findFollowingBreak(cursor)
+    } else {
+        transformedText.findPrecedingBreak(cursor)
+    }
+    if (proposedCursor == NoCharacterFound) {
+        // At the start or end of the text, no change.
+        return cursor
+    }
+
+    // Second step: if a transformation is applied, determine if the proposed cursor position would
+    // be in a range where the cursor is not allowed to be. If so, push it to the appropriate edge
+    // of that range.
+    return state.getIndexTransformationType(proposedCursor) { type, _, retransformed ->
+        when (type) {
+            Untransformed -> proposedCursor
+
+            // It doesn't matter which end of the deleted range we put the cursor, they'll both map
+            // to the same transformed offset.
+            Deletion -> proposedCursor
+
+            // Moving forward into a replacement means we should jump to the end, moving backwards
+            // into it means jump to the start.
+            Replacement -> if (forward) retransformed.end else retransformed.start
+
+            // Moving into an insertion is like a replacement in that the cursor may only be placed
+            // on either edge of the range. However, since both edges of the range map to the same
+            // untransformed index, we need to set the affinity.
+            Insertion -> {
+                if (forward) {
+                    if (proposedCursor == retransformed.start) {
+                        // Moving to start of wedge, update affinity and set cursor.
+                        state.selectionWedgeAffinity = SelectionWedgeAffinity(WedgeAffinity.Start)
+                        return proposedCursor
+                    } else {
+                        // Moving to middle or end of wedge, update affinity but don't need to move
+                        // cursor.
+                        state.selectionWedgeAffinity = SelectionWedgeAffinity(WedgeAffinity.End)
+                        // No offset change.
+                        cursor
+                    }
+                } else {
+                    // We're navigating to or within a wedge. Use affinity (doesn't matter which
+                    // one, selection is a cursor).
+                    if (proposedCursor == retransformed.end) {
+                        // Moving to end of wedge, update affinity and set cursor.
+                        state.selectionWedgeAffinity = SelectionWedgeAffinity(WedgeAffinity.End)
+                        return proposedCursor
+                    } else {
+                        // Moving to middle or start of wedge, update affinity but don't need to
+                        // move cursor.
+                        state.selectionWedgeAffinity = SelectionWedgeAffinity(WedgeAffinity.Start)
+                        // No offset change.
+                        return cursor
+                    }
+                }
+            }
+        }
     }
 }

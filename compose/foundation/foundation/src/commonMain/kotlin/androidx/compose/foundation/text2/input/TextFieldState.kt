@@ -277,7 +277,7 @@ class TextFieldState internal constructor(
         // If neither the text nor the selection changed, we want to preserve the composition.
         // Otherwise, the IME will reset it anyway.
         val afterFilterValue = mutableValue.toTextFieldCharSequence(
-            afterEditValue.compositionInChars
+            composition = afterEditValue.compositionInChars
         )
         if (afterFilterValue == afterEditValue) {
             text = afterFilterValue
