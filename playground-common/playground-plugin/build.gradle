@@ -22,8 +22,8 @@ plugins {
 dependencies {
     implementation("com.gradle:gradle-enterprise-gradle-plugin:3.14.1")
     implementation("com.gradle:common-custom-user-data-gradle-plugin:1.11.1")
+    implementation("buildSrc:private")
     api("buildSrc:public")
-    api("buildSrc:private")
     api("buildSrc:plugins")
     testImplementation(libs.junit)
     testImplementation(libs.truth)

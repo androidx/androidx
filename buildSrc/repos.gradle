@@ -57,7 +57,7 @@ def addMavenRepositories(RepositoryHandler handler) {
             artifact()
         }
     }
-    if (true||System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+    if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
         handler.mavenCentral()
         handler.google()
         handler.gradlePluginPortal()

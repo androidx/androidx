@@ -17,6 +17,9 @@
 // see ../playground-common/README.md for details on how this works
 pluginManagement {
     includeBuild "../playground-common/playground-plugin"
+    // TODO how can we get rid of this,
+    //  it seems like repos declared in the buildplugin does not
+    //  take affect here.
     repositories {
         mavenCentral()
         google()

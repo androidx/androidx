@@ -106,7 +106,6 @@ open class PlaygroundExtension @Inject constructor(
                     "org.jetbrains.kotlin.plugin.serialization",
                     "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
                 )
-                it.includeGroup("org.spdx")
             }
         }
         val projectDir = settings.rootProject.projectDir

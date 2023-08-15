@@ -18,10 +18,9 @@ pluginManagement {
     repositories {
         mavenCentral()
         google()
-        gradlePluginPortal()
-//        content {
-//            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
-//        }
+        gradlePluginPortal().content {
+            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+        }
     }
 }
 
@@ -29,18 +28,17 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
-        gradlePluginPortal()
-//                .content {
-//            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
-//            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
-//            it.includeModule("org.spdx", "spdx-gradle-plugin")
-//            it.includeModule("gradle.plugin.com.github.johnrengelman", "shadow")
-//        }
+        gradlePluginPortal().content {
+            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+        }
     }
 }
 
+System.setProperty("ALLOW_PUBLIC_REPOS", "true")
 rootProject.name = "playground-plugin"
 includeBuild("../../buildSrc") {
+    // cannot use name buildSrc, it is reserved.
     name = "notBuildSrc"
 }
 // Build cache configuration is duplicated here from the GradleEnterpriseConventionsPlugin,
