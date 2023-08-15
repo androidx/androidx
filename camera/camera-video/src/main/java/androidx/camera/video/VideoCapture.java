@@ -57,6 +57,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraDevice;
 import android.media.MediaCodec;
+import android.os.SystemClock;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -626,6 +627,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // UPTIME when encoder surface is directly sent to camera.
             timebase = Timebase.UPTIME;
         }
+        Logger.d(TAG, "camera timebase = " + camera.getCameraInfoInternal().getTimebase()
+                + ", processing timebase = " + timebase);
         // Update the StreamSpec with new frame rate range and resolution.
         StreamSpec updatedStreamSpec =
                 streamSpec.toBuilder()
@@ -1189,10 +1192,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     AtomicBoolean surfaceUpdateComplete = new AtomicBoolean(false);
                     CameraCaptureCallback cameraCaptureCallback =
                             new CameraCaptureCallback() {
+                                private boolean mIsFirstCaptureResult = true;
                                 @Override
                                 public void onCaptureCompleted(
                                         @NonNull CameraCaptureResult cameraCaptureResult) {
                                     super.onCaptureCompleted(cameraCaptureResult);
+                                    // Only print the first result to avoid flooding the log.
+                                    if (mIsFirstCaptureResult) {
+                                        mIsFirstCaptureResult = false;
+                                        Logger.d(TAG, "cameraCaptureResult timestampNs = "
+                                                + cameraCaptureResult.getTimestamp()
+                                                + ", current system uptimeMs = "
+                                                + SystemClock.uptimeMillis()
+                                                + ", current system realtimeMs = "
+                                                + SystemClock.elapsedRealtime());
+                                    }
                                     if (!surfaceUpdateComplete.get()) {
                                         Object tag = cameraCaptureResult.getTagBundle().getTag(
                                                 SURFACE_UPDATE_KEY);
