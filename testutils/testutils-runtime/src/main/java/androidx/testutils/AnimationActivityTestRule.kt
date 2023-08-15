@@ -95,7 +95,6 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
             testType = TestType.ANIMATION
             val wrappedStatement = super.apply(base, description)
             return object : Statement() {
-                @SuppressLint("SyntheticAccessor")
                 override fun evaluate() {
                     val savedScale = durationGetter.invoke(null) as Float
                     try {

@@ -72,7 +72,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         timestamp: CameraTimestamp
     ) = check(
         _onStartedFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnStarted(requestMetadata, frameNumber, timestamp)
         )
     ) {
@@ -86,7 +85,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         captureResult: FrameMetadata
     ) = check(
         _onPartialCaptureResultFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnPartialCaptureResult(requestMetadata, frameNumber, captureResult)
         )
     ) {
@@ -100,7 +98,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         totalCaptureResult: FrameInfo
     ) = check(
         _onTotalCaptureResultFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
         )
     ) {
@@ -114,7 +111,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         result: FrameInfo
     ) = check(
         _onCompleteFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnComplete(requestMetadata, frameNumber, result)
         )
     ) {
@@ -126,7 +122,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         request: Request
     ) = check(
         _onAbortedFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnAborted(request)
         )
     ) {
@@ -140,7 +135,6 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         stream: StreamId
     ) = check(
         _onBufferLostFlow.tryEmit(
-            @Suppress("SyntheticAccessor")
             OnBufferLost(requestMetadata, frameNumber, stream)
         )
     ) {

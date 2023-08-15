@@ -55,7 +55,6 @@ import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLE
 import static androidx.media.MediaSessionManager.RemoteUserInfo.UNKNOWN_PID;
 import static androidx.media.MediaSessionManager.RemoteUserInfo.UNKNOWN_UID;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -498,7 +497,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
 
             @Override
-            @SuppressLint("SyntheticAccessor")
             public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName,
                     int clientUid, Bundle rootHints) {
                 MediaSessionCompat.ensureClassLoader(rootHints);

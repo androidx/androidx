@@ -61,7 +61,4 @@ androidx {
 
 android {
     namespace "androidx.datastore.protodatastore"
-    lintOptions {
-        disable("SyntheticAccessor")
-    }
 }

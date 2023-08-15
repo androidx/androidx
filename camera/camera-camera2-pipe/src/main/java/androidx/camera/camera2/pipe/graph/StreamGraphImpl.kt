@@ -118,7 +118,6 @@ constructor(
                     continue
                 }
 
-                @SuppressWarnings("SyntheticAccessor")
                 val outputConfig =
                     OutputConfig(
                         nextConfigId(),
@@ -153,7 +152,6 @@ constructor(
                 streamConfig.outputs.map {
                     val outputConfig = outputConfigMap[it]!!
 
-                    @SuppressWarnings("SyntheticAccessor")
                     val outputStream =
                         OutputStreamImpl(
                             nextOutputId(),
@@ -191,7 +189,6 @@ constructor(
         outputs = sortOutputsByVideoStream(outputsSortedByPreview)
     }
 
-    @Suppress("SyntheticAccessor") // StreamId generates a synthetic constructor
     class OutputConfig(
         val id: OutputConfigId,
         val size: Size,
@@ -215,7 +212,6 @@ constructor(
         override fun toString(): String = id.toString()
     }
 
-    @Suppress("SyntheticAccessor") // OutputId generates a synthetic constructor
     private class OutputStreamImpl(
         override val id: OutputId,
         override val size: Size,

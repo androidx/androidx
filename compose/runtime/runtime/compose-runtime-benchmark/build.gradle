@@ -25,9 +25,6 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
-    lintOptions {
-        disable("SyntheticAccessor")
-    }
     namespace "androidx.compose.runtime.benchmark"
 }
 
