@@ -49,8 +49,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
     // Low value will use maximum prediction, high value will use no prediction.
     private static final float LOW_JANK = 0.02f;
     private static final float HIGH_JANK = 0.2f;
-    private static final float ACCURATE_LOW_JANK = 0.2f;
-    private static final float ACCURATE_HIGH_JANK = 1f;
+    private static final float ACCURATE_LOW_JANK = 0.1f;
+    private static final float ACCURATE_HIGH_JANK = 0.2f;
 
     // Range of pen speed to expect (in dp / ms).
     // Low value will not use prediction, high value will use full prediction.
