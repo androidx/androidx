@@ -619,8 +619,8 @@ public class TestCasesGenerator {
     @NonNull
     private static Box buildColoredBoxMSL(int color) {
         return new Box.Builder()
-                .setWidth(dp(60))
-                .setHeight(dp(60))
+                .setWidth(dp(45))
+                .setHeight(dp(45))
                 .setModifiers(
                         new Modifiers.Builder()
                                 .setBackground(
