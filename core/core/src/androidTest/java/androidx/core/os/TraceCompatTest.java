@@ -93,6 +93,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @Ignore("b/295944187")
     public void beginAndEndSectionAsync() throws IOException {
         startTrace();
         TraceCompat.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
