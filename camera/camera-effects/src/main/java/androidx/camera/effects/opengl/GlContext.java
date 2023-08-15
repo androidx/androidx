@@ -16,8 +16,12 @@
 
 package androidx.camera.effects.opengl;
 
+import static androidx.camera.effects.opengl.Utils.checkEglErrorOrLog;
 import static androidx.camera.effects.opengl.Utils.checkEglErrorOrThrow;
+import static androidx.camera.effects.opengl.Utils.drawArrays;
 import static androidx.core.util.Preconditions.checkState;
+
+import static java.util.Objects.requireNonNull;
 
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -32,6 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -55,13 +61,16 @@ public class GlContext {
 
     // Current output Surface being drawn to.
     @Nullable
-    @SuppressWarnings("UnusedVariable")
     private EglSurface mCurrentSurface = null;
     // A temporary output Surface. This is used when no Surface has been registered yet.
     @Nullable
     private EglSurface mTempSurface = null;
+    @NonNull
+    private final Map<Surface, EglSurface> mRegisteredSurfaces = new HashMap<>();
 
     void init() {
+        checkState(Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY), "Already initialized");
+
         // TODO(b/295407763): make sure EGLDisplay, EGLConfig, and EGLContext are released when
         //  there is exception.
         // Create EGLDisplay.
@@ -135,7 +144,10 @@ public class GlContext {
      * {@link #drawAndSwap}.
      */
     void registerSurface(@NonNull Surface surface) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        checkInitialized();
+        if (!mRegisteredSurfaces.containsKey(surface)) {
+            mRegisteredSurfaces.put(surface, null);
+        }
     }
 
     /**
@@ -144,7 +156,16 @@ public class GlContext {
      * <p>Once unregistered, calling {@link #drawAndSwap} will no longer be effective.
      */
     void unregisterSurface(@NonNull Surface surface) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        checkInitialized();
+        if (requireNonNull(mCurrentSurface).getSurface() == surface) {
+            // If the current surface is being unregistered, switch to the temporary surface.
+            makeCurrent(requireNonNull(mTempSurface));
+        }
+        // Destroy the EGLSurface.
+        EglSurface removedSurface = mRegisteredSurfaces.remove(surface);
+        if (removedSurface != null) {
+            destroyEglSurface(removedSurface);
+        }
     }
 
     /**
@@ -155,7 +176,35 @@ public class GlContext {
      * @param timestampNs The timestamp of the frame in nanoseconds.
      */
     void drawAndSwap(@NonNull Surface surface, long timestampNs) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        checkInitialized();
+        checkState(mRegisteredSurfaces.containsKey(surface), "The Surface is not registered.");
+
+        // Get or create the EGLSurface.
+        EglSurface eglSurface = mRegisteredSurfaces.get(surface);
+        // Workaround for when the output Surface is failed to create or needs to be recreated.
+        if (eglSurface == null) {
+            eglSurface = createEglSurface(surface);
+            if (eglSurface == null) {
+                Logger.w(TAG, "Failed to create EGLSurface. Skip drawing.");
+                return;
+            }
+            mRegisteredSurfaces.put(surface, eglSurface);
+        }
+
+        // Draw.
+        makeCurrent(eglSurface);
+        drawArrays(eglSurface.getWidth(), eglSurface.getHeight());
+        EGLExt.eglPresentationTimeANDROID(mEglDisplay, eglSurface.getEglSurface(), timestampNs);
+
+        // Swap buffer
+        if (!EGL14.eglSwapBuffers(mEglDisplay, eglSurface.getEglSurface())) {
+            // If swap buffer failed, destroy the invalid EGL Surface.
+            Logger.w(TAG, "Failed to swap buffers with EGL error: 0x" + Integer.toHexString(
+                    EGL14.eglGetError()));
+            unregisterSurface(surface);
+            // Add the surface back since it's still registered.
+            mRegisteredSurfaces.put(surface, null);
+        }
     }
 
     boolean release() {
@@ -167,11 +216,15 @@ public class GlContext {
                 EGL14.EGL_NO_CONTEXT
         );
 
-        // TODO: Destroy registered EGL surfaces.
+        // Destroy EGLSurfaces
+        for (EglSurface eglSurface : mRegisteredSurfaces.values()) {
+            destroyEglSurface(eglSurface);
+        }
+        mRegisteredSurfaces.clear();
 
         // Destroy the temporary surface.
         if (mTempSurface != null) {
-            EGL14.eglDestroySurface(mEglDisplay, mTempSurface.getEglSurface());
+            destroyEglSurface(mTempSurface);
             mTempSurface = null;
         }
         mCurrentSurface = null;
@@ -190,7 +243,38 @@ public class GlContext {
 
     // --- Private methods ---
 
-    private void makeCurrent(EglSurface eglSurface) {
+    private void destroyEglSurface(@NonNull EglSurface eglSurface) {
+        if (!EGL14.eglDestroySurface(mEglDisplay, eglSurface.getEglSurface())) {
+            checkEglErrorOrLog("eglDestroySurface");
+        }
+    }
+
+    @Nullable
+    private EglSurface createEglSurface(@NonNull Surface surface) {
+        EGLSurface eglSurface;
+        try {
+            int[] surfaceAttrib = {
+                    EGL14.EGL_NONE
+            };
+            eglSurface = EGL14.eglCreateWindowSurface(
+                    mEglDisplay, mEglConfig, surface, surfaceAttrib, 0);
+            checkEglErrorOrThrow("eglCreateWindowSurface");
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            Logger.w(TAG, "Failed to create EGL surface: " + e.getMessage(), e);
+            return null;
+        }
+        int width = querySurface(eglSurface, EGL14.EGL_WIDTH);
+        int height = querySurface(eglSurface, EGL14.EGL_HEIGHT);
+        return EglSurface.of(eglSurface, surface, width, height);
+    }
+
+    private int querySurface(@NonNull EGLSurface eglSurface, int what) {
+        int[] value = new int[1];
+        EGL14.eglQuerySurface(mEglDisplay, eglSurface, what, value, 0);
+        return value[0];
+    }
+
+    private void makeCurrent(@NonNull EglSurface eglSurface) {
         checkInitialized();
         if (!EGL14.eglMakeCurrent(mEglDisplay, eglSurface.getEglSurface(),
                 eglSurface.getEglSurface(),
