@@ -22,7 +22,6 @@ import android.content.res.XmlResourceParser
 import android.util.TypedValue
 import android.util.Xml
 import androidx.annotation.DrawableRes
-import androidx.collection.MutableScatterMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -141,18 +140,19 @@ internal class ImageVectorCache {
         val vectorPainter: VectorPainter?,
     )
 
-    private val map = MutableScatterMap<Key, WeakReference<ImageVectorEntry>>()
+    private val map = HashMap<Key, WeakReference<ImageVectorEntry>>()
 
     operator fun get(key: Key): ImageVectorEntry? = map[key]?.get()
 
     fun prune(configChanges: Int) {
-        map.forEachKey { key ->
-            val entry = map[key]
-            val imageVectorEntry = entry?.get()
+        val it = map.entries.iterator()
+        while (it.hasNext()) {
+            val entry = it.next()
+            val imageVectorEntry = entry.value.get()
             if (imageVectorEntry == null ||
                 Configuration.needNewResources(configChanges, imageVectorEntry.configFlags)
             ) {
-                map.remove(key)
+                it.remove()
             }
         }
     }
