@@ -28,6 +28,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Logger
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -194,7 +195,7 @@ class StreamSharingActivity : AppCompatActivity() {
 
     private fun createVideoCapture(): VideoCapture<Recorder> {
         val recorder = Recorder.Builder().build()
-        return VideoCapture.withOutput(recorder)
+        return VideoCapture.Builder(recorder).setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY).build()
     }
 
     @Suppress("UNCHECKED_CAST")
