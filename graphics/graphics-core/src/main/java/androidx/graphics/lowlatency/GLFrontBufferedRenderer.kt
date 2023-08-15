@@ -16,6 +16,7 @@
 
 package androidx.graphics.lowlatency
 
+import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
@@ -32,6 +33,7 @@ import androidx.graphics.opengl.GLFrameBufferRenderer
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.HardwareBufferFormat
 import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
 import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
@@ -61,6 +63,18 @@ import java.util.concurrent.CountDownLatch
  *  [GLRenderer.stop]. Otherwise [GLFrontBufferedRenderer] will create and manage its own
  *  [GLRenderer] internally and will automatically release its resources within
  *  [GLFrontBufferedRenderer.release]
+ *  @param bufferFormat format of the underlying buffers being rendered into by
+ *  [GLFrontBufferedRenderer]. The set of valid formats is implementation-specific and may depend
+ *  on additional EGL extensions. The particular valid combinations for a given Android version
+ *  and implementation should be documented by that version.
+ *  [HardwareBuffer.RGBA_8888] and [HardwareBuffer.RGBX_8888] are guaranteed to be supported.
+ *  However, consumers are recommended to query the desired HardwareBuffer configuration using
+ *  [HardwareBuffer.isSupported]. The default is [HardwareBuffer.RGBA_8888].
+ *
+ * See:
+ * khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
+ * and
+ * https://developer.android.com/reference/android/hardware/HardwareBuffer
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 @Suppress("AcronymName")
@@ -69,6 +83,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     callback: Callback<T>,
     @Suppress("ListenerLast")
     glRenderer: GLRenderer? = null,
+    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
 ) {
 
     private val mFrontBufferedCallbacks = object : GLFrameBufferRenderer.Callback {
@@ -410,6 +425,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 mMultiBufferedRenderCallbacks
             ).setGLRenderer(mGLRenderer)
                 .setUsageFlags(FrontBufferUtils.BaseFlags)
+                .setBufferFormat(bufferFormat)
                 .build()
 
             val frontBufferedRenderer = GLFrameBufferRenderer.Builder(
@@ -421,6 +437,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             ).setGLRenderer(mGLRenderer)
                 .setMaxBuffers(1)
                 .setUsageFlags(obtainHardwareBufferUsageFlags())
+                .setBufferFormat(bufferFormat)
                 .setSyncStrategy(mFrontBufferSyncStrategy)
                 .build()
 
