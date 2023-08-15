@@ -99,6 +99,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void runPendingAnimations() {
         boolean removalsPending = !mPendingRemovals.isEmpty();
@@ -190,6 +191,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateRemove(final RecyclerView.ViewHolder holder) {
@@ -220,6 +222,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
                 }).start();
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateAdd(final RecyclerView.ViewHolder holder) {
@@ -255,6 +258,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
                 }).start();
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,
@@ -320,6 +324,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         }).start();
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public boolean animateChange(RecyclerView.ViewHolder oldHolder,
@@ -438,6 +443,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         return true;
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void endAnimation(RecyclerView.ViewHolder item) {
@@ -533,6 +539,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         endAnimation(holder);
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isRunning() {
         return (!mPendingAdditions.isEmpty()
@@ -559,6 +566,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void endAnimations() {
         int count = mPendingMoves.size();
