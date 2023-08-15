@@ -49,6 +49,7 @@ object E2ETestUtil {
      *
      * @return the [FileOutputOptions] instance.
      */
+    @JvmStatic
     fun writeTextToExternalFile(
         text: String,
         fileName: String,
@@ -79,6 +80,7 @@ object E2ETestUtil {
      * @return true if the media store can be used, false otherwise.
      * @see MediaStoreVideoCannotWrite
      */
+    @JvmStatic
     fun canDeviceWriteToMediaStore(): Boolean {
         return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
     }
@@ -92,6 +94,7 @@ object E2ETestUtil {
      *
      * @return the [FileOutputOptions] instance.
      */
+    @JvmStatic
     fun generateVideoFileOutputOptions(
         fileName: String,
         extension: String = EXTENSION_MP4
@@ -112,6 +115,7 @@ object E2ETestUtil {
      *
      * @return the [MediaStoreOutputOptions] instance.
      */
+    @JvmStatic
     fun generateVideoMediaStoreOptions(
         contentResolver: ContentResolver,
         fileName: String
@@ -122,6 +126,23 @@ object E2ETestUtil {
             contentResolver,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).setContentValues(contentValues).build()
+    }
+
+    /**
+     * Check if the given file name string is valid.
+     *
+     * Currently a file name is invalid if:
+     * - it is `null`.
+     * - its length is zero.
+     * - it contains only whitespace character.
+     *
+     * @param fileName the file name string to be checked.
+     *
+     * @return `true` if the given file name is valid, otherwise `false`.
+     */
+    @JvmStatic
+    fun isFileNameValid(fileName: String?): Boolean {
+        return !fileName.isNullOrBlank()
     }
 
     private fun generateVideoContentValues(fileName: String): ContentValues {
