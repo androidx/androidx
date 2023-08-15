@@ -360,6 +360,22 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         assertThat(enableWarmTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
     }
 
+    @Test
+    fun test_handshake_framework_cold_start_app_terminated_on_error() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
+        assumeTrue(testConfig.sdkDelivery == MISSING)
+
+        // perform a handshake setting up cold start tracing
+        val handshake = constructPerfettoHandshake()
+        val enableColdTracingResponse = handshake.enableTracingColdStart()
+        assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_ERROR_BINARY_MISSING)
+
+        // verify that the app process has been terminated
+        // in the non-error case we already have these verifications in other tests
+        assertPackageAlive(false)
+    }
+
     private fun killProcess() {
         scope.killProcess()
         assertPackageAlive(false)
