@@ -89,7 +89,7 @@ fun Card(
 ) {
     androidx.wear.compose.materialcore.Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.minimumInteractiveComponentSize(),
         border = border,
         containerPainter = colors.containerPainter,
         enabled = enabled,
@@ -145,7 +145,7 @@ fun Card(
  *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
- * aligned text of [Typography.captionLarge]
+ * aligned text of [Typography.labelSmall]
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
  * start aligned text of [Typography.titleSmall]
  * @param modifier Modifier to be applied to the card
@@ -166,7 +166,7 @@ fun Card(
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] associated with the application.
  * @param time A slot for displaying the time relevant to the contents of the card, expected to be a
- * short piece of end aligned text of [Typography.captionLarge].
+ * short piece of end aligned text of [Typography.labelSmall].
  * @param content The main slot for a content of this card
  */
 @Composable
@@ -269,7 +269,7 @@ fun AppCard(
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
- * of [Typography.buttonMedium]
+ * of [Typography.titleSmall]
  * @param modifier Modifier to be applied to the card
  * @param enabled Controls the enabled state of the card. When false, this card will not
  * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
@@ -407,7 +407,7 @@ fun OutlinedCard(
 /**
  * Contains the default values used by [Card]
  */
-public object CardDefaults {
+object CardDefaults {
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
@@ -420,7 +420,7 @@ public object CardDefaults {
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
      */
     @Composable
-    public fun cardColors(
+    fun cardColors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         appNameColor: Color = contentColor,
@@ -444,7 +444,7 @@ public object CardDefaults {
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
      */
     @Composable
-    public fun outlinedCardColors(
+    fun outlinedCardColors(
         contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         appNameColor: Color = contentColor,
         timeColor: Color = contentColor,
@@ -468,7 +468,7 @@ public object CardDefaults {
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
      */
     @Composable
-    public fun imageCardColors(
+    fun imageCardColors(
         containerPainter: Painter,
         contentColor: Color = MaterialTheme.colorScheme.onBackground,
         appNameColor: Color = contentColor,
@@ -496,7 +496,7 @@ public object CardDefaults {
      * image to ensure that any text drawn over the image is legible
      */
     @Composable
-    public fun imageWithScrimBackgroundPainter(
+    fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
         backgroundImageScrimBrush: Brush = SolidColor(OverlayScrimColor)
     ): Painter {
@@ -512,7 +512,7 @@ public object CardDefaults {
      * @param borderWidth width of the border in [Dp].
      */
     @Composable
-    public fun outlinedCardBorder(
+    fun outlinedCardBorder(
         outlineColor: Color = MaterialTheme.colorScheme.outline,
         borderWidth: Dp = 1.dp
     ): BorderStroke =
@@ -526,7 +526,7 @@ public object CardDefaults {
     /**
      * The default content padding used by [Card]
      */
-    public val ContentPadding: PaddingValues = PaddingValues(
+    val ContentPadding: PaddingValues = PaddingValues(
         start = CardHorizontalPadding,
         top = CardVerticalPadding,
         end = CardHorizontalPadding,
@@ -536,7 +536,7 @@ public object CardDefaults {
     /**
      * The default size of the app icon/image when used inside a [AppCard].
      */
-    public val AppImageSize: Dp = 16.dp
+    val AppImageSize: Dp = 16.dp
 }
 
 /**
@@ -551,7 +551,7 @@ public object CardDefaults {
  * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
  */
 @Immutable
-public class CardColors(
+class CardColors(
     val containerPainter: Painter,
     val contentColor: Color,
     val appNameColor: Color,
