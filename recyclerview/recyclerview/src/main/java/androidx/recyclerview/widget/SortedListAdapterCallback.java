@@ -39,26 +39,31 @@ public abstract class SortedListAdapterCallback<T2> extends SortedList.Callback<
         mAdapter = adapter;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onInserted(int position, int count) {
         mAdapter.notifyItemRangeInserted(position, count);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onRemoved(int position, int count) {
         mAdapter.notifyItemRangeRemoved(position, count);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onMoved(int fromPosition, int toPosition) {
         mAdapter.notifyItemMoved(fromPosition, toPosition);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onChanged(int position, int count) {
         mAdapter.notifyItemRangeChanged(position, count);
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onChanged(int position, int count, Object payload) {

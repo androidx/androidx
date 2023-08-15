@@ -10876,6 +10876,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * <p>The base implementation will attempt to perform a standard programmatic scroll
          * to bring the given rect into view, within the padded area of the RecyclerView.</p>
          *
+         * @param parent    The parent RecyclerView.
          * @param child     The direct child making the request.
          * @param rect      The rectangle in the child's coordinates the child
          *                  wishes to be on the screen.
@@ -11852,6 +11853,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * in the order in which each listener was added, before any other touch processing
          * by the RecyclerView itself or child views occurs.</p>
          *
+         * @param rv The RecyclerView whose scroll state has changed.
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          * @return true if this OnItemTouchListener wishes to begin intercepting touch events, false
@@ -11864,6 +11866,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * Process a touch event as part of a gesture that was claimed by returning true from
          * a previous call to {@link #onInterceptTouchEvent}.
          *
+         * @param rv The RecyclerView whose scroll state has changed.
          * @param e MotionEvent describing the touch event. All coordinates are in
          *          the RecyclerView's coordinate system.
          */
@@ -11891,15 +11894,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * you update to a new version of the support library.
      */
     public static class SimpleOnItemTouchListener implements RecyclerView.OnItemTouchListener {
+        /** {@inheritDoc} */
         @Override
         public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             return false;
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
         }
 
+        /** {@inheritDoc} */
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         }
@@ -14677,6 +14683,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * if you want to change the drawing order of children. By default, it
          * returns i.
          *
+         * @param childCount The total number of children.
          * @param i The current iteration.
          * @return The index of the child to draw this iteration.
          * @see RecyclerView#setChildDrawingOrderCallback(RecyclerView.ChildDrawingOrderCallback)

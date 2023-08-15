@@ -73,6 +73,7 @@ public class BatchingListUpdateCallback implements ListUpdateCallback {
         mLastEventType = TYPE_NONE;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onInserted(int position, int count) {
         if (mLastEventType == TYPE_ADD && position >= mLastEventPosition
@@ -87,6 +88,7 @@ public class BatchingListUpdateCallback implements ListUpdateCallback {
         mLastEventType = TYPE_ADD;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onRemoved(int position, int count) {
         if (mLastEventType == TYPE_REMOVE && mLastEventPosition >= position &&
@@ -101,12 +103,14 @@ public class BatchingListUpdateCallback implements ListUpdateCallback {
         mLastEventType = TYPE_REMOVE;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onMoved(int fromPosition, int toPosition) {
         dispatchLastEvent(); // moves are not merged
         mWrapped.onMoved(fromPosition, toPosition);
     }
 
+    /** {@inheritDoc} */
     @Override
     @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onChanged(int position, int count, Object payload) {
