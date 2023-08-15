@@ -16,18 +16,18 @@
 
 package androidx.wear.compose.ui.tooling.preview
 
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewSmallRound] is a custom preview annotation for displaying Wear composables on small
- * round Wear device ([Devices.WEAR_OS_SMALL_ROUND]).
+ * round Wear device ([WearDevices.SMALL_ROUND]).
  *
  * @sample androidx.wear.compose.material.samples.ButtonWithIconPreview
- * @see [Devices.WEAR_OS_SMALL_ROUND]
+ * @see [WearDevices.SMALL_ROUND]
  */
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Small Round",

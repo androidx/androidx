@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,35 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.5.0")
+    implementation(libs.kotlinStdlib)
+    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(":wear:tiles:tiles"))
 
-    implementation(libs.kotlinStdlibCommon)
-    implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation(project(":wear:wear-tooling-preview"))
-
-    samples(project(":wear:compose:compose-material-samples"))
+    api(project(":wear:wear-tooling-preview"))
+    api("androidx.annotation:annotation:1.6.0")
 }
 
 android {
-    namespace "androidx.wear.compose.ui.tooling"
+    defaultConfig {
+        minSdkVersion 26
+    }
+    namespace "androidx.wear.tiles.tooling.preview"
 }
 
 androidx {
-    name = "Wear Compose Tools"
+    name = "Android Wear Tiles Tooling"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
-    description = "Tools for Wear Composable"
+    description = "Wear Tile tooling library. This library provides the API required to declare" +
+            " @TilePreview on previewable methods in the IDE."
 }

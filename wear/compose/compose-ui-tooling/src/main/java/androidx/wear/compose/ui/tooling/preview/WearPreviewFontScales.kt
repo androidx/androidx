@@ -16,8 +16,8 @@
 
 package androidx.wear.compose.ui.tooling.preview
 
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewFontScales] is a multi-preview annotation for the Wear devices of following font
@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
  * @see [Preview.fontScale]
  */
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
@@ -45,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 0.94f
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
@@ -53,7 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 1f
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
@@ -61,7 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 1.06f
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
@@ -69,7 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 1.12f
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
@@ -77,7 +77,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 1.18f
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     showSystemUi = true,
     backgroundColor = 0xff000000,
     showBackground = true,
