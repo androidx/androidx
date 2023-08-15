@@ -51,8 +51,6 @@ data class ApiLocation(
     val restrictedApiFile: File,
     // File where the library's public resources are recorded
     val resourceFile: File,
-    // Directory where native API files are stored
-    val nativeApiDirectory: File,
     // Directory where the library's stable AIDL surface is recorded
     val aidlApiDirectory: File,
     // File where the API version history is recorded, for use in docs
@@ -95,7 +93,6 @@ data class ApiLocation(
                 removedApiFile = File(apiFileDir, "$PREFIX_REMOVED$baseName$EXTENSION"),
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
-                nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName),
                 aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName),
                 apiLevelsFile = File(apiFileDir, API_LEVELS)
             )
@@ -115,9 +112,6 @@ data class ApiLocation(
 
         /** Prefix used for resource-type API files. */
         private const val PREFIX_RESOURCE = "res-"
-
-        /** Directory name for location of native API files */
-        private const val NATIVE_API_DIRECTORY_NAME = "native"
 
         /** Directory name for location of AIDL API files */
         private const val AIDL_API_DIRECTORY_NAME = "aidl"

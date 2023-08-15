@@ -35,8 +35,7 @@ package androidx.build
  * The possible values of LibraryType are as follows: PUBLISHED_LIBRARY: a conventional library,
  * published, sourced, documented, and versioned. PUBLISHED_TEST_LIBRARY: PUBLISHED_LIBRARY, but
  * allows calling @VisibleForTesting API. Used for libraries that allow developers to test code that
- * uses your library. Often provides test fakes. PUBLISHED_NATIVE_LIBRARY: PUBLISHED_LIBRARY, but
- * uses native API tracking instead of Java INTERNAL_TEST_LIBRARY: unpublished, untracked,
+ * uses your library. Often provides test fakes. INTERNAL_TEST_LIBRARY: unpublished, untracked,
  * undocumented. Used in internal tests. Usually contains integration tests, but is _not_ an app.
  * Runs device tests. INTERNAL_HOST_TEST_LIBRARY: as INTERNAL_TEST_LIBRARY, but runs host tests
  * instead. Avoid mixing host tests and device tests in the same library, for performance /
@@ -74,7 +73,6 @@ sealed class LibraryType(
     companion object {
         val PUBLISHED_LIBRARY = PublishedLibrary()
         val PUBLISHED_TEST_LIBRARY = PublishedTestLibrary()
-        val PUBLISHED_NATIVE_LIBRARY = PublishedNativeLibrary()
         val INTERNAL_TEST_LIBRARY = InternalTestLibrary()
         val INTERNAL_HOST_TEST_LIBRARY = InternalHostTestLibrary()
         val SAMPLES = Samples()
@@ -96,7 +94,6 @@ sealed class LibraryType(
             mapOf(
                 "PUBLISHED_LIBRARY" to PUBLISHED_LIBRARY,
                 "PUBLISHED_TEST_LIBRARY" to PUBLISHED_TEST_LIBRARY,
-                "PUBLISHED_NATIVE_LIBRARY" to PUBLISHED_NATIVE_LIBRARY,
                 "INTERNAL_TEST_LIBRARY" to INTERNAL_TEST_LIBRARY,
                 "INTERNAL_HOST_TEST_LIBRARY" to INTERNAL_HOST_TEST_LIBRARY,
                 "SAMPLES" to SAMPLES,
@@ -143,8 +140,6 @@ sealed class LibraryType(
     class InternalTestLibrary() : InternalLibrary(allowCallingVisibleForTestsApis = true)
 
     class InternalHostTestLibrary() : InternalLibrary(CompilationTarget.HOST)
-
-    class PublishedNativeLibrary : PublishedLibrary()
 
     class Samples :
         LibraryType(
