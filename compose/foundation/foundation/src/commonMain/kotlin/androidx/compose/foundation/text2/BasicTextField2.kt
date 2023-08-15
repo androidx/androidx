@@ -51,6 +51,7 @@ import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelec
 import androidx.compose.foundation.text2.input.internal.syncTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -430,11 +431,8 @@ fun BasicTextField2(
     // We're using this to communicate focus state to cursor for now.
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
-
     val isFocused = interactionSource.collectIsFocusedAsState().value
-
     val textLayoutState = remember { TextLayoutState() }
 
     val textFieldSelectionState = remember(state, textLayoutState) {
@@ -447,12 +445,19 @@ fun BasicTextField2(
             isFocused = isFocused
         )
     }
-    textFieldSelectionState.hapticFeedBack = LocalHapticFeedback.current
-    textFieldSelectionState.clipboardManager = LocalClipboardManager.current
-    textFieldSelectionState.textToolbar = LocalTextToolbar.current
-    textFieldSelectionState.textEditFilter = filter
-    textFieldSelectionState.density = density
-    textFieldSelectionState.editable = enabled && !readOnly
+    val currentHapticFeedback = LocalHapticFeedback.current
+    val currentClipboardManager = LocalClipboardManager.current
+    val currentTextToolbar = LocalTextToolbar.current
+    SideEffect {
+        // These properties are not backed by snapshot state, so they can't be updated directly in
+        // composition.
+        textFieldSelectionState.hapticFeedBack = currentHapticFeedback
+        textFieldSelectionState.clipboardManager = currentClipboardManager
+        textFieldSelectionState.textToolbar = currentTextToolbar
+        textFieldSelectionState.textEditFilter = filter
+        textFieldSelectionState.density = density
+        textFieldSelectionState.editable = enabled && !readOnly
+    }
 
     DisposableEffect(textFieldSelectionState) {
         onDispose {
