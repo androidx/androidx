@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.selection
+package androidx.compose.foundation.text2.input.internal.selection
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable

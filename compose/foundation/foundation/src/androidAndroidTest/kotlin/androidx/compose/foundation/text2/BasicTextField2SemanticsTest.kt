@@ -9,8 +9,8 @@ import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

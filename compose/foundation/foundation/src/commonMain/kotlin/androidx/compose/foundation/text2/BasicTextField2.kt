@@ -46,9 +46,9 @@ import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionHandle2
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.syncTextFieldState
-import androidx.compose.foundation.text2.selection.TextFieldSelectionHandle2
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue

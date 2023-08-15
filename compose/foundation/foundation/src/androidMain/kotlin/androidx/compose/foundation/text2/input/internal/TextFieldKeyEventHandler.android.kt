@@ -24,7 +24,7 @@ import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.selection.TextFieldSelectionState
+import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
