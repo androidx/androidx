@@ -90,16 +90,19 @@ public interface Alarm : Thing {
   }
 
   /**
-   * A canonical value that may be assigned to [DisambiguatingDescription] properties in the context
-   * of [Alarm].
+   * A canonical value that may be assigned to [Alarm.disambiguatingDescription].
    *
    * Represents an open enum. See [Companion] for the different possible variants. More variants may
    * be added over time.
    */
+  @Document(
+    name = "bit:Alarm:DisambiguatingDescriptionValue",
+    parent = [DisambiguatingDescription.CanonicalValue::class],
+  )
   public class DisambiguatingDescriptionValue
   private constructor(
-    public override val textValue: String,
-  ) : DisambiguatingDescription.CanonicalValue() {
+    textValue: String,
+  ) : DisambiguatingDescription.CanonicalValue(textValue) {
     public override fun toString(): String = """Alarm.DisambiguatingDescriptionValue($textValue)"""
 
     public companion object {
