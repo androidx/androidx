@@ -16,15 +16,12 @@
 
 package androidx.playground
 
-import androidx.build.AndroidXPlaygroundRootPlugin
-import androidx.build.AndroidXRootPlugin
 import androidx.build.SettingsParser
-import androidx.build.setSupportRootFolder
-import org.gradle.api.GradleException
-import org.gradle.api.initialization.Settings
 import java.io.File
 import java.util.Properties
 import javax.inject.Inject
+import org.gradle.api.GradleException
+import org.gradle.api.initialization.Settings
 
 open class PlaygroundExtension @Inject constructor(
     private val settings: Settings
@@ -137,10 +134,6 @@ open class PlaygroundExtension @Inject constructor(
 
         // specify out dir location
         System.setProperty("CHECKOUT_ROOT", supportRoot.path)
-
-        settings.gradle.rootProject { rootProject ->
-            rootProject.setSupportRootFolder(supportRoot)
-        }
     }
 
     /**

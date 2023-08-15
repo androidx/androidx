@@ -23,11 +23,6 @@ class PlaygroundPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         settings.apply(mapOf("plugin" to "playground-ge-conventions"))
         settings.extensions.create("playground", PlaygroundExtension::class.java, settings)
-        settings.pluginManagement.repositories.apply {
-            this.gradlePluginPortal()
-            this.mavenCentral()
-            this.google()
-        }
         validateJvm(settings)
     }
 
