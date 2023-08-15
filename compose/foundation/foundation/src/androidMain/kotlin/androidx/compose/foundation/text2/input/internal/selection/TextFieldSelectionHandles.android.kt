@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.selection
+package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.DefaultSelectionHandle

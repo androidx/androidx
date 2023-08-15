@@ -23,7 +23,7 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.selection.FakeClipboardManager
+import androidx.compose.foundation.text2.input.internal.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester

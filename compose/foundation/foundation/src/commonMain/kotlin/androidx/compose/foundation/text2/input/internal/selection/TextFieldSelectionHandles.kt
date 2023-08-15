@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.selection
+package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.style.ResolvedTextDirection
 
-/**
- * Handles are not supported on Desktop.
- */
 @Composable
-internal actual fun TextFieldSelectionHandle2(
+internal expect fun TextFieldSelectionHandle2(
     positionProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     modifier: Modifier
-) {}
+)
+
+/**
+ * Avoids boxing of [Offset] which is an inline value class.
+ */
+internal fun interface OffsetProvider {
+    fun provide(): Offset
+}
