@@ -372,6 +372,7 @@ dependencies {
     docs(project(":wear:tiles:tiles-renderer"))
     docs(project(":wear:tiles:tiles-testing"))
     docs(project(":wear:tiles:tiles-tooling"))
+    docs(project(":wear:tiles:tiles-tooling-preview"))
     docs(project(":wear:watchface:watchface"))
     docs(project(":wear:watchface:watchface-client"))
     docs(project(":wear:watchface:watchface-client-guava"))

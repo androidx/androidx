@@ -16,18 +16,18 @@
 
 package androidx.wear.compose.ui.tooling.preview
 
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewSquare] is a custom preview annotation for displaying Wear composables on a square
- * Wear screen ([Devices.WEAR_OS_SQUARE]).
+ * Wear screen ([WearDevices.SQUARE]).
  *
  * @sample androidx.wear.compose.material.samples.ButtonWithIconPreview
- * @see [Devices.WEAR_OS_SQUARE]
+ * @see [WearDevices.SQUARE]
  */
 @Preview(
-    device = Devices.WEAR_OS_SQUARE,
+    device = WearDevices.SQUARE,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Small Square",
