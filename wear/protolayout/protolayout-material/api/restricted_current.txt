@@ -243,6 +243,7 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getEdgeContent();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+    method public boolean isEdgeContentBehindAllOtherContent();
   }
 
   public static final class EdgeContentLayout.Builder {
@@ -250,6 +251,7 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout build();
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContentBehindAllOtherContent(boolean);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
   }

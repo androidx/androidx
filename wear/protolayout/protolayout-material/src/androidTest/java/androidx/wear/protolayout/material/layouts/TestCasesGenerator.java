@@ -366,6 +366,44 @@ public class TestCasesGenerator {
                                         .build())
                         .build());
         testCases.put(
+                "custom_edgecontent_above_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        // Default value is to be above all content.
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
+                "custom_edgecontent_below_progressindicatorlayout_golden" + goldenSuffix,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        .setEdgeContentBehindAllOtherContent(true)
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
                 "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
                 new EdgeContentLayout.Builder(deviceParameters)
                         .setEdgeContent(
