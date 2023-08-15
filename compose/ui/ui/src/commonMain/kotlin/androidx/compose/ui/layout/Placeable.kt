@@ -178,6 +178,7 @@ abstract class Placeable : Measured {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [place] method.
          *
+         * @param position position it parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -194,6 +195,8 @@ abstract class Placeable : Measured {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given position, similar to the [place] method.
          *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -206,6 +209,8 @@ abstract class Placeable : Measured {
          * Unlike [placeRelative], the given position will not implicitly react in RTL layout direction
          * contexts.
          *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -218,6 +223,7 @@ abstract class Placeable : Measured {
          * Unlike [placeRelative], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          *
+         * @param position position it parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -235,6 +241,7 @@ abstract class Placeable : Measured {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [place] method.
          *
+         * @param position position it parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -258,6 +265,8 @@ abstract class Placeable : Measured {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given position, similar to the [place] method.
          *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -278,6 +287,8 @@ abstract class Placeable : Measured {
          * Unlike [placeRelative], the given position will not implicitly react in RTL layout direction
          * contexts.
          *
+         * @param x x coordinate in the parent's coordinate system.
+         * @param y y coordinate in the parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
@@ -298,6 +309,7 @@ abstract class Placeable : Measured {
          * Unlike [placeRelative], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          *
+         * @param position position it parent's coordinate system.
          * @param zIndex controls the drawing order for the [Placeable]. A [Placeable] with larger
          * [zIndex] will be drawn on top of all the children with smaller [zIndex]. When children
          * have the same [zIndex] the order in which the items were placed is used.
