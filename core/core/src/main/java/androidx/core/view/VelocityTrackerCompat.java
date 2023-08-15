@@ -213,9 +213,17 @@ public final class VelocityTrackerCompat {
     }
 
     /**
-     * Return a VelocityTracker object back to be re-used by others.  You must not touch the object
-     * after calling this function. That is, don't call any methods on it, or pass it as an input to
-     * any of this class' compat APIs, as the instance is no longer valid for velocity tracking.
+     * Return a {@link VelocityTracker} object back to be re-used by others.
+     *
+     * <p>Call this method for your {@link VelocityTracker} when you have finished tracking
+     * velocity for the use-case you created this tracker for and decided that you no longer need
+     * it. This allows it to be returned back to the pool of trackers to be re-used by others.
+     *
+     * <p>You must <b>not</b> touch the object after calling this function. That is, don't call any
+     * methods on it, or pass it as an input to any of this class' compat APIs, as the instance
+     * is no longer valid for velocity tracking.
+     *
+     * @see VelocityTracker#recycle()
      */
     public static void recycle(@NonNull VelocityTracker tracker) {
         tracker.recycle();
