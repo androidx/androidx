@@ -8972,7 +8972,6 @@ public class NotificationCompat {
              * on this builder.</p>
              */
             @NonNull
-            @SuppressLint("SyntheticAccessor")
             public BubbleMetadata build() {
                 if (mShortcutId == null && mPendingIntent == null) {
                     throw new NullPointerException(

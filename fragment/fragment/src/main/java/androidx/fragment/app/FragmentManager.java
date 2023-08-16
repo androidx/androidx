@@ -1087,7 +1087,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
     }
 
-    @SuppressLint("SyntheticAccessor")
     @Override
     public final void setFragmentResultListener(@NonNull final String requestKey,
             @NonNull final LifecycleOwner lifecycleOwner,
@@ -2792,7 +2791,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @SuppressWarnings("deprecation")
-    @SuppressLint("SyntheticAccessor")
     void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
@@ -2921,7 +2919,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
             mRequestPermissions = registry.register(keyPrefix + "RequestPermissions",
                     new ActivityResultContracts.RequestMultiplePermissions(),
                     new ActivityResultCallback<Map<String, Boolean>>() {
-                        @SuppressLint("SyntheticAccessor")
                         @Override
                         public void onActivityResult(Map<String, Boolean> result) {
                             String[] permissions = result.keySet().toArray(new String[0]);

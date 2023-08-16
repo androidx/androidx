@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -1367,7 +1366,6 @@ constructor(
 
                 surfaceHolder.addCallback(
                     object : SurfaceHolder.Callback {
-                        @SuppressLint("SyntheticAccessor")
                         override fun surfaceChanged(
                             holder: SurfaceHolder,
                             format: Int,
@@ -1377,7 +1375,6 @@ constructor(
                             uiThreadCoroutineScope.launch { createWindowSurface(width, height) }
                         }
 
-                        @SuppressLint("SyntheticAccessor")
                         override fun surfaceDestroyed(holder: SurfaceHolder) {
                             if (this@GlesRenderer::eglSurface.isInitialized) {
                                 if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {

@@ -22,7 +22,6 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.toRadians;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -1147,7 +1146,6 @@ class ComplicationRenderer {
                     mContext,
                     new OnDrawableLoadedListener() {
                         @Override
-                        @SuppressLint("SyntheticAccessor")
                         public void onDrawableLoaded(Drawable d) {
                             if (d == null) {
                                 return;
@@ -1166,7 +1164,6 @@ class ComplicationRenderer {
                     mContext,
                     new OnDrawableLoadedListener() {
                         @Override
-                        @SuppressLint("SyntheticAccessor")
                         public void onDrawableLoaded(Drawable d) {
                             if (d == null) {
                                 return;
@@ -1185,7 +1182,6 @@ class ComplicationRenderer {
                     mContext,
                     new OnDrawableLoadedListener() {
                         @Override
-                        @SuppressLint("SyntheticAccessor")
                         public void onDrawableLoaded(Drawable d) {
                             if (d == null) {
                                 return;
@@ -1204,7 +1200,6 @@ class ComplicationRenderer {
                     mContext,
                     new OnDrawableLoadedListener() {
                         @Override
-                        @SuppressLint("SyntheticAccessor")
                         public void onDrawableLoaded(Drawable d) {
                             if (d == null) {
                                 return;
@@ -1222,7 +1217,6 @@ class ComplicationRenderer {
                     mContext,
                     new OnDrawableLoadedListener() {
                         @Override
-                        @SuppressLint("SyntheticAccessor")
                         public void onDrawableLoaded(Drawable d) {
                             if (d == null) {
                                 return;
@@ -1326,7 +1320,6 @@ class ComplicationRenderer {
         /** Icon tint color filter */
         final ColorFilter mIconColorFilter;
 
-        @SuppressLint("SyntheticAccessor")
         PaintSet(
                 ComplicationStyle style,
                 boolean isAmbientStyle,

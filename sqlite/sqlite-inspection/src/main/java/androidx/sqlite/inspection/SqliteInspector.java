@@ -99,7 +99,6 @@ import java.util.concurrent.Future;
  * Inspector to work with SQLite databases
  */
 @SuppressWarnings({"TryFinallyCanBeTryWithResources", "SameParameterValue"})
-@SuppressLint("SyntheticAccessor")
 final class SqliteInspector extends Inspector {
     private static final String OPEN_DATABASE_COMMAND_SIGNATURE_API_11 = "openDatabase"
             + "("
@@ -398,7 +397,6 @@ final class SqliteInspector extends Inspector {
 
         ExitHook<SQLiteDatabase> hook =
                 new ExitHook<SQLiteDatabase>() {
-                    @SuppressLint("SyntheticAccessor")
                     @Override
                     public SQLiteDatabase onExit(SQLiteDatabase database) {
                         try {

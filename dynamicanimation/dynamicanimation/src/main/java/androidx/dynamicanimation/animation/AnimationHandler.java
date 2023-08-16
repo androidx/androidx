@@ -65,7 +65,6 @@ public class AnimationHandler {
         /**
          * Notifies all the on-going animations of the new frame.
          */
-        @SuppressWarnings("SyntheticAccessor") /* synthetic access */
         void dispatchAnimationFrame() {
             mCurrentFrameTime = SystemClock.uptimeMillis();
             AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
@@ -86,12 +85,9 @@ public class AnimationHandler {
             new SimpleArrayMap<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private final AnimationCallbackDispatcher mCallbackDispatcher =
             new AnimationCallbackDispatcher();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private final Runnable mRunnable = () -> mCallbackDispatcher.dispatchAnimationFrame();
-    @SuppressWarnings("SyntheticAccessor") /* synthetic access */
     private FrameCallbackScheduler mScheduler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mCurrentFrameTime = 0;
