@@ -19,7 +19,6 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.Size.Companion.Unspecified
 import androidx.compose.ui.graphics.BlendMode
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
@@ -96,12 +94,18 @@ sealed class VNode {
 
 internal class VectorComponent : VNode() {
     val root = GroupComponent().apply {
+        pivotX = 0.0f
+        pivotY = 0.0f
         invalidateListener = {
             doInvalidate()
         }
     }
 
-    var name: String = DefaultGroupName
+    var name: String
+        get() = root.name
+        set(value) {
+            root.name = value
+        }
 
     private fun doInvalidate() {
         isDirty = true
@@ -127,18 +131,11 @@ internal class VectorComponent : VNode() {
 
     private var previousDrawSize = Unspecified
 
-    private var rootScaleX = 1f
-    private var rootScaleY = 1f
-
     /**
      * Cached lambda used to avoid allocating the lambda on each draw invocation
      */
     private val drawVectorBlock: DrawScope.() -> Unit = {
-        with(root) {
-            scale(rootScaleX, rootScaleY, pivot = Offset.Zero) {
-                draw()
-            }
-        }
+        with(root) { draw() }
     }
 
     fun DrawScope.draw(alpha: Float, colorFilter: ColorFilter?) {
@@ -158,8 +155,8 @@ internal class VectorComponent : VNode() {
             } else {
                 null
             }
-            rootScaleX = size.width / viewportSize.width
-            rootScaleY = size.height / viewportSize.height
+            root.scaleX = size.width / viewportSize.width
+            root.scaleY = size.height / viewportSize.height
             cacheDrawScope.drawCachedImage(
                 targetImageConfig,
                 IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
@@ -269,23 +266,29 @@ internal class PathComponent : VNode() {
 
     var trimPathStart = DefaultTrimPathStart
         set(value) {
-            field = value
-            isTrimPathDirty = true
-            invalidate()
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
         }
 
     var trimPathEnd = DefaultTrimPathEnd
         set(value) {
-            field = value
-            isTrimPathDirty = true
-            invalidate()
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
         }
 
     var trimPathOffset = DefaultTrimPathOffset
         set(value) {
-            field = value
-            isTrimPathDirty = true
-            invalidate()
+            if (field != value) {
+                field = value
+                isTrimPathDirty = true
+                invalidate()
+            }
         }
 
     private var isPathDirty = true
