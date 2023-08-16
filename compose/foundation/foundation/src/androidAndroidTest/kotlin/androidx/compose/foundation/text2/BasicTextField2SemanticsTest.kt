@@ -168,7 +168,7 @@ class BasicTextField2SemanticsTest {
                 modifier = Modifier.testTag(Tag),
                 filter = { _, changes ->
                     if (changes.length > 1) {
-                        val newText = changes.asSequence().joinToString("-")
+                        val newText = changes.asCharSequence().asSequence().joinToString("-")
                         changes.replace(0, changes.length, newText)
                     }
                 }
@@ -230,7 +230,8 @@ class BasicTextField2SemanticsTest {
                 state = state,
                 modifier = Modifier.testTag(Tag),
                 filter = { _, changes ->
-                    changes.replace(0, changes.length, changes.replace(Regex("a"), ""))
+                    val newChange = changes.asCharSequence().replace(Regex("a"), "")
+                    changes.replace(0, changes.length, newChange)
                 }
             )
         }
@@ -512,7 +513,8 @@ class BasicTextField2SemanticsTest {
                     filter = { _, changes ->
                         // remove all 'l' characters
                         if (changes.changes.changeCount != 0) {
-                            changes.replace(0, changes.length, changes.replace(Regex("l"), ""))
+                            val newChange = changes.asCharSequence().replace(Regex("l"), "")
+                            changes.replace(0, changes.length, newChange)
                             changes.placeCursorAtEnd()
                         }
                     }

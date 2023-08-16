@@ -90,7 +90,7 @@ fun NumberPasswordDemo() {
     BasicSecureTextField(
         state = state,
         filter = { _, new ->
-            if (!new.isDigitsOnly()) {
+            if (!new.asCharSequence().isDigitsOnly()) {
                 new.revertAllChanges()
             }
         },
