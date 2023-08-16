@@ -948,6 +948,63 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun kspProcessingStepLogsError() {
+        val main = Source.kotlin(
+            "Classes.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            @MainAnnotation(
+                typeList = [],
+                singleType = Any::class,
+                intMethod = 3,
+                singleOtherAnnotation = OtherAnnotation("y")
+            )
+            class Main {
+            }
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+
+        var executedLastRound = false
+        val processorProvider = object : SymbolProcessorProvider {
+            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                return object : KspBasicAnnotationProcessor(environment) {
+                    override fun processingSteps() = listOf(
+                        object : XProcessingStep {
+                            override fun annotations() =
+                              setOf(MainAnnotation::class.qualifiedName!!)
+                            override fun process(
+                                env: XProcessingEnv,
+                                elementsByAnnotation: Map<String, Set<XElement>>,
+                                isLastRound: Boolean
+                            ): Set<XElement> {
+                                if (isLastRound) {
+                                    executedLastRound = true
+                                }
+                                environment.logger.error("logs error")
+                                return emptySet()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
+
+        assertThat(executedLastRound).isTrue()
+    }
+
+    @Test
     fun kspAnnotatedElementsByStep() {
         val main = Source.kotlin(
             "Classes.kt",
