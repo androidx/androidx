@@ -13,6 +13,7 @@ impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutp
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \
+      --no-daemon \
       --profile \
       compileDebugAndroidTestSources \
       compileDebugSources \
