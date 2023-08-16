@@ -60,8 +60,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 /**
@@ -506,13 +504,24 @@ object FloatingActionButtonDefaults {
     @Composable
     private fun animateElevation(interactionSource: InteractionSource): State<Dp> {
         val animatable = remember(interactionSource) {
-            Animatable(defaultElevation, Dp.VectorConverter)
+            FloatingActionButtonElevationAnimatable(
+                defaultElevation = defaultElevation,
+                pressedElevation = pressedElevation,
+                hoveredElevation = hoveredElevation,
+                focusedElevation = focusedElevation
+            )
+        }
+
+        LaunchedEffect(this) {
+            animatable.updateElevation(
+                defaultElevation = defaultElevation,
+                pressedElevation = pressedElevation,
+                hoveredElevation = hoveredElevation,
+                focusedElevation = focusedElevation
+            )
         }
 
         LaunchedEffect(interactionSource) {
-            var animation: Job? = null
-            var lastTargetInteraction: Interaction? = null
-            var lastTarget: Dp? = null
             val interactions = mutableListOf<Interaction>()
             interactionSource.interactions.collect { interaction ->
                 when (interaction) {
@@ -539,36 +548,12 @@ object FloatingActionButtonDefaults {
                     }
                 }
                 val targetInteraction = interactions.lastOrNull()
-                val target = when (targetInteraction) {
-                    is PressInteraction.Press -> pressedElevation
-                    is HoverInteraction.Enter -> hoveredElevation
-                    is FocusInteraction.Focus -> focusedElevation
-                    else -> defaultElevation
-                }
-                if (lastTarget != target) {
-                    lastTarget = target
-                    // Cancel any existing animations if we change target
-                    animation?.cancelAndJoin()
-                    // We need to handle the case where the target has changed, but the animation
-                    // was cancelled so quickly that its internal target never got changed - if
-                    // this happened and we are back at the same target before the cancelled
-                    // animation, we don't want to do anything.
-                    if (animatable.targetValue != target) {
-                        animation = launch {
-                            try {
-                                animatable.animateElevation(
-                                    from = lastTargetInteraction,
-                                    to = targetInteraction,
-                                    target = target
-                                )
-                            } finally {
-                                lastTargetInteraction = targetInteraction
-                            }
-                        }
-                    }
+                launch {
+                    animatable.animateElevation(to = targetInteraction)
                 }
             }
         }
+
         return animatable.asState()
     }
 
@@ -579,9 +564,7 @@ object FloatingActionButtonDefaults {
         if (defaultElevation != other.defaultElevation) return false
         if (pressedElevation != other.pressedElevation) return false
         if (focusedElevation != other.focusedElevation) return false
-        if (hoveredElevation != other.hoveredElevation) return false
-
-        return true
+        return hoveredElevation == other.hoveredElevation
     }
 
     override fun hashCode(): Int {
@@ -591,6 +574,71 @@ object FloatingActionButtonDefaults {
         result = 31 * result + hoveredElevation.hashCode()
         return result
     }
+}
+
+private class FloatingActionButtonElevationAnimatable(
+    private var defaultElevation: Dp,
+    private var pressedElevation: Dp,
+    private var hoveredElevation: Dp,
+    private var focusedElevation: Dp
+) {
+    private val animatable = Animatable(defaultElevation, Dp.VectorConverter)
+
+    private var lastTargetInteraction: Interaction? = null
+    private var targetInteraction: Interaction? = null
+
+    private fun Interaction?.calculateTarget(): Dp {
+        return when (this) {
+            is PressInteraction.Press -> pressedElevation
+            is HoverInteraction.Enter -> hoveredElevation
+            is FocusInteraction.Focus -> focusedElevation
+            else -> defaultElevation
+        }
+    }
+
+    suspend fun updateElevation(
+        defaultElevation: Dp,
+        pressedElevation: Dp,
+        hoveredElevation: Dp,
+        focusedElevation: Dp
+    ) {
+        this.defaultElevation = defaultElevation
+        this.pressedElevation = pressedElevation
+        this.hoveredElevation = hoveredElevation
+        this.focusedElevation = focusedElevation
+        snapElevation()
+    }
+
+    private suspend fun snapElevation() {
+        val target = targetInteraction.calculateTarget()
+        if (animatable.targetValue != target) {
+            try {
+                animatable.snapTo(target)
+            } finally {
+                lastTargetInteraction = targetInteraction
+            }
+        }
+    }
+
+    suspend fun animateElevation(to: Interaction?) {
+        val target = to.calculateTarget()
+        // Update the interaction even if the values are the same, for when we change to another
+        // interaction later
+        targetInteraction = to
+        try {
+            if (animatable.targetValue != target) {
+                animatable.animateElevation(
+                    target = target,
+                    from = lastTargetInteraction,
+                    to = to
+                )
+            }
+        } finally {
+            lastTargetInteraction = to
+        }
+    }
+
+    fun asState(): State<Dp> = animatable.asState()
 }
 
 private val ExtendedFabStartIconPadding = 16.dp
