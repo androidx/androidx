@@ -25,16 +25,12 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.AndroidVectorParser
 import androidx.compose.ui.graphics.vector.compat.createVectorImageBuilder
 import androidx.compose.ui.graphics.vector.compat.isAtEnd
 import androidx.compose.ui.graphics.vector.compat.parseCurrentVectorNode
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalImageVectorCache
-import androidx.compose.ui.unit.Density
 import java.lang.ref.WeakReference
 import org.xmlpull.v1.XmlPullParserException
 
@@ -50,26 +46,13 @@ import org.xmlpull.v1.XmlPullParserException
  */
 @Composable
 fun ImageVector.Companion.vectorResource(@DrawableRes id: Int): ImageVector {
-    val imageCache = LocalImageVectorCache.current
     val context = LocalContext.current
-    val density = LocalDensity.current
     val res = resources()
     val theme = context.theme
-    val key = remember(theme, id, density) {
-        ImageVectorCache.Key(theme, id, density)
+
+    return remember(id, res, theme, res.configuration) {
+        vectorResource(theme, res, id)
     }
-    var imageVector = imageCache[key]?.imageVector
-    if (imageVector == null) {
-        val value = remember { TypedValue() }
-        res.getValue(id, value, true)
-        imageVector = vectorResource(theme, res, id)
-        imageCache[key] = ImageVectorCache.ImageVectorEntry(
-            imageVector,
-            value.changingConfigurations,
-            null
-        )
-    }
-    return imageVector
 }
 
 @Throws(XmlPullParserException::class)
@@ -78,11 +61,15 @@ fun ImageVector.Companion.vectorResource(
     res: Resources,
     resId: Int
 ): ImageVector {
+    val value = TypedValue()
+    res.getValue(resId, value, true)
+
     return loadVectorResourceInner(
         theme,
         res,
         res.getXml(resId).apply { seekToStartTag() },
-    )
+        value.changingConfigurations
+    ).imageVector
 }
 
 /**
@@ -94,8 +81,9 @@ fun ImageVector.Companion.vectorResource(
 internal fun loadVectorResourceInner(
     theme: Resources.Theme? = null,
     res: Resources,
-    parser: XmlResourceParser
-): ImageVector {
+    parser: XmlResourceParser,
+    changingConfigurations: Int
+): ImageVectorCache.ImageVectorEntry {
     val attrs = Xml.asAttributeSet(parser)
     val resourceParser = AndroidVectorParser(parser)
     val builder = resourceParser.createVectorImageBuilder(res, theme, attrs)
@@ -111,7 +99,7 @@ internal fun loadVectorResourceInner(
         )
         parser.next()
     }
-    return builder.build()
+    return ImageVectorCache.ImageVectorEntry(builder.build(), changingConfigurations)
 }
 
 /**
@@ -125,8 +113,7 @@ internal class ImageVectorCache {
      */
     data class Key(
         val theme: Resources.Theme,
-        val id: Int,
-        val density: Density
+        val id: Int
     )
 
     /**
@@ -136,8 +123,7 @@ internal class ImageVectorCache {
      */
     data class ImageVectorEntry(
         val imageVector: ImageVector,
-        val configFlags: Int,
-        val vectorPainter: VectorPainter?,
+        val configFlags: Int
     )
 
     private val map = HashMap<Key, WeakReference<ImageVectorEntry>>()
