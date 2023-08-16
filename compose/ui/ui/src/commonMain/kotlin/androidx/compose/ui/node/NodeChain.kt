@@ -23,6 +23,7 @@ import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
+import androidx.compose.ui.input.pointer.SuspendPointerInputElement
 import androidx.compose.ui.layout.ModifierInfo
 
 private val SentinelHead = object : Modifier.Node() {
@@ -217,6 +218,16 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     internal fun resetState() {
         tailToHead {
             if (it.isAttached) it.reset()
+        }
+        current?.let { elements ->
+            elements.forEachIndexed { i, element ->
+                // we need to make sure the suspending pointer input modifier node is updated after
+                // being reset so we use the latest lambda, even if the keys provided as input
+                // didn't change.
+                if (element is SuspendPointerInputElement) {
+                    elements[i] = ForceUpdateElement
+                }
+            }
         }
         runDetachLifecycle()
         markAsDetached()
@@ -795,7 +806,7 @@ private const val ActionReuse = 2
 internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element): Int {
     return if (prev == next)
         ActionReuse
-    else if (areObjectsOfSameType(prev, next))
+    else if (areObjectsOfSameType(prev, next) || prev === ForceUpdateElement)
         ActionUpdate
     else
         ActionReplace
@@ -828,4 +839,21 @@ private fun Modifier.fillVector(
         }
     }
     return result
+}
+
+@Suppress("ModifierNodeInspectableProperties")
+private object ForceUpdateElement : ModifierNodeElement<Modifier.Node>() {
+    override fun create(): Modifier.Node {
+        throw IllegalStateException("Shouldn't be called")
+    }
+
+    override fun update(node: Modifier.Node) {
+        throw IllegalStateException("Shouldn't be called")
+    }
+
+    override fun hashCode(): Int = 100
+
+    override fun equals(other: Any?): Boolean = other === this
+
+    override fun toString() = "ForceUpdateElement"
 }
