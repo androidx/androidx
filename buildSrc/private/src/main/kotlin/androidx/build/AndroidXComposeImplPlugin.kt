@@ -93,27 +93,24 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     disable.add("UnknownIssueId")
                     error.addAll(ComposeLintWarningIdsToTreatAsErrors)
 
-                    // Paths we want to enable ListIterator checks for - for higher level
-                    // libraries it won't have a noticeable performance impact, and we don't want
-                    // developers reading high level library code to worry about this.
-                    val listIteratorPaths =
-                        listOf("compose:foundation", "compose:runtime", "compose:ui", "text")
-
-                    // Paths we want to disable ListIteratorChecks for - these are not runtime
-                    // libraries and so Iterator allocation is not relevant.
+                    // Paths we want to disable ListIteratorChecks for
                     val ignoreListIteratorFilter =
                         listOf(
+                            // These are not runtime libraries and so Iterator allocation is not
+                            // relevant.
                             "compose:ui:ui-test",
                             "compose:ui:ui-tooling",
                             "compose:ui:ui-inspection",
+                            // Navigation libraries are not in performance critical paths, so we can
+                            // ignore them.
+                            "navigation:navigation-compose",
+                            "wear:compose:compose-navigation"
                         )
 
                     // Disable ListIterator if we are not in a matching path, or we are in an
                     // unpublished project
                     if (
-                        listIteratorPaths.none { path.contains(it) } ||
-                            ignoreListIteratorFilter.any { path.contains(it) } ||
-                            !isPublished
+                        ignoreListIteratorFilter.any { path.contains(it) } || !isPublished
                     ) {
                         disable.add("ListIterator")
                     }

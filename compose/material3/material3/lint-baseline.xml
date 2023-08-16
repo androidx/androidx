@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -173,12 +173,1218 @@
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            sequences.add(0, currentSequence.toList())"
+        errorLine2="                                             ~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (measurable in measurables) {"
+        errorLine2="                        ~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            sequences.forEachIndexed { i, placeables ->"
+        errorLine2="                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                placeables.forEachIndexed { j, placeable ->"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == &quot;navigationIcon&quot; }"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == &quot;actionIcons&quot; }"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == &quot;title&quot; }"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AppBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val badgePlaceable = measurables.first { it.layoutId == &quot;badge&quot; }.measure("
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Badge.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val anchorPlaceable = measurables.first { it.layoutId == &quot;anchor&quot; }.measure(constraints)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Badge.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                dayNames.forEach {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        weekdays.drop(2).forEachIndexed { index, day ->"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/material3/LegacyCalendarModelImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        ).map {"
+        errorLine2="          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val x = xCandidates.firstOrNull {"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        ).map {"
+        errorLine2="          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val y = yCandidates.firstOrNull {"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .first { it.layoutId == IndicatorRippleLayoutIdTag }"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .firstOrNull { it.layoutId == IndicatorLayoutIdTag }"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .first { it.layoutId == LabelLayoutIdTag }"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationBar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .first { it.layoutId == IndicatorRippleLayoutIdTag }"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .firstOrNull { it.layoutId == IndicatorLayoutIdTag }"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .first { it.layoutId == LabelLayoutIdTag }"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/NavigationRail.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val leadingPlaceable = measurables.find {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingPlaceable = measurables.find { it.layoutId == TrailingId }"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixPlaceable = measurables.find { it.layoutId == PrefixId }"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixPlaceable = measurables.find { it.layoutId == SuffixId }"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.find { it.layoutId == LabelId }?.measure(labelConstraints)"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val supportingMeasurable = measurables.find { it.layoutId == SupportingId }"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == TextFieldId }.measure(textConstraints)"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.find { it.layoutId == PlaceholderId }?.measure(placeholderConstraints)"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val containerPlaceable = measurables.first { it.layoutId == ContainerId }.measure("
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, height)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val labelWidth = measurables.find { it.layoutId == LabelId }?.let {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingWidth = measurables.find { it.layoutId == TrailingId }?.let {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val leadingWidth = measurables.find { it.layoutId == LeadingId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixWidth = measurables.find { it.layoutId == PrefixId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixWidth = measurables.find { it.layoutId == SuffixId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeholderWidth = measurables.find { it.layoutId == PlaceholderId }?.let {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixHeight = measurables.find { it.layoutId == PrefixId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixHeight = measurables.find { it.layoutId == SuffixId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val supportingHeight = measurables.find { it.layoutId == SupportingId }?.let {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/OutlinedTextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val topBarPlaceables = subcompose(ScaffoldLayoutContent.TopBar, topBar).map {"
+        errorLine2="                                                                                ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val topBarHeight = topBarPlaceables.maxByOrNull { it.height }?.height ?: 0"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val snackbarPlaceables = subcompose(ScaffoldLayoutContent.Snackbar, snackbar).map {"
+        errorLine2="                                                                                      ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val snackbarHeight = snackbarPlaceables.maxByOrNull { it.height }?.height ?: 0"
+        errorLine2="                                                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val snackbarWidth = snackbarPlaceables.maxByOrNull { it.width }?.width ?: 0"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            subcompose(ScaffoldLayoutContent.Fab, fab).mapNotNull { measurable ->"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val fabWidth = fabPlaceables.maxByOrNull { it.width }!!.width"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val fabHeight = fabPlaceables.maxByOrNull { it.height }!!.height"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        }.map { it.measure(looseConstraints) }"
+        errorLine2="          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val bottomBarHeight = bottomBarPlaceables.maxByOrNull { it.height }?.height"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        }.map { it.measure(looseConstraints) }"
+        errorLine2="          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            bodyContentPlaceables.forEach {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            topBarPlaceables.forEach {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            snackbarPlaceables.forEach {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            bottomBarPlaceables.forEach {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                fabPlaceables.forEach {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                val iconPlaceables = iconMeasurables.map { it.measure(constraints) }"
+        errorLine2="                                                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                val iconDesiredWidth = iconMeasurables.fold(0) { acc, it ->"
+        errorLine2="                                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                val contentPlaceables = contentMeasurables.map { it.measure(constraints) }"
+        errorLine2="                                                           ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    iconPlaceables.forEach {"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    contentPlaceables.forEach {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SegmentedButton.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val thumbPlaceable = measurables.first {"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trackPlaceable = measurables.first {"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val startThumbPlaceable = measurables.first {"
+        errorLine2="                                              ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val endThumbPlaceable = measurables.first {"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trackPlaceable = measurables.first {"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        list.map {"
+        errorLine2="                             ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                list.map {"
+        errorLine2="                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.firstOrNull { it.layoutId == actionTag }?.measure(constraints)"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.firstOrNull { it.layoutId == dismissActionTag }?.measure(constraints)"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val textPlaceable = measurables.first { it.layoutId == textTag }.measure("
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Snackbar.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val keys = state.items.map { it.key }.toMutableList()"
+        errorLine2="                               ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnackbarHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        keys.filterNotNull().mapTo(state.items) { key ->"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnackbarHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        keys.filterNotNull().mapTo(state.items) { key ->"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnackbarHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                val animationDelay = if (isVisible &amp;&amp; keys.filterNotNull().size != 1) delay else 0"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnackbarHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        state.items.forEach { (item, opacity) ->"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/SnackbarHost.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val a = anchors.filter { it &lt;= offset + 0.001 }.maxOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == &quot;text&quot; }.measure("
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tab.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.first { it.layoutId == &quot;icon&quot; }.measure(constraints)"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tab.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val tabRowHeight = tabMeasurables.fold(initial = 0) { max, curr ->"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val tabPlaceables = tabMeasurables.map {"
+        errorLine2="                                               ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                tabPlaceables.forEachIndexed { index, placeable ->"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                subcompose(TabSlots.Divider, divider).forEach {"
+        errorLine2="                                                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                }.forEach {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val layoutHeight = tabMeasurables.fold(initial = 0) { curr, measurable ->"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            tabMeasurables.forEach {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val layoutWidth = tabPlaceables.fold(initial = padding * 2) { curr, measurable ->"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                tabPlaceables.forEachIndexed { index, placeable ->"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                subcompose(TabSlots.Divider, divider).forEach {"
+        errorLine2="                                                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                }.forEach {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.find { it.layoutId == LeadingId }?.measure(looseConstraints)"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingPlaceable = measurables.find { it.layoutId == TrailingId }"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixPlaceable = measurables.find { it.layoutId == PrefixId }"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixPlaceable = measurables.find { it.layoutId == SuffixId }"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            measurables.find { it.layoutId == LabelId }?.measure(labelConstraints)"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val supportingMeasurable = measurables.find { it.layoutId == SupportingId }"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .first { it.layoutId == TextFieldId }"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .find { it.layoutId == PlaceholderId }"
+        errorLine2="             ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val containerPlaceable = measurables.first { it.layoutId == ContainerId }.measure("
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, height)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val labelWidth = measurables.find { it.layoutId == LabelId }?.let {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingWidth = measurables.find { it.layoutId == TrailingId }?.let {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixWidth = measurables.find { it.layoutId == PrefixId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixWidth = measurables.find { it.layoutId == SuffixId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val leadingWidth = measurables.find { it.layoutId == LeadingId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeholderWidth = measurables.find { it.layoutId == PlaceholderId }?.let {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val leadingHeight = measurables.find { it.layoutId == LeadingId }?.let {"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val trailingHeight = measurables.find { it.layoutId == TrailingId }?.let {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val labelHeight = measurables.find { it.layoutId == LabelId }?.let {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val prefixHeight = measurables.find { it.layoutId == PrefixId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val suffixHeight = measurables.find { it.layoutId == SuffixId }?.let {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            intrinsicMeasurer(measurables.first { it.layoutId == TextFieldId }, remainingWidth)"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeholderHeight = measurables.find { it.layoutId == PlaceholderId }?.let {"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val supportingHeight = measurables.find { it.layoutId == SupportingId }?.let {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TextField.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val spacer = measurables.first { it.layoutId == &quot;Spacer&quot; }"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val items = measurables.filter { it.layoutId != &quot;Spacer&quot; }.map { item ->"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val items = measurables.filter { it.layoutId != &quot;Spacer&quot; }.map { item ->"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val spacer = measurables.first { it.layoutId == &quot;Spacer&quot; }"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val items = measurables.filter { it.layoutId != &quot;Spacer&quot; }.map { item ->"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val items = measurables.filter { it.layoutId != &quot;Spacer&quot; }.map { item ->"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeables = measurables.filter {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        }.map { measurable -> measurable.measure(itemConstraints) }"
+        errorLine2="          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val selectorMeasurable = measurables.find { it.layoutId == LayoutId.Selector }"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val innerMeasurable = measurables.find { it.layoutId == LayoutId.InnerCircle }"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            placeables.forEachIndexed { i, it ->"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="private val ExtraHours = Hours.map { (it % 12 + 12) }"
+        errorLine2="                               ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                event.changes.forEach { it.consume() }"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Tooltip.kt"/>
     </issue>
 
     <issue
@@ -195,15 +1401,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldLayout has parameter &apos;sheetOffset&apos; with type Function0&lt;Float>."
         errorLine1="    sheetOffset: () -> Float,"
         errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/BottomSheetScaffold.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method BottomSheetScaffoldAnchorChangeHandler has parameter &apos;animateTo&apos; with type Function2&lt;? super SheetValue, ? super Float, Unit>."
-        errorLine1="    animateTo: (target: SheetValue, velocity: Float) -> Unit,"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/BottomSheetScaffold.kt"/>
     </issue>
@@ -420,24 +1617,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;settleToDismiss&apos; with type Function1&lt;? super Float, ? extends Unit>."
         errorLine1="    val settleToDismiss: (velocity: Float) -> Unit = {"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method modalBottomSheetSwipeable has parameter &apos;onDragStopped&apos; with type Function2&lt;? super CoroutineScope, ? super Float, Unit>."
-        errorLine1="    onDragStopped: CoroutineScope.(velocity: Float) -> Unit,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method ModalBottomSheetAnchorChangeHandler has parameter &apos;animateTo&apos; with type Function2&lt;? super SheetValue, ? super Float, Unit>."
-        errorLine1="    animateTo: (target: SheetValue, velocity: Float) -> Unit,"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/material3/ModalBottomSheet.android.kt"/>
     </issue>
@@ -683,15 +1862,6 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/Swipeable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method swipeAnchors has parameter &apos;calculateAnchor&apos; with type Function2&lt;? super T, ? super IntSize, Float>."
-        errorLine1="    calculateAnchor: (value: T, layoutSize: IntSize) -> Float?,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
     </issue>
 
     <issue

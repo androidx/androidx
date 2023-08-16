@@ -1,5 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                currentlyVisible.forEach {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.minIntrinsicWidth(height) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.minIntrinsicHeight(width) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.maxIntrinsicWidth(height) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.maxIntrinsicHeight(width) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeables = measurables.map { it.measure(constraints) }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedVisibility.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.minIntrinsicWidth(height) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedVisibility.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.minIntrinsicHeight(width) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedVisibility.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.maxIntrinsicWidth(height) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedVisibility.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = measurables.asSequence().map { it.maxIntrinsicHeight(width) }.maxOrNull() ?: 0"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedVisibility.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"

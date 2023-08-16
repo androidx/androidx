@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanInlineOptIn"
@@ -44,6 +44,123 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val a = anchors.filter { it &lt;= offset + 0.001 }.maxOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (child in root.children) {"
+        errorLine2="                   ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            root.children.forEach { child ->"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            for (child in root.children) {"
+        errorLine2="                       ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            for (child in root.children) {"
+        errorLine2="                       ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (element in designElements) {"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            root.children.forEach { child ->"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionMeasurer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (child in root.children) {"
+        errorLine2="                   ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionMeasurer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (child in root.children) {"
+        errorLine2="                   ~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionMeasurer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    root.children.forEach { constraintWidget ->"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ToolingUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        constraintWidget.anchors.forEach { anchor ->"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ToolingUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    helperReferences.forEach(helperReferencesArray::put)"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ToolingUtils.kt"/>
     </issue>
 
     <issue
