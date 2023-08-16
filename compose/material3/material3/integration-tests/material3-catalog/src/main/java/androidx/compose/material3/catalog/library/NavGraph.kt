@@ -25,7 +25,6 @@ import androidx.compose.material3.catalog.library.ui.component.Component
 import androidx.compose.material3.catalog.library.ui.example.Example
 import androidx.compose.material3.catalog.library.ui.home.Home
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NavGraph(
+    initialFavoriteRoute: String?,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit
 ) {
@@ -49,7 +50,7 @@ fun NavGraph(
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val userPreferencesRepository = remember { UserPreferencesRepository(context) }
-    var favoriteRoute by rememberSaveable { mutableStateOf<String?>(null) }
+    var favoriteRoute by rememberSaveable { mutableStateOf(initialFavoriteRoute) }
     NavHost(
         navController = navController,
         startDestination = HomeRoute
@@ -126,23 +127,27 @@ fun NavGraph(
             )
         }
     }
-    LaunchedEffect(Unit) {
-        // Navigate to the favorite route on launch, if there is one saved.
-        userPreferencesRepository.getFavoriteRoute()?.let { route ->
-            favoriteRoute = route
-            if (navController.currentDestination?.route == route) {
-                // Never navigate to the current route if we're already there.
-                return@let
-            }
-            if (route.startsWith(ExampleRoute)) {
-                // Navigate to the Component screen first so it's in the back stack as expected.
-                val componentRoute =
-                    route.replace(ExampleRoute, ComponentRoute).substringBeforeLast("/")
-                navController.navigate(componentRoute)
-            }
-            navController.navigate(route)
-        }
+
+    var initialLaunch by rememberSaveable { mutableStateOf(true) }
+    if (initialLaunch) {
+        // Navigate to the favorite route only on initial launch, if there is one saved.
+        maybeNavigate(navController, initialFavoriteRoute)
+        initialLaunch = false
     }
+}
+
+private fun maybeNavigate(navController: NavHostController, route: String?) {
+    if (route == null || navController.currentDestination?.route == route) {
+        // Never navigate to a null route or the current route if we're already there.
+        return
+    }
+    if (route.startsWith(ExampleRoute)) {
+        // Navigate to the Component screen first so it's in the back stack as expected.
+        val componentRoute =
+            route.replace(ExampleRoute, ComponentRoute).substringBeforeLast("/")
+        navController.navigate(componentRoute)
+    }
+    navController.navigate(route)
 }
 
 private fun Component.route() = "$ComponentRoute/$id"

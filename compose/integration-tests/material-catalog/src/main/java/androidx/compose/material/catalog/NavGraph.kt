@@ -24,23 +24,17 @@ import androidx.compose.material.catalog.model.Specifications
 import androidx.compose.material.catalog.ui.specification.Specification
 import androidx.compose.material3.catalog.library.Material3CatalogApp
 import androidx.compose.material3.catalog.library.Material3Route
-import androidx.compose.material3.catalog.library.data.UserPreferencesRepository
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun NavGraph() {
-    val context = LocalContext.current
+fun NavGraph(initialFavoriteRoute: String?) {
     val navController = rememberNavController()
-    val userPreferencesRepository = remember { UserPreferencesRepository(context) }
     NavHost(
         navController = navController,
-        startDestination = SpecificationRoute
+        startDestination = if (initialFavoriteRoute == null) SpecificationRoute else Material3Route
     ) {
         composable(SpecificationRoute) {
             Specification(
@@ -55,12 +49,8 @@ fun NavGraph() {
             )
         }
         composable(MaterialRoute) { MaterialCatalogApp() }
-        composable(Material3Route) { Material3CatalogApp() }
-    }
-    LaunchedEffect(Unit) {
-        // If user has pinned any M3 Catalog screen, automatically navigate to main M3 route.
-        if (userPreferencesRepository.getFavoriteRoute() != null) {
-            navController.navigate(Material3Route)
+        composable(Material3Route) {
+            Material3CatalogApp(initialFavoriteRoute = initialFavoriteRoute)
         }
     }
 }
