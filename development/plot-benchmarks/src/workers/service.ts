@@ -27,7 +27,7 @@ export class StatService {
                 continue;
               }
               const [delta, distribution] = this.buildDistribution(reference, target);
-              const [points, pPlots, p] = histogramPoints([distribution], 20, delta);
+              const [points, pPlots, p] = histogramPoints([distribution], 100, delta);
               series.push({
                 label: `${name} { ${metric.label} } - Likelihood`,
                 type: "line",
@@ -67,7 +67,7 @@ export class StatService {
                 continue;
               }
               const [delta, distribution] = this.buildStandardDistribution(reference, target);
-              const [points, pPlots, p] = histogramPoints([distribution], 20, delta);
+              const [points, pPlots, p] = histogramPoints([distribution], 100, delta);
               series.push({
                 label: `${name} { ${metric.label} } - Likelihood`,
                 type: "line",

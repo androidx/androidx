@@ -1,10 +1,12 @@
-import type { ChartDataset, ChartType, Point } from "chart.js";
+import type { ChartDataset, ChartType } from "chart.js";
 import type { Data, Series } from "../types/chart.js";
-import type { Metric, Metrics } from "../types/data.js";
+import type { Metric, Metrics, Range } from "../types/data.js";
 
 export interface Mapper<T = number> {
+  rangeLabel: (metric: Metric<unknown>) => string;
+  sampledRanges: (metrics: Metrics<T>) => Record<string, Range>;
   standard: (value: Metric<T>) => Series[];
-  sampled: (value: Metric<T[]>) => Series[];
+  sampled: (value: Metric<T[]>, range: Range | null) => Series[];
 }
 
 /**
@@ -16,6 +18,8 @@ export class ChartDataTransforms {
     const series: Series[] = [];
     const standard = metrics.standard;
     const sampled = metrics.sampled;
+    // Builds ranges for distribution
+    const ranges = mapper.sampledRanges(metrics);
     if (standard) {
       for (let i = 0; i < standard.length; i += 1) {
         const metric = standard[i];
@@ -26,7 +30,7 @@ export class ChartDataTransforms {
     if (sampled) {
       for (let i = 0; i < sampled.length; i += 1) {
         const metric = sampled[i];
-        const mapped = mapper.sampled(metric);
+        const mapped = mapper.sampled(metric, ranges[mapper.rangeLabel(metric)]);
         series.push(...mapped);
       }
     }
