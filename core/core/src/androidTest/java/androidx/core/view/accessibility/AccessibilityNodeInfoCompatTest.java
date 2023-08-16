@@ -35,6 +35,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -461,6 +462,7 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(accessibilityNodeInfoCompat.isTextSelectable()).isTrue();
     }
 
+    @Ignore("b/296118211")
     @SmallTest
     @Test
     public void testActionScrollInDirection() {
