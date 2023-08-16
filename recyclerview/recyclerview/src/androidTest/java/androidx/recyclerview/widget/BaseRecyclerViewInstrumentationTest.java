@@ -321,7 +321,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             public void run() {
                 RecyclerView.OnScrollListener listener = new RecyclerView.OnScrollListener() {
                     @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    public void onScrollStateChanged(@NonNull RecyclerView recyclerView,
+                            int newState) {
                         if (newState == SCROLL_STATE_IDLE) {
                             latch.countDown();
                             recyclerView.removeOnScrollListener(this);
@@ -336,6 +337,14 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             }
         });
         assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
+
+        // Avoid thread-safety issues
+        // The scroll listener is not necessarily called after all relevant UI-thread changes, so
+        // we need to wait for the UI thread to finish what it's doing in order to avoid flakiness.
+        // Note that this runOnUiThread is a no-op if called from the UI thread, but that's okay
+        // because waitForIdleScroll doesn't work on the UI thread (the latch would deadlock if
+        // the scroll wasn't already idle).
+        mActivityRule.runOnUiThread(() -> {});
     }
 
     public boolean requestFocus(final View view, boolean waitForScroll) throws Throwable {
