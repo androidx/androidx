@@ -194,13 +194,14 @@ private fun PinField(
         modifier = modifier
             .border(1.dp, contentColor, RoundedCornerShape(8.dp))
             .padding(8.dp),
-        enabled = enabled
-    ) {
-        CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
-            // Ignore inner field, we'll draw it ourselves.
-            PinContents(state)
+        enabled = enabled,
+        decorationBox = {
+            CompositionLocalProvider(LocalContentAlpha provides contentAlpha) {
+                // Ignore inner field, we'll draw it ourselves.
+                PinContents(state)
+            }
         }
-    }
+    )
 }
 
 @Composable

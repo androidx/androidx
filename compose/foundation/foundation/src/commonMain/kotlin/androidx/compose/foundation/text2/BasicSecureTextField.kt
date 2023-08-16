@@ -125,6 +125,8 @@ import kotlinx.coroutines.launch
  * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
+// This takes a composable lambda, but it is not primarily a container.
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
 fun BasicSecureTextField(
     state: TextFieldState,
@@ -138,10 +140,12 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    scrollState: ScrollState = rememberScrollState(),
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() }
+        @Composable { innerTextField -> innerTextField() },
+    scrollState: ScrollState = rememberScrollState(),
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
 ) {
     val coroutineScope = rememberCoroutineScope()
     val secureTextFieldController = remember(coroutineScope) {
