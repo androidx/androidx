@@ -58,11 +58,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
@@ -80,7 +78,6 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
@@ -280,6 +277,7 @@ fun Slider(
             onValueChangeFinished
         )
     }
+
     state.value = value
     state.onValueChange = onValueChange
     state.onValueChangeFinished = onValueChangeFinished
@@ -629,7 +627,6 @@ fun RangeSlider(
     startInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     endInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     startThumb: @Composable (RangeSliderState) -> Unit = {
-        state.activeRangeStart
         SliderDefaults.Thumb(
             interactionSource = startInteractionSource,
             colors = colors,
@@ -740,10 +737,7 @@ private fun SliderImpl(
         val trackOffsetY = (sliderHeight - trackPlaceable.height) / 2
         val thumbOffsetY = (sliderHeight - thumbPlaceable.height) / 2
 
-        layout(
-            sliderWidth,
-            sliderHeight
-        ) {
+        layout(sliderWidth, sliderHeight) {
             trackPlaceable.placeRelative(
                 trackOffsetX,
                 trackOffsetY
@@ -777,14 +771,8 @@ private fun RangeSliderImpl(
         enabled
     )
 
-    val startThumbSemantics = Modifier.rangeSliderStartThumbSemantics(
-        state,
-        enabled
-    )
-    val endThumbSemantics = Modifier.rangeSliderEndThumbSemantics(
-        state,
-        enabled
-    )
+    val startThumbSemantics = Modifier.rangeSliderStartThumbSemantics(state, enabled)
+    val endThumbSemantics = Modifier.rangeSliderEndThumbSemantics(state, enabled)
 
     val startContentDescription = getString(Strings.SliderRangeStart)
     val endContentDescription = getString(Strings.SliderRangeEnd)
@@ -1041,9 +1029,10 @@ object SliderDefaults {
         val activeTrackColor = colors.trackColor(enabled, active = true)
         val inactiveTickColor = colors.tickColor(enabled, active = false)
         val activeTickColor = colors.tickColor(enabled, active = true)
-        Canvas(modifier
-            .fillMaxWidth()
-            .height(TrackHeight)
+        Canvas(
+            modifier
+                .fillMaxWidth()
+                .height(TrackHeight)
         ) {
             val isRtl = layoutDirection == LayoutDirection.Rtl
             val sliderLeft = Offset(0f, center.y)
@@ -1281,7 +1270,6 @@ private fun Modifier.sliderSemantics(
     state: SliderState,
     enabled: Boolean
 ): Modifier {
-    val coerced = state.value.coerceIn(state.valueRange.start, state.valueRange.endInclusive)
     return semantics {
         if (!enabled) disabled()
         setProgress(
@@ -1311,7 +1299,7 @@ private fun Modifier.sliderSemantics(
 
                 // This is to keep it consistent with AbsSeekbar.java: return false if no
                 // change from current.
-                if (resolvedValue == coerced) {
+                if (resolvedValue == state.value) {
                     false
                 } else {
                     state.onValueChange(resolvedValue)
@@ -1439,34 +1427,19 @@ private fun Modifier.sliderTapModifier(
     state: SliderState,
     interactionSource: MutableInteractionSource,
     enabled: Boolean
-) = composed(
-    factory = {
-        if (enabled) {
-            val scope = rememberCoroutineScope()
-            pointerInput(state.draggableState, interactionSource, state.totalWidth, state.isRtl) {
-                detectTapGestures(
-                    onPress = state.press,
-                    onTap = {
-                        scope.launch {
-                            state.draggableState.drag(MutatePriority.UserInput) {
-                                // just trigger animation, press offset will be applied
-                                dragBy(0f)
-                            }
-                            state.gestureEndAction()
-                        }
-                    }
-                )
+) = if (enabled) {
+    pointerInput(state, interactionSource) {
+        detectTapGestures(
+            onPress = state.press,
+            onTap = {
+                state.draggableState.dispatchRawDelta(0f)
+                state.gestureEndAction()
             }
-        } else {
-            this
-        }
-    },
-    inspectorInfo = debugInspectorInfo {
-        name = "sliderTapModifier"
-        properties["state"] = state
-        properties["interactionSource"] = interactionSource
-        properties["enabled"] = enabled
-    })
+        )
+    }
+} else {
+    this
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.rangeSliderPressDragModifier(
@@ -1687,8 +1660,6 @@ private val TickSize = SliderTokens.TickMarksContainerSize
 
 // Internal to be referred to in tests
 internal val TrackHeight = SliderTokens.InactiveTrackHeight
-private val SliderHeight = 48.dp
-private val SliderMinWidth = 144.dp // TODO: clarify min width
 
 internal class SliderDraggableState(
     val onDelta: (Float) -> Unit
@@ -1825,13 +1796,13 @@ class SliderState(
 
     internal val tickFractions = stepsToTickFractions(steps)
 
-    private var thumbWidth by mutableFloatStateOf(ThumbWidth.value)
     internal var totalWidth by mutableIntStateOf(0)
 
     private var rawOffset by mutableFloatStateOf(scaleToOffset(0f, 0f, value))
     private var pressOffset by mutableFloatStateOf(0f)
 
     internal var isRtl = false
+    internal var thumbWidth by mutableFloatStateOf(0f)
 
     internal val coercedValueAsFraction
         get() = calcFraction(
