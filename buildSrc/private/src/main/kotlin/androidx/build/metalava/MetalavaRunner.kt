@@ -315,7 +315,6 @@ fun getGenerateApiArgs(
             "--source-path",
             sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
             "--format=v4",
-            "--output-kotlin-nulls=yes",
             "--warnings-as-errors"
         )
 
