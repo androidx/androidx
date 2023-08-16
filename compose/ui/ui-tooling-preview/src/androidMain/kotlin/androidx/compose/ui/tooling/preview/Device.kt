@@ -74,7 +74,6 @@ object Devices {
 
 /**
  * Annotation for defining the [Preview] device to use.
- * @suppress
  */
 @Retention(AnnotationRetention.SOURCE)
 @Suppress("DEPRECATION")
@@ -119,4 +118,4 @@ object Devices {
         Devices.TV_1080p,
     ]
 )
-annotation class Device
+internal annotation class Device
