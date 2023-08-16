@@ -24,7 +24,7 @@ import androidx.compose.foundation.text.cancelsTextSelection
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
@@ -51,9 +51,9 @@ internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
-    private var filter: TextEditFilter? = null
+    private var filter: InputTransformation? = null
 
-    fun setFilter(filter: TextEditFilter?) {
+    fun setFilter(filter: InputTransformation?) {
         this.filter = filter
     }
 

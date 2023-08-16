@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,21 +24,21 @@ import androidx.compose.runtime.Stable
  * A function that is ran after every change made to a [TextFieldState] by user input and can change
  * or reject that input.
  *
- * Filters are ran after hardware and software keyboard events, when text is pasted or dropped into
- * the field, or when an accessibility service changes the text.
+ * Input transformations are ran after hardware and software keyboard events, when text is pasted or
+ * dropped into the field, or when an accessibility service changes the text.
  *
  * To chain filters together, call [then].
  *
  * Prebuilt filters are provided for common filter operations. See:
- *  - `TextEditFilter`.[maxLengthInChars]`()`
- *  - `TextEditFilter`.[maxLengthInCodepoints]`()`
- *  - `TextEditFilter`.[allCaps]`()`
+ *  - [InputTransformation].[maxLengthInChars]`()`
+ *  - [InputTransformation].[maxLengthInCodepoints]`()`
+ *  - [InputTransformation].[allCaps]`()`
  *
  * @sample androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
  */
 @ExperimentalFoundationApi
 @Stable
-fun interface TextEditFilter {
+fun interface InputTransformation {
 
     /**
      * Optional [KeyboardOptions] that will be used as the default keyboard options for configuring
@@ -49,7 +47,7 @@ fun interface TextEditFilter {
     val keyboardOptions: KeyboardOptions? get() = null
 
     /**
-     * The filter operation. For more information see the documentation on [TextEditFilter].
+     * The transform operation. For more information see the documentation on [InputTransformation].
      *
      * To reject all changes in [valueWithChanges], call
      * `valueWithChanges.`[revertAllChanges][TextFieldBuffer.revertAllChanges].
@@ -58,7 +56,7 @@ fun interface TextEditFilter {
      * @param valueWithChanges The value of the field after the change. This value can be changed
      * in-place to alter or reject the changes or set the selection.
      */
-    fun filter(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer)
+    fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer)
 
     companion object
 }
@@ -67,32 +65,54 @@ fun interface TextEditFilter {
  * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
  * changes made by this filter will be visible to [next].
  *
+ * The returned filter will use the [KeyboardOptions] from [next] if non-null, otherwise it will
+ * use the options from this transformation.
+ *
  * @sample androidx.compose.foundation.samples.BasicTextField2FilterChainingSample
  *
- * @param next The [TextEditFilter] that will be ran after this one.
- * @param keyboardOptions The [KeyboardOptions] options to use for the chained filter. If not
- * specified, the chained filter will not specify any [KeyboardOptions], even if one or both of
- * this or [next] specified some.
+ * @param next The [InputTransformation] that will be ran after this one.
  */
 @ExperimentalFoundationApi
 @Stable
-fun TextEditFilter.then(
-    next: TextEditFilter,
-    keyboardOptions: KeyboardOptions? = null
-): TextEditFilter = FilterChain(this, next, keyboardOptions)
+@kotlin.jvm.JvmName("thenOrNull")
+fun InputTransformation?.then(next: InputTransformation?): InputTransformation? = when {
+    this == null -> next
+    next == null -> this
+    else -> this.then(next)
+}
 
+/**
+ * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
+ * changes made by this filter will be visible to [next].
+ *
+ * The returned filter will use the [KeyboardOptions] from [next] if non-null, otherwise it will
+ * use the options from this transformation.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2FilterChainingSample
+ *
+ * @param next The [InputTransformation] that will be ran after this one.
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.then(next: InputTransformation): InputTransformation =
+    FilterChain(this, next)
+
+@OptIn(ExperimentalFoundationApi::class)
 private class FilterChain(
-    private val first: TextEditFilter,
-    private val second: TextEditFilter,
-    override val keyboardOptions: KeyboardOptions?
-) : TextEditFilter {
+    private val first: InputTransformation,
+    private val second: InputTransformation,
+) : InputTransformation {
 
-    override fun filter(
+    override val keyboardOptions: KeyboardOptions?
+        // TODO(b/295951492) Do proper merging.
+        get() = second.keyboardOptions ?: first.keyboardOptions
+
+    override fun transformInput(
         originalValue: TextFieldCharSequence,
         valueWithChanges: TextFieldBuffer
     ) {
-        first.filter(originalValue, valueWithChanges)
-        second.filter(originalValue, valueWithChanges)
+        first.transformInput(originalValue, valueWithChanges)
+        second.transformInput(originalValue, valueWithChanges)
     }
 
     override fun toString(): String = "$first.then($second)"

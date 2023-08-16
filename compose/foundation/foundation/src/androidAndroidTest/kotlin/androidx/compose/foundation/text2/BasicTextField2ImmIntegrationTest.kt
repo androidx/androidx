@@ -231,7 +231,7 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     // Force the selection not to change.
                     val initialSelection = new.selectionInChars
                     new.append("world")
@@ -264,7 +264,7 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new ->
+                inputTransformation = { _, new ->
                     val initialSelection = new.selectionInChars
                     new.append("world")
                     new.selectCharsIn(initialSelection)
@@ -293,7 +293,7 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new -> new.selectAll() }
+                inputTransformation = { _, new -> new.selectAll() }
             )
         }
         requestFocus(Tag)

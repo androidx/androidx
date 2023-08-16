@@ -107,7 +107,7 @@ class TextFieldCursorHandleTest {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                filter = { _, valueWithChanges ->
+                inputTransformation = { _, valueWithChanges ->
                     valueWithChanges.selectCharsIn(TextRange(4))
                 },
                 modifier = Modifier.testTag(TAG)
@@ -506,7 +506,7 @@ class TextFieldCursorHandleTest {
             BasicTextField2(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                filter = { _, valueWithChanges ->
+                inputTransformation = { _, valueWithChanges ->
                     valueWithChanges.selectCharsIn(TextRange.Zero)
                 },
                 modifier = Modifier

@@ -19,7 +19,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
@@ -32,7 +32,7 @@ import kotlinx.coroutines.awaitCancellation
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TextFieldState,
     imeOptions: ImeOptions,
-    filter: TextEditFilter?,
+    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
     // TODO(b/267235947) Wire up desktop.

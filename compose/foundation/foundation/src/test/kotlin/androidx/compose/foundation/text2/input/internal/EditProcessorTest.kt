@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
@@ -375,7 +375,7 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
@@ -387,7 +387,7 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
@@ -399,7 +399,7 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
@@ -411,7 +411,7 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             fail(
                 "filter ran, old=\"$old\" (${old.selectionInChars}), " +
                     "new=\"$new\" (${new.selectionInChars})"
@@ -432,7 +432,7 @@ class EditProcessorTest {
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
@@ -450,7 +450,7 @@ class EditProcessorTest {
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
         val processor = EditProcessor(initialValue)
-        val filter = TextEditFilter { old, new ->
+        val filter = InputTransformation { old, new ->
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
@@ -491,7 +491,7 @@ class EditProcessorTest {
 
     private fun EditProcessor.update(
         vararg editCommand: EditCommand,
-        filter: TextEditFilter? = null
+        filter: InputTransformation? = null
     ) {
         update(editCommand.toList(), filter)
     }
