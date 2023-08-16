@@ -111,14 +111,19 @@ fun TextButton(
  *
  * Set the size of the [TextToggleButton] with Modifier.[touchTargetAwareSize]
  * to ensure that the background padding will correctly reach the edge of the minimum touch target.
- * The recommended text button sizes are [TextButtonDefaults.DefaultButtonSize],
+ * The recommended [TextToggleButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
+ * [TextToggleButton] uses [Typography.labelMedium] by default and this should be overridden to
+ * [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
  *
  * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to
  * click events. When enabled, the checked and unchecked events are propagated by [onCheckedChange].
  *
- * A simple text toggle button using the default colors
+ * A simple text toggle button using the default colors:
  * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
+ *
+ * Example of a large text toggle button:
+ * @sample androidx.wear.compose.material3.samples.LargeTextToggleButtonSample
  *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
