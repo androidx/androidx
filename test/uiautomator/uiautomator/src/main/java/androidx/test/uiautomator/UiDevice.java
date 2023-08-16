@@ -846,11 +846,10 @@ public class UiDevice implements Searchable {
      * Freezes the rotation of the display with {@code displayId} at its current state.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void freezeRotation(int displayId) throws RemoteException {
+    public void freezeRotation(int displayId) {
         Log.d(TAG, String.format("Freezing rotation on display %d.", displayId));
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -889,11 +888,10 @@ public class UiDevice implements Searchable {
      * to this method.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void unfreezeRotation(int displayId) throws RemoteException {
+    public void unfreezeRotation(int displayId) {
         Log.d(TAG, String.format("Unfreezing rotation on display %d.", displayId));
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -929,11 +927,10 @@ public class UiDevice implements Searchable {
      * {@link #setOrientationLandscape()}.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void setOrientationLeft(int displayId) throws RemoteException {
+    public void setOrientationLeft(int displayId) {
         Log.d(TAG, String.format("Setting orientation to left on display %d.", displayId));
         rotateWithCommand(Surface.ROTATION_90, displayId);
     }
@@ -959,11 +956,10 @@ public class UiDevice implements Searchable {
      * {@link #setOrientationLandscape()}.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void setOrientationRight(int displayId) throws RemoteException {
+    public void setOrientationRight(int displayId) {
         Log.d(TAG, String.format("Setting orientation to right on display %d.", displayId));
         rotateWithCommand(Surface.ROTATION_270, displayId);
     }
@@ -987,11 +983,10 @@ public class UiDevice implements Searchable {
      * Consider using {@link #setOrientationPortrait()} and {@link #setOrientationLandscape()}.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void setOrientationNatural(int displayId) throws RemoteException {
+    public void setOrientationNatural(int displayId) {
         Log.d(TAG, String.format("Setting orientation to natural on display %d.", displayId));
         rotateWithCommand(Surface.ROTATION_0, displayId);
     }
@@ -1017,11 +1012,10 @@ public class UiDevice implements Searchable {
      * freezes rotation. Use {@link #unfreezeRotation()} to un-freeze the rotation.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void setOrientationPortrait(int displayId) throws RemoteException {
+    public void setOrientationPortrait(int displayId) {
         Log.d(TAG, String.format("Setting orientation to portrait on display %d.", displayId));
         if (getDisplayHeight(displayId) >= getDisplayWidth(displayId)) {
             freezeRotation(displayId); // Already in portrait orientation.
@@ -1053,11 +1047,10 @@ public class UiDevice implements Searchable {
      * freezes rotation. Use {@link #unfreezeRotation()} to un-freeze the rotation.
      * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
      * officially supported.
-     * @throws RemoteException never
      * @see Display#getDisplayId()
      */
     @RequiresApi(30)
-    public void setOrientationLandscape(int displayId) throws RemoteException {
+    public void setOrientationLandscape(int displayId) {
         Log.d(TAG, String.format("Setting orientation to landscape on display %d.", displayId));
         if (getDisplayWidth(displayId) >= getDisplayHeight(displayId)) {
             freezeRotation(displayId); // Already in landscape orientation.
