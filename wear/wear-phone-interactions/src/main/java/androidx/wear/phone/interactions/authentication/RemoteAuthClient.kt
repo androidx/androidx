@@ -16,7 +16,6 @@
 
 package androidx.wear.phone.interactions.authentication
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -345,7 +344,6 @@ public class RemoteAuthClient internal constructor(
             onResult(OAuthResponse(errorCode, responseUrl))
         }
 
-        @SuppressLint("SyntheticAccessor")
         private fun onResult(response: OAuthResponse) {
             @ErrorCode val error = response.errorCode
             uiThreadExecutor.execute(

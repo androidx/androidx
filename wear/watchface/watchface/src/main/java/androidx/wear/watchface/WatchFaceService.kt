@@ -1275,7 +1275,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private val frameCallback =
             object : Choreographer.FrameCallback {
-                @SuppressWarnings("SyntheticAccessor")
                 override fun doFrame(frameTimeNs: Long) {
                     if (destroyed) {
                         return
@@ -2443,7 +2442,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 complicationSlotsManager.init(
                     renderer,
                     object : ComplicationSlot.InvalidateListener {
-                        @SuppressWarnings("SyntheticAccessor")
                         override fun onInvalidate() {
                             // This could be called on any thread.
                             uiThreadHandler.runOnHandlerWithTracing("onInvalidate") {

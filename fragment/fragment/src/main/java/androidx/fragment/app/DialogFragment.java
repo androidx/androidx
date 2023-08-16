@@ -19,7 +19,6 @@ package androidx.fragment.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.fragment.app.FragmentManager.TAG;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -351,7 +350,6 @@ public class DialogFragment extends Fragment
 
     private Handler mHandler;
     private Runnable mDismissRunnable = new Runnable() {
-        @SuppressLint("SyntheticAccessor")
         @Override
         public void run() {
             mOnDismissListener.onDismiss(mDialog);
@@ -360,7 +358,6 @@ public class DialogFragment extends Fragment
 
     private DialogInterface.OnCancelListener mOnCancelListener =
             new DialogInterface.OnCancelListener() {
-        @SuppressLint("SyntheticAccessor")
         @Override
         public void onCancel(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -371,7 +368,6 @@ public class DialogFragment extends Fragment
 
     private DialogInterface.OnDismissListener mOnDismissListener =
             new DialogInterface.OnDismissListener() {
-        @SuppressLint("SyntheticAccessor")
         @Override
         public void onDismiss(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -387,7 +383,6 @@ public class DialogFragment extends Fragment
     private int mBackStackId = -1;
     private boolean mCreatingDialog;
     private Observer<LifecycleOwner> mObserver = new Observer<LifecycleOwner>() {
-        @SuppressLint("SyntheticAccessor")
         @Override
         public void onChanged(LifecycleOwner lifecycleOwner) {
             if (lifecycleOwner != null && mShowsDialog) {

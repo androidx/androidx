@@ -18,7 +18,6 @@ package androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtempl
 
 import static androidx.car.app.model.Action.APP_ICON;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -66,7 +65,6 @@ public final class TabTemplateLoadingDemoScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         mTabTemplateBuilder = new TabTemplate.Builder(new TabTemplate.TabCallback() {
-            @SuppressLint("SyntheticAccessor")
             @Override
             public void onTabSelected(@NonNull String tabContentId) {
                 mActiveContentId = tabContentId;

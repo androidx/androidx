@@ -18,7 +18,6 @@
 
 package androidx.core.text
 
-import android.annotation.SuppressLint
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -30,7 +29,6 @@ import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 public inline fun CharSequence.toSpannable(): Spannable = SpannableString.valueOf(this)
 
 /** Clear all spans from this text. */
-@SuppressLint("SyntheticAccessor") // TODO remove https://issuetracker.google.com/issues/110243369
 public inline fun Spannable.clearSpans(): Unit = getSpans<Any>().forEach { removeSpan(it) }
 
 /**

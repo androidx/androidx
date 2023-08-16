@@ -177,7 +177,6 @@ public class ViewfinderSurfaceRequest {
         // collected as long as the ViewfinderSurface is referenced externally (via
         // getViewfinderSurface()).
         mInternalViewfinderSurface = new ViewfinderSurface() {
-            @SuppressLint("SyntheticAccessor")
             @NonNull
             @Override
             protected ListenableFuture<Surface> provideSurfaceAsync() {

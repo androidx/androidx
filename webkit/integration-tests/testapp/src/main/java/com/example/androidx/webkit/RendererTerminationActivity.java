@@ -223,7 +223,6 @@ public class RendererTerminationActivity extends AppCompatActivity {
         layout.addView(mWebView);
 
         mWebView.setWebViewClient(new WebViewClient() {
-            @SuppressLint("SyntheticAccessor")
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 mWebView.destroy();
@@ -249,7 +248,6 @@ public class RendererTerminationActivity extends AppCompatActivity {
         if (WebViewFeature.isFeatureSupported(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE)) {
             WebViewCompat.setWebViewRenderProcessClient(mWebView, new WebViewRenderProcessClient() {
-                @SuppressLint("SyntheticAccessor")
                 @Override
                 public void onRenderProcessUnresponsive(
                         @NonNull WebView view, @Nullable WebViewRenderProcess renderer) {
@@ -261,7 +259,6 @@ public class RendererTerminationActivity extends AppCompatActivity {
                         dialog.show(getSupportFragmentManager(), "dialog-unresponsive");
                     }
                 }
-                @SuppressLint("SyntheticAccessor")
                 @Override
                 public void onRenderProcessResponsive(@NonNull WebView view,
                         @Nullable WebViewRenderProcess renderer) {

@@ -262,7 +262,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
             new Parcelable.Creator<ComplicationText>() {
                 @Override
                 @NonNull
-                @SuppressLint("SyntheticAccessor")
                 public ComplicationText createFromParcel(@NonNull Parcel in) {
                     return new ComplicationText(in);
                 }
@@ -405,7 +404,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         Object readResolve() {
             return new ComplicationText(mSurroundingText, mTimeDependentText, mDynamicText);
         }
@@ -772,7 +770,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
         /** Returns {@link ComplicationText} representing the time difference as specified. */
         @NonNull
-        @SuppressLint("SyntheticAccessor")
         public ComplicationText build() {
             if (mReferencePeriodEndMillis < mReferencePeriodStartMillis) {
                 throw new IllegalStateException("Reference period end must not be before start.");
@@ -870,7 +867,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
         /** Returns {@link ComplicationText} including the formatted time as specified. */
         @NonNull
-        @SuppressLint("SyntheticAccessor")
         public ComplicationText build() {
             return new ComplicationText(
                     mSurroundingText, new TimeFormatText(mFormat, mStyle, mTimeZone));

@@ -293,7 +293,7 @@ internal class AndroidCameraState(
 
         closeWith(
             device?.unwrapAs(CameraDevice::class),
-            @Suppress("SyntheticAccessor") ClosingInfo(ClosedReason.APP_CLOSED)
+            ClosingInfo(ClosedReason.APP_CLOSED)
         )
     }
 
@@ -380,7 +380,6 @@ internal class AndroidCameraState(
 
         closeWith(
             cameraDevice,
-            @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.CAMERA2_DISCONNECTED,
                 errorCode = CameraError.ERROR_CAMERA_DISCONNECTED
@@ -398,7 +397,6 @@ internal class AndroidCameraState(
 
         closeWith(
             cameraDevice,
-            @Suppress("SyntheticAccessor")
             ClosingInfo(ClosedReason.CAMERA2_ERROR, errorCode = CameraError.from(errorCode))
         )
         interopDeviceStateCallback?.onError(cameraDevice, errorCode)
@@ -412,7 +410,7 @@ internal class AndroidCameraState(
         cameraDeviceClosed.countDown()
 
         closeWith(
-            cameraDevice, @Suppress("SyntheticAccessor") ClosingInfo(ClosedReason.CAMERA2_CLOSED)
+            cameraDevice, ClosingInfo(ClosedReason.CAMERA2_CLOSED)
         )
         interopDeviceStateCallback?.onClosed(cameraDevice)
         Debug.traceStop()
@@ -431,7 +429,6 @@ internal class AndroidCameraState(
     private fun closeWith(throwable: Throwable, cameraError: CameraError) {
         closeWith(
             null,
-            @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.CAMERA2_EXCEPTION, errorCode = cameraError, exception = throwable
             )
@@ -495,7 +492,6 @@ internal class AndroidCameraState(
 
         val closeDuration = closingTimestamp.let { now - it }
 
-        @Suppress("SyntheticAccessor")
         return CameraStateClosed(
             cameraId,
             cameraClosedReason = closingInfo.reason,
