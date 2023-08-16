@@ -12148,10 +12148,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             this.itemView = itemView;
         }
 
-        void flagRemovedAndOffsetPosition(int mNewPosition, int offset, boolean applyToPreLayout) {
+        void flagRemovedAndOffsetPosition(int newPosition, int offset, boolean applyToPreLayout) {
             addFlags(ViewHolder.FLAG_REMOVED);
             offsetPosition(offset, applyToPreLayout);
-            mPosition = mNewPosition;
+            mPosition = newPosition;
         }
 
         void offsetPosition(int offset, boolean applyToPreLayout) {
