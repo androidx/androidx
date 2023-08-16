@@ -36,10 +36,11 @@ import androidx.compose.ui.unit.dp
  * no border. It offers a single slot for text.
  *
  * Set the size of the [TextButton] with [Modifier.touchTargetAwareSize]
- * to ensure that the recommended minimum touch target size is available.
- *
- * The recommended [TextButton] sizes are [TextButtonDefaults.DefaultButtonSize],
+ * to ensure that the recommended minimum touch target size is available. The recommended
+ * [TextButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
+ * [TextButton] uses [Typography.labelMedium] by default and this should be
+ * overridden to [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
  *
  * The default [TextButton] has no border and a transparent background for low emphasis actions.
  * For actions that require high emphasis, set [colors] to
@@ -51,10 +52,13 @@ import androidx.compose.ui.unit.dp
  *
  * [TextButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
  *
  * Example of a [TextButton]:
  * @sample androidx.wear.compose.material3.samples.TextButtonSample
+ *
+ * Example of a large, filled tonal [TextButton]:
+ * @sample androidx.wear.compose.material3.samples.LargeFilledTonalTextButtonSample
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
@@ -316,8 +320,9 @@ object TextButtonDefaults {
     }
 
     /**
-     * The recommended size for a small button.
-     * It is recommended to apply this size using [Modifier.touchTargetAwareSize].
+     * The recommended size for a small button - for this size, it is recommended to set
+     * the text style to [Typography.labelMedium]. It is recommended to apply this size
+     * using [Modifier.touchTargetAwareSize].
      */
     val SmallButtonSize = 48.dp
 
@@ -348,7 +353,7 @@ object TextButtonDefaults {
  * @param disabledContentColor the content color of this text button when not enabled.
  */
 @Immutable
-class TextButtonColors constructor(
+class TextButtonColors(
     val containerColor: Color,
     val contentColor: Color,
     val disabledContainerColor: Color,
