@@ -30,7 +30,6 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
-import androidx.camera.camera2.pipe.integration.internal.CameraGraphCreator
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
@@ -345,7 +344,6 @@ class UseCaseManagerTest {
         val fakeCamera = FakeCamera()
         return UseCaseManager(
             cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            cameraGraphCreator = CameraGraphCreator(),
             cameraConfig = CameraConfig(cameraId),
             callbackMap = CameraCallbackMap(),
             requestListener = ComboRequestListener(),

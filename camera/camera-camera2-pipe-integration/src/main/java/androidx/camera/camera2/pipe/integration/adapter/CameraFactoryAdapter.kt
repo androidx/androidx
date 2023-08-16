@@ -72,7 +72,9 @@ internal class CameraFactoryAdapter(
     private var mAvailableCamerasSelector: CameraSelector? = availableCamerasSelector
     private var mAvailableCameraIds: List<String>
     private val cameraCoordinator: CameraCoordinatorAdapter = CameraCoordinatorAdapter(
-        appComponent.getCameraDevices(), appComponent.getCameraGraphCreator())
+        appComponent.getCameraPipe(),
+        appComponent.getCameraDevices(),
+    )
 
     init {
         debug { "Created CameraFactoryAdapter" }
