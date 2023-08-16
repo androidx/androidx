@@ -16,6 +16,23 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static android.app.job.JobParameters.STOP_REASON_APP_STANDBY;
+import static android.app.job.JobParameters.STOP_REASON_BACKGROUND_RESTRICTION;
+import static android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_DEVICE_IDLE;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW;
+import static android.app.job.JobParameters.STOP_REASON_DEVICE_STATE;
+import static android.app.job.JobParameters.STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED;
+import static android.app.job.JobParameters.STOP_REASON_PREEMPT;
+import static android.app.job.JobParameters.STOP_REASON_QUOTA;
+import static android.app.job.JobParameters.STOP_REASON_SYSTEM_PROCESSING;
+import static android.app.job.JobParameters.STOP_REASON_TIMEOUT;
+import static android.app.job.JobParameters.STOP_REASON_UNDEFINED;
+import static android.app.job.JobParameters.STOP_REASON_USER;
+
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_GENERATION;
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 
@@ -34,6 +51,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
@@ -183,7 +201,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 stopReason = Api31Impl.getStopReason(params);
             } else {
-                stopReason = 0;
+                stopReason = WorkInfo.STOP_REASON_UNKNOWN;
             }
             //
             mWorkLauncher.stopWorkWithReason(runId, stopReason);
@@ -258,7 +276,35 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
         @DoNotInline
         static int getStopReason(JobParameters jobParameters) {
-            return jobParameters.getStopReason();
+            return stopReason(jobParameters.getStopReason());
         }
+    }
+
+    // making sure that we return only values that WorkManager is aware of.
+    static int stopReason(int jobReason) {
+        int reason;
+        switch (jobReason) {
+            case STOP_REASON_APP_STANDBY:
+            case STOP_REASON_BACKGROUND_RESTRICTION:
+            case STOP_REASON_CANCELLED_BY_APP:
+            case STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW:
+            case STOP_REASON_CONSTRAINT_CHARGING:
+            case STOP_REASON_CONSTRAINT_CONNECTIVITY:
+            case STOP_REASON_CONSTRAINT_DEVICE_IDLE:
+            case STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW:
+            case STOP_REASON_DEVICE_STATE:
+            case STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED:
+            case STOP_REASON_PREEMPT:
+            case STOP_REASON_QUOTA:
+            case STOP_REASON_SYSTEM_PROCESSING:
+            case STOP_REASON_TIMEOUT:
+            case STOP_REASON_UNDEFINED:
+            case STOP_REASON_USER:
+                reason = jobReason;
+                break;
+            default:
+                reason = WorkInfo.STOP_REASON_UNKNOWN;
+        }
+        return reason;
     }
 }

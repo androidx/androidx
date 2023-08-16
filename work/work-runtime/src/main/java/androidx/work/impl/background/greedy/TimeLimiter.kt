@@ -16,9 +16,8 @@
 
 package androidx.work.impl.background.greedy
 
-import android.app.job.JobParameters
 import androidx.work.RunnableScheduler
-import androidx.work.StopReason
+import androidx.work.WorkInfo
 import androidx.work.impl.StartStopToken
 import androidx.work.impl.WorkLauncher
 import java.util.concurrent.TimeUnit
@@ -33,7 +32,7 @@ internal class TimeLimiter @JvmOverloads constructor(
 
     fun track(token: StartStopToken) {
         val stopRunnable = Runnable {
-            launcher.stopWork(token, StopReason(JobParameters.STOP_REASON_TIMEOUT))
+            launcher.stopWork(token, WorkInfo.STOP_REASON_TIMEOUT)
         }
         synchronized(lock) { tracked.put(token, stopRunnable) }
         runnableScheduler.scheduleWithDelay(timeoutMs, stopRunnable)

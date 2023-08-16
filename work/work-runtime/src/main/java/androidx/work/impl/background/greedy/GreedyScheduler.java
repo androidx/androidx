@@ -244,7 +244,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
             StartStopToken runId = mStartStopTokens.remove(id);
             if (runId != null) {
                 mTimeLimiter.cancel(runId);
-                int reason = ((ConstraintsState.ConstraintsNotMet) state).reasonInt();
+                int reason = ((ConstraintsState.ConstraintsNotMet) state).getReason();
                 mWorkLauncher.stopWorkWithReason(runId, reason);
             }
         }
