@@ -32,7 +32,6 @@ import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
 import androidx.bluetooth.GattServer
 import androidx.bluetooth.GattServerRequest
 import androidx.bluetooth.GattService
-import java.nio.ByteBuffer
 import java.util.UUID
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.CompletableDeferred
@@ -469,12 +468,4 @@ class RobolectricGattServerTest {
             )
         }
     }
-}
-
-private fun Int.toByteArray(): ByteArray {
-    return ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
-}
-
-private fun ByteArray.toInt(): Int {
-    return ByteBuffer.wrap(this).int
 }
