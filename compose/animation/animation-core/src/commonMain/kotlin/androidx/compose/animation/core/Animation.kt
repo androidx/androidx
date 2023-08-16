@@ -16,8 +16,6 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
-
 /**
  * This interface provides a convenient way to query from an [VectorizedAnimationSpec] or
  * [FloatDecayAnimationSpec]: It spares the need to pass the starting conditions and in some cases
@@ -33,6 +31,7 @@ import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
  * stateful and manage their own lifecycles.
  *
  * @see [Animatable]
+ * @see [rememberTransition]
  * @see [updateTransition]
  */
 @JvmDefaultWithCompatibility
@@ -177,6 +176,7 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
  * @param initialVelocityVector the start velocity of the animation in the form of [AnimationVector]
  *
  * @see [Transition]
+ * @see [rememberTransition]
  * @see [updateTransition]
  * @see [Animatable]
  */
