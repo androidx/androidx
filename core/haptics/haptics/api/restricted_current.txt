@@ -42,6 +42,7 @@ package androidx.core.haptics {
     method public static androidx.core.haptics.HapticManager? create(android.content.Context context);
     method public androidx.core.haptics.device.HapticDeviceProfile getDeviceProfile();
     method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.HapticSignal signal, androidx.core.haptics.HapticAttributes attrs);
+    method @RequiresPermission(android.Manifest.permission.VIBRATE) public default void play(androidx.core.haptics.signal.ResolvableSignal signal, androidx.core.haptics.HapticAttributes attrs);
     property public abstract androidx.core.haptics.device.HapticDeviceProfile deviceProfile;
     field public static final androidx.core.haptics.HapticManager.Companion Companion;
   }
@@ -73,6 +74,7 @@ package androidx.core.haptics.device {
     method public androidx.core.haptics.device.HapticCompositionProfile getCompositionProfile();
     method public java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> getHardwareOptimizedPredefinedEffects();
     method public boolean isAmplitudeControlSupported();
+    method public boolean supports(androidx.core.haptics.signal.HapticSignal signal);
     property public final androidx.core.haptics.device.HapticCompositionProfile compositionProfile;
     property public final java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffects;
     property public final boolean isAmplitudeControlSupported;
@@ -167,10 +169,24 @@ package androidx.core.haptics.signal {
   public static final class CompositionSignal.PrimitiveAtom.Companion {
   }
 
+  public final class FallbackChainSignal implements androidx.core.haptics.signal.ResolvableSignal {
+    ctor public FallbackChainSignal(java.util.List<? extends androidx.core.haptics.signal.ResolvableSignal> signals);
+    method public static androidx.core.haptics.signal.FallbackChainSignal fallbackChainOf(androidx.core.haptics.signal.ResolvableSignal... signals);
+    method public java.util.List<androidx.core.haptics.signal.ResolvableSignal> getSignals();
+    method public androidx.core.haptics.signal.HapticSignal? resolve(androidx.core.haptics.device.HapticDeviceProfile deviceProfile);
+    property public final java.util.List<androidx.core.haptics.signal.ResolvableSignal> signals;
+    field public static final androidx.core.haptics.signal.FallbackChainSignal.Companion Companion;
+  }
+
+  public static final class FallbackChainSignal.Companion {
+    method public androidx.core.haptics.signal.FallbackChainSignal fallbackChainOf(androidx.core.haptics.signal.ResolvableSignal... signals);
+  }
+
   public abstract class FiniteSignal extends androidx.core.haptics.signal.HapticSignal {
   }
 
-  public abstract class HapticSignal {
+  public abstract class HapticSignal implements androidx.core.haptics.signal.ResolvableSignal {
+    method public androidx.core.haptics.signal.HapticSignal? resolve(androidx.core.haptics.device.HapticDeviceProfile deviceProfile);
   }
 
   public abstract class InfiniteSignal extends androidx.core.haptics.signal.HapticSignal {
@@ -196,6 +212,10 @@ package androidx.core.haptics.signal {
     method public androidx.core.haptics.signal.WaveformSignal getRepeatingWaveform();
     property public final androidx.core.haptics.signal.WaveformSignal? initialWaveform;
     property public final androidx.core.haptics.signal.WaveformSignal repeatingWaveform;
+  }
+
+  public fun interface ResolvableSignal {
+    method public androidx.core.haptics.signal.HapticSignal? resolve(androidx.core.haptics.device.HapticDeviceProfile deviceProfile);
   }
 
   public final class WaveformSignal extends androidx.core.haptics.signal.FiniteSignal {
