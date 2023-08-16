@@ -58,6 +58,7 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionItemInfoCompatBuilder_withDefaultValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
@@ -74,6 +75,7 @@ public class AccessibilityNodeInfoCompatTest {
         assertThat(collectionItemInfoCompat.isHeading()).isFalse();
     }
 
+    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSetCollectionInfoCompatBuilder_withRealValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
