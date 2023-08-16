@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +30,7 @@ import androidx.compose.material3.tokens.FabPrimaryLargeTokens
 import androidx.compose.material3.tokens.FabPrimarySmallTokens
 import androidx.compose.material3.tokens.FabPrimaryTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -56,6 +59,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -539,6 +543,127 @@ class FloatingActionButtonTest {
             .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
             .assertHeightIsEqualTo(FabPrimaryTokens.ContainerHeight)
             .assertWidthIsEqualTo(FabPrimaryTokens.ContainerWidth)
+    }
+
+    @Test
+    fun floatingActionButtonElevation_newInteraction() {
+        val interactionSource = MutableInteractionSource()
+        val defaultElevation = 1.dp
+        val pressedElevation = 2.dp
+        val hoveredElevation = 3.dp
+        val focusedElevation = 4.dp
+        lateinit var tonalElevation: State<Dp>
+        lateinit var shadowElevation: State<Dp>
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val fabElevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = defaultElevation,
+                pressedElevation = pressedElevation,
+                hoveredElevation = hoveredElevation,
+                focusedElevation = focusedElevation
+            )
+
+            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            shadowElevation = fabElevation.shadowElevation(interactionSource)
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(shadowElevation.value).isEqualTo(defaultElevation)
+        }
+
+        rule.runOnIdle {
+            interactionSource.tryEmit(PressInteraction.Press(Offset.Zero))
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(pressedElevation)
+            assertThat(shadowElevation.value).isEqualTo(pressedElevation)
+        }
+    }
+
+    @Test
+    fun floatingActionButtonElevation_newValue() {
+        val interactionSource = MutableInteractionSource()
+        var defaultElevation by mutableStateOf(1.dp)
+        val pressedElevation = 2.dp
+        val hoveredElevation = 3.dp
+        val focusedElevation = 4.dp
+        lateinit var tonalElevation: State<Dp>
+        lateinit var shadowElevation: State<Dp>
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val fabElevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = defaultElevation,
+                pressedElevation = pressedElevation,
+                hoveredElevation = hoveredElevation,
+                focusedElevation = focusedElevation
+            )
+
+            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            shadowElevation = fabElevation.shadowElevation(interactionSource)
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(shadowElevation.value).isEqualTo(defaultElevation)
+        }
+
+        rule.runOnIdle {
+            defaultElevation = 5.dp
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(5.dp)
+            assertThat(shadowElevation.value).isEqualTo(5.dp)
+        }
+    }
+
+    @Test
+    fun floatingActionButtonElevation_newValueDuringInteraction() {
+        val interactionSource = MutableInteractionSource()
+        val defaultElevation = 1.dp
+        var pressedElevation by mutableStateOf(2.dp)
+        val hoveredElevation = 3.dp
+        val focusedElevation = 4.dp
+        lateinit var tonalElevation: State<Dp>
+        lateinit var shadowElevation: State<Dp>
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val fabElevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = defaultElevation,
+                pressedElevation = pressedElevation,
+                hoveredElevation = hoveredElevation,
+                focusedElevation = focusedElevation
+            )
+
+            tonalElevation = fabElevation.tonalElevation(interactionSource)
+            shadowElevation = fabElevation.shadowElevation(interactionSource)
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(defaultElevation)
+            assertThat(shadowElevation.value).isEqualTo(defaultElevation)
+        }
+
+        rule.runOnIdle {
+            interactionSource.tryEmit(PressInteraction.Press(Offset.Zero))
+        }
+
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(pressedElevation)
+            assertThat(shadowElevation.value).isEqualTo(pressedElevation)
+        }
+
+        rule.runOnIdle {
+            pressedElevation = 5.dp
+        }
+
+        // We are still pressed, so we should now show the updated value for the pressed state
+        rule.runOnIdle {
+            assertThat(tonalElevation.value).isEqualTo(5.dp)
+            assertThat(shadowElevation.value).isEqualTo(5.dp)
+        }
     }
 }
 
