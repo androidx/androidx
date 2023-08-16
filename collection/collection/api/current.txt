@@ -133,7 +133,16 @@ package androidx.collection {
   }
 
   public final class FloatListKt {
+    method public static androidx.collection.FloatList emptyFloatList();
+    method public static androidx.collection.FloatList floatListOf();
+    method public static androidx.collection.FloatList floatListOf(float element1);
+    method public static androidx.collection.FloatList floatListOf(float element1, float element2);
+    method public static androidx.collection.FloatList floatListOf(float element1, float element2, float element3);
+    method public static androidx.collection.FloatList floatListOf(float... elements);
     method public static inline androidx.collection.MutableFloatList mutableFloatListOf();
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1);
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1, float element2);
+    method public static androidx.collection.MutableFloatList mutableFloatListOf(float element1, float element2, float element3);
     method public static inline androidx.collection.MutableFloatList mutableFloatListOf(float... elements);
   }
 
@@ -158,7 +167,15 @@ package androidx.collection {
 
   public final class FloatSetKt {
     method public static androidx.collection.FloatSet emptyFloatSet();
+    method public static androidx.collection.FloatSet floatSetOf();
+    method public static androidx.collection.FloatSet floatSetOf(float element1);
+    method public static androidx.collection.FloatSet floatSetOf(float element1, float element2);
+    method public static androidx.collection.FloatSet floatSetOf(float element1, float element2, float element3);
+    method public static androidx.collection.FloatSet floatSetOf(float... elements);
     method public static androidx.collection.MutableFloatSet mutableFloatSetOf();
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1, float element2);
+    method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float element1, float element2, float element3);
     method public static androidx.collection.MutableFloatSet mutableFloatSetOf(float... elements);
   }
 
@@ -201,7 +218,16 @@ package androidx.collection {
   }
 
   public final class IntListKt {
+    method public static androidx.collection.IntList emptyIntList();
+    method public static androidx.collection.IntList intListOf();
+    method public static androidx.collection.IntList intListOf(int element1);
+    method public static androidx.collection.IntList intListOf(int element1, int element2);
+    method public static androidx.collection.IntList intListOf(int element1, int element2, int element3);
+    method public static androidx.collection.IntList intListOf(int... elements);
     method public static inline androidx.collection.MutableIntList mutableIntListOf();
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1);
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1, int element2);
+    method public static androidx.collection.MutableIntList mutableIntListOf(int element1, int element2, int element3);
     method public static inline androidx.collection.MutableIntList mutableIntListOf(int... elements);
   }
 
@@ -226,7 +252,15 @@ package androidx.collection {
 
   public final class IntSetKt {
     method public static androidx.collection.IntSet emptyIntSet();
+    method public static androidx.collection.IntSet intSetOf();
+    method public static androidx.collection.IntSet intSetOf(int element1);
+    method public static androidx.collection.IntSet intSetOf(int element1, int element2);
+    method public static androidx.collection.IntSet intSetOf(int element1, int element2, int element3);
+    method public static androidx.collection.IntSet intSetOf(int... elements);
     method public static androidx.collection.MutableIntSet mutableIntSetOf();
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1, int element2);
+    method public static androidx.collection.MutableIntSet mutableIntSetOf(int element1, int element2, int element3);
     method public static androidx.collection.MutableIntSet mutableIntSetOf(int... elements);
   }
 
@@ -269,7 +303,16 @@ package androidx.collection {
   }
 
   public final class LongListKt {
+    method public static androidx.collection.LongList emptyLongList();
+    method public static androidx.collection.LongList longListOf();
+    method public static androidx.collection.LongList longListOf(long element1);
+    method public static androidx.collection.LongList longListOf(long element1, long element2);
+    method public static androidx.collection.LongList longListOf(long element1, long element2, long element3);
+    method public static androidx.collection.LongList longListOf(long... elements);
     method public static inline androidx.collection.MutableLongList mutableLongListOf();
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1);
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1, long element2);
+    method public static androidx.collection.MutableLongList mutableLongListOf(long element1, long element2, long element3);
     method public static inline androidx.collection.MutableLongList mutableLongListOf(long... elements);
   }
 
@@ -294,7 +337,15 @@ package androidx.collection {
 
   public final class LongSetKt {
     method public static androidx.collection.LongSet emptyLongSet();
+    method public static androidx.collection.LongSet longSetOf();
+    method public static androidx.collection.LongSet longSetOf(long element1);
+    method public static androidx.collection.LongSet longSetOf(long element1, long element2);
+    method public static androidx.collection.LongSet longSetOf(long element1, long element2, long element3);
+    method public static androidx.collection.LongSet longSetOf(long... elements);
     method public static androidx.collection.MutableLongSet mutableLongSetOf();
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1, long element2);
+    method public static androidx.collection.MutableLongSet mutableLongSetOf(long element1, long element2, long element3);
     method public static androidx.collection.MutableLongSet mutableLongSetOf(long... elements);
   }
 
@@ -652,7 +703,15 @@ package androidx.collection {
   public final class ScatterSetKt {
     method public static <E> androidx.collection.ScatterSet<E> emptyScatterSet();
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf();
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2, E element3);
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E?... elements);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf();
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E?... elements);
   }
 
   public class SimpleArrayMap<K, V> {
