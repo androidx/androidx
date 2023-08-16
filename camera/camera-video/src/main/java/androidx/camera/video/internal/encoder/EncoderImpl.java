@@ -35,6 +35,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Range;
 import android.view.Surface;
 
@@ -1053,6 +1054,7 @@ public class EncoderImpl implements Encoder {
             if (mIsVideoEncoder) {
                 Timebase inputTimebase;
                 if (DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
+                    Logger.w(mTag, "CameraUseInconsistentTimebaseQuirk is enabled");
                     inputTimebase = null;
                 } else {
                     inputTimebase = mInputTimebase;
@@ -1064,7 +1066,7 @@ public class EncoderImpl implements Encoder {
         }
 
         @Override
-        public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
+        public void onInputBufferAvailable(@NonNull MediaCodec mediaCodec, int index) {
             mEncoderExecutor.execute(() -> {
                 if (mStopped) {
                     Logger.w(mTag, "Receives input frame after codec is reset.");
@@ -1130,6 +1132,15 @@ public class EncoderImpl implements Encoder {
                         if (checkBufferInfo(bufferInfo)) {
                             if (!mHasFirstData) {
                                 mHasFirstData = true;
+                                // Only print the first data to avoid flooding the log.
+                                Logger.d(mTag,
+                                        "data timestampUs = " + bufferInfo.presentationTimeUs
+                                                + ", data timebase = " + mInputTimebase
+                                                + ", current system uptimeMs = "
+                                                + SystemClock.uptimeMillis()
+                                                + ", current system realtimeMs = "
+                                                + SystemClock.elapsedRealtime()
+                                );
                             }
                             BufferInfo outBufferInfo = resolveOutputBufferInfo(bufferInfo);
                             mLastSentAdjustedTimeUs = outBufferInfo.presentationTimeUs;
