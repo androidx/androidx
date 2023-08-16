@@ -538,6 +538,85 @@ public class CustomTabsIntentTest {
                 intent.getBundleExtra(Browser.EXTRA_HEADERS).getString(ACCEPT_LANGUAGE));
     }
 
+    @Test
+    public void testBookmarksButton() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertTrue(CustomTabsIntent.isBookmarksButtonEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder().setBookmarksButtonEnabled(true).build().intent;
+        assertTrue(CustomTabsIntent.isBookmarksButtonEnabled(intent));
+
+        // Disabled only when explicitly called to disable it.
+        intent = new CustomTabsIntent.Builder().setBookmarksButtonEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isBookmarksButtonEnabled(intent));
+    }
+
+    @Test
+    public void testDownloadButton() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertTrue(CustomTabsIntent.isDownloadButtonEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder().setDownloadButtonEnabled(true).build().intent;
+        assertTrue(CustomTabsIntent.isDownloadButtonEnabled(intent));
+
+        // Disabled only when explicitly called to disable it.
+        intent = new CustomTabsIntent.Builder().setDownloadButtonEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isDownloadButtonEnabled(intent));
+    }
+
+    @Test
+    public void testSendToExternalDefaultHandler() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertFalse(CustomTabsIntent.isSendToExternalDefaultHandlerEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder()
+                .setSendToExternalDefaultHandlerEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isSendToExternalDefaultHandlerEnabled(intent));
+
+        // The extra is set to true only when explicitly called to enable it.
+        intent = new CustomTabsIntent.Builder()
+                .setSendToExternalDefaultHandlerEnabled(true).build().intent;
+        assertTrue(CustomTabsIntent.isSendToExternalDefaultHandlerEnabled(intent));
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void testBackgroundInteraction() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder()
+                .setBackgroundInteractionEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
+
+        // The extra is set to true only when explicitly called to enable it.
+        intent = new CustomTabsIntent.Builder()
+                .setBackgroundInteractionEnabled(true).build().intent;
+        assertTrue(CustomTabsIntent.isBackgroundInteractionEnabled(intent));
+    }
+
+    @Test
+    public void testShowOnToolbar() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertFalse(CustomTabsIntent.isShowOnToolbarEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder().setShowOnToolbarEnabled(false).build().intent;
+        assertFalse(CustomTabsIntent.isShowOnToolbarEnabled(intent));
+
+        // The extra is set to true only when explicitly called to enable it.
+        intent = new CustomTabsIntent.Builder().setShowOnToolbarEnabled(true).build().intent;
+        assertTrue(CustomTabsIntent.isShowOnToolbarEnabled(intent));
+    }
+
+    @Test
+    public void testTranslateLanguage() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertNull(CustomTabsIntent.getTranslateLanguage(intent));
+
+        intent = new CustomTabsIntent.Builder().setTranslateLanguage("fr").build().intent;
+        assertEquals("fr", CustomTabsIntent.getTranslateLanguage(intent));
+    }
+
     private void assertNullSessionInExtras(Intent intent) {
         assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
         assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
