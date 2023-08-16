@@ -20,7 +20,6 @@ import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.impl.utils.futures.Futures.transform;
-import static androidx.camera.view.CameraController.OutputSize.UNASSIGNED_ASPECT_RATIO;
 import static androidx.core.content.ContextCompat.getMainExecutor;
 
 import android.Manifest;
@@ -69,6 +68,8 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileDescriptorOutputOptions;
 import androidx.camera.video.FileOutputOptions;
@@ -224,6 +225,8 @@ public abstract class CameraController {
 
     @Nullable
     OutputSize mPreviewTargetSize;
+    @Nullable
+    ResolutionSelector mPreviewResolutionSelector;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -232,6 +235,8 @@ public abstract class CameraController {
 
     @Nullable
     OutputSize mImageCaptureTargetSize;
+    @Nullable
+    ResolutionSelector mImageCaptureResolutionSelector;
 
     @Nullable
     Executor mImageCaptureIoExecutor;
@@ -250,6 +255,8 @@ public abstract class CameraController {
 
     @Nullable
     OutputSize mImageAnalysisTargetSize;
+    @Nullable
+    ResolutionSelector mImageAnalysisResolutionSelector;
 
     @NonNull
     VideoCapture<Recorder> mVideoCapture;
@@ -483,6 +490,17 @@ public abstract class CameraController {
     }
 
     /**
+     * Sets the {@link ResolutionSelector} on the config.
+     */
+    private void setResolutionSelector(@NonNull ImageOutputConfig.Builder<?> builder,
+            @Nullable ResolutionSelector resolutionSelector) {
+        if (resolutionSelector == null) {
+            return;
+        }
+        builder.setResolutionSelector(resolutionSelector);
+    }
+
+    /**
      * Sets the target aspect ratio or target resolution based on {@link OutputSize}.
      */
     private void setTargetOutputSize(@NonNull ImageOutputConfig.Builder<?> builder,
@@ -492,7 +510,7 @@ public abstract class CameraController {
         }
         if (outputSize.getResolution() != null) {
             builder.setTargetResolution(outputSize.getResolution());
-        } else if (outputSize.getAspectRatio() != UNASSIGNED_ASPECT_RATIO) {
+        } else if (outputSize.getAspectRatio() != OutputSize.UNASSIGNED_ASPECT_RATIO) {
             builder.setTargetAspectRatio(outputSize.getAspectRatio());
         } else {
             Logger.e(TAG, "Invalid target surface size. " + outputSize);
@@ -572,8 +590,10 @@ public abstract class CameraController {
      * @param targetSize the intended output size for {@link Preview}.
      * @see Preview.Builder#setTargetAspectRatio(int)
      * @see Preview.Builder#setTargetResolution(Size)
+     * @deprecated Use {@link #setPreviewResolutionSelector(ResolutionSelector)} instead.
      */
     @MainThread
+    @Deprecated
     public void setPreviewTargetSize(@Nullable OutputSize targetSize) {
         checkMainThread();
         if (isOutputSizeEqual(mPreviewTargetSize, targetSize)) {
@@ -587,12 +607,54 @@ public abstract class CameraController {
     /**
      * Returns the intended output size for {@link Preview} set by
      * {@link #setPreviewTargetSize(OutputSize)}, or null if not set.
+     *
+     * @deprecated Use {@link #getPreviewResolutionSelector()} instead.
      */
     @MainThread
+    @Deprecated
     @Nullable
     public OutputSize getPreviewTargetSize() {
         checkMainThread();
         return mPreviewTargetSize;
+    }
+
+    /**
+     * Sets the {@link ResolutionSelector} for {@link Preview}.
+     *
+     * <p>CameraX uses this value as a hint to select the resolution for preview. The actual
+     * output may differ from the requested value due to device constraints. When set to null,
+     * CameraX will use the default config of {@link Preview}. By default, the selected resolution
+     * will be limited by the {@code PREVIEW} size which is defined as the best size match to the
+     * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
+     *
+     * <p>Changing the value will reconfigure the camera which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
+     *
+     * @see Preview.Builder#setResolutionSelector(ResolutionSelector)
+     */
+    @MainThread
+    public void setPreviewResolutionSelector(@Nullable ResolutionSelector resolutionSelector) {
+        checkMainThread();
+        if (mPreviewResolutionSelector == resolutionSelector) {
+            return;
+        }
+        mPreviewResolutionSelector = resolutionSelector;
+        unbindPreviewAndRecreate();
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Returns the {@link ResolutionSelector} for {@link Preview}.
+     *
+     * <p>This method returns the value set by
+     * {@link #setPreviewResolutionSelector(ResolutionSelector)}. It returns {@code null} if
+     * the value has not been set.
+     */
+    @Nullable
+    @MainThread
+    public ResolutionSelector getPreviewResolutionSelector() {
+        checkMainThread();
+        return mPreviewResolutionSelector;
     }
 
     /**
@@ -604,6 +666,7 @@ public abstract class CameraController {
         }
         Preview.Builder builder = new Preview.Builder();
         setTargetOutputSize(builder, mPreviewTargetSize);
+        setResolutionSelector(builder, mPreviewResolutionSelector);
         mPreview = builder.build();
     }
 
@@ -769,8 +832,10 @@ public abstract class CameraController {
      * To avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended image size for {@link ImageCapture}.
+     * @deprecated Use {@link #setImageCaptureResolutionSelector(ResolutionSelector)} instead.
      */
     @MainThread
+    @Deprecated
     public void setImageCaptureTargetSize(@Nullable OutputSize targetSize) {
         checkMainThread();
         if (isOutputSizeEqual(mImageCaptureTargetSize, targetSize)) {
@@ -784,12 +849,54 @@ public abstract class CameraController {
     /**
      * Returns the intended output size for {@link ImageCapture} set by
      * {@link #setImageCaptureTargetSize(OutputSize)}, or null if not set.
+     *
+     * @deprecated Use {@link #getImageCaptureResolutionSelector()} instead.
      */
+    @Deprecated
     @MainThread
     @Nullable
     public OutputSize getImageCaptureTargetSize() {
         checkMainThread();
         return mImageCaptureTargetSize;
+    }
+
+    /**
+     * Sets the {@link ResolutionSelector} for {@link ImageCapture}.
+     *
+     * <p>CameraX uses this value as a hint to select the resolution for captured images. The actual
+     * output may differ from the requested value due to device constraints. When set to null,
+     * CameraX will use the default config of {@link ImageCapture}. The default resolution
+     * strategy for ImageCapture is {@link ResolutionStrategy#HIGHEST_AVAILABLE_STRATEGY}, which
+     * will select the largest available resolution to use.
+     *
+     * <p>Changing the value will reconfigure the camera which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
+     *
+     * @see ImageCapture.Builder#setResolutionSelector(ResolutionSelector)
+     */
+    @MainThread
+    public void setImageCaptureResolutionSelector(@Nullable ResolutionSelector resolutionSelector) {
+        checkMainThread();
+        if (mImageCaptureResolutionSelector == resolutionSelector) {
+            return;
+        }
+        mImageCaptureResolutionSelector = resolutionSelector;
+        unbindImageCaptureAndRecreate(getImageCaptureMode());
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Returns the {@link ResolutionSelector} for {@link ImageCapture}.
+     *
+     * <p>This method returns the value set by
+     * {@link #setImageCaptureResolutionSelector} (ResolutionSelector)}. It returns {@code null} if
+     * the value has not been set.
+     */
+    @MainThread
+    @Nullable
+    public ResolutionSelector getImageCaptureResolutionSelector() {
+        checkMainThread();
+        return mImageCaptureResolutionSelector;
     }
 
     /**
@@ -835,6 +942,7 @@ public abstract class CameraController {
         }
         ImageCapture.Builder builder = new ImageCapture.Builder().setCaptureMode(imageCaptureMode);
         setTargetOutputSize(builder, mImageCaptureTargetSize);
+        setResolutionSelector(builder, mImageCaptureResolutionSelector);
         if (mImageCaptureIoExecutor != null) {
             builder.setIoExecutor(mImageCaptureIoExecutor);
         }
@@ -1016,8 +1124,10 @@ public abstract class CameraController {
      * @param targetSize the intended output size for {@link ImageAnalysis}.
      * @see ImageAnalysis.Builder#setTargetAspectRatio(int)
      * @see ImageAnalysis.Builder#setTargetResolution(Size)
+     * @deprecated Use {@link #setImageAnalysisResolutionSelector(ResolutionSelector)} instead.
      */
     @MainThread
+    @Deprecated
     public void setImageAnalysisTargetSize(@Nullable OutputSize targetSize) {
         checkMainThread();
         if (isOutputSizeEqual(mImageAnalysisTargetSize, targetSize)) {
@@ -1033,12 +1143,57 @@ public abstract class CameraController {
     /**
      * Returns the intended output size for {@link ImageAnalysis} set by
      * {@link #setImageAnalysisTargetSize(OutputSize)}, or null if not set.
+     *
+     * @deprecated Use {@link #getImageAnalysisResolutionSelector()} instead.
      */
     @MainThread
     @Nullable
+    @Deprecated
     public OutputSize getImageAnalysisTargetSize() {
         checkMainThread();
         return mImageAnalysisTargetSize;
+    }
+
+    /**
+     * Sets the {@link ResolutionSelector} for {@link ImageAnalysis}.
+     *
+     * <p>CameraX uses this value as a hint to select the resolution for images. The actual
+     * output may differ from the requested value due to device constraints. When set to null,
+     * CameraX will use the default config of {@link ImageAnalysis}. ImageAnalysis has a default
+     * {@link ResolutionStrategy} with bound size as 640x480 and fallback rule of
+     * {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER}.
+     *
+     * <p>Changing the value will reconfigure the camera which will cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle.
+     *
+     * @see ImageAnalysis.Builder#setResolutionSelector(ResolutionSelector)
+     */
+    @MainThread
+    public void setImageAnalysisResolutionSelector(
+            @Nullable ResolutionSelector resolutionSelector) {
+        checkMainThread();
+        if (mImageAnalysisResolutionSelector == resolutionSelector) {
+            return;
+        }
+        mImageAnalysisResolutionSelector = resolutionSelector;
+        unbindImageAnalysisAndRecreate(
+                mImageAnalysis.getBackpressureStrategy(),
+                mImageAnalysis.getImageQueueDepth());
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Returns the {@link ResolutionSelector} for {@link ImageAnalysis}.
+     *
+     * <p>This method returns the value set by
+     * {@link #setImageAnalysisResolutionSelector(ResolutionSelector)}. It returns {@code null} if
+     * the value has not been set.
+     */
+    @MainThread
+    @Nullable
+    public ResolutionSelector getImageAnalysisResolutionSelector() {
+        checkMainThread();
+        return mImageAnalysisResolutionSelector;
     }
 
     /**
@@ -1090,6 +1245,7 @@ public abstract class CameraController {
                 .setBackpressureStrategy(strategy)
                 .setImageQueueDepth(imageQueueDepth);
         setTargetOutputSize(builder, mImageAnalysisTargetSize);
+        setResolutionSelector(builder, mImageAnalysisResolutionSelector);
         if (mAnalysisBackgroundExecutor != null) {
             builder.setBackgroundExecutor(mAnalysisBackgroundExecutor);
         }
@@ -2031,7 +2187,9 @@ public abstract class CameraController {
      * @see #setImageAnalysisTargetSize(OutputSize)
      * @see #setPreviewTargetSize(OutputSize)
      * @see #setImageCaptureTargetSize(OutputSize)
+     * @deprecated Use {@link ResolutionSelector} instead.
      */
+    @Deprecated
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputSize {
 
