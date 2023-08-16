@@ -701,6 +701,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                                 "Can not perform this action after onSaveInstanceState")) {
                             throw e;
                         }
+                    } catch (NullPointerException e) {
+                        if (!TextUtils.equals(e.getMessage(),
+                                "Attempt to invoke virtual method 'android.os.Handler "
+                                        + "android.app.FragmentHostCallback.getHandler()' on a "
+                                        + "null object reference")) {
+                            throw e;
+                        }
                     }
                 }
             });
