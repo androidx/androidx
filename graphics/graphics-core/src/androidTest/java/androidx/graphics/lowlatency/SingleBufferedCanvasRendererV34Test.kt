@@ -25,6 +25,7 @@ import androidx.graphics.isAllColor
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_IDENTITY
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.graphics.verifyQuadrants
 import androidx.graphics.withEgl
 import androidx.hardware.SyncFenceCompat
@@ -32,7 +33,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -138,7 +138,7 @@ class SingleBufferedCanvasRendererV34Test {
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = HandlerThreadExecutor("thread")
         val firstRenderLatch = CountDownLatch(1)
         val clearLatch = CountDownLatch(2)
         var buffer: HardwareBuffer? = null
@@ -176,7 +176,7 @@ class SingleBufferedCanvasRendererV34Test {
         } finally {
             val latch = CountDownLatch(1)
             renderer.release(true) {
-                executor.shutdownNow()
+                executor.quit()
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
@@ -188,7 +188,7 @@ class SingleBufferedCanvasRendererV34Test {
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = HandlerThreadExecutor("thread")
         var buffer: HardwareBuffer? = null
         val initialDrawLatch = CountDownLatch(1)
 
@@ -233,7 +233,7 @@ class SingleBufferedCanvasRendererV34Test {
         } finally {
             val latch = CountDownLatch(1)
             renderer.release(true) {
-                executor.shutdownNow()
+                executor.quit()
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
@@ -245,7 +245,7 @@ class SingleBufferedCanvasRendererV34Test {
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = HandlerThreadExecutor("thread")
         val renderer = SingleBufferedCanvasRendererV34(
             TEST_WIDTH,
             TEST_HEIGHT,
@@ -266,14 +266,14 @@ class SingleBufferedCanvasRendererV34Test {
         try {
             val latch = CountDownLatch(1)
             renderer.release(true) {
-                executor.shutdownNow()
+                executor.quit()
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
             renderer.release(true)
         } finally {
-            if (!executor.isShutdown) {
-                executor.shutdownNow()
+            if (!executor.isRunning) {
+                executor.quit()
             }
         }
     }
@@ -290,7 +290,7 @@ class SingleBufferedCanvasRendererV34Test {
         val transformer = BufferTransformer().apply {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = HandlerThreadExecutor("thread")
         var syncFenceNull = false
         var drawLatch: CountDownLatch? = null
         val renderer = SingleBufferedCanvasRendererV34(
@@ -326,7 +326,60 @@ class SingleBufferedCanvasRendererV34Test {
         } finally {
             val latch = CountDownLatch(1)
             renderer.release(true) {
-                executor.shutdownNow()
+                executor.quit()
+                latch.countDown()
+            }
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @Test
+    fun testCancelMidRender() {
+        val transformer = BufferTransformer().apply {
+            computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
+        }
+        val cancelLatch = CountDownLatch(1)
+        val renderStartLatch = CountDownLatch(1)
+        val bufferLatch = CountDownLatch(1)
+        var bufferRenderCancelled = false
+        val executor = HandlerThreadExecutor("thread")
+        val renderer = SingleBufferedCanvasRendererV34(
+            TEST_WIDTH,
+            TEST_HEIGHT,
+            transformer,
+            executor,
+            object : SingleBufferedCanvasRenderer.RenderCallbacks<Int> {
+                override fun render(canvas: Canvas, width: Int, height: Int, param: Int) {
+                    renderStartLatch.countDown()
+                    cancelLatch.await(3000, TimeUnit.MILLISECONDS)
+                }
+
+                override fun onBufferReady(
+                    hardwareBuffer: HardwareBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    // NO-OP
+                }
+
+                override fun onBufferCancelled(
+                    hardwareBuffer: HardwareBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    bufferRenderCancelled = true
+                    bufferLatch.countDown()
+                }
+            })
+        try {
+            renderer.render(Color.RED)
+            renderStartLatch.await(3000, TimeUnit.MILLISECONDS)
+            renderer.cancelPending()
+            cancelLatch.countDown()
+            bufferLatch.await(3000, TimeUnit.MILLISECONDS)
+            assertTrue(bufferRenderCancelled)
+        } finally {
+            val latch = CountDownLatch(1)
+            renderer.release(false) {
+                executor.quit()
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
@@ -340,7 +393,7 @@ class SingleBufferedCanvasRendererV34Test {
     ) {
         val transformer = BufferTransformer()
         transformer.computeTransform(TEST_WIDTH, TEST_HEIGHT, transform)
-        val executor = Executors.newSingleThreadExecutor()
+        val executor = HandlerThreadExecutor("thread")
         var buffer: HardwareBuffer? = null
         val renderLatch = CountDownLatch(1)
         val renderer = SingleBufferedCanvasRendererV34(
@@ -387,7 +440,7 @@ class SingleBufferedCanvasRendererV34Test {
         } finally {
             val latch = CountDownLatch(1)
             renderer.release(true) {
-                executor.shutdownNow()
+                executor.quit()
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
