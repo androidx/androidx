@@ -18,16 +18,13 @@ package androidx.compose.ui.text.android.style
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 
 /**
  * A span which applies the underline and strike through to the affected text.
  *
  * @property isUnderlineText whether to draw the under for the affected text.
  * @property isStrikethroughText whether to draw strikethrough line for the affected text.
- * @suppress
  */
-@InternalPlatformTextApi
 internal class TextDecorationSpan(
     val isUnderlineText: Boolean,
     val isStrikethroughText: Boolean
