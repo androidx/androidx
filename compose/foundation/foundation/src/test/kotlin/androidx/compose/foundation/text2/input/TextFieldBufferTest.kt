@@ -427,6 +427,46 @@ class TextFieldBufferTest {
         assertThat(buffer.changes.changeCount).isEqualTo(1)
     }
 
+    @Test
+    fun charAt_throws_whenEmpty() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence())
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            buffer.charAt(0)
+        }
+    }
+
+    @Test
+    fun charAt_throws_whenOutOfBounds() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("a"))
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            buffer.charAt(1)
+        }
+        assertFailsWith<IndexOutOfBoundsException> {
+            buffer.charAt(-1)
+        }
+    }
+
+    @Test
+    fun charAt_returnsChars() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("ab"))
+        assertThat(buffer.charAt(0)).isEqualTo('a')
+        assertThat(buffer.charAt(1)).isEqualTo('b')
+    }
+
+    @Test
+    fun asCharSequence_isViewOfBuffer() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence())
+        val charSequence = buffer.asCharSequence()
+
+        assertThat(charSequence.toString()).isEmpty()
+
+        buffer.append("hello")
+
+        assertThat(charSequence.toString()).isEqualTo("hello")
+    }
+
     /** Tests of private testing helper code. */
     @Test
     fun testConvertTextFieldValueToAndFromString() {

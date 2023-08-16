@@ -54,8 +54,7 @@ class TextFieldBuffer internal constructor(
      * applied to it.
      */
     private val sourceValue: TextFieldCharSequence = initialValue,
-) : CharSequence,
-    Appendable {
+) : Appendable {
 
     private val buffer = PartialGapBuffer(initialValue)
 
@@ -69,12 +68,12 @@ class TextFieldBuffer internal constructor(
      * The number of characters in the text field. This will be equal to or greater than
      * [codepointLength].
      */
-    override val length: Int get() = buffer.length
+    val length: Int get() = buffer.length
 
     /**
      * The number of codepoints in the text field. This will be equal to or less than [length].
      */
-    val codepointLength: Int get() = Character.codePointCount(this, 0, length)
+    val codepointLength: Int get() = Character.codePointCount(buffer, 0, length)
 
     /**
      * The [ChangeList] represents the changes made to this value and is inherently mutable. This
@@ -212,12 +211,18 @@ class TextFieldBuffer internal constructor(
         selectionInChars = TextRange(selStart, selEnd)
     }
 
-    override operator fun get(index: Int): Char = buffer[index]
-
-    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
-        buffer.toString().subSequence(startIndex, endIndex)
+    /**
+     * Returns the [Char] at [index] in this buffer.
+     */
+    fun charAt(index: Int): Char = buffer[index]
 
     override fun toString(): String = buffer.toString()
+
+    /**
+     * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will
+     * be visible in the returned sequence as well.
+     */
+    fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
         changeTracker?.clearChanges()

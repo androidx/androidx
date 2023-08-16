@@ -98,7 +98,7 @@ private fun DigitsOnlyDemo() {
             originalValue: TextFieldCharSequence,
             valueWithChanges: TextFieldBuffer
         ) {
-            if (!valueWithChanges.isDigitsOnly()) {
+            if (!valueWithChanges.asCharSequence().isDigitsOnly()) {
                 valueWithChanges.revertAllChanges()
             }
         }
