@@ -30,10 +30,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.MultiBufferedCanvasRenderer
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
@@ -64,7 +64,7 @@ class CanvasFrontBufferedRenderer<T>(
      * Executor used to deliver callbacks for rendering as well as issuing surface control
      * transactions
      */
-    private val mExecutor = Executors.newSingleThreadExecutor()
+    private val mHandlerThread = HandlerThreadExecutor("CanvasRenderThread")
 
     /**
      * RenderNode used to draw the entire multi buffered scene
@@ -194,7 +194,7 @@ class CanvasFrontBufferedRenderer<T>(
                 width,
                 height,
                 mBufferTransform,
-                mExecutor,
+                mHandlerThread,
                 object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
 
                     override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
@@ -399,7 +399,7 @@ class CanvasFrontBufferedRenderer<T>(
             mParams = ArrayList<T>()
             val width = surfaceView.width
             val height = surfaceView.height
-            mExecutor.execute {
+            mHandlerThread.execute {
                 mPendingClear = true
                 mMultiBufferNode?.record { canvas ->
                     canvas.save()
@@ -408,7 +408,7 @@ class CanvasFrontBufferedRenderer<T>(
                     canvas.restore()
                 }
                 params.clear()
-                mMultiBufferedCanvasRenderer?.renderFrame(mExecutor) { buffer, fence ->
+                mMultiBufferedCanvasRenderer?.renderFrame(mHandlerThread) { buffer, fence ->
                     setParentSurfaceControlBuffer(buffer, fence)
                     onComplete?.run()
                 }
@@ -456,7 +456,7 @@ class CanvasFrontBufferedRenderer<T>(
     fun cancel() {
         if (isValid()) {
             mPersistedCanvasRenderer?.cancelPending()
-            mExecutor.execute(mCancelRunnable)
+            mHandlerThread.execute(mCancelRunnable)
             mPersistedCanvasRenderer?.clear()
         } else {
             Log.w(TAG, "Attempt to cancel rendering to front buffer after " +
@@ -494,7 +494,7 @@ class CanvasFrontBufferedRenderer<T>(
             surfaceView.holder.removeCallback(mHolderCallback)
             releaseInternal(cancelPending) {
                 onReleaseComplete?.invoke()
-                mExecutor.shutdown()
+                mHandlerThread.quit()
             }
             mIsReleased = true
         }
