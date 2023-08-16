@@ -17,8 +17,11 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
@@ -39,6 +42,19 @@ fun FilledTextButtonSample() {
         colors = TextButtonDefaults.filledTextButtonColors()
     ) {
         Text(text = "ABC")
+    }
+}
+
+@Composable
+@Sampled
+fun LargeFilledTonalTextButtonSample() {
+    TextButton(
+        onClick = { /* Do something */ },
+        colors = TextButtonDefaults.filledTonalTextButtonColors(),
+        modifier = Modifier.size(TextButtonDefaults.LargeButtonSize)
+    ) {
+        // For large TextButton, use [Typography.labelLarge].
+        Text(text = "ABC", style = MaterialTheme.typography.labelLarge)
     }
 }
 

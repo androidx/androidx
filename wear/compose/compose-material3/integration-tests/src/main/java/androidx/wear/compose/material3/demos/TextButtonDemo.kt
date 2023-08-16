@@ -23,16 +23,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.samples.FilledTextButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
+import androidx.wear.compose.material3.samples.LargeFilledTonalTextButtonSample
 import androidx.wear.compose.material3.samples.OutlinedTextButtonSample
 import androidx.wear.compose.material3.samples.TextButtonSample
 import androidx.wear.compose.material3.touchTargetAwareSize
@@ -121,7 +124,7 @@ fun TextButtonDemo() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
-                TextButtonWithSize(TextButtonDefaults.LargeButtonSize)
+                LargeFilledTonalTextButtonSample()
             }
         }
         item {
@@ -149,6 +152,13 @@ private fun TextButtonWithSize(size: Dp) {
         enabled = true,
         colors = TextButtonDefaults.filledTonalTextButtonColors()
     ) {
-        Text(text = "AB")
+        Text(text = "ABC", style = textStyleFor(size))
     }
 }
+
+@Composable
+private fun textStyleFor(size: Dp): TextStyle =
+    if (size <= TextButtonDefaults.DefaultButtonSize)
+        MaterialTheme.typography.labelMedium
+    else
+        MaterialTheme.typography.labelLarge
