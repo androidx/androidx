@@ -372,7 +372,7 @@ class AdvertiserFragment : Fragment() {
                             else -> editTextInput
                         }
                     )
-                    val service = GattService.of(uuid, listOf())
+                    val service = GattService(uuid, listOf())
                     viewModel.addGattService(service)
                     gattServerServicesAdapter
                         ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
@@ -439,7 +439,7 @@ class AdvertiserFragment : Fragment() {
                             else -> uuidText
                         }
                     )
-                    val sampleCharacteristic = GattCharacteristic.of(uuid, properties)
+                    val sampleCharacteristic = GattCharacteristic(uuid, properties)
 
                     val index = viewModel.gattServerServices.indexOf(bluetoothGattService)
                     viewModel.addGattCharacteristic(bluetoothGattService, sampleCharacteristic)
