@@ -61,10 +61,10 @@ export function histogramPoints(
   const slots = buckets - 1; // The actual number of slots in the histogram
   for (let i = 0; i < flattened.length; i += 1) {
     const value = flattened[i];
-    if (value < target) {
+    if (target && value < target) {
       pMin += 1;
     }
-    if (value >= target) {
+    if (target && value >= target) {
       pMax += 1;
     }
     const n = normalize(value, min, max);
