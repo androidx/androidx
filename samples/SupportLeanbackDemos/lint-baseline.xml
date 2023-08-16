@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="MissingSuperCall"
@@ -593,6 +593,150 @@
         errorLine2="                      ~~~">
         <location
             file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepSupportFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="GuidedStepSupportFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.REPEAT_ONE can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.REPEAT_ONE can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
     </issue>
 
     <issue

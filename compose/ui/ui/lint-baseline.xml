@@ -65,6 +65,303 @@
     </issue>
 
     <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.obtainAttributes can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="        val typedArray = TypedArrayUtils.obtainAttributes("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.obtainAttributes can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            res,"
+        errorLine2="            ~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.obtainAttributes can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            theme,"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.obtainAttributes can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            set,"
+        errorLine2="            ~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.obtainAttributes can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            attrs"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedInt can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            val result = TypedArrayUtils.getNamedInt("
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedInt can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                this,"
+        errorLine2="                ~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedInt can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                xmlParser,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedInt can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                attrName,"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedInt can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId,"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedFloat can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            val result = TypedArrayUtils.getNamedFloat("
+        errorLine2="                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedFloat can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                this,"
+        errorLine2="                ~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedFloat can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                xmlParser,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedFloat can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                attrName,"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedFloat can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId,"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedBoolean can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            val result = TypedArrayUtils.getNamedBoolean("
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedBoolean can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                this,"
+        errorLine2="                ~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedBoolean can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                xmlParser,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedBoolean can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                attrName,"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedBoolean can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId,"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            val result = TypedArrayUtils.getNamedComplexColor("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                this,"
+        errorLine2="                ~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                xmlParser,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                theme,"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                attrName,"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId, defaultValue"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedComplexColor can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId, defaultValue"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="            val result = TypedArrayUtils.getNamedColorStateList("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                typedArray,"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                xmlParser,"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                theme,"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                attrName,"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TypedArrayUtils.getNamedColorStateList can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
+        errorLine1="                resId"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.android.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor AlignmentLine has parameter &apos;merger&apos; with type Function2&lt;? super Integer, ? super Integer, Integer>."
         errorLine1="    internal val merger: (Int, Int) -> Int"

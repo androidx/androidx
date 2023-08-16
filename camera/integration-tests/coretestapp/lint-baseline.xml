@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,663 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/java/androidx/camera/integration/core/camera2/PreviewTest.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraInfoInternal can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                if (cameraInfo instanceof CameraInfoInternal) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DeviceQuirks.getAll can only be called from within the same library (androidx.camera:camera-video)"
+        errorLine1="                    Quirks deviceQuirks = DeviceQuirks.getAll();"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraInfoInternal can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraInfoInternal.getCameraQuirks can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Quirks.contains can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
+        errorLine1="                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
+        errorLine1="                    if (DeviceQuirks.get(MediaStoreVideoCannotWrite.class) != null) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Camera.isUseCasesCombinationSupported can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        return targetCamera.isUseCasesCombinationSupported(useCases.toArray(new UseCase[0]));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            }, CameraXExecutors.directExecutor());"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        CameraXExecutors.mainThreadExecutor());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        CameraXExecutors.mainThreadExecutor());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="AspectRatioUtil.ASPECT_RATIO_16_9 can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        ? AspectRatioUtil.ASPECT_RATIO_16_9 : AspectRatioUtil.ASPECT_RATIO_4_3;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="AspectRatioUtil.ASPECT_RATIO_4_3 can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        ? AspectRatioUtil.ASPECT_RATIO_16_9 : AspectRatioUtil.ASPECT_RATIO_4_3;"
+        errorLine2="                                                                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Camera.isUseCasesCombinationSupported can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        return mCamera.isUseCasesCombinationSupported(buildUseCases().toArray(new UseCase[0]));"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            CameraXExecutors.mainThreadExecutor());"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TransformationInfo.hasCameraTransform can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                    mHasCameraTransform = transformationInfo.hasCameraTransform();"
+        errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/OpenGLRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="TransformUtils.within360 can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            return within360((180 - mTextureRotationDegrees) + mSurfaceRotationDegrees);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/OpenGLRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreviewView, &quot;Cannot get the preview view.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreviewView, &quot;Cannot get the preview view.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreviewView, &quot;Cannot get the preview view.&quot;);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mDurationText, &quot;Cannot get the duration text view.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mDurationText, &quot;Cannot get the duration text view.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mDurationText, &quot;Cannot get the duration text view.&quot;);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mSwitchTimeText, &quot;Cannot get the switch time text view.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mSwitchTimeText, &quot;Cannot get the switch time text view.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mSwitchTimeText, &quot;Cannot get the switch time text view.&quot;);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mStartButton, &quot;Cannot get the start button view.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mStartButton, &quot;Cannot get the start button view.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mStartButton, &quot;Cannot get the start button view.&quot;);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                Logger.d(TAG, msg);"
+        errorLine2="                       ~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                Logger.d(TAG, msg);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                Logger.d(TAG, msg);"
+        errorLine2="                              ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCamera, &quot;The camera instance should not be null.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCamera, &quot;The camera instance should not be null.&quot;);"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCamera, &quot;The camera instance should not be null.&quot;);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCameraProvider, &quot;The camera provider should not be null&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCameraProvider, &quot;The camera provider should not be null&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mCameraProvider, &quot;The camera provider should not be null&quot;);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreview, &quot;The preview use case should not be null.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreview, &quot;The preview use case should not be null.&quot;);"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mPreview, &quot;The preview use case should not be null.&quot;);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Preconditions.checkNotNull(mVideoCapture, &quot;The video capture use case should not be null.&quot;);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.d(TAG, msg);"
+        errorLine2="                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.d(TAG, msg);"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.d(TAG, msg);"
+        errorLine2="                          ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (E2ETestUtil.canDeviceWriteToMediaStore()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                            videoFileName));"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, &quot;mp4&quot;));"
+        errorLine2="                                                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                        Preconditions.checkNotNull(mRecording, &quot;The in-progress &quot;"
+        errorLine2="                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                        Preconditions.checkNotNull(mRecording, &quot;The in-progress &quot;"
+        errorLine2="                                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                                        Preconditions.checkNotNull(mRecording, &quot;The in-progress &quot;"
+        errorLine2="                                                                               ^">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        E2ETestUtil.writeTextToExternalFile(information,"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        E2ETestUtil.writeTextToExternalFile(information,"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                generateFileName(INFO_FILE_PREFIX, false), &quot;txt&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                generateFileName(INFO_FILE_PREFIX, false), &quot;txt&quot;);"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!isUnique &amp;&amp; !E2ETestUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!isUnique &amp;&amp; !E2ETestUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (E2ETestUtil.isFileNameValid(prefix)) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="E2ETestUtil.isFileNameValid can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (E2ETestUtil.isFileNameValid(prefix)) {"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/VideoCameraSwitchingActivity.java"/>
     </issue>
 
     <issue

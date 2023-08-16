@@ -1,5 +1,203 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            CameraXExecutors.mainThreadExecutor(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        private val exif = Exif.createFromFile(file)"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        private val exif = Exif.createFromFile(file)"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getHeight can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getHeight can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getWidth can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getWidth can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getRotation can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getRotation() = exif.rotation"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getRotation can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getRotation() = exif.rotation"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.createFromInputStream can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            exif = Exif.createFromInputStream(inputStream!!)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.createFromInputStream can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            exif = Exif.createFromInputStream(inputStream!!)"
+        errorLine2="                                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getHeight can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getHeight can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getWidth can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getWidth can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
+        errorLine2="                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getRotation can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getRotation() = exif.rotation"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Exif.getRotation can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        override fun getRotation() = exif.rotation"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="OutputTransform.getMatrix can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        mlKitAnalyzer.updateTransform(outputTransform.matrix)"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/compose/ui/screen/imagecapture/ImageCaptureScreenState.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="OutputTransform.getMatrix can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        mlKitAnalyzer.updateTransform(outputTransform.matrix)"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/compose/ui/screen/imagecapture/ImageCaptureScreenState.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"

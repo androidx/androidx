@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_3 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="    return ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/ActivityEmbeddingOptions.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_1 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="            WindowExtensions.VENDOR_API_LEVEL_1 -> api1Impl.translateCompat(splitInfo)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="            WindowExtensions.VENDOR_API_LEVEL_2 -> api2Impl.translateCompat(splitInfo)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ActivityStack.getToken can only be called from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="                        primaryActivityStack.token,"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ActivityStack.getToken can only be called from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="                        primaryActivityStack.token,"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ActivityStack.getToken can only be called from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="                        secondaryActivityStack.token,"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ActivityStack.getToken can only be called from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="                        secondaryActivityStack.token,"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        if (vendorApiLevel &lt; WindowExtensions.VENDOR_API_LEVEL_2) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        if (vendorApiLevel &lt; WindowExtensions.VENDOR_API_LEVEL_2) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        if (vendorApiLevel &lt; WindowExtensions.VENDOR_API_LEVEL_2) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        if (ExtensionsUtil.safeVendorApiLevel &lt; VENDOR_API_LEVEL_2) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingCompat.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_2 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingCompat.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_3 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingCompat.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="WindowExtensions.VENDOR_API_LEVEL_3 can only be accessed from within the same library group (referenced groupId=`androidx.window.extensions` from groupId=`androidx.window`)"
+        errorLine1="        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_3"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/embedding/EmbeddingCompat.kt"/>
+    </issue>
+
+</issues>

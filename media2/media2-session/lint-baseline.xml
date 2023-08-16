@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="WrongConstant"
@@ -44,6 +44,24 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaBrowserServiceCompat.onSubscribe can only be called from within the same library (androidx.media:media)"
+        errorLine1="    public void onSubscribe(final String id, final Bundle option) {"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaLibraryServiceLegacyStub.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="MediaBrowserServiceCompat.onUnsubscribe can only be called from within the same library (androidx.media:media)"
+        errorLine1="    public void onUnsubscribe(final String id) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaLibraryServiceLegacyStub.java"/>
     </issue>
 
     <issue
