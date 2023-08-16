@@ -27,13 +27,14 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 
 @Composable
-fun Material3CatalogApp() {
+fun Material3CatalogApp(initialFavoriteRoute: String?) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val userPreferencesRepository = remember { UserPreferencesRepository(context) }
     val theme = userPreferencesRepository.theme.collectAsState(Theme()).value
     CatalogTheme(theme = theme) {
         NavGraph(
+            initialFavoriteRoute = initialFavoriteRoute,
             theme = theme,
             onThemeChange = { coroutineScope.launch { userPreferencesRepository.saveTheme(it) } }
         )
