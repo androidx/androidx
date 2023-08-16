@@ -21,6 +21,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -30,6 +34,7 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.TextToggleButton
+import androidx.wear.compose.material3.samples.LargeTextToggleButtonSample
 import androidx.wear.compose.material3.samples.TextToggleButtonSample
 import androidx.wear.compose.material3.touchTargetAwareSize
 
@@ -46,16 +51,16 @@ fun TextToggleButtonDemo() {
         }
         item {
             Row {
-                TextToggleButtonSample() // Enabled
+                TextToggleButtonSample() // Enabled and checked
                 Spacer(modifier = Modifier.width(5.dp))
-                TextToggleButtonsDemo(enabled = true, checked = false) // Enabled and unchecked
+                TextToggleButtonsDemo(enabled = true, initialChecked = false)
             }
         }
         item {
             Row {
-                TextToggleButtonsDemo(enabled = false, checked = true) // Checked and disabled
+                TextToggleButtonsDemo(enabled = false, initialChecked = true)
                 Spacer(modifier = Modifier.width(5.dp))
-                TextToggleButtonsDemo(enabled = false, checked = false) // Unchecked and disabled
+                TextToggleButtonsDemo(enabled = false, initialChecked = false)
             }
         }
         item {
@@ -67,11 +72,7 @@ fun TextToggleButtonDemo() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
-                TextToggleButtonsDemo(
-                    enabled = true,
-                    checked = true,
-                    size = TextButtonDefaults.LargeButtonSize
-                )
+                LargeTextToggleButtonSample()
             }
         }
         item {
@@ -80,7 +81,7 @@ fun TextToggleButtonDemo() {
                 Spacer(Modifier.width(4.dp))
                 TextToggleButtonsDemo(
                     enabled = true,
-                    checked = true,
+                    initialChecked = true,
                     size = TextButtonDefaults.DefaultButtonSize
                 )
             }
@@ -91,7 +92,7 @@ fun TextToggleButtonDemo() {
                 Spacer(Modifier.width(4.dp))
                 TextToggleButtonsDemo(
                     enabled = true,
-                    checked = true,
+                    initialChecked = true,
                     size = TextButtonDefaults.SmallButtonSize
                 )
             }
@@ -102,14 +103,15 @@ fun TextToggleButtonDemo() {
 @Composable
 private fun TextToggleButtonsDemo(
     enabled: Boolean,
-    checked: Boolean,
+    initialChecked: Boolean,
     size: Dp = TextButtonDefaults.DefaultButtonSize
 ) {
+    var checked by remember { mutableStateOf(initialChecked) }
     TextToggleButton(
         checked = checked,
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
-        onCheckedChange = {} // Do not update the state,
+        onCheckedChange = { checked = !checked },
     ) {
         Text(
             text = if (checked) "On" else "Off"

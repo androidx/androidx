@@ -63,6 +63,12 @@ val WearMaterial3Demos = DemoCategory(
         ComposableDemo("Icon Button") {
             IconButtonDemo()
         },
+        ComposableDemo("Text Toggle Button") {
+            TextToggleButtonDemo()
+        },
+        ComposableDemo("Icon Toggle Button") {
+            IconToggleButtonDemo()
+        },
         DemoCategory(
             "Stepper",
             listOf(
@@ -90,12 +96,6 @@ val WearMaterial3Demos = DemoCategory(
             Centralize {
                 ListHeaderDemo()
             }
-        },
-        ComposableDemo("Text Toggle Button") {
-            TextToggleButtonDemo()
-        },
-        ComposableDemo("Icon Toggle Button") {
-            IconToggleButtonDemo()
         },
         ComposableDemo(
             title = "Fixed Font Size"
