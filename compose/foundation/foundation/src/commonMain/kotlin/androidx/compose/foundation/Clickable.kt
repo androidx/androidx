@@ -891,7 +891,7 @@ private class ClickablePointerInputNode(
         detectTapAndPress(
             onPress = { offset ->
                 if (enabled) {
-                    requestFocus()
+                    requestFocusWhenInMouseInputMode()
                     handlePressInteraction(offset)
                 }
             },
@@ -929,14 +929,14 @@ private class CombinedClickablePointerInputNode(
         interactionData.centreOffset = size.center.toOffset()
         detectTapGestures(
             onDoubleTap = if (enabled && onDoubleClick != null) {
-                { requestFocus(); onDoubleClick?.invoke() }
+                { requestFocusWhenInMouseInputMode(); onDoubleClick?.invoke() }
             } else null,
             onLongPress = if (enabled && onLongClick != null) {
-                { requestFocus(); onLongClick?.invoke() }
+                { requestFocusWhenInMouseInputMode(); onLongClick?.invoke() }
             } else null,
             onPress = { offset ->
                 if (enabled) {
-                    requestFocus()
+                    requestFocusWhenInMouseInputMode()
                     handlePressInteraction(offset)
                 }
             },
@@ -977,5 +977,11 @@ private class CombinedClickablePointerInputNode(
         }
         this.onDoubleClick = onDoubleClick
         if (changed) resetPointerInputHandler()
+    }
+}
+
+private fun FocusRequesterModifierNode.requestFocusWhenInMouseInputMode() {
+    if (isMouseInputWorkaround()) {
+        requestFocus()
     }
 }

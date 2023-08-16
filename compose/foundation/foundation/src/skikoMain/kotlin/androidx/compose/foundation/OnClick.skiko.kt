@@ -162,7 +162,9 @@ fun Modifier.onClick(
                     },
                     onDoubleTap = if (hasDoubleClick) {
                         {
-                            focusRequester.requestFocus()
+                            if (isMouseInputWorkaround()) {
+                                focusRequester.requestFocus()
+                            }
                             on2xClickState.value!!.invoke()
                         }
                     } else {
@@ -170,14 +172,18 @@ fun Modifier.onClick(
                     },
                     onLongPress = if (hasLongClick) {
                         {
-                            focusRequester.requestFocus()
+                            if (isMouseInputWorkaround()) {
+                                focusRequester.requestFocus()
+                            }
                             onLongClickState.value!!.invoke()
                         }
                     } else {
                         null
                     },
                     onTap = {
-                        focusRequester.requestFocus()
+                        if (isMouseInputWorkaround()) {
+                            focusRequester.requestFocus()
+                        }
                         onClickState.value()
                     },
                     onPress = {
