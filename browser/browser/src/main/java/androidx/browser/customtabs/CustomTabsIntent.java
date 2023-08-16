@@ -154,6 +154,49 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.TITLE_VISIBILITY";
 
     /**
+     * Extra to disable the bookmarks button in the overflow menu.
+     */
+    public static final String EXTRA_DISABLE_BOOKMARKS_BUTTON =
+            "org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_STAR_BUTTON";
+
+    /**
+     * Extra to disable the download button in the overflow menu.
+     */
+    public static final String EXTRA_DISABLE_DOWNLOAD_BUTTON =
+            "org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_DOWNLOAD_BUTTON";
+
+    /**
+     * Extra to favor sending initial urls to external handler apps, if possible.
+     *
+     * A Custom Tab Intent from a Custom Tab session will always have the package set,
+     * so the Intent will always be to the browser. This extra can be used to allow
+     * the initial Intent navigation chain to leave the browser.
+     */
+    public static final String EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER =
+            "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
+
+    /**
+     * Extra that specifies the target language the Translate UI should be triggered with.
+     */
+    public static final String EXTRA_TRANSLATE_LANGUAGE =
+            "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE";
+
+    /**
+     * Extra that, when set to false, disables interactions with the background app
+     * when a Partial Custom Tab is launched.
+     */
+    public static final String EXTRA_ENABLE_BACKGROUND_INTERACTION =
+            "androidx.browser.customtabs.extra.ENABLE_BACKGROUND_INTERACTION";
+
+    /**
+     * Extra that enables the client to add an additional action button to the toolbar.
+     * If the bitmap icon does not fit on the toolbar then the action button will be
+     * added to the secondary toolbar.
+     */
+    public static final String EXTRA_SHOW_ON_TOOLBAR =
+            "android.support.customtabs.customaction.SHOW_ON_TOOLBAR";
+
+    /**
      * Don't show any title. Shows only the domain.
      */
     public static final int NO_TITLE = 0;
@@ -1045,6 +1088,79 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Enables or disables the bookmarks button in the overflow menu. The button
+         * is enabled by default.
+         *
+         * @param enabled Whether the start button is enabled.
+         */
+        @NonNull
+        public Builder setBookmarksButtonEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_DISABLE_BOOKMARKS_BUTTON, !enabled);
+            return this;
+        }
+
+        /**
+         * Enables or disables the download button in the overflow menu. The button
+         * is enabled by default.
+         *
+         * @param enabled Whether the download button is enabled.
+         */
+        @NonNull
+        public Builder setDownloadButtonEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_DISABLE_DOWNLOAD_BUTTON, !enabled);
+            return this;
+        }
+
+        /**
+         * Enables sending initial urls to external handler apps, if possible.
+         *
+         * @param enabled Whether to send urls to external handler.
+         */
+        @NonNull
+        public Builder setSendToExternalDefaultHandlerEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER, enabled);
+            return this;
+        }
+
+        /**
+         * Specifies the target language the Translate UI should be triggered with.
+         *
+         * @param lang Language code for the translate UI. Should be in the format of
+         *        ISO 639 language code.
+         */
+        @NonNull
+        public Builder setTranslateLanguage(@NonNull String lang) {
+            mIntent.putExtra(EXTRA_TRANSLATE_LANGUAGE, lang);
+            return this;
+        }
+
+        /**
+         * Enables the capability of the interaction with background.
+         *
+         * Enables the interactions with the background app when a Partial Custom Tab is launched.
+         *
+         * @param enabled Whether the background interaction is enabled.
+         */
+        @NonNull
+        public Builder setBackgroundInteractionEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_ENABLE_BACKGROUND_INTERACTION, enabled);
+            return this;
+        }
+
+        /**
+         * Enables the client to add an additional action button to the toolbar. If the bitmap
+         * icon does not fit on the toolbar then the action button will be added to the secondary
+         * toolbar.
+         *
+         * @param enabled Whether the additional actions can be added to the toolbar.
+         */
+        @NonNull
+        public Builder setShowOnToolbarEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_SHOW_ON_TOOLBAR, enabled);
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
          */
@@ -1226,6 +1342,57 @@ public final class CustomTabsIntent {
     @CloseButtonPosition
     public static int getCloseButtonPosition(@NonNull Intent intent) {
         return intent.getIntExtra(EXTRA_CLOSE_BUTTON_POSITION, CLOSE_BUTTON_POSITION_DEFAULT);
+    }
+
+    /**
+     * @return Whether the bookmarks button is enabled.
+     * @see CustomTabsIntent#EXTRA_DISABLE_BOOKMARKS_BUTTON
+     */
+    public static boolean isBookmarksButtonEnabled(@NonNull Intent intent) {
+        return !intent.getBooleanExtra(EXTRA_DISABLE_BOOKMARKS_BUTTON, false);
+    }
+
+    /**
+     * @return Whether the download button is enabled.
+     * @see CustomTabsIntent#EXTRA_DISABLE_DOWNLOAD_BUTTON
+     */
+    public static boolean isDownloadButtonEnabled(@NonNull Intent intent) {
+        return !intent.getBooleanExtra(EXTRA_DISABLE_DOWNLOAD_BUTTON, false);
+    }
+
+    /**
+     * @return Whether initial urls are to be sent to external handler apps.
+     * @see CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER
+     */
+    public static boolean isSendToExternalDefaultHandlerEnabled(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER, false);
+    }
+
+    /**
+     * Gets the target language for the Translate UI.
+     *
+     * @return The target language the Translate UI should be triggered with.
+     * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE
+     */
+    @Nullable
+    public static String getTranslateLanguage(@NonNull Intent intent) {
+        return intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE);
+    }
+
+    /**
+     * @return Whether the background interaction is enabled.
+     * @see CustomTabsIntent#EXTRA_ENABLE_BACKGROUND_INTERACTION
+     */
+    public static boolean isBackgroundInteractionEnabled(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_ENABLE_BACKGROUND_INTERACTION, false);
+    }
+
+    /**
+     * @return Whether the additional actions can be added to the toolbar.
+     * @see CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR
+     */
+    public static boolean isShowOnToolbarEnabled(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
