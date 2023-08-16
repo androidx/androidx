@@ -154,7 +154,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
     }
 }
 
-internal fun ComposeBenchmarkRule.benchmarkFirstPixelUntilStable(
+internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
     caseFactory: () -> LayeredComposeTestCase,
     maxSteps: Int = MaxSteps,
 ) {
@@ -169,11 +169,20 @@ internal fun ComposeBenchmarkRule.benchmarkFirstPixelUntilStable(
             var loopCount = 0
             while (hasPendingChanges()) {
                 loopCount++
-                doFrame()
+                recomposeUntilNoChangesPending()
+                requestLayout()
+                measure()
+                layout()
+                drawPrepare()
+                draw()
+
+                runWithTimingDisabled {
+                    drawFinish()
+                }
             }
 
             if (loopCount == 1) {
-                throw AssertionError("Use benchmarkFirstLayout instead")
+                throw AssertionError("Use benchmarkToFirstPixel instead")
             }
 
             runWithTimingDisabled {
