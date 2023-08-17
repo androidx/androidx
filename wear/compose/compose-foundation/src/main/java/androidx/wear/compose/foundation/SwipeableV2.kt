@@ -477,7 +477,11 @@ public class SwipeableV2State<T>(
                 val distance = abs(currentAnchors.getValue(upper) - currentAnchor)
                 val relativeThreshold = abs(positionalThreshold(currentDensity, distance))
                 val absoluteThreshold = abs(currentAnchor + relativeThreshold)
-                if (offset < absoluteThreshold) currentValue else upper
+                if (offset < 0) {
+                    if (abs(offset) > absoluteThreshold) currentValue else upper
+                } else {
+                    if (offset < absoluteThreshold) currentValue else upper
+                }
             }
         } else {
             // Swiping from upper to lower (negative).
