@@ -62,6 +62,8 @@ public class GlContext {
     private EglSurface mTempSurface = null;
 
     void init() {
+        // TODO(b/295407763): make sure EGLDisplay, EGLConfig, and EGLContext are released when
+        //  there is exception.
         // Create EGLDisplay.
         EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
