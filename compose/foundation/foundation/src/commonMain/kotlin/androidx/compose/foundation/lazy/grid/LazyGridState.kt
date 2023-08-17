@@ -394,6 +394,8 @@ class LazyGridState constructor(
 
     internal val prefetchState = LazyLayoutPrefetchState()
 
+    private val numOfItemsToTeleport: Int get() = 100 * slotsPerLine
+
     /**
      * Animate (smooth scroll) to the given item.
      *
@@ -407,7 +409,7 @@ class LazyGridState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
     }
 
     /**
