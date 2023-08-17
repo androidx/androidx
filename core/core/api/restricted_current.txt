@@ -2899,12 +2899,12 @@ package androidx.core.view {
   @IntDef({androidx.core.view.ContentInfoCompat.SOURCE_APP, androidx.core.view.ContentInfoCompat.SOURCE_CLIPBOARD, androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD, androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP, androidx.core.view.ContentInfoCompat.SOURCE_AUTOFILL, androidx.core.view.ContentInfoCompat.SOURCE_PROCESS_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ContentInfoCompat.Source {
   }
 
-  public class DifferentialMotionFlingHelper {
-    ctor public DifferentialMotionFlingHelper(android.content.Context, androidx.core.view.DifferentialMotionFlingHelper.DifferentialMotionFlingTarget);
+  public class DifferentialMotionFlingController {
+    ctor public DifferentialMotionFlingController(android.content.Context, androidx.core.view.DifferentialMotionFlingTarget);
     method public void onMotionEvent(android.view.MotionEvent, int);
   }
 
-  public static interface DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+  public interface DifferentialMotionFlingTarget {
     method public float getScaledScrollFactor();
     method public boolean startDifferentialMotionFling(float);
     method public void stopDifferentialMotionFling();

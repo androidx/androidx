@@ -32,20 +32,20 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class DifferentialMotionFlingHelperTest {
+public class DifferentialMotionFlingControllerTest {
     private int mMinVelocity = 0;
     private int mMaxVelocity = Integer.MAX_VALUE;
     /** A fake velocity value that's going to be returned from the velocity provider. */
     private float mVelocity;
     private boolean mVelocityCalculated;
 
-    private final DifferentialMotionFlingHelper.DifferentialVelocityProvider mVelocityProvider =
+    private final DifferentialMotionFlingController.DifferentialVelocityProvider mVelocityProvider =
             (vt, event, axis) -> {
                 mVelocityCalculated = true;
                 return mVelocity;
             };
 
-    private final DifferentialMotionFlingHelper.FlingVelocityThresholdCalculator
+    private final DifferentialMotionFlingController.FlingVelocityThresholdCalculator
             mVelocityThresholdCalculator =
                     (ctx, buffer, event, axis) -> {
                         buffer[0] = mMinVelocity;
@@ -55,11 +55,11 @@ public class DifferentialMotionFlingHelperTest {
     private final TestDifferentialMotionFlingTarget mFlingTarget =
             new TestDifferentialMotionFlingTarget();
 
-    private DifferentialMotionFlingHelper mFlingHelper;
+    private DifferentialMotionFlingController mFlingController;
 
     @Before
     public void setUp() throws Exception {
-        mFlingHelper = new DifferentialMotionFlingHelper(
+        mFlingController = new DifferentialMotionFlingController(
                 ApplicationProvider.getApplicationContext(),
                 mFlingTarget,
                 mVelocityThresholdCalculator,
@@ -166,7 +166,7 @@ public class DifferentialMotionFlingHelperTest {
 
     private void deliverEventWithVelocity(MotionEvent ev, int axis, float velocity) {
         mVelocity = velocity;
-        mFlingHelper.onMotionEvent(ev, axis);
+        mFlingController.onMotionEvent(ev, axis);
         ev.recycle();
     }
 
