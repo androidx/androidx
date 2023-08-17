@@ -140,7 +140,7 @@ class ScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        bluetoothLe = BluetoothLe(requireContext())
+        bluetoothLe = BluetoothLe.getInstance(requireContext())
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 

@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -90,9 +91,14 @@ class RobolectricGattServerTest {
 
     @Before
     fun setUp() {
-        bluetoothLe = BluetoothLe(context)
+        bluetoothLe = BluetoothLe.getInstance(context)
         serverAdapter = StubServerFrameworkAdapter(bluetoothLe.server.fwkAdapter)
         bluetoothLe.server.fwkAdapter = serverAdapter
+    }
+
+    @After
+    fun tearDown() {
+        bluetoothLe.server.fwkAdapter = serverAdapter.baseAdapter
     }
 
     @Test
@@ -498,7 +504,7 @@ class RobolectricGattServerTest {
     }
 
     class StubServerFrameworkAdapter(
-        private val baseAdapter: GattServer.FrameworkAdapter
+        val baseAdapter: GattServer.FrameworkAdapter
     ) : GattServer.FrameworkAdapter {
         val shadowGattServer: ShadowBluetoothGattServer
             get() = shadowOf(gattServer)

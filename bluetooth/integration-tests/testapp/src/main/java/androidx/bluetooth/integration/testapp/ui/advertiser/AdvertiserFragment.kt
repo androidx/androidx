@@ -136,7 +136,7 @@ class AdvertiserFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bluetoothLe = BluetoothLe(requireContext())
+        bluetoothLe = BluetoothLe.getInstance(requireContext())
 
         _binding = FragmentAdvertiserBinding.inflate(inflater, container, false)
 
