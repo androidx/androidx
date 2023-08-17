@@ -844,6 +844,8 @@ public class UiDevice implements Searchable {
 
     /**
      * Freezes the rotation of the display with {@code displayId} at its current state.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -885,6 +887,8 @@ public class UiDevice implements Searchable {
      * performing another operation.
      * <p>Note: Some secondary displays don't have rotation sensors and therefore won't respond
      * to this method.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -923,6 +927,8 @@ public class UiDevice implements Searchable {
      * <p>Note: This rotation is relative to the natural orientation which depends on the device
      * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
      * {@link #setOrientationLandscape()}.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -951,6 +957,8 @@ public class UiDevice implements Searchable {
      * <p>Note: This rotation is relative to the natural orientation which depends on the device
      * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
      * {@link #setOrientationLandscape()}.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -977,6 +985,8 @@ public class UiDevice implements Searchable {
      * . Use {@link #unfreezeRotation()} to un-freeze the rotation.
      * <p>Note: The natural orientation depends on the device type (e.g. phone vs. tablet).
      * Consider using {@link #setOrientationPortrait()} and {@link #setOrientationLandscape()}.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -1005,6 +1015,8 @@ public class UiDevice implements Searchable {
     /**
      * Orients the display with {@code displayId} to its portrait orientation (height >= width) and
      * freezes rotation. Use {@link #unfreezeRotation()} to un-freeze the rotation.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
@@ -1039,6 +1051,8 @@ public class UiDevice implements Searchable {
     /**
      * Orients the display with {@code displayId} to its landscape orientation (width >= height) and
      * freezes rotation. Use {@link #unfreezeRotation()} to un-freeze the rotation.
+     * <p>Note: Only works on Android API level 30 (R) or above, where multi-display is
+     * officially supported.
      * @throws RemoteException never
      * @see Display#getDisplayId()
      */
