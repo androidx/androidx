@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -32,7 +33,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -53,6 +57,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
@@ -612,6 +617,44 @@ class ScaffoldTest {
                 200.dp.toPx() - fabSize!!.height - fabSpacing.toPx()
             )
         }
+    }
+
+    // Regression test for b/295536718
+    @Test
+    fun scaffold_onSizeChanged_calledBeforeLookaheadPlace() {
+        var size: IntSize? = null
+        var onSizeChangedCount = 0
+        var onPlaceCount = 0
+
+        rule.setContent {
+            LookaheadScope {
+                Scaffold {
+                    SubcomposeLayout { constraints ->
+                        val measurables = subcompose("second") {
+                            Box(
+                                Modifier
+                                    .size(45.dp)
+                                    .onSizeChanged {
+                                        onSizeChangedCount++
+                                        size = it
+                                    }
+                            )
+                        }
+                        val placeables = measurables.map { it.measure(constraints) }
+
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            onPlaceCount++
+                            assertWithMessage("Expected onSizeChangedCount to be >= 1")
+                                .that(onSizeChangedCount).isAtLeast(1)
+                            assertThat(size).isNotNull()
+                            placeables.forEach { it.place(0, 0) }
+                        }
+                    }
+                }
+            }
+        }
+
+        assertWithMessage("Expected placeCount to be >= 1").that(onPlaceCount).isAtLeast(1)
     }
 
     private fun assertDpIsWithinThreshold(actual: Dp, expected: Dp, threshold: Dp) {
