@@ -29,6 +29,16 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(project(":core:core-performance"))
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoAndroid)
+
 
     testImplementation(libs.testCore)
     testImplementation(libs.kotlinStdlib)
