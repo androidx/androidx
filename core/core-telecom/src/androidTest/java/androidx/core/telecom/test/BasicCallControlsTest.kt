@@ -21,6 +21,7 @@ import android.telecom.Call
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.internal.utils.Utils
@@ -30,8 +31,8 @@ import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -266,6 +267,29 @@ class BasicCallControlsTest : BaseTelecomTest() {
         verifyAnswerCallFails_CallbackNotSet()
     }
 
+    /**
+     * Verify that the [androidx.core.telecom.CallsManager.addCall] blocks until the session is
+     * disconnected
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test
+    fun testTiming() {
+        setUpBackwardsCompatTest()
+        var flag = false
+        runBlocking {
+            mCallsManager.addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+                setCallback(TestUtils.mCallControlCallbacksImpl)
+                launch {
+                    delay(10)
+                    disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    flag = true
+                }
+            }
+            assertTrue(flag)
+        }
+    }
+
     /***********************************************************************************************
      *                           Helpers
      *********************************************************************************************/
@@ -281,8 +305,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      */
     private fun runBlocking_addCallAndSetActive(callAttributesCompat: CallAttributesCompat) {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, callAttributesCompat) {
+            assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -293,7 +316,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     }
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
@@ -302,8 +324,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
     // similar to runBlocking_addCallAndSetActive except for toggling
     private fun runBlocking_ToggleCallAsserts(callAttributesCompat: CallAttributesCompat) {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, callAttributesCompat) {
+            assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -314,7 +335,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
                     }
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
@@ -322,8 +342,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     private fun runBlocking_ShouldFailHold(callAttributesCompat: CallAttributesCompat) {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, callAttributesCompat) {
+            assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -331,7 +350,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
                     assertFalse(setInactive()) // API under test / expect failure
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
@@ -340,8 +358,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
     // similar to runBlocking_addCallAndSetActive except for requesting a new call endpoint
     private fun runBlocking_RequestEndpointChangeAsserts() {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
                     // ============================================================================
                     //   NOTE:: DO NOT DELAY BEFORE COLLECTING FLOWS OR THEY COULD BE MISSED!!
@@ -362,7 +379,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         assertTrue(requestEndpointChange(anotherEndpoint!!))
                     }
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
@@ -379,8 +395,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
     @Suppress("deprecation")
     private fun verifyMuteStateChange() {
         runBlocking {
-            val deferred = CompletableDeferred<Unit>()
-            assertWithinTimeout_addCall(deferred, TestUtils.OUTGOING_CALL_ATTRIBUTES) {
+            assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
                     val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                     assertNotNull("The returned Call object is <NULL>", call)
@@ -405,11 +420,9 @@ class BasicCallControlsTest : BaseTelecomTest() {
                             }
                         }
                     }
-
                     // Ensure that the updated mute state was collected
                     assertTrue(muteStateChanged)
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
-                    deferred.complete(Unit) // completed all asserts. cancel timeout!
                 }
             }
         }
@@ -419,9 +432,8 @@ class BasicCallControlsTest : BaseTelecomTest() {
     private fun verifyAnswerCallFails_CallbackNotSet() {
         try {
             runBlocking {
-                val deferred = CompletableDeferred<Unit>()
                 // Skip setting callback
-                assertWithinTimeout_addCall(deferred, TestUtils.INCOMING_CALL_ATTRIBUTES, false) {
+                assertWithinTimeout_addCall(TestUtils.INCOMING_CALL_ATTRIBUTES, false) {
                     launch {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
                         assertNotNull("The returned Call object is <NULL>", call)
