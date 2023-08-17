@@ -673,6 +673,13 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+# b/296419682
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] resume\(\) in Thread has been deprecated and marked for removal
+thread\.resume\(\);
+# > Task :concurrent:concurrent-futures:compileTestJava
+\$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] suspend\(\) in Thread has been deprecated and marked for removal
+thread\.suspend\(\);
+[0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
 \(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
