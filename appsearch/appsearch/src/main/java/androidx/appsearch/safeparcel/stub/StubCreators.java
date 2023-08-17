@@ -31,4 +31,8 @@ public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.StorageInfo}. */
     public static class StorageInfoCreator extends AbstractCreator {
     }
+
+    /** Stub creator for {@link androidx.appsearch.app.PropertyParcel}. */
+    public static class PropertyParcelCreator extends AbstractCreator {
+    }
 }
