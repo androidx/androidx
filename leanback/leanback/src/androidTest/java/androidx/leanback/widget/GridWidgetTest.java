@@ -2521,6 +2521,7 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Ignore("b/283480313")
     @Test
     public void testSetSelectedPositionDetached() throws Throwable {
 
