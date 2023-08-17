@@ -24,7 +24,6 @@ import android.util.AttributeSet
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.CopyOnWriteArrayList
@@ -216,25 +215,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         } else {
             super.addView(contentView, 0, contentView.layoutParams)
         }
-        // Listen for first draw event before sending an ACTIVE state change to listeners. Removes
-        // the listener afterwards so that we don't handle multiple draw events.
-        viewTreeObserver.addOnDrawListener(
-            object : ViewTreeObserver.OnDrawListener {
-                var handledDraw = false
-
-                override fun onDraw() {
-                    if (!handledDraw) {
-                        stateListenerManager.currentUiSessionState =
-                            SandboxedSdkUiSessionState.Active
-                        post {
-                            // Posted to handler as this can't be directly called from onDraw
-                            viewTreeObserver.removeOnDrawListener(this)
-                        }
-                        handledDraw = true
-                    }
-                }
-            }
-        )
+        // Wait for the next frame commit before sending an ACTIVE state change to listeners.
+        viewTreeObserver.registerFrameCommitCallback {
+            stateListenerManager.currentUiSessionState =
+                SandboxedSdkUiSessionState.Active
+        }
     }
 
     internal fun onClientClosedSession(error: Throwable? = null) {

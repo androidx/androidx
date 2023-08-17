@@ -463,11 +463,11 @@ class SandboxedSdkViewTest {
     }
 
     /**
-     * Ensures that ACTIVE will only be sent to registered state change listeners after the first
-     * draw event.
+     * Ensures that ACTIVE will only be sent to registered state change listeners after the next
+     * frame commit.
      */
     @Test
-    fun activeStateOnlySentAfterFirstDraw() {
+    fun activeStateOnlySentAfterNextFrameCommitted() {
         addViewToLayout()
         var latch = CountDownLatch(1)
         view.addStateChangedListener {
@@ -478,7 +478,7 @@ class SandboxedSdkViewTest {
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
 
         // Manually set state to IDLE.
-        // Subsequent draw events should not flip the state back to ACTIVE.
+        // Subsequent frame commits should not flip the state back to ACTIVE.
         view.stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Idle
         latch = CountDownLatch(1)
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
