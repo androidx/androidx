@@ -79,20 +79,6 @@ public class WebSettingsAdapter {
     }
 
     /**
-     * Adapter method for {@link androidx.webkit.WebSettingsCompat#setWillSuppressErrorPage}.
-     */
-    public void setWillSuppressErrorPage(boolean suppressed) {
-        mBoundaryInterface.setWillSuppressErrorPage(suppressed);
-    }
-
-    /**
-     * Adapter method for {@link androidx.webkit.WebSettingsCompat#willSuppressErrorPage}.
-     */
-    public boolean willSuppressErrorPage() {
-        return mBoundaryInterface.getWillSuppressErrorPage();
-    }
-
-    /**
      * Adapter method for {@link androidx.webkit.WebSettingsCompat#setForceDark}.
      */
     public void setForceDark(int forceDarkMode) {

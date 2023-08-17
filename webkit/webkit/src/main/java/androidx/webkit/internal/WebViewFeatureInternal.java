@@ -443,14 +443,6 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework PROXY_OVERRIDE = new ApiFeature.NoFramework(
             WebViewFeature.PROXY_OVERRIDE, Features.PROXY_OVERRIDE);
 
-    /**
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#willSuppressErrorPage(WebSettings)} and
-     * {@link androidx.webkit.WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
-     */
-    public static final ApiFeature.NoFramework SUPPRESS_ERROR_PAGE =
-            new ApiFeature.NoFramework(WebViewFeature.SUPPRESS_ERROR_PAGE,
-                    Features.SUPPRESS_ERROR_PAGE);
 
     /**
      * This feature covers {@link WebViewCompat#isMultiProcessEnabled()}.
