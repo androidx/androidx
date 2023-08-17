@@ -782,17 +782,15 @@ public final class CaptureSessionTest {
                 mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
         assertFutureCompletes(openFuture1, 5, TimeUnit.SECONDS);
 
-
         assertTrue(mTestParameters1.waitForData());
-
         assertThat(captureSession1.getState()).isEqualTo(State.OPENED);
-        assertThat(captureSession0.getState()).isEqualTo(State.RELEASED);
 
         // First session should have StateCallback.onConfigured(), onClosed() calls.
         verify(mTestParameters0.mSessionStateCallback, times(1))
                 .onConfigured(any(CameraCaptureSession.class));
         verify(mTestParameters0.mSessionStateCallback, times(1))
                 .onClosed(any(CameraCaptureSession.class));
+        assertThat(captureSession0.getState()).isEqualTo(State.RELEASED);
 
         // Second session should have StateCallback.onConfigured() call.
         verify(mTestParameters1.mSessionStateCallback, times(1))
