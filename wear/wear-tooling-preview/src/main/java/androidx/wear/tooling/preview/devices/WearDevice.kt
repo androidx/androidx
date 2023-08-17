@@ -24,13 +24,17 @@ import androidx.annotation.StringDef
  */
 object WearDevices {
     // Make sure to update any @StringDefs that reference this object.
-    /** Round device with 454px x 454px dimensions, 1.39" size and xhdpi density. */
+    /** Round device with 227x227dp (454x454px) dimensions, 1.39" size and xhdpi density. */
     const val LARGE_ROUND = "id:wearos_large_round"
-    /** Round device with 384px x 384px dimensions, 1.2" size and xhdpi density. */
+    /** Round device with 192x192dp (384x384px) dimensions, 1.2" size and xhdpi density. */
     const val SMALL_ROUND = "id:wearos_small_round"
-    /** Square device with 360px x 360px dimensions, 1.2" size and xhdpi density. */
+    /** Square device with 180x180dp (360x360px) dimensions, 1.2" size and xhdpi density. If
+     * you are targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND]
+     * instead. */
     const val SQUARE = "id:wearos_square"
-    /** Rectangular device with 402px x 476px dimensions, 1.2" size and xhdpi density. */
+    /** Rectangular device with 201x238dp (402x476px) dimensions, 1.2" size and xhdpi density. If
+     * you are targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND]
+     * instead. */
     const val RECT = "id:wearos_rect"
 }
 
