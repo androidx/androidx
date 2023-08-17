@@ -150,6 +150,8 @@ import androidx.compose.ui.unit.Density
  * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
+// This takes a composable lambda, but it is not primarily a container.
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
 fun BasicTextField2(
     value: String,
@@ -165,10 +167,12 @@ fun BasicTextField2(
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    scrollState: ScrollState = rememberScrollState(),
     codepointTransformation: CodepointTransformation? = null,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() }
+        @Composable { innerTextField -> innerTextField() },
+    scrollState: ScrollState = rememberScrollState(),
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
 ) {
     val state = remember {
         TextFieldState(
@@ -295,6 +299,8 @@ fun BasicTextField2(
  * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
+// This takes a composable lambda, but it is not primarily a container.
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
 fun BasicTextField2(
     value: TextFieldValue,
@@ -310,10 +316,12 @@ fun BasicTextField2(
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    scrollState: ScrollState = rememberScrollState(),
     codepointTransformation: CodepointTransformation? = null,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() }
+        @Composable { innerTextField -> innerTextField() },
+    scrollState: ScrollState = rememberScrollState(),
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
 ) {
     val state = remember {
         TextFieldState(
@@ -407,6 +415,8 @@ fun BasicTextField2(
  * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
+// This takes a composable lambda, but it is not primarily a container.
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
 fun BasicTextField2(
     state: TextFieldState,
@@ -421,10 +431,12 @@ fun BasicTextField2(
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    scrollState: ScrollState = rememberScrollState(),
     codepointTransformation: CodepointTransformation? = null,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() }
+        @Composable { innerTextField -> innerTextField() },
+    scrollState: ScrollState = rememberScrollState(),
+    // Last parameter must not be a function unless it's intended to be commonly used as a trailing
+    // lambda.
 ) {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
