@@ -340,8 +340,6 @@ private fun BottomSheetScaffoldLayout(
         val sheetPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Sheet) {
             bottomSheet(layoutHeight)
         }[0].measure(looseConstraints)
-        val sheetOffsetY = sheetOffset().roundToInt()
-        val sheetOffsetX = Integer.max(0, (layoutWidth - sheetPlaceable.width) / 2)
 
         val topBarPlaceable = topBar?.let {
             subcompose(BottomSheetScaffoldLayoutSlot.TopBar) { topBar() }[0]
@@ -360,13 +358,17 @@ private fun BottomSheetScaffoldLayout(
 
         val snackbarPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)[0]
             .measure(looseConstraints)
-        val snackbarOffsetX = (layoutWidth - snackbarPlaceable.width) / 2
-        val snackbarOffsetY = when (sheetState.currentValue) {
-            PartiallyExpanded -> sheetOffsetY - snackbarPlaceable.height
-            Expanded, Hidden -> layoutHeight - snackbarPlaceable.height
-        }
 
         layout(layoutWidth, layoutHeight) {
+            val sheetOffsetY = sheetOffset().roundToInt()
+            val sheetOffsetX = Integer.max(0, (layoutWidth - sheetPlaceable.width) / 2)
+
+            val snackbarOffsetX = (layoutWidth - snackbarPlaceable.width) / 2
+            val snackbarOffsetY = when (sheetState.currentValue) {
+                PartiallyExpanded -> sheetOffsetY - snackbarPlaceable.height
+                Expanded, Hidden -> layoutHeight - snackbarPlaceable.height
+            }
+
             // Placement order is important for elevation
             bodyPlaceable.placeRelative(0, topBarHeight)
             topBarPlaceable?.placeRelative(0, 0)
