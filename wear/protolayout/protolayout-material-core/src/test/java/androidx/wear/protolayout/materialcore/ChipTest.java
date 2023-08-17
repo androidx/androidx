@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.wear.protolayout.material;
+package androidx.wear.protolayout.materialcore;
 
 import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-import static androidx.wear.protolayout.material.Utils.areChipColorsEqual;
-import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_CUSTOM_CONTENT;
-import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_ICON;
-import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import android.content.Context;
 import android.graphics.Color;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
-import androidx.wear.protolayout.ColorBuilders.ColorProp;
-import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
 import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
-import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
@@ -58,141 +49,130 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class ChipTest {
-    private static final String MAIN_TEXT = "Primary text";
+    private static final Box PRIMARY_LABEL = new Box.Builder().build();
+    private static final Box SECONDARY_LABEL = new Box.Builder().build();
+    private static final Box ICON = new Box.Builder().build();
+    private static final Box CUSTOM_CONTENT = new Box.Builder().build();
+    private static final String CONTENT_DESCRIPTION = "Content description";
     private static final Clickable CLICKABLE =
             new Clickable.Builder()
                     .setOnClick(new LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
-    private static final DeviceParameters DEVICE_PARAMETERS =
-            new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
-    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final DpProp EXPECTED_WIDTH =
-            dp(
-                    DEVICE_PARAMETERS.getScreenWidthDp()
-                            * (100 - 2 * ChipDefaults.DEFAULT_MARGIN_PERCENT)
-                            / 100);
+    private static final float WIDTH_DP = 300;
+    private static final float HEIGHT_DP = 300;
+    @ColorInt private static final int BACKGROUND_COLOR = Color.YELLOW;
 
     @Test
     public void testChip() {
         StringProp contentDescription = staticString("Chip");
         Chip chip =
-                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setPrimaryLabelContent(MAIN_TEXT)
+                new Chip.Builder(CLICKABLE)
+                        .setWidth(dp(WIDTH_DP))
+                        .setHeight(dp(HEIGHT_DP))
+                        .setPrimaryLabelContent(PRIMARY_LABEL)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setContentDescription(contentDescription)
                         .build();
         assertChip(
                 chip,
                 HORIZONTAL_ALIGN_CENTER,
-                ChipDefaults.PRIMARY_COLORS,
+                Color.BLACK,
                 contentDescription,
-                METADATA_TAG_TEXT,
-                MAIN_TEXT,
+                Chip.METADATA_TAG_TEXT,
+                PRIMARY_LABEL,
                 null,
                 null,
                 null);
     }
 
     @Test
-    public void testFullChipColors() {
-        ChipColors colors = new ChipColors(Color.YELLOW, Color.WHITE, Color.BLUE, Color.MAGENTA);
-        String secondaryLabel = "Label";
+    public void testFullWithColors() {
         Chip chip =
-                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setChipColors(colors)
-                        .setPrimaryLabelContent(MAIN_TEXT)
-                        .setSecondaryLabelContent(secondaryLabel)
-                        .setIconContent("ICON_ID")
+                new Chip.Builder(CLICKABLE)
+                        .setWidth(dp(WIDTH_DP))
+                        .setHeight(dp(HEIGHT_DP))
+                        .setBackgroundColor(argb(BACKGROUND_COLOR))
+                        .setContentDescription(staticString(CONTENT_DESCRIPTION))
+                        .setPrimaryLabelContent(PRIMARY_LABEL)
+                        .setSecondaryLabelContent(SECONDARY_LABEL)
+                        .setIconContent(ICON)
                         .build();
+
         assertChip(
                 chip,
                 HORIZONTAL_ALIGN_START,
-                colors,
-                staticString(MAIN_TEXT + "\n" + secondaryLabel),
-                METADATA_TAG_ICON,
-                MAIN_TEXT,
-                secondaryLabel,
-                "ICON_ID",
+                BACKGROUND_COLOR,
+                staticString(CONTENT_DESCRIPTION),
+                Chip.METADATA_TAG_ICON,
+                PRIMARY_LABEL,
+                SECONDARY_LABEL,
+                ICON,
                 null);
     }
 
     @Test
     public void testChipLeftAligned() {
         Chip chip =
-                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
+                new Chip.Builder(CLICKABLE)
+                        .setWidth(dp(WIDTH_DP))
+                        .setHeight(dp(HEIGHT_DP))
+                        .setBackgroundColor(argb(BACKGROUND_COLOR))
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
-                        .setPrimaryLabelContent(MAIN_TEXT)
+                        .setPrimaryLabelContent(PRIMARY_LABEL)
+                        .setContentDescription(staticString(CONTENT_DESCRIPTION))
                         .build();
         assertChip(
                 chip,
                 HORIZONTAL_ALIGN_START,
-                ChipDefaults.PRIMARY_COLORS,
-                staticString(MAIN_TEXT),
-                METADATA_TAG_TEXT,
-                MAIN_TEXT,
+                BACKGROUND_COLOR,
+                staticString(CONTENT_DESCRIPTION),
+                Chip.METADATA_TAG_TEXT,
+                PRIMARY_LABEL,
                 null,
                 null,
                 null);
     }
 
     @Test
-    public void testChipCustomContent() {
-        ColorProp yellow = argb(Color.YELLOW);
-        ColorProp blue = argb(Color.BLUE);
-        LayoutElement content =
-                new Row.Builder()
-                        .addContent(
-                                new Text.Builder(CONTEXT, "text1")
-                                        .setTypography(Typography.TYPOGRAPHY_TITLE3)
-                                        .setColor(yellow)
-                                        .setItalic(true)
-                                        .build())
-                        .addContent(
-                                new Text.Builder(CONTEXT, "text2")
-                                        .setTypography(Typography.TYPOGRAPHY_TITLE2)
-                                        .setColor(blue)
-                                        .build())
-                        .build();
-
+    public void testChipCustomContentRightAlign() {
         StringProp contentDescription = staticString("Custom chip");
         Chip chip =
-                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setCustomContent(content)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                new Chip.Builder(CLICKABLE)
+                        .setWidth(dp(WIDTH_DP))
+                        .setHeight(dp(HEIGHT_DP))
+                        .setBackgroundColor(argb(BACKGROUND_COLOR))
+                        .setCustomContent(CUSTOM_CONTENT)
+                        .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setContentDescription(contentDescription)
                         .build();
 
         assertChip(
                 chip,
-                HORIZONTAL_ALIGN_START,
-                new ChipColors(
-                        ChipDefaults.PRIMARY_COLORS.getBackgroundColor(),
-                        new ColorProp.Builder(0).build()),
+                HORIZONTAL_ALIGN_CENTER,
+                BACKGROUND_COLOR,
                 contentDescription,
-                METADATA_TAG_CUSTOM_CONTENT,
+                Chip.METADATA_TAG_CUSTOM_CONTENT,
                 null,
                 null,
                 null,
-                content);
-        assertThat(chip.getCustomContent().toLayoutElementProto())
-                .isEqualTo(content.toLayoutElementProto());
+                CUSTOM_CONTENT);
     }
 
     private void assertChip(
             @NonNull Chip actualChip,
             @HorizontalAlignment int hAlign,
-            @NonNull ChipColors colors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
-            @Nullable String expectedPrimaryText,
-            @Nullable String expectedLabel,
-            @Nullable String expectedIcon,
+            @Nullable LayoutElement expectedPrimaryText,
+            @Nullable LayoutElement expectedLabel,
+            @Nullable LayoutElement expectedIcon,
             @Nullable LayoutElement expectedCustomContent) {
         assertChipIsEqual(
                 actualChip,
                 hAlign,
-                colors,
+                expectedBackgroundColor,
                 expectedContDesc,
                 expectedMetadata,
                 expectedPrimaryText,
@@ -203,7 +183,7 @@ public class ChipTest {
         assertFromLayoutElementChipIsEqual(
                 actualChip,
                 hAlign,
-                colors,
+                expectedBackgroundColor,
                 expectedContDesc,
                 expectedMetadata,
                 expectedPrimaryText,
@@ -251,8 +231,10 @@ public class ChipTest {
                         .setDynamicValue(DynamicString.constant("dynamic"))
                         .build();
         Chip chip =
-                new Chip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setPrimaryLabelContent("label")
+                new Chip.Builder(CLICKABLE)
+                        .setWidth(dp(WIDTH_DP))
+                        .setHeight(dp(HEIGHT_DP))
+                        .setPrimaryLabelContent(PRIMARY_LABEL)
                         .setContentDescription(dynamicContentDescription)
                         .build();
 
@@ -263,12 +245,12 @@ public class ChipTest {
     private void assertFromLayoutElementChipIsEqual(
             @NonNull Chip chip,
             @HorizontalAlignment int hAlign,
-            @NonNull ChipColors colors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
-            @Nullable String expectedPrimaryText,
-            @Nullable String expectedLabel,
-            @Nullable String expectedIcon,
+            @Nullable LayoutElement expectedPrimaryText,
+            @Nullable LayoutElement expectedLabel,
+            @Nullable LayoutElement expectedIcon,
             @Nullable LayoutElement expectedCustomContent) {
         Box box = new Box.Builder().addContent(chip).build();
 
@@ -278,7 +260,7 @@ public class ChipTest {
         assertChipIsEqual(
                 newChip,
                 hAlign,
-                colors,
+                expectedBackgroundColor,
                 expectedContDesc,
                 expectedMetadata,
                 expectedPrimaryText,
@@ -290,20 +272,30 @@ public class ChipTest {
     private void assertChipIsEqual(
             @NonNull Chip actualChip,
             @HorizontalAlignment int hAlign,
-            @NonNull ChipColors colors,
+            @ColorInt int expectedBackgroundColor,
             @Nullable StringProp expectedContDesc,
             @NonNull String expectedMetadata,
-            @Nullable String expectedPrimaryText,
-            @Nullable String expectedLabel,
-            @Nullable String expectedIcon,
+            @Nullable LayoutElement expectedPrimaryText,
+            @Nullable LayoutElement expectedLabel,
+            @Nullable LayoutElement expectedIcon,
             @Nullable LayoutElement expectedCustomContent) {
         assertThat(actualChip.getMetadataTag()).isEqualTo(expectedMetadata);
         assertThat(actualChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
-        assertThat(actualChip.getWidth().toContainerDimensionProto())
-                .isEqualTo(EXPECTED_WIDTH.toContainerDimensionProto());
-        assertThat(actualChip.getHeight().toContainerDimensionProto())
-                .isEqualTo(ChipDefaults.DEFAULT_HEIGHT.toContainerDimensionProto());
-        assertThat(areChipColorsEqual(actualChip.getChipColors(), colors)).isTrue();
+        assertThat(
+                        actualChip
+                                .getWidth()
+                                .toContainerDimensionProto()
+                                .getLinearDimension()
+                                .getValue())
+                .isEqualTo(WIDTH_DP);
+        assertThat(
+                        actualChip
+                                .getHeight()
+                                .toContainerDimensionProto()
+                                .getLinearDimension()
+                                .getValue())
+                .isEqualTo(HEIGHT_DP);
+        assertThat(actualChip.getBackgroundColor().getArgb()).isEqualTo(expectedBackgroundColor);
         assertThat(actualChip.getHorizontalAlignment()).isEqualTo(hAlign);
 
         if (expectedContDesc == null) {
@@ -316,19 +308,22 @@ public class ChipTest {
         if (expectedPrimaryText == null) {
             assertThat(actualChip.getPrimaryLabelContent()).isNull();
         } else {
-            assertThat(actualChip.getPrimaryLabelContent()).isEqualTo(expectedPrimaryText);
+            assertThat(actualChip.getPrimaryLabelContent().toLayoutElementProto())
+                    .isEqualTo(expectedPrimaryText.toLayoutElementProto());
         }
 
         if (expectedLabel == null) {
             assertThat(actualChip.getSecondaryLabelContent()).isNull();
         } else {
-            assertThat(actualChip.getSecondaryLabelContent()).isEqualTo(expectedLabel);
+            assertThat(actualChip.getSecondaryLabelContent().toLayoutElementProto())
+                    .isEqualTo(expectedLabel.toLayoutElementProto());
         }
 
         if (expectedIcon == null) {
             assertThat(actualChip.getIconContent()).isNull();
         } else {
-            assertThat(actualChip.getIconContent()).isEqualTo(expectedIcon);
+            assertThat(actualChip.getIconContent().toLayoutElementProto())
+                    .isEqualTo(expectedIcon.toLayoutElementProto());
         }
 
         if (expectedCustomContent == null) {

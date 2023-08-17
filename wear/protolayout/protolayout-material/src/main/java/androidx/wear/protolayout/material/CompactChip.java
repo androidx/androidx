@@ -19,14 +19,11 @@ package androidx.wear.protolayout.material;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_ICON;
-import static androidx.wear.protolayout.material.Chip.METADATA_TAG_TEXT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_ICON_SIZE;
 import static androidx.wear.protolayout.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
-import static androidx.wear.protolayout.materialcore.Helper.checkTag;
 
 import android.content.Context;
 
@@ -36,7 +33,6 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.expression.Fingerprint;
@@ -220,17 +216,9 @@ public class CompactChip implements LayoutElement {
         if (element instanceof CompactChip) {
             return (CompactChip) element;
         }
-        if (!(element instanceof Box)) {
-            return null;
-        }
-        Box boxElement = (Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_TEXT)
-                && !checkTag(boxElement.getModifiers(), METADATA_TAG_ICON)) {
-            return null;
-        }
-
-        // Now we are sure that this element is a CompactChip.
-        return new CompactChip(new Chip(boxElement));
+        androidx.wear.protolayout.materialcore.Chip coreChip =
+                androidx.wear.protolayout.materialcore.Chip.fromLayoutElement(element);
+        return coreChip == null ? null : new CompactChip(new Chip(coreChip));
     }
 
     /** Returns whether the font padding for the primary label is excluded. */
