@@ -374,6 +374,29 @@ class CanvasFrontBufferedRenderer<T>(
     }
 
     /**
+     * Clears the contents of both the front and multi buffered layers. This triggers a call to
+     * [Callback.onMultiBufferedLayerRenderComplete] and hides the front buffered layer.
+     */
+    fun clear() {
+        if (isValid()) {
+            mParams.clear()
+            mPersistedCanvasRenderer?.cancelPending()
+            mPersistedCanvasRenderer?.clear()
+            mHandlerThread.execute {
+                mMultiBufferNode?.record { canvas ->
+                    canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+                }
+                mMultiBufferedCanvasRenderer?.renderFrame(mHandlerThread) { buffer, fence ->
+                    setParentSurfaceControlBuffer(buffer, fence)
+                }
+            }
+        } else {
+            Log.w(TAG, "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
+                "has been released")
+        }
+    }
+
+    /**
      * Requests to render the entire scene to the multi buffered layer and schedules a call to
      * [Callback.onDrawMultiBufferedLayer]. The parameters provided to
      * [Callback.onDrawMultiBufferedLayer] will include each argument provided to every

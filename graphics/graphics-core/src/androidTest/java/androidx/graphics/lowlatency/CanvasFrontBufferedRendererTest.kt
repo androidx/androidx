@@ -408,6 +408,95 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testClear() {
+        if (!isSupported()) {
+            return
+        }
+
+        val renderLatch = CountDownLatch(2)
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Int> {
+
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Int
+            ) {
+                canvas.drawColor(param)
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Int>
+            ) {
+                for (p in params) {
+                    canvas.drawColor(p)
+                }
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                with(renderer!!) {
+                    renderFrontBufferedLayer(Color.BLUE)
+                    commit()
+                    renderFrontBufferedLayer(Color.RED)
+                    clear()
+                }
+            }
+            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                with(bitmap) {
+                    val leftQuadX = coords[0] + width / 4
+                    val rightQuadX = leftQuadX + width / 2
+                    val topQuadY = coords[1] + height / 4
+                    val bottomQuadY = topQuadY + height / 2
+                    Color.WHITE == getPixel(leftQuadX, topQuadY) &&
+                    Color.WHITE == getPixel(rightQuadX, topQuadY) &&
+                    Color.WHITE == getPixel(leftQuadX, bottomQuadY) &&
+                    Color.WHITE == getPixel(rightQuadX, bottomQuadY)
+                }
+            }
+        } finally {
+            renderer?.blockingRelease()
+        }
+    }
+
     @Ignore("b/266749527")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
