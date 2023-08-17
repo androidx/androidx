@@ -108,10 +108,8 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
  * @see StaticLayoutFactory
  * @see BoringLayoutFactory
  *
- * @suppress
  */
 @OptIn(InternalPlatformTextApi::class)
-@InternalPlatformTextApi
 internal class TextLayout constructor(
     charSequence: CharSequence,
     width: Float,
@@ -253,10 +251,10 @@ internal class TextLayout constructor(
                 isBoringLayout = false
                 StaticLayoutFactory.create(
                     text = charSequence,
-                    start = 0,
-                    end = charSequence.length,
                     paint = textPaint,
                     width = widthInt,
+                    start = 0,
+                    end = charSequence.length,
                     textDir = frameworkTextDir,
                     alignment = frameworkAlignment,
                     maxLines = maxLines,
@@ -998,10 +996,10 @@ private fun TextLayout.getLastLineMetrics(
 
         val tmpLayout = StaticLayoutFactory.create(
             text = emptyText,
+            paint = textPaint,
+            width = Int.MAX_VALUE,
             start = 0,
             end = emptyText.length,
-            width = Int.MAX_VALUE,
-            paint = textPaint,
             textDir = frameworkTextDir,
             includePadding = includePadding,
             useFallbackLineSpacing = fallbackLineSpacing

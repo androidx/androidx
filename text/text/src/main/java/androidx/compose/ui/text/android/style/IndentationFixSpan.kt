@@ -21,7 +21,6 @@ import android.graphics.Paint
 import android.text.Layout
 import android.text.Layout.Alignment
 import android.text.style.LeadingMarginSpan
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.isLineEllipsized
 import kotlin.math.abs
 
@@ -34,10 +33,7 @@ import kotlin.math.abs
  * opposite direction.
  *
  * It should be applied to a text only when those three attributes are set.
- *
- * @suppress
  */
-@InternalPlatformTextApi
 internal class IndentationFixSpan : LeadingMarginSpan {
     override fun getLeadingMargin(firstLine: Boolean): Int {
         return 0

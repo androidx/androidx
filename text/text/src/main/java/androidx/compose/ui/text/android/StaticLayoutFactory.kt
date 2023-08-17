@@ -38,10 +38,6 @@ import java.lang.reflect.InvocationTargetException
 
 private const val TAG = "StaticLayoutFactory"
 
-/**
-* @suppress
-*/
-@OptIn(InternalPlatformTextApi::class)
 @InternalPlatformTextApi
 object StaticLayoutFactory {
 
@@ -56,10 +52,10 @@ object StaticLayoutFactory {
      */
     fun create(
         text: CharSequence,
-        start: Int = 0,
-        end: Int = text.length,
         paint: TextPaint,
         width: Int,
+        start: Int = 0,
+        end: Int = text.length,
         textDir: TextDirectionHeuristic = LayoutCompat.DEFAULT_TEXT_DIRECTION_HEURISTIC,
         alignment: Alignment = LayoutCompat.DEFAULT_LAYOUT_ALIGNMENT,
         @IntRange(from = 0)
@@ -127,8 +123,7 @@ object StaticLayoutFactory {
     }
 }
 
-@OptIn(InternalPlatformTextApi::class)
-private class StaticLayoutParams constructor(
+private class StaticLayoutParams(
     val text: CharSequence,
     val start: Int = 0,
     val end: Int,
