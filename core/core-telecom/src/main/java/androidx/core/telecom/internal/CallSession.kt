@@ -37,7 +37,10 @@ import kotlinx.coroutines.launch
 @RequiresApi(34)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("ClassVerificationFailure")
-internal class CallSession(coroutineContext: CoroutineContext) {
+internal class CallSession(
+    coroutineContext: CoroutineContext,
+    private val blockingSessionExecution: CompletableDeferred<Unit>
+) {
     private val mCoroutineContext = coroutineContext
     private var mPlatformInterface: android.telecom.CallControl? = null
     private var mClientInterface: CallControlCallback? = null
@@ -209,6 +212,7 @@ internal class CallSession(coroutineContext: CoroutineContext) {
         CoroutineScope(mCoroutineContext).launch {
             val clientResponse: Boolean = mClientInterface!!.onDisconnect(cause)
             wasCompleted.accept(clientResponse)
+            blockingSessionExecution.complete(Unit)
         }
     }
 
@@ -220,6 +224,7 @@ internal class CallSession(coroutineContext: CoroutineContext) {
     class CallControlScopeImpl(
         private val session: CallSession,
         callChannels: CallChannels,
+        private val blockingSessionExecution: CompletableDeferred<Unit>,
         override val coroutineContext: CoroutineContext
     ) : CallControlScope {
         //  handle actionable/handshake events that originate in the platform
@@ -254,7 +259,9 @@ internal class CallSession(coroutineContext: CoroutineContext) {
 
         override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
             verifySessionCallbacks()
-            return session.disconnect(disconnectCause)
+            val response = session.disconnect(disconnectCause)
+            blockingSessionExecution.complete(Unit)
+            return response
         }
 
         override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
@@ -284,7 +291,7 @@ internal class CallSession(coroutineContext: CoroutineContext) {
                         androidx.core.telecom.CallException.ERROR_CALLBACKS_CODE
                     )
                 }
-            }
+           }
         }
     }
 }

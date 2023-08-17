@@ -22,7 +22,6 @@ import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.Call
 import android.telecom.CallAudioState
-import android.telecom.Connection
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.DoNotInline
@@ -33,6 +32,7 @@ import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
 import androidx.core.telecom.internal.utils.EndpointUtils
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -42,7 +42,8 @@ import kotlinx.coroutines.launch
 internal class CallSessionLegacy(
     private val id: ParcelUuid,
     private val callChannels: CallChannels,
-    private val coroutineContext: CoroutineContext
+    private val coroutineContext: CoroutineContext,
+    private val blockingSessionExecution: CompletableDeferred<Unit>
 ) : android.telecom.Connection() {
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
@@ -266,6 +267,7 @@ internal class CallSessionLegacy(
                 DisconnectCause(DisconnectCause.LOCAL)
             )
             setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
+            blockingSessionExecution.complete(Unit)
         }
     }
 
@@ -310,6 +312,7 @@ internal class CallSessionLegacy(
     class CallControlScopeImpl(
         private val session: CallSessionLegacy,
         callChannels: CallChannels,
+        private val blockingSessionExecution: CompletableDeferred<Unit>,
         override val coroutineContext: CoroutineContext
     ) : CallControlScope {
         //  handle actionable/handshake events that originate in the platform
@@ -342,7 +345,9 @@ internal class CallSessionLegacy(
 
         override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
             verifySessionCallbacks()
-            return session.setConnectionDisconnect(disconnectCause)
+            val result = session.setConnectionDisconnect(disconnectCause)
+            blockingSessionExecution.complete(Unit)
+            return result
         }
 
         override suspend fun requestEndpointChange(endpoint: CallEndpointCompat): Boolean {

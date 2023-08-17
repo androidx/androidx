@@ -40,7 +40,8 @@ internal class JetpackConnectionService : ConnectionService() {
         val callAttributes: CallAttributesCompat,
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
-        val completableDeferred: CompletableDeferred<CallSessionLegacy>?
+        val completableDeferred: CompletableDeferred<CallSessionLegacy>?,
+        val execution: CompletableDeferred<Unit>
     )
 
     companion object {
@@ -141,7 +142,8 @@ internal class JetpackConnectionService : ConnectionService() {
         val jetpackConnection = CallSessionLegacy(
             ParcelUuid.fromString(UUID.randomUUID().toString()),
             targetRequest.callChannel,
-            targetRequest.coroutineContext
+            targetRequest.coroutineContext,
+            targetRequest.execution
         )
 
         // set display name
