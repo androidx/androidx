@@ -34,6 +34,7 @@ import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.getTextAfterSelection
 import androidx.compose.foundation.text2.input.getTextBeforeSelection
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
 
 @VisibleForTesting
@@ -68,7 +69,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
     /**
      * Recording of editing operations for batch editing
      */
-    private val editCommands = mutableListOf<EditCommand>()
+    private val editCommands = mutableVectorOf<EditingBuffer.() -> Unit>()
 
     /**
      * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that
@@ -77,7 +78,7 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
      * reaches 0, meaning that artificial batches won't be applied until the real batches are
      * completed.
      */
-    private fun addEditCommandWithBatch(editCommand: EditCommand) {
+    private fun addEditCommandWithBatch(editCommand: EditingBuffer.() -> Unit) {
         beginBatchEditInternal()
         try {
             editCommands.add(editCommand)
@@ -105,8 +106,10 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
     private fun endBatchEditInternal(): Boolean {
         batchDepth--
         if (batchDepth == 0 && editCommands.isNotEmpty()) {
-            // apply the changes to active input session.
-            session.requestEdits(editCommands.toMutableList())
+            // apply the changes to active input session in order.
+            session.requestEdit {
+                editCommands.forEach { it.invoke(this) }
+            }
             editCommands.clear()
         }
         return batchDepth > 0
@@ -124,45 +127,57 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("commitText(\"$text\", $newCursorPosition)")
-        addEditCommandWithBatch(CommitTextCommand(text.toString(), newCursorPosition))
+        addEditCommandWithBatch {
+            commitText(text.toString(), newCursorPosition)
+        }
         return true
     }
 
     override fun setComposingRegion(start: Int, end: Int): Boolean {
         logDebug("setComposingRegion($start, $end)")
-        addEditCommandWithBatch(SetComposingRegionCommand(start, end))
+        addEditCommandWithBatch {
+            setComposingRegion(start, end)
+        }
         return true
     }
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("setComposingText(\"$text\", $newCursorPosition)")
-        addEditCommandWithBatch(SetComposingTextCommand(text.toString(), newCursorPosition))
+        addEditCommandWithBatch {
+            setComposingText(text.toString(), newCursorPosition)
+        }
         return true
     }
 
     override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean {
         logDebug("deleteSurroundingTextInCodePoints($beforeLength, $afterLength)")
-        addEditCommandWithBatch(
-            DeleteSurroundingTextInCodePointsCommand(beforeLength, afterLength)
-        )
+        addEditCommandWithBatch {
+            deleteSurroundingTextInCodePoints(beforeLength, afterLength)
+        }
         return true
     }
 
     override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
         logDebug("deleteSurroundingText($beforeLength, $afterLength)")
-        addEditCommandWithBatch(DeleteSurroundingTextCommand(beforeLength, afterLength))
+        addEditCommandWithBatch {
+            deleteSurroundingText(beforeLength, afterLength)
+        }
         return true
     }
 
     override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
-        addEditCommandWithBatch(SetSelectionCommand(start, end))
+        addEditCommandWithBatch {
+            setSelection(start, end)
+        }
         return true
     }
 
     override fun finishComposingText(): Boolean {
         logDebug("finishComposingText()")
-        addEditCommandWithBatch(FinishComposingTextCommand)
+        addEditCommandWithBatch {
+            finishComposingText()
+        }
         return true
     }
 
@@ -231,7 +246,9 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch(SetSelectionCommand(0, text.length))
+                addEditCommandWithBatch {
+                    setSelection(0, text.length)
+                }
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)

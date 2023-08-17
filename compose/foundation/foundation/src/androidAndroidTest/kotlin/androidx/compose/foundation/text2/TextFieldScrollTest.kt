@@ -26,11 +26,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.TextLayoutResultProxy
-import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.placeCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -399,10 +399,9 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(TextfieldTag).assertIsNotFocused()
 
         // move cursor to the end
-        // TODO
-        state.editProcessor.reset(
-            TextFieldCharSequence(state.text, selection = TextRange(longText.length))
-        )
+        state.edit {
+            placeCursorAtEnd()
+        }
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(0)
@@ -425,9 +424,9 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(TextfieldTag).requestFocus()
 
         // move cursor to the end
-        state.editProcessor.reset(
-            TextFieldCharSequence(state.text, selection = TextRange(longText.length))
-        )
+        state.edit {
+            placeCursorAtEnd()
+        }
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
