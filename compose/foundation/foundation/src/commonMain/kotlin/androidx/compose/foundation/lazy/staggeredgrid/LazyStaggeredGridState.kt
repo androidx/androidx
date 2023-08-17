@@ -23,7 +23,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
-import androidx.compose.foundation.lazy.layout.LazyAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
@@ -156,7 +156,7 @@ class LazyStaggeredGridState private constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
-    /** implementation of [LazyAnimateScrollScope] scope required for [animateScrollToItem] */
+    /** implementation of [LazyLayoutAnimateScrollScope] scope required for [animateScrollToItem] */
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
 
     internal var remeasurement: Remeasurement? = null
@@ -303,6 +303,7 @@ class LazyStaggeredGridState private constructor(
         }
     }
 
+    private val numOfItemsToTeleport: Int get() = 100 * laneCount
     /**
      * Animate (smooth scroll) to the given item.
      *
@@ -316,7 +317,7 @@ class LazyStaggeredGridState private constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
     }
 
     internal fun ScrollScope.snapToItemInternal(index: Int, scrollOffset: Int) {
