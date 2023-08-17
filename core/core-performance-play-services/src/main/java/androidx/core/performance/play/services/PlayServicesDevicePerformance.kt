@@ -18,13 +18,16 @@ package androidx.core.performance.play.services
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.deviceperformance.DevicePerformanceClient
 import kotlin.math.max
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -40,6 +43,7 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
     private val tag = "PlayServicesDevicePerformance"
 
     private val defaultMpc = DefaultDevicePerformance()
+    private val playServicesValueStoredDeferred = CompletableDeferred<Boolean>()
 
     override val mediaPerformanceClass get() = lazyMpc.value
     private val lazyMpc =
@@ -54,26 +58,38 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
             }
         }
 
-    private val Context.performanceStore by preferencesDataStore(name = "media_performance_class")
-    private val mpcKey = intPreferencesKey("mpc_value")
-
-    private val client: DevicePerformanceClient =
-        com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
-
     init {
         Log.v(
             tag,
             "Getting mediaPerformanceClass from " +
                 "com.google.android.gms.deviceperformance.DevicePerformanceClient"
         )
-        client.mediaPerformanceClass().addOnSuccessListener { result ->
-            runBlocking {
-                Log.v(tag, "Got mediaPerformanceClass $result")
-                val storedVal = max(result, defaultMpc.mediaPerformanceClass)
-                launch {
-                    savePerformanceClass(storedVal)
-                    Log.v(tag, "Saved mediaPerformanceClass $storedVal")
-                }
+        updatePerformanceStore(
+            com.google.android.gms.deviceperformance.DevicePerformance.getClient(context)
+        )
+    }
+
+    @VisibleForTesting
+    internal constructor(context: Context, client: DevicePerformanceClient) : this(context) {
+        // mock client should wait for the playServices client to finish,
+        // so the test results are determined by the mock client.
+        runBlocking {
+            playServicesValueStoredDeferred.await()
+        }
+        updatePerformanceStore(client)
+    }
+
+    private val mpcKey = intPreferencesKey("mpc_value")
+
+    internal companion object {
+        // To avoid creating multiple instance of datastore
+        private val Context.performanceStore by
+        preferencesDataStore(name = "media_performance_class")
+
+        @VisibleForTesting
+        suspend fun clearPerformanceClass(context: Context) {
+            context.performanceStore.edit {
+                it.clear()
             }
         }
     }
@@ -88,6 +104,27 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
     private suspend fun savePerformanceClass(value: Int) {
         context.performanceStore.edit { values ->
             values[mpcKey] = value
+        }
+    }
+
+    private fun updatePerformanceStore(client: DevicePerformanceClient) {
+        client.mediaPerformanceClass().addOnSuccessListener { result ->
+            runBlocking {
+                Log.v(tag, "Got mediaPerformanceClass $result")
+                val storedVal = max(result, defaultMpc.mediaPerformanceClass)
+                launch {
+                    savePerformanceClass(storedVal)
+                    Log.v(tag, "Saved mediaPerformanceClass $storedVal")
+                    playServicesValueStoredDeferred.complete(true)
+                }
+            }
+        }.addOnFailureListener { e: Exception ->
+            if (e is ApiException) {
+                Log.e(tag, "Error saving mediaPerformanceClass: $e")
+            } else if (e is IllegalStateException) {
+                Log.e(tag, "Error saving mediaPerformanceClass: $e")
+            }
+            playServicesValueStoredDeferred.complete(true)
         }
     }
 }
