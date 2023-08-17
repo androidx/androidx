@@ -54,10 +54,23 @@ package androidx.kruth {
   }
 
   public final class FailureMetadata {
-    method public java.util.List<java.lang.String> component1();
-    method public androidx.kruth.FailureMetadata copy(java.util.List<java.lang.String> messagesToPrepend);
+    method public androidx.kruth.FailureStrategy component1();
+    method public java.util.List<java.lang.String> component2();
+    method public androidx.kruth.FailureMetadata copy(androidx.kruth.FailureStrategy failureStrategy, java.util.List<java.lang.String> messagesToPrepend);
+    method public static androidx.kruth.FailureMetadata forFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+    method public androidx.kruth.FailureStrategy getFailureStrategy();
     method public java.util.List<java.lang.String> getMessagesToPrepend();
+    property public final androidx.kruth.FailureStrategy failureStrategy;
     property public final java.util.List<java.lang.String> messagesToPrepend;
+    field public static final androidx.kruth.FailureMetadata.Companion Companion;
+  }
+
+  public static final class FailureMetadata.Companion {
+    method public androidx.kruth.FailureMetadata forFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+  }
+
+  public fun interface FailureStrategy {
+    method public void fail(AssertionError failure);
   }
 
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
@@ -127,6 +140,7 @@ package androidx.kruth {
   public final class StandardSubjectBuilder {
     method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<S,T> about(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public Void fail();
+    method public static androidx.kruth.StandardSubjectBuilder? forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
     method public androidx.kruth.BooleanSubject that(Boolean? actual);
     method public androidx.kruth.DoubleSubject that(Double? actual);
     method public <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
@@ -136,6 +150,11 @@ package androidx.kruth {
     method public <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
     method public <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
     method public androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
+    field public static final androidx.kruth.StandardSubjectBuilder.Companion Companion;
+  }
+
+  public static final class StandardSubjectBuilder.Companion {
+    method public androidx.kruth.StandardSubjectBuilder? forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
   }
 
   public final class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {

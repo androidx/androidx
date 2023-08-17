@@ -16,9 +16,24 @@
 
 package androidx.kruth
 
+import kotlin.jvm.JvmStatic
+
 data class FailureMetadata internal constructor(
+    val failureStrategy: FailureStrategy = object : FailureStrategy {
+        override fun fail(failure: AssertionError) {
+            throw failure
+        }
+    },
     val messagesToPrepend: List<String> = emptyList(),
 ) {
+    companion object {
+        @JvmStatic
+        fun forFailureStrategy(failureStrategy: FailureStrategy): FailureMetadata {
+            return FailureMetadata(
+                failureStrategy
+            )
+        }
+    }
 
     internal fun withMessage(messageToPrepend: String): FailureMetadata =
         copy(messagesToPrepend = messagesToPrepend + messageToPrepend)
