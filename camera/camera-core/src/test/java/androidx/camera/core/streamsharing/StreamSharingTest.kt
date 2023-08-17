@@ -27,6 +27,7 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
@@ -151,6 +152,41 @@ class StreamSharingTest {
                 camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
             ).surfaceOccupancyPriority
         ).isEqualTo(2)
+    }
+
+    @Test
+    fun getParentDynamicRange_isIntersectionOfChildrenDynamicRanges() {
+        val unspecifiedChild = FakeUseCase(
+            FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(1)
+                .setDynamicRange(DynamicRange.UNSPECIFIED).useCaseConfig
+        )
+        val hdrChild = FakeUseCase(
+            FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(2)
+                .setDynamicRange(DynamicRange.HLG_10_BIT).useCaseConfig
+        )
+        streamSharing =
+            StreamSharing(camera, setOf(unspecifiedChild, hdrChild), useCaseConfigFactory)
+        assertThat(
+            streamSharing.mergeConfigs(
+                camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+            ).dynamicRange
+        ).isEqualTo(DynamicRange.HLG_10_BIT)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun getParentDynamicRange_exception_whenChildrenDynamicRangesConflict() {
+        val sdrChild = FakeUseCase(
+            FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(1)
+                .setDynamicRange(DynamicRange.SDR).useCaseConfig
+        )
+        val hdrChild = FakeUseCase(
+            FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(2)
+                .setDynamicRange(DynamicRange.HLG_10_BIT).useCaseConfig
+        )
+        streamSharing = StreamSharing(camera, setOf(sdrChild, hdrChild), useCaseConfigFactory)
+        streamSharing.mergeConfigs(
+            camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+        )
     }
 
     @Test
