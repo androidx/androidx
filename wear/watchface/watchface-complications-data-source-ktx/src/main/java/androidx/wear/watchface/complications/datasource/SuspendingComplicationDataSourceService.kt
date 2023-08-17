@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications.datasource
 
+import androidx.annotation.CallSuper
 import androidx.annotation.UiThread
 import androidx.wear.watchface.complications.data.ComplicationData
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,8 @@ public abstract class SuspendingComplicationDataSourceService : ComplicationData
     @UiThread
     abstract suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData?
 
-    override fun onDestroy() {
+    @CallSuper
+    open override fun onDestroy() {
         super.onDestroy()
         scope.cancel()
     }
