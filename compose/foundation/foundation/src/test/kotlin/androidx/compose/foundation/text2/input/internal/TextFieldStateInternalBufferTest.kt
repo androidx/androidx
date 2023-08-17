@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2.input.internal
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.fail
@@ -28,26 +29,26 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalFoundationApi::class)
 @RunWith(JUnit4::class)
-class EditProcessorTest {
+class TextFieldStateInternalBufferTest {
 
     @Test
     fun initializeValue() {
         val firstValue = TextFieldCharSequence("ABCDE", TextRange.Zero)
-        val processor = EditProcessor(firstValue)
+        val state = TextFieldState(firstValue)
 
-        assertThat(processor.value).isEqualTo(firstValue)
+        assertThat(state.text).isEqualTo(firstValue)
     }
 
     @Test
     fun apply_commitTextCommand_changesValue() {
         val firstValue = TextFieldCharSequence("ABCDE", TextRange.Zero)
-        val processor = EditProcessor(firstValue)
+        val state = TextFieldState(firstValue)
 
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
-        processor.update(CommitTextCommand("X", 1))
-        val newState = processor.value
+        state.editAsUser { commitText("X", 1) }
+        val newState = state.text
 
         assertThat(newState.toString()).isEqualTo("XABCDE")
         assertThat(newState.selectionInChars.min).isEqualTo(1)
@@ -59,13 +60,13 @@ class EditProcessorTest {
     @Test
     fun apply_setSelectionCommand_changesValue() {
         val firstValue = TextFieldCharSequence("ABCDE", TextRange.Zero)
-        val processor = EditProcessor(firstValue)
+        val state = TextFieldState(firstValue)
 
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
-        processor.update(SetSelectionCommand(0, 2))
-        val newState = processor.value
+        state.editAsUser { setSelection(0, 2) }
+        val newState = state.text
 
         assertThat(newState.toString()).isEqualTo("ABCDE")
         assertThat(newState.selectionInChars.min).isEqualTo(0)
@@ -76,67 +77,73 @@ class EditProcessorTest {
 
     @Test
     fun testNewState_bufferNotUpdated_ifSameModelStructurally() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
-        val initialBuffer = processor.mBuffer
-        processor.reset(TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero))
-        assertThat(processor.mBuffer).isNotSameInstanceAs(initialBuffer)
+        val initialBuffer = state.mainBuffer
+        state.resetStateAndNotifyIme(
+            TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
+        )
+        assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
 
-        val updatedBuffer = processor.mBuffer
-        processor.reset(TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero))
-        assertThat(processor.mBuffer).isSameInstanceAs(updatedBuffer)
+        val updatedBuffer = state.mainBuffer
+        state.resetStateAndNotifyIme(
+            TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
+        )
+        assertThat(state.mainBuffer).isSameInstanceAs(updatedBuffer)
 
         assertThat(resetCalled).isEqualTo(2)
     }
 
     @Test
     fun testNewState_new_buffer_created_if_text_is_different() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
-        processor.reset(textFieldValue)
-        val initialBuffer = processor.mBuffer
+        state.resetStateAndNotifyIme(textFieldValue)
+        val initialBuffer = state.mainBuffer
 
         val newTextFieldValue = TextFieldCharSequence("abc")
-        processor.reset(newTextFieldValue)
+        state.resetStateAndNotifyIme(newTextFieldValue)
 
-        assertThat(processor.mBuffer).isNotSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
         assertThat(resetCalled).isEqualTo(2)
     }
 
     @Test
     fun testNewState_buffer_not_recreated_if_selection_is_different() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange.Zero)
-        processor.reset(textFieldValue)
-        val initialBuffer = processor.mBuffer
+        state.resetStateAndNotifyIme(textFieldValue)
+        val initialBuffer = state.mainBuffer
 
         val newTextFieldValue = TextFieldCharSequence(textFieldValue, selection = TextRange(1))
-        processor.reset(newTextFieldValue)
+        state.resetStateAndNotifyIme(newTextFieldValue)
 
-        assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
         assertThat(newTextFieldValue.selectionInChars.start)
-            .isEqualTo(processor.mBuffer.selectionStart)
-        assertThat(newTextFieldValue.selectionInChars.end).isEqualTo(processor.mBuffer.selectionEnd)
+            .isEqualTo(state.mainBuffer.selectionStart)
+        assertThat(newTextFieldValue.selectionInChars.end).isEqualTo(
+            state.mainBuffer.selectionEnd
+        )
         assertThat(resetCalled).isEqualTo(2)
     }
 
     @Test
     fun testNewState_buffer_not_recreated_if_composition_is_different() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
         val textFieldValue = TextFieldCharSequence("qwerty", TextRange.Zero, TextRange(1))
-        processor.reset(textFieldValue)
-        val initialBuffer = processor.mBuffer
+        state.resetStateAndNotifyIme(textFieldValue)
+        val initialBuffer = state.mainBuffer
 
         // composition can not be set from app, IME owns it.
         assertThat(EditingBuffer.NOWHERE).isEqualTo(initialBuffer.compositionStart)
@@ -147,11 +154,11 @@ class EditProcessorTest {
             textFieldValue.selectionInChars,
             composition = null
         )
-        processor.reset(newTextFieldValue)
+        state.resetStateAndNotifyIme(newTextFieldValue)
 
-        assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(processor.mBuffer.compositionStart)
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(processor.mBuffer.compositionEnd)
+        assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
+        assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionStart)
+        assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionEnd)
         assertThat(resetCalled).isEqualTo(2)
     }
 
@@ -159,11 +166,11 @@ class EditProcessorTest {
     fun testNewState_reversedSelection_setsTheSelection() {
         val initialSelection = TextRange(2, 1)
         val textFieldValue = TextFieldCharSequence("qwerty", initialSelection, TextRange(1))
-        val processor = EditProcessor(textFieldValue)
+        val state = TextFieldState(textFieldValue)
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
-        val initialBuffer = processor.mBuffer
+        val initialBuffer = state.mainBuffer
 
         assertThat(initialSelection.start).isEqualTo(initialBuffer.selectionStart)
         assertThat(initialSelection.end).isEqualTo(initialBuffer.selectionEnd)
@@ -171,9 +178,9 @@ class EditProcessorTest {
         val updatedSelection = TextRange(3, 0)
         val newTextFieldValue = TextFieldCharSequence(textFieldValue, selection = updatedSelection)
         // set the new selection
-        processor.reset(newTextFieldValue)
+        state.resetStateAndNotifyIme(newTextFieldValue)
 
-        assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
         assertThat(updatedSelection.start).isEqualTo(initialBuffer.selectionStart)
         assertThat(updatedSelection.end).isEqualTo(initialBuffer.selectionEnd)
         assertThat(resetCalled).isEqualTo(1)
@@ -181,129 +188,129 @@ class EditProcessorTest {
 
     @Test
     fun compositionIsCleared_when_textChanged() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         var resetCalled = 0
-        processor.addResetListener { _, _ -> resetCalled++ }
+        state.addNotifyImeListener { _, _ -> resetCalled++ }
 
         // set the initial value
-        processor.update(
-            CommitTextCommand("ab", 0),
-            SetComposingRegionCommand(0, 2)
-        )
+        state.editAsUser {
+            commitText("ab", 0)
+            setComposingRegion(0, 2)
+        }
 
         // change the text
         val newValue =
             TextFieldCharSequence(
                 "cd",
-                processor.value.selectionInChars,
-                processor.value.compositionInChars
+                state.text.selectionInChars,
+                state.text.compositionInChars
             )
-        processor.reset(newValue)
+        state.resetStateAndNotifyIme(newValue)
 
-        assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.compositionInChars).isNull()
+        assertThat(state.text.toString()).isEqualTo(newValue.toString())
+        assertThat(state.text.compositionInChars).isNull()
     }
 
     @Test
     fun compositionIsNotCleared_when_textIsSame() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
         val composition = TextRange(0, 2)
 
         // set the initial value
-        processor.update(
-            CommitTextCommand("ab", 0),
-            SetComposingRegionCommand(composition.start, composition.end)
-        )
+        state.editAsUser {
+            commitText("ab", 0)
+            setComposingRegion(composition.start, composition.end)
+        }
 
         // use the same TextFieldValue
         val newValue =
             TextFieldCharSequence(
-                processor.value,
-                processor.value.selectionInChars,
-                processor.value.compositionInChars
+                state.text,
+                state.text.selectionInChars,
+                state.text.compositionInChars
             )
-        processor.reset(newValue)
+        state.resetStateAndNotifyIme(newValue)
 
-        assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.compositionInChars).isEqualTo(composition)
+        assertThat(state.text.toString()).isEqualTo(newValue.toString())
+        assertThat(state.text.compositionInChars).isEqualTo(composition)
     }
 
     @Test
     fun compositionIsCleared_when_compositionReset() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
 
         // set the initial value
-        processor.update(
-            CommitTextCommand("ab", 0),
-            SetComposingRegionCommand(-1, -1)
-        )
+        state.editAsUser {
+            commitText("ab", 0)
+            setComposingRegion(-1, -1)
+        }
 
         // change the composition
         val newValue =
             TextFieldCharSequence(
-                processor.value,
-                processor.value.selectionInChars,
+                state.text,
+                state.text.selectionInChars,
                 composition = TextRange(0, 2)
             )
-        processor.reset(newValue)
+        state.resetStateAndNotifyIme(newValue)
 
-        assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.compositionInChars).isNull()
+        assertThat(state.text.toString()).isEqualTo(newValue.toString())
+        assertThat(state.text.compositionInChars).isNull()
     }
 
     @Test
     fun compositionIsCleared_when_compositionChanged() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
 
         // set the initial value
-        processor.update(
-            CommitTextCommand("ab", 0),
-            SetComposingRegionCommand(0, 2)
-        )
+        state.editAsUser {
+            commitText("ab", 0)
+            setComposingRegion(0, 2)
+        }
 
         // change the composition
         val newValue = TextFieldCharSequence(
-            processor.value,
-            processor.value.selectionInChars,
+            state.text,
+            state.text.selectionInChars,
             composition = TextRange(0, 1)
         )
-        processor.reset(newValue)
+        state.resetStateAndNotifyIme(newValue)
 
-        assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.compositionInChars).isNull()
+        assertThat(state.text.toString()).isEqualTo(newValue.toString())
+        assertThat(state.text.compositionInChars).isNull()
     }
 
     @Test
     fun compositionIsNotCleared_when_onlySelectionChanged() {
-        val processor = EditProcessor()
+        val state = TextFieldState()
 
         val composition = TextRange(0, 2)
         val selection = TextRange(0, 2)
 
         // set the initial value
-        processor.update(
-            CommitTextCommand("ab", 0),
-            SetComposingRegionCommand(composition.start, composition.end),
-            SetSelectionCommand(selection.start, selection.end)
-        )
+        state.editAsUser {
+            commitText("ab", 0)
+            setComposingRegion(composition.start, composition.end)
+            setSelection(selection.start, selection.end)
+        }
 
         // change selection
         val newSelection = TextRange(1)
         val newValue = TextFieldCharSequence(
-            processor.value,
+            state.text,
             selection = newSelection,
-            composition = processor.value.compositionInChars
+            composition = state.text.compositionInChars
         )
-        processor.reset(newValue)
+        state.resetStateAndNotifyIme(newValue)
 
-        assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.compositionInChars).isEqualTo(composition)
-        assertThat(processor.value.selectionInChars).isEqualTo(newSelection)
+        assertThat(state.text.toString()).isEqualTo(newValue.toString())
+        assertThat(state.text.compositionInChars).isEqualTo(composition)
+        assertThat(state.text.selectionInChars).isEqualTo(newSelection)
     }
 
     @Test
     fun filterThatDoesNothing_doesNotResetBuffer() {
-        val processor = EditProcessor(
+        val state = TextFieldState(
             TextFieldCharSequence(
                 "abc",
                 selection = TextRange(3),
@@ -311,19 +318,19 @@ class EditProcessorTest {
             )
         )
 
-        val initialBuffer = processor.mBuffer
+        val initialBuffer = state.mainBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { _, _ -> }
+        state.editAsUser { commitText("d", 4) }
 
-        val value = processor.value
+        val value = state.text
 
         assertThat(value.toString()).isEqualTo("abcd")
-        assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
     }
 
     @Test
     fun returningTheEquivalentValueFromFilter_doesNotResetBuffer() {
-        val processor = EditProcessor(
+        val state = TextFieldState(
             TextFieldCharSequence(
                 "abc",
                 selection = TextRange(3),
@@ -331,19 +338,19 @@ class EditProcessorTest {
             )
         )
 
-        val initialBuffer = processor.mBuffer
+        val initialBuffer = state.mainBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { _, _ -> /* Noop */ }
+        state.editAsUser { commitText("d", 4) }
 
-        val value = processor.value
+        val value = state.text
 
         assertThat(value.toString()).isEqualTo("abcd")
-        assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
     }
 
     @Test
     fun returningOldValueFromFilter_resetsTheBuffer() {
-        val processor = EditProcessor(
+        val state = TextFieldState(
             TextFieldCharSequence(
                 "abc",
                 selection = TextRange(3),
@@ -353,19 +360,24 @@ class EditProcessorTest {
 
         var resetCalledOld: TextFieldCharSequence? = null
         var resetCalledNew: TextFieldCharSequence? = null
-        processor.addResetListener { old, new ->
+        state.addNotifyImeListener { old, new ->
             resetCalledOld = old
             resetCalledNew = new
         }
 
-        val initialBuffer = processor.mBuffer
+        val initialBuffer = state.mainBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { _, new -> new.revertAllChanges() }
+        state.editAsUser(
+            inputTransformation = { _, new -> new.revertAllChanges() },
+            notifyImeOfChanges = false
+        ) {
+            commitText("d", 4)
+        }
 
-        val value = processor.value
+        val value = state.text
 
         assertThat(value.toString()).isEqualTo("abc")
-        assertThat(processor.mBuffer).isNotSameInstanceAs(initialBuffer)
+        assertThat(state.mainBuffer).isNotSameInstanceAs(initialBuffer)
         assertThat(resetCalledOld?.toString()).isEqualTo("abcd") // what IME applied
         assertThat(resetCalledNew?.toString()).isEqualTo("abc") // what is decided by filter
     }
@@ -374,56 +386,61 @@ class EditProcessorTest {
     fun filterNotRan_whenNoCommands() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
-        processor.update(emptyList(), filter = filter)
+        state.editAsUser(inputTransformation, notifyImeOfChanges = false) {}
     }
 
     @Test
     fun filterNotRan_whenOnlyFinishComposingTextCommand_noComposition() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
-        processor.update(FinishComposingTextCommand, filter = filter)
+        state.editAsUser(
+            inputTransformation = inputTransformation,
+            notifyImeOfChanges = false
+        ) { finishComposingText() }
     }
 
     @Test
     fun filterNotRan_whenOnlyFinishComposingTextCommand_withComposition() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             fail("filter ran, old=\"$old\", new=\"$new\"")
         }
 
-        processor.update(FinishComposingTextCommand, filter = filter)
+        state.editAsUser(
+            inputTransformation = inputTransformation,
+            notifyImeOfChanges = false
+        ) { finishComposingText() }
     }
 
     @Test
     fun filterNotRan_whenCommandsResultInInitialValue() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             fail(
                 "filter ran, old=\"$old\" (${old.selectionInChars}), " +
                     "new=\"$new\" (${new.selectionInChars})"
             )
         }
 
-        processor.update(
-            SetComposingRegionCommand(0, 5),
-            CommitTextCommand("hello", 1),
-            SetSelectionCommand(2, 2),
-            filter = filter
-        )
+        state.editAsUser(inputTransformation = inputTransformation, notifyImeOfChanges = false) {
+            setComposingRegion(0, 5)
+            commitText("hello", 1)
+            setSelection(2, 2)
+        }
     }
 
     @Test
@@ -431,8 +448,8 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
@@ -441,7 +458,10 @@ class EditProcessorTest {
             assertThat(new.selectionInChars).isEqualTo(TextRange(0, 5))
         }
 
-        processor.update(SetSelectionCommand(0, 5), filter = filter)
+        state.editAsUser(
+            inputTransformation = inputTransformation,
+            notifyImeOfChanges = false
+        ) { setSelection(0, 5) }
     }
 
     @Test
@@ -449,8 +469,8 @@ class EditProcessorTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
-        val processor = EditProcessor(initialValue)
-        val filter = InputTransformation { old, new ->
+        val state = TextFieldState(initialValue)
+        val inputTransformation = InputTransformation { old, new ->
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
@@ -459,40 +479,40 @@ class EditProcessorTest {
             assertThat(new.toString()).isEqualTo("world")
         }
 
-        processor.update(
-            DeleteAllCommand,
-            CommitTextCommand("world", 1),
-            SetSelectionCommand(2, 2),
-            filter = filter
-        )
+        state.editAsUser(inputTransformation = inputTransformation, notifyImeOfChanges = false) {
+            deleteAll()
+            commitText("world", 1)
+            setSelection(2, 2)
+        }
     }
 
     @Test
     fun stateUpdated_whenOnlyCompositionChanges_noFilter() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(5), composition = TextRange(0, 5))
-        val processor = EditProcessor(initialValue)
+        val state = TextFieldState(initialValue)
 
-        processor.update(SetComposingRegionCommand(2, 3), filter = null)
+        state.editAsUser { setComposingRegion(2, 3) }
 
-        assertThat(processor.value.compositionInChars).isEqualTo(TextRange(2, 3))
+        assertThat(state.text.compositionInChars).isEqualTo(TextRange(2, 3))
     }
 
     @Test
     fun stateUpdated_whenOnlyCompositionChanges_withFilter() {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(5), composition = TextRange(0, 5))
-        val processor = EditProcessor(initialValue)
+        val state = TextFieldState(initialValue)
 
-        processor.update(SetComposingRegionCommand(2, 3), filter = { _, _ -> })
+        state.editAsUser { setComposingRegion(2, 3) }
 
-        assertThat(processor.value.compositionInChars).isEqualTo(TextRange(2, 3))
+        assertThat(state.text.compositionInChars).isEqualTo(TextRange(2, 3))
     }
 
-    private fun EditProcessor.update(
-        vararg editCommand: EditCommand,
-        filter: InputTransformation? = null
-    ) {
-        update(editCommand.toList(), filter)
+    private fun TextFieldState(
+        value: TextFieldCharSequence
+    ) = TextFieldState(value.toString(), value.selectionInChars)
+
+    private fun TextFieldState.editAsUser(block: EditingBuffer.() -> Unit) {
+        editAsUser(null, false, block)
     }
 }

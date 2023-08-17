@@ -41,7 +41,7 @@ internal interface TextInputSession {
     /**
      * Callback to execute for InputConnection to communicate the changes requested by the IME.
      */
-    fun requestEdits(editCommands: List<EditCommand>)
+    fun requestEdit(block: EditingBuffer.() -> Unit)
 
     /**
      * Delegates IME requested KeyEvents.

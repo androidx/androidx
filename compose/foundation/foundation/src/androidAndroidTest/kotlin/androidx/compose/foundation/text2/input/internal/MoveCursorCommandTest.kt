@@ -40,7 +40,7 @@ class MoveCursorCommandTest {
     fun test_left() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(MoveCursorCommand(-1))
+        eb.moveCursor(-1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -51,7 +51,7 @@ class MoveCursorCommandTest {
     fun test_left_multiple() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(MoveCursorCommand(-2))
+        eb.moveCursor(-2)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -62,7 +62,7 @@ class MoveCursorCommandTest {
     fun test_left_from_offset0() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(MoveCursorCommand(-1))
+        eb.moveCursor(-1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -73,7 +73,7 @@ class MoveCursorCommandTest {
     fun test_right() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(MoveCursorCommand(1))
+        eb.moveCursor(1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(4)
@@ -84,7 +84,7 @@ class MoveCursorCommandTest {
     fun test_right_multiple() {
         val eb = EditingBuffer("ABCDE", TextRange(3))
 
-        eb.update(MoveCursorCommand(2))
+        eb.moveCursor(2)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(5)
@@ -95,7 +95,7 @@ class MoveCursorCommandTest {
     fun test_right_from_offset_length() {
         val eb = EditingBuffer("ABCDE", TextRange(5))
 
-        eb.update(MoveCursorCommand(1))
+        eb.moveCursor(1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(5)
@@ -106,7 +106,7 @@ class MoveCursorCommandTest {
     fun test_left_surrogate_pair() {
         val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
-        eb.update(MoveCursorCommand(-1))
+        eb.moveCursor(-1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH3$CH4$CH5")
         assertThat(eb.cursor).isEqualTo(4)
@@ -117,7 +117,7 @@ class MoveCursorCommandTest {
     fun test_left_multiple_surrogate_pair() {
         val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
-        eb.update(MoveCursorCommand(-2))
+        eb.moveCursor(-2)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH3$CH4$CH5")
         assertThat(eb.cursor).isEqualTo(2)
@@ -128,7 +128,7 @@ class MoveCursorCommandTest {
     fun test_right_surrogate_pair() {
         val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
-        eb.update(MoveCursorCommand(1))
+        eb.moveCursor(1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH3$CH4$CH5")
         assertThat(eb.cursor).isEqualTo(8)
@@ -139,7 +139,7 @@ class MoveCursorCommandTest {
     fun test_right_multiple_surrogate_pair() {
         val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
-        eb.update(MoveCursorCommand(2))
+        eb.moveCursor(2)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH3$CH4$CH5")
         assertThat(eb.cursor).isEqualTo(10)
@@ -151,7 +151,7 @@ class MoveCursorCommandTest {
     fun test_left_emoji() {
         val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length))
 
-        eb.update(MoveCursorCommand(-1))
+        eb.moveCursor(-1)
 
         assertThat(eb.toString()).isEqualTo("$FAMILY$FAMILY")
         assertThat(eb.cursor).isEqualTo(0)
@@ -163,7 +163,7 @@ class MoveCursorCommandTest {
     fun test_right_emoji() {
         val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length))
 
-        eb.update(MoveCursorCommand(1))
+        eb.moveCursor(1)
 
         assertThat(eb.toString()).isEqualTo("$FAMILY$FAMILY")
         assertThat(eb.cursor).isEqualTo(2 * FAMILY.length)

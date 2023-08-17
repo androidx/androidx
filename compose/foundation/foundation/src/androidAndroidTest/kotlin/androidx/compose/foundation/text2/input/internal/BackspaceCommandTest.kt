@@ -41,7 +41,7 @@ class BackspaceCommandTest {
     fun test_delete() {
         val eb = EditingBuffer("ABCDE", TextRange(1))
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("BCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -52,7 +52,7 @@ class BackspaceCommandTest {
     fun test_delete_from_offset0() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
         assertThat(eb.cursor).isEqualTo(0)
@@ -63,7 +63,7 @@ class BackspaceCommandTest {
     fun test_delete_with_selection() {
         val eb = EditingBuffer("ABCDE", TextRange(2, 3))
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("ABDE")
         assertThat(eb.cursor).isEqualTo(2)
@@ -75,7 +75,7 @@ class BackspaceCommandTest {
         val eb = EditingBuffer("ABCDE", TextRange(1))
         eb.setComposition(2, 3)
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("ABDE")
         assertThat(eb.cursor).isEqualTo(1)
@@ -86,7 +86,7 @@ class BackspaceCommandTest {
     fun test_delete_surrogate_pair() {
         val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("$SP2$SP3$SP4$SP5")
         assertThat(eb.cursor).isEqualTo(0)
@@ -97,7 +97,7 @@ class BackspaceCommandTest {
     fun test_delete_with_selection_surrogate_pair() {
         val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(4, 6))
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("$SP1$SP2$SP4$SP5")
         assertThat(eb.cursor).isEqualTo(4)
@@ -109,7 +109,7 @@ class BackspaceCommandTest {
         val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
         eb.setComposition(4, 6)
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo("$SP1$SP2$SP4$SP5")
         assertThat(eb.cursor).isEqualTo(2)
@@ -124,7 +124,7 @@ class BackspaceCommandTest {
             TextRange(ZWJ_EMOJI.length)
         )
 
-        eb.update(BackspaceCommand)
+        eb.backspace()
 
         assertThat(eb.toString()).isEqualTo(ZWJ_EMOJI)
         assertThat(eb.cursor).isEqualTo(0)
