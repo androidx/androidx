@@ -76,7 +76,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 // MissingJvmDefaultWithCompatibilityDetector is intentionally left out of the
                 // registry, see comments on the class for more details.
                 BanVisibleForTestingParams.ISSUE,
-                PrereleaseSdkCoreDependencyDetector.ISSUE
+                PrereleaseSdkCoreDependencyDetector.ISSUE,
+                DeprecationMismatchDetector.ISSUE,
             )
         }
     }
