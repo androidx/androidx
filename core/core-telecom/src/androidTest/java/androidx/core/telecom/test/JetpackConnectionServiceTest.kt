@@ -124,7 +124,12 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         ConnectionRequest {
         // wrap in PendingRequest
         val pr = JetpackConnectionService.PendingConnectionRequest(
-            callAttributesCompat, callChannels, mWorkerContext, null, CompletableDeferred()
+            callAttributesCompat, callChannels, mWorkerContext, null,
+            TestUtils.mOnAnswerLambda,
+            TestUtils.mOnDisconnectLambda,
+            TestUtils.mOnSetActiveLambda,
+            TestUtils.mOnSetInActiveLambda,
+            CompletableDeferred()
         )
         // add to the list of pendingRequests
         JetpackConnectionService.mPendingConnectionRequests.add(pr)
