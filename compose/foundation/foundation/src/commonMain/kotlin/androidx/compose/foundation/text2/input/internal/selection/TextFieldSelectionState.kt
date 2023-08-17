@@ -29,7 +29,7 @@ import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
 import androidx.compose.foundation.text.selection.getTextFieldSelection
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 internal class TextFieldSelectionState(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
-    var textEditFilter: TextEditFilter?,
+    var textEditFilter: InputTransformation?,
     var density: Density,
     var editable: Boolean,
     var isFocused: Boolean
@@ -1058,7 +1058,7 @@ internal class TextFieldSelectionState(
             buffer.block()
 
             // finally filter the buffer's current status
-            textEditFilter?.filter(originalValue, buffer)
+            textEditFilter?.transformInput(originalValue, buffer)
 
             // reset the TextFieldState with the buffer's final value
             val newValue = buffer.toTextFieldCharSequence(originalValue.compositionInChars)

@@ -166,7 +166,7 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
+                inputTransformation = { _, changes ->
                     if (changes.length > 1) {
                         val newText = changes.asCharSequence().asSequence().joinToString("-")
                         changes.replace(0, changes.length, newText)
@@ -229,7 +229,7 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
+                inputTransformation = { _, changes ->
                     val newChange = changes.asCharSequence().replace(Regex("a"), "")
                     changes.replace(0, changes.length, newChange)
                 }
@@ -375,7 +375,7 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, changes ->
+                inputTransformation = { _, changes ->
                     changes.revertAllChanges()
                 }
             )
@@ -510,7 +510,7 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { _, changes ->
+                    inputTransformation = { _, changes ->
                         // remove all 'l' characters
                         if (changes.changes.changeCount != 0) {
                             val newChange = changes.asCharSequence().replace(Regex("l"), "")
@@ -590,7 +590,7 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { original, changes ->
+                    inputTransformation = { original, changes ->
                         // reject copy action collapsing the selection
                         if (changes.selectionInChars != original.selectionInChars) {
                             changes.revertAllChanges()
@@ -655,7 +655,7 @@ class BasicTextField2SemanticsTest {
                 BasicTextField2(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    filter = { _, changes ->
+                    inputTransformation = { _, changes ->
                         changes.revertAllChanges()
                     }
                 )

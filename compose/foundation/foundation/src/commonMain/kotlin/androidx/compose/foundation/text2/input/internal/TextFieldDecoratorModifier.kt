@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
@@ -87,7 +87,7 @@ internal data class TextFieldDecoratorModifier(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textFieldSelectionState: TextFieldSelectionState,
-    private val filter: TextEditFilter?,
+    private val filter: InputTransformation?,
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
@@ -131,7 +131,7 @@ internal class TextFieldDecoratorModifierNode(
     var textFieldState: TextFieldState,
     var textLayoutState: TextLayoutState,
     var textFieldSelectionState: TextFieldSelectionState,
-    var filter: TextEditFilter?,
+    var filter: InputTransformation?,
     var enabled: Boolean,
     var readOnly: Boolean,
     keyboardOptions: KeyboardOptions,
@@ -222,7 +222,7 @@ internal class TextFieldDecoratorModifierNode(
         textFieldState: TextFieldState,
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
-        filter: TextEditFilter?,
+        filter: InputTransformation?,
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
@@ -471,7 +471,7 @@ internal class TextFieldDecoratorModifierNode(
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TextFieldState,
     imeOptions: ImeOptions,
-    filter: TextEditFilter?,
+    filter: InputTransformation?,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing
 
