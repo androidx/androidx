@@ -29,6 +29,7 @@ import android.graphics.Color
 import android.graphics.Picture
 import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -36,6 +37,7 @@ import android.os.IBinder
 import android.provider.Settings
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
+import android.view.Display
 import android.view.Gravity
 import android.view.Surface
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
@@ -667,6 +669,32 @@ constructor(
 
     internal val componentName = watchFaceHostApi.getComponentName()
 
+    init {
+        val context = watchFaceHostApi.getContext()
+        val displayManager =
+                context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        displayManager.registerDisplayListener(
+                object : DisplayManager.DisplayListener {
+                    override fun onDisplayAdded(displayId: Int) {}
+
+                    override fun onDisplayChanged(displayId: Int) {
+                        val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
+                        if (display.state == Display.STATE_OFF &&
+                                watchState.isVisible.value == false) {
+                            // We want to avoid a glimpse of a stale time when transitioning from
+                            // hidden to visible, so we render two black frames to clear the buffers
+                            // when the display has been turned off and the watch is not visible.
+                            renderer.renderBlackFrame()
+                            renderer.renderBlackFrame()
+                        }
+                    }
+
+                    override fun onDisplayRemoved(displayId: Int) {}
+                },
+                watchFaceHostApi.getUiThreadHandler()
+        )
+    }
+
     internal fun getWatchFaceStyle() =
         WatchFaceStyle(
             componentName,
@@ -744,10 +772,6 @@ constructor(
                 }
                 scheduleDraw()
             } else {
-                // We want to avoid a glimpse of a stale time when transitioning from hidden to
-                // visible, so we render two black frames to clear the buffers.
-                renderer.renderBlackFrame()
-                renderer.renderBlackFrame()
                 unregisterReceivers()
             }
         }
