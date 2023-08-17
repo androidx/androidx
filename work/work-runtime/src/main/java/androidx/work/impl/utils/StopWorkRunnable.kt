@@ -18,6 +18,7 @@ package androidx.work.impl.utils
 import androidx.annotation.RestrictTo
 import androidx.work.Logger
 import androidx.work.StopReason
+import androidx.work.WorkInfo
 import androidx.work.impl.Processor
 import androidx.work.impl.StartStopToken
 
@@ -29,7 +30,8 @@ class StopWorkRunnable(
     private val processor: Processor,
     private val token: StartStopToken,
     private val stopInForeground: Boolean,
-    private val reason: StopReason,
+    @StopReason
+    private val reason: Int,
 ) : Runnable {
 
     // java compatibility, can't use default args because @JvmOverloads doesn't work with
@@ -38,15 +40,15 @@ class StopWorkRunnable(
         processor: Processor,
         token: StartStopToken,
         stopInForeground: Boolean,
-    ) : this(processor, token, stopInForeground, StopReason.Unknown)
+    ) : this(processor, token, stopInForeground, WorkInfo.STOP_REASON_UNKNOWN)
 
     override fun run() {
         val isStopped = if (stopInForeground) {
-            processor.stopForegroundWork(token, reason.value)
+            processor.stopForegroundWork(token, reason)
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
-            processor.stopWork(token, reason.value)
+            processor.stopWork(token, reason)
         }
         Logger.get().debug(
             Logger.tagWithPrefix("StopWorkRunnable"),
