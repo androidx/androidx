@@ -125,8 +125,6 @@ RemovedClass: androidx.kruth.TruthJUnit:
 
 RemovedInterface: androidx.kruth.Fact:
     Class androidx.kruth.Fact no longer implements java.io.Serializable
-RemovedInterface: androidx.kruth.FailureStrategy:
-    Removed class androidx.kruth.FailureStrategy
 
 
 RemovedMethod: androidx.kruth.ComparableSubject#ComparableSubject(androidx.kruth.FailureMetadata, T):
@@ -161,8 +159,6 @@ RemovedMethod: androidx.kruth.MapSubject#formattingDiffsUsing(androidx.kruth.Cor
     Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#forCustomFailureStrategy(androidx.kruth.FailureStrategy):
-    Removed method androidx.kruth.StandardSubjectBuilder.forCustomFailureStrategy(androidx.kruth.FailureStrategy)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
 RemovedMethod: androidx.kruth.StringSubject#StringSubject(androidx.kruth.FailureMetadata, String):
