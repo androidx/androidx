@@ -28,10 +28,7 @@ import androidx.annotation.IntRange
 /**
  * LayoutCompat class which provides all supported attributes by framework, and also defines
  * default value of those attributes for Compose.
- *
- * @suppress
  */
-@InternalPlatformTextApi
 internal object LayoutCompat {
     const val ALIGN_NORMAL = 0
     const val ALIGN_OPPOSITE = 1
@@ -172,9 +169,7 @@ internal object LayoutCompat {
  * if the offset it not a line broken offset.
  * @return the line number
  *
- * @suppress
  */
-@InternalPlatformTextApi
 internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
     if (offset <= 0) return 0
     if (offset >= text.length) return lineCount - 1

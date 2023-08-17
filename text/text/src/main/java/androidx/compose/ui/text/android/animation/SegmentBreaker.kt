@@ -18,7 +18,6 @@ package androidx.compose.ui.text.android.animation
 
 import android.text.Layout
 import androidx.compose.ui.text.android.CharSequenceCharacterIterator
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutHelper
 import androidx.compose.ui.text.android.fastForEach
 import androidx.compose.ui.text.android.fastZipWithNext
@@ -40,9 +39,7 @@ import kotlin.math.min
  * @param right a graphical right position from the layout origin.
  * @param bottom a graphical bottom position from the layout origin.
  *
- * @suppress
  */
-@InternalPlatformTextApi
 internal data class Segment(
     val startOffset: Int,
     val endOffset: Int,
@@ -53,10 +50,8 @@ internal data class Segment(
 )
 
 /**
- * Porvide a segmentation breaker for the text animation.
- * @suppress
+ * Provide a segmentation breaker for the text animation.
  */
-@InternalPlatformTextApi
 internal object SegmentBreaker {
     private fun breakInWords(layoutHelper: LayoutHelper): List<Int> {
         val text = layoutHelper.layout.text

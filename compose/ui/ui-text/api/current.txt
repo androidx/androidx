@@ -637,6 +637,12 @@ package androidx.compose.ui.text.android {
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalPlatformTextApi {
   }
 
+  @SuppressCompatibility @androidx.compose.ui.text.android.InternalPlatformTextApi public final class StaticLayoutFactory {
+    method public android.text.StaticLayout create(CharSequence text, android.text.TextPaint paint, int width, optional int start, optional int end, optional android.text.TextDirectionHeuristic textDir, optional android.text.Layout.Alignment alignment, optional @IntRange(from=0L) int maxLines, optional android.text.TextUtils.TruncateAt? ellipsize, optional @IntRange(from=0L) int ellipsizedWidth, optional @FloatRange(from=0.0) float lineSpacingMultiplier, optional float lineSpacingExtra, optional int justificationMode, optional boolean includePadding, optional boolean useFallbackLineSpacing, optional int breakStrategy, optional int lineBreakStyle, optional int lineBreakWordStyle, optional int hyphenationFrequency, optional int[]? leftIndents, optional int[]? rightIndents);
+    method public boolean isFallbackLineSpacingEnabled(android.text.StaticLayout layout, boolean useFallbackLineSpacing);
+    field public static final androidx.compose.ui.text.android.StaticLayoutFactory INSTANCE;
+  }
+
 }
 
 package androidx.compose.ui.text.font {
@@ -738,6 +744,7 @@ package androidx.compose.ui.text.font {
   public final class FontFamilyResolver_androidKt {
     method public static androidx.compose.ui.text.font.FontFamily.Resolver createFontFamilyResolver(android.content.Context context);
     method public static androidx.compose.ui.text.font.FontFamily.Resolver createFontFamilyResolver(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method @SuppressCompatibility @androidx.compose.ui.text.InternalTextApi public static androidx.compose.ui.text.font.FontFamily.Resolver emptyCacheFontFamilyResolver(android.content.Context context);
     method public static androidx.compose.runtime.State<android.graphics.Typeface> resolveAsTypeface(androidx.compose.ui.text.font.FontFamily.Resolver, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight fontWeight, optional int fontStyle, optional int fontSynthesis);
   }
 
@@ -1086,6 +1093,20 @@ package androidx.compose.ui.text.input {
   public static final class OffsetMapping.Companion {
     method public androidx.compose.ui.text.input.OffsetMapping getIdentity();
     property public final androidx.compose.ui.text.input.OffsetMapping Identity;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.text.InternalTextApi public final class PartialGapBuffer {
+    ctor public PartialGapBuffer(String text);
+    method public operator char get(int index);
+    method public int getLength();
+    method public String getText();
+    method public void replace(int start, int end, String text);
+    method public void setText(String);
+    property public final int length;
+    property public final String text;
+    field public static final int BUF_SIZE = 255; // 0xff
+    field public static final int NOWHERE = -1; // 0xffffffff
+    field public static final int SURROUNDING_SIZE = 64; // 0x40
   }
 
   public final class PasswordVisualTransformation implements androidx.compose.ui.text.input.VisualTransformation {
