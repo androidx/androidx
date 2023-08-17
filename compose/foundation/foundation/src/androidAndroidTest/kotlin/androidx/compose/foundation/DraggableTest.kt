@@ -26,6 +26,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,6 +37,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -800,6 +802,43 @@ class DraggableTest {
     }
 
     @Test
+    fun draggable_velocityIsLimitedByViewConfiguration() {
+        var latestVelocity = 0f
+        val maxVelocity = 1000f
+
+        rule.setContent {
+            val viewConfig = LocalViewConfiguration.current
+            val newConfig = object : ViewConfiguration by viewConfig {
+                override val maximumFlingVelocity: Int
+                    get() = maxVelocity.toInt()
+            }
+            CompositionLocalProvider(LocalViewConfiguration provides newConfig) {
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .testTag(draggableBoxTag)
+                            .size(100.dp)
+                            .draggable(orientation = Orientation.Horizontal, onDragStopped = {
+                                latestVelocity = it
+                            }, onDrag = {})
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            this.swipeWithVelocity(
+                start = this.centerLeft,
+                end = this.centerRight,
+                endVelocity = 2000f
+            )
+        }
+        rule.runOnIdle {
+            assertThat(latestVelocity).isEqualTo(maxVelocity)
+        }
+    }
+
+    @Test
     fun draggable_interactionSource_resetWhenInteractionSourceChanged() {
         val interactionSource1 = MutableInteractionSource()
         val interactionSource2 = MutableInteractionSource()
@@ -952,9 +991,9 @@ class DraggableTest {
             enabled.value = false // cancels pointer input scope
         }
 
-       rule.runOnIdle {
-           assertTrue { runningJob.isActive } // check if scope is still active
-       }
+        rule.runOnIdle {
+            assertTrue { runningJob.isActive } // check if scope is still active
+        }
     }
 
     @Test
