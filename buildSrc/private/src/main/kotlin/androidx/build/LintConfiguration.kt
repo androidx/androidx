@@ -363,8 +363,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         // Explicitly disable StopShip check (see b/244617216)
         disable.add("StopShip")
 
-        // Broken in 7.0.0-alpha15 due to b/180408990
-        disable.add("RestrictedApi")
+        fatal.add("RestrictedApi")
 
         // Disable until ag/19949626 goes in (b/261918265)
         disable.add("MissingQuantity")

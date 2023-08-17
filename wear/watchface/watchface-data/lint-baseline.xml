@@ -3,14 +3,18 @@
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationRenderParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/ComplicationRenderParams.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ComplicationSlotMetadataWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/ComplicationSlotMetadataWireFormat.aidl"/>
     </issue>
@@ -19,14 +23,16 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ComplicationStateWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/ComplicationStateWireFormat.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable ContentDescriptionLabel;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/android/support/wearable/watchface/accessibility/ContentDescriptionLabel.aidl"/>
     </issue>
@@ -35,14 +41,16 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable CrashInfoParcel;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/CrashInfoParcel.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable DefaultProviderPoliciesParams;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/DefaultProviderPoliciesParams.aidl"/>
     </issue>
@@ -51,7 +59,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable EditorStateWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/editor/data/EditorStateWireFormat.aidl"/>
     </issue>
@@ -60,7 +68,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable GetComplicationSlotMetadataParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/GetComplicationSlotMetadataParams.aidl"/>
     </issue>
@@ -69,7 +77,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable GetUserStyleFlavorsParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/GetUserStyleFlavorsParams.aidl"/>
     </issue>
@@ -78,7 +86,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable GetUserStyleSchemaParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/GetUserStyleSchemaParams.aidl"/>
     </issue>
@@ -95,8 +103,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1=""
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IEditorObserver {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/editor/IEditorObserver.aidl"/>
     </issue>
@@ -104,8 +112,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1=""
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IEditorService {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/editor/IEditorService.aidl"/>
     </issue>
@@ -113,8 +121,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import androidx.wear.watchface.control.data.WatchFaceRenderParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IHeadlessWatchFace {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IHeadlessWatchFace.aidl"/>
     </issue>
@@ -122,8 +130,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import androidx.wear.watchface.control.IRemoteWatchFaceView;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IInteractiveWatchFace {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IInteractiveWatchFace.aidl"/>
     </issue>
@@ -131,8 +139,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import androidx.wear.watchface.control.data.CrashInfoParcel;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IPendingInteractiveWatchFace {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IPendingInteractiveWatchFace.aidl"/>
     </issue>
@@ -140,8 +148,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import androidx.wear.watchface.control.data.WatchFaceRenderParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IRemoteWatchFaceView {"
+        errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IRemoteWatchFaceView.aidl"/>
     </issue>
@@ -149,7 +157,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;"
+        errorLine1="interface IWatchFaceControlService {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IWatchFaceControlService.aidl"/>
@@ -158,8 +166,8 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="import android.os.Bundle;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="interface IWatchFaceService {"
+        errorLine2="^">
         <location
             file="src/main/aidl/android/support/wearable/watchface/IWatchFaceService.aidl"/>
     </issue>
@@ -167,7 +175,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="    // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change"
+        errorLine1="interface IWatchfaceListener {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IWatchfaceListener.aidl"/>
@@ -176,7 +184,7 @@
     <issue
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="    /**"
+        errorLine1="interface IWatchfaceReadyListener {"
         errorLine2="^">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/IWatchfaceReadyListener.aidl"/>
@@ -186,7 +194,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable IdAndComplicationDataWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/IdAndComplicationDataWireFormat.aidl"/>
     </issue>
@@ -195,7 +203,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable IdAndComplicationStateWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/IdAndComplicationStateWireFormat.aidl"/>
     </issue>
@@ -204,7 +212,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable IdTypeAndDefaultProviderPolicyWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/IdTypeAndDefaultProviderPolicyWireFormat.aidl"/>
     </issue>
@@ -213,7 +221,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ImmutableSystemState;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/ImmutableSystemState.aidl"/>
     </issue>
@@ -222,7 +230,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable ParcelableWrapper;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/android/support/wearable/watchface/ParcelableWrapper.aidl"/>
     </issue>
@@ -231,28 +239,34 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable RenderParametersWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/RenderParametersWireFormat.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleFlavorsWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleFlavorsWireFormat.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleSchemaWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleSchemaWireFormat.aidl"/>
     </issue>
 
     <issue
         id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker">
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="parcelable UserStyleWireFormat;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/style/data/UserStyleWireFormat.aidl"/>
     </issue>
@@ -261,7 +275,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WallpaperInteractiveWatchFaceInstanceParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/WallpaperInteractiveWatchFaceInstanceParams.aidl"/>
     </issue>
@@ -270,7 +284,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchFaceColorsWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/WatchFaceColorsWireFormat.aidl"/>
     </issue>
@@ -279,7 +293,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchFaceOverlayStyleWireFormat;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/WatchFaceOverlayStyleWireFormat.aidl"/>
     </issue>
@@ -288,7 +302,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchFaceRenderParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/WatchFaceRenderParams.aidl"/>
     </issue>
@@ -297,7 +311,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchFaceStyle;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/android/support/wearable/watchface/WatchFaceStyle.aidl"/>
     </issue>
@@ -306,7 +320,7 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchFaceSurfaceRenderParams;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/control/data/WatchFaceSurfaceRenderParams.aidl"/>
     </issue>
@@ -315,9 +329,531 @@
         id="RequireUnstableAidlAnnotation"
         message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
         errorLine1="parcelable WatchUiState;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/aidl/androidx/wear/watchface/data/WatchUiState.aidl"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="            parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/BoundingArcWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/BoundingArcWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/ComplicationOverlayWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/ComplicationOverlayWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/ComplicationRenderParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/ComplicationRenderParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/ComplicationSlotMetadataWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/ComplicationSlotMetadataWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/ComplicationStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/ComplicationStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/DefaultProviderPoliciesParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/DefaultProviderPoliciesParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/DeviceConfig.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/DeviceConfig.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/editor/data/EditorStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/editor/data/EditorStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetComplicationSlotMetadataParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetComplicationSlotMetadataParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetUserStyleFlavorsParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetUserStyleFlavorsParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetUserStyleSchemaParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/GetUserStyleSchemaParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/HeadlessWatchFaceInstanceParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/HeadlessWatchFaceInstanceParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndComplicationDataWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndComplicationDataWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndComplicationStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndComplicationStateWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndTapEventWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/IdAndTapEventWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/IdTypeAndDefaultProviderPolicyWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/IdTypeAndDefaultProviderPolicyWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/LayerParameterWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/LayerParameterWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/OptionWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/OptionWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/RenderParametersWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/RenderParametersWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleFlavorWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleFlavorWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleFlavorsWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleFlavorsWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleSchemaWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleSchemaWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleSettingWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleSettingWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/style/data/UserStyleWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/WallpaperInteractiveWatchFaceInstanceParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/WallpaperInteractiveWatchFaceInstanceParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="            parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchFaceColorsWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchFaceColorsWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchFaceOverlayStyleWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchFaceOverlayStyleWireFormat.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/WatchFaceRenderParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/control/data/WatchFaceRenderParams.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchUiState.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
+        errorLine1="                    return ParcelUtils.fromParcelable("
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/data/WatchUiState.java"/>
     </issue>
 
 </issues>
