@@ -542,6 +542,12 @@ internal class TestSpecialEffectsController(
     override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
+            val effect = object : Effect() {
+                override fun onCancel(container: ViewGroup) {
+                    operation.completeEffect(this)
+                }
+            }
+            operation.addEffect(effect)
             operation.addCompletionListener {
                 operationsToExecute.remove(operation)
                 operation.isAwaitingContainerChanges = false
@@ -550,7 +556,11 @@ internal class TestSpecialEffectsController(
     }
 
     fun completeAllOperations() {
-        operationsToExecute.forEach(Operation::complete)
+        operationsToExecute.forEach { operation ->
+            operation.effects.forEach { effect ->
+                operation.completeEffect(effect)
+            }
+        }
         operationsToExecute.clear()
     }
 }
@@ -560,10 +570,7 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun collectEffects(operations: List<Operation>, isPop: Boolean) { }
-
-    override fun commitEffects(operations: List<Operation>) {
+    override fun collectEffects(operations: List<Operation>, isPop: Boolean) {
         executeOperationsCallCount++
-        operations.forEach(Operation::complete)
     }
 }
