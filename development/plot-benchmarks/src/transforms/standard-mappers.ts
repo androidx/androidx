@@ -1,16 +1,50 @@
 import type { Point } from "chart.js";
 import type { Series } from "../types/chart.js";
-import type { ChartData, Metric } from "../types/data.js";
+import type { ChartData, Metric, Metrics, Range } from "../types/data.js";
 import type { Mapper } from "./data-transforms.js";
 
-function sampledMapper(metric: Metric<number[]>): Series[] {
+function sampledRanges(metrics: Metrics<number>): Record<string, Range> {
+  const ranges: Record<string, Range> = {};
+  const sampled = metrics.sampled;
+  if (sampled) {
+    for (let i = 0; i < sampled.length; i += 1) {
+      const metric = sampled[i];
+      const label = rangeLabel(metric);
+      let range = ranges[label];
+      if (!range) {
+        range = {
+          label: label,
+          min: Number.MAX_VALUE,
+          max: Number.MIN_VALUE
+        };
+      }
+      const data: Record<string, ChartData<number[]>> = metric.data;
+      const chartData: ChartData<number[]>[] = Object.values(data);
+      for (let j = 0; j < chartData.length; j++) {
+        const values = chartData[j].values.flat();
+        for (let k = 0; k < values.length; k++) {
+          if (values[k] < range.min) {
+            range.min = values[k];
+          }
+          if (values[k] > range.max) {
+            range.max = values[k];
+          }
+        }
+      }
+      ranges[label] = range;
+    }
+  }
+  return ranges;
+}
+
+function sampledMapper(metric: Metric<number[]>, range: Range | null): Series[] {
   const series: Series[] = [];
   const data: Record<string, ChartData<number[]>> = metric.data;
   const entries = Object.entries(data);
   for (let i = 0; i < entries.length; i += 1) {
     const [source, chartData] = entries[i];
     const label = labelFor(metric, source);
-    const [points, _, __] = histogramPoints(chartData.values);
+    const [points, _, __] = histogramPoints(chartData.values, /* buckets */ undefined, /* target */ undefined, range);
     series.push({
       label: label,
       type: "line",
@@ -45,20 +79,34 @@ function standardMapper(metric: Metric<number>): Series[] {
 
 export function histogramPoints(
   runs: number[][],
-  buckets: number = 10,
-  target: number | null = null
+  buckets: number = 100,
+  target: number | null = null,
+  range: Range | null = null,
 ): [Point[], Point[] | null, number | null] {
   const flattened = runs.flat();
-  // Default comparator coerces types to string !
-  flattened.sort((a, b) => a - b); // in-place
-  const min = flattened[0];
-  const max = flattened[flattened.length - 1];
+  // Actuals
+  let min: number;
+  let max: number;
+  if (range) {
+    min = range.min;
+    max = range.max;
+  } else {
+    // Use a custom comparator, given the default coerces numbers
+    // to a string type.
+    flattened.sort((a, b) => a - b);
+    // Natural Ranges
+    const nmin = flattened[0];
+    const nmax = flattened[flattened.length - 1];
+    min = nmin;
+    max = nmax;
+  }
   let targetPoints: Point[] | null = null;
   let pMin: number = 0;
   let pMax: number = 0;
   let maxFreq: number = 0;
   const histogram = new Array(buckets).fill(0);
-  const slots = buckets - 1; // The actual number of slots in the histogram
+  // The actual number of slots in the histogram
+  const slots = buckets - 1;
   for (let i = 0; i < flattened.length; i += 1) {
     const value = flattened[i];
     if (target && value < target) {
@@ -117,7 +165,13 @@ function normalize(n: number, min: number, max: number): number {
       n = max;
     }
   }
-  return (n - min) / (max - min + 1e-5);
+  return (n - min) / ((max - min) + 1e-9);
+}
+
+function interpolate(normalized: number, min: number, max: number) {
+  const range = max - min;
+  const value = normalized * range;
+  return value + min;
 }
 
 /**
@@ -132,9 +186,19 @@ export function datasetName(metric: Metric<any>): string {
 }
 
 /**
+ * Helps build cache keys for ranges to ensure we are
+ * comparing equal distributions.
+ */
+function rangeLabel(metric: Metric<unknown>): string {
+  return `${metric.benchmark}>${metric.label}`;
+}
+
+/**
  * The standard mapper.
  */
 export const STANDARD_MAPPER: Mapper = {
+  rangeLabel: rangeLabel,
   standard: standardMapper,
-  sampled: sampledMapper
+  sampled: sampledMapper,
+  sampledRanges: sampledRanges
 };
