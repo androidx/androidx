@@ -403,8 +403,23 @@ package androidx.work {
     property @RequiresApi(31) public final int stopReason;
     property public final java.util.Set<java.lang.String> tags;
     field public static final androidx.work.WorkInfo.Companion Companion;
+    field public static final int STOP_REASON_APP_STANDBY = 12; // 0xc
+    field public static final int STOP_REASON_BACKGROUND_RESTRICTION = 11; // 0xb
+    field public static final int STOP_REASON_CANCELLED_BY_APP = 1; // 0x1
+    field public static final int STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW = 5; // 0x5
+    field public static final int STOP_REASON_CONSTRAINT_CHARGING = 6; // 0x6
+    field public static final int STOP_REASON_CONSTRAINT_CONNECTIVITY = 7; // 0x7
+    field public static final int STOP_REASON_CONSTRAINT_DEVICE_IDLE = 8; // 0x8
+    field public static final int STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW = 9; // 0x9
+    field public static final int STOP_REASON_DEVICE_STATE = 4; // 0x4
+    field public static final int STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED = 15; // 0xf
     field public static final int STOP_REASON_NOT_STOPPED = -256; // 0xffffff00
+    field public static final int STOP_REASON_PREEMPT = 2; // 0x2
+    field public static final int STOP_REASON_QUOTA = 10; // 0xa
+    field public static final int STOP_REASON_SYSTEM_PROCESSING = 14; // 0xe
+    field public static final int STOP_REASON_TIMEOUT = 3; // 0x3
     field public static final int STOP_REASON_UNKNOWN = -512; // 0xfffffe00
+    field public static final int STOP_REASON_USER = 13; // 0xd
   }
 
   public static final class WorkInfo.Companion {

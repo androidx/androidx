@@ -15,8 +15,12 @@
  */
 package androidx.work
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
+import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkInfo.State
 import java.util.UUID
 
@@ -108,10 +112,7 @@ class WorkInfo @JvmOverloads constructor(
     val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
 
     /**
-     * The reason why this worker was stopped on the previous run attempt, its value is
-     * one of `android.app.job.JobParameters.STOP_REASON_*`, such as
-     * [android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY], or
-     * [STOP_REASON_NOT_STOPPED] if a worker wasn't stopped.
+     * The reason why this worker was stopped on the previous run attempt.
      *
      * For a worker being stopped, at first it should have attempted to run, i.e. its state
      * should be == RUNNING and then [ListenableWorker.onStopped] should have been called,
@@ -122,6 +123,7 @@ class WorkInfo @JvmOverloads constructor(
      * a worker returns `ListenableWorker.Result.retry()`. In this situation this property will
      * return [STOP_REASON_NOT_STOPPED].
      */
+    @StopReason
     @get:RequiresApi(31)
     val stopReason: Int = STOP_REASON_NOT_STOPPED
 ) {
@@ -256,16 +258,130 @@ class WorkInfo @JvmOverloads constructor(
         const val STOP_REASON_NOT_STOPPED = -256
 
         /**
-         * Additional stop reason that is used in cases when worker did stop, but the reason for
+         * Stop reason that is used in cases when worker did stop, but the reason for
          * this is unknown. For example, when the app abruptly stopped due to a crash or when a
          * device suddenly ran out of the battery.
-         *
-         * [STOP_REASON_UNKNOWN] is introduced in addition to
-         * [android.app.job.JobParameters.STOP_REASON_UNDEFINED], because `STOP_REASON_UNDEFINED`
-         * is used by JobScheduler in the `JobParameters` object passed to
-         * `JobService#onStartJob(JobParameters)`. Thus it has significantly different meaning
-         * than `STOP_REASON_UNKNOWN`, so we don't want to collide these two situations.
          */
         const val STOP_REASON_UNKNOWN = -512
+
+        /**
+         * The worker was cancelled directly by the app, either by calling cancel methods, e.g.
+         * [WorkManager.cancelUniqueWork], or enqueueing uniquely named worker with
+         * with a policy that cancels an existing worker, e.g. [ExistingWorkPolicy.REPLACE].
+         */
+        const val STOP_REASON_CANCELLED_BY_APP = 1
+
+        /**
+         * The job was stopped to run a higher priority job of the app.
+         */
+        const val STOP_REASON_PREEMPT = 2
+
+        /**
+         * The worker used up its maximum execution time and timed out. Each individual worker
+         * has a maximum execution time limit, regardless of how much total quota the app has.
+         * See the note on [JobScheduler] for the execution time limits.
+         */
+        const val STOP_REASON_TIMEOUT = 3
+
+        /**
+         * The device state (eg. Doze, battery saver, memory usage, etc) requires
+         * WorkManager to stop this worker.
+         */
+        const val STOP_REASON_DEVICE_STATE = 4
+
+        /**
+         * The requested battery-not-low constraint is no longer satisfied.
+         *
+         * @see JobInfo.Builder.setRequiresBatteryNotLow
+         */
+        const val STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW = 5
+
+        /**
+         * The requested charging constraint is no longer satisfied.
+         *
+         * @see JobInfo.Builder.setRequiresCharging
+         */
+        const val STOP_REASON_CONSTRAINT_CHARGING = 6
+
+        /**
+         * The requested connectivity constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_CONNECTIVITY = 7
+
+        /**
+         * The requested idle constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_DEVICE_IDLE = 8
+
+        /**
+         * The requested storage-not-low constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW = 9
+
+        /**
+         * The app has consumed all of its current quota. Each app is assigned a quota of how much
+         * it can run workers within a certain time frame.
+         * The quota is informed, in part, by app standby buckets.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_QUOTA
+         */
+        const val STOP_REASON_QUOTA = 10
+
+        /**
+         * The app is restricted from running in the background.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_BACKGROUND_RESTRICTION
+         */
+        const val STOP_REASON_BACKGROUND_RESTRICTION = 11
+
+        /**
+         * The current standby bucket requires that the job stop now.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_APP_STANDBY
+         */
+        const val STOP_REASON_APP_STANDBY = 12
+
+        /**
+         * The user stopped the job. This can happen either through force-stop, adb shell commands,
+         * uninstalling, or some other UI.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_USER
+         */
+        const val STOP_REASON_USER = 13
+
+        /**
+         * The system is doing some processing that requires stopping this job.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_SYSTEM_PROCESSING
+         */
+        const val STOP_REASON_SYSTEM_PROCESSING = 14
+
+        /**
+         * The system's estimate of when the app will be launched changed significantly enough to
+         * decide this worker shouldn't be running right now.
+         */
+        const val STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED = 15
     }
 }
+
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    STOP_REASON_NOT_STOPPED,
+    WorkInfo.STOP_REASON_UNKNOWN,
+    WorkInfo.STOP_REASON_CANCELLED_BY_APP,
+    WorkInfo.STOP_REASON_PREEMPT,
+    WorkInfo.STOP_REASON_TIMEOUT,
+    WorkInfo.STOP_REASON_DEVICE_STATE,
+    WorkInfo.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW,
+    WorkInfo.STOP_REASON_CONSTRAINT_CHARGING,
+    WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+    WorkInfo.STOP_REASON_CONSTRAINT_DEVICE_IDLE,
+    WorkInfo.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW,
+    WorkInfo.STOP_REASON_QUOTA,
+    WorkInfo.STOP_REASON_BACKGROUND_RESTRICTION,
+    WorkInfo.STOP_REASON_APP_STANDBY,
+    WorkInfo.STOP_REASON_USER,
+    WorkInfo.STOP_REASON_SYSTEM_PROCESSING,
+    WorkInfo.STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED
+)
+internal annotation class StopReason
