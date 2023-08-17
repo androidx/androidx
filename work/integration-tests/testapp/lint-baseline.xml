@@ -47,6 +47,114 @@
     </issue>
 
     <issue
+        id="RestrictedApi"
+        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.enqueue(listOf(request)).await()"
+        errorLine2="                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="            .await()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWorkByTag(WORK_TAG).await()"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWork().await()"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        val workInfoList: List&lt;WorkInfo> = remoteWorkManager.getWorkInfos(query).await()"
+        errorLine2="                                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApi"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="                    setProgressAsync(progress).await()"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteWorker.kt"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
