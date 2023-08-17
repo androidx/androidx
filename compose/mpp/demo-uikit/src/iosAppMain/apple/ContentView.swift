@@ -20,7 +20,7 @@ import shared
 
 struct ContentView: View {
     var body: some View {
-        ComposeView().ignoresSafeArea(.all)
+        ComposeView().ignoresSafeArea(.all, edges: .top.union(.horizontal)).ignoresSafeArea(.keyboard)
     }
 }
 

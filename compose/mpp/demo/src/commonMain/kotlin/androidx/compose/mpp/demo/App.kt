@@ -33,6 +33,7 @@ val MainScreen = Screen.Selection(
     LazyLayouts,
     TextFields,
     AndroidTextFieldSamples,
+    Screen.Example("IosKeyboardBugExample") { IosKeyboardBugExample() },
 )
 
 sealed interface Screen {
