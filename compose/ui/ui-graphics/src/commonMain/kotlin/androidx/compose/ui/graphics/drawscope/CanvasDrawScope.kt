@@ -614,8 +614,10 @@ class CanvasDrawScope : DrawScope {
     ): Paint = selectPaint(style).apply {
         if (brush != null) {
             brush.applyTo(size, this, alpha)
-        } else if (this.alpha != alpha) {
-            this.alpha = alpha
+        } else {
+            if (this.shader != null) this.shader = null
+            if (this.color != Color.Black) this.color = Color.Black
+            if (this.alpha != alpha) this.alpha = alpha
         }
         if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
         if (this.blendMode != blendMode) this.blendMode = blendMode
