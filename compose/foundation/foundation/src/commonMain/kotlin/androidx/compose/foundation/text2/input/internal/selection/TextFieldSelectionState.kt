@@ -71,30 +71,31 @@ import kotlinx.coroutines.launch
 internal class TextFieldSelectionState(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
-    var textEditFilter: InputTransformation?,
-    var density: Density,
-    var editable: Boolean,
+    private var inputTransformation: InputTransformation?,
+    private var density: Density,
+    private var editable: Boolean,
     var isFocused: Boolean
 ) {
     /**
      * [HapticFeedback] handle to perform haptic feedback.
      */
-    var hapticFeedBack: HapticFeedback? = null
+    private var hapticFeedBack: HapticFeedback? = null
 
     /**
      * [TextToolbar] to show floating toolbar(post-M) or primary toolbar(pre-M).
      */
-    var textToolbar: TextToolbar? = null
+    private var textToolbar: TextToolbar? = null
 
     /**
      * [ClipboardManager] to perform clipboard features.
      */
-    var clipboardManager: ClipboardManager? = null
+    private var clipboardManager: ClipboardManager? = null
 
     /**
      * Whether user is interacting with the UI in touch mode.
      */
     var isInTouchMode: Boolean by mutableStateOf(true)
+        private set
 
     /**
      * The offset of visible bounds when dragging is started by a cursor or a selection handle.
@@ -249,6 +250,22 @@ internal class TextFieldSelectionState(
 
     val endSelectionHandle by derivedStateOf {
         getSelectionHandleState(isStartHandle = false)
+    }
+
+    fun update(
+        hapticFeedBack: HapticFeedback,
+        clipboardManager: ClipboardManager,
+        textToolbar: TextToolbar,
+        inputTransformation: InputTransformation?,
+        density: Density,
+        editable: Boolean,
+    ) {
+        this.hapticFeedBack = hapticFeedBack
+        this.clipboardManager = clipboardManager
+        this.textToolbar = textToolbar
+        this.inputTransformation = inputTransformation
+        this.density = density
+        this.editable = editable
     }
 
     /**
@@ -1047,7 +1064,7 @@ internal class TextFieldSelectionState(
      * Edits the TextFieldState content with a filter applied if available.
      */
     private fun editAsUser(block: EditingBuffer.() -> Unit) {
-        textFieldState.editAsUser(textEditFilter, block = block)
+        textFieldState.editAsUser(inputTransformation, block = block)
     }
 
     private fun hideTextToolbar() {
