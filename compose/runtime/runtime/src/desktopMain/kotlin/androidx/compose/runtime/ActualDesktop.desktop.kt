@@ -102,3 +102,5 @@ internal actual fun logError(message: String, e: Throwable) {
     System.err.println(message)
     e.printStackTrace(System.err)
 }
+
+internal actual val MainThreadId: Long = -1

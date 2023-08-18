@@ -113,3 +113,5 @@ private const val LogTag = "ComposeInternal"
 internal actual fun logError(message: String, e: Throwable) {
     Log.e(LogTag, message, e)
 }
+
+internal actual val MainThreadId: Long = Looper.getMainLooper()?.thread?.id ?: -1
