@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
@@ -129,38 +130,39 @@ class DismissState @Deprecated(
     confirmValueChange: (DismissValue) -> Boolean = { true },
     positionalThreshold: (totalDistance: Float) -> Float
 ) {
-    internal val swipeableState = SwipeableV2State(
+    internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
+        animationSpec = AnchoredDraggableDefaults.AnimationSpec,
         confirmValueChange = confirmValueChange,
         positionalThreshold = positionalThreshold,
         velocityThreshold = { with(requireDensity()) { DismissThreshold.toPx() } }
     )
 
-    internal val offset: Float? get() = swipeableState.offset
+    internal val offset: Float get() = anchoredDraggableState.offset
 
     /**
      * Require the current offset.
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    fun requireOffset(): Float = swipeableState.requireOffset()
+    fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     /**
      * The current state value of the [DismissState].
      */
-    val currentValue: DismissValue get() = swipeableState.currentValue
+    val currentValue: DismissValue get() = anchoredDraggableState.currentValue
 
     /**
      * The target state. This is the closest state to the current offset (taking into account
      * positional thresholds). If no interactions like animations or drags are in progress, this
      * will be the current state.
      */
-    val targetValue: DismissValue get() = swipeableState.targetValue
+    val targetValue: DismissValue get() = anchoredDraggableState.targetValue
 
     /**
      * The fraction of the progress going from currentValue to targetValue, within [0f..1f] bounds.
      */
-    val progress: Float get() = swipeableState.progress
+    val progress: Float get() = anchoredDraggableState.progress
 
     /**
      * The direction (if any) in which the composable has been or is being dismissed.
@@ -169,9 +171,9 @@ class DismissState @Deprecated(
      * change the background of the [SwipeToDismiss] if you want different actions on each side.
      */
     val dismissDirection: DismissDirection?
-        get() = if (offset == 0f || offset == null)
+        get() = if (offset == 0f || offset.isNaN())
             null
-        else if (offset!! > 0f) StartToEnd else EndToStart
+        else if (offset > 0f) StartToEnd else EndToStart
 
     /**
      * Whether the component has been dismissed in the given [direction].
@@ -188,7 +190,7 @@ class DismissState @Deprecated(
      * @param targetValue The new target value
      */
     suspend fun snapTo(targetValue: DismissValue) {
-        swipeableState.snapTo(targetValue)
+        anchoredDraggableState.snapTo(targetValue)
     }
 
     /**
@@ -198,7 +200,7 @@ class DismissState @Deprecated(
      *
      * @return the reason the reset animation ended
      */
-    suspend fun reset() = swipeableState.animateTo(targetValue = Default)
+    suspend fun reset() = anchoredDraggableState.animateTo(targetValue = Default)
 
     /**
      * Dismiss the component in the given [direction], with an animation and suspend. This method
@@ -208,7 +210,7 @@ class DismissState @Deprecated(
      */
     suspend fun dismiss(direction: DismissDirection) {
         val targetValue = if (direction == StartToEnd) DismissedToEnd else DismissedToStart
-        swipeableState.animateTo(targetValue = targetValue)
+        anchoredDraggableState.animateTo(targetValue = targetValue)
     }
 
     internal var density: Density? = null
@@ -325,22 +327,26 @@ fun SwipeToDismiss(
 
     Box(
         modifier
-            .swipeableV2(
-                state = state.swipeableState,
+            .anchoredDraggable(
+                state = state.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = state.currentValue == Default,
                 reverseDirection = isRtl,
             )
-            .swipeAnchors(
-                state = state.swipeableState,
-                possibleValues = setOf(Default, DismissedToEnd, DismissedToStart)
-            ) { value, layoutSize ->
+            .onSizeChanged { layoutSize ->
                 val width = layoutSize.width.toFloat()
-                when (value) {
-                    DismissedToEnd -> if (StartToEnd in directions) width else null
-                    DismissedToStart -> if (EndToStart in directions) -width else null
-                    Default -> 0f
+                val newAnchors = DraggableAnchors {
+                    Default at 0f
+                    if (StartToEnd in directions) {
+                        DismissedToEnd at width
+                    }
+
+                    if (EndToStart in directions) {
+                        DismissedToStart at -width
+                    }
                 }
+
+                state.anchoredDraggableState.updateAnchors(newAnchors)
             }
     ) {
         Row(
