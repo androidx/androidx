@@ -71,23 +71,20 @@ class RobolectricGattServerTest {
 
         private val cccdUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
-        private val readCharacteristic = GattCharacteristic.of(
-            readCharUuid,
-            PROPERTY_READ
-        )
-        private val writeCharacteristic = GattCharacteristic.of(
+        private val readCharacteristic = GattCharacteristic(readCharUuid, PROPERTY_READ)
+        private val writeCharacteristic = GattCharacteristic(
             writeCharUuid, PROPERTY_READ or PROPERTY_WRITE
         )
-        private val notifyCharacteristic = GattCharacteristic.of(
+        private val notifyCharacteristic = GattCharacteristic(
             notifyCharUuid, PROPERTY_READ or PROPERTY_NOTIFY
         )
-        private val unknownCharacteristic = GattCharacteristic.of(unknownCharUuid, 0)
+        private val unknownCharacteristic = GattCharacteristic(unknownCharUuid, 0)
 
-        private val service1 = GattService.of(
+        private val service1 = GattService(
             serviceUuid1,
             listOf(readCharacteristic, writeCharacteristic, notifyCharacteristic)
         )
-        private val service2 = GattService.of(serviceUuid2, listOf())
+        private val service2 = GattService(serviceUuid2, listOf())
     }
 
     @Before
