@@ -27,6 +27,7 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,40 +43,58 @@ class DatePickerBenchmark {
     private val dateInputTestCaseFactory = { DateInputTestCase() }
 
     @Test
+    fun datePicker_firstPixel() {
+        benchmarkRule.benchmarkFirstRenderUntilStable(datePickerTestCaseFactory)
+    }
+
+    @Test
+    fun dateInput_firstPixel() {
+        benchmarkRule.benchmarkFirstRenderUntilStable(dateInputTestCaseFactory)
+    }
+
+    @Ignore
+    @Test
     fun first_compose_pickerMode() {
         benchmarkRule.benchmarkFirstCompose(datePickerTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun first_compose_inputMode() {
         benchmarkRule.benchmarkFirstCompose(dateInputTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun datePicker_measure() {
         benchmarkRule.benchmarkMeasureUntilStable(datePickerTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun dateInput_measure() {
         benchmarkRule.benchmarkMeasureUntilStable(dateInputTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun datePicker_layout() {
         benchmarkRule.benchmarkLayoutUntilStable(datePickerTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun dateInput_layout() {
         benchmarkRule.benchmarkLayoutUntilStable(dateInputTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun datePicker_draw() {
         benchmarkRule.benchmarkDrawUntilStable(datePickerTestCaseFactory)
     }
 
+    @Ignore
     @Test
     fun dateInput_draw() {
         benchmarkRule.benchmarkDrawUntilStable(dateInputTestCaseFactory)
