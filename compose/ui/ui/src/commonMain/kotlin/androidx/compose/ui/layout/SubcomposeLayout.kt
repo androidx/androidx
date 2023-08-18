@@ -567,15 +567,16 @@ internal class LayoutNodeSubcompositionsState(
                         node.resetLayoutState()
                         if (deactivate) {
                             nodeState.composition?.deactivate()
+                            nodeState.activeState = mutableStateOf(false)
+                        } else {
+                            nodeState.active = false
                         }
                         // create a new instance to avoid change notifications
-                        nodeState.activeState = mutableStateOf(false)
                         nodeState.slotId = ReusedSlotId
                     }
                 }
             }
             slotIdToNode.clear()
-            Snapshot.sendApplyNotifications()
         }
 
         makeSureStateIsConsistent()
@@ -673,7 +674,6 @@ internal class LayoutNodeSubcompositionsState(
             nodeState.activeState = mutableStateOf(true)
             nodeState.forceReuse = true
             nodeState.forceRecompose = true
-            Snapshot.sendApplyNotifications()
             node
         }
     }
