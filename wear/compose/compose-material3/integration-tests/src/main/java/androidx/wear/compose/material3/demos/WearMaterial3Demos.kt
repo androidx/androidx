@@ -54,6 +54,11 @@ val WearMaterial3Demos = DemoCategory(
                 },
             )
         ),
+        ComposableDemo("List Header") {
+            Centralize {
+                ListHeaderDemo()
+            }
+        },
         ComposableDemo("Card") {
             CardDemo()
         },
@@ -69,6 +74,19 @@ val WearMaterial3Demos = DemoCategory(
         ComposableDemo("Icon Toggle Button") {
             IconToggleButtonDemo()
         },
+        ComposableDemo("Checkbox") {
+            CheckboxDemos()
+        },
+        ComposableDemo("Switch") {
+            SwitchDemos()
+        },
+        ComposableDemo("Radio Button") {
+            RadioButtonDemos()
+        },
+        DemoCategory(
+            title = "Toggle Button",
+            toggleButtonDemos
+        ),
         DemoCategory(
             "Stepper",
             listOf(
@@ -92,24 +110,11 @@ val WearMaterial3Demos = DemoCategory(
             "Slider",
             SliderDemos
         ),
-        ComposableDemo("List Header") {
-            Centralize {
-                ListHeaderDemo()
-            }
-        },
         ComposableDemo(
             title = "Fixed Font Size"
         ) {
             Centralize { FixedFontSize() }
         },
-        DemoCategory(
-            title = "Selection Controls",
-            selectionControlsDemos
-        ),
-        DemoCategory(
-            title = "Toggle Button",
-            toggleButtonDemos
-        ),
         DemoCategory(
             title = "Swipe To Dismiss",
             listOf(

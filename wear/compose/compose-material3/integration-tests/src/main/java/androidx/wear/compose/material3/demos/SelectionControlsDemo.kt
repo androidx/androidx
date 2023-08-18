@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -34,9 +33,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.integration.demos.common.Centralize
-import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
@@ -47,47 +43,8 @@ import androidx.wear.compose.material3.samples.RadioButtonSample
 import androidx.wear.compose.material3.samples.RtlSwitchSample
 import androidx.wear.compose.material3.samples.SwitchSample
 
-val selectionControlsDemos = listOf(
-    DemoCategory(
-        "Samples",
-        listOf(
-            ComposableDemo("Checkbox sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    CheckboxSample()
-                }
-            },
-            ComposableDemo("Switch sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    SwitchSample()
-                }
-            },
-            ComposableDemo("Rtl Switch sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    RtlSwitchSample()
-                }
-            },
-            ComposableDemo("RadioButton sample") {
-                Centralize(Modifier.padding(horizontal = 10.dp)) {
-                    RadioButtonSample()
-                }
-            },
-        )
-    ),
-    DemoCategory("Demos", listOf(
-        ComposableDemo("Checkbox demos") {
-            CheckboxDemos()
-        },
-        ComposableDemo("Switch demos") {
-            SwitchDemos()
-        },
-        ComposableDemo("RadioButton demos") {
-            RadioButtonDemos()
-        }
-    ))
-)
-
 @Composable
-private fun CheckboxDemos() {
+fun CheckboxDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,14 +55,11 @@ private fun CheckboxDemos() {
         }
         item {
             Row {
-                var checked1 by remember { mutableStateOf(false) }
-                Checkbox(checked = checked1, onCheckedChange = {
-                    checked1 = it
-                })
+                CheckboxSample()
                 Spacer(modifier = Modifier.width(10.dp))
-                var checked2 by remember { mutableStateOf(true) }
-                Checkbox(checked = checked2, onCheckedChange = {
-                    checked2 = it
+                var checked by remember { mutableStateOf(true) }
+                Checkbox(checked = checked, onCheckedChange = {
+                    checked = it
                 })
             }
         }
@@ -129,7 +83,7 @@ private fun CheckboxDemos() {
 }
 
 @Composable
-private fun SwitchDemos() {
+fun SwitchDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,33 +94,12 @@ private fun SwitchDemos() {
         }
         item {
             Row {
-                var checked1 by remember { mutableStateOf(false) }
-                Switch(checked = checked1, onCheckedChange = {
-                    checked1 = it
-                })
+                SwitchSample()
                 Spacer(modifier = Modifier.width(10.dp))
-                var checked2 by remember { mutableStateOf(true) }
-                Switch(checked = checked2, onCheckedChange = {
-                    checked2 = it
+                var checked by remember { mutableStateOf(true) }
+                Switch(checked = checked, onCheckedChange = {
+                    checked = it
                 })
-            }
-        }
-        item {
-            ListHeader { Text(text = "RTL Switch") }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Row {
-                    var checked1 by remember { mutableStateOf(true) }
-                    Switch(checked = checked1, onCheckedChange = {
-                        checked1 = it
-                    })
-                    Spacer(modifier = Modifier.width(10.dp))
-                    var checked2 by remember { mutableStateOf(false) }
-                    Switch(checked = checked2, onCheckedChange = {
-                        checked2 = it
-                    })
-                }
             }
         }
         item {
@@ -185,11 +118,26 @@ private fun SwitchDemos() {
                 )
             }
         }
+        item {
+            ListHeader { Text(text = "RTL Switch") }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Row {
+                    var checked by remember { mutableStateOf(true) }
+                    Switch(checked = checked, onCheckedChange = {
+                        checked = it
+                    })
+                    Spacer(modifier = Modifier.width(10.dp))
+                    RtlSwitchSample()
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun RadioButtonDemos() {
+fun RadioButtonDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
@@ -200,14 +148,11 @@ private fun RadioButtonDemos() {
         }
         item {
             Row {
-                var selected1 by remember { mutableStateOf(false) }
-                RadioButton(selected = selected1, onClick = {
-                    selected1 = !selected1
-                })
+                RadioButtonSample()
                 Spacer(modifier = Modifier.width(10.dp))
-                var selected2 by remember { mutableStateOf(true) }
-                RadioButton(selected = selected2, onClick = {
-                    selected2 = !selected2
+                var selected by remember { mutableStateOf(true) }
+                RadioButton(selected = selected, onClick = {
+                    selected = !selected
                 })
             }
         }
