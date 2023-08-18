@@ -431,18 +431,27 @@ class GLFrameBufferRendererTest {
                 renderLatch.countDown()
             }
         }
+        var activity: SurfaceViewTestActivity? = null
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
+                    activity = it
                     surfaceView = it.getSurfaceView()
                     renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
                 }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val destroyLatch = CountDownLatch(1)
+            activity?.setOnDestroyCallback {
+                destroyLatch.countDown()
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
         } finally {
             renderer.blockingRelease()
         }
