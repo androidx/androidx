@@ -53,6 +53,7 @@ import androidx.core.content.ContextCompat;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Class holding the {@link Intent} and start bundle for a Custom Tabs Activity.
@@ -177,10 +178,11 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
 
     /**
-     * Extra that specifies the target language the Translate UI should be triggered with.
+     * Extra that specifies the target locale the Translate UI should be triggered with.
+     * The locale is represented as a well-formed IETF BCP 47 language tag.
      */
-    public static final String EXTRA_TRANSLATE_LANGUAGE =
-            "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE";
+    public static final String EXTRA_TRANSLATE_LANGUAGE_TAG =
+            "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE_TAG";
 
     /**
      * Extra that, when set to false, disables interactions with the background app
@@ -1099,6 +1101,7 @@ public final class CustomTabsIntent {
          * is enabled by default.
          *
          * @param enabled Whether the start button is enabled.
+         * @see CustomTabsIntent#EXTRA_DISABLE_BOOKMARKS_BUTTON
          */
         @NonNull
         public Builder setBookmarksButtonEnabled(boolean enabled) {
@@ -1111,6 +1114,7 @@ public final class CustomTabsIntent {
          * is enabled by default.
          *
          * @param enabled Whether the download button is enabled.
+         * @see CustomTabsIntent#EXTRA_DISABLE_DOWNLOAD_BUTTON
          */
         @NonNull
         public Builder setDownloadButtonEnabled(boolean enabled) {
@@ -1122,6 +1126,7 @@ public final class CustomTabsIntent {
          * Enables sending initial urls to external handler apps, if possible.
          *
          * @param enabled Whether to send urls to external handler.
+         * @see CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER
          */
         @NonNull
         public Builder setSendToExternalDefaultHandlerEnabled(boolean enabled) {
@@ -1130,14 +1135,16 @@ public final class CustomTabsIntent {
         }
 
         /**
-         * Specifies the target language the Translate UI should be triggered with.
+         * Specifies the target locale the Translate UI should be triggered with.
          *
-         * @param lang Language code for the translate UI. Should be in the format of
-         *        ISO 639 language code.
+         * @param locale {@link Locale} object that represents the target locale.
+         * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE_TAG
          */
         @NonNull
-        public Builder setTranslateLanguage(@NonNull String lang) {
-            mIntent.putExtra(EXTRA_TRANSLATE_LANGUAGE, lang);
+        public Builder setTranslateLocale(@NonNull Locale locale) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setLanguageTag(locale);
+            }
             return this;
         }
 
@@ -1147,6 +1154,7 @@ public final class CustomTabsIntent {
          * Enables the interactions with the background app when a Partial Custom Tab is launched.
          *
          * @param enabled Whether the background interaction is enabled.
+         * @see CustomTabsIntent#EXTRA_ENABLE_BACKGROUND_INTERACTION
          */
         @NonNull
         public Builder setBackgroundInteractionEnabled(boolean enabled) {
@@ -1160,6 +1168,7 @@ public final class CustomTabsIntent {
          * toolbar.
          *
          * @param enabled Whether the additional actions can be added to the toolbar.
+         * @see CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR
          */
         @NonNull
         public Builder setShowOnToolbarEnabled(boolean enabled) {
@@ -1237,6 +1246,11 @@ public final class CustomTabsIntent {
                     mIntent.putExtra(Browser.EXTRA_HEADERS, header);
                 }
             }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private void setLanguageTag(@NonNull Locale locale) {
+            Api21Impl.setLanguageTag(mIntent, locale);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -1401,14 +1415,24 @@ public final class CustomTabsIntent {
     }
 
     /**
-     * Gets the target language for the Translate UI.
+     * Gets the target locale for the Translate UI.
      *
-     * @return The target language the Translate UI should be triggered with.
-     * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE
+     * @return The target locale the Translate UI should be triggered with.
+     * @see CustomTabsIntent#EXTRA_TRANSLATE_LANGUAGE_TAG
      */
     @Nullable
-    public static String getTranslateLanguage(@NonNull Intent intent) {
-        return intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE);
+    public static Locale getTranslateLocale(@NonNull Intent intent) {
+        Locale locale = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = getLocaleForLanguageTag(intent);
+        }
+        return locale;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Nullable
+    private static Locale getLocaleForLanguageTag(Intent intent) {
+        return Api21Impl.getLocaleForLanguageTag(intent);
     }
 
     /**
@@ -1425,6 +1449,21 @@ public final class CustomTabsIntent {
      */
     public static boolean isShowOnToolbarEnabled(@NonNull Intent intent) {
         return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static class Api21Impl {
+        @DoNotInline
+        static void setLanguageTag(Intent intent, Locale locale) {
+            intent.putExtra(EXTRA_TRANSLATE_LANGUAGE_TAG, locale.toLanguageTag());
+        }
+
+        @DoNotInline
+        @Nullable
+        static Locale getLocaleForLanguageTag(Intent intent) {
+            String languageTag = intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE_TAG);
+            return languageTag != null ? Locale.forLanguageTag(languageTag) : null;
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

@@ -42,6 +42,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Locale;
+
 /**
  * Tests for CustomTabsIntent.
  */
@@ -608,13 +610,15 @@ public class CustomTabsIntentTest {
         assertTrue(CustomTabsIntent.isShowOnToolbarEnabled(intent));
     }
 
+    @Config(minSdk = Build.VERSION_CODES.N)
     @Test
-    public void testTranslateLanguage() {
+    public void testTranslateLocale() {
         Intent intent = new CustomTabsIntent.Builder().build().intent;
-        assertNull(CustomTabsIntent.getTranslateLanguage(intent));
+        assertNull(CustomTabsIntent.getTranslateLocale(intent));
 
-        intent = new CustomTabsIntent.Builder().setTranslateLanguage("fr").build().intent;
-        assertEquals("fr", CustomTabsIntent.getTranslateLanguage(intent));
+        intent = new CustomTabsIntent.Builder().setTranslateLocale(Locale.FRANCE).build().intent;
+        Locale locale = CustomTabsIntent.getTranslateLocale(intent);
+        assertEquals(locale.toLanguageTag(), Locale.FRANCE.toLanguageTag());
     }
 
     private void assertNullSessionInExtras(Intent intent) {
