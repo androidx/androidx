@@ -18,6 +18,7 @@ package androidx.window.extensions.area;
 
 import android.content.Context;
 import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 
@@ -41,4 +42,13 @@ public interface ExtensionWindowAreaPresentation {
      * Sets the {@link View} that the application wants to display in the extension window area.
      */
     void setPresentationView(@NonNull View view);
+
+    /**
+     * Returns the {@link Window} for the rear display presentation area.
+     */
+    @NonNull
+    default Window getWindow() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }

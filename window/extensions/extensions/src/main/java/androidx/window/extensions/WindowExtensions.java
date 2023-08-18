@@ -116,6 +116,8 @@ public interface WindowExtensions {
      *     <li>{@link ActivityEmbeddingComponent#pinTopActivityStack}</li>
      *     <li>{@link ActivityEmbeddingComponent#unpinTopActivityStack}</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitPinRule}</li>
+     *     <li>{@link androidx.window.extensions.area.ExtensionWindowAreaPresentation#getWindow}
+     *     </li>
      * </ul>
      * </p>
      */
