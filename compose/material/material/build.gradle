@@ -105,7 +105,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:material:material:material-samples"))
@@ -127,7 +127,7 @@ androidXMultiplatform {
         //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
         //  level dependencies block instead:
         //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)

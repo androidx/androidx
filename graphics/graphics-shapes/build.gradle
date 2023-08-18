@@ -53,7 +53,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.testExtJunit)

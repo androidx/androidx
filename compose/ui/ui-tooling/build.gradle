@@ -98,7 +98,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -117,7 +117,7 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
             }

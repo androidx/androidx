@@ -73,11 +73,12 @@ androidXMultiplatform {
         }
 
         jvmTest {
+            dependsOn(commonTest)
             dependencies {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(projectOrArtifact(":compose:ui:ui"))
@@ -92,7 +93,7 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
         }
 

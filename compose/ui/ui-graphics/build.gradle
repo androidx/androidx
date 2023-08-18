@@ -89,7 +89,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
@@ -99,6 +99,7 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.espressoCore)
                 implementation(libs.junit)
+                implementation(libs.truth)
             }
         }
 
@@ -106,7 +107,7 @@ androidXMultiplatform {
         //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
         //  level dependencies block instead:
         //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
