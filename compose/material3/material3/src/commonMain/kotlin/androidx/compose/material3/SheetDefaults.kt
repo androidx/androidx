@@ -130,7 +130,7 @@ class SheetState @Deprecated(
      * was in before the swipe or animation started.
      */
 
-    val currentValue: SheetValue get() = swipeableState.currentValue
+    val currentValue: SheetValue get() = anchoredDraggableState.currentValue
 
     /**
      * The target value of the bottom sheet state.
@@ -139,13 +139,13 @@ class SheetState @Deprecated(
      * swipe finishes. If an animation is running, this is the target value of that animation.
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: SheetValue get() = swipeableState.targetValue
+    val targetValue: SheetValue get() = anchoredDraggableState.targetValue
 
     /**
      * Whether the modal bottom sheet is visible.
      */
     val isVisible: Boolean
-        get() = swipeableState.currentValue != Hidden
+        get() = anchoredDraggableState.currentValue != Hidden
 
     /**
      * Require the current offset (in pixels) of the bottom sheet.
@@ -163,20 +163,20 @@ class SheetState @Deprecated(
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    fun requireOffset(): Float = swipeableState.requireOffset()
+    fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     /**
      * Whether the sheet has an expanded state defined.
      */
 
     val hasExpandedState: Boolean
-        get() = swipeableState.hasAnchorForValue(Expanded)
+        get() = anchoredDraggableState.anchors.hasAnchorFor(Expanded)
 
     /**
      * Whether the modal bottom sheet has a partially expanded state defined.
      */
     val hasPartiallyExpandedState: Boolean
-        get() = swipeableState.hasAnchorForValue(PartiallyExpanded)
+        get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
 
     /**
      * Fully expand the bottom sheet with animation and suspend until it is fully expanded or
@@ -185,7 +185,7 @@ class SheetState @Deprecated(
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun expand() {
-        swipeableState.animateTo(Expanded)
+        anchoredDraggableState.animateTo(Expanded)
     }
 
     /**
@@ -240,9 +240,9 @@ class SheetState @Deprecated(
      */
     internal suspend fun animateTo(
         targetValue: SheetValue,
-        velocity: Float = swipeableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity
     ) {
-        swipeableState.animateTo(targetValue, velocity)
+        anchoredDraggableState.animateTo(targetValue, velocity)
     }
 
     /**
@@ -254,34 +254,25 @@ class SheetState @Deprecated(
      * @param targetValue The target value of the animation
      */
     internal suspend fun snapTo(targetValue: SheetValue) {
-        swipeableState.snapTo(targetValue)
+        anchoredDraggableState.snapTo(targetValue)
     }
-
-    /**
-     * Attempt to snap synchronously. Snapping can happen synchronously when there is no other swipe
-     * transaction like a drag or an animation is progress. If there is another interaction in
-     * progress, the suspending [snapTo] overload needs to be used.
-     *
-     * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
-     */
-    internal fun trySnapTo(targetValue: SheetValue) = swipeableState.trySnapTo(targetValue)
 
     /**
      * Find the closest anchor taking into account the velocity and settle at it with an animation.
      */
     internal suspend fun settle(velocity: Float) {
-        swipeableState.settle(velocity)
+        anchoredDraggableState.settle(velocity)
     }
 
-    internal var swipeableState = SwipeableV2State(
+    internal var anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
-        animationSpec = SwipeableV2Defaults.AnimationSpec,
+        animationSpec = AnchoredDraggableDefaults.AnimationSpec,
         confirmValueChange = confirmValueChange,
         positionalThreshold = { with(requireDensity()) { 56.dp.toPx() } },
         velocityThreshold = { with(requireDensity()) { 125.dp.toPx() } }
     )
 
-    internal val offset: Float? get() = swipeableState.offset
+    internal val offset: Float? get() = anchoredDraggableState.offset
 
     internal var density: Density? = null
     private fun requireDensity() = requireNotNull(density) {
@@ -429,7 +420,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val delta = available.toFloat()
         return if (delta < 0 && source == NestedScrollSource.Drag) {
-            sheetState.swipeableState.dispatchRawDelta(delta).toOffset()
+            sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
         } else {
             Offset.Zero
         }
@@ -441,7 +432,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         source: NestedScrollSource
     ): Offset {
         return if (source == NestedScrollSource.Drag) {
-            sheetState.swipeableState.dispatchRawDelta(available.toFloat()).toOffset()
+            sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
         } else {
             Offset.Zero
         }
@@ -450,7 +441,8 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
         val currentOffset = sheetState.requireOffset()
-        return if (toFling < 0 && currentOffset > sheetState.swipeableState.minOffset) {
+        val minAnchor = sheetState.anchoredDraggableState.anchors.minAnchor()
+        return if (toFling < 0 && currentOffset > minAnchor) {
             onFling(toFling)
             // since we go to the anchor with tween settling, consume all for the best UX
             available
