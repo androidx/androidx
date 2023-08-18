@@ -26,6 +26,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.view.SurfaceControlViewHost
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -55,6 +56,11 @@ private class BinderAdapterDelegate(
     private val sandboxContext: Context,
     private val adapter: SandboxedUiAdapter
 ) : ISandboxedUiAdapter.Stub() {
+
+    companion object {
+        private const val TAG = "BinderAdapterDelegate"
+        private const val FRAME_TIMEOUT_MILLIS = 1000.toLong()
+    }
 
     fun openSession(
         context: Context,
@@ -121,13 +127,25 @@ private class BinderAdapterDelegate(
                 surfaceControlViewHost.setView(view, initialWidth, initialHeight)
             }
 
-            val surfacePackage = surfaceControlViewHost.surfacePackage
-            val remoteSessionController =
-                RemoteSessionController(surfaceControlViewHost, session)
-            remoteSessionClient.onRemoteSessionOpened(
-                surfacePackage, remoteSessionController,
-                /* isZOrderOnTop= */ true
-            )
+            // This var is not locked as it will be set to false by the first event that can trigger
+            // sending the remote session opened callback.
+            var alreadyOpenedSession = false
+            view.viewTreeObserver.registerFrameCommitCallback {
+                if (!alreadyOpenedSession) {
+                    alreadyOpenedSession = true
+                    sendRemoteSessionOpened(session)
+                }
+            }
+
+            // If a frame commit callback is not triggered within the timeout (such as when the
+            // screen is off), open the session anyway.
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (!alreadyOpenedSession) {
+                    Log.w(TAG, "Frame not committed within $FRAME_TIMEOUT_MILLIS ms.")
+                    alreadyOpenedSession = true
+                    sendRemoteSessionOpened(session)
+                }
+            }, FRAME_TIMEOUT_MILLIS)
         }
 
         override fun onSessionError(throwable: Throwable) {
@@ -136,6 +154,16 @@ private class BinderAdapterDelegate(
 
         override fun onResizeRequested(width: Int, height: Int) {
             remoteSessionClient.onResizeRequested(width, height)
+        }
+
+        private fun sendRemoteSessionOpened(session: SandboxedUiAdapter.Session) {
+            val surfacePackage = surfaceControlViewHost.surfacePackage
+            val remoteSessionController =
+                RemoteSessionController(surfaceControlViewHost, session)
+            remoteSessionClient.onRemoteSessionOpened(
+                surfacePackage, remoteSessionController,
+                /* isZOrderOnTop= */ true
+            )
         }
 
         @VisibleForTesting
