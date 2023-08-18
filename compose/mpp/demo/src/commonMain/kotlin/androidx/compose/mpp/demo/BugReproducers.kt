@@ -32,7 +32,6 @@ val BugReproducers = Screen.Selection("Bug Reproducers",
     // https://github.com/JetBrains/compose-multiplatform/issues/3475
     Screen.Example("No Recomposition in Lazy Grid") { NoRecompositionInLazyGrid() },
     Screen.Example("RoundedCornerCrashOnJS") { RoundedCornerCrashOnJS() },
-    Screen.Example("Keyboard animation repro") { KeyboardAnimationRepro() }
 )
 
 @Composable

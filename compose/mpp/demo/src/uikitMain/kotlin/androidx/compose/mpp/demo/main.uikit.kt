@@ -5,6 +5,7 @@ import NativeModalWithNaviationExample
 import androidx.compose.runtime.*
 import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.window.ComposeUIViewController
+import bugs.IosBugs
 
 
 fun main() {
@@ -18,7 +19,8 @@ fun IosDemo() {
     val app = remember {
         App(
             extraScreens = listOf(
-                NativeModalWithNaviationExample
+                IosBugs,
+                NativeModalWithNaviationExample,
             )
         )
     }
