@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class LongSetTest {
@@ -441,5 +442,85 @@ class LongSetTest {
         set.removeAll(longArrayOf(6L, 8L, 9L, 10L, 11L, 12L, 13L, 14L))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun longSetOfEmpty() {
+        assertSame(emptyLongSet(), longSetOf())
+        assertEquals(0, longSetOf().size)
+    }
+
+    @Test
+    fun longSetOfOne() {
+        val set = longSetOf(1L)
+        assertEquals(1, set.size)
+        assertEquals(1L, set.first())
+    }
+
+    @Test
+    fun longSetOfTwo() {
+        val set = longSetOf(1L, 2L)
+        assertEquals(2, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertFalse(5L in set)
+    }
+
+    @Test
+    fun longSetOfThree() {
+        val set = longSetOf(1L, 2L, 3L)
+        assertEquals(3, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertTrue(3L in set)
+        assertFalse(5L in set)
+    }
+
+    @Test
+    fun longSetOfFour() {
+        val set = longSetOf(1L, 2L, 3L, 4L)
+        assertEquals(4, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertTrue(3L in set)
+        assertTrue(4L in set)
+        assertFalse(5L in set)
+    }
+
+    @Test
+    fun mutableLongSetOfOne() {
+        val set = mutableLongSetOf(1L)
+        assertEquals(1, set.size)
+        assertEquals(1L, set.first())
+    }
+
+    @Test
+    fun mutableLongSetOfTwo() {
+        val set = mutableLongSetOf(1L, 2L)
+        assertEquals(2, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertFalse(5L in set)
+    }
+
+    @Test
+    fun mutableLongSetOfThree() {
+        val set = mutableLongSetOf(1L, 2L, 3L)
+        assertEquals(3, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertTrue(3L in set)
+        assertFalse(5L in set)
+    }
+
+    @Test
+    fun mutableLongSetOfFour() {
+        val set = mutableLongSetOf(1L, 2L, 3L, 4L)
+        assertEquals(4, set.size)
+        assertTrue(1L in set)
+        assertTrue(2L in set)
+        assertTrue(3L in set)
+        assertTrue(4L in set)
+        assertFalse(5L in set)
     }
 }

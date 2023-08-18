@@ -34,7 +34,7 @@ import kotlin.jvm.JvmField
 // Default empty set to avoid allocations
 private val EmptyLongSet = MutableLongSet(0)
 
-// An empty array of Longs
+// An empty array of longs
 private val EmptyLongArray = LongArray(0)
 
 /**
@@ -43,17 +43,75 @@ private val EmptyLongArray = LongArray(0)
 public fun emptyLongSet(): LongSet = EmptyLongSet
 
 /**
+ * Returns an empty, read-only [ScatterSet].
+ */
+@Suppress("UNCHECKED_CAST")
+public fun longSetOf(): LongSet = EmptyLongSet
+
+/**
+ * Returns a new read-only [LongSet] with only [element1] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun longSetOf(element1: Long): LongSet = mutableLongSetOf(element1)
+
+/**
+ * Returns a new read-only [LongSet] with only [element1] and [element2] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun longSetOf(element1: Long, element2: Long): LongSet =
+    mutableLongSetOf(element1, element2)
+
+/**
+ * Returns a new read-only [LongSet] with only [element1], [element2], and [element3] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun longSetOf(element1: Long, element2: Long, element3: Long): LongSet =
+    mutableLongSetOf(element1, element2, element3)
+
+/**
+ * Returns a new read-only [LongSet] with only [elements] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun longSetOf(vararg elements: Long): LongSet =
+    MutableLongSet(elements.size).apply { plusAssign(elements) }
+
+/**
  * Returns a new [MutableLongSet].
  */
 public fun mutableLongSetOf(): MutableLongSet = MutableLongSet()
 
 /**
+ * Returns a new [MutableLongSet] with only [element1] in it.
+ */
+public fun mutableLongSetOf(element1: Long): MutableLongSet =
+    MutableLongSet(1).apply {
+        plusAssign(element1)
+    }
+
+/**
+ * Returns a new [MutableLongSet] with only [element1] and [element2] in it.
+ */
+public fun mutableLongSetOf(element1: Long, element2: Long): MutableLongSet =
+    MutableLongSet(2).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+    }
+
+/**
+ * Returns a new [MutableLongSet] with only [element1], [element2], and [element3] in it.
+ */
+public fun mutableLongSetOf(element1: Long, element2: Long, element3: Long): MutableLongSet =
+    MutableLongSet(3).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+        plusAssign(element3)
+    }
+
+/**
  * Returns a new [MutableLongSet] with the specified elements.
  */
 public fun mutableLongSetOf(vararg elements: Long): MutableLongSet =
-    MutableLongSet(elements.size).apply {
-        addAll(elements)
-    }
+    MutableLongSet(elements.size).apply { plusAssign(elements) }
 
 /**
  * [LongSet] is a container with a [Set]-like interface designed to avoid

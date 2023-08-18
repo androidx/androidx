@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class FloatSetTest {
@@ -441,5 +442,85 @@ class FloatSetTest {
         set.removeAll(floatArrayOf(6f, 8f, 9f, 10f, 11f, 12f, 13f, 14f))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun floatSetOfEmpty() {
+        assertSame(emptyFloatSet(), floatSetOf())
+        assertEquals(0, floatSetOf().size)
+    }
+
+    @Test
+    fun floatSetOfOne() {
+        val set = floatSetOf(1f)
+        assertEquals(1, set.size)
+        assertEquals(1f, set.first())
+    }
+
+    @Test
+    fun floatSetOfTwo() {
+        val set = floatSetOf(1f, 2f)
+        assertEquals(2, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertFalse(5f in set)
+    }
+
+    @Test
+    fun floatSetOfThree() {
+        val set = floatSetOf(1f, 2f, 3f)
+        assertEquals(3, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertTrue(3f in set)
+        assertFalse(5f in set)
+    }
+
+    @Test
+    fun floatSetOfFour() {
+        val set = floatSetOf(1f, 2f, 3f, 4f)
+        assertEquals(4, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertTrue(3f in set)
+        assertTrue(4f in set)
+        assertFalse(5f in set)
+    }
+
+    @Test
+    fun mutableFloatSetOfOne() {
+        val set = mutableFloatSetOf(1f)
+        assertEquals(1, set.size)
+        assertEquals(1f, set.first())
+    }
+
+    @Test
+    fun mutableFloatSetOfTwo() {
+        val set = mutableFloatSetOf(1f, 2f)
+        assertEquals(2, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertFalse(5f in set)
+    }
+
+    @Test
+    fun mutableFloatSetOfThree() {
+        val set = mutableFloatSetOf(1f, 2f, 3f)
+        assertEquals(3, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertTrue(3f in set)
+        assertFalse(5f in set)
+    }
+
+    @Test
+    fun mutableFloatSetOfFour() {
+        val set = mutableFloatSetOf(1f, 2f, 3f, 4f)
+        assertEquals(4, set.size)
+        assertTrue(1f in set)
+        assertTrue(2f in set)
+        assertTrue(3f in set)
+        assertTrue(4f in set)
+        assertFalse(5f in set)
     }
 }

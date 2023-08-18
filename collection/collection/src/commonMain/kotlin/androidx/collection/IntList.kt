@@ -483,7 +483,7 @@ public sealed class IntList(initialCapacity: Int) {
  * @constructor Creates a [MutableIntList] with a [capacity] of `initialCapacity`.
  */
 public class MutableIntList(
-    initialCapacity: Int = DefaultCapacity
+    initialCapacity: Int = 16
 ) : IntList(initialCapacity) {
     /**
      * Returns the total number of elements that can be held before the [MutableIntList] must
@@ -835,20 +835,84 @@ public class MutableIntList(
     }
 }
 
-@Suppress("ConstPropertyName")
-private const val DefaultCapacity = 16
-
 // Empty array used when nothing is allocated
 @Suppress("PrivatePropertyName")
 private val EmptyIntArray = IntArray(0)
 
+private val EmptyIntList: IntList = MutableIntList(0)
+
 /**
- * Creates and returns an empty [MutableIntList] with the default capacity.
+ * @return a read-only [IntList] with nothing in it.
+ */
+public fun emptyIntList(): IntList = EmptyIntList
+
+/**
+ * @return a read-only [IntList] with nothing in it.
+ */
+public fun intListOf(): IntList = EmptyIntList
+
+/**
+ * @return a new read-only [IntList] with [element1] as the only item in the list.
+ */
+public fun intListOf(element1: Int): IntList = mutableIntListOf(element1)
+
+/**
+ * @return a new read-only [IntList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun intListOf(element1: Int, element2: Int): IntList =
+    mutableIntListOf(element1, element2)
+
+/**
+ * @return a new read-only [IntList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun intListOf(element1: Int, element2: Int, element3: Int): IntList =
+    mutableIntListOf(element1, element2, element3)
+
+/**
+ * @return a new read-only [IntList] with [elements] in order.
+ */
+public fun intListOf(vararg elements: Int): IntList =
+    MutableIntList(elements.size).apply { plusAssign(elements) }
+
+/**
+ * @return a new empty [MutableIntList] with the default capacity.
  */
 public inline fun mutableIntListOf(): MutableIntList = MutableIntList()
 
 /**
- * Creates and returns a [MutableIntList] with the given values.
+ * @return a new [MutableIntList] with [element1] as the only item in the list.
+ */
+public fun mutableIntListOf(element1: Int): MutableIntList {
+    val list = MutableIntList(1)
+    list += element1
+    return list
+}
+
+/**
+ * @return a new [MutableIntList] with 2 elements, [element1] and [element2], in order.
+ */
+public fun mutableIntListOf(element1: Int, element2: Int): MutableIntList {
+    val list = MutableIntList(2)
+    list += element1
+    list += element2
+    return list
+}
+
+/**
+ * @return a new [MutableIntList] with 3 elements, [element1], [element2], and [element3],
+ * in order.
+ */
+public fun mutableIntListOf(element1: Int, element2: Int, element3: Int): MutableIntList {
+    val list = MutableIntList(3)
+    list += element1
+    list += element2
+    list += element3
+    return list
+}
+
+/**
+ * @return a new [MutableIntList] with the given elements, in order.
  */
 public inline fun mutableIntListOf(vararg elements: Int): MutableIntList =
-    MutableIntList(elements.size).also { it.addAll(elements) }
+    MutableIntList(elements.size).apply { plusAssign(elements) }
