@@ -36,6 +36,8 @@ class SurfaceViewTestActivity : Activity() {
         setContentView(surfaceView, ViewGroup.LayoutParams(WIDTH, HEIGHT))
     }
 
+    private var mOnDestroyCallback: (() -> Unit)? = null
+
     fun getSurfaceView(): TestSurfaceView = mSurfaceView
 
     companion object {
@@ -75,5 +77,14 @@ class SurfaceViewTestActivity : Activity() {
                 }
             }
         }
+    }
+
+    fun setOnDestroyCallback(callback: (() -> Unit)?) {
+        mOnDestroyCallback = callback
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mOnDestroyCallback?.invoke()
     }
 }
