@@ -2382,7 +2382,10 @@ class SubcomposeLayoutTest {
                 val content = if (showContent) {
                     subcompose(0) {
                         Box {
-                            AndroidView(::View, Modifier.fillMaxSize().testTag("AndroidView"))
+                            AndroidView(::View,
+                                Modifier
+                                    .fillMaxSize()
+                                    .testTag("AndroidView"))
                         }
                     }
                 } else emptyList()
@@ -2495,7 +2498,9 @@ class SubcomposeLayoutTest {
                         Box {
                             SubcomposeLayout { constraints ->
                                 val placeable = measure(Unit, constraints) {
-                                    Box(modifier = Modifier.size(10.dp).then(measureCountModifier))
+                                    Box(modifier = Modifier
+                                        .size(10.dp)
+                                        .then(measureCountModifier))
 
                                     DisposableEffect(Unit) {
                                         val capturedSlotId = slotId
@@ -2536,6 +2541,42 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle {
             assertThat(activeChildren).containsExactly(1)
+        }
+    }
+
+    @Test
+    fun slotIsProperlyDeactivatedAfterUpdatingReusePolicy() {
+        var state by mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
+        var shouldCompose by mutableStateOf(true)
+        var disposed = false
+        rule.setContent {
+            SubcomposeLayout(state) { constraints ->
+                val placeables = if (shouldCompose) {
+                    subcompose(Unit) {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposed = true
+                            }
+                        }
+                    }.map {
+                        it.measure(constraints)
+                    }
+                } else {
+                    emptyList()
+                }
+                layout(100, 100) {
+                    placeables.forEach { it.place(0, 0) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+            shouldCompose = false
+        }
+
+        rule.runOnIdle {
+            assertThat(disposed).isTrue()
         }
     }
 
