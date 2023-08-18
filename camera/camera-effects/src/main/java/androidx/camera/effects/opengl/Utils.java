@@ -100,6 +100,16 @@ class Utils {
     }
 
     /**
+     * Creates a single FBO.
+     */
+    static int createFbo() {
+        int[] fbos = new int[1];
+        GLES20.glGenFramebuffers(1, fbos, 0);
+        checkGlErrorOrThrow("glGenFramebuffers");
+        return fbos[0];
+    }
+
+    /**
      * Configures the texture as a 2D texture.
      */
     static void configureTexture2D(int textureId) {
