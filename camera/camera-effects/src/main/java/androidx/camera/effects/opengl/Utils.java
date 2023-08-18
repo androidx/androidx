@@ -23,6 +23,7 @@ import android.opengl.GLES20;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -39,6 +40,14 @@ class Utils {
     private static final int SIZEOF_FLOAT = 4;
 
     private Utils() {
+    }
+
+    static void checkEglErrorOrLog(@NonNull String op) {
+        try {
+            checkEglErrorOrThrow(op);
+        } catch (IllegalStateException e) {
+            Logger.e(TAG, e.toString(), e);
+        }
     }
 
     static void drawArrays(int width, int height) {

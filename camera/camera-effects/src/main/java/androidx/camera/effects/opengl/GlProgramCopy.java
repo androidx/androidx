@@ -51,7 +51,7 @@ class GlProgramCopy extends GlProgram {
             + "}";
 
     // A FBO object for attaching the output texture.
-    private int mFbo;
+    private int mFbo = -1;
 
     GlProgramCopy() {
         super(VERTEX_SHADER, FRAGMENT_SHADER);
