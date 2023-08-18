@@ -74,35 +74,44 @@ open class GattServerRequest private constructor() {
     }
 
     /**
-     * Represents a write characteristic request.
+     * Represents a request to write characteristics.
      *
-     * @property characteristic a characteristic to write
-     * @property value a value to write
+     * @property parts a list of write request parts
      */
-    class WriteCharacteristic internal constructor(
+    class WriteCharacteristics internal constructor(
         private val session: GattServer.Session,
         private val requestId: Int,
-        val characteristic: GattCharacteristic,
-        val value: ByteArray?
+        val parts: List<Part>
     ) : GattServerRequest() {
         /**
-         * Sends the result for the write request.
-         *
-         * @param value an optional value that is written
+         * Notifies the success of the write request.
          */
-        fun sendResponse(value: ByteArray?) {
+        fun sendResponse() {
             handleRequest {
-                session.sendResponse(requestId, GATT_SUCCESS, 0, value)
+                session.sendResponse(requestId, GATT_SUCCESS, 0, null)
             }
         }
 
         /**
-         * Notifies the failure for the write request.
+         * Notifies the failure of the write request.
          */
         fun sendFailure() {
             handleRequest {
                 session.sendResponse(requestId, GATT_WRITE_NOT_PERMITTED, 0, null)
             }
         }
+
+        /**
+         * A part of write requests.
+         *
+         * @property characteristic a characteristic to write
+         * @property offset an offset of the first octet to be written
+         * @property value a value to be written
+         */
+        class Part internal constructor(
+            val characteristic: GattCharacteristic,
+            val offset: Int,
+            val value: ByteArray
+        )
     }
 }
