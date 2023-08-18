@@ -16,6 +16,10 @@
 
 package androidx.compose.material3
 
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+
+
 internal actual object PlatformDateFormat {
 
     private val delegate = LegacyCalendarModelImpl()
@@ -61,5 +65,17 @@ internal actual object PlatformDateFormat {
 
     actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>>? {
         return delegate.weekdayNames(locale)
+    }
+
+    // https://android.googlesource.com/platform/frameworks/base/+/jb-release/core/java/android/text/format/DateFormat.java
+    //
+    // public static boolean is24HourFormat(Context context) -- used by Android date format
+    actual fun is24HourFormat(locale : CalendarLocale) : Boolean {
+        val dateFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale)
+
+        if (dateFormat !is SimpleDateFormat)
+            return false
+
+        return 'H' in dateFormat.toPattern()
     }
 }

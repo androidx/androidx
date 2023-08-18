@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 internal expect object PlatformDateFormat{
 
+
     val firstDayOfWeek : Int
 
     /**
@@ -41,4 +42,7 @@ internal expect object PlatformDateFormat{
     fun parse(date: String, pattern: String): CalendarDate?
 
     fun getDateInputFormat(locale: CalendarLocale): DateInputFormat
+
+    fun is24HourFormat(locale: CalendarLocale) : Boolean
+
 }
