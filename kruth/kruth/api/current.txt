@@ -121,9 +121,14 @@ package androidx.kruth {
   public final class MapSubject<K, V> extends androidx.kruth.Subject<java.util.Map<K,? extends V>> {
     method public androidx.kruth.Ordered containsAtLeast(kotlin.Pair<? extends K,? extends V>... entries);
     method public androidx.kruth.Ordered containsAtLeastEntriesIn(java.util.Map<K,? extends V> expectedMap);
+    method public void containsEntry(K key, V value);
+    method public void containsEntry(kotlin.Pair<? extends K,? extends V> entry);
     method public androidx.kruth.Ordered containsExactly(kotlin.Pair<? extends K,? extends V>... entries);
     method public androidx.kruth.Ordered containsExactlyEntriesIn(java.util.Map<K,? extends V> expectedMap);
     method public void containsKey(Object? key);
+    method public void doesNotContainEntry(K key, V value);
+    method public void doesNotContainEntry(kotlin.Pair<? extends K,? extends V> entry);
+    method public void doesNotContainKey(Object? key);
     method public void hasSize(int expectedSize);
     method public void isEmpty();
     method public void isNotEmpty();

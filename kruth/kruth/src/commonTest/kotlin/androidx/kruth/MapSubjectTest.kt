@@ -449,6 +449,129 @@ class MapSubjectTest {
     }
 
     @Test
+    fun doesNotContainKey() {
+        val actual = mapOf("kurt" to "kluever")
+        assertThat(actual).doesNotContainKey("greg")
+        assertThat(actual).doesNotContainKey(null)
+    }
+
+    @Test
+    fun doesNotContainKeyFailure() {
+        val actual = mapOf("kurt" to "kluever")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).doesNotContainKey("kurt")
+        }
+    }
+
+    @Test
+    fun doesNotContainNullKey() {
+        val actual = mapOf<String?, String>(null to "null")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).doesNotContainKey(null)
+        }
+    }
+
+    @Test
+    fun containsEntry() {
+        val actual = mapOf("kurt" to "kluever")
+        assertThat(actual).containsEntry("kurt" to "kluever")
+    }
+
+    @Test
+    fun containsEntryFailure() {
+        val actual = mapOf("kurt" to "kluever")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry("greg" to "kick")
+        }
+    }
+
+    @Test
+    fun containsEntry_failsWithSameToStringOfKey() {
+        val actual = mapOf<Number, String>(1L to "value1", 2L to "value2")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry(1 to "value1")
+        }
+    }
+
+    @Test
+    fun containsEntry_failsWithSameToStringOfValue() {
+        // Does not contain the correct key, but does contain a value which matches by toString.
+        assertFailsWith<AssertionError> {
+            assertThat(mapOf<Int, String?>(1 to "null")).containsEntry(2 to null)
+        }
+    }
+
+    @Test
+    fun containsNullKeyAndValue() {
+        val actual = mapOf<String?, String?>("kurt" to "kluever")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry(null to null)
+        }
+    }
+
+    @Test
+    fun containsNullEntry() {
+        val actual = mapOf<String?, String?>(null to null)
+        assertThat(actual).containsEntry(null to null)
+    }
+
+    @Test
+    fun containsNullEntryValue() {
+        val actual = mapOf<String?, String?>(null to null)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry("kurt" to null)
+        }
+    }
+
+    @Test
+    fun containsNullEntryKey() {
+        val actual = mapOf<String?, String?>(null to null)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry(null to "kluever")
+        }
+    }
+
+    @Test
+    fun containsExactly_bothExactAndToStringKeyMatches_showsExactKeyMatch() {
+        val actual = mapOf<Number, String>(1 to "actual int", 1L to "actual long")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).containsEntry(1L to "expected long")
+        }
+    }
+
+    @Test
+    fun doesNotContainEntry() {
+        val actual = mapOf<String?, String?>("kurt" to "kluever")
+        assertThat(actual).doesNotContainEntry("greg" to "kick")
+        assertThat(actual).doesNotContainEntry(null to null)
+        assertThat(actual).doesNotContainEntry("kurt" to null)
+        assertThat(actual).doesNotContainEntry(null to "kluever")
+    }
+
+    @Test
+    fun doesNotContainEntryFailure() {
+        val actual = mapOf<String?, String?>("kurt" to "kluever")
+        assertFailsWith<AssertionError> {
+            assertThat(actual).doesNotContainEntry("kurt" to "kluever")
+        }
+    }
+
+    @Test
+    fun doesNotContainNullEntry() {
+        val actual = mapOf<String?, String?>(null to null)
+        assertThat(actual).doesNotContainEntry("kurt" to null)
+        assertThat(actual).doesNotContainEntry(null to "kluever")
+    }
+
+    @Test
+    fun doesNotContainNullEntryFailure() {
+        val actual = mapOf<String?, String?>(null to null)
+        assertFailsWith<AssertionError> {
+            assertThat(actual).doesNotContainEntry(null to null)
+        }
+    }
+
+    @Test
     fun failMapContainsKey() {
         assertFailsWith<AssertionError> {
             assertThat(mapOf("a" to "A")).containsKey("b")

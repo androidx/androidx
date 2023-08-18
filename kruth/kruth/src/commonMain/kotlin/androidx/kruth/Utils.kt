@@ -57,3 +57,68 @@ internal fun <T> Iterable<T>.retainMatchingToString(itemsToCheck: Iterable<T>): 
         (list != null) && (item !in list)
     }
 }
+
+internal fun Iterable<*>.hasMatchingToStringPair(items: Iterable<*>): Boolean =
+    if (isEmpty() || items.isEmpty()) {
+        false // Bail early to avoid calling hashCode() on the elements unnecessarily.
+    } else {
+        retainMatchingToString(items).isNotEmpty()
+    }
+
+internal fun Any?.typeName(): String =
+    when (this) {
+        null -> {
+            // The name "null type" comes from the interface javax.lang.model.type.NullType
+            "null type"
+        }
+
+        is Map.Entry<*, *> -> {
+            // Fix for interesting bug when entry.getValue() returns itself b/170390717
+            val valueTypeName = if (value === this) "Map.Entry" else value.typeName()
+            "Map.Entry<${key.typeName()}, $valueTypeName>"
+        }
+
+        else -> this::class.simpleName ?: "unknown type"
+    }
+
+internal fun Iterable<*>.countDuplicatesAndAddTypeInfo(): String {
+    val homogeneousTypeName = homogeneousTypeName()
+
+    return if (homogeneousTypeName != null) {
+        "${countDuplicates()} ($homogeneousTypeName)"
+    } else {
+        addTypeInfoToEveryItem().countDuplicates()
+    }
+}
+
+internal fun Iterable<*>.countDuplicates(): String =
+    groupingBy { it }
+        .eachCount()
+        .entries
+        .joinToString(
+            prefix = "[",
+            postfix = "]",
+            transform = { (item, count) ->
+                if (count > 1) "$item [$count copies]" else item.toString()
+            },
+        )
+
+/**
+ * Returns the name of the single type of all given items or `null` if no such type exists.
+ */
+private fun Iterable<*>.homogeneousTypeName(): String? {
+    var homogeneousTypeName: String? = null
+
+    for (item in this) {
+        when {
+            item == null -> return null
+            homogeneousTypeName == null -> homogeneousTypeName = item.typeName() // First item
+            item.typeName() != homogeneousTypeName -> return null // Heterogeneous collection
+        }
+    }
+
+    return homogeneousTypeName
+}
+
+private fun Iterable<*>.addTypeInfoToEveryItem(): List<String> =
+    map { "$it (${it.typeName()})" }

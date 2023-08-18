@@ -49,6 +49,14 @@ ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
     Method androidx.kruth.ThrowableSubject.hasCauseThat has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<java.lang.Throwable>
 
 
+InvalidNullConversion: androidx.kruth.MapSubject#containsEntry(K, V) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.kruth.MapSubject.containsEntry(K key, V value)
+InvalidNullConversion: androidx.kruth.MapSubject#containsEntry(K, V) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.kruth.MapSubject.containsEntry(K key, V value)
+InvalidNullConversion: androidx.kruth.MapSubject#doesNotContainEntry(K, V) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter key in androidx.kruth.MapSubject.doesNotContainEntry(K key, V value)
+InvalidNullConversion: androidx.kruth.MapSubject#doesNotContainEntry(K, V) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.kruth.MapSubject.doesNotContainEntry(K key, V value)
 InvalidNullConversion: androidx.kruth.SimpleSubjectBuilder#that(T) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter actual in androidx.kruth.SimpleSubjectBuilder.that(T actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(T) parameter #0:
@@ -145,16 +153,10 @@ RemovedMethod: androidx.kruth.MapSubject#comparingValuesUsing(androidx.kruth.Cor
     Removed method androidx.kruth.MapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
 RemovedMethod: androidx.kruth.MapSubject#containsAtLeast(Object, Object, java.lang.Object...):
     Removed method androidx.kruth.MapSubject.containsAtLeast(Object,Object,java.lang.Object...)
-RemovedMethod: androidx.kruth.MapSubject#containsEntry(Object, Object):
-    Removed method androidx.kruth.MapSubject.containsEntry(Object,Object)
 RemovedMethod: androidx.kruth.MapSubject#containsExactly():
     Removed method androidx.kruth.MapSubject.containsExactly()
 RemovedMethod: androidx.kruth.MapSubject#containsExactly(Object, Object, java.lang.Object...):
     Removed method androidx.kruth.MapSubject.containsExactly(Object,Object,java.lang.Object...)
-RemovedMethod: androidx.kruth.MapSubject#doesNotContainEntry(Object, Object):
-    Removed method androidx.kruth.MapSubject.doesNotContainEntry(Object,Object)
-RemovedMethod: androidx.kruth.MapSubject#doesNotContainKey(Object):
-    Removed method androidx.kruth.MapSubject.doesNotContainKey(Object)
 RemovedMethod: androidx.kruth.MapSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>):
     Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
