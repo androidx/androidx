@@ -153,4 +153,8 @@ androidx {
 
 android {
     namespace "androidx.paging.common"
+
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

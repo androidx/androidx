@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -50,6 +53,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
+                implementation(libs.guava)
             }
         }
 
@@ -57,6 +61,20 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinTest)
+            }
+        }
+
+        if (KmpPlatformsKt.enableNative(project)) {
+            nonJvmMain {
+                dependsOn commonMain
+            }
+
+            targets.all { target ->
+                if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(nonJvmMain)
+                    }
+                }
             }
         }
     }

@@ -16,6 +16,8 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
+
 /**
  * Propositions for [Comparable] typed subjects.
  *
@@ -25,6 +27,34 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
     actual: T?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<T>(actual = actual, metadata = metadata) {
+
+    /** Checks that the subject is in [range]. */
+    fun isIn(range: Range<T>) {
+        if (requireNonNull(actual) !in range) {
+            failWithoutActual("Expected to be in range", range)
+        }
+    }
+
+    /** Checks that the subject is *not* in [range]. */
+    fun isNotIn(range: Range<T>) {
+        if (requireNonNull(actual) in range) {
+            failWithoutActual("Expected not to be in range", range)
+        }
+    }
+
+    /** Checks that the subject is in [range]. */
+    fun isInRange(range: ClosedRange<T>) {
+        if (requireNonNull(actual) !in range) {
+            failWithoutActual(fact("Expected to be in range", range))
+        }
+    }
+
+    /** Checks that the subject is *not* in [range]. */
+    fun isNotInRange(range: ClosedRange<T>) {
+        if (requireNonNull(actual) in range) {
+            failWithoutActual(fact("Expected not to be in range", range))
+        }
+    }
 
     /**
      * Checks that the subject is equivalent to [other] according to [Comparable.compareTo],
