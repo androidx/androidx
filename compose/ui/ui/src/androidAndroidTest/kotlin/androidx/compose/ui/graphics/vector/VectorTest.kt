@@ -26,6 +26,7 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
@@ -863,7 +864,11 @@ class VectorTest {
                 contentDescription = null,
                 modifier = Modifier
                     .testTag(testTag)
-                    .background(Color.Red)
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(Color.Transparent, Color.Yellow, Color.Transparent)
+                        )
+                    )
                     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen },
                 contentScale = ContentScale.FillBounds,
                 colorFilter = colorFilter
