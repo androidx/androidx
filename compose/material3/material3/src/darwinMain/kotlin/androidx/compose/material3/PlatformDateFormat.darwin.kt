@@ -104,4 +104,14 @@ internal actual object PlatformDateFormat {
     private fun firstDayOfWeek(): Int {
         return (NSCalendar.currentCalendar.firstWeekday.toInt() - 1).takeIf { it > 0 } ?: 7
     }
+
+    // See http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns
+    //
+    // 'j' template requests the preferred hour format for the locale.
+    // 'a' is a pattern for AM\PM symbol. Presence of this symbol means that locale has 12h format.
+    actual fun is24HourFormat(locale: CalendarLocale): Boolean {
+        return NSDateFormatter
+            .dateFormatFromTemplate("j", 0, locale)
+            ?.contains('a') == false
+    }
 }

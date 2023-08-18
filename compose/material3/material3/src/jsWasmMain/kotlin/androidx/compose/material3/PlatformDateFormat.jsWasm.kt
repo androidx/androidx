@@ -41,6 +41,10 @@ internal actual object PlatformDateFormat {
         ).map { (day, tags) -> tags.map { it to day } }.flatten().toMap()
     }
 
+    private val regionsWith12HourFormat by lazy {
+        listOf("AE", "AG", "AL", "AS", "AU", "BB", "BD", "BH", "BM", "BN", "BS", "BT", "CA", "CN", "CO", "CY", "DJ", "DM", "DO", "DZ", "EG", "EH", "ER", "ET", "FJ", "FM", "GD", "GH", "GM", "GR", "GU", "GY", "HK", "IN", "IQ", "JM", "JO", "KH", "KI", "KN", "KP", "KR", "KW", "KY", "LB", "LC", "LR", "LS", "LY", "MH", "MO", "MP", "MR", "MW", "MY", "NA", "NZ", "OM", "PA", "PG", "PH", "PK", "PR", "PS", "PW", "QA", "SA", "SB", "SD", "SG", "SL", "SO", "SS", "SY", "SZ", "TC", "TD", "TN", "TO", "TT", "TW", "UM", "US", "VC", "VE", "VG", "VI", "VU", "WS", "YE", "ZM")
+    }
+
     //TODO: replace formatting with kotlinx datetime when supported (see https://github.com/Kotlin/kotlinx-datetime/pull/251)
     actual fun formatWithPattern(
         utcTimeMillis: Long,
@@ -197,19 +201,48 @@ internal actual object PlatformDateFormat {
         return longAndShortWeekDays[0].zip(longAndShortWeekDays[1])
     }
 
-    private fun firstDayOfWeek() : Int{
-        // supported by most of browsers except Firefox since 2022
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
-        val isIntlSupported = js("typeof(Intl) != undefined")
-            .unsafeCast<Boolean>()
-
-        if (!isIntlSupported)
-            return firstDaysOfWeekByRegionCode[Locale.current.region.uppercase()] ?: 1
+    private fun firstDayOfWeek(): Int {
 
         @Suppress("UNUSED_VARIABLE")
         val locale = Locale.current.toLanguageTag()
 
-        return js("new Intl.Locale(locale).weekInfo.firstDay").unsafeCast<Int>()
+        return runCatching {
+            // unsupported in Firefox
+            js("new Intl.Locale(locale).weekInfo.firstDay").unsafeCast<Int>()
+        }.getOrElse {
+            fallbackFirstDayOfWeek()
+        }
+    }
+
+    private fun fallbackFirstDayOfWeek() : Int {
+        return firstDaysOfWeekByRegionCode[Locale.current.region.uppercase()] ?: 1
+    }
+
+    actual fun is24HourFormat(locale: CalendarLocale): Boolean {
+
+        @Suppress("UNUSED_VARIABLE")
+        val localeTag = locale.toLanguageTag()
+
+        runCatching {
+            // unsupported in Firefox and old browsers
+            return js("new Intl.Locale(localeTag).hourCycles.join().indexOf('h2') >= 0")
+                .unsafeCast<Boolean>()
+        }
+
+        runCatching {
+            // unsupported in old browsers
+            return js("new Intl.Locale(localeTag).hourCycle.indexOf('h2') >= 0")
+                .unsafeCast<Boolean>()
+        }
+
+        return fallbackIs24HourFormat(locale)
+    }
+
+    private fun fallbackIs24HourFormat(locale: CalendarLocale) : Boolean {
+        val region = locale.region.uppercase()
+        return regionsWith12HourFormat.binarySearch {
+            it.compareTo(region)
+        } < 0
     }
 }
 
