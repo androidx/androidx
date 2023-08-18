@@ -7,7 +7,7 @@
         errorLine1="                    ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/PlatformMagnifierTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/PlatformMagnifierTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/LazyScrollTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/LazyScrollTest.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="            Thread.sleep(5)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
     </issue>
 
     <issue
