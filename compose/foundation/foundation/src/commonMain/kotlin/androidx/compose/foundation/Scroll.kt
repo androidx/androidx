@@ -38,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -105,8 +106,10 @@ class ScrollState(initial: Int) : ScrollableState {
         get() = _maxValueState.intValue
         internal set(newMax) {
             _maxValueState.intValue = newMax
-            if (value > newMax) {
-                value = newMax
+            Snapshot.withoutReadObservation {
+                if (value > newMax) {
+                    value = newMax
+                }
             }
         }
 
