@@ -50,18 +50,33 @@ internal actual class SnapshotThreadLocal<T> {
     private val map = AtomicReference<ThreadMap>(emptyThreadMap)
     private val writeMutex = Any()
 
+    private var mainThreadValue: T? = null
+
     @Suppress("UNCHECKED_CAST")
-    actual fun get(): T? = map.get().get(Thread.currentThread().id) as T?
+    actual fun get(): T? {
+        val threadId = Thread.currentThread().id
+        return if (threadId == MainThreadId) {
+            mainThreadValue
+        } else {
+            map.get().get(Thread.currentThread().id) as T?
+        }
+    }
 
     actual fun set(value: T?) {
         val key = Thread.currentThread().id
-        synchronized(writeMutex) {
-            val current = map.get()
-            if (current.trySet(key, value)) return
-            map.set(current.newWith(key, value))
+        if (key == MainThreadId) {
+            mainThreadValue = value
+        } else {
+            synchronized(writeMutex) {
+                val current = map.get()
+                if (current.trySet(key, value)) return
+                map.set(current.newWith(key, value))
+            }
         }
     }
 }
+
+internal expect val MainThreadId: Long
 
 internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
 
