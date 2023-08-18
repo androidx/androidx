@@ -180,6 +180,7 @@ public final class ServiceCompat {
     /**
      * Remove the passed service from foreground state, allowing it to be killed if
      * more memory is needed.
+     * @param service service to remove.
      * @param flags Additional behavior options: {@link #STOP_FOREGROUND_REMOVE},
      * {@link #STOP_FOREGROUND_DETACH}.
      * @see Service#startForeground(int, Notification)
