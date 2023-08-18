@@ -56,7 +56,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -976,7 +975,6 @@ class LazyPagingItemsTest {
         }
     }
 
-    @Ignore // b/294941531
     @Test
     fun cachedData_loadStates() {
         val flow = createPager().flow.cachedIn(TestScope(UnconfinedTestDispatcher()))
@@ -994,7 +992,10 @@ class LazyPagingItemsTest {
 
         rule.waitUntil {
             dispatcher.scheduler.advanceUntilIdle() // let items load
-            lazyPagingItems.itemCount == maxItem
+            lazyPagingItems.itemCount == maxItem &&
+                lazyPagingItems.loadState.source.refresh is LoadState.NotLoading &&
+                lazyPagingItems.loadState.source.prepend is LoadState.NotLoading &&
+                lazyPagingItems.loadState.source.append is LoadState.NotLoading
         }
 
         assertThat(lazyPagingItems.loadState).isEqualTo(
