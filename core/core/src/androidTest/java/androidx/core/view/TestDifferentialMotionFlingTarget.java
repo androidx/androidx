@@ -17,10 +17,9 @@
 package androidx.core.view;
 
 /**
- * A test implementation for {@link DifferentialMotionFlingHelper.DifferentialMotionFlingTarget}.
+ * A test implementation for {@link DifferentialMotionFlingTarget}.
  */
-class TestDifferentialMotionFlingTarget
-        implements DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+class TestDifferentialMotionFlingTarget implements DifferentialMotionFlingTarget {
     float mLastFlingVelocity = 0;
     int mNumStops = 0;
 

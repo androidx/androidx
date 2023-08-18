@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 import android.view.MotionEvent;
 
-import androidx.core.view.DifferentialMotionFlingHelper;
+import androidx.core.view.DifferentialMotionFlingController;
 import androidx.core.view.InputDeviceCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class NestedScrollViewOnGenericMotionEventTest {
 
-    private DifferentialMotionFlingHelper mSpyDifferentialFlingHelper;
+    private DifferentialMotionFlingController mSpyDifferentialFlingController;
 
     private NestedScrollView mNestedScrollView;
 
@@ -45,8 +45,8 @@ public class NestedScrollViewOnGenericMotionEventTest {
     public void setUp() throws Exception {
         mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
 
-        mSpyDifferentialFlingHelper = spy(mNestedScrollView.mDifferentialMotionFlingHelper);
-        mNestedScrollView.mDifferentialMotionFlingHelper = mSpyDifferentialFlingHelper;
+        mSpyDifferentialFlingController = spy(mNestedScrollView.mDifferentialMotionFlingController);
+        mNestedScrollView.mDifferentialMotionFlingController = mSpyDifferentialFlingController;
     }
 
     @Test
@@ -55,7 +55,7 @@ public class NestedScrollViewOnGenericMotionEventTest {
 
         mNestedScrollView.onGenericMotionEvent(event);
 
-        verify(mSpyDifferentialFlingHelper).onMotionEvent(event, MotionEventCompat.AXIS_SCROLL);
+        verify(mSpyDifferentialFlingController).onMotionEvent(event, MotionEventCompat.AXIS_SCROLL);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class NestedScrollViewOnGenericMotionEventTest {
 
         mNestedScrollView.onGenericMotionEvent(event);
 
-        verify(mSpyDifferentialFlingHelper).onMotionEvent(event, MotionEvent.AXIS_VSCROLL);
+        verify(mSpyDifferentialFlingController).onMotionEvent(event, MotionEvent.AXIS_VSCROLL);
     }
 
     @Test

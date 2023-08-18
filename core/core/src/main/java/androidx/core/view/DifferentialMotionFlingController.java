@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 /**
- * Helper for controlling differential motion flings.
+ * Controller differential motion flings.
  *
  * <p><b>Differential motion</b> here refers to motions that report change in position instead of
  * absolution position. For instance, differential data points of 2, -1, 5 represent: there was
@@ -37,12 +37,12 @@ import androidx.annotation.VisibleForTesting;
  * the target View (that is, the View on which we want to fling), and this class processes the event
  * to orchestrate fling.
  *
- * <p>Note that this helper class currently works to control fling only in one direction at a time.
+ * <p>Note that this class currently works to control fling only in one direction at a time.
  * As such, it works independently of horizontal/vertical orientations. It requests its client to
  * start/stop fling, and it's up to the client to choose the fling direction based on its specific
  * internal configurations and/or preferences.
  */
-public class DifferentialMotionFlingHelper {
+public class DifferentialMotionFlingController {
     private final Context mContext;
     private final DifferentialMotionFlingTarget mTarget;
 
@@ -97,47 +97,18 @@ public class DifferentialMotionFlingHelper {
         float getCurrentVelocity(VelocityTracker vt, MotionEvent event, int axis);
     }
 
-    /**
-     * Represents an entity that may be flung by a differential motion or an entity that initiates
-     * fling on a target View.
-     */
-    public interface DifferentialMotionFlingTarget {
-        /**
-         * Start flinging on the target View by a given velocity.
-         *
-         * @param velocity the fling velocity, in pixels/second.
-         * @return {@code true} if fling was successfully initiated, {@code false} otherwise.
-         */
-        boolean startDifferentialMotionFling(float velocity);
-
-        /** Stop any ongoing fling on the target View that is caused by a differential motion. */
-        void stopDifferentialMotionFling();
-
-        /**
-         * Returns the scaled scroll factor to be used for differential motions. This is the
-         * value that the raw {@link MotionEvent} values should be multiplied with to get pixels.
-         *
-         * <p>This usually is one of the values provided by {@link ViewConfigurationCompat}. It is
-         * up to the client to choose and provide any value as per its internal configuration.
-         *
-         * @see ViewConfigurationCompat#getScaledHorizontalScrollFactor(ViewConfiguration, Context)
-         * @see ViewConfigurationCompat#getScaledVerticalScrollFactor(ViewConfiguration, Context)
-         */
-        float getScaledScrollFactor();
-    }
-
     /** Constructs an instance for a given {@link DifferentialMotionFlingTarget}. */
-    public DifferentialMotionFlingHelper(
+    public DifferentialMotionFlingController(
             @NonNull Context context,
             @NonNull DifferentialMotionFlingTarget target) {
         this(context,
                 target,
-                DifferentialMotionFlingHelper::calculateFlingVelocityThresholds,
-                DifferentialMotionFlingHelper::getCurrentVelocity);
+                DifferentialMotionFlingController::calculateFlingVelocityThresholds,
+                DifferentialMotionFlingController::getCurrentVelocity);
     }
 
     @VisibleForTesting
-    DifferentialMotionFlingHelper(
+    DifferentialMotionFlingController(
             Context context,
             DifferentialMotionFlingTarget target,
             FlingVelocityThresholdCalculator velocityThresholdCalculator,

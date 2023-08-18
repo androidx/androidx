@@ -2461,12 +2461,12 @@ package androidx.core.view {
     method public androidx.core.view.ContentInfoCompat.Builder setSource(int);
   }
 
-  public class DifferentialMotionFlingHelper {
-    ctor public DifferentialMotionFlingHelper(android.content.Context, androidx.core.view.DifferentialMotionFlingHelper.DifferentialMotionFlingTarget);
+  public class DifferentialMotionFlingController {
+    ctor public DifferentialMotionFlingController(android.content.Context, androidx.core.view.DifferentialMotionFlingTarget);
     method public void onMotionEvent(android.view.MotionEvent, int);
   }
 
-  public static interface DifferentialMotionFlingHelper.DifferentialMotionFlingTarget {
+  public interface DifferentialMotionFlingTarget {
     method public float getScaledScrollFactor();
     method public boolean startDifferentialMotionFling(float);
     method public void stopDifferentialMotionFling();
