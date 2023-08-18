@@ -37,14 +37,14 @@ function sampledRanges(metrics: Metrics<number>): Record<string, Range> {
   return ranges;
 }
 
-function sampledMapper(metric: Metric<number[]>, range: Range | null): Series[] {
+function sampledMapper(metric: Metric<number[]>, buckets: number, range: Range | null): Series[] {
   const series: Series[] = [];
   const data: Record<string, ChartData<number[]>> = metric.data;
   const entries = Object.entries(data);
   for (let i = 0; i < entries.length; i += 1) {
     const [source, chartData] = entries[i];
     const label = labelFor(metric, source);
-    const [points, _, __] = histogramPoints(chartData.values, /* buckets */ undefined, /* target */ undefined, range);
+    const [points, _, __] = histogramPoints(chartData.values, buckets, /* target */ undefined, range);
     series.push({
       label: label,
       type: "line",
@@ -194,11 +194,32 @@ function rangeLabel(metric: Metric<unknown>): string {
 }
 
 /**
- * The standard mapper.
+ * The Standard Mapper.
  */
-export const STANDARD_MAPPER: Mapper = {
-  rangeLabel: rangeLabel,
-  standard: standardMapper,
-  sampled: sampledMapper,
-  sampledRanges: sampledRanges
-};
+class StandardMapper {
+  constructor(private buckets: number) {
+    // Does nothing.
+  }
+  // Delegate
+  rangeLabel(metric: Metric<unknown>): string {
+    return rangeLabel(metric);
+  }
+  standard(metric: Metric<number>): Series[] {
+    return standardMapper(metric);
+  }
+  sampled(metric: Metric<number[]>, range: Range | null): Series[] {
+    return sampledMapper(metric, this.buckets, range);
+  }
+  sampledRanges(metrics: Metrics<number>): Record<string, Range> {
+    return sampledRanges(metrics);
+  }
+}
+
+/**
+ * Builds a Standard mapper.
+ * @param buckets are the number of buckets in the histogram to use.
+ * @return an instance of `Mapper`.
+ */
+export function buildMapper(buckets: number): Mapper<number> {
+  return new StandardMapper(buckets);
+}

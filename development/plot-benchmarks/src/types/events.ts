@@ -31,3 +31,11 @@ export interface StatInfo {
 export interface StatEvent {
   info: StatInfo[];
 }
+
+export interface ControlsEvent {
+  controls: Controls;
+}
+
+export interface Controls {
+  buckets: number;
+}

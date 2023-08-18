@@ -1,29 +1,33 @@
 <script lang="ts">
+  import type { Remote } from "comlink";
   import { createEventDispatcher } from "svelte";
   import {
+    derived,
     writable,
     type Readable,
     type Writable,
-    derived,
   } from "svelte/store";
   import { readBenchmarks } from "../files.js";
-  import { ChartDataTransforms } from "../transforms/data-transforms.js";
+  import {
+    ChartDataTransforms,
+    type Mapper,
+  } from "../transforms/data-transforms.js";
   import { Transforms } from "../transforms/metric-transforms.js";
-  import { STANDARD_MAPPER } from "../transforms/standard-mappers.js";
   import type { Data, Series } from "../types/chart.js";
   import type { Metrics } from "../types/data.js";
   import type {
-    FileMetadataEvent,
+    Controls,
     DatasetSelection,
-    StatInfo,
+    FileMetadataEvent,
     MetricSelection,
+    StatInfo,
   } from "../types/events.js";
   import type { FileMetadata } from "../types/files.js";
+  import type { StatService } from "../workers/service.js";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
   import Chart from "./Chart.svelte";
   import Group from "./Group.svelte";
-  import type { StatService } from "../workers/service.js";
-  import type { Remote } from "comlink";
+  import { buildMapper } from "../transforms/standard-mappers.js";
 
   export let fileEntries: FileMetadata[];
   export let service: Remote<StatService>;
@@ -31,14 +35,17 @@
   // State
   let eventDispatcher = createEventDispatcher<FileMetadataEvent>();
   let session: Session;
+  let mapper: Mapper<number>;
   let metrics: Metrics<number>;
   let series: Series[];
   let chartData: Data;
   let classGroups: Record<string, IndexedWrapper[]>;
+  let showHistogramControls: boolean;
   let size: number;
   let activeSeries: Promise<Series[]>;
 
   // Stores
+  let buckets: Writable<number> = writable(100);
   let activeDragDrop: Writable<boolean> = writable(false);
   let suppressed: Writable<Set<string>> = writable(new Set());
   let suppressedMetrics: Writable<Set<string>> = writable(new Set());
@@ -97,11 +104,18 @@
     }
   };
 
+  let controlsHandler = function (event: CustomEvent<Controls>) {
+    const controls: Controls = event.detail;
+    $buckets = controls.buckets;
+  };
+
   $: {
     session = new Session(fileEntries);
+    mapper = buildMapper($buckets);
     metrics = Transforms.buildMetrics(session, $suppressed, $suppressedMetrics);
+    showHistogramControls = metrics.sampled && metrics.sampled.length > 0;
     activeSeries = service.pSeries(metrics, $active);
-    series = ChartDataTransforms.mapToSeries(metrics, STANDARD_MAPPER);
+    series = ChartDataTransforms.mapToSeries(metrics, mapper);
     chartData = ChartDataTransforms.mapToDataset(series);
     classGroups = session.classGroups;
     size = session.fileNames.size;
@@ -183,7 +197,11 @@
   </article>
 
   {#if series.length > 0}
-    <Chart data={chartData} />
+    <Chart
+      data={chartData}
+      {showHistogramControls}
+      on:controls={controlsHandler}
+    />
   {/if}
 
   {#await activeSeries}
