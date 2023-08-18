@@ -716,7 +716,7 @@ class SubjectTest {
                 msg2
                 msg3
                 msg4
-                But was: 0
+                but was: 0
             """.trimIndent()
         ) { subject.fail() }
     }
@@ -739,7 +739,7 @@ class SubjectTest {
                 msg2
                 msg3
                 msg4
-                But was:
+                but was:
                     a
                     b
             """.trimIndent()

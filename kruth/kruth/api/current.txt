@@ -181,7 +181,11 @@ package androidx.kruth {
     ctor public Subject(T? actual, optional androidx.kruth.FailureMetadata metadata);
     method protected final androidx.kruth.StandardSubjectBuilder check();
     method protected final Void failWithActual(androidx.kruth.Fact... facts);
+    method protected final Void failWithActual(String key);
+    method protected final Void failWithActual(String key, optional Object? value);
     method protected final Void failWithoutActual(androidx.kruth.Fact... facts);
+    method protected final Void failWithoutActual(String key);
+    method protected final Void failWithoutActual(String key, optional Object? value);
     method public final T? getActual();
     method public final androidx.kruth.FailureMetadata getMetadata();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);

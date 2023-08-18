@@ -18,8 +18,10 @@ package androidx.kruth
 
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.asserter
 
 class ChainingTest {
+
     @Test
     fun singleChain() {
         assertFailsWith<AssertionError> {

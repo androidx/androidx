@@ -116,16 +116,13 @@ class MapSubject<K, V> internal constructor(
         val actualSet = actual.mapTo(HashSet()) { (key, value) -> key to value }
 
         if (allowUnexpected) {
-            asserter(withActual = true).assertTrue(
-                actual = actualSet.containsAll(expectedSet),
-                message = "Expected to contain at least: $expectedMap",
-            )
+            if (!actualSet.containsAll(expectedSet)) {
+                failWithActual("Expected to contain at least", expectedSet)
+            }
         } else {
-            asserter(withActual = true).assertEquals(
-                expected = expectedSet,
-                actual = actualSet,
-                message = "Expected: $expectedMap",
-            )
+            if (expectedSet != actualSet) {
+                failWithActual("Expected", expectedMap)
+            }
         }
     }
 
