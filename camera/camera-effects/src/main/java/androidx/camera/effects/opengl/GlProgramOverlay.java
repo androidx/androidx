@@ -24,12 +24,15 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 
 /**
  * A GL program that copies the source while overlaying a texture on top of it.
  */
 @RequiresApi(21)
 class GlProgramOverlay extends GlProgram {
+
+    private static final String TAG = "GlProgramOverlay";
 
     static final String TEXTURE_MATRIX = "uTexMatrix";
     static final String OVERLAY_SAMPLER = "samplerOverlayTexture";
@@ -121,6 +124,10 @@ class GlProgramOverlay extends GlProgram {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, overlayTextureId);
         checkGlErrorOrThrow("glBindTexture");
 
-        glContext.drawAndSwap(surface, timestampNs);
+        try {
+            glContext.drawAndSwap(surface, timestampNs);
+        } catch (IllegalStateException e) {
+            Logger.w(TAG, "Failed to draw the frame", e);
+        }
     }
 }
