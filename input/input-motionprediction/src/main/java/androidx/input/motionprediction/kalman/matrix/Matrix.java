@@ -230,27 +230,6 @@ public class Matrix {
      * Calculates the matrix product of this matrix and {@code that}.
      *
      * @param that the other matrix
-     * @return newly created matrix representing the matrix product of this and that
-     * @throws IllegalArgumentException if the dimensions differ
-     */
-    public @NonNull Matrix dot(@NonNull Matrix that) {
-        try {
-            return dot(that, new Matrix(mRows, that.mCols));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            Locale.ROOT,
-                            "The matrices dimensions are not conformant for a dot matrix "
-                                    + "operation. this:%s that:%s",
-                            shortString(),
-                            that.shortString()));
-        }
-    }
-
-    /**
-     * Calculates the matrix product of this matrix and {@code that}.
-     *
-     * @param that the other matrix
      * @param result matrix to hold the result
      * @return result, filled with the matrix product
      * @throws IllegalArgumentException if the dimensions differ
@@ -281,15 +260,26 @@ public class Matrix {
     /**
      * Calculates the inverse of a square matrix
      *
+     * @param scratch the matrix [rows, 2*cols] to hold the temporary information
+     *
      * @return newly created matrix representing the matrix inverse
      * @throws ArithmeticException if the matrix is not invertible
      */
-    public @NonNull Matrix inverse() {
+    public @NonNull Matrix inverse(@NonNull Matrix scratch) {
         if (!(mRows == mCols)) {
             throw new IllegalArgumentException(
                     String.format(Locale.ROOT, "The matrix is not square. this:%s", shortString()));
         }
-        final Matrix scratch = new Matrix(mRows, 2 * mCols);
+
+        if (scratch.mRows != mRows || scratch.mCols != 2 * mCols) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            Locale.ROOT,
+                            "The scratch matrix size is not correct. this:%s",
+                            scratch.shortString()
+                    )
+            );
+        }
 
         for (int i = 0; i < mRows; i++) {
             for (int j = 0; j < mCols; j++) {
@@ -343,27 +333,6 @@ public class Matrix {
             }
         }
         return this;
-    }
-
-    /**
-     * Calculates the matrix product with the transpose of a second matrix.
-     *
-     * @param that the other matrix
-     * @return newly created matrix representing the matrix product of this and that.transpose()
-     * @throws IllegalArgumentException if shapes are not conformant
-     */
-    public @NonNull Matrix dotTranspose(@NonNull Matrix that) {
-        try {
-            return dotTranspose(that, new Matrix(mRows, that.mRows));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            Locale.ROOT,
-                            "The matrices dimensions are not conformant for a transpose "
-                                    + "operation. this:%s that:%s",
-                            shortString(),
-                            that.shortString()));
-        }
     }
 
     /**
