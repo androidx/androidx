@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class IntSetTest {
@@ -441,5 +442,85 @@ class IntSetTest {
         set.removeAll(intArrayOf(6, 8, 9, 10, 11, 12, 13, 14))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun intSetOfEmpty() {
+        assertSame(emptyIntSet(), intSetOf())
+        assertEquals(0, intSetOf().size)
+    }
+
+    @Test
+    fun intSetOfOne() {
+        val set = intSetOf(1)
+        assertEquals(1, set.size)
+        assertEquals(1, set.first())
+    }
+
+    @Test
+    fun intSetOfTwo() {
+        val set = intSetOf(1, 2)
+        assertEquals(2, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertFalse(5 in set)
+    }
+
+    @Test
+    fun intSetOfThree() {
+        val set = intSetOf(1, 2, 3)
+        assertEquals(3, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertTrue(3 in set)
+        assertFalse(5 in set)
+    }
+
+    @Test
+    fun intSetOfFour() {
+        val set = intSetOf(1, 2, 3, 4)
+        assertEquals(4, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertTrue(3 in set)
+        assertTrue(4 in set)
+        assertFalse(5 in set)
+    }
+
+    @Test
+    fun mutableIntSetOfOne() {
+        val set = mutableIntSetOf(1)
+        assertEquals(1, set.size)
+        assertEquals(1, set.first())
+    }
+
+    @Test
+    fun mutableIntSetOfTwo() {
+        val set = mutableIntSetOf(1, 2)
+        assertEquals(2, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertFalse(5 in set)
+    }
+
+    @Test
+    fun mutableIntSetOfThree() {
+        val set = mutableIntSetOf(1, 2, 3)
+        assertEquals(3, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertTrue(3 in set)
+        assertFalse(5 in set)
+    }
+
+    @Test
+    fun mutableIntSetOfFour() {
+        val set = mutableIntSetOf(1, 2, 3, 4)
+        assertEquals(4, set.size)
+        assertTrue(1 in set)
+        assertTrue(2 in set)
+        assertTrue(3 in set)
+        assertTrue(4 in set)
+        assertFalse(5 in set)
     }
 }

@@ -628,4 +628,88 @@ class LongListTest {
         l.sortDescending()
         assertEquals(mutableLongListOf(5L, 4L, 3L, 2L, 1L), l)
     }
+
+    @Test
+    fun testEmptyLongList() {
+        val l = emptyLongList()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun longListOfEmpty() {
+        val l = longListOf()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun longListOfOneValue() {
+        val l = longListOf(2L)
+        assertEquals(1, l.size)
+        assertEquals(2L, l[0])
+    }
+
+    @Test
+    fun longListOfTwoValues() {
+        val l = longListOf(2L, 1L)
+        assertEquals(2, l.size)
+        assertEquals(2L, l[0])
+        assertEquals(1L, l[1])
+    }
+
+    @Test
+    fun longListOfThreeValues() {
+        val l = longListOf(2L, 10L, -1L)
+        assertEquals(3, l.size)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+        assertEquals(-1L, l[2])
+    }
+
+    @Test
+    fun longListOfFourValues() {
+        val l = longListOf(2L, 10L, -1L, 10L)
+        assertEquals(4, l.size)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+        assertEquals(-1L, l[2])
+        assertEquals(10L, l[3])
+    }
+
+    @Test
+    fun mutableLongListOfOneValue() {
+        val l = mutableLongListOf(2L)
+        assertEquals(1, l.size)
+        assertEquals(1, l.capacity)
+        assertEquals(2L, l[0])
+    }
+
+    @Test
+    fun mutableLongListOfTwoValues() {
+        val l = mutableLongListOf(2L, 1L)
+        assertEquals(2, l.size)
+        assertEquals(2, l.capacity)
+        assertEquals(2L, l[0])
+        assertEquals(1L, l[1])
+    }
+
+    @Test
+    fun mutableLongListOfThreeValues() {
+        val l = mutableLongListOf(2L, 10L, -1L)
+        assertEquals(3, l.size)
+        assertEquals(3, l.capacity)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+        assertEquals(-1L, l[2])
+    }
+
+    @Test
+    fun mutableLongListOfFourValues() {
+        val l = mutableLongListOf(2L, 10L, -1L, 10L)
+        assertEquals(4, l.size)
+        assertEquals(4, l.capacity)
+        assertEquals(2L, l[0])
+        assertEquals(10L, l[1])
+        assertEquals(-1L, l[2])
+        assertEquals(10L, l[3])
+    }
 }

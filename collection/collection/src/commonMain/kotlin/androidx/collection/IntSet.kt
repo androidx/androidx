@@ -34,7 +34,7 @@ import kotlin.jvm.JvmField
 // Default empty set to avoid allocations
 private val EmptyIntSet = MutableIntSet(0)
 
-// An empty array of Ints
+// An empty array of ints
 private val EmptyIntArray = IntArray(0)
 
 /**
@@ -43,17 +43,75 @@ private val EmptyIntArray = IntArray(0)
 public fun emptyIntSet(): IntSet = EmptyIntSet
 
 /**
+ * Returns an empty, read-only [ScatterSet].
+ */
+@Suppress("UNCHECKED_CAST")
+public fun intSetOf(): IntSet = EmptyIntSet
+
+/**
+ * Returns a new read-only [IntSet] with only [element1] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun intSetOf(element1: Int): IntSet = mutableIntSetOf(element1)
+
+/**
+ * Returns a new read-only [IntSet] with only [element1] and [element2] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun intSetOf(element1: Int, element2: Int): IntSet =
+    mutableIntSetOf(element1, element2)
+
+/**
+ * Returns a new read-only [IntSet] with only [element1], [element2], and [element3] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun intSetOf(element1: Int, element2: Int, element3: Int): IntSet =
+    mutableIntSetOf(element1, element2, element3)
+
+/**
+ * Returns a new read-only [IntSet] with only [elements] in it.
+ */
+@Suppress("UNCHECKED_CAST")
+public fun intSetOf(vararg elements: Int): IntSet =
+    MutableIntSet(elements.size).apply { plusAssign(elements) }
+
+/**
  * Returns a new [MutableIntSet].
  */
 public fun mutableIntSetOf(): MutableIntSet = MutableIntSet()
 
 /**
+ * Returns a new [MutableIntSet] with only [element1] in it.
+ */
+public fun mutableIntSetOf(element1: Int): MutableIntSet =
+    MutableIntSet(1).apply {
+        plusAssign(element1)
+    }
+
+/**
+ * Returns a new [MutableIntSet] with only [element1] and [element2] in it.
+ */
+public fun mutableIntSetOf(element1: Int, element2: Int): MutableIntSet =
+    MutableIntSet(2).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+    }
+
+/**
+ * Returns a new [MutableIntSet] with only [element1], [element2], and [element3] in it.
+ */
+public fun mutableIntSetOf(element1: Int, element2: Int, element3: Int): MutableIntSet =
+    MutableIntSet(3).apply {
+        plusAssign(element1)
+        plusAssign(element2)
+        plusAssign(element3)
+    }
+
+/**
  * Returns a new [MutableIntSet] with the specified elements.
  */
 public fun mutableIntSetOf(vararg elements: Int): MutableIntSet =
-    MutableIntSet(elements.size).apply {
-        addAll(elements)
-    }
+    MutableIntSet(elements.size).apply { plusAssign(elements) }
 
 /**
  * [IntSet] is a container with a [Set]-like interface designed to avoid

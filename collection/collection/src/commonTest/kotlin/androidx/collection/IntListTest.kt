@@ -628,4 +628,88 @@ class IntListTest {
         l.sortDescending()
         assertEquals(mutableIntListOf(5, 4, 3, 2, 1), l)
     }
+
+    @Test
+    fun testEmptyIntList() {
+        val l = emptyIntList()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun intListOfEmpty() {
+        val l = intListOf()
+        assertEquals(0, l.size)
+    }
+
+    @Test
+    fun intListOfOneValue() {
+        val l = intListOf(2)
+        assertEquals(1, l.size)
+        assertEquals(2, l[0])
+    }
+
+    @Test
+    fun intListOfTwoValues() {
+        val l = intListOf(2, 1)
+        assertEquals(2, l.size)
+        assertEquals(2, l[0])
+        assertEquals(1, l[1])
+    }
+
+    @Test
+    fun intListOfThreeValues() {
+        val l = intListOf(2, 10, -1)
+        assertEquals(3, l.size)
+        assertEquals(2, l[0])
+        assertEquals(10, l[1])
+        assertEquals(-1, l[2])
+    }
+
+    @Test
+    fun intListOfFourValues() {
+        val l = intListOf(2, 10, -1, 10)
+        assertEquals(4, l.size)
+        assertEquals(2, l[0])
+        assertEquals(10, l[1])
+        assertEquals(-1, l[2])
+        assertEquals(10, l[3])
+    }
+
+    @Test
+    fun mutableIntListOfOneValue() {
+        val l = mutableIntListOf(2)
+        assertEquals(1, l.size)
+        assertEquals(1, l.capacity)
+        assertEquals(2, l[0])
+    }
+
+    @Test
+    fun mutableIntListOfTwoValues() {
+        val l = mutableIntListOf(2, 1)
+        assertEquals(2, l.size)
+        assertEquals(2, l.capacity)
+        assertEquals(2, l[0])
+        assertEquals(1, l[1])
+    }
+
+    @Test
+    fun mutableIntListOfThreeValues() {
+        val l = mutableIntListOf(2, 10, -1)
+        assertEquals(3, l.size)
+        assertEquals(3, l.capacity)
+        assertEquals(2, l[0])
+        assertEquals(10, l[1])
+        assertEquals(-1, l[2])
+    }
+
+    @Test
+    fun mutableIntListOfFourValues() {
+        val l = mutableIntListOf(2, 10, -1, 10)
+        assertEquals(4, l.size)
+        assertEquals(4, l.capacity)
+        assertEquals(2, l[0])
+        assertEquals(10, l[1])
+        assertEquals(-1, l[2])
+        assertEquals(10, l[3])
+    }
 }
