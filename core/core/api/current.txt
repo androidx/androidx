@@ -798,7 +798,7 @@ package androidx.core.app {
     method public abstract void cancel(String!, int, String!);
     method public abstract void cancelAll(String!);
     method public abstract void notify(String!, int, String!, android.app.Notification!);
-    method public android.os.IBinder! onBind(android.content.Intent!);
+    method @DeprecatedSinceApi(api=19, message="SDKs past 19 have no need for side channeling.") public android.os.IBinder! onBind(android.content.Intent!);
   }
 
   public final class NotificationManagerCompat {
