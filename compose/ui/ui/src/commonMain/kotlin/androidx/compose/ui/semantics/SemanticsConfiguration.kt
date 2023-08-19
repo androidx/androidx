@@ -74,6 +74,9 @@ class SemanticsConfiguration :
         return props.containsKey(key)
     }
 
+    internal fun containsImportantForAccessibility() =
+        props.keys.any { it.isImportantForAccessibility }
+
     /**
      * Whether the semantic information provided by the owning component and
      * all of its descendants should be treated as one logical entity.

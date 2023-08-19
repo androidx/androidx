@@ -444,15 +444,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;vare2b4ac12&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
-        errorLine1="                    node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;scrollAction&apos; with type AccessibilityAction&lt;Function2&lt;? super Float, ? super Float, ? extends Boolean>>."
         errorLine1="                var scrollAction = scrollableAncestor?.config?.getOrNull(SemanticsActions.ScrollBy)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

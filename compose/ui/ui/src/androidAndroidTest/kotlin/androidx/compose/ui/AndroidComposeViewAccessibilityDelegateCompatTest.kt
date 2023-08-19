@@ -81,7 +81,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.clearTextSubstitution
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
@@ -97,6 +99,7 @@ import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.isShowingTextSubstitution
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onClick
@@ -501,6 +504,115 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         }
         accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
         assertEquals("android.widget.ImageView", info.className)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testIsNotImportant_empty() {
+        var semanticsNode: SemanticsNode
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) { }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testIsImportant_emptyMerging() {
+        var semanticsNode: SemanticsNode
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = true) { }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(true, info.isImportantForAccessibility)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testIsNotImportant_testOnlyProperties() {
+        var semanticsNode: SemanticsNode
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            testTag = "tag"
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            testTagsAsResourceId = true
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            testTag = "tag"
+            invisibleToUser()
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testIsImportant_accessibilitySpeakableProperties() {
+        var semanticsNode: SemanticsNode
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            stateDescription = "stateDescription"
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(true, info.isImportantForAccessibility)
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            testTag = "tag" // test that also including a non-speakable property doesn't matter
+            heading()
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(true, info.isImportantForAccessibility)
+
+        info = AccessibilityNodeInfoCompat.obtain()
+        semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            onClick("clickLabel") { true }
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(true, info.isImportantForAccessibility)
+    }
+
+    val PickedDateKey = SemanticsPropertyKey<Long>("PickedDate")
+    var SemanticsPropertyReceiver.pickedDate by PickedDateKey
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testIsNotImportant_customSemanticsProperty() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, mergeDescendants = false) {
+            pickedDate = 1445378400 // 2015-10-21
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    fun testIsNotImportant_clearedWithTestTag() {
+        val layoutNode = LayoutNode(semanticsId = 1)
+        layoutNode.modifier = Modifier.clearAndSetSemantics {
+            testTag = "tag"
+        }.semantics(mergeDescendants = true) {
+            stateDescription = "stateDescription"
+        }
+        val childNode1 = createSemanticsNodeWithChildren(2, emptyList()) {
+            text = AnnotatedString("foo")
+        }
+        layoutNode.zSortedChildren.add(childNode1.layoutNode)
+        layoutNode.attach(MockOwner())
+        val semanticsNode = SemanticsNode(layoutNode, true)
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals(false, info.isImportantForAccessibility)
     }
 
     @Test
