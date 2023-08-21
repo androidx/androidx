@@ -29,6 +29,10 @@ import android.view.translation.TranslationResponseValue
 import android.view.translation.ViewTranslationRequest
 import android.view.translation.ViewTranslationResponse
 import android.widget.FrameLayout
+import androidx.collection.IntSet
+import androidx.collection.SparseArrayCompat
+import androidx.collection.set
+import androidx.collection.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -772,9 +776,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 semanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = SemanticsNodeWithAdjustedBounds(
             semanticsNode,
             android.graphics.Rect()
@@ -820,9 +824,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             disabled()
         }
@@ -847,9 +851,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {}
         accessibilityDelegate.sendSemanticsPropertyChangeEvents(newNodes)
 
@@ -872,9 +876,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             onClick { true }
         }
@@ -900,9 +904,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             onClick(label = label) { true }
         }
@@ -929,9 +933,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             onClick(label = labelNew) { true }
         }
@@ -957,9 +961,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             customActions = listOf(CustomAccessibilityAction(label) { true })
         }
@@ -986,9 +990,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, false) {
             customActions = listOf(CustomAccessibilityAction(labelNew) { true })
         }
@@ -1034,9 +1038,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.previousSemanticsNodes[1] =
             SemanticsNodeCopy(
                 oldSemanticsNode,
-                mapOf()
+                SparseArrayCompat()
             )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
+        val newNodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
         newNodes[1] = createSemanticsNodeWithAdjustedBoundsWithProperties(1, true) {
             this.contentDescription = "Hello" // To trigger content description casting
         }
@@ -1060,7 +1064,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 1,
                 position = Offset.Unspecified
@@ -1068,7 +1072,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = -1,
                 position = Offset.Unspecified
@@ -1076,7 +1080,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 0,
                 position = Offset.Unspecified
@@ -1102,7 +1106,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Should be scrollable in both directions.
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 1,
                 position = Offset(50f, 50f)
@@ -1110,7 +1114,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 0,
                 position = Offset(50f, 50f)
@@ -1118,7 +1122,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = -1,
                 position = Offset(50f, 50f)
@@ -1144,7 +1148,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Should be scrollable in both directions.
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = -1,
                 position = Offset(50f, 50f)
@@ -1152,7 +1156,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = 0,
                 position = Offset(50f, 50f)
@@ -1160,7 +1164,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = 1,
                 position = Offset(50f, 50f)
@@ -1185,7 +1189,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 1,
                 position = Offset(50f, 50f)
@@ -1193,7 +1197,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 0,
                 position = Offset(50f, 50f)
@@ -1218,7 +1222,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = -1,
                 position = Offset(50f, 50f)
@@ -1243,7 +1247,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = 1,
                 position = Offset(50f, 50f)
@@ -1251,7 +1255,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = 0,
                 position = Offset(50f, 50f)
@@ -1276,7 +1280,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = -1,
                 position = Offset(50f, 50f)
@@ -1301,7 +1305,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertTrue(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 // Scroll left, even though value is 0.
                 direction = -1,
@@ -1327,7 +1331,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = true,
                 direction = 1,
                 position = Offset(50f, 50f)
@@ -1352,7 +1356,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertFalse(
             accessibilityDelegate.canScroll(
-                currentSemanticsNodes = listOf(semanticsNode),
+                currentSemanticsNodes = sparseArrayOf(semanticsNode),
                 vertical = false,
                 direction = 1,
                 position = Offset(100f, 100f)
@@ -1494,7 +1498,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         val nodeId = 12
         val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
-        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
 
         val newNodeId1 = 10
@@ -1507,7 +1511,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             text = AnnotatedString("bar")
         }
         val newNode3 = createSemanticsNodeWithChildren(newNodeId3, listOf(newNode1, newNode2))
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
             newNodeId3 to SemanticsNodeWithAdjustedBounds(newNode3, android.graphics.Rect()),
@@ -1521,8 +1525,8 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         assertEquals(captor.firstValue, "foo")
         assertEquals(captor.secondValue, "bar")
 
-        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
-            .isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes.isEmpty())
+            .isTrue()
         assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
             .containsExactly(newNodeId1, newNodeId2)
     }
@@ -1537,24 +1541,24 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
         val oldNode2 = createSemanticsNodeWithChildren(nodeId2, emptyList())
         val oldNode3 = createSemanticsNodeWithChildren(nodeId3, listOf(oldNode1, oldNode2))
-        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, mapOf())
-        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, mapOf())
-        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, mapOf())
+        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, SparseArrayCompat())
+        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, SparseArrayCompat())
+        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
         accessibilityDelegate.previousSemanticsNodes[nodeId2] = oldNodeCopy2
         accessibilityDelegate.previousSemanticsNodes[nodeId3] = oldNodeCopy3
 
         val newNodeId1 = 12
         val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
         )
 
         accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
             newNode1, oldNodeCopy3)
 
-        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes).isEmpty()
-        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.isEmpty).isTrue()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes.values())
             .containsExactly(nodeId1, nodeId2)
     }
 
@@ -1568,9 +1572,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
         val oldNode2 = createSemanticsNodeWithChildren(nodeId2, emptyList())
         val oldNode3 = createSemanticsNodeWithChildren(nodeId3, listOf(oldNode1, oldNode2))
-        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, mapOf())
-        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, mapOf())
-        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, mapOf())
+        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, SparseArrayCompat())
+        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, SparseArrayCompat())
+        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
         accessibilityDelegate.previousSemanticsNodes[nodeId2] = oldNodeCopy2
         accessibilityDelegate.previousSemanticsNodes[nodeId3] = oldNodeCopy3
@@ -1581,7 +1585,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
         val newNode2 = createSemanticsNodeWithChildren(newNodeId2, emptyList())
         val newNode3 = createSemanticsNodeWithChildren(newNodeId3, listOf(newNode1, newNode2))
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
             newNodeId3 to SemanticsNodeWithAdjustedBounds(newNode3, android.graphics.Rect()),
@@ -1592,7 +1596,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
             .containsExactly(newNodeId1, newNodeId2)
-        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes.values())
             .containsExactly(nodeId1, nodeId2)
     }
 
@@ -1603,14 +1607,14 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val nodeId1 = 10
         val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
         val oldNodeCopy1 =
-            SemanticsNodeCopy(oldNode1, mapOf())
+            SemanticsNodeCopy(oldNode1, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
 
         val newNodeId1 = 11
         val newNodeId2 = 10
         val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
         val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
         )
@@ -1620,21 +1624,21 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
             .containsExactly(newNodeId1)
-        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes).isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes.isEmpty()).isTrue()
 
-        val newNodeCopy1 = SemanticsNodeCopy(newNode1, mapOf())
-        val newNodeCopy2 = SemanticsNodeCopy(newNode2, mapOf())
+        val newNodeCopy1 = SemanticsNodeCopy(newNode1, SparseArrayCompat())
+        val newNodeCopy2 = SemanticsNodeCopy(newNode2, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[newNodeId1] = newNodeCopy1
         accessibilityDelegate.previousSemanticsNodes[newNodeId2] = newNodeCopy2
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             nodeId1 to SemanticsNodeWithAdjustedBounds(oldNode1, android.graphics.Rect()),
         )
 
         accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
             oldNode1, newNodeCopy2)
 
-        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes).isEmpty()
-        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes).isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.isEmpty()).isTrue()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes.isEmpty()).isTrue()
     }
 
     @Test
@@ -1645,7 +1649,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         val nodeId = 10
         val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
-        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
 
         var result = true
@@ -1661,7 +1665,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         }
         val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
         )
@@ -1680,7 +1684,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         val nodeId = 10
         val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
-        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, SparseArrayCompat())
         accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
 
         var result = false
@@ -1695,7 +1699,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         }
         val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
         )
@@ -1719,7 +1723,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1)) {
             text = AnnotatedString("bar")
         }
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
             newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
         )
@@ -1759,7 +1763,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 true
             }
         }
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
         )
 
@@ -1790,7 +1794,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 true
             }
         }
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
         )
 
@@ -1814,7 +1818,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 true
             }
         }
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
         )
 
@@ -1838,7 +1842,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 true
             }
         }
-        accessibilityDelegate.currentSemanticsNodes = mapOf(
+        accessibilityDelegate.currentSemanticsNodes = sparseArrayOf(
             newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
         )
 
@@ -1863,7 +1867,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             )
         }
         accessibilityDelegate.previousSemanticsNodes[nodeId] =
-            SemanticsNodeCopy(oldTextNode, mapOf())
+            SemanticsNodeCopy(oldTextNode, SparseArrayCompat())
 
         val newTextNode = createSemanticsNodeWithAdjustedBoundsWithProperties(nodeId, true) {
             setText { true }
@@ -1878,7 +1882,9 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 }
             )
         }
-        accessibilityDelegate.sendSemanticsPropertyChangeEvents(mapOf(nodeId to newTextNode))
+        accessibilityDelegate.sendSemanticsPropertyChangeEvents(
+            sparseArrayOf(nodeId to newTextNode)
+        )
     }
 
     @OptIn(InternalTestApi::class)
@@ -1930,6 +1936,35 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         }
         return false
+    }
+
+    private val <T> SparseArrayCompat<T>.keys: List<Int>
+        get() {
+            val keys = mutableListOf<Int>()
+            for (i in 0 until size) {
+                keys += keyAt(i)
+            }
+            return keys
+        }
+
+    private fun IntSet.values(): List<Int> {
+        val elements = mutableListOf<Int>()
+        forEach { elements += it }
+        return elements
+    }
+
+    private fun <T> sparseArrayOf(value: T): SparseArrayCompat<T> {
+        val map = SparseArrayCompat<T>()
+        map[0] = value
+        return map
+    }
+
+    private fun <T> sparseArrayOf(vararg values: Pair<Int, T>): SparseArrayCompat<T> {
+        val map = SparseArrayCompat<T>()
+        values.forEach { (i, v) ->
+            map[i] = v
+        }
+        return map
     }
 }
 
