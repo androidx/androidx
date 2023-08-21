@@ -86,6 +86,7 @@ public final class PopupWindowCompat {
      * Sets whether the popup window should overlap its anchor view when
      * displayed as a drop-down.
      *
+     * @param popupWindow popup window for which to set the anchor.
      * @param overlapAnchor Whether the popup should overlap its anchor.
      */
     @SuppressWarnings("JavaReflectionMemberAccess") // Reflective access to private method
@@ -149,6 +150,7 @@ public final class PopupWindowCompat {
      * {@link android.view.WindowManager.LayoutParams#type} therefore the value should match any
      * value {@link android.view.WindowManager.LayoutParams#type} accepts.
      *
+     * @param popupWindow popup window for which to set the layout type.
      * @param layoutType Layout type for this window.
      *
      * @see android.view.WindowManager.LayoutParams#type
