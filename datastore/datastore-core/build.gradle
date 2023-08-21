@@ -24,6 +24,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("com.google.protobuf")
+    id ("kotlin-parcelize")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
@@ -117,6 +118,7 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
+                implementation("androidx.lifecycle:lifecycle-service:2.6.1")
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
