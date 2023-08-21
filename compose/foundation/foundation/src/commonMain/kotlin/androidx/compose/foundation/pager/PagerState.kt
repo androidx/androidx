@@ -87,42 +87,6 @@ fun rememberPagerState(
     }
 }
 
-/**
- * Creates and remember a [PagerState] to be used with a [Pager]
- *
- * Please refer to the sample to learn how to use this API.
- * @sample androidx.compose.foundation.samples.PagerWithStateSample
- *
- * @param initialPage The pager that should be shown first.
- * @param initialPageOffsetFraction The offset of the initial page as a fraction of the page size.
- * This should vary between -0.5 and 0.5 and indicates how to offset the initial page from the
- * snapped position.
- */
-@Deprecated(
-    "Please use the overload where you can provide a source of truth for the pageCount.",
-    ReplaceWith(
-        """rememberPagerState(
-                initialPage = initialPage,
-                initialPageOffsetFraction = initialPageOffsetFraction
-            ){
-                // provide pageCount
-            }"""
-    ), level = DeprecationLevel.ERROR
-)
-@ExperimentalFoundationApi
-@Composable
-fun rememberPagerState(
-    initialPage: Int = 0,
-    initialPageOffsetFraction: Float = 0f
-): PagerState {
-    return rememberSaveable(saver = PagerStateImpl.Saver) {
-        PagerStateImpl(
-            initialPage = initialPage,
-            initialPageOffsetFraction = initialPageOffsetFraction
-        ) { 0 }
-    }
-}
-
 @ExperimentalFoundationApi
 internal class PagerStateImpl(
     initialPage: Int,
