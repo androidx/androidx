@@ -9,6 +9,7 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
+    method public static String getHealthConnectManageDataAction(android.content.Context context);
     method public static String getHealthConnectSettingsAction();
     method public static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
@@ -28,6 +29,7 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectClient.Companion {
+    method public String getHealthConnectManageDataAction(android.content.Context context);
     method public String getHealthConnectSettingsAction();
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
