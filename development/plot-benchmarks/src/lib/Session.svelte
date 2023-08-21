@@ -127,22 +127,24 @@
 
   async function handleFileDragDrop(event: DragEvent) {
     const items = [...event.dataTransfer.items];
-    const newFiles: FileMetadata[] = [];
     if (items) {
-      for (let i = 0; i < items.length; i += 1) {
-        if (items[i].kind === "file") {
-          const file = items[i].getAsFile();
-          if (file.name.endsWith(".json")) {
+      let newFiles = await Promise.all(
+        items
+          .filter(
+            (item) =>
+              item.kind === "file" && item.getAsFile().name.endsWith(".json")
+          )
+          .map(async (item) => {
+            const file = item.getAsFile();
             const benchmarks = await readBenchmarks(file);
             const entry: FileMetadata = {
               enabled: true,
               file: file,
               container: benchmarks,
             };
-            newFiles.push(entry);
-          }
-        }
-      }
+            return entry;
+          })
+      );
       // Deep copy & notify
       eventDispatcher("entries", [...fileEntries, ...newFiles]);
     }
