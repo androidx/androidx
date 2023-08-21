@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Remeasurement
@@ -638,6 +639,16 @@ abstract class PagerState(
         }
         return (currentPage - page) + currentPageOffsetFraction
     }
+
+    /**
+     * When the user provided custom keys for the pages we can try to detect when there were
+     * pages added or removed before our current page and keep this page as the current one
+     * given that its index has been changed.
+     */
+    internal fun matchScrollPositionWithKey(
+        itemProvider: PagerLazyLayoutItemProvider,
+        firstPageIndex: Int = Snapshot.withoutReadObservation { scrollPosition.firstVisiblePage }
+    ): Int = scrollPosition.matchPageWithKey(itemProvider, firstPageIndex)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
