@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +43,7 @@ import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
+import androidx.tv.material3.rememberCarouselState
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -51,7 +51,7 @@ fun FeaturedCarousel(
     movies: List<Movie> = featuredCarouselMovies,
     modifier: Modifier = Modifier
 ) {
-    val carouselState: CarouselState = remember { CarouselState() }
+    val carouselState: CarouselState = rememberCarouselState()
     val slidesCount = movies.size
 
     Carousel(
