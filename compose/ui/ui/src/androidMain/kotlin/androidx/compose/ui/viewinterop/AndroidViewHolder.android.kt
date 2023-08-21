@@ -175,15 +175,11 @@ internal open class AndroidViewHolder(
             return owner.snapshotObserver
         }
 
-    private val onCommitAffectingUpdate: (AndroidViewHolder) -> Unit = {
-        handler.post(runUpdate)
-    }
-
     private val runUpdate: () -> Unit = {
         // If we're not attached, the observer isn't started, so don't bother running it.
         // onAttachedToWindow will run an update the next time the view is attached.
         if (hasUpdateBlock && isAttachedToWindow) {
-            snapshotObserver.observeReads(this, onCommitAffectingUpdate, update)
+            snapshotObserver.observeReads(this, OnCommitAffectingUpdate, update)
         }
     }
 
@@ -582,6 +578,12 @@ internal open class AndroidViewHolder(
 
     override fun isNestedScrollingEnabled(): Boolean {
         return view.isNestedScrollingEnabled
+    }
+
+    companion object {
+        private val OnCommitAffectingUpdate: (AndroidViewHolder) -> Unit = {
+            it.handler.post(it.runUpdate)
+        }
     }
 }
 
