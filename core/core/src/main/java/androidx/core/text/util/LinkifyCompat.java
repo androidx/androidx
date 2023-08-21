@@ -213,6 +213,7 @@ public final class LinkifyCompat {
      *  @param matchFilter  The filter that is used to allow the client code
      *                      additional control over which pattern matches are
      *                      to be converted into links.
+     * @param transformFilter Filter to allow the client code to update the link found.
      */
     public static void addLinks(@NonNull TextView text, @NonNull Pattern pattern,
             @Nullable String scheme, @Nullable MatchFilter matchFilter,
