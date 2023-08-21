@@ -20,7 +20,6 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 
 /**
  * An [ActivityResultContract] to request Health Connect system permissions.
@@ -33,12 +32,8 @@ internal class HealthDataRequestPermissionsUpsideDownCake :
 
     private val requestPermissions = RequestMultiplePermissions()
 
-    override fun createIntent(context: Context, input: Set<String>): Intent {
-        require(input.all { it.startsWith(PERMISSION_PREFIX) }) {
-            "Unsupported health connect permission"
-        }
-        return requestPermissions.createIntent(context, input.toTypedArray())
-    }
+    override fun createIntent(context: Context, input: Set<String>): Intent =
+        requestPermissions.createIntent(context, input.toTypedArray())
 
     override fun parseResult(resultCode: Int, intent: Intent?): Set<String> =
         requestPermissions.parseResult(resultCode, intent).filterValues { it }.keys
