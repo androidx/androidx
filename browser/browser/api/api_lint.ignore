@@ -157,6 +157,8 @@ MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Build
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getSecondaryToolbarViews()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSecondaryToolbarViews(android.widget.RemoteViews,int[],android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSession(androidx.browser.customtabs.CustomTabsSession):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getSession()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSession(androidx.browser.customtabs.CustomTabsSession)
+MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShareIdentityEnabled(boolean):
+    androidx.browser.customtabs.CustomTabsIntent does not declare a `isShareIdentityEnabled()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShareIdentityEnabled(boolean)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShareState(int):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getShareState()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setShareState(int)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setShowTitle(boolean):
