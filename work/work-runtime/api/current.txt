@@ -184,8 +184,8 @@ package androidx.work {
 
   public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
     ctor public DelegatingWorkerFactory();
-    method public final void addFactory(androidx.work.WorkerFactory);
-    method public final androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public final void addFactory(androidx.work.WorkerFactory workerFactory);
+    method public final androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public enum ExistingPeriodicWorkPolicy {
@@ -559,7 +559,7 @@ package androidx.work {
 
   public abstract class WorkerFactory {
     ctor public WorkerFactory();
-    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public final class WorkerParameters {

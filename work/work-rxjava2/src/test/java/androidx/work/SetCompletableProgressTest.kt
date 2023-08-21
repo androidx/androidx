@@ -65,7 +65,7 @@ class SetCompletableProgressTest {
         0,
         executor,
         RxWorkerTest.InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
+        DefaultWorkerFactory,
         progressUpdater,
         foregroundUpdater
     )

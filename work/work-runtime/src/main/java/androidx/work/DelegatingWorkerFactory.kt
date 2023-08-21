@@ -13,75 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import android.content.Context
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * A {@link WorkerFactory} which delegates to other factories. Factories can register themselves
+ * A [WorkerFactory] which delegates to other factories. Factories can register themselves
  * as delegates, and they will be invoked in order until a delegated factory returns a
- * non-null {@link ListenableWorker} instance.
+ * non-null [ListenableWorker] instance.
  */
-public class DelegatingWorkerFactory extends WorkerFactory {
-
-    private static final String TAG = Logger.tagWithPrefix("DelegatingWkrFctry");
-
-    private final List<WorkerFactory> mFactories;
-
-    /**
-     * Creates a new instance of the {@link DelegatingWorkerFactory}.
-     */
-    @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
-    public DelegatingWorkerFactory() {
-        // Use a CopyOnWriteArrayList here to allow modifying a list of factories during
-        // iteration. This allows createWorker() to call addFactory().
-        mFactories = new CopyOnWriteArrayList<>();
-    }
-
-    @VisibleForTesting
-    @NonNull
-    List<WorkerFactory> getFactories() {
-        return mFactories;
-    }
+open class DelegatingWorkerFactory : WorkerFactory() {
+    // Use a CopyOnWriteArrayList here to allow modifying a list of factories during
+    // iteration. This allows createWorker() to call addFactory().
+    private val factories: MutableList<WorkerFactory> = CopyOnWriteArrayList()
 
     /**
-     * Adds a {@link WorkerFactory} to the list of delegates.
+     * Adds a [WorkerFactory] to the list of delegates.
      *
-     * @param workerFactory The {@link WorkerFactory} instance.
+     * @param workerFactory The [WorkerFactory] instance.
      */
-    public final void addFactory(@NonNull WorkerFactory workerFactory) {
-        mFactories.add(workerFactory);
+    fun addFactory(workerFactory: WorkerFactory) {
+        factories.add(workerFactory)
     }
 
-    @Override
-    @Nullable
-    public final ListenableWorker createWorker(@NonNull Context appContext,
-            @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
-
-        for (WorkerFactory factory : mFactories) {
-            try {
-                ListenableWorker worker = factory.createWorker(
-                        appContext, workerClassName, workerParameters);
-                if (worker != null) {
-                    return worker;
-                }
-            } catch (Throwable throwable) {
-                String message =
-                        "Unable to instantiate a ListenableWorker (" + workerClassName + ")";
-                Logger.get().error(TAG, message, throwable);
-                throw throwable;
-            }
-        }
+    final override fun createWorker(
+        appContext: Context,
+        workerClassName: String,
+        workerParameters: WorkerParameters
+    ): ListenableWorker? {
         // If none of the delegates can instantiate a ListenableWorker return null
         // so we can fallback to the default factory which is based on reflection.
-        return null;
+        return factories.firstNotNullOfOrNull { factory ->
+            try {
+                factory.createWorker(appContext, workerClassName, workerParameters)
+            } catch (throwable: Throwable) {
+                val message = "Unable to instantiate a ListenableWorker ($workerClassName)"
+                Logger.get().error(TAG, message, throwable)
+                throw throwable
+            }
+        }
     }
 }
+
+private val TAG = Logger.tagWithPrefix("DelegatingWkrFctry")

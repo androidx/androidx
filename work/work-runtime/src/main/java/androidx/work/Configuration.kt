@@ -145,7 +145,7 @@ class Configuration internal constructor(builder: Builder) {
         // as this will be wrapped with an SerialExecutor.
         taskExecutor = builder.taskExecutor ?: createDefaultExecutor(isTaskExecutor = true)
         clock = builder.clock ?: SystemClock()
-        workerFactory = builder.workerFactory ?: WorkerFactory.getDefaultWorkerFactory()
+        workerFactory = builder.workerFactory ?: DefaultWorkerFactory
         inputMergerFactory = builder.inputMergerFactory ?: NoOpInputMergerFactory
         runnableScheduler = builder.runnableScheduler ?: DefaultRunnableScheduler()
         minimumLoggingLevel = builder.loggingLevel

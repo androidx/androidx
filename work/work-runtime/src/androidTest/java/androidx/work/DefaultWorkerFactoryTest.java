@@ -49,7 +49,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        mDefaultWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
+        mDefaultWorkerFactory = DefaultWorkerFactory.INSTANCE;
         mProgressUpdater = mock(ProgressUpdater.class);
         mForegroundUpdater = mock(ForegroundUpdater.class);
     }
