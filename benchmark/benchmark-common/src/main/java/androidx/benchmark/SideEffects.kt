@@ -61,6 +61,7 @@ class DisablePackages(
             "com.google.android.apps.nbu.files",
             "com.google.android.apps.photos",
             "com.google.android.apps.scone",
+            "com.google.android.apps.speechservices",
             "com.google.android.apps.tips",
             "com.google.android.apps.turbo",
             "com.google.android.apps.tycho",
