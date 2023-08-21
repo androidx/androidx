@@ -148,6 +148,7 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
             }
         } else if (testProjectPath.get().endsWith("macrobenchmark")) {
             // macro benchmarks do not have a dryRunMode, so we don't run them in presubmit
+            configBuilder.isMacrobenchmark(true)
             configBuilder.tag("macrobenchmarks")
         } else {
             configBuilder.tag("androidx_unit_tests")

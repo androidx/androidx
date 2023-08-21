@@ -24,6 +24,7 @@ class ConfigBuilder {
     var appApkSha256: String? = null
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
+    var isMacrobenchmark: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
     val tags = mutableListOf<String>()
@@ -42,6 +43,8 @@ class ConfigBuilder {
 
     fun isMicrobenchmark(isMicrobenchmark: Boolean) =
         apply { this.isMicrobenchmark = isMicrobenchmark }
+    fun isMacrobenchmark(isMacrobenchmark: Boolean) =
+        apply { this.isMacrobenchmark = isMacrobenchmark }
 
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
 
@@ -98,6 +101,9 @@ class ConfigBuilder {
             } else {
                 sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
             }
+        }
+        if (isMacrobenchmark) {
+            sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
         }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
@@ -326,6 +332,14 @@ private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
     <option name="instrumentation-arg" key="androidx.benchmark.profiling.mode" value="MethodTracing" />
+
+"""
+        .trimIndent()
+
+private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
+    """
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
