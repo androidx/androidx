@@ -32,10 +32,13 @@ import androidx.paging.testing.ErrorRecovery.THROW
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_CHANGED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_REMOVED
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -81,7 +84,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     }
 
     // PagingDataDiffer will collect from coroutineContext instead of main dispatcher
-    val differ = object : PagingDataDiffer<Value>(callback, coroutineContext) {
+    val differ = object : CompletablePagingDataDiffer<Value>(callback, coroutineContext) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<Value>,
             newList: NullPaddedList<Value>,
@@ -120,6 +123,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
             incrementGeneration(loader)
             differ.collectFrom(it)
         }
+        differ.hasCompleted.value = true
     }
 
     /**
@@ -144,6 +148,36 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     differ.snapshot().items
 }
 
+internal abstract class CompletablePagingDataDiffer<Value : Any>(
+    differCallback: DifferCallback,
+    mainContext: CoroutineContext,
+) : PagingDataDiffer<Value>(differCallback, mainContext) {
+    /**
+     * Marker that the underlying Flow<PagingData> has completed - e.g., every possible generation
+     * of data has been loaded completely.
+     */
+    val hasCompleted = MutableStateFlow(false)
+
+    val completableLoadStateFlow = loadStateFlow.combine(
+        hasCompleted
+    ) { loadStates, hasCompleted ->
+        if (hasCompleted) {
+            CombinedLoadStates(
+                refresh = LoadState.NotLoading(true),
+                prepend = LoadState.NotLoading(true),
+                append = LoadState.NotLoading(true),
+                source = LoadStates(
+                    refresh = LoadState.NotLoading(true),
+                    prepend = LoadState.NotLoading(true),
+                    append = LoadState.NotLoading(true)
+                )
+            )
+        } else {
+            loadStates
+        }
+    }
+}
+
 /**
  * Awaits until both source and mediator states are NotLoading. We do not care about the state of
  * endOfPaginationReached. Source and mediator states need to be checked individually because
@@ -155,10 +189,10 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
  * incoming `Loading` state.
  */
 @OptIn(kotlinx.coroutines.FlowPreview::class)
-internal suspend fun <Value : Any> PagingDataDiffer<Value>.awaitNotLoading(
+internal suspend fun <Value : Any> CompletablePagingDataDiffer<Value>.awaitNotLoading(
     errorHandler: LoadErrorHandler
 ) {
-    val state = loadStateFlow.filterNotNull().debounce(1).filter {
+    val state = completableLoadStateFlow.filterNotNull().debounce(1).filter {
         it.isIdle() || it.hasError()
     }.firstOrNull()
 

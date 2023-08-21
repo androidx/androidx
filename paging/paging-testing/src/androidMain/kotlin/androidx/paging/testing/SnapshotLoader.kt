@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.map
  */
 @VisibleForTesting
 public class SnapshotLoader<Value : Any> internal constructor(
-    private val differ: PagingDataDiffer<Value>,
+    private val differ: CompletablePagingDataDiffer<Value>,
     private val errorHandler: LoadErrorHandler,
 ) {
     internal val generations = MutableStateFlow(Generation())
