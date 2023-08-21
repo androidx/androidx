@@ -143,20 +143,20 @@ abstract class BaseTelecomTest {
      */
     suspend fun assertWithinTimeout_addCall(
         attributes: CallAttributesCompat,
-        setCallback: Boolean = true,
         assertBlock: CallControlScope.() -> (Unit)
     ) {
         Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall")
         var callControlScope: CallControlScope? = null
         try {
             withTimeout(TestUtils.WAIT_ON_ASSERTS_TO_FINISH_TIMEOUT) {
-                mCallsManager.addCall(attributes) {
+                mCallsManager.addCall(
+                    attributes,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
                     callControlScope = this
-                    if (setCallback) {
-                        setCallback(TestUtils.mCallControlCallbacksImpl)
-                        Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall: setCallback " +
-                            "to ${TestUtils.mCallControlCallbacksImpl}")
-                    }
                     assertBlock()
                 }
             }

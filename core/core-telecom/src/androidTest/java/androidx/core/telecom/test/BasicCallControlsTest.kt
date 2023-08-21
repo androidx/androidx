@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
-import androidx.core.telecom.CallException
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.MockInCallService
@@ -123,8 +122,10 @@ class BasicCallControlsTest : BaseTelecomTest() {
     @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities() {
         setUpV2Test()
-        assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
-            .hasSupportsSetInactiveCapability())
+        assertFalse(
+            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
+                .hasSupportsSetInactiveCapability()
+        )
         runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
@@ -152,18 +153,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
     fun testIsMuted() {
         setUpV2Test()
         verifyMuteStateChange()
-    }
-
-    /**
-     * assert that an exception is thrown in the call flow when CallControlScope#setCallbacks isn't
-     * the first function to be invoked. The call should use the *V2 platform APIs* under the hood.
-     */
-    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @LargeTest
-    @Test(timeout = 10000)
-    fun testBasicCallControlCallbackOperations_CallbackNotSet() {
-        setUpV2Test()
-        verifyAnswerCallFails_CallbackNotSet()
     }
 
     /***********************************************************************************************
@@ -220,8 +209,10 @@ class BasicCallControlsTest : BaseTelecomTest() {
     @Test(timeout = 10000)
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        assertFalse(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
-            .hasSupportsSetInactiveCapability())
+        assertFalse(
+            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
+                .hasSupportsSetInactiveCapability()
+        )
         runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
@@ -255,19 +246,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
-     * assert that an exception is thrown in the call flow when CallControlScope#setCallbacks isn't
-     * the first function to be invoked. The call should use the
-     * *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the hood.
-     */
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-    @LargeTest
-    @Test(timeout = 10000)
-    fun testBasicCallControlCallbackOperations_BackwardsCompat_CallbackNotSet() {
-        setUpBackwardsCompatTest()
-        verifyAnswerCallFails_CallbackNotSet()
-    }
-
-    /**
      * Verify that the [androidx.core.telecom.CallsManager.addCall] blocks until the session is
      * disconnected
      */
@@ -278,8 +256,13 @@ class BasicCallControlsTest : BaseTelecomTest() {
         setUpBackwardsCompatTest()
         var flag = false
         runBlocking {
-            mCallsManager.addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
-                setCallback(TestUtils.mCallControlCallbacksImpl)
+            mCallsManager.addCall(
+                TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                TestUtils.mOnAnswerLambda,
+                TestUtils.mOnDisconnectLambda,
+                TestUtils.mOnSetActiveLambda,
+                TestUtils.mOnSetInActiveLambda,
+            ) {
                 launch {
                     delay(10)
                     disconnect(DisconnectCause(DisconnectCause.LOCAL))
@@ -425,33 +408,6 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
-        }
-    }
-
-    @Suppress("deprecation")
-    private fun verifyAnswerCallFails_CallbackNotSet() {
-        try {
-            runBlocking {
-                // Skip setting callback
-                assertWithinTimeout_addCall(TestUtils.INCOMING_CALL_ATTRIBUTES, false) {
-                    launch {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        assertNotNull("The returned Call object is <NULL>", call)
-                        // Send answer request
-                        answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
-                        // Always send the disconnect signal if possible:
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                        // CallException should be thrown at this point. Add failing assertion to
-                        // ensure that the exception is always thrown.
-                        assertTrue("Call was set to active without setting callbacks", false)
-                    }
-                }
-            }
-        } catch (e: CallException) {
-            // Exception should be thrown from not setting the callback.
-            assertTrue(e.code == CallException.ERROR_CALLBACKS_CODE)
-            // Assert that the callback wasn't invoked
-            assertFalse(TestUtils.mOnAnswerCallbackCalled)
         }
     }
 
