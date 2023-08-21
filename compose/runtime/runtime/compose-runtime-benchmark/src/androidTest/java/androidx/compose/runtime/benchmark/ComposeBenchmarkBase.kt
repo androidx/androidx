@@ -137,7 +137,6 @@ abstract class ComposeBenchmarkBase {
                 runWithTimingDisabled {
                     activity.setContentView(emptyView)
                     testScheduler.advanceUntilIdle()
-                    Runtime.getRuntime().gc()
                 }
             }
         } finally {
