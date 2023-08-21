@@ -199,6 +199,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSendToExternalDefaultHandlerEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setShareIdentityEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShareState(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowOnToolbarEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
