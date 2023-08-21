@@ -32,7 +32,7 @@ import androidx.camera.core.impl.CameraInternal
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraCoordinatorAdapter(
-    private val cameraPipe: CameraPipe,
+    private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,
 ) : CameraCoordinator {
     @VisibleForTesting
@@ -102,7 +102,7 @@ class CameraCoordinatorAdapter(
                     "when the active concurrent CameraInfos are set!"
             }
         }
-        val cameraGraphs = cameraPipe.createCameraGraphs(graphConfigs)
+        val cameraGraphs = checkNotNull(cameraPipe).createCameraGraphs(graphConfigs)
         check(cameraGraphs.size == cameraInternalMap.size)
         for ((cameraInternalAdapter, cameraGraph) in cameraInternalMap.values.zip(cameraGraphs)) {
             cameraInternalAdapter.resumeDeferredCameraGraphCreation(cameraGraph)
@@ -149,6 +149,7 @@ class CameraCoordinatorAdapter(
     }
 
     override fun shutdown() {
+        cameraPipe = null
         cameraInternalMap.clear()
         concurrentCameraIdsSet.clear()
         concurrentCameraIdMap.clear()
