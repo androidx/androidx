@@ -30,7 +30,7 @@ import java.util.Objects;
  * provide an isolated Activity navigation from the split. A pin state here is referring the
  * {@link ActivityStack} to be fixed on top.
  * <p>
- * Since {@link WindowExtensions#VENDOR_API_LEVEL_4}
+ * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
  *
  * @see ActivityEmbeddingComponent#pinTopActivityStack
  */

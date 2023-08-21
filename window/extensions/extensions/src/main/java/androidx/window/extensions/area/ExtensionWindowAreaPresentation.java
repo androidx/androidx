@@ -45,6 +45,7 @@ public interface ExtensionWindowAreaPresentation {
 
     /**
      * Returns the {@link Window} for the rear display presentation area.
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_4}
      */
     @NonNull
     default Window getWindow() {

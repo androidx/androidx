@@ -108,7 +108,7 @@ public interface ActivityEmbeddingComponent {
      *         2. There is already an existing pinned {@link ActivityStack}.
      *         3. There's no other {@link ActivityStack} to split with the top
      *         {@link ActivityStack}.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_4}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
      */
     default boolean pinTopActivityStack(int taskId, @NonNull SplitPinRule splitPinRule) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
@@ -123,7 +123,7 @@ public interface ActivityEmbeddingComponent {
      * does not have a pinned {@link ActivityStack}.
      *
      * @param taskId The id of the Task that top {@link ActivityStack} should be unpinned.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_4}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
      */
     default void unpinTopActivityStack(int taskId) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
