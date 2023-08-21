@@ -26,18 +26,17 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.autofill.AutofillValue;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.widget.TextViewCompat;
 
 /**
  * A custom EditText that satisfies the IME key monitoring requirements of GuidedStepFragment.
  */
-@SuppressLint("AppCompatCustomView")
-public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
+public class GuidedActionEditText extends AppCompatEditText implements ImeKeyMonitor,
         GuidedActionAutofillSupport {
 
     /**
@@ -109,7 +108,8 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(isFocused() ? EditText.class.getName() : TextView.class.getName());
+        info.setClassName(isFocused() ?
+                AppCompatEditText.class.getName() : TextView.class.getName());
     }
 
     @Override
