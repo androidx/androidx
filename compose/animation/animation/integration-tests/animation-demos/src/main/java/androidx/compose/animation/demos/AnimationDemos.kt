@@ -64,6 +64,7 @@ import androidx.compose.animation.demos.suspendfun.ArcOffsetDemo
 import androidx.compose.animation.demos.suspendfun.InfiniteAnimationDemo
 import androidx.compose.animation.demos.suspendfun.OffsetKeyframeSplinePlaygroundDemo
 import androidx.compose.animation.demos.suspendfun.OffsetKeyframeWithSplineDemo
+import androidx.compose.animation.demos.suspendfun.PeriodicMonoSplineDemo
 import androidx.compose.animation.demos.suspendfun.SuspendAnimationDemo
 import androidx.compose.animation.demos.suspendfun.SuspendDoubleTapToLikeDemo
 import androidx.compose.animation.demos.vectorgraphics.AnimatedVectorGraphicsDemo
@@ -168,6 +169,7 @@ val AnimationDemos = DemoCategory(
                     OffsetKeyframeSplinePlaygroundDemo()
                 },
                 ComposableDemo("Arc Offset Demo") { ArcOffsetDemo() },
+                ComposableDemo("Periodic Spline Demo") { PeriodicMonoSplineDemo() },
             )
         ),
         DemoCategory(

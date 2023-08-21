@@ -725,14 +725,44 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
  * [KeyframesWithSplineSpec] is best used with 2D values such as [Offset]. For example:
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
  *
+ * You may however, provide a [periodicBias] value (between 0f and 1f) to make a periodic spline.
+ * Periodic splines adjust the initial and final velocity to be the same. This is useful to
+ * create smooth repeatable animations. Such as an infinite pulsating animation:
+ *
+ * @sample androidx.compose.animation.core.samples.PeriodicKeyframesWithSplines
+ *
+ * The [periodicBias] value (from 0.0 to 1.0) indicates how much of the original starting and final
+ * velocity are modified to achieve periodicity:
+ * - 0f: Modifies only the starting velocity to match the final velocity
+ * - 1f: Modifies only the final velocity to match the starting velocity
+ * - 0.5f: Modifies both velocities equally, picking the average between the two
+ *
  * @see keyframesWithSpline
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
  */
 @ExperimentalAnimationSpecApi
 @Immutable
-class KeyframesWithSplineSpec<T>(val config: KeyframesWithSplineSpecConfig<T>) :
-    DurationBasedAnimationSpec<T> {
+class KeyframesWithSplineSpec<T>(
+    val config: KeyframesWithSplineSpecConfig<T>,
+) : DurationBasedAnimationSpec<T> {
+    // Periodic bias property, NaN by default. Only meant to be set by secondary constructor
+    private var periodicBias: Float = Float.NaN
+
+    /**
+     * Constructor that returns a periodic spline implementation.
+     *
+     * @param config Keyframe configuration of the spline, should contain the set of values,
+     * timestamps and easing curves to animate through.
+     * @param periodicBias A value from 0f to 1f, indicating how much the starting or ending
+     * velocities are modified respectively to achieve periodicity.
+     */
+    constructor(
+        config: KeyframesWithSplineSpecConfig<T>,
+        @FloatRange(0.0, 1.0) periodicBias: Float
+    ) : this(config) {
+        this.periodicBias = periodicBias
+    }
 
     @ExperimentalAnimationSpecApi
     class KeyframesWithSplineSpecConfig<T> :
@@ -763,7 +793,8 @@ class KeyframesWithSplineSpec<T>(val config: KeyframesWithSplineSpecConfig<T>) :
             timestamps = timestamps,
             keyframes = timeToVectorMap,
             durationMillis = config.durationMillis,
-            delayMillis = config.delayMillis
+            delayMillis = config.delayMillis,
+            periodicBias = periodicBias
         )
     }
 }
@@ -834,12 +865,42 @@ fun <T> keyframes(
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
  */
 @ExperimentalAnimationSpecApi
-@Stable
 fun <T> keyframesWithSpline(
     init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
 ): KeyframesWithSplineSpec<T> =
     KeyframesWithSplineSpec(
         config = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>().apply(init)
+    )
+
+/**
+ * Creates a *periodic* [KeyframesWithSplineSpec] animation, initialized with [init].
+ *
+ * Use overload without [periodicBias] parameter for the non-periodic implementation.
+ *
+ * A periodic spline is one such that the starting and ending velocities are equal. This makes them
+ * useful to crete smooth repeatable animations. Such as an infinite pulsating animation:
+ *
+ * @sample androidx.compose.animation.core.samples.PeriodicKeyframesWithSplines
+ *
+ * The [periodicBias] value (from 0.0 to 1.0) indicates how much of the original starting and final
+ * velocity are modified to achieve periodicity:
+ * - 0f: Modifies only the starting velocity to match the final velocity
+ * - 1f: Modifies only the final velocity to match the starting velocity
+ * - 0.5f: Modifies both velocities equally, picking the average between the two
+ *
+ * @param periodicBias A value from 0f to 1f, indicating how much the starting or ending velocities
+ * are modified respectively to achieve periodicity.
+ * @param init Initialization function for the [KeyframesWithSplineSpec] animation
+ * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
+ */
+@ExperimentalAnimationSpecApi
+fun <T> keyframesWithSpline(
+    @FloatRange(0.0, 1.0) periodicBias: Float,
+    init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
+): KeyframesWithSplineSpec<T> =
+    KeyframesWithSplineSpec(
+        config = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>().apply(init),
+        periodicBias = periodicBias,
     )
 
 /**
