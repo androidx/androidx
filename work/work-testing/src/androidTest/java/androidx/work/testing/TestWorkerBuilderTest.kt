@@ -23,6 +23,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
+import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerFactory
@@ -34,7 +35,6 @@ import java.util.UUID
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-import kotlin.jvm.Throws
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.`is`
@@ -44,11 +44,6 @@ import org.hamcrest.Matchers.notNullValue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 class TestWorkerBuilderTest {
@@ -175,17 +170,24 @@ class TestWorkerBuilderTest {
     @Test
     @MediumTest
     fun testWorkerBuilder_usesWorkerFactory() {
-        val workerFactory = mock(WorkerFactory::class.java)
+        var callCounter = 0
+        val workerFactory = object : WorkerFactory() {
+            override fun createWorker(
+                appContext: Context,
+                workerClassName: String,
+                workerParameters: WorkerParameters
+            ): ListenableWorker? {
+                callCounter++
+                return null
+            }
+        }
         val worker = TestListenableWorkerBuilder<TestWorker>(context)
             .setWorkerFactory(workerFactory)
             .build()
 
         runBlocking {
             val result = worker.startWork().await()
-            verify(workerFactory, times(1))
-                .createWorker(
-                    any(Context::class.java), anyString(), any(WorkerParameters::class.java)
-                )
+            assertThat(callCounter, `is`(1))
             assertThat(result, `is`(Result.success()))
         }
     }

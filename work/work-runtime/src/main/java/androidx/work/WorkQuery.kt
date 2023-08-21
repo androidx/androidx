@@ -13,310 +13,254 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work
 
-package androidx.work;
-
-import android.annotation.SuppressLint;
-
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import android.annotation.SuppressLint
+import java.util.UUID
 
 /**
- * A specification for querying {@link WorkRequest}s. This is comprised of 4 components; namely
+ * A specification for querying [WorkRequest]s. This is comprised of 4 components; namely
  * ids, unique work names, tags & work states.
- * <p>
- * A {@link List} of {@link WorkRequest} ids, or a {@link List} of  unique work names, or a
- * {@link List} of {@link WorkRequest} tags, or a {@link List} of {@link WorkInfo.State} can be
+ *
+ * A [List] of [WorkRequest] ids, or a [List] of  unique work names, or a
+ * [List] of [WorkRequest] tags, or a [List] of [WorkInfo.State] can be
  * specified.
- * <p>
- * Each component in a {@link WorkQuery} is {@code AND}-ed with the others. Each value in a
- * component is {@code OR}-ed.
- * <p>
+ *
+ * Each component in a [WorkQuery] is `AND`-ed with the others. Each value in a
+ * component is `OR`-ed.
+ *
  * Example:
- * {@code (id1 OR id2 OR ...) AND (name1 OR name2 OR ...) AND (tag1 OR tag2 OR ...) AND (state1
- * OR state2 OR ...)}
+ * `(id1 OR id2 OR ...) AND (name1 OR name2 OR ...) AND (tag1 OR tag2 OR ...) AND (state1
+ * OR state2 OR ...)`
  */
-public final class WorkQuery {
-    private final List<UUID> mIds;
-    private final List<String> mUniqueWorkNames;
-    private final List<String> mTags;
-    private final List<WorkInfo.State> mStates;
-
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    WorkQuery(@NonNull Builder builder) {
-        mIds = builder.mIds;
-        mUniqueWorkNames = builder.mUniqueWorkNames;
-        mTags = builder.mTags;
-        mStates = builder.mStates;
-    }
+class WorkQuery internal constructor(
+    /**
+     * The [List] of [WorkRequest] ids being queried.
+     */
+    val ids: List<UUID> = emptyList(),
 
     /**
-     * @return The {@link List} of {@link WorkRequest} ids being queried.
+     * The [List] of unique works name being queried
      */
-    @NonNull
-    public List<UUID> getIds() {
-        return mIds;
-    }
+    val uniqueWorkNames: List<String> = emptyList(),
 
     /**
-     * @return the {@link List} of unique works name being queried
+     * The [List] of tags being queried
      */
-    @NonNull
-    public List<String> getUniqueWorkNames() {
-        return mUniqueWorkNames;
-    }
+    val tags: List<String> = emptyList(),
 
     /**
-     * @return the {@link List} of tags being queried
+     * The [List] of [WorkInfo.State]s being queried
      */
-    @NonNull
-    public List<String> getTags() {
-        return mTags;
-    }
-
+    val states: List<WorkInfo.State> = emptyList(),
+) {
     /**
-     * @return the {@link List} of {@link WorkInfo.State}s being queried
+     * A builder for [WorkQuery].
      */
-    @NonNull
-    public List<WorkInfo.State> getStates() {
-        return mStates;
-    }
+    class Builder private constructor() {
+        private val ids = mutableListOf<UUID>()
+        private val uniqueWorkNames = mutableListOf<String>()
+        private val tags = mutableListOf<String>()
+        private val states = mutableListOf<WorkInfo.State>()
 
-    /**
-     * Creates a query for {@link WorkRequest}s with the given ids.
-     *
-     * @param ids list of ids of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromIds(@NonNull List<UUID> ids) {
-        return Builder.fromIds(ids).build();
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given ids.
-     *
-     * @param ids ids of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromIds(@NonNull UUID... ids) {
-        return fromIds(Arrays.asList(ids));
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given tags.
-     *
-     * @param tags tags of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromTags(@NonNull List<String> tags) {
-        return Builder.fromTags(tags).build();
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given tags.
-     *
-     * @param tags tags of {@link WorkRequest}s
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromTags(@NonNull String... tags) {
-        return fromTags(Arrays.asList(tags));
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given unique names.
-     *
-     * @param uniqueWorkNames unique work names
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromUniqueWorkNames(@NonNull String... uniqueWorkNames) {
-        return WorkQuery.Builder.fromUniqueWorkNames(Arrays.asList(uniqueWorkNames)).build();
-    }
-
-    /**
-     * Creates a query for {@link WorkRequest}s with the given unique names.
-     *
-     * @param uniqueWorkNames The {@link List} of unique work names
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
-        return WorkQuery.Builder.fromUniqueWorkNames(uniqueWorkNames).build();
-    }
-
-    /**
-     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} states.
-     *
-     * @param states The {@link List} of {@link WorkInfo.State}
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromStates(@NonNull List<WorkInfo.State> states) {
-        return WorkQuery.Builder.fromStates(states).build();
-    }
-
-    /**
-     * Creates a {@link WorkQuery} for the workers in the given {@link WorkInfo.State} states.
-     *
-     * @param states states of workers
-     * @return a requested WorkQuery
-     */
-    @NonNull
-    public static WorkQuery fromStates(@NonNull WorkInfo.State... states) {
-        return WorkQuery.Builder.fromStates(Arrays.asList(states)).build();
-    }
-
-    /**
-     * A builder for {@link WorkQuery}.
-     */
-    public static final class Builder {
-        // Synthetic access
-        List<UUID> mIds;
-        // Synthetic access
-        List<String> mUniqueWorkNames;
-        // Synthetic access
-        List<String> mTags;
-        // Synthetic access
-        List<WorkInfo.State> mStates;
-
-        private Builder() {
-            mIds = new ArrayList<>();
-            mUniqueWorkNames = new ArrayList<>();
-            mTags = new ArrayList<>();
-            mStates = new ArrayList<>();
+        /**
+         * Adds a [List] of [WorkRequest] `ids` to the [WorkQuery]
+         *
+         * @param ids The [List] [WorkRequest] `ids` to add
+         * @return the instance of the [Builder]
+         */
+        fun addIds(ids: List<UUID>): Builder {
+            this.ids += ids
+            return this
         }
 
         /**
-         * Creates a {@link WorkQuery.Builder} with a {@link List} of {@link WorkRequest} ids.
+         * Adds a [List] of `uniqueWorkNames` to the [WorkQuery]
          *
-         * @param ids The {@link List} of {@link WorkRequest} ids.
-         * @return a {@link Builder} instance
+         * @param uniqueWorkNames The [List] of unique work names to add
+         * @return the instance of the [Builder]
          */
-        @NonNull
-        @SuppressLint("BuilderSetStyle")
-        public static Builder fromIds(@NonNull List<UUID> ids) {
-            Builder builder = new Builder();
-            builder.addIds(ids);
-            return builder;
+        fun addUniqueWorkNames(uniqueWorkNames: List<String>): Builder {
+            this.uniqueWorkNames += uniqueWorkNames
+            return this
         }
 
         /**
-         * Creates a {@link WorkQuery.Builder} with a {@link List} of {@code uniqueWorkNames}.
+         * Adds a [List] of [WorkRequest] tag to the [WorkQuery].
          *
-         * @param uniqueWorkNames The {@link List} of unique work names
-         * @return a {@link Builder} instance
+         * @param tags The [List] of [WorkRequest] tags to add
+         * @return the instance of the [Builder]
          */
-        @NonNull
-        @SuppressLint("BuilderSetStyle")
-        public static Builder fromUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
-            Builder builder = new Builder();
-            builder.addUniqueWorkNames(uniqueWorkNames);
-            return builder;
+        fun addTags(tags: List<String>): Builder {
+            this.tags += tags
+            return this
         }
 
         /**
-         * Creates a {@link WorkQuery.Builder} with a {@link List} of {@link WorkRequest} tags.
+         * Adds a [List] of [WorkInfo.State]s to the [WorkQuery].
          *
-         * @param tags The {@link List} of {@link WorkRequest} tags
-         * @return a {@link Builder} instance
+         * @param states The [List] of [WorkInfo.State]s to add
+         * @return the instance of the [Builder]
          */
-        @NonNull
-        @SuppressLint("BuilderSetStyle")
-        public static Builder fromTags(@NonNull List<String> tags) {
-            Builder builder = new Builder();
-            builder.addTags(tags);
-            return builder;
+        fun addStates(states: List<WorkInfo.State>): Builder {
+            this.states += states
+            return this
         }
 
         /**
-         * Creates a {@link WorkQuery.Builder} with a {@link List} of {@link WorkInfo.State} states.
+         * Creates an instance of [WorkQuery].
          *
-         * @param states The {@link List} of {@link WorkInfo.State} to add to the {@link WorkQuery}
-         * @return a {@link Builder} instance
+         * @return the [WorkQuery] instance
+         * @throws IllegalArgumentException if neither of ids, uniqueWorkNames, tags or states
+         * is set.
          */
-        @NonNull
-        @SuppressLint("BuilderSetStyle")
-        public static Builder fromStates(@NonNull List<WorkInfo.State> states) {
-            Builder builder = new Builder();
-            builder.addStates(states);
-            return builder;
+        fun build(): WorkQuery {
+            if (ids.isEmpty() && uniqueWorkNames.isEmpty() && tags.isEmpty() && states.isEmpty()) {
+                val message =
+                    "Must specify ids, uniqueNames, tags or states when building a WorkQuery"
+                throw IllegalArgumentException(message)
+            }
+            return WorkQuery(
+                ids = ids,
+                uniqueWorkNames = uniqueWorkNames,
+                tags = tags,
+                states = states,
+            )
         }
 
-        /**
-         * Adds a {@link List} of {@link WorkRequest} {@code ids} to the {@link WorkQuery}
-         *
-         * @param ids The {@link List} {@link WorkRequest} {@code ids} to add
-         * @return the instance of the {@link Builder}
-         */
-        @NonNull
-        public Builder addIds(@NonNull List<UUID> ids) {
-            mIds.addAll(ids);
-            return this;
-        }
-
-        /**
-         * Adds a {@link List} of {@code uniqueWorkNames} to the {@link WorkQuery}
-         *
-         * @param uniqueWorkNames The {@link List} of unique work names to add
-         * @return the instance of the {@link Builder}
-         */
-        @NonNull
-        public Builder addUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
-            mUniqueWorkNames.addAll(uniqueWorkNames);
-            return this;
-        }
-
-        /**
-         * Adds a {@link List} of {@link WorkRequest} tag to the {@link WorkQuery}.
-         *
-         * @param tags The {@link List} of {@link WorkRequest} tags to add
-         * @return the instance of the {@link Builder}
-         */
-        @NonNull
-        public Builder addTags(@NonNull List<String> tags) {
-            mTags.addAll(tags);
-            return this;
-        }
-
-        /**
-         * Adds a {@link List} of {@link WorkInfo.State}s to the {@link WorkQuery}.
-         *
-         * @param states The {@link List} of {@link WorkInfo.State}s to add
-         * @return the instance of the {@link Builder}
-         */
-        @NonNull
-        public Builder addStates(@NonNull List<WorkInfo.State> states) {
-            mStates.addAll(states);
-            return this;
-        }
-
-        /**
-         * Creates an instance of {@link WorkQuery}.
-         *
-         * @return the {@link WorkQuery} instance
-         */
-        @NonNull
-        public WorkQuery build() {
-            if (mIds.isEmpty()
-                    && mUniqueWorkNames.isEmpty()
-                    && mTags.isEmpty()
-                    && mStates.isEmpty()) {
-
-                String message =
-                        "Must specify ids, uniqueNames, tags or states when building a WorkQuery";
-                throw new IllegalArgumentException(message);
+        companion object {
+            /**
+             * Creates a [WorkQuery.Builder] with a [List] of [WorkRequest] ids.
+             *
+             * @param ids The [List] of [WorkRequest] ids.
+             * @return a [Builder] instance
+             */
+            @JvmStatic
+            @SuppressLint("BuilderSetStyle")
+            fun fromIds(ids: List<UUID>): Builder {
+                val builder = Builder()
+                builder.addIds(ids)
+                return builder
             }
 
-            return new WorkQuery(this);
+            /**
+             * Creates a [WorkQuery.Builder] with a [List] of `uniqueWorkNames`.
+             *
+             * @param uniqueWorkNames The [List] of unique work names
+             * @return a [Builder] instance
+             */
+            @JvmStatic
+            @SuppressLint("BuilderSetStyle")
+            fun fromUniqueWorkNames(uniqueWorkNames: List<String>): Builder {
+                val builder = Builder()
+                builder.addUniqueWorkNames(uniqueWorkNames)
+                return builder
+            }
+
+            /**
+             * Creates a [WorkQuery.Builder] with a [List] of [WorkRequest] tags.
+             *
+             * @param tags The [List] of [WorkRequest] tags
+             * @return a [Builder] instance
+             */
+            @JvmStatic
+            @SuppressLint("BuilderSetStyle")
+            fun fromTags(tags: List<String>): Builder {
+                val builder = Builder()
+                builder.addTags(tags)
+                return builder
+            }
+
+            /**
+             * Creates a [WorkQuery.Builder] with a [List] of [WorkInfo.State] states.
+             *
+             * @param states The [List] of [WorkInfo.State] to add to the [WorkQuery]
+             * @return a [Builder] instance
+             */
+            @JvmStatic
+            @SuppressLint("BuilderSetStyle")
+            fun fromStates(states: List<WorkInfo.State>): Builder {
+                val builder = Builder()
+                builder.addStates(states)
+                return builder
+            }
         }
+    }
+
+    companion object {
+        /**
+         * Creates a query for [WorkRequest]s with the given ids.
+         *
+         * @param ids list of ids of [WorkRequest]s
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromIds(ids: List<UUID>): WorkQuery = WorkQuery(ids = ids)
+
+        /**
+         * Creates a query for [WorkRequest]s with the given ids.
+         *
+         * @param ids ids of [WorkRequest]s
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromIds(vararg ids: UUID): WorkQuery = WorkQuery(ids = ids.toList())
+
+        /**
+         * Creates a query for [WorkRequest]s with the given tags.
+         *
+         * @param tags tags of [WorkRequest]s
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromTags(tags: List<String>): WorkQuery = WorkQuery(tags = tags)
+
+        /**
+         * Creates a query for [WorkRequest]s with the given tags.
+         *
+         * @param tags tags of [WorkRequest]s
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromTags(vararg tags: String): WorkQuery = WorkQuery(tags = tags.toList())
+
+        /**
+         * Creates a query for [WorkRequest]s with the given unique names.
+         *
+         * @param uniqueWorkNames unique work names
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromUniqueWorkNames(vararg uniqueWorkNames: String): WorkQuery =
+            WorkQuery(uniqueWorkNames = uniqueWorkNames.toList())
+
+        /**
+         * Creates a query for [WorkRequest]s with the given unique names.
+         *
+         * @param uniqueWorkNames The [List] of unique work names
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromUniqueWorkNames(uniqueWorkNames: List<String>): WorkQuery =
+            WorkQuery(uniqueWorkNames = uniqueWorkNames)
+
+        /**
+         * Creates a [WorkQuery] for the workers in the given [WorkInfo.State] states.
+         *
+         * @param states The [List] of [WorkInfo.State]
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromStates(states: List<WorkInfo.State>): WorkQuery = WorkQuery(states = states)
+
+        /**
+         * Creates a [WorkQuery] for the workers in the given [WorkInfo.State] states.
+         *
+         * @param states states of workers
+         * @return a requested WorkQuery
+         */
+        @JvmStatic
+        fun fromStates(vararg states: WorkInfo.State): WorkQuery =
+            WorkQuery(states = states.toList())
     }
 }
