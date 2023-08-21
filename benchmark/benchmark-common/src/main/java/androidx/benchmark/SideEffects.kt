@@ -60,6 +60,7 @@ class DisablePackages(
             "com.google.android.apps.messaging",
             "com.google.android.apps.nbu.files",
             "com.google.android.apps.photos",
+            "com.google.android.apps.pixelmigrate",
             "com.google.android.apps.scone",
             "com.google.android.apps.speechservices",
             "com.google.android.apps.tips",
