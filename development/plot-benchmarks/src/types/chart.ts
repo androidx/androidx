@@ -20,7 +20,7 @@ export interface Data {
 export interface Series {
   label: string;
   type: ChartType;
-  data: Array<Point>;
+  data: Point[];
   // Additional series options
   // For e.g. https://www.chartjs.org/docs/latest/charts/line.html
   options: object;

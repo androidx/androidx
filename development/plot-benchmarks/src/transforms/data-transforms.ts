@@ -18,8 +18,9 @@ export class ChartDataTransforms {
     const series: Series[] = [];
     const standard = metrics.standard;
     const sampled = metrics.sampled;
-    // Builds ranges for distribution
+    // Builds ranges for distribution.
     const ranges = mapper.sampledRanges(metrics);
+    // Builds series.
     if (standard) {
       for (let i = 0; i < standard.length; i += 1) {
         const metric = standard[i];
