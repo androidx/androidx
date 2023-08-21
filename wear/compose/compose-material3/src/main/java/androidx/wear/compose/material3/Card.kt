@@ -147,7 +147,7 @@ fun Card(
  * @param appName A slot for displaying the application name, expected to be a single line of start
  * aligned text of [Typography.labelSmall]
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
- * start aligned text of [Typography.titleSmall]
+ * start aligned text of [Typography.titleMedium]
  * @param modifier Modifier to be applied to the card
  * @param enabled Controls the enabled state of the card. When false, this card will not
  * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
@@ -216,7 +216,7 @@ fun AppCard(
         title = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides MaterialTheme.typography.titleSmall,
+                LocalTextStyle provides MaterialTheme.typography.titleMedium,
             ) {
                 title()
             }
@@ -269,7 +269,7 @@ fun AppCard(
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
- * of [Typography.titleSmall]
+ * of [Typography.titleMedium]
  * @param modifier Modifier to be applied to the card
  * @param enabled Controls the enabled state of the card. When false, this card will not
  * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
@@ -315,7 +315,7 @@ fun TitleCard(
         title = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides MaterialTheme.typography.titleSmall,
+                LocalTextStyle provides MaterialTheme.typography.titleMedium,
             ) {
                 title()
             }
