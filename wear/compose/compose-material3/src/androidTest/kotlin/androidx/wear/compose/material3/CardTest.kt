@@ -425,7 +425,7 @@ class CardTest {
         rule.setContentWithTheme {
             expectedAppTextStyle = MaterialTheme.typography.labelSmall
             expectedTimeTextStyle = MaterialTheme.typography.labelSmall
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             AppCard(
@@ -461,7 +461,7 @@ class CardTest {
 
         rule.setContentWithTheme {
             expectedTimeTextStyle = MaterialTheme.typography.labelSmall
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             TitleCard(
@@ -497,7 +497,7 @@ class CardTest {
         rule.setContentWithTheme {
             expectedAppTextStyle = MaterialTheme.typography.labelSmall
             expectedTimeTextStyle = MaterialTheme.typography.labelSmall
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             AppCard(
