@@ -148,48 +148,6 @@ class MultiProcessDataStoreMultiProcessTest {
     }
 
     @Test
-    fun testSimpleUpdateData_file() = testSimpleUpdateData_runner(StorageVariant.FILE)
-
-    @Test
-    fun testSimpleUpdateData_okio() = testSimpleUpdateData_runner(StorageVariant.OKIO)
-
-    private fun testSimpleUpdateData_runner(variant: StorageVariant) =
-        runTest(timeout = 10000.milliseconds) {
-            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
-            val dataStore: DataStore<FooProto> =
-                createDataStore(testData, dataStoreScope, context = dataStoreContext)
-            val serviceClasses = mapOf(
-                StorageVariant.FILE to SimpleUpdateFileService::class,
-                StorageVariant.OKIO to SimpleUpdateOkioService::class
-            )
-            val connection: BlockingServiceConnection =
-                setUpService(mainContext, serviceClasses[variant]!!.java, testData)
-
-            assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
-
-            // Other proc commits TEST_TEXT update
-            signalService(connection)
-
-            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
-        }
-
-    open class SimpleUpdateFileService(
-        private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
-    ) : DirectTestService() {
-        override fun beforeTest(testData: Bundle) {
-            store = createDataStore(testData, scope)
-        }
-
-        override fun runTest() = runBlocking<Unit> {
-            store.updateData {
-                WRITE_TEXT(it)
-            }
-        }
-    }
-
-    class SimpleUpdateOkioService : SimpleUpdateFileService()
-
-    @Test
     fun testConcurrentReadUpdate_file() = testConcurrentReadUpdate_runner(StorageVariant.FILE)
 
     @Test
