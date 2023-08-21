@@ -22,12 +22,10 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
-import androidx.compose.ui.createSkiaLayer
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIViewController
-import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
@@ -36,10 +34,6 @@ import kotlin.math.roundToInt
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
-import org.jetbrains.skiko.SkikoUIView
-import org.jetbrains.skiko.TextActions
-import org.jetbrains.skiko.currentSystemTheme
-import org.jetbrains.skiko.ios.SkikoUITextInputTraits
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.*
@@ -83,8 +77,8 @@ fun ComposeUIViewController(
     }
 
 private class AttachedComposeContext(
-    val composeLayer: ComposeLayer,
-    val skiaLayer: org.jetbrains.skiko.SkiaLayer,
+    val composeLayer: IOSComposeLayer,
+    val skiaLayer: IOSSkiaLayer,
     val view: SkikoUIView,
     val inputTraits: SkikoUITextInputTraits,
     val platform: Platform
@@ -361,7 +355,7 @@ internal actual class ComposeWindow : UIViewController {
             return // already attached
         }
 
-        val skiaLayer = createSkiaLayer()
+        val skiaLayer = IOSSkiaLayer()
         val skikoUIView = SkikoUIView(
             skiaLayer = skiaLayer,
             pointInside = { point, _ ->
@@ -459,7 +453,7 @@ internal actual class ComposeWindow : UIViewController {
 
             override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         }
-        val composeLayer = ComposeLayer(
+        val composeLayer = IOSComposeLayer(
             layer = skiaLayer,
             platform = platform,
             input = inputServices.skikoInput,

@@ -20,11 +20,8 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.text.input.*
 import kotlin.math.min
-import org.jetbrains.skiko.SkikoInput
 import org.jetbrains.skiko.SkikoKey
 import org.jetbrains.skiko.SkikoKeyboardEventKind
-import org.jetbrains.skiko.ios.SkikoUITextInputTraits
-
 import platform.UIKit.*
 
 internal class UIKitTextInputService(
@@ -152,7 +149,7 @@ internal class UIKitTextInputService(
         }
     }
 
-    val skikoInput = object : SkikoInput {
+    val skikoInput = object : IOSSkikoInput {
 
         /**
          * A Boolean value that indicates whether the text-entry object has any text.

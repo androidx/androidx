@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.uikit
 
-import org.jetbrains.skiko.ios.SkikoUITextInputTraits
+import androidx.compose.ui.platform.SkikoUITextInputTraits
 
 internal class DelegateSkikoUITextInputTraits(
     val getDelegate: () -> SkikoUITextInputTraits?
