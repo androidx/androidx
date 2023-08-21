@@ -312,6 +312,113 @@ class PlacedChildTest {
             assertThat(placementCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun forceMeasureTheSubtreeSkipsNodesMeasuringInLayoutBlock() {
+        val remeasurings = mutableListOf<Int>()
+        val root = root {
+            runDuringMeasure(once = false) {
+                remeasurings.add(0)
+            }
+            add(
+                node {
+                    measureInLayoutBlock()
+                    runDuringMeasure(once = false) {
+                        remeasurings.add(1)
+                    }
+                    add(
+                        node {
+                            runDuringMeasure(once = false) {
+                                remeasurings.add(2)
+                            }
+                            size = 10
+                        }
+                    )
+                }
+            )
+            add(
+                node {
+                    runDuringMeasure(once = false) {
+                        remeasurings.add(3)
+                    }
+                }
+            )
+        }
+
+        val delegate = createDelegate(root)
+
+        remeasurings.clear()
+        root.requestRemeasure() // node with index 0
+        root.first.first.requestRemeasure() // node with index 2
+        root.second.requestRemeasure() // node with index 3
+        delegate.measureAndLayout()
+
+        assertThat(remeasurings).isEqualTo(listOf(0, 3, 2))
+    }
+
+    @Test
+    fun forceMeasureTheSubtreeDoesntRelayoutWhenParentsSizeChanges() {
+        val order = mutableListOf<Int>()
+        val root = root {
+            runDuringMeasure(once = false) {
+                order.add(0)
+            }
+            runDuringLayout(once = false) {
+                order.add(1)
+            }
+            add(
+                node {
+                    runDuringMeasure(once = false) {
+                        order.add(2)
+                    }
+                    runDuringLayout(once = false) {
+                        order.add(3)
+                    }
+                    add(
+                        node {
+                            runDuringMeasure(once = false) {
+                                order.add(6)
+                            }
+                            runDuringLayout(once = false) {
+                                order.add(7)
+                            }
+                            size = 10
+                        }
+                    )
+                }
+            )
+            add(
+                node {
+                    runDuringMeasure(once = false) {
+                        order.add(4)
+                    }
+                    runDuringLayout(once = false) {
+                        order.add(5)
+                    }
+                }
+            )
+        }
+
+        val delegate = createDelegate(root)
+
+        order.clear()
+        root.requestRemeasure() // node with indexes 0 and 1
+        root.first.first.size = 20
+        root.first.first.requestRemeasure() // node with indexes 6 and 7
+        root.second.requestRemeasure() // node with indexes 4 and 5
+        delegate.measureAndLayout()
+
+        assertThat(order).isEqualTo(listOf(
+            0, // remeasure root
+            6, // force remeasure root.first.first, it will change the size
+            2, // remeasure root.first because the size changed
+            4, // remeasure root.second
+            1, // relayout root
+            3, // relayout root.first
+            7, // relayout root.first.first
+            5, // relayout root.second
+        ))
+    }
 }
 
 private val UseChildSizeButNotPlace = object : LayoutNode.NoIntrinsicsMeasurePolicy("") {

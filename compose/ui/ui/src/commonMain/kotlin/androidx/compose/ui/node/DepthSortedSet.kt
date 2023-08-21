@@ -178,4 +178,6 @@ internal class DepthSortedSetsForDifferentPasses(extraAssertions: Boolean) {
     fun isEmpty(): Boolean = set.isEmpty() && lookaheadSet.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
+
+    fun isEmptyForLookahead(): Boolean = lookaheadSet.isEmpty()
 }
