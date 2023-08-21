@@ -17,7 +17,6 @@
 package androidx.compose.ui.platform
 
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.RectF
 import android.graphics.Region
@@ -29,10 +28,8 @@ import android.os.SystemClock
 import android.text.SpannableString
 import android.util.Log
 import android.util.LongSparseArray
-import android.util.SparseIntArray
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewStructure
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
@@ -49,12 +46,9 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
-import androidx.collection.MutableIntSet
 import androidx.collection.SparseArrayCompat
-import androidx.collection.isNotEmpty
-import androidx.collection.set
-import androidx.collection.size
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.fastJoinToString
@@ -96,9 +90,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import androidx.core.util.containsKey
+import androidx.compose.ui.util.fastMap
 import androidx.core.util.keyIterator
-import androidx.core.util.set
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
@@ -315,8 +308,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     internal var contentCaptureForceEnabledForTesting = false
     internal var contentCaptureSession: ContentCaptureSessionCompat? = null
-    internal val bufferedContentCaptureAppearedNodes = SparseArrayCompat<ViewStructureCompat>()
-    internal val bufferedContentCaptureDisappearedNodes = MutableIntSet()
+    internal val bufferedContentCaptureAppearedNodes = ArrayMap<Int, ViewStructureCompat>()
+    internal val bufferedContentCaptureDisappearedNodes = ArraySet<Int>()
 
     private class PendingTextTraversedEvent(
         val node: SemanticsNode,
@@ -334,8 +327,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * semantics tree. They key is the virtual view id(the root node has a key of
      * AccessibilityNodeProviderCompat.HOST_VIEW_ID and other node has a key of its id).
      */
-    internal var currentSemanticsNodes: SparseArrayCompat<SemanticsNodeWithAdjustedBounds> =
-        SparseArrayCompat()
+    internal var currentSemanticsNodes: Map<Int, SemanticsNodeWithAdjustedBounds> = mapOf()
         get() {
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
@@ -346,10 +338,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
             return field
         }
-    private var paneDisplayed = MutableIntSet()
+    private var paneDisplayed = ArraySet<Int>()
 
-    internal var idToBeforeMap = SparseIntArray()
-    internal var idToAfterMap = SparseIntArray()
+    internal var idToBeforeMap = HashMap<Int, Int>()
+    internal var idToAfterMap = HashMap<Int, Int>()
     internal val EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
     internal val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
@@ -364,14 +356,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     @VisibleForTesting
     internal class SemanticsNodeCopy(
         val semanticsNode: SemanticsNode,
-        currentSemanticsNodes: SparseArrayCompat<SemanticsNodeWithAdjustedBounds>
+        currentSemanticsNodes: Map<Int, SemanticsNodeWithAdjustedBounds>
     ) {
         val unmergedConfig = semanticsNode.unmergedConfig
-        val children = MutableIntSet()
+        val children: MutableSet<Int> = mutableSetOf()
 
         init {
             semanticsNode.replacedChildren.fastForEach { child ->
-                if (currentSemanticsNodes.containsKey(child.id)) {
+                if (currentSemanticsNodes.contains(child.id)) {
                     children.add(child.id)
                 }
             }
@@ -385,9 +377,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // SemanticsNode's children are dynamically generated and always reflect the current children.
     // We need to keep a copy of its old structure for comparison.
     @VisibleForTesting
-    internal var previousSemanticsNodes = SparseArrayCompat<SemanticsNodeCopy>()
+    internal var previousSemanticsNodes: MutableMap<Int, SemanticsNodeCopy> = mutableMapOf()
     private var previousSemanticsRoot =
-        SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, SparseArrayCompat())
+        SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, mapOf())
     private var checkingForSemanticsChanges = false
 
     init {
@@ -434,11 +426,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         vertical: Boolean,
         direction: Int,
         position: Offset
-    ): Boolean = canScroll(currentSemanticsNodes, vertical, direction, position)
+    ): Boolean = canScroll(currentSemanticsNodes.values, vertical, direction, position)
 
     @VisibleForTesting
     internal fun canScroll(
-        currentSemanticsNodes: SparseArrayCompat<SemanticsNodeWithAdjustedBounds>,
+        currentSemanticsNodes: Collection<SemanticsNodeWithAdjustedBounds>,
         vertical: Boolean,
         direction: Int,
         position: Offset
@@ -451,18 +443,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             false -> SemanticsProperties.HorizontalScrollAxisRange
         }
 
-        for (i in 0 until currentSemanticsNodes.size) {
-            val node = currentSemanticsNodes.valueAt(i)
+        return currentSemanticsNodes.any { node ->
             // Only consider nodes that are under the touch event. Checks the adjusted bounds to
             // avoid overlapping siblings. Because position is a float (touch event can happen in-
             // between pixels), convert the int-based Android Rect to a float-based Compose Rect
             // before doing the comparison.
             if (!node.adjustedBounds.toComposeRect().contains(position)) {
-                continue
+                return@any false
             }
 
             val scrollRange = node.semanticsNode.config.getOrNull(scrollRangeProperty)
-                ?: continue
+                ?: return@any false
 
             // A node simply having scrollable semantics doesn't mean it's necessarily scrollable
             // in the given direction – it must also not be scrolled to its limit in that direction.
@@ -474,13 +465,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 actualDirection = -1
             }
 
-            val canScroll = (actualDirection < 0 && scrollRange.value() > 0) ||
-                (actualDirection >= 0 && scrollRange.value() < scrollRange.maxValue())
-            if (canScroll) {
-                return true
-            }
+            if (actualDirection < 0) scrollRange.value() > 0
+            else scrollRange.value() < scrollRange.maxValue()
         }
-        return false
     }
 
     private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfo? {
@@ -594,8 +581,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private fun sortByGeometryGroupings(
         layoutIsRtl: Boolean,
         parentListToSort: ArrayList<SemanticsNode>,
-        containerChildrenMapping: SparseArrayCompat<MutableList<SemanticsNode>> =
-            SparseArrayCompat()
+        containerChildrenMapping: MutableMap<Int, MutableList<SemanticsNode>> = mutableMapOf()
     ): MutableList<SemanticsNode> {
         // RowGroupings list consists of pairs, first = a rectangle of the bounds of the row
         // and second = the list of nodes in that row
@@ -683,13 +669,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         currNode: SemanticsNode,
         layoutIsRtl: Boolean,
         geometryList: ArrayList<SemanticsNode>,
-        containerMapToChildren: SparseArrayCompat<MutableList<SemanticsNode>>
+        containerMapToChildren: MutableMap<Int, MutableList<SemanticsNode>>
     ) {
         // We only want to add children that are either traversalGroups or are
         // screen reader focusable. The child must also be in the current pruned semantics tree.
         val isTraversalGroup = currNode.isTraversalGroup
         if ((isTraversalGroup || isScreenReaderFocusable(currNode)) &&
-            currentSemanticsNodes.containsKey(currNode.id)) {
+            currNode.id in currentSemanticsNodes.keys) {
             geometryList.add(currNode)
         }
         if (isTraversalGroup) {
@@ -719,7 +705,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // This should be mapping of [containerID: listOfSortedChildren], only populated if there
         // are container nodes in this level. If there are container nodes, `containerMapToChildren`
         // would look like {containerId: [sortedChild, sortedChild], containerId: [sortedChild]}
-        val containerMapToChildren = SparseArrayCompat<MutableList<SemanticsNode>>()
+        val containerMapToChildren = mutableMapOf<Int, MutableList<SemanticsNode>>()
         val geometryList = ArrayList<SemanticsNode>()
 
         listToSort.fastForEach { node ->
@@ -808,7 +794,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.isImportantForAccessibility = true
 
         semanticsNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.containsKey(child.id)) {
+            if (currentSemanticsNodes.contains(child.id)) {
                 val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
                 if (holder != null) {
                     info.addChild(holder)
@@ -1238,8 +1224,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
         // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
-        if (idToBeforeMap.containsKey(virtualViewId)) {
-            val beforeId = idToBeforeMap[virtualViewId]
+        val beforeId = idToBeforeMap[virtualViewId]
+        beforeId?.let {
             val beforeView = view.androidViewsHandler.semanticsIdToView(beforeId)
             if (beforeView != null) {
                 // If the node that should come before this one is a view, we want to pass in the
@@ -1254,8 +1240,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
 
-        if (idToAfterMap.containsKey(virtualViewId)) {
-            val afterId = idToAfterMap[virtualViewId]
+        val afterId = idToAfterMap[virtualViewId]
+        afterId?.let {
             val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
             if (afterView != null) {
                 info.setTraversalAfter(afterView)
@@ -1725,7 +1711,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
 
                 val viewport = node.layoutInfo.coordinates.boundsInParent().size
-                @SuppressLint("PrimitiveInLambda")
                 val scrollAction =
                     node.unmergedConfig.getOrNull(SemanticsActions.ScrollBy) ?: return false
 
@@ -1928,12 +1913,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // This extra is just for testing: needed a way to retrieve `traversalBefore` and
         // `traversalAfter` from a non-sealed instance of an ANI
         if (extraDataKey == EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL) {
-            if (idToBeforeMap.containsKey(virtualViewId)) {
-                info.extras.putInt(extraDataKey, idToBeforeMap[virtualViewId])
+            idToBeforeMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
             }
         } else if (extraDataKey == EXTRA_DATA_TEST_TRAVERSALAFTER_VAL) {
-            if (idToAfterMap.containsKey(virtualViewId)) {
-                info.extras.putInt(extraDataKey, idToAfterMap[virtualViewId])
+            idToAfterMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
             }
         } else if (node.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult) &&
             arguments != null && extraDataKey == EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
@@ -2183,7 +2168,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     suspend fun boundsUpdatesEventLoop() {
         try {
-            val subtreeChangedSemanticsNodesIds = MutableIntSet()
+            val subtreeChangedSemanticsNodesIds = ArraySet<Int>()
             for (notification in boundsUpdateChannel) {
                 if (isEnabledForContentCapture) {
                     notifyContentCaptureChanges()
@@ -2246,7 +2231,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     @OptIn(ExperimentalComposeUiApi::class)
     private fun sendSubtreeChangeAccessibilityEvents(
         layoutNode: LayoutNode,
-        subtreeChangedSemanticsNodesIds: MutableIntSet
+        subtreeChangedSemanticsNodesIds: ArraySet<Int>
     ) {
         // The node may be no longer available while we were waiting so check
         // again.
@@ -2302,8 +2287,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun updateSemanticsNodesCopyAndPanes() {
         // TODO(b/172606324): removed this compose specific fix when talkback has a proper solution.
-        val toRemove = MutableIntSet()
-        paneDisplayed.forEach { id ->
+        val toRemove = ArraySet<Int>()
+        for (id in paneDisplayed) {
             val currentNode = currentSemanticsNodes[id]?.semanticsNode
             if (currentNode == null || !currentNode.hasPaneTitle()) {
                 toRemove.add(id)
@@ -2318,18 +2303,16 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         paneDisplayed.removeAll(toRemove)
         previousSemanticsNodes.clear()
-        for (i in 0 until currentSemanticsNodes.size) {
-            val value = currentSemanticsNodes.valueAt(i)
-            val key = currentSemanticsNodes.keyAt(i)
-            if (value.semanticsNode.hasPaneTitle() && paneDisplayed.add(key)) {
+        for (entry in currentSemanticsNodes.entries) {
+            if (entry.value.semanticsNode.hasPaneTitle() && paneDisplayed.add(entry.key)) {
                 sendPaneChangeEvents(
-                    key,
+                    entry.key,
                     AccessibilityEventCompat.CONTENT_CHANGE_TYPE_PANE_APPEARED,
-                    value.semanticsNode.unmergedConfig[SemanticsProperties.PaneTitle]
+                    entry.value.semanticsNode.unmergedConfig[SemanticsProperties.PaneTitle]
                 )
             }
-            previousSemanticsNodes[key] =
-                SemanticsNodeCopy(value.semanticsNode, currentSemanticsNodes)
+            previousSemanticsNodes[entry.key] =
+                SemanticsNodeCopy(entry.value.semanticsNode, currentSemanticsNodes)
         }
         previousSemanticsRoot =
             SemanticsNodeCopy(view.semanticsOwner.unmergedRootSemanticsNode, currentSemanticsNodes)
@@ -2337,12 +2320,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     @VisibleForTesting
     internal fun sendSemanticsPropertyChangeEvents(
-        newSemanticsNodes: SparseArrayCompat<SemanticsNodeWithAdjustedBounds>
+        newSemanticsNodes: Map<Int, SemanticsNodeWithAdjustedBounds>
     ) {
         val oldScrollObservationScopes = ArrayList(scrollObservationScopes)
         scrollObservationScopes.clear()
-        for (i in 0 until newSemanticsNodes.size) {
-            val id = newSemanticsNodes.keyAt(i)
+        for (id in newSemanticsNodes.keys) {
             // We do doing this search because the new configuration is set as a whole, so we
             // can't indicate which property is changed when setting the new configuration.
             val oldNode = previousSemanticsNodes[id] ?: continue
@@ -2859,20 +2841,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         if (bufferedContentCaptureAppearedNodes.isNotEmpty()) {
-            val viewStructures = ArrayList<ViewStructure>(bufferedContentCaptureAppearedNodes.size)
-            for (i in 0 until bufferedContentCaptureAppearedNodes.size) {
-                viewStructures += bufferedContentCaptureAppearedNodes.valueAt(i).toViewStructure()
-            }
-            session.notifyViewsAppeared(viewStructures)
+            session.notifyViewsAppeared(
+                bufferedContentCaptureAppearedNodes.values
+                    .toList()
+                    .fastMap { it.toViewStructure() })
             bufferedContentCaptureAppearedNodes.clear()
         }
         if (bufferedContentCaptureDisappearedNodes.isNotEmpty()) {
-            val ids = LongArray(bufferedContentCaptureDisappearedNodes.size)
-            var index = 0
-            bufferedContentCaptureDisappearedNodes.forEach { id ->
-                ids[index++] = id.toLong()
-            }
-            session.notifyViewsDisappeared(ids)
+            session.notifyViewsDisappeared(
+                    bufferedContentCaptureDisappearedNodes
+                        .toList()
+                        .fastMap { it.toLong() }
+                        .toLongArray())
             bufferedContentCaptureDisappearedNodes.clear()
         }
     }
@@ -2928,8 +2908,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun showTranslatedText() {
-        for (i in 0 until currentSemanticsNodes.size) {
-            val node = currentSemanticsNodes.valueAt(i)
+        for (node in currentSemanticsNodes.values) {
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == false) {
                 config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(
@@ -2940,8 +2919,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun hideTranslatedText() {
-        for (i in 0 until currentSemanticsNodes.size) {
-            val node = currentSemanticsNodes.valueAt(i)
+        for (node in currentSemanticsNodes.values) {
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == true) {
                 config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(
@@ -2952,8 +2930,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun clearTranslatedText() {
-        for (i in 0 until currentSemanticsNodes.size) {
-            val node = currentSemanticsNodes.valueAt(i)
+        for (node in currentSemanticsNodes.values) {
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) != null) {
                 config.getOrNull(SemanticsActions.ClearTextSubstitution)?.action?.invoke()
@@ -2965,11 +2942,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy
     ) {
-        val newChildren = MutableIntSet()
+        val newChildren: MutableSet<Int> = mutableSetOf()
 
         // If any child is added, clear the subtree rooted at this node and return.
         newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.containsKey(child.id)) {
+            if (currentSemanticsNodes.contains(child.id)) {
                 if (!oldNode.children.contains(child.id)) {
                     notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
                     return
@@ -2979,7 +2956,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         // If any child is deleted, clear the subtree rooted at this node and return.
-        oldNode.children.forEach { child ->
+        for (child in oldNode.children) {
             if (!newChildren.contains(child)) {
                 notifySubtreeAccessibilityStateChangedIfNeeded(newNode.layoutNode)
                 return
@@ -2987,7 +2964,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.containsKey(child.id)) {
+            if (currentSemanticsNodes.contains(child.id)) {
                 sendAccessibilitySemanticsStructureChangeEvents(
                     child, previousSemanticsNodes[child.id]!!)
             }
@@ -3010,22 +2987,21 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     ) {
         // Iterate the new tree to notify content capture appear
         newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.containsKey(child.id) &&
+            if (currentSemanticsNodes.contains(child.id) &&
                 !oldNode.children.contains(child.id)) {
                 updateContentCaptureBuffersOnAppeared(child)
             }
         }
         // Notify content capture disappear
-        for (i in 0 until previousSemanticsNodes.size) {
-            val key = previousSemanticsNodes.keyAt(i)
-            if (!currentSemanticsNodes.containsKey(key)) {
-                bufferContentCaptureViewDisappeared(key)
+        for (entry in previousSemanticsNodes.entries) {
+            if (!currentSemanticsNodes.contains(entry.key)) {
+                bufferContentCaptureViewDisappeared(entry.key)
             }
         }
 
         newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.containsKey(child.id) &&
-                previousSemanticsNodes.containsKey(child.id)) {
+            if (currentSemanticsNodes.contains(child.id) &&
+                previousSemanticsNodes.contains(child.id)) {
                 sendContentCaptureSemanticsStructureChangeEvents(
                     child, previousSemanticsNodes[child.id]!!)
             }
@@ -3513,9 +3489,9 @@ private val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
  * map.
  */
 internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
-    SparseArrayCompat<SemanticsNodeWithAdjustedBounds> {
+    Map<Int, SemanticsNodeWithAdjustedBounds> {
     val root = unmergedRootSemanticsNode
-    val nodes = SparseArrayCompat<SemanticsNodeWithAdjustedBounds>()
+    val nodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
     if (!root.layoutNode.isPlaced || !root.layoutNode.isAttached) {
         return nodes
     }

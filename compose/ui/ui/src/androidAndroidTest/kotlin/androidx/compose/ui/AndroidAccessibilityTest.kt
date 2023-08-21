@@ -39,7 +39,6 @@ import android.view.accessibility.AccessibilityRecord
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.collection.SparseArrayCompat
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -4616,7 +4615,6 @@ class AndroidAccessibilityTest {
 
         val nodesWithContentDescr = androidComposeView.semanticsOwner
             .getAllUncoveredSemanticsNodesToMap()
-            .toMap()
             .filter {
                 it.value.semanticsNode.config.contains(SemanticsProperties.ContentDescription)
             }
@@ -4643,7 +4641,6 @@ class AndroidAccessibilityTest {
 
         val nodesWithContentDescr = androidComposeView.semanticsOwner
             .getAllUncoveredSemanticsNodesToMap()
-            .toMap()
             .filter {
                 it.value.semanticsNode.config.contains(SemanticsProperties.ContentDescription)
             }
@@ -4829,14 +4826,6 @@ class AndroidAccessibilityTest {
             textNode.config.getOrNull(SemanticsProperties.EditableText)?.text
                 ?: textNode.config.getOrNull(SemanticsProperties.Text)?.joinToString(",")
             )
-    }
-
-    private fun <T> SparseArrayCompat<T>.toMap(): Map<Int, T> {
-        val map = mutableMapOf<Int, T>()
-        for (i in 0 until size()) {
-            map[keyAt(i)] = valueAt(i)
-        }
-        return map
     }
 }
 
