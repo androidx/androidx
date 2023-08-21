@@ -122,7 +122,7 @@ class CarouselTest {
     @Test
     fun carousel_onUserTriggeredPause_stopsScroll() {
         rule.setContent {
-            val carouselState = remember { CarouselState() }
+            val carouselState = rememberCarouselState()
             SampleCarousel(carouselState = carouselState) {
                 BasicText(text = "Text ${it + 1}")
                 LaunchedEffect(carouselState) { carouselState.pauseAutoScroll(it) }
@@ -142,7 +142,7 @@ class CarouselTest {
     fun carousel_onUserTriggeredPauseAndResume_resumeScroll() {
         var pauseHandle: ScrollPauseHandle? = null
         rule.setContent {
-            val carouselState = remember { CarouselState() }
+            val carouselState = rememberCarouselState()
             SampleCarousel(carouselState = carouselState) {
                 BasicText(text = "Text ${it + 1}")
                 LaunchedEffect(carouselState) {
@@ -176,7 +176,7 @@ class CarouselTest {
         var pauseHandle1: ScrollPauseHandle? = null
         var pauseHandle2: ScrollPauseHandle? = null
         rule.setContent {
-            val carouselState = remember { CarouselState() }
+            val carouselState = rememberCarouselState()
             SampleCarousel(carouselState = carouselState) {
                 BasicText(text = "Text ${it + 1}")
                 LaunchedEffect(carouselState) {
@@ -219,7 +219,7 @@ class CarouselTest {
     fun carousel_onRepeatedResumesOnSamePauseHandle_ignoresSubsequentResumeCalls() {
         var pauseHandle1: ScrollPauseHandle? = null
         rule.setContent {
-            val carouselState = remember { CarouselState() }
+            val carouselState = rememberCarouselState()
             var pauseHandle2: ScrollPauseHandle? = null
             SampleCarousel(carouselState = carouselState) {
                 BasicText(text = "Text ${it + 1}")
@@ -429,7 +429,7 @@ class CarouselTest {
                             .fillMaxWidth()
                             .testTag("featured-carousel")
                             .border(2.dp, Color.Black),
-                        carouselState = remember { CarouselState() },
+                        carouselState = rememberCarouselState(),
                         itemCount = 3,
                         autoScrollDurationMillis = delayBetweenItems
                     ) {
@@ -833,7 +833,7 @@ class CarouselTest {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun SampleCarousel(
-    carouselState: CarouselState = remember { CarouselState() },
+    carouselState: CarouselState = rememberCarouselState(),
     itemCount: Int = 3,
     timeToDisplayItemMillis: Long = delayBetweenItems,
     content: @Composable AnimatedContentScope.(index: Int) -> Unit

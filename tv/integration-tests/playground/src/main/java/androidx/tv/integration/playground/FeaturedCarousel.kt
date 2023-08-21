@@ -66,8 +66,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.rememberCarouselState
 
 @Composable
 fun FeaturedCarouselContent() {
@@ -122,7 +122,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
         Color.LightGray.copy(alpha = 0.3f),
     )
 
-    val carouselState = remember { CarouselState() }
+    val carouselState = rememberCarouselState()
     var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
         itemCount = backgrounds.size,
@@ -141,9 +141,9 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             )
         },
         contentTransformStartToEnd =
-            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
         contentTransformEndToStart =
-            fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
         Box(
             modifier = Modifier
