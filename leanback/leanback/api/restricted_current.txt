@@ -2105,7 +2105,7 @@ package androidx.leanback.widget {
     method public static androidx.leanback.widget.GuidedActionDiffCallback getInstance();
   }
 
-  public class GuidedActionEditText extends android.widget.EditText implements androidx.leanback.widget.GuidedActionAutofillSupport androidx.leanback.widget.ImeKeyMonitor {
+  public class GuidedActionEditText extends androidx.appcompat.widget.AppCompatEditText implements androidx.leanback.widget.GuidedActionAutofillSupport androidx.leanback.widget.ImeKeyMonitor {
     ctor public GuidedActionEditText(android.content.Context!);
     ctor public GuidedActionEditText(android.content.Context!, android.util.AttributeSet!);
     ctor public GuidedActionEditText(android.content.Context!, android.util.AttributeSet!, int);

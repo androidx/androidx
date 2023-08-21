@@ -52,7 +52,7 @@
                 android:orientation="horizontal"
                 android:clipToPadding="false"
                 android:clipChildren="false"
-                android:paddingStart="@dimen/lb_guidedactions_section_shadow_width"
+                android:paddingStart="?attr/guidedActionsShadowWidth"
                 android:layout_width="0dp"
                 android:layout_weight="?attr/guidedActionContentWidthWeight"
                 android:layout_height="match_parent" >

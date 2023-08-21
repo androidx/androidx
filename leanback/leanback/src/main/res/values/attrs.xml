@@ -375,6 +375,9 @@
              {@link androidx.leanback.R.dimen#lb_guidedactions_elevation}.-->
         <attr name="guidedActionsElevation" format="dimension|reference" />
 
+        <!-- Theme attribute for the left padding for showing shadow of GuidedActions. -->
+        <attr name="guidedActionsShadowWidth" format="dimension|reference" />
+
         <!-- Theme attribute for the background of GuidedActions. Default is
              {@link androidx.leanback.R.color#lb_guidedactions_background}.-->
         <attr name="guidedActionsBackground" format="reference" />
