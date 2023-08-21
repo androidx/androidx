@@ -36,7 +36,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.contentDescription
      */
-    val ContentDescription = SemanticsPropertyKey<List<String>>(
+    val ContentDescription = AccessibilityKey<List<String>>(
         name = "ContentDescription",
         mergePolicy = { parentValue, childValue ->
             parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
@@ -46,18 +46,18 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.stateDescription
      */
-    val StateDescription = SemanticsPropertyKey<String>("StateDescription")
+    val StateDescription = AccessibilityKey<String>("StateDescription")
 
     /**
      * @see SemanticsPropertyReceiver.progressBarRangeInfo
      */
     val ProgressBarRangeInfo =
-        SemanticsPropertyKey<ProgressBarRangeInfo>("ProgressBarRangeInfo")
+        AccessibilityKey<ProgressBarRangeInfo>("ProgressBarRangeInfo")
 
     /**
      * @see SemanticsPropertyReceiver.paneTitle
      */
-    val PaneTitle = SemanticsPropertyKey<String>(
+    val PaneTitle = AccessibilityKey<String>(
         name = "PaneTitle",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -67,33 +67,33 @@ object SemanticsProperties {
     )
 
     /** @see SemanticsPropertyReceiver.selectableGroup */
-    val SelectableGroup = SemanticsPropertyKey<Unit>("SelectableGroup")
+    val SelectableGroup = AccessibilityKey<Unit>("SelectableGroup")
 
     /** @see SemanticsPropertyReceiver.collectionInfo */
-    val CollectionInfo = SemanticsPropertyKey<CollectionInfo>("CollectionInfo")
+    val CollectionInfo = AccessibilityKey<CollectionInfo>("CollectionInfo")
 
     /** @see SemanticsPropertyReceiver.collectionItemInfo */
-    val CollectionItemInfo = SemanticsPropertyKey<CollectionItemInfo>("CollectionItemInfo")
+    val CollectionItemInfo = AccessibilityKey<CollectionItemInfo>("CollectionItemInfo")
 
     /**
      * @see SemanticsPropertyReceiver.heading
      */
-    val Heading = SemanticsPropertyKey<Unit>("Heading")
+    val Heading = AccessibilityKey<Unit>("Heading")
 
     /**
      * @see SemanticsPropertyReceiver.disabled
      */
-    val Disabled = SemanticsPropertyKey<Unit>("Disabled")
+    val Disabled = AccessibilityKey<Unit>("Disabled")
 
     /**
      * @see SemanticsPropertyReceiver.liveRegion
      */
-    val LiveRegion = SemanticsPropertyKey<LiveRegionMode>("LiveRegion")
+    val LiveRegion = AccessibilityKey<LiveRegionMode>("LiveRegion")
 
     /**
      * @see SemanticsPropertyReceiver.focused
      */
-    val Focused = SemanticsPropertyKey<Boolean>("Focused")
+    val Focused = AccessibilityKey<Boolean>("Focused")
 
     /**
      * @see SemanticsPropertyReceiver.isContainer
@@ -107,7 +107,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isTraversalGroup
      */
-    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
+    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -123,7 +123,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.traversalIndex
      */
-    val TraversalIndex = SemanticsPropertyKey<Float>(
+    val TraversalIndex = AccessibilityKey<Float>(
         name = "TraversalIndex",
         mergePolicy = { parentValue, _ ->
             // Never merge traversal indices
@@ -135,18 +135,18 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.horizontalScrollAxisRange
      */
     val HorizontalScrollAxisRange =
-        SemanticsPropertyKey<ScrollAxisRange>("HorizontalScrollAxisRange")
+        AccessibilityKey<ScrollAxisRange>("HorizontalScrollAxisRange")
 
     /**
      * @see SemanticsPropertyReceiver.verticalScrollAxisRange
      */
     val VerticalScrollAxisRange =
-        SemanticsPropertyKey<ScrollAxisRange>("VerticalScrollAxisRange")
+        AccessibilityKey<ScrollAxisRange>("VerticalScrollAxisRange")
 
     /**
      * @see SemanticsPropertyReceiver.popup
      */
-    val IsPopup = SemanticsPropertyKey<Unit>(
+    val IsPopup = AccessibilityKey<Unit>(
         name = "IsPopup",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -159,7 +159,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.dialog
      */
-    val IsDialog = SemanticsPropertyKey<Unit>(
+    val IsDialog = AccessibilityKey<Unit>(
         name = "IsDialog",
         mergePolicy = { _, _ ->
             throw IllegalStateException(
@@ -178,13 +178,14 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.role
      */
-    val Role = SemanticsPropertyKey<Role>("Role") { parentValue, _ -> parentValue }
+    val Role = AccessibilityKey<Role>("Role") { parentValue, _ -> parentValue }
 
     /**
      * @see SemanticsPropertyReceiver.testTag
      */
     val TestTag = SemanticsPropertyKey<String>(
         name = "TestTag",
+        isImportantForAccessibility = false,
         mergePolicy = { parentValue, _ ->
             // Never merge TestTags, to avoid leaking internal test tags to parents.
             parentValue
@@ -194,7 +195,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.text
      */
-    val Text = SemanticsPropertyKey<List<AnnotatedString>>(
+    val Text = AccessibilityKey<List<AnnotatedString>>(
         name = "Text",
         mergePolicy = { parentValue, childValue ->
             parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
@@ -214,37 +215,37 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.editableText
      */
-    val EditableText = SemanticsPropertyKey<AnnotatedString>(name = "EditableText")
+    val EditableText = AccessibilityKey<AnnotatedString>(name = "EditableText")
 
     /**
      * @see SemanticsPropertyReceiver.textSelectionRange
      */
-    val TextSelectionRange = SemanticsPropertyKey<TextRange>("TextSelectionRange")
+    val TextSelectionRange = AccessibilityKey<TextRange>("TextSelectionRange")
 
     /**
      * @see SemanticsPropertyReceiver.onImeAction
      */
-    val ImeAction = SemanticsPropertyKey<ImeAction>("ImeAction")
+    val ImeAction = AccessibilityKey<ImeAction>("ImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.selected
      */
-    val Selected = SemanticsPropertyKey<Boolean>("Selected")
+    val Selected = AccessibilityKey<Boolean>("Selected")
 
     /**
      * @see SemanticsPropertyReceiver.toggleableState
      */
-    val ToggleableState = SemanticsPropertyKey<ToggleableState>("ToggleableState")
+    val ToggleableState = AccessibilityKey<ToggleableState>("ToggleableState")
 
     /**
      * @see SemanticsPropertyReceiver.password
      */
-    val Password = SemanticsPropertyKey<Unit>("Password")
+    val Password = AccessibilityKey<Unit>("Password")
 
     /**
      * @see SemanticsPropertyReceiver.error
      */
-    val Error = SemanticsPropertyKey<String>("Error")
+    val Error = AccessibilityKey<String>("Error")
 
     /**
      * @see SemanticsPropertyReceiver.indexForKey
@@ -366,7 +367,7 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.customActions
      */
     val CustomActions =
-        SemanticsPropertyKey<List<CustomAccessibilityAction>>("CustomActions")
+        AccessibilityKey<List<CustomAccessibilityAction>>("CustomActions")
 
     /**
      * @see SemanticsPropertyReceiver.pageUp
@@ -403,6 +404,40 @@ class SemanticsPropertyKey<T>(
     }
 ) {
     /**
+     * Whether this type of property provides information relevant to accessibility services.
+     *
+     * Most built-in semantics properties are relevant to accessibility, but a very common
+     * exception is testTag. Nodes with only a testTag still need to be included
+     * in the AccessibilityNodeInfo tree because UIAutomator tests rely on
+     * that, but we mark them `isImportantForAccessibility = false` on the AccessibilityNodeInfo
+     * to inform accessibility services that they are best ignored.
+     *
+     * The default value is false and it is not exposed as a public API. That's because
+     * it is impossible in the first place for `SemanticsPropertyKey`s
+     * defined outside the UI package to be relevant to accessibility, because
+     * for each accessibility-relevant SemanticsProperty type to get plumbed into the
+     * AccessibilityNodeInfo, the private `createNodeInfo` implementation must also have
+     * a line of code.
+     */
+    internal var isImportantForAccessibility = false
+        private set
+
+    internal constructor(
+        name: String,
+        isImportantForAccessibility: Boolean,
+    ) : this(name) {
+        this.isImportantForAccessibility = isImportantForAccessibility
+    }
+
+    internal constructor(
+        name: String,
+        isImportantForAccessibility: Boolean,
+        mergePolicy: (T?, T) -> T?
+    ) : this(name, mergePolicy) {
+        this.isImportantForAccessibility = isImportantForAccessibility
+    }
+
+    /**
      * Method implementing the semantics merge policy of a particular key.
      *
      * When mergeDescendants is set on a semantics node, then this function will called for each
@@ -435,7 +470,7 @@ class SemanticsPropertyKey<T>(
     }
 
     override fun toString(): String {
-        return "SemanticsPropertyKey: $name"
+        return "AccessibilityKey: $name"
     }
 }
 
@@ -445,6 +480,24 @@ private fun <T> throwSemanticsGetNotSupported(): T {
             "use one of the SemanticsConfiguration.getOr* methods instead"
     )
 }
+
+internal fun <T> AccessibilityKey(
+    name: String
+) =
+    SemanticsPropertyKey<T>(
+        name = name,
+        isImportantForAccessibility = true
+    )
+
+internal fun <T> AccessibilityKey(
+    name: String,
+    mergePolicy: (T?, T) -> T?
+) =
+    SemanticsPropertyKey<T>(
+        name = name,
+        isImportantForAccessibility = true,
+        mergePolicy = mergePolicy
+    )
 
 /**
  * Standard accessibility action.
@@ -483,8 +536,8 @@ class AccessibilityAction<T : Function<Boolean>>(val label: String?, val action:
 // inline to break static initialization cycle issue
 private inline fun <T : Function<Boolean>> ActionPropertyKey(
     name: String
-): SemanticsPropertyKey<AccessibilityAction<T>> {
-    return SemanticsPropertyKey(
+) =
+    AccessibilityKey<AccessibilityAction<T>>(
         name = name,
         mergePolicy = { parentValue, childValue ->
             AccessibilityAction(
@@ -493,7 +546,6 @@ private inline fun <T : Function<Boolean>> ActionPropertyKey(
             )
         }
     )
-}
 
 /**
  * Custom accessibility action.
