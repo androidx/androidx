@@ -360,8 +360,7 @@ import java.util.Set;
 
     /* package */ void addMemberToDynamicGroup(@NonNull MediaRouter.RouteInfo route) {
         if (!(mSelectedRouteController instanceof MediaRouteProvider.DynamicGroupRouteController)) {
-            throw new IllegalStateException(
-                    "There is no currently selected " + "dynamic group route.");
+            throw new IllegalStateException("There is no currently selected dynamic group route.");
         }
         MediaRouter.RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
         if (mSelectedRoute.getMemberRoutes().contains(route)
@@ -376,8 +375,7 @@ import java.util.Set;
 
     /* package */ void removeMemberFromDynamicGroup(@NonNull MediaRouter.RouteInfo route) {
         if (!(mSelectedRouteController instanceof MediaRouteProvider.DynamicGroupRouteController)) {
-            throw new IllegalStateException(
-                    "There is no currently selected " + "dynamic group route.");
+            throw new IllegalStateException("There is no currently selected dynamic group route.");
         }
         MediaRouter.RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
         if (!mSelectedRoute.getMemberRoutes().contains(route)
@@ -396,8 +394,7 @@ import java.util.Set;
 
     /* package */ void transferToRoute(@NonNull MediaRouter.RouteInfo route) {
         if (!(mSelectedRouteController instanceof MediaRouteProvider.DynamicGroupRouteController)) {
-            throw new IllegalStateException(
-                    "There is no currently selected dynamic group " + "route.");
+            throw new IllegalStateException("There is no currently selected dynamic group route.");
         }
         MediaRouter.RouteInfo.DynamicGroupState state = getDynamicGroupState(route);
         if (state == null || !state.isTransferable()) {
