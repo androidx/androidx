@@ -74,4 +74,9 @@ class GlContextDeviceTest {
         glContext.registerSurface(surface)
         glContext.drawAndSwap(surface, TIMESTAMP_NS)
     }
+
+    @Test
+    fun registerSurfaceWithoutDrawingOrReleasing_noException() {
+        glContext.registerSurface(surface)
+    }
 }

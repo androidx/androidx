@@ -71,15 +71,13 @@ public class GlContext {
     void init() {
         checkState(Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY), "Already initialized");
 
-        // TODO(b/295407763): make sure EGLDisplay, EGLConfig, and EGLContext are released when
-        //  there is exception.
         // Create EGLDisplay.
-        EGLDisplay eglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-        if (Objects.equals(eglDisplay, EGL14.EGL_NO_DISPLAY)) {
+        mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+        if (Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new IllegalStateException("Unable to get EGL14 display");
         }
         int[] version = new int[2];
-        if (!EGL14.eglInitialize(eglDisplay, version, 0, version, 1)) {
+        if (!EGL14.eglInitialize(mEglDisplay, version, 0, version, 1)) {
             throw new IllegalStateException("Unable to initialize EGL14");
         }
 
@@ -103,34 +101,27 @@ public class GlContext {
         EGLConfig[] configs = new EGLConfig[1];
         int[] numConfigs = new int[1];
         if (!EGL14.eglChooseConfig(
-                eglDisplay, attribToChooseConfig, 0, configs, 0, configs.length,
-                numConfigs, 0
+                mEglDisplay, attribToChooseConfig, 0, configs, 0, configs.length, numConfigs, 0
         )) {
             throw new IllegalStateException("Unable to find a suitable EGLConfig");
         }
-        EGLConfig eglConfig = configs[0];
+        mEglConfig = configs[0];
         int[] attribToCreateContext = {
                 EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL14.EGL_NONE
         };
 
         // Create EGLContext.
-        EGLContext eglContext = EGL14.eglCreateContext(
-                eglDisplay, eglConfig, EGL14.EGL_NO_CONTEXT,
+        mEglContext = EGL14.eglCreateContext(
+                mEglDisplay, mEglConfig, EGL14.EGL_NO_CONTEXT,
                 attribToCreateContext, 0
         );
         checkEglErrorOrThrow("eglCreateContext");
         int[] values = new int[1];
         EGL14.eglQueryContext(
-                eglDisplay, eglContext, EGL14.EGL_CONTEXT_CLIENT_VERSION, values,
-                0
+                mEglDisplay, mEglContext, EGL14.EGL_CONTEXT_CLIENT_VERSION, values, 0
         );
         Logger.d(TAG, "EGLContext created, client version " + values[0]);
-
-        // All successful. Track the created objects.
-        mEglDisplay = eglDisplay;
-        mEglConfig = eglConfig;
-        mEglContext = eglContext;
 
         // Create a temporary surface to make it current.
         mTempSurface = create1x1PBufferSurface();
@@ -207,18 +198,19 @@ public class GlContext {
         }
     }
 
-    boolean release() {
-        if (!isInitialized()) {
-            return false;
+    void release() {
+        if (!Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
+            EGL14.eglMakeCurrent(
+                    mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
+                    EGL14.EGL_NO_CONTEXT
+            );
         }
-        EGL14.eglMakeCurrent(
-                mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
-                EGL14.EGL_NO_CONTEXT
-        );
 
         // Destroy EGLSurfaces
         for (EglSurface eglSurface : mRegisteredSurfaces.values()) {
-            destroyEglSurface(eglSurface);
+            if (eglSurface != null) {
+                destroyEglSurface(eglSurface);
+            }
         }
         mRegisteredSurfaces.clear();
 
@@ -230,15 +222,17 @@ public class GlContext {
         mCurrentSurface = null;
 
         // Destroy EGLContext and terminate display.
-        EGL14.eglDestroyContext(mEglDisplay, mEglContext);
-        EGL14.eglTerminate(mEglDisplay);
-        EGL14.eglReleaseThread();
+        if (!Objects.equals(mEglContext, EGL14.EGL_NO_CONTEXT)) {
+            EGL14.eglDestroyContext(mEglDisplay, mEglContext);
+            mEglContext = EGL14.EGL_NO_CONTEXT;
+        }
+        if (!Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
+            EGL14.eglTerminate(mEglDisplay);
+            mEglDisplay = EGL14.EGL_NO_DISPLAY;
+        }
 
-        // Clear the created configurations.
-        mEglDisplay = EGL14.EGL_NO_DISPLAY;
-        mEglContext = EGL14.EGL_NO_CONTEXT;
+        EGL14.eglReleaseThread();
         mEglConfig = null;
-        return true;
     }
 
     // --- Private methods ---
