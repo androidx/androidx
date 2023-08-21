@@ -19,6 +19,8 @@ import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -49,12 +51,6 @@ shadowJar {
     // set classifier to empty string so that it doesn't append anything to the jar.
     archiveClassifier = ""
     configurations = [project.configurations.shadowed]
-    dependencies {
-        // antlr has dependencies on unrelated projects for its gui stuff, do not include them
-        exclude(dependency("org.abego.treelayout:.*"))
-        exclude(dependency("org.glassfish:.*"))
-        exclude(dependency("com.ibm.icu:.*"))
-    }
     relocate("org.antlr", "androidx.room.jarjarred.org.antlr")
     relocate("org.stringtemplate", "androidx.room.jarjarred.org.stringtemplate")
 }
@@ -91,7 +87,12 @@ dependencies {
     implementation(libs.kotlinPoet)
     implementation(libs.kotlinPoetJavaPoet)
     implementation(libs.kspApi)
-    shadowed(libs.antlr4)
+    shadowed(libs.antlr4) {
+        // antlr has dependencies on unrelated projects for its gui stuff, do not include them
+        exclude group: "org.abego.treelayout"
+        exclude group: "com.ibm.icu"
+        exclude group: "org.glassfish"
+    }
     implementation(libs.sqliteJdbc)
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
@@ -226,7 +227,9 @@ abstract class CheckArtifactTask extends DefaultTask {
             throw new GradleException("Cannot find the pom file for room-compiler")
         }
         def pomContents = pom.newReader().text
-        if (pomContents.contains("antlr")) {
+        Pattern antlrDep = Pattern.compile("<dependency>\\s.*antlr(.*\\s)*</dependency>")
+        Matcher matcher = antlrDep.matcher(pomContents)
+        if (matcher.find()) {
             throw new GradleException("Room-compiler pom file should not depend on antlr.\n" +
                     "Pom Contents:\n $pomContents")
         }
@@ -298,4 +301,8 @@ androidx {
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
+    license { // jarjared antlr library
+        name = "BSD licence"
+        url = "http://antlr.org/license.html"
+    }
 }
