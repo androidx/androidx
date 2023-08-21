@@ -96,7 +96,8 @@ import kotlinx.coroutines.launch
  * @param reverseLayout reverse the direction of scrolling and layout.
  * @param key a stable and unique key representing the item. When you specify the key the scroll
  * position will be maintained based on the key, which means if you add/remove items before the
- * current visible item the item with the given key will be kept as the first visible one.
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
  * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
@@ -174,9 +175,10 @@ fun HorizontalPager(
  * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
  * disabled.
  * @param reverseLayout reverse the direction of scrolling and layout.
- * @param key a stable and unique key representing the page. When you specify the key the scroll
- * position will be maintained based on the key, which means if you add/remove pages before the
- * current visible page the page with the given key will be kept as the first visible one.
+ * @param key a stable and unique key representing the item. When you specify the key the scroll
+ * position will be maintained based on the key, which means if you add/remove items before the
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
  * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
@@ -284,7 +286,8 @@ fun HorizontalPager(
  * @param reverseLayout reverse the direction of scrolling and layout.
  * @param key a stable and unique key representing the item. When you specify the key the scroll
  * position will be maintained based on the key, which means if you add/remove items before the
- * current visible item the item with the given key will be kept as the first visible one.
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
  * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
@@ -362,9 +365,10 @@ fun VerticalPager(
  * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
  * disabled.
  * @param reverseLayout reverse the direction of scrolling and layout.
- * @param key a stable and unique key representing the page. When you specify the key the scroll
- * position will be maintained based on the key, which means if you add/remove pages before the
- * current visible page the page with the given key will be kept as the first visible one.
+ * @param key a stable and unique key representing the item. When you specify the key the scroll
+ * position will be maintained based on the key, which means if you add/remove items before the
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
  * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.

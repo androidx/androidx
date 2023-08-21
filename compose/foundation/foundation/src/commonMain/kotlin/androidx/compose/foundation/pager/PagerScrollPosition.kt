@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
+import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -113,6 +114,18 @@ internal class PagerScrollPosition(
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.
         lastKnownFirstPageKey = null
+    }
+
+    fun matchPageWithKey(
+        itemProvider: PagerLazyLayoutItemProvider,
+        index: Int
+    ): Int {
+        val newIndex = itemProvider.findIndexByKey(lastKnownFirstPageKey, index)
+        if (index != newIndex) {
+            this.firstVisiblePage = newIndex
+            nearestRangeState.update(index)
+        }
+        return newIndex
     }
 
     private fun update(index: Int, scrollOffset: Int) {
