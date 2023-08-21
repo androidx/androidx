@@ -148,7 +148,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
-import androidx.core.util.containsKey
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.MotionEventCompat.AXIS_SCROLL
@@ -755,12 +754,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // This extra is just for testing: needed a way to retrieve `traversalBefore` and
         // `traversalAfter` from a non-sealed instance of an ANI
         if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL) {
-            if (accessibilityDelegate.idToBeforeMap.containsKey(virtualViewId)) {
-                info.extras.putInt(extraDataKey, accessibilityDelegate.idToBeforeMap[virtualViewId])
+            accessibilityDelegate.idToBeforeMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
             }
         } else if (extraDataKey == accessibilityDelegate.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL) {
-            if (accessibilityDelegate.idToAfterMap.containsKey(virtualViewId)) {
-                info.extras.putInt(extraDataKey, accessibilityDelegate.idToAfterMap[virtualViewId])
+            accessibilityDelegate.idToAfterMap[virtualViewId]?.let {
+                info.extras.putInt(extraDataKey, it)
             }
         }
     }
@@ -799,8 +798,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     info.setParent(thisView, parentId)
                     val semanticsId = layoutNode.semanticsId
 
-                    if (accessibilityDelegate.idToBeforeMap.containsKey(semanticsId)) {
-                        val beforeId = accessibilityDelegate.idToBeforeMap[semanticsId]
+                    val beforeId = accessibilityDelegate.idToBeforeMap[semanticsId]
+                    beforeId?.let {
                         val beforeView = androidViewsHandler.semanticsIdToView(beforeId)
                         if (beforeView != null) {
                             // If the node that should come before this one is a view, we want to
@@ -810,7 +809,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                         } else {
                             // Otherwise, we'll just set the "before" value by passing in
                             // the semanticsId.
-                            info.setTraversalBefore(thisView, beforeId)
+                            info.setTraversalBefore(thisView, it)
                         }
                         addExtraDataToAccessibilityNodeInfoHelper(
                             semanticsId, info.unwrap(),
@@ -818,13 +817,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                         )
                     }
 
-                    if (accessibilityDelegate.idToAfterMap.containsKey(semanticsId)) {
-                        val afterId = accessibilityDelegate.idToAfterMap[semanticsId]
+                    val afterId = accessibilityDelegate.idToAfterMap[semanticsId]
+                    afterId?.let {
                         val afterView = androidViewsHandler.semanticsIdToView(afterId)
                         if (afterView != null) {
                             info.setTraversalAfter(afterView)
                         } else {
-                            info.setTraversalAfter(thisView, afterId)
+                            info.setTraversalAfter(thisView, it)
                         }
                         addExtraDataToAccessibilityNodeInfoHelper(
                             semanticsId, info.unwrap(),
