@@ -45,14 +45,6 @@ import kotlinx.coroutines.flow.Flow
  */
 interface CallControlScope : CoroutineScope {
     /**
-     * This method should be the first method called within the [CallControlScope] and your VoIP
-     * application should pass in a valid implementation of [CallControlCallback].  Failing to call
-     * this method first will result in a [CallException] to be thrown.
-     */
-    @Suppress("ExecutorRegistration")
-    fun setCallback(callControlCallback: CallControlCallback)
-
-    /**
      * @return the 128-bit universally unique identifier Telecom assigned to this CallControlScope.
      * This id can be helpful for debugging when dumping the telecom system.
      */

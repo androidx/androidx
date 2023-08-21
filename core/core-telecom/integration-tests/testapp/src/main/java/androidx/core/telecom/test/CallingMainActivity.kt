@@ -124,10 +124,13 @@ class CallingMainActivity : Activity() {
 
             CoroutineScope(Dispatchers.IO).launch(handler) {
                 try {
-                    mCallsManager!!.addCall(attributes) {
-                        // set the client callback implementation
-                        setCallback(callObject.mCallControlCallbackImpl)
-
+                    mCallsManager!!.addCall(
+                        attributes,
+                        callObject.mOnAnswerLambda,
+                        callObject.mOnDisconnectLambda,
+                        callObject.mOnSetActiveLambda,
+                        callObject.mOnSetInActiveLambda
+                    ) {
                         // inject client control interface into the VoIP call object
                         callObject.setCallId(getCallId().toString())
                         callObject.setCallControl(this)
