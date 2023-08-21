@@ -18,8 +18,11 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -863,5 +866,46 @@ class SuspendingPointerInputFilterTest {
             down(Offset.Zero)
         }
         assertThat(events).hasSize(2)
+    }
+
+    @Test
+    @MediumTest
+    fun lambdaIsRecapturedWhenReused() {
+        val tag = "box"
+        val events = mutableListOf<Int>()
+
+        @Composable
+        fun BoxWithKey(key: Int) {
+            // imitating one of the recommended patterns for Modifier.pointerInput() where we use
+            // rememberUpdatedState in order to have the latest value inside the suspending lambda.
+            // technically the state backing rememberUpdatedState will be recreated when the reuse
+            // happens so Modifier.pointerInput() have to update it's lambda to the new one even
+            // given that the key (Unit) didn't change.
+            val currentKey by rememberUpdatedState(key)
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        events.add(currentKey)
+                    })
+        }
+
+        var key by mutableStateOf(0)
+
+        rule.setContent {
+            ReusableContent(key = key) {
+                BoxWithKey(key)
+            }
+        }
+
+        rule.runOnIdle {
+            key++
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero)
+        }
+        assertThat(events).isEqualTo(listOf(key))
     }
 }
