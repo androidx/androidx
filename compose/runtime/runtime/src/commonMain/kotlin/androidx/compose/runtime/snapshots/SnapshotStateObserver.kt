@@ -184,6 +184,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         }
     }
 
+    private inline fun removeScopeMapIf(block: (ObservedScopeMap) -> Boolean) {
+        synchronized(observedScopeMaps) {
+            observedScopeMaps.removeIf(block)
+        }
+    }
+
     /**
      * Method to call when unsubscribing from the apply observer.
      */
@@ -266,8 +272,9 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * `onValueChangedForScope` callbacks passed in [observeReads].
      */
     fun clear(scope: Any) {
-        forEachScopeMap {
+        removeScopeMapIf {
             it.clearScopeObservations(scope)
+            !it.hasScopeObservations()
         }
     }
 
@@ -276,8 +283,9 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * used when a scope is no longer in the hierarchy and should not receive any callbacks.
      */
     fun clearIf(predicate: (scope: Any) -> Boolean) {
-        forEachScopeMap { scopeMap ->
+        removeScopeMapIf { scopeMap ->
             scopeMap.removeScopeIf(predicate)
+            !scopeMap.hasScopeObservations()
         }
     }
 
@@ -515,6 +523,9 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                 }
             }
         }
+
+        fun hasScopeObservations(): Boolean =
+            scopeToValues.isNotEmpty()
 
         private fun removeObservation(scope: Any, value: Any) {
             valueToScopes.remove(value, scope)
