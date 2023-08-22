@@ -42,10 +42,13 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
@@ -294,7 +297,7 @@ internal class DraggableNode(
     private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     private var reverseDirection: Boolean
-) : DelegatingNode(), PointerInputModifierNode {
+) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
     // we point to the new reference when we invoke them.
     private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
@@ -360,8 +363,12 @@ internal class DraggableNode(
                                 isDragSuccessful = false
                                 if (!isActive) throw cancellation
                             } finally {
+                                val maximumVelocity = currentValueOf(LocalViewConfiguration)
+                                    .maximumFlingVelocity.toFloat()
                                 val event = if (isDragSuccessful) {
-                                    val velocity = velocityTracker.calculateVelocity()
+                                    val velocity = velocityTracker.calculateVelocity(
+                                        Velocity(maximumVelocity, maximumVelocity)
+                                    )
                                     velocityTracker.resetTracking()
                                     DragStopped(velocity * if (reverseDirection) -1f else 1f)
                                 } else {

@@ -54,4 +54,9 @@ interface ViewConfiguration {
      */
     val minimumTouchTargetSize: DpSize
         get() = DpSize(48.dp, 48.dp)
+
+    /**
+     * The maximum velocity a fling can start with.
+     */
+    val maximumFlingVelocity: Int get() = Int.MAX_VALUE
 }

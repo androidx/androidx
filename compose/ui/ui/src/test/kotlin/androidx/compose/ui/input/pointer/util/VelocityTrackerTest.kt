@@ -19,6 +19,9 @@ package androidx.compose.ui.input.pointer.util
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.absoluteValue
+import kotlin.math.sign
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -40,7 +43,30 @@ class VelocityTrackerTest {
                 checkVelocity(
                     tracker.calculateVelocity(),
                     expected2DVelocities[i].first,
-                    expected2DVelocities[i].second)
+                    expected2DVelocities[i].second
+                )
+                tracker.resetTracking()
+                i += 1
+            }
+        }
+    }
+
+    @Test
+    fun calculateVelocity_returnsExpectedValues_withMaximumVelocity() {
+        val tracker = VelocityTracker()
+        var i = 0
+        val maximumVelocity = Velocity(200f, 200f)
+        velocityEventData.forEach {
+            if (it.down) {
+                tracker.addPosition(it.uptime, it.position)
+            } else {
+                val expectedDx = expected2DVelocities[i].first
+                val expectedDY = expected2DVelocities[i].second
+                checkVelocity(
+                    tracker.calculateVelocity(maximumVelocity = maximumVelocity),
+                    expectedDx.absoluteValue.coerceAtMost(maximumVelocity.x) * expectedDx.sign,
+                    expectedDY.absoluteValue.coerceAtMost(maximumVelocity.y) * expectedDY.sign
+                )
                 tracker.resetTracking()
                 i += 1
             }
@@ -91,6 +117,18 @@ class VelocityTrackerTest {
         tracker.resetTracking()
 
         assertThat(tracker.calculateVelocity()).isEqualTo(Velocity.Zero)
+    }
+
+    @Test
+    fun calculateVelocityWithMaxValue_valueShouldBeGreaterThanZero() {
+        val tracker = VelocityTracker()
+        Assert.assertThrows(IllegalStateException::class.java) {
+            tracker.calculateVelocity(Velocity(-1f, 1f))
+        }
+
+        Assert.assertThrows(IllegalStateException::class.java) {
+            tracker.calculateVelocity(Velocity(1f, -1f))
+        }
     }
 
     private fun checkVelocity(actual: Velocity, expectedDx: Float, expectedDy: Float) {

@@ -1990,6 +1990,7 @@ package androidx.compose.ui.input.pointer.util {
     ctor public VelocityTracker();
     method public void addPosition(long timeMillis, long position);
     method public long calculateVelocity();
+    method public long calculateVelocity(long maximumVelocity);
     method public void resetTracking();
   }
 
@@ -1997,6 +1998,7 @@ package androidx.compose.ui.input.pointer.util {
     ctor public VelocityTracker1D(boolean isDataDifferential);
     method public void addDataPoint(long timeMillis, float dataPoint);
     method public float calculateVelocity();
+    method public float calculateVelocity(float maximumVelocity);
     method public boolean isDataDifferential();
     method public void resetTracking();
     property public final boolean isDataDifferential;
@@ -2729,6 +2731,7 @@ package androidx.compose.ui.platform {
     property public long doubleTapMinTimeMillis;
     property public long doubleTapTimeoutMillis;
     property public long longPressTimeoutMillis;
+    property public int maximumFlingVelocity;
     property public float touchSlop;
   }
 
@@ -2944,11 +2947,13 @@ package androidx.compose.ui.platform {
     method public long getDoubleTapMinTimeMillis();
     method public long getDoubleTapTimeoutMillis();
     method public long getLongPressTimeoutMillis();
+    method public default int getMaximumFlingVelocity();
     method public default long getMinimumTouchTargetSize();
     method public float getTouchSlop();
     property public abstract long doubleTapMinTimeMillis;
     property public abstract long doubleTapTimeoutMillis;
     property public abstract long longPressTimeoutMillis;
+    property public default int maximumFlingVelocity;
     property public default long minimumTouchTargetSize;
     property public abstract float touchSlop;
   }
