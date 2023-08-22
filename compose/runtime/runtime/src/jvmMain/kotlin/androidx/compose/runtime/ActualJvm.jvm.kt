@@ -132,3 +132,7 @@ internal actual class SnapshotContextElementImpl actual constructor(
         snapshot.unsafeLeave(oldState)
     }
 }
+
+internal actual fun currentThreadId(): Long = Thread.currentThread().id
+
+internal actual fun currentThreadName(): String = Thread.currentThread().name
