@@ -21,7 +21,7 @@ package androidx.kruth
  */
 class ThrowableSubject<out T : Throwable> internal constructor(
     actual: T?,
-    private val metadata: FailureMetadata = FailureMetadata(),
+    metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<T>(actual = actual, metadata = metadata) {
 
     /**
@@ -38,7 +38,7 @@ class ThrowableSubject<out T : Throwable> internal constructor(
      */
     fun hasCauseThat(): ThrowableSubject<Throwable> {
         if (actual == null) {
-            asserter.fail("Causal chain is not deep enough - add a .isNotNull() check?")
+            metadata.fail("Causal chain is not deep enough - add a .isNotNull() check?")
         }
 
         return ThrowableSubject(actual = actual.cause, metadata = metadata)

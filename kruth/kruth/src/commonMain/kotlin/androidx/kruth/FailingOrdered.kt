@@ -20,11 +20,11 @@ package androidx.kruth
  * Always fails with the provided error message.
  */
 internal class FailingOrdered(
-    private val asserter: KruthAsserter,
+    private val metadata: FailureMetadata,
     private val message: () -> String,
 ) : Ordered {
 
     override fun inOrder() {
-        asserter.fail(message())
+        metadata.fail(message())
     }
 }

@@ -46,5 +46,5 @@ fun interface FailureStrategy {
      * We encourage implementations to record as much of this information as practical in the
      * exceptions they may throw or the other records they may make.
      */
-    fun fail(failure: AssertionError)
+    fun fail(failure: Error): Nothing
 }

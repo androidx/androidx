@@ -28,7 +28,7 @@ class BooleanSubject internal constructor(
      * Fails if the subject is false or `null`.
      */
     fun isFalse() {
-        asserter.assertTrue(
+        metadata.assertTrue(
             actual == false,
             "expected to be false, but was $actual"
         )
@@ -38,7 +38,7 @@ class BooleanSubject internal constructor(
      * Fails if the subject is true or `null`.
      */
     fun isTrue() {
-        asserter.assertTrue(
+        metadata.assertTrue(
             actual == true,
             "expected to be true, but was $actual"
         )
