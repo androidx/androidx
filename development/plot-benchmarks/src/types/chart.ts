@@ -18,7 +18,7 @@ export interface Data {
  * Used by a Mapper for data transformations.
  */
 export interface Series {
-  label: string;
+  descriptiveLabel: string;
   type: ChartType;
   data: Point[];
   // Additional series options
