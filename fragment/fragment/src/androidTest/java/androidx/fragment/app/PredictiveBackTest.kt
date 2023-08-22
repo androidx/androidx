@@ -73,4 +73,55 @@ class PredictiveBackTest {
             assertThat(fm.backStackEntryCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun backOnNoRecordDuringTransactionTest() {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment()
+
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            val fragment2 = StrictViewFragment()
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            assertThat(fm.backStackEntryCount).isEqualTo(2)
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(
+                        0.1F,
+                        0.1F,
+                        0.1F,
+                        BackEvent.EDGE_LEFT
+                    )
+                )
+                dispatcher.onBackPressed()
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(
+                        0.1F,
+                        0.1F,
+                        0.1F,
+                        BackEvent.EDGE_LEFT
+                    )
+                )
+                dispatcher.onBackPressed()
+            }
+            executePendingTransactions()
+
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
+        }
+    }
 }
