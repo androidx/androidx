@@ -368,7 +368,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     fun measureOnly() {
         if (relayoutNodes.isNotEmpty()) {
             performMeasureAndLayout {
-                if (!relayoutNodes.isEmptyForLookahead()) {
+                if (!relayoutNodes.isEmpty(affectsLookahead = true)) {
                     if (root.lookaheadRoot != null) {
                         // This call will walk the tree to look for lookaheadMeasurePending nodes and
                         // do a lookahead remeasure for those nodes only.
@@ -535,7 +535,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
         // if there is nothing in `relayoutNodes` everything is remeasured.
-        if (relayoutNodes.isEmpty()) {
+        if (relayoutNodes.isEmpty(affectsLookahead)) {
             return
         }
 
@@ -564,6 +564,22 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
     private fun forceMeasureTheSubtreeInternal(layoutNode: LayoutNode, affectsLookahead: Boolean) {
         layoutNode.forEachChild { child ->
+            // When LookaheadRoot's parent gets forceMeasureSubtree call, it means we need to check
+            // both lookahead invalidation and non-lookahead invalidation, just like a measure()
+            // call from LookaheadRoot's parent would start the two tracks - lookahead and post
+            // lookahead measurements.
+            if (child.isOutMostLookaheadRoot() && !affectsLookahead) {
+                // Force subtree measure hitting a lookahead root, pending lookahead measure. This
+                // could happen when the "applyChanges" cause nodes to be attached in lookahead
+                // subtree while the "applyChanges" is a part of the ancestor's subcomposition
+                // in the measure pass.
+                if (child.lookaheadMeasurePending && relayoutNodes.contains(child, true)) {
+                    remeasureAndRelayoutIfNeeded(child, true, relayoutNeeded = false)
+                } else {
+                    forceMeasureTheSubtree(child, true)
+                }
+            }
+
             // only proceed if child's size can affect the parent size
             if (!affectsLookahead && child.measureAffectsParent ||
                 affectsLookahead && child.measureAffectsParentLookahead
