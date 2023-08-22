@@ -886,7 +886,7 @@ includeProject(":navigation:navigation-testing", [BuildType.MAIN, BuildType.FLAN
 includeProject(":navigation:navigation-ui", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-ui-ktx", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":paging:integration-tests:testapp", [BuildType.MAIN])
-includeProject(":paging:paging-common", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":paging:paging-common", [BuildType.MAIN, BuildType.COMPOSE, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":paging:paging-common-ktx", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":paging:paging-compose", [BuildType.COMPOSE])
 includeProject(":paging:paging-compose:paging-compose-samples", "paging/paging-compose/samples", [BuildType.COMPOSE])
