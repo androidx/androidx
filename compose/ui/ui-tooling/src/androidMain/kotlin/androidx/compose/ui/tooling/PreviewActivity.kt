@@ -44,8 +44,8 @@ import androidx.compose.ui.Modifier
  * the key `parameterProviderClassName`. Optionally, `parameterProviderIndex` can also be set to
  * display a specific provider value instead of all of them.
  *
- * @suppress
  */
+@Suppress("ForbiddenSuperClass")
 class PreviewActivity : ComponentActivity() {
 
     private val TAG = "PreviewActivity"
