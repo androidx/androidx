@@ -14,7 +14,10 @@
 package androidx.appactions.builtintypes.types
 
 import kotlin.String
+import kotlin.collections.List
+import kotlin.collections.listOf
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 /**
  * The day of the week.
@@ -86,6 +89,10 @@ private constructor(
     /** The day of the week between Tuesday and Thursday. */
     @JvmField
     public val WEDNESDAY: DayOfWeek = DayOfWeek(canonicalUrl = "http://schema.org/Wednesday")
+
+    @JvmStatic
+    public fun values(): List<DayOfWeek> =
+      listOf(FRIDAY, MONDAY, PUBLIC_HOLIDAYS, SATURDAY, SUNDAY, THURSDAY, TUESDAY, WEDNESDAY)
   }
 
   /** Maps each of the possible variants of [DayOfWeek] to some [R]. */
