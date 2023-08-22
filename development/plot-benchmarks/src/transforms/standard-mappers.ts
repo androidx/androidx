@@ -3,6 +3,8 @@ import type { Series } from "../types/chart.js";
 import type { ChartData, Metric, Metrics, Range } from "../types/data.js";
 import type { Mapper } from "./data-transforms.js";
 
+const SAMPLED_SUFFIX = '(S)';
+
 function sampledRanges(metrics: Metrics<number>): Record<string, Range> {
   const ranges: Record<string, Range> = {};
   const sampled = metrics.sampled;
@@ -43,10 +45,10 @@ function sampledMapper(metric: Metric<number[]>, buckets: number, range: Range |
   const entries = Object.entries(data);
   for (let i = 0; i < entries.length; i += 1) {
     const [source, chartData] = entries[i];
-    const label = labelFor(metric, source);
+    const label = labelFor(metric, source, true);
     const [points, _, __] = histogramPoints(chartData.values, buckets, /* target */ undefined, range);
     series.push({
-      label: label,
+      descriptiveLabel: label,
       type: "line",
       data: points,
       options: {
@@ -63,10 +65,10 @@ function standardMapper(metric: Metric<number>): Series[] {
   const entries = Object.entries(data);
   for (let i = 0; i < entries.length; i += 1) {
     const [source, chartData] = entries[i];
-    const label = labelFor(metric, source);
+    const label = labelFor(metric, source, false);
     const points = singlePoints(chartData.values);
     series.push({
-      label: label,
+      descriptiveLabel: label,
       type: "line",
       data: points,
       options: {
@@ -104,9 +106,13 @@ export function histogramPoints(
   let pMin: number = 0;
   let pMax: number = 0;
   let maxFreq: number = 0;
-  const histogram = new Array(buckets).fill(0);
+  const histogram: Point[] = new Array(buckets).fill(null);
   // The actual number of slots in the histogram
   const slots = buckets - 1;
+  for (let i = 0; i < buckets; i += 1) {
+    const interpolated = interpolate(i / slots, min, max);
+    histogram[i] = { x: interpolated, y: 0 };
+  }
   for (let i = 0; i < flattened.length; i += 1) {
     const value = flattened[i];
     if (target && value < target) {
@@ -117,9 +123,9 @@ export function histogramPoints(
     }
     const n = normalize(value, min, max);
     const index = Math.ceil(n * slots);
-    histogram[index] = histogram[index] + 1;
-    if (maxFreq < histogram[index]) {
-      maxFreq = histogram[index];
+    histogram[index].y = histogram[index].y + 1;
+    if (maxFreq < histogram[index].y) {
+      maxFreq = histogram[index].y;
     }
   }
   if (target) {
@@ -129,7 +135,7 @@ export function histogramPoints(
   }
   // Pay attention to both sides of the normal distribution.
   let p = Math.min(pMin / flattened.length, pMax / flattened.length);
-  return [singlePoints(histogram), targetPoints, p];
+  return [histogram, targetPoints, p];
 }
 
 function selectPoints(buckets: number, index: number, target: number) {
@@ -168,7 +174,7 @@ function normalize(n: number, min: number, max: number): number {
   return (n - min) / ((max - min) + 1e-9);
 }
 
-function interpolate(normalized: number, min: number, max: number) {
+function interpolate(normalized: number, min: number, max: number): number {
   const range = max - min;
   const value = normalized * range;
   return value + min;
@@ -177,8 +183,9 @@ function interpolate(normalized: number, min: number, max: number) {
 /**
  * Generates a series label.
  */
-function labelFor<T>(metric: Metric<T>, source: string): string {
-  return `${source} {${metric.class} ${metric.benchmark}} - ${metric.label}`;
+function labelFor<T>(metric: Metric<T>, source: string, sampled: boolean): string {
+  const suffix = sampled ? SAMPLED_SUFFIX : '';
+  return `${source} {${metric.class} ${metric.benchmark}} - ${metric.label} ${suffix}`;
 }
 
 export function datasetName(metric: Metric<any>): string {
@@ -190,7 +197,7 @@ export function datasetName(metric: Metric<any>): string {
  * comparing equal distributions.
  */
 function rangeLabel(metric: Metric<unknown>): string {
-  return `${metric.benchmark}>${metric.label}`;
+  return `${metric.label}`;
 }
 
 /**
@@ -222,4 +229,8 @@ class StandardMapper {
  */
 export function buildMapper(buckets: number): Mapper<number> {
   return new StandardMapper(buckets);
+}
+
+export function isSampled(label: string | null | undefined): boolean {
+  return label && label.indexOf(SAMPLED_SUFFIX) >= 0;
 }

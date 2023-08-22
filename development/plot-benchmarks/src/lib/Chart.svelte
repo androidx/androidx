@@ -1,13 +1,14 @@
 <script lang="ts">
-  import type { ChartType, LegendItem } from "chart.js";
+  import type { ChartType, LegendItem, Point, TooltipItem } from "chart.js";
   import { Chart } from "chart.js/auto";
   import { createEventDispatcher, onMount } from "svelte";
   import { writable, type Writable } from "svelte/store";
-  import type { Data } from "../types/chart.js";
-  import { LegendPlugin } from "../plugins.js";
-  import Legend from "./Legend.svelte";
   import { saveToClipboard as save } from "../clipboard.js";
+  import { LegendPlugin } from "../plugins.js";
+  import type { Data } from "../types/chart.js";
   import type { Controls, ControlsEvent } from "../types/events.js";
+  import Legend from "./Legend.svelte";
+  import { isSampled } from "../transforms/standard-mappers.js";
 
   export let data: Data;
   export let chartType: ChartType = "line";
@@ -37,6 +38,24 @@
       $items = legend.labels.generateLabels(chart);
     };
     const plugins = {
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<typeof chartType>): string | null => {
+            // TODO: Configure Tooltips
+            // https://www.chartjs.org/docs/latest/configuration/tooltip.html
+            const label = context.dataset.label;
+            const rp = context.raw as Point;
+            const frequency = context.parsed.y;
+            if (isSampled(label)) {
+              const fx = rp.x.toFixed(2);
+              return `${label}: ${fx} F(${frequency})`;
+            } else {
+              // Fallback to default behavior
+              return undefined;
+            }
+          },
+        },
+      },
       legend: {
         display: false,
       },
