@@ -97,6 +97,11 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
             }
         }
     }
+
+    val disableNames = setOf(
+        "releaseSourcesJar",
+    )
+    disableUnusedSourceJarTasks(disableNames)
 }
 
 /** Sets up a source jar task for a Java library project. */
@@ -128,6 +133,11 @@ fun Project.configureSourceJarForJava() {
             }
         }
     registerSourcesVariant(sourceJar)
+
+    val disableNames = setOf(
+        "kotlinSourcesJar",
+    )
+    disableUnusedSourceJarTasks(disableNames)
 }
 
 fun Project.configureSourceJarForMultiplatform() {
@@ -161,6 +171,18 @@ fun Project.configureSourceJarForMultiplatform() {
             task.metaInf.from(metadataFile)
         }
     registerMultiplatformSourcesVariant(sourceJar)
+    val disableNames = setOf(
+        "kotlinSourcesJar",
+    )
+    disableUnusedSourceJarTasks(disableNames)
+}
+
+fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
+    project.tasks.configureEach({ task ->
+        if (disableNames.contains(task.name)) {
+            task.enabled = false
+        }
+    })
 }
 
 internal val Project.multiplatformUsage
