@@ -20,12 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIViewController
+import androidx.compose.ui.native.getMainDispatcher
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
@@ -34,6 +40,10 @@ import kotlin.math.roundToInt
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
+import org.jetbrains.skia.Surface
+import org.jetbrains.skiko.SkikoKeyboardEvent
+import org.jetbrains.skiko.SkikoPointerEvent
+import org.jetbrains.skiko.currentNanoTime
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.*
@@ -77,15 +87,12 @@ fun ComposeUIViewController(
     }
 
 private class AttachedComposeContext(
-    val composeLayer: IOSComposeLayer,
-    val skiaLayer: IOSSkiaLayer,
+    val scene: ComposeScene,
     val view: SkikoUIView,
-    val inputTraits: SkikoUITextInputTraits,
-    val platform: Platform
 ) {
     fun dispose() {
-        composeLayer.dispose()
-        view.removeFromSuperview()
+        scene.close()
+        view.dispose()
     }
 }
 
@@ -150,7 +157,7 @@ internal actual class ComposeWindow : UIViewController {
         }
 
     private val density: Density
-        get() = Density(attachedComposeContext?.skiaLayer?.contentScale ?: 1f, fontScale)
+        get() = Density(attachedComposeContext?.view?.contentScaleFactor?.toFloat() ?: 1f, fontScale)
 
     private lateinit var content: @Composable () -> Unit
 
@@ -174,10 +181,11 @@ internal actual class ComposeWindow : UIViewController {
                 keyboardOverlapHeightState.value = (keyboardHeight - bottomIndent).toFloat()
             }
 
-            val composeLayer = attachedComposeContext?.composeLayer ?: return
+            val scene = attachedComposeContext?.scene ?: return
 
             if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
-                val focusedRect = composeLayer.getActiveFocusRect()
+                val focusedRect = scene.mainOwner?.focusOwner?.getFocusRect()?.toDpRect(density)
+
                 if (focusedRect != null) {
                     updateViewBounds(
                         offsetY = calcFocusedLiftingY(focusedRect, keyboardHeight)
@@ -221,14 +229,15 @@ internal actual class ComposeWindow : UIViewController {
         }
 
         private fun updateViewBounds(offsetX: Double = 0.0, offsetY: Double = 0.0) {
-            val (width, height) = getViewFrameSize()
             view.layer.setBounds(
-                CGRectMake(
-                    x = offsetX,
-                    y = offsetY,
-                    width = width.toDouble(),
-                    height = height.toDouble()
-                )
+                view.frame.useContents {
+                    CGRectMake(
+                        x = offsetX,
+                        y = offsetY,
+                        width = size.width,
+                        height = size.height
+                    )
+                }
             )
         }
     }
@@ -276,13 +285,23 @@ internal actual class ComposeWindow : UIViewController {
             interfaceOrientationState.value = it
         }
 
-        val composeLayer = attachedComposeContext?.composeLayer ?: return
+        attachedComposeContext?.let {
+            updateLayout(it)
+        }
+    }
 
-        val (width, height) = getViewFrameSize()
-        val scale = density.density
+    private fun updateLayout(context: AttachedComposeContext) {
+        context.scene.density = density
+        context.scene.constraints = view.frame.useContents {
+            val scale = density.density
 
-        composeLayer.setDensity(density)
-        composeLayer.setSize((width * scale).roundToInt(), (height * scale).roundToInt())
+            Constraints(
+                maxWidth = (size.width * scale).roundToInt(),
+                maxHeight = (size.height * scale).roundToInt()
+            )
+        }
+
+        context.view.needRedraw()
     }
 
     override fun viewWillAppear(animated: Boolean) {
@@ -355,20 +374,16 @@ internal actual class ComposeWindow : UIViewController {
             return // already attached
         }
 
-        val skiaLayer = IOSSkiaLayer()
         val skikoUIView = SkikoUIView(
-            skiaLayer = skiaLayer,
             pointInside = { point, _ ->
-                val composeLayer = attachedComposeContext?.composeLayer
+                val hitsInteropView = attachedComposeContext?.scene?.mainOwner?.hitInteropView(
+                    pointerPosition = Offset(point.x * density.density, point.y * density.density),
+                    isTouchEvent = true,
+                ) ?: false
 
-                if (composeLayer == null) {
-                    false
-                } else {
-                    !composeLayer.hitInteropView(point, isTouchEvent = true)
-                }
+                !hitsInteropView
             },
-            skikoUITextInputTrains = DelegateSkikoUITextInputTraits { attachedComposeContext?.inputTraits }
-        ).load()
+        )
 
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(skikoUIView)
@@ -399,6 +414,7 @@ internal actual class ComposeWindow : UIViewController {
             selectionWillChange = { skikoUIView.selectionWillChange() },
             selectionDidChange = { skikoUIView.selectionDidChange() },
         )
+
         val inputTraits = inputServices.skikoUITextInputTraits
 
         val platform = object : Platform by Platform.Empty {
@@ -409,7 +425,7 @@ internal actual class ComposeWindow : UIViewController {
                     override val doubleTapTimeoutMillis: Long get() = 300
                     override val doubleTapMinTimeMillis: Long get() = 40
 
-                    // this value is originating from iOS 16 drag behavior reverse-engenering
+                    // this value is originating from iOS 16 drag behavior reverse engineering
                     override val touchSlop: Float get() = with(density) { 10.dp.toPx() }
                 }
             override val textToolbar = object : TextToolbar {
@@ -453,14 +469,51 @@ internal actual class ComposeWindow : UIViewController {
 
             override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         }
-        val composeLayer = IOSComposeLayer(
-            layer = skiaLayer,
+
+        val scene = ComposeScene(
+            coroutineContext = getMainDispatcher(),
             platform = platform,
-            input = inputServices.skikoInput,
+            density = density,
+            invalidate = skikoUIView::needRedraw,
         )
 
-        composeLayer.setContent(
+        skikoUIView.input = inputServices.skikoInput
+        skikoUIView.inputTraits = inputTraits
+        skikoUIView.delegate = object : SkikoUIViewDelegate {
+            override fun onKeyboardEvent(event: SkikoKeyboardEvent) {
+                scene.sendKeyEvent(KeyEvent(event))
+            }
+
+            override fun onPointerEvent(event: SkikoPointerEvent) {
+                val scale = density.density
+
+                scene.sendPointerEvent(
+                    eventType = event.kind.toCompose(),
+                    pointers = event.pointers.map {
+                        ComposeScene.Pointer(
+                            id = PointerId(it.id),
+                            position = Offset(
+                                x = it.x.toFloat() * scale,
+                                y = it.y.toFloat() * scale
+                            ),
+                            pressed = it.pressed,
+                            type = it.device.toCompose(),
+                            pressure = it.pressure.toFloat(),
+                        )
+                    },
+                    timeMillis = event.timestamp,
+                    nativeEvent = event
+                )
+            }
+
+            override fun draw(surface: Surface) {
+                scene.render(surface.canvas, currentNanoTime())
+            }
+        }
+
+        scene.setContent(
             onPreviewKeyEvent = inputServices::onPreviewKeyEvent,
+            onKeyEvent = { false },
             content = {
                 CompositionLocalProvider(
                     LocalLayerContainer provides view,
@@ -476,13 +529,11 @@ internal actual class ComposeWindow : UIViewController {
             },
         )
 
-        attachedComposeContext =
-            AttachedComposeContext(composeLayer, skiaLayer, skikoUIView, inputTraits, platform)
-    }
 
-    private fun getViewFrameSize(): IntSize {
-        val (width, height) = view.frame().useContents { this.size.width to this.size.height }
-        return IntSize(width.toInt(), height.toInt())
+        attachedComposeContext =
+            AttachedComposeContext(scene, skikoUIView).also {
+                updateLayout(it)
+            }
     }
 }
 

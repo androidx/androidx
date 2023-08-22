@@ -203,6 +203,10 @@ internal class MetalRedrawer(
         context.close()
     }
 
+    /**
+     * Marks current state as dirty and unpauses display link if needed and enables draw dispatch operation on
+     * next vsync
+     */
     internal fun needRedraw() {
         displayLinkConditions.needsRedrawOnNextVsync = true
     }
