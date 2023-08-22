@@ -366,17 +366,21 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * to be called to determine only how large the root is with minimal effort.
      */
     fun measureOnly() {
-        performMeasureAndLayout {
-            if (root.lookaheadRoot != null) {
-                // This call will walk the tree to look for lookaheadMeasurePending nodes and
-                // do a lookahead remeasure for those nodes only.
-                recurseRemeasure(root, affectsLookahead = true)
-            } else {
-                // First do a lookahead remeasure pass for all the lookaheadMeasurePending nodes,
-                // followed by a remeasure pass for the rest of the tree.
-                remeasureLookaheadRootsInSubtree(root)
+        if (relayoutNodes.isNotEmpty()) {
+            performMeasureAndLayout {
+                if (!relayoutNodes.isEmptyForLookahead()) {
+                    if (root.lookaheadRoot != null) {
+                        // This call will walk the tree to look for lookaheadMeasurePending nodes and
+                        // do a lookahead remeasure for those nodes only.
+                        remeasureOnly(root, affectsLookahead = true)
+                    } else {
+                        // First do a lookahead remeasure pass for all the lookaheadMeasurePending nodes,
+                        // followed by a remeasure pass for the rest of the tree.
+                        remeasureLookaheadRootsInSubtree(root)
+                    }
+                }
+                remeasureOnly(root, affectsLookahead = false)
             }
-            recurseRemeasure(root, affectsLookahead = false)
         }
     }
 
@@ -385,28 +389,12 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             if (it.isOutMostLookaheadRoot()) {
                 // This call will walk the subtree to look for lookaheadMeasurePending nodes and
                 // do a recursive lookahead remeasure starting at the root.
-                recurseRemeasure(it, affectsLookahead = true)
+                remeasureOnly(it, affectsLookahead = true)
             } else {
                 // Only search downward when no lookahead root is found
                 remeasureLookaheadRootsInSubtree(it)
             }
         }
-    }
-
-    /**
-     * Walks the hierarchy from [layoutNode] and remeasures [layoutNode] and any
-     * descendants that affect its size.
-     */
-    private fun recurseRemeasure(layoutNode: LayoutNode, affectsLookahead: Boolean) {
-        remeasureOnly(layoutNode, affectsLookahead)
-
-        layoutNode.forEachChild { child ->
-            if (child.measureAffectsParent) {
-                recurseRemeasure(child, affectsLookahead)
-            }
-        }
-        // The child measurement may have invalidated layoutNode's measurement
-        remeasureOnly(layoutNode, affectsLookahead)
     }
 
     fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
@@ -531,15 +519,16 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     private fun remeasureOnly(layoutNode: LayoutNode, affectsLookahead: Boolean) {
         val constraints = if (layoutNode === root) rootConstraints!! else null
-        if (affectsLookahead && layoutNode.lookaheadMeasurePending) {
+        if (affectsLookahead) {
             doLookaheadRemeasure(layoutNode, constraints)
-        } else if (!affectsLookahead && layoutNode.measurePending) {
+        } else {
             doRemeasure(layoutNode, constraints)
         }
     }
 
     /**
-     * Makes sure the passed [layoutNode] and its subtree is remeasured and has the final sizes.
+     * Makes sure the passed [layoutNode] and its subtree has the final sizes.
+     * The nodes which can potentially affect the parent size will be remeasured.
      *
      * The node or some of the nodes in its subtree can still be kept unmeasured if they are
      * not placed and don't affect the parent size. See [requestRemeasure] for details.
@@ -555,40 +544,46 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             "forceMeasureTheSubtree should be executed during the measureAndLayout pass"
         }
 
-        val pending: (LayoutNode) -> Boolean = {
-            if (affectsLookahead) {
-                it.lookaheadMeasurePending
-            } else {
-                it.measurePending
-            }
-        }
         // if this node is not yet measured this invocation shouldn't be needed.
-        require(!pending(layoutNode)) { "node not yet measured" }
+        require(!layoutNode.measurePending(affectsLookahead)) { "node not yet measured" }
 
+        forceMeasureTheSubtreeInternal(layoutNode, affectsLookahead)
+    }
+
+    private fun onlyRemeasureIfScheduled(node: LayoutNode, affectsLookahead: Boolean) {
+        if (node.measurePending(affectsLookahead) &&
+            relayoutNodes.contains(node, affectsLookahead)
+        ) {
+            // we don't need to run relayout as part of this logic. so the node will
+            // not be removed from `relayoutNodes` in order to be visited again during
+            // the regular pass. it is important as the parent of this node can decide
+            // to not place this child, so the child relayout should be skipped.
+            remeasureAndRelayoutIfNeeded(node, affectsLookahead, relayoutNeeded = false)
+        }
+    }
+
+    private fun forceMeasureTheSubtreeInternal(layoutNode: LayoutNode, affectsLookahead: Boolean) {
         layoutNode.forEachChild { child ->
-            if (pending(child) && relayoutNodes.contains(child, affectsLookahead)) {
-                // we don't need to run relayout as part of this logic. so the node will
-                // not be removed from `relayoutNodes` in order to be visited again during
-                // the regular pass. it is important as the parent of this node can decide
-                // to not place this child, so the child relayout should be skipped.
-                remeasureAndRelayoutIfNeeded(child, affectsLookahead, relayoutNeeded = false)
-            }
+            // only proceed if child's size can affect the parent size
+            if (!affectsLookahead && child.measureAffectsParent ||
+                affectsLookahead && child.measureAffectsParentLookahead
+            ) {
+                onlyRemeasureIfScheduled(child, affectsLookahead)
 
-            // if the child is still in NeedsRemeasure state then this child remeasure wasn't
-            // needed. it can happen for example when this child is not placed and can't affect
-            // the parent size. we can skip the whole subtree.
-            if (!pending(child)) {
-                // run recursively for the subtree.
-                forceMeasureTheSubtree(child, affectsLookahead)
+                // if the child is still in NeedsRemeasure state then this child remeasure wasn't
+                // needed. it can happen for example when this child is not placed and can't affect
+                // the parent size. we can skip the whole subtree.
+                if (!child.measurePending(affectsLookahead)) {
+                    // run recursively for the subtree.
+                    forceMeasureTheSubtreeInternal(child, affectsLookahead)
+                }
             }
         }
 
         // if the child was resized during the remeasurement it could request a remeasure on
         // the parent. we need to remeasure now as this function assumes the whole subtree is
         // fully measured as a result of the invocation.
-        if (pending(layoutNode) && relayoutNodes.remove(layoutNode, affectsLookahead)) {
-            remeasureAndRelayoutIfNeeded(layoutNode)
-        }
+        onlyRemeasureIfScheduled(layoutNode, affectsLookahead)
     }
 
     /**
@@ -621,9 +616,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         get() = measurePending && measureAffectsParent
 
     private val LayoutNode.canAffectParentInLookahead
-        get() = lookaheadMeasurePending &&
-            (measuredByParentInLookahead == InMeasureBlock ||
+        get() = lookaheadMeasurePending && measureAffectsParentLookahead
+
+    private val LayoutNode.measureAffectsParentLookahead
+        get() = (measuredByParentInLookahead == InMeasureBlock ||
                 layoutDelegate.lookaheadAlignmentLinesOwner?.alignmentLines?.required == true)
+
+    private fun LayoutNode.measurePending(affectsLookahead: Boolean) =
+        if (affectsLookahead) lookaheadMeasurePending else measurePending
 
     class PostponedRequest(val node: LayoutNode, val isLookahead: Boolean, val isForced: Boolean)
 }
