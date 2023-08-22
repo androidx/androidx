@@ -14,12 +14,15 @@ export interface Mapper<T = number> {
  */
 export class ChartDataTransforms {
 
-  static mapToSeries(metrics: Metrics<number>, mapper: Mapper<number>): Series[] {
+  static mapToSeries(metrics: Metrics<number>, mapper: Mapper<number>, normalize: boolean = false): Series[] {
     const series: Series[] = [];
     const standard = metrics.standard;
     const sampled = metrics.sampled;
     // Builds ranges for distribution.
-    const ranges = mapper.sampledRanges(metrics);
+    let ranges: Record<string, Range> = {};
+    if (normalize) {
+      ranges = mapper.sampledRanges(metrics);
+    }
     // Builds series.
     if (standard) {
       for (let i = 0; i < standard.length; i += 1) {
@@ -54,7 +57,7 @@ export class ChartDataTransforms {
 
   private static chartDataset<T extends ChartType>(series: Series): ChartDataset {
     return {
-      label: series.label,
+      label: series.descriptiveLabel,
       type: series.type,
       data: series.data,
       ...series.options

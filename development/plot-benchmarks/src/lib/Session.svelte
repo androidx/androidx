@@ -2,32 +2,32 @@
   import type { Remote } from "comlink";
   import { createEventDispatcher } from "svelte";
   import {
-    derived,
-    writable,
-    type Readable,
-    type Writable,
+      derived,
+      writable,
+      type Readable,
+      type Writable,
   } from "svelte/store";
   import { readBenchmarks } from "../files.js";
   import {
-    ChartDataTransforms,
-    type Mapper,
+      ChartDataTransforms,
+      type Mapper,
   } from "../transforms/data-transforms.js";
   import { Transforms } from "../transforms/metric-transforms.js";
+  import { buildMapper } from "../transforms/standard-mappers.js";
   import type { Data, Series } from "../types/chart.js";
   import type { Metrics } from "../types/data.js";
   import type {
-    Controls,
-    DatasetSelection,
-    FileMetadataEvent,
-    MetricSelection,
-    StatInfo,
+      Controls,
+      DatasetSelection,
+      FileMetadataEvent,
+      MetricSelection,
+      StatInfo,
   } from "../types/events.js";
   import type { FileMetadata } from "../types/files.js";
   import type { StatService } from "../workers/service.js";
   import { Session, type IndexedWrapper } from "../wrappers/session.js";
   import Chart from "./Chart.svelte";
   import Group from "./Group.svelte";
-  import { buildMapper } from "../transforms/standard-mappers.js";
 
   export let fileEntries: FileMetadata[];
   export let service: Remote<StatService>;
@@ -40,12 +40,13 @@
   let series: Series[];
   let chartData: Data;
   let classGroups: Record<string, IndexedWrapper[]>;
-  let showHistogramControls: boolean;
+  let showControls: boolean;
   let size: number;
   let activeSeries: Promise<Series[]>;
 
   // Stores
   let buckets: Writable<number> = writable(100);
+  let normalizeMetrics: Writable<boolean> = writable(false);
   let activeDragDrop: Writable<boolean> = writable(false);
   let suppressed: Writable<Set<string>> = writable(new Set());
   let suppressedMetrics: Writable<Set<string>> = writable(new Set());
@@ -113,9 +114,13 @@
     session = new Session(fileEntries);
     mapper = buildMapper($buckets);
     metrics = Transforms.buildMetrics(session, $suppressed, $suppressedMetrics);
-    showHistogramControls = metrics.sampled && metrics.sampled.length > 0;
+    showControls = metrics.sampled && metrics.sampled.length > 0;
     activeSeries = service.pSeries(metrics, $active);
-    series = ChartDataTransforms.mapToSeries(metrics, mapper);
+    series = ChartDataTransforms.mapToSeries(
+      metrics,
+      mapper,
+      $normalizeMetrics
+    );
     chartData = ChartDataTransforms.mapToDataset(series);
     classGroups = session.classGroups;
     size = session.fileNames.size;
@@ -183,6 +188,24 @@
     on:dragover={onDragOver}
     on:dragleave={onDragLeave}
   >
+    {#if showControls}
+      <div class="toolbar">
+        <div class="control">
+          <label for="normalize">
+            <input
+              type="checkbox"
+              id="normalize"
+              name="normalize"
+              data-tooltip="Normalize Metrics"
+              on:change={(_) => {
+                $normalizeMetrics = !$normalizeMetrics;
+              }}
+            />
+            ≃
+          </label>
+        </div>
+      </div>
+    {/if}
     <h5>Benchmarks</h5>
     {#each Object.entries(classGroups) as [className, wrappers]}
       <Group
@@ -199,7 +222,7 @@
   {#if series.length > 0}
     <Chart
       data={chartData}
-      {showHistogramControls}
+      showHistogramControls={showControls}
       on:controls={controlsHandler}
     />
   {/if}
@@ -217,6 +240,13 @@
 {/if}
 
 <style>
+  .toolbar {
+    padding: 0;
+    margin: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
   .active {
     outline: beige;
     outline-style: dashed;
