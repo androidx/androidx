@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 /**
  * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design Exposed Dropdown Menu</a>.
@@ -78,29 +79,31 @@ import kotlin.math.max
  * Menus display a list of choices on a temporary surface. They appear when users interact with a
  * button, action, or other control.
  *
- * Exposed dropdown menus display the currently selected item in a text field to which the menu is
- * anchored. In some cases, it can accept and display user input (whether or not it’s listed as a
- * menu choice). If the text field input is used to filter results in the menu, the component is
- * also known as "autocomplete" or a "combobox".
+ * Exposed dropdown menus, sometimes also called "spinners" or "combo boxes", display the currently
+ * selected item in a text field to which the menu is anchored. In some cases, it can accept and
+ * display user input (whether or not it’s listed as a menu choice), in which case it may be used to
+ * implement autocomplete.
  *
  * ![Exposed dropdown menu image](https://developer.android.com/images/reference/androidx/compose/material3/exposed-dropdown-menu.png)
  *
  * The [ExposedDropdownMenuBox] is expected to contain a [TextField] (or [OutlinedTextField]) and
- * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as content.
+ * [ExposedDropdownMenu][ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as content. The
+ * [menuAnchor][ExposedDropdownMenuBoxScope.menuAnchor] modifier should be passed to the text field.
  *
- * An example of read-only Exposed Dropdown Menu:
+ * An example of a read-only Exposed Dropdown Menu:
  * @sample androidx.compose.material3.samples.ExposedDropdownMenuSample
  *
- * An example of editable Exposed Dropdown Menu:
+ * An example of an editable Exposed Dropdown Menu:
  * @sample androidx.compose.material3.samples.EditableExposedDropdownMenuSample
  *
  * @param expanded whether the menu is expanded or not
  * @param onExpandedChange called when the exposed dropdown menu is clicked and the expansion state
  * changes.
- * @param modifier the [Modifier] to be applied to this exposed dropdown menu
- * @param content the content of this exposed dropdown menu, typically a [TextField] and an
- * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu]. The [TextField] within [content] should be
- * passed the [ExposedDropdownMenuBoxScope.menuAnchor] modifier for proper menu behavior.
+ * @param modifier the [Modifier] to be applied to this ExposedDropdownMenuBox
+ * @param content the content of this ExposedDropdownMenuBox, typically a [TextField] and an
+ * [ExposedDropdownMenu][ExposedDropdownMenuBoxScope.ExposedDropdownMenu]. The
+ * [menuAnchor][ExposedDropdownMenuBoxScope.menuAnchor] modifier should be passed to the text field
+ * for proper menu behavior.
  */
 @ExperimentalMaterial3Api
 @Composable
@@ -111,13 +114,14 @@ fun ExposedDropdownMenuBox(
     content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
 ) {
     val config = LocalConfiguration.current
-    val density = LocalDensity.current
     val view = LocalView.current
+    val density = LocalDensity.current
 
+    val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+
+    var anchorCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var anchorWidth by remember { mutableIntStateOf(0) }
     var menuMaxHeight by remember { mutableIntStateOf(0) }
-    val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
-    var anchorCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     val focusRequester = remember { FocusRequester() }
     val menuDescription = getString(Strings.ExposedDropdownMenu)
@@ -130,11 +134,10 @@ fun ExposedDropdownMenuBox(
                 .onGloballyPositioned {
                     anchorCoordinates = it
                     anchorWidth = it.size.width
-                    updateHeight(
+                    menuMaxHeight = calculateMaxHeight(
                         windowBounds = view.rootView.getWindowBounds(),
                         anchorBounds = anchorCoordinates.getAnchorBounds(),
                         verticalMargin = verticalMargin,
-                        onHeightUpdate = { newHeight -> menuMaxHeight = newHeight }
                     )
                 }
                 .expandable(
@@ -166,17 +169,18 @@ fun ExposedDropdownMenuBox(
         scope.content()
     }
 
-    SideEffect {
-        if (expanded) focusRequester.requestFocus()
+    if (expanded) {
+        SoftKeyboardListener(view, density) {
+            menuMaxHeight = calculateMaxHeight(
+                windowBounds = view.rootView.getWindowBounds(),
+                anchorBounds = anchorCoordinates.getAnchorBounds(),
+                verticalMargin = verticalMargin,
+            )
+        }
     }
 
-    SoftKeyboardListener(view, density) {
-        updateHeight(
-            windowBounds = view.rootView.getWindowBounds(),
-            anchorBounds = anchorCoordinates.getAnchorBounds(),
-            verticalMargin = verticalMargin,
-            onHeightUpdate = { newHeight -> menuMaxHeight = newHeight }
-        )
+    SideEffect {
+        if (expanded) focusRequester.requestFocus()
     }
 }
 
@@ -186,6 +190,8 @@ private fun SoftKeyboardListener(
     density: Density,
     onKeyboardVisibilityChange: () -> Unit,
 ) {
+    // It would be easier to listen to WindowInsets.ime, but that doesn't work with
+    // `setDecorFitsSystemWindows(window, true)`. Instead, listen to the view tree's global layout.
     DisposableEffect(view, density) {
         val listener =
             object : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
@@ -1052,16 +1058,25 @@ private fun Modifier.expandable(
     }
 }
 
-private fun updateHeight(
+private fun calculateMaxHeight(
     windowBounds: Rect,
     anchorBounds: Rect?,
     verticalMargin: Int,
-    onHeightUpdate: (Int) -> Unit
-) {
-    anchorBounds ?: return
-    val heightAbove = anchorBounds.top - windowBounds.top
-    val heightBelow = windowBounds.bottom - windowBounds.top - anchorBounds.bottom
-    onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMargin)
+): Int {
+    anchorBounds ?: return 0
+
+    val marginedWindowTop = windowBounds.top + verticalMargin
+    val marginedWindowBottom = windowBounds.bottom - verticalMargin
+    val availableHeight =
+        if (anchorBounds.top > windowBounds.bottom || anchorBounds.bottom < windowBounds.top) {
+            (marginedWindowBottom - marginedWindowTop).roundToInt()
+        } else {
+            val heightAbove = anchorBounds.top - marginedWindowTop
+            val heightBelow = marginedWindowBottom - anchorBounds.bottom
+            max(heightAbove, heightBelow).roundToInt()
+        }
+
+    return max(availableHeight, 0)
 }
 
 private fun View.getWindowBounds(): Rect = ViewRect().let {
