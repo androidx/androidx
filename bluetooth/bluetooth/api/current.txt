@@ -85,7 +85,7 @@ package androidx.bluetooth {
     property public final java.util.UUID uuid;
     field public static final androidx.bluetooth.GattCharacteristic.Companion Companion;
     field public static final int PROPERTY_BROADCAST = 1; // 0x1
-    field public static final int PROPERTY_EXTENDS_PROPS = 128; // 0x80
+    field public static final int PROPERTY_EXTENDED_PROPS = 128; // 0x80
     field public static final int PROPERTY_INDICATE = 32; // 0x20
     field public static final int PROPERTY_NOTIFY = 16; // 0x10
     field public static final int PROPERTY_READ = 2; // 0x2
