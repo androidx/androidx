@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 import kotlin.text.padEnd
 import kotlin.text.prependIndent
@@ -31,6 +32,7 @@ class Fact private constructor(val key: String, val value: String?) {
          * value." The value is converted to a string by calling [toString] on it.
          */
         @JvmStatic
+        @JvmOverloads
         fun fact(key: String, value: Any? = null): Fact {
             return Fact(key, value.toString())
         }

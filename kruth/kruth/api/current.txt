@@ -37,6 +37,7 @@ package androidx.kruth {
   }
 
   public final class Fact {
+    method public static androidx.kruth.Fact fact(String key);
     method public static androidx.kruth.Fact fact(String key, optional Object? value);
     method public String getKey();
     method public String? getValue();
@@ -48,6 +49,7 @@ package androidx.kruth {
   }
 
   public static final class Fact.Companion {
+    method public androidx.kruth.Fact fact(String key);
     method public androidx.kruth.Fact fact(String key, optional Object? value);
     method public String makeMessage(java.util.List<java.lang.String> messages, java.util.List<androidx.kruth.Fact> facts);
     method public androidx.kruth.Fact simpleFact(String key);
@@ -70,7 +72,7 @@ package androidx.kruth {
   }
 
   public fun interface FailureStrategy {
-    method public void fail(AssertionError failure);
+    method public Void fail(Error failure);
   }
 
   public class IterableSubject<T> extends androidx.kruth.Subject<java.lang.Iterable<? extends T>> {
@@ -181,6 +183,7 @@ package androidx.kruth {
     method protected final Void failWithActual(androidx.kruth.Fact... facts);
     method protected final Void failWithoutActual(androidx.kruth.Fact... facts);
     method public final T? getActual();
+    method public final androidx.kruth.FailureMetadata getMetadata();
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isEqualTo(Object? expected);
     method public void isIn(Iterable<?>? iterable);
@@ -194,6 +197,7 @@ package androidx.kruth {
     method public void isNull();
     method public void isSameInstanceAs(Object? expected);
     property public final T? actual;
+    property public final androidx.kruth.FailureMetadata metadata;
   }
 
   public static fun interface Subject.Factory<SubjectT extends androidx.kruth.Subject<? extends ActualT>, ActualT> {

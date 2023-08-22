@@ -28,9 +28,9 @@ class StringSubject internal constructor(
      * Fails if the string does not contain the given sequence.
      */
     fun contains(charSequence: CharSequence) {
-        asserter.assertNotNull(actual)
+        metadata.assertNotNull(actual)
 
-        asserter.assertTrue(
+        metadata.assertTrue(
             message = "Expected to contain \"$charSequence\", but was: \"$actual\"",
             actual = actual.contains(charSequence),
         )
@@ -38,9 +38,9 @@ class StringSubject internal constructor(
 
     /** Fails if the string does not have the given length.  */
     fun hasLength(expectedLength: Int) {
-        asserter.assertNotNull(actual)
+        metadata.assertNotNull(actual)
 
-        asserter.assertTrue(
+        metadata.assertTrue(
             message = "Expected to have length $expectedLength, but was: \"$actual\"",
             actual = actual.length == expectedLength,
         )
@@ -48,9 +48,9 @@ class StringSubject internal constructor(
 
     /** Fails if the string is not equal to the zero-length "empty string."  */
     fun isEmpty() {
-        asserter.assertNotNull(actual)
+        metadata.assertNotNull(actual)
         if (actual.isNotEmpty()) {
-            asserter.fail(
+            metadata.fail(
                 """
                     expected to be empty
                     | but was $actual
@@ -61,18 +61,18 @@ class StringSubject internal constructor(
 
     /** Fails if the string is equal to the zero-length "empty string."  */
     fun isNotEmpty() {
-        asserter.assertNotNull(actual)
+        metadata.assertNotNull(actual)
         if (actual.isEmpty()) {
-            asserter.fail("expected not to be empty")
+            metadata.fail("expected not to be empty")
         }
     }
 
     /** Fails if the string contains the given sequence.  */
     fun doesNotContain(string: CharSequence) {
-        asserter.assertNotNull(actual, "expected a string that does not contain $string")
+        metadata.assertNotNull(actual, "expected a string that does not contain $string")
 
         if (actual.contains(string)) {
-            asserter.fail(
+            metadata.fail(
                 """
                     expected not to contain $string
                     | but was $actual
@@ -83,10 +83,10 @@ class StringSubject internal constructor(
 
     /** Fails if the string does not start with the given string.  */
     fun startsWith(string: String) {
-        asserter.assertNotNull(actual, "expected a string that starts with $string")
+        metadata.assertNotNull(actual, "expected a string that starts with $string")
 
         if (!actual.startsWith(string)) {
-            asserter.fail(
+            metadata.fail(
                 """
                     expected to start with $string
                     | but was $actual
@@ -97,10 +97,10 @@ class StringSubject internal constructor(
 
     /** Fails if the string does not end with the given string.  */
     fun endsWith(string: String) {
-        asserter.assertNotNull(actual, "expected a string that ends with $string")
+        metadata.assertNotNull(actual, "expected a string that ends with $string")
 
         if (!actual.endsWith(string)) {
-            asserter.fail(
+            metadata.fail(
                 """
                     expected to end with $string
                     | but was $actual
@@ -132,17 +132,17 @@ class StringSubject internal constructor(
         fun isEqualTo(expected: String?) {
             when {
                 (actual == null) && (expected != null) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string equal to \"$expected\" (case is ignored), but was null"
                     )
 
                 (expected == null) && (actual != null) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string that is null (null reference), but was \"$actual\""
                     )
 
                 !actual.equals(expected, ignoreCase = true) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string equal to \"$expected\" (case is ignored), " +
                             "but was \"$actual\""
                     )
@@ -156,12 +156,12 @@ class StringSubject internal constructor(
         fun isNotEqualTo(unexpected: String?) {
             when {
                 (actual == null) && (unexpected == null) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string not equal to null (null reference), but it was null"
                     )
 
                 actual.equals(unexpected, ignoreCase = true) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string not equal to \"$unexpected\" (case is ignored), " +
                             "but it was equal. Actual string: \"$actual\"."
                     )
@@ -174,13 +174,13 @@ class StringSubject internal constructor(
 
             when {
                 actual == null ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string that contains \"$expected\" (case is ignored), " +
                             "but was null"
                     )
 
                 !actual.contains(expected, ignoreCase = true) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected to contain \"$expected\" (case is ignored), but was \"$actual\""
                     )
             }
@@ -192,13 +192,13 @@ class StringSubject internal constructor(
 
             when {
                 actual == null ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string that does not contain \"$expected\" " +
                             "(case is ignored), but was null"
                     )
 
                 actual.contains(expected, ignoreCase = true) ->
-                    asserter.fail(
+                    metadata.fail(
                         "Expected a string that does not contain \"$expected\" " +
                             "(case is ignored), but it was. Actual string: \"$actual\"."
                     )

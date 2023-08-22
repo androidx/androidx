@@ -68,7 +68,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(other) { "Expected to be less than $other, but was $actual" }
 
         if (actual >= other) {
-            asserter.fail("Expected to be less than $other, but was $actual")
+            metadata.fail("Expected to be less than $other, but was $actual")
         }
     }
 
@@ -81,7 +81,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual) { "Expected to be at most $other, but was $actual" }
         requireNonNull(other) { "Expected to be at most $other, but was $actual" }
         if (actual > other) {
-            asserter.fail("Expected to be at most $other, but was $actual")
+            metadata.fail("Expected to be at most $other, but was $actual")
         }
     }
 
@@ -94,7 +94,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual) { "Expected to be at least $other, but was $actual" }
         requireNonNull(other) { "Expected to be at least $other, but was $actual" }
         if (actual < other) {
-            asserter.fail("Expected to be at least $other, but was $actual")
+            metadata.fail("Expected to be at least $other, but was $actual")
         }
     }
 }
