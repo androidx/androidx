@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastSumBy
 import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.tv.foundation.lazy.list.fastFilter
@@ -397,7 +398,7 @@ private fun calculateItemsOffsets(
     } else {
         var currentMainAxis = firstLineScrollOffset
 
-        itemsBefore.fastForEach {
+        itemsBefore.fastForEachReversed {
             currentMainAxis -= it.mainAxisSizeWithSpacings
             it.position(currentMainAxis, 0, layoutWidth, layoutHeight)
             positionedItems.add(it)

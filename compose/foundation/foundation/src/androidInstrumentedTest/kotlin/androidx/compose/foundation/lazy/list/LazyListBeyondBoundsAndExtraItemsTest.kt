@@ -20,9 +20,11 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
@@ -37,7 +39,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -50,16 +51,20 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
     private val beyondBoundsLayoutDirection = config.beyondBoundsLayoutDirection
     private val reverseLayout = config.reverseLayout
     private val layoutDirection = config.layoutDirection
-    private val placedItems = mutableSetOf<Int>()
+    private val placedItems = sortedMapOf<Int, Rect>()
+    private val placementComparator =
+        PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun verifyItemsArePlacedBeforeBeyondBoundsItems_oneBeyondBoundItem() {
         // Arrange
         var beyondBoundsLayout: BeyondBoundsLayout? = null
-        val lazyListState = LazyListState()
+        val firstVisibleItemIndex = 5
+        var lazyListState = LazyListState()
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                lazyListState = rememberLazyListState(firstVisibleItemIndex)
                 LazyColumnOrRow(
                     modifier = Modifier.size(30.dp),
                     state = lazyListState,
@@ -93,25 +98,27 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                 }
             }
         }
-        rule.runOnIdle { runBlocking { lazyListState.scrollToItem(5) } }
 
         // Act
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsAtLeast(3, 4, 5, 6, 7, 8)
+                    assertThat(placedItems.keys).containsAtLeast(3, 4, 5, 6, 7, 8)
                 } else {
-                    assertThat(placedItems).containsAtLeast(4, 5, 6, 7, 8, 9)
+                    assertThat(placedItems.keys).containsAtLeast(4, 5, 6, 7, 8, 9)
                 }
                 assertThat(lazyListState.visibleItems).containsAtLeast(5, 6, 7)
+
+                assertThat(placedItems.values).isInOrder(placementComparator)
+
                 true
             }
         }
 
         // Beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsAtLeast(4, 5, 6, 7, 8)
+            assertThat(placedItems.keys).containsAtLeast(4, 5, 6, 7, 8)
             assertThat(lazyListState.visibleItems).containsAtLeast(5, 6, 7)
         }
     }
@@ -121,10 +128,12 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
     fun verifyItemsArePlacedBeforeBeyondBoundsItems_twoBeyondBoundItem() {
         // Arrange
         var beyondBoundsLayout: BeyondBoundsLayout? = null
-        val lazyListState = LazyListState()
+        val firstVisibleItemIndex = 5
+        var lazyListState = LazyListState()
         var extraItemCount = 2
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                lazyListState = rememberLazyListState(firstVisibleItemIndex)
                 LazyColumnOrRow(
                     modifier = Modifier.size(30.dp),
                     state = lazyListState,
@@ -158,7 +167,6 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                 }
             }
         }
-        rule.runOnIdle { runBlocking { lazyListState.scrollToItem(5) } }
 
         // Act
         rule.runOnUiThread {
@@ -169,11 +177,14 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                 } else {
                     // Beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsAtLeast(2, 3, 4, 5, 6, 7, 8)
+                        assertThat(placedItems.keys).containsAtLeast(2, 3, 4, 5, 6, 7, 8)
                     } else {
-                        assertThat(placedItems).containsAtLeast(4, 5, 6, 7, 8, 9, 10)
+                        assertThat(placedItems.keys).containsAtLeast(4, 5, 6, 7, 8, 9, 10)
                     }
                     assertThat(lazyListState.visibleItems).containsAtLeast(5, 6, 7)
+
+                    assertThat(placedItems.values).isInOrder(placementComparator)
+
                     true
                 }
             }
@@ -181,7 +192,7 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
 
         // Beyond bounds items are removed
         rule.runOnIdle {
-            assertThat(placedItems).containsAtLeast(4, 5, 6, 7, 8)
+            assertThat(placedItems.keys).containsAtLeast(4, 5, 6, 7, 8)
             assertThat(lazyListState.visibleItems).containsAtLeast(5, 6, 7)
         }
     }
@@ -244,5 +255,5 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
     }
 
     private fun Modifier.trackPlaced(index: Int): Modifier =
-        this then TrackPlacedElement(placedItems, index)
+        this then TrackPlacedElement(index, placedItems)
 }
