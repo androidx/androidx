@@ -224,6 +224,66 @@ class CameraUseCaseAdapterTest {
         )
     }
 
+    @Test
+    fun isUseCasesCombinationSupported_returnTrueWhenSupported() {
+        // Assert
+        assertThat(adapter.isUseCasesCombinationSupported(preview, image)).isTrue()
+    }
+
+    @Test
+    fun isUseCasesCombinationSupported_returnFalseWhenNotSupported() {
+        // Arrange
+        val preview2 = Preview.Builder().build()
+        // Assert: double preview use cases should not be supported even with stream sharing.
+        assertThat(
+            adapter.isUseCasesCombinationSupported(
+                preview,
+                preview2,
+                video,
+                image
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun isUseCasesCombinationSupportedByFramework_returnTrueWhenSupported() {
+        // Assert
+        assertThat(adapter.isUseCasesCombinationSupportedByFramework(preview, image)).isTrue()
+    }
+
+    @Test
+    fun isUseCasesCombinationSupportedByFramework_returnFalseWhenNotSupported() {
+        // Assert
+        assertThat(
+            adapter.isUseCasesCombinationSupportedByFramework(
+                preview,
+                video,
+                image
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun isUseCasesCombinationSupported_withStreamSharing() {
+        // preview, video, image should not be supported if stream sharing is not enabled.
+        assertThat(
+            adapter.isUseCasesCombinationSupported( /*withStreamSharing=*/ false,
+                preview,
+                video,
+                image
+            )
+        ).isFalse()
+
+        // preview, video, image should be supported if stream sharing is enabled.
+        assertThat(
+            adapter.isUseCasesCombinationSupported( /*withStreamSharing=*/ true,
+                preview,
+                video,
+                image
+            )
+        ).isTrue()
+    }
+
     @Test(expected = CameraException::class)
     fun invalidUseCaseComboCantBeFixedByStreamSharing_throwsException() {
         // Arrange: create a camera that only support one JPEG stream.
