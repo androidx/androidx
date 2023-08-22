@@ -17,10 +17,16 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.activity.BackEventCompat
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -172,6 +178,46 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
         assertAgainstGolden("searchBar_shadow_active")
+    }
+
+    @Test
+    fun searchBar_predictiveBack_progress0() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBarPredictiveBack(progress = 0f)
+        }
+        assertAgainstGolden("searchBar_predictiveBack_progress0")
+    }
+
+    @Test
+    fun searchBar_predictiveBack_progress25() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBarPredictiveBack(progress = 0.25f)
+        }
+        assertAgainstGolden("searchBar_predictiveBack_progress25")
+    }
+
+    @Test
+    fun searchBar_predictiveBack_progress50() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBarPredictiveBack(progress = 0.50f)
+        }
+        assertAgainstGolden("searchBar_predictiveBack_progress50")
+    }
+
+    @Test
+    fun searchBar_predictiveBack_progress75() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBarPredictiveBack(progress = 0.75f)
+        }
+        assertAgainstGolden("searchBar_predictiveBack_progress75")
+    }
+
+    @Test
+    fun searchBar_predictiveBack_progress100() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SearchBarPredictiveBack(progress = 1f)
+        }
+        assertAgainstGolden("searchBar_predictiveBack_progress100")
     }
 
     @Test
@@ -334,5 +380,45 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         override fun toString(): String {
             return name
         }
+    }
+
+    @Composable
+    private fun SearchBarPredictiveBack(progress: Float) {
+        val animationProgress = remember { Animatable(initialValue = 1 - progress) }
+        val finalBackProgress = remember { mutableFloatStateOf(Float.NaN) }
+        val firstBackEvent = remember {
+            mutableStateOf<BackEventCompat?>(
+                BackEventCompat(
+                    touchX = 0f,
+                    touchY = 0f,
+                    progress = 0f,
+                    swipeEdge = BackEventCompat.EDGE_LEFT
+                )
+            )
+        }
+        val currentBackEvent = remember {
+            mutableStateOf<BackEventCompat?>(
+                BackEventCompat(
+                    touchX = 0f,
+                    touchY = 0f,
+                    progress = progress,
+                    swipeEdge = BackEventCompat.EDGE_LEFT
+                )
+            )
+        }
+
+        SearchBarInternal(
+            animationProgress = animationProgress,
+            finalBackProgress = finalBackProgress,
+            firstBackEvent = firstBackEvent,
+            currentBackEvent = currentBackEvent,
+            modifier = Modifier.testTag(testTag),
+            query = "Query",
+            onQueryChange = {},
+            onSearch = {},
+            active = true,
+            onActiveChange = {},
+            content = { Text("Content") },
+        )
     }
 }
