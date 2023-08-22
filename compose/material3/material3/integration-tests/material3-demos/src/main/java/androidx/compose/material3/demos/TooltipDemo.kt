@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.demos
 
-import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,11 +32,12 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltipBox
-import androidx.compose.material3.PlainTooltipState
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberPlainTooltipState
+import androidx.compose.material3.TooltipState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -47,10 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,14 +64,16 @@ fun TooltipDemo() {
         ) {
             var textFieldValue by remember { mutableStateOf("") }
             var textFieldTooltipText by remember { mutableStateOf("") }
-            val textFieldTooltipState = rememberPlainTooltipState()
+            val textFieldTooltipState = rememberTooltipState()
             val scope = rememberCoroutineScope()
-            val mutatorMutex = TooltipDefaults.GlobalMutatorMutex
-            PlainTooltipBox(
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
-                    Text(textFieldTooltipText)
+                    PlainTooltip {
+                        Text(textFieldTooltipText)
+                    }
                 },
-                tooltipState = textFieldTooltipState
+                state = textFieldTooltipState
             ) {
                 OutlinedTextField(
                     value = textFieldValue,
@@ -93,7 +92,7 @@ fun TooltipDemo() {
                             textFieldTooltipState.show()
                         }
                     } else {
-                        val listItem = ItemInfo(textFieldValue, DemoTooltipState(mutatorMutex))
+                        val listItem = ItemInfo(textFieldValue, TooltipState())
                         listData.add(listItem)
                         textFieldValue = ""
                         scope.launch {
@@ -110,9 +109,14 @@ fun TooltipDemo() {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(listData) { item ->
-                PlainTooltipBox(
-                    tooltip = { Text("${item.itemName} added to list") },
-                    tooltipState = item.addedTooltipState
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text("${item.itemName} added to list")
+                        }
+                    },
+                    state = item.addedTooltipState
                 ) {
                     ListItemCard(
                         itemName = item.itemName,
@@ -136,12 +140,18 @@ fun ListItemCard(
         ListItem(
             headlineContent = { Text(itemName) },
             trailingContent = {
-                PlainTooltipBox(
-                    tooltip = { Text("Delete $itemName") }
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            Text("Delete $itemName")
+                        }
+                    },
+                    state = rememberTooltipState(),
+                    enableUserInput = true
                 ) {
                     IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.tooltipTrigger()
+                        onClick = onDelete
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
@@ -154,42 +164,7 @@ fun ListItemCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 class ItemInfo(
     val itemName: String,
-    val addedTooltipState: PlainTooltipState
+    val addedTooltipState: TooltipState
 )
-
-@OptIn(ExperimentalMaterial3Api::class)
-class DemoTooltipState(private val mutatorMutex: MutatorMutex) : PlainTooltipState {
-    override var isVisible by mutableStateOf(false)
-
-    private var job: (CancellableContinuation<Unit>)? = null
-
-    override suspend fun show() {
-        mutatorMutex.mutate {
-            try {
-                withTimeout(TOOLTIP_DURATION) {
-                    suspendCancellableCoroutine { continuation ->
-                        isVisible = true
-                        job = continuation
-                    }
-                }
-            } finally {
-                // timeout or cancellation has occurred
-                // and we close out the current tooltip.
-                isVisible = false
-            }
-        }
-    }
-
-    override fun dismiss() {
-        isVisible = false
-    }
-
-    override fun onDispose() {
-        job?.cancel()
-    }
-}
-
-private const val TOOLTIP_DURATION = 1000L

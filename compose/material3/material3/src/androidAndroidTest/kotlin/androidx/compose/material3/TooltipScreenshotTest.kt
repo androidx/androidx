@@ -123,43 +123,49 @@ class TooltipScreenshotTest {
 
     @Composable
     private fun PlainTooltipTest() {
-        val tooltipState = rememberPlainTooltipState()
-        PlainTooltipBox(
-            tooltip = { Text("Tooltip Description") },
-            modifier = Modifier.testTag(TooltipTestTag),
-            tooltipState = tooltipState
+        val tooltipState = rememberTooltipState()
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            tooltip = {
+                PlainTooltip(
+                    modifier = Modifier.testTag(TooltipTestTag)
+                ) {
+                    Text("Tooltip Description")
+                }
+            },
+            modifier = Modifier.testTag(AnchorTestTag),
+            state = tooltipState
         ) {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = null,
-                modifier = Modifier
-                    .testTag(AnchorTestTag)
-                    .tooltipTrigger()
+                contentDescription = null
             )
         }
     }
 
     @Composable
     private fun RichTooltipTest() {
-        val tooltipState = rememberRichTooltipState(isPersistent = true)
-        RichTooltipBox(
-            title = { Text("Title") },
-            text = {
-                Text(
-                    "Area for supportive text, providing a descriptive " +
-                        "message for the composable that the tooltip is anchored to."
-                )
+        val tooltipState = rememberTooltipState(isPersistent = true)
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+            tooltip = {
+                RichTooltip(
+                    title = { Text("Title") },
+                    action = { TextButton(onClick = {}) { Text("Action Text") } },
+                    modifier = Modifier.testTag(TooltipTestTag)
+                ) {
+                    Text(
+                        "Area for supportive text, providing a descriptive " +
+                            "message for the composable that the tooltip is anchored to."
+                    )
+                }
             },
-            action = { TextButton(onClick = {}) { Text("Action Text") } },
-            tooltipState = tooltipState,
-            modifier = Modifier.testTag(TooltipTestTag)
+            state = tooltipState,
+            modifier = Modifier.testTag(AnchorTestTag)
         ) {
             Icon(
                 Icons.Filled.Favorite,
-                contentDescription = null,
-                modifier = Modifier
-                    .testTag(AnchorTestTag)
-                    .tooltipTrigger()
+                contentDescription = null
             )
         }
     }
