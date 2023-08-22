@@ -729,4 +729,23 @@ class ScatterSetTest {
         assertTrue("Mundo" in set)
         assertFalse("Bonjour" in set)
     }
+
+    @Test
+    fun removeIf() {
+        val set = MutableScatterSet<String>()
+        set.add("Hello")
+        set.add("Bonjour")
+        set.add("Hallo")
+        set.add("Konnichiwa")
+        set.add("Ciao")
+        set.add("Annyeong")
+
+        set.removeIf { value -> value.startsWith('H') }
+
+        assertEquals(4, set.size)
+        assertTrue(set.contains("Bonjour"))
+        assertTrue(set.contains("Konnichiwa"))
+        assertTrue(set.contains("Ciao"))
+        assertTrue(set.contains("Annyeong"))
+    }
 }
