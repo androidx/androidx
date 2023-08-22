@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedField: androidx.wear.watchface.complications.SystemDataSources#DATA_SOURCE_WEATHER:
+    Removed field androidx.wear.watchface.complications.SystemDataSources.DATA_SOURCE_WEATHER
