@@ -16,6 +16,7 @@
 
 package androidx.kruth
 
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.typeOf
 
 // As opposed to Truth, which limits visibility on `actual` and the generic type, we purposely make
@@ -34,31 +35,6 @@ open class Subject<out T>(
 ) {
 
     protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(metadata = metadata)
-
-    internal val asserter: KruthAsserter get() = asserter()
-
-    internal fun asserter(withActual: Boolean = false): KruthAsserter =
-        KruthAsserter(
-            formatMessage = { message ->
-                formatFailureMessage(message = message, withActual = withActual)
-            },
-        )
-
-    private fun formatFailureMessage(message: String?, withActual: Boolean): String =
-        if (withActual) {
-            val actualString = actual.toString()
-            if ('\n' in actualString) {
-                metadata.formatMessage(
-                    message,
-                    "But was:",
-                    actual.toString().prependIndent(),
-                )
-            } else {
-                metadata.formatMessage(message, "But was: $actualString")
-            }
-        } else {
-            metadata.formatMessage(message)
-        }
 
     /**
      *  Fails if the subject is not null.
@@ -143,17 +119,27 @@ open class Subject<out T>(
         }
     }
 
+    @JvmOverloads
+    protected fun failWithActual(key: String, value: Any? = null): Nothing {
+        failWithActual(Fact.fact(key, value))
+    }
+
     protected fun failWithActual(vararg facts: Fact): Nothing {
-        asserter(withActual = true).fail(
+        metadata.fail(
             Fact.makeMessage(
                 emptyList(),
-                facts.asList(),
+                facts.asList() + Fact.fact("but was", actual.toString()),
                 )
         )
     }
 
+    @JvmOverloads
+    protected fun failWithoutActual(key: String, value: Any? = null): Nothing {
+        failWithoutActual(Fact.fact(key, value))
+    }
+
     protected fun failWithoutActual(vararg facts: Fact): Nothing {
-        asserter(withActual = false).fail(
+        metadata.fail(
             Fact.makeMessage(
                 emptyList(),
                 facts.asList(),
