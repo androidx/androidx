@@ -936,7 +936,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         taskConfigurator: (TaskProvider<VerifyDependencyVersionsTask>) -> Unit
     ) {
         afterEvaluate {
-            if (extension.type != LibraryType.SAMPLES) {
+            if (extension.type != LibraryType.UNSET && extension.type != LibraryType.SAMPLES) {
                 val verifyDependencyVersionsTask = project.createVerifyDependencyVersionsTask()
                 if (verifyDependencyVersionsTask != null) {
                     taskConfigurator(verifyDependencyVersionsTask)
