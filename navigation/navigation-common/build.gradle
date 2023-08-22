@@ -71,4 +71,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Common"
+    metalavaK2UastEnabled = true
 }
