@@ -1542,6 +1542,18 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         internal fun setWatchUiState(watchUiState: WatchUiState, fromSysUi: Boolean) {
+            Log.d(TAG,
+                "Setting Watch Ui State with " +
+                "WatchUiState{ interruptionFilter=${watchUiState.interruptionFilter}, " +
+                "inAmbientMode=${watchUiState.inAmbientMode} } and fromSysUi=$fromSysUi. " +
+                "Existing state: " +
+                "firstSetWatchUiState=$firstSetWatchUiState, " +
+                    "systemHasSentWatchUiState=$systemHasSentWatchUiState, " +
+                    "mutableWatchState.interruptionFilter=" +
+                        "${mutableWatchState.interruptionFilter.value}, " +
+                    "mutableWatchState.isAmbient=${mutableWatchState.isAmbient.value}"
+            )
+
             if (
                 firstSetWatchUiState ||
                     watchUiState.inAmbientMode != mutableWatchState.isAmbient.value
