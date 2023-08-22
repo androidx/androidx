@@ -116,7 +116,7 @@ package androidx.browser.customtabs {
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
     method public static int getMaxToolbarItems();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
-    method public static String? getTranslateLanguage(android.content.Intent);
+    method public static java.util.Locale? getTranslateLocale(android.content.Intent);
     method public static boolean isBackgroundInteractionEnabled(android.content.Intent);
     method public static boolean isBookmarksButtonEnabled(android.content.Intent);
     method public static boolean isDownloadButtonEnabled(android.content.Intent);
@@ -165,7 +165,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
     field public static final String EXTRA_TOOLBAR_CORNER_RADIUS_DP = "androidx.browser.customtabs.extra.TOOLBAR_CORNER_RADIUS_DP";
     field public static final String EXTRA_TOOLBAR_ITEMS = "android.support.customtabs.extra.TOOLBAR_ITEMS";
-    field public static final String EXTRA_TRANSLATE_LANGUAGE = "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE";
+    field public static final String EXTRA_TRANSLATE_LANGUAGE_TAG = "androidx.browser.customtabs.extra.TRANSLATE_LANGUAGE_TAG";
     field public static final String KEY_DESCRIPTION = "android.support.customtabs.customaction.DESCRIPTION";
     field public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";
     field public static final String KEY_ID = "android.support.customtabs.customaction.ID";
@@ -217,7 +217,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarCornerRadiusDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setTranslateLanguage(String);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setTranslateLocale(java.util.Locale);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setUrlBarHidingEnabled(boolean);
   }
 
