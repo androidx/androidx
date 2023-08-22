@@ -615,6 +615,7 @@ package androidx.collection {
     method public boolean removeAll(E![] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method @IntRange(from=0L) public int trim();
   }
 

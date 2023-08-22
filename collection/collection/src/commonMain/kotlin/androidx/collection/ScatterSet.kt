@@ -762,7 +762,21 @@ public class MutableScatterSet<E>(
         }
     }
 
-    private fun removeElementAt(index: Int) {
+    /**
+     * Removes any values for which the specified [predicate] returns true.
+     */
+    public inline fun removeIf(predicate: (E) -> Boolean) {
+        val elements = elements
+        forEachIndex { index ->
+            @Suppress("UNCHECKED_CAST")
+            if (predicate(elements[index] as E)) {
+                removeElementAt(index)
+            }
+        }
+    }
+
+    @PublishedApi
+    internal fun removeElementAt(index: Int) {
         _size -= 1
 
         // TODO: We could just mark the element as empty if there's a group
