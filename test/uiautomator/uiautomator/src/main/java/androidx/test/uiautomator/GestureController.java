@@ -25,6 +25,8 @@ import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.MotionEvent.PointerProperties;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -281,6 +283,12 @@ class GestureController {
         @Override
         public void run() {
             performGesture(mGestures);
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return Arrays.toString(mGestures);
         }
     }
 

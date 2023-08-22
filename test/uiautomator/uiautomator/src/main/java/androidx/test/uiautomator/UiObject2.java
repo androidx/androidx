@@ -791,6 +791,12 @@ public class UiObject2 implements Searchable {
             public boolean accept(AccessibilityEvent event) {
                 return condition.accept(event) || scrollFinished.accept(event);
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                return condition + " || " + scrollFinished;
+            }
         };
 
         // To scroll, we swipe in the opposite direction
