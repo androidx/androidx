@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#shouldRecordObservation():
+    Added method androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.shouldRecordObservation()
+
+
+RemovedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#getShouldRecordObservation():
+    Removed method androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.getShouldRecordObservation()

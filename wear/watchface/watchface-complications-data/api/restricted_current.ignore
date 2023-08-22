@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.wear.watchface.complications.data.ColorRamp#isInterpolated():
+    Added method androidx.wear.watchface.complications.data.ColorRamp.isInterpolated()
+
+
+RemovedMethod: androidx.wear.watchface.complications.data.ColorRamp#getInterpolated():
+    Removed method androidx.wear.watchface.complications.data.ColorRamp.getInterpolated()
