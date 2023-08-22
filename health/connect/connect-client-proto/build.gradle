@@ -30,10 +30,6 @@ dependencies {
     implementation(libs.protobufLite)
 }
 
-sourceSets {
-    main.java.srcDirs += "$buildDir/generated/source/proto"
-}
-
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
