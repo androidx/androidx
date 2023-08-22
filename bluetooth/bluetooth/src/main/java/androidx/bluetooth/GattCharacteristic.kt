@@ -40,7 +40,7 @@ class GattCharacteristic internal constructor(
         PROPERTY_NOTIFY,
         PROPERTY_INDICATE,
         PROPERTY_SIGNED_WRITE,
-        PROPERTY_EXTENDS_PROPS
+        PROPERTY_EXTENDED_PROPS
     ])
     annotation class Property
 
@@ -83,7 +83,7 @@ class GattCharacteristic internal constructor(
         /**
          * Additional characteristic properties are defined.
          */
-        const val PROPERTY_EXTENDS_PROPS = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
+        const val PROPERTY_EXTENDED_PROPS = FwkCharacteristic.PROPERTY_EXTENDED_PROPS
 
         @JvmStatic
         private fun getPermissionsWithProperties(properties: @Property Int): Int {

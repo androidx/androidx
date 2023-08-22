@@ -31,7 +31,7 @@ class GattCharacteristicTest {
             FwkCharacteristic.PROPERTY_BROADCAST to
                 GattCharacteristic.PROPERTY_BROADCAST,
             FwkCharacteristic.PROPERTY_EXTENDED_PROPS to
-                GattCharacteristic.PROPERTY_EXTENDS_PROPS,
+                GattCharacteristic.PROPERTY_EXTENDED_PROPS,
             FwkCharacteristic.PROPERTY_INDICATE to
                 GattCharacteristic.PROPERTY_INDICATE,
             FwkCharacteristic.PROPERTY_NOTIFY
