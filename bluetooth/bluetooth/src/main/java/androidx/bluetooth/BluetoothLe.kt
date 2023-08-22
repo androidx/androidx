@@ -243,46 +243,36 @@ class BluetoothLe constructor(private val context: Context) {
     }
 
     /**
-     * Represents a client connection request from a remote device.
+     * A scope for handling connect requests from remote devices.
      *
-     * @property device the remote device connecting to the server
+     * @property connectRequest connect requests from remote devices.
+     *
+     * @see BluetoothLe#openGattServer
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    class GattServerConnectionRequest internal constructor(
-        val device: BluetoothDevice,
-        private val server: GattServer,
-        internal val session: GattServer.Session,
-    ) {
+    interface GattServerConnectScope {
         /**
-         * Accepts the connection request and handles incoming requests after that.
-         *
-         * Requests from the client before calling this should be saved.
-         *
-         * @see GattServerScope
+         * A _hot_ flow of [GattServerConnectRequest].
          */
-        suspend fun accept(block: suspend GattServerScope.() -> Unit) {
-            return server.acceptConnection(this, block)
-        }
+        val connectRequest: Flow<GattServerConnectRequest>
 
         /**
-         * Rejects the connection request.
+         * Updates the services of the opened GATT server.
          *
-         * All the requests from the client will be rejected.
+         * @param services the new services that will be notified to the clients.
          */
-        fun reject() {
-            return server.rejectConnection(this)
-        }
+        fun updateServices(services: List<GattService>)
     }
 
     /**
      * A scope for operations as a GATT server role.
      *
+     * A scope is created for each remote device.
+     *
      * Collect [requests] to respond with requests from the client.
      *
-     * @see GattServerConnectionRequest#accept()
+     * @see GattServerConnectRequest#accept()
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    interface GattServerScope {
+    interface GattServerSessionScope {
         /**
          * A client device connected to the server.
          */
@@ -306,31 +296,54 @@ class BluetoothLe constructor(private val context: Context) {
     }
 
     /**
-     * Opens a GATT server.
+     * Represents a connect request from a remote device.
      *
-     * It returns a _cold_ [Flow] of connection requests.
-     * If the flow is cancelled, the server will be closed.
-     *
-     * Only one server at a time can be opened.
-     *
-     * @param services the services that will be exposed to the clients.
-     *
-     * @see GattServerConnectionRequest
+     * @property device the remote device connecting to the server
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun openGattServer(services: List<GattService>): Flow<GattServerConnectionRequest> {
-        return server.open(services)
+    class GattServerConnectRequest internal constructor(
+        private val session: GattServer.Session,
+    ) {
+        val device: BluetoothDevice
+            get() = session.device
+        /**
+         * Accepts the connect request and handles incoming requests after that.
+         *
+         * Requests from the client before calling this should be saved.
+         *
+         * @param block a block of code that is invoked after the connection is made.
+         *
+         * @see GattServerSessionScope
+         */
+        suspend fun accept(block: suspend GattServerSessionScope.() -> Unit) {
+            return session.acceptConnection(block)
+        }
+
+        /**
+         * Rejects the connect request.
+         *
+         * All the requests from the client will be rejected.
+         */
+        fun reject() {
+            return session.rejectConnection()
+        }
     }
 
     /**
-     * Updates the services of the opened GATT server.
-     * It will be ignored if there is no opened server.
+     * Opens a GATT server.
      *
-     * @param services the new services that will be notified to the clients
+     *
+     * Only one server at a time can be opened.
+     *
+     * @param services the services that will be exposed to the clients
+     * @param block a block of code that is invoked after the server is opened
+     *
+     * @see GattServerConnectRequest
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun updateServices(services: List<GattService>) {
-        server.updateServices(services)
+    suspend fun <R> openGattServer(
+        services: List<GattService>,
+        block: suspend GattServerConnectScope.() -> R
+    ): Result<R> {
+        return server.open(services, block)
     }
 
     @VisibleForTesting
