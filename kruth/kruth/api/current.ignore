@@ -47,6 +47,8 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
+ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
+    Method androidx.kruth.Subject.failWithActual has changed return type from void to Void
 ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT):
     Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
 ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
@@ -191,8 +193,6 @@ RemovedMethod: androidx.kruth.Subject#actualCustomStringRepresentation():
     Removed method androidx.kruth.Subject.actualCustomStringRepresentation()
 RemovedMethod: androidx.kruth.Subject#check(String, java.lang.Object...):
     Removed method androidx.kruth.Subject.check(String,java.lang.Object...)
-RemovedMethod: androidx.kruth.Subject#failWithActual(String, Object):
-    Removed method androidx.kruth.Subject.failWithActual(String,Object)
 RemovedMethod: androidx.kruth.Subject#failWithActual(androidx.kruth.Fact, androidx.kruth.Fact...):
     Removed method androidx.kruth.Subject.failWithActual(androidx.kruth.Fact,androidx.kruth.Fact...)
 RemovedMethod: androidx.kruth.Subject#failWithoutActual(androidx.kruth.Fact, androidx.kruth.Fact...):

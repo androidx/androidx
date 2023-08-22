@@ -36,11 +36,9 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual)
         requireNonNull(expected)
 
-        asserter(withActual = true).assertEquals(
-            expected = 0,
-            actual = actual.compareTo(expected),
-            message = "Expected value that sorts equal to: $expected",
-        )
+        if (actual.compareTo(expected) != 0) {
+            failWithActual("Expected value that sorts equal to", expected)
+        }
     }
 
     /**
@@ -52,10 +50,9 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual)
         requireNonNull(other)
 
-        asserter(withActual = true).assertTrue(
-            actual > other,
-            message = "Expected to be greater than: $other",
-        )
+        if (actual <= other) {
+            failWithActual("Expected to be greater than", other)
+        }
     }
 
     /**
@@ -68,7 +65,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(other) { "Expected to be less than $other, but was $actual" }
 
         if (actual >= other) {
-            metadata.fail("Expected to be less than $other, but was $actual")
+            failWithActual("Expected to be less than", other)
         }
     }
 
@@ -81,7 +78,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual) { "Expected to be at most $other, but was $actual" }
         requireNonNull(other) { "Expected to be at most $other, but was $actual" }
         if (actual > other) {
-            metadata.fail("Expected to be at most $other, but was $actual")
+            failWithActual("Expected to be at most", other)
         }
     }
 
@@ -94,7 +91,7 @@ open class ComparableSubject<T : Comparable<T>> internal constructor(
         requireNonNull(actual) { "Expected to be at least $other, but was $actual" }
         requireNonNull(other) { "Expected to be at least $other, but was $actual" }
         if (actual < other) {
-            metadata.fail("Expected to be at least $other, but was $actual")
+            failWithActual("Expected to be at least", other)
         }
     }
 }
