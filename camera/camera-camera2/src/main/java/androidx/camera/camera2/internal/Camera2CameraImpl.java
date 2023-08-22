@@ -21,7 +21,6 @@ import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
@@ -104,7 +103,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -1362,22 +1360,16 @@ final class Camera2CameraImpl implements CameraInternal {
             @ExecutedBy("mExecutor")
             public void onFailure(@NonNull Throwable t) {
                 if (t instanceof DeferrableSurface.SurfaceClosedException) {
-                    SessionConfig sessionConfig =
-                            findSessionConfigForSurface(
-                                    ((DeferrableSurface.SurfaceClosedException) t)
-                                            .getDeferrableSurface());
+                    SessionConfig sessionConfig = findSessionConfigForSurface(
+                            ((DeferrableSurface.SurfaceClosedException) t).getDeferrableSurface());
                     if (sessionConfig != null) {
                         postSurfaceClosedError(sessionConfig);
                     }
                     return;
                 }
-
-                // A CancellationException is thrown when (1) A CaptureSession is closed while it
-                // is opening. In this case, another CaptureSession should be opened shortly
-                // after or (2) When opening a CaptureSession fails.
-                // TODO(b/183504720): Distinguish between both scenarios, and communicate the
-                //  second one to the developer.
                 if (t instanceof CancellationException) {
+                    // A CancellationException is thrown when a CaptureSession is closed while it
+                    // is opening. In this case, another CaptureSession should be opened shortly.
                     debugLog("Unable to configure camera cancelled");
                     return;
                 }
@@ -1388,13 +1380,8 @@ final class Camera2CameraImpl implements CameraInternal {
                             CameraState.StateError.create(CameraState.ERROR_STREAM_CONFIG, t));
                 }
 
-                if (t instanceof CameraAccessException) {
-                    debugLog("Unable to configure camera due to " + t.getMessage());
-                } else if (t instanceof TimeoutException) {
-                    // TODO: Consider to handle the timeout error.
-                    Logger.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
-                            + ", timeout!");
-                }
+                Logger.e(TAG, "Unable to configure camera " + Camera2CameraImpl.this, t);
+                resetCaptureSession(/*abortInFlightCaptures=*/false);
             }
         }, mExecutor);
     }
@@ -1421,8 +1408,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void postSurfaceClosedError(@NonNull SessionConfig sessionConfig) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
-        List<SessionConfig.ErrorListener> errorListeners =
-                sessionConfig.getErrorListeners();
+        List<SessionConfig.ErrorListener> errorListeners = sessionConfig.getErrorListeners();
         if (!errorListeners.isEmpty()) {
             SessionConfig.ErrorListener errorListener = errorListeners.get(0);
             debugLog("Posting surface closed", new Throwable());
