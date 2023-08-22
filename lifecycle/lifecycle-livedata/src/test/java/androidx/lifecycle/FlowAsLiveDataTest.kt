@@ -19,7 +19,8 @@
 package androidx.lifecycle
 
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.addObserver
+import androidx.lifecycle.util.ScopesRule
+import androidx.lifecycle.util.addObserver
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
