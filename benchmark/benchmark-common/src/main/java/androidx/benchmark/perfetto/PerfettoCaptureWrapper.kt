@@ -27,7 +27,7 @@ import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
-import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Wrapper for [PerfettoCapture] which does nothing below API 23.
@@ -137,7 +137,7 @@ class PerfettoCaptureWrapper {
 
                 if (inMemoryTracingLabel != null) {
                     val inMemoryTrace = InMemoryTracing.commitToTrace(inMemoryTracingLabel)
-                    File(path).appendBytes(inMemoryTrace.encode())
+                    inMemoryTrace.encode(FileOutputStream(path, /* append = */ true))
                 }
                 traceCallback?.invoke(path)
             }
