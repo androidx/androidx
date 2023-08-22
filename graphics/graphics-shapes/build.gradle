@@ -42,4 +42,5 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_SHAPES
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
+    metalavaK2UastEnabled = true
 }

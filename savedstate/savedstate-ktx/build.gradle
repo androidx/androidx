@@ -37,6 +37,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

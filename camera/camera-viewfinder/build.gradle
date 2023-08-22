@@ -82,4 +82,5 @@ androidx {
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
+    metalavaK2UastEnabled = true
 }

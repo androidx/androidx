@@ -46,4 +46,5 @@ androidx {
     inceptionYear = "2023"
     description = "Wear Tile tooling library. This library provides the API required to declare" +
             " @TilePreview on previewable methods in the IDE."
+    metalavaK2UastEnabled = true
 }

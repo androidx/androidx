@@ -34,6 +34,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Navigation-Fragment-Ktx"
+    metalavaK2UastEnabled = true
 }
 
 android {

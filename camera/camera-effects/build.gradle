@@ -43,4 +43,5 @@ androidx {
     description = "Camera effects components for the Jetpack Camera Library, a library providing " +
             "camera post-processing features such as portrait mode that can be used with the " +
             "CameraX library."
+    metalavaK2UastEnabled = true
 }

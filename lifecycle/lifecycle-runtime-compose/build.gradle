@@ -50,6 +50,7 @@ androidx {
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
     runApiTasks = new RunApiTasks.Yes()
+    metalavaK2UastEnabled = true
 }
 
 android {

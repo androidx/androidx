@@ -49,4 +49,5 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2023"
     description = "Test integrations with App Actions Interactions capabilities libraries."
+    metalavaK2UastEnabled = true
 }
