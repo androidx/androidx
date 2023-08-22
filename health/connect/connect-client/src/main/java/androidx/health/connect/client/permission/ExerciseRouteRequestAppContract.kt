@@ -27,12 +27,13 @@ import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.service.HealthDataServiceConstants
 
 /**
- * An [ActivityResultContract] to request a route associated with an {@code ExerciseSessionRecord}.
+ * An [ActivityResultContract] to request a route associated with an {@code ExerciseSessionRecord}
+ * from the HealthConnect APK.
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class RequestExerciseRouteInternal : ActivityResultContract<String, ExerciseRoute?>() {
+internal class ExerciseRouteRequestAppContract : ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {
             putExtra(HealthDataServiceConstants.EXTRA_SESSION_ID, input)
