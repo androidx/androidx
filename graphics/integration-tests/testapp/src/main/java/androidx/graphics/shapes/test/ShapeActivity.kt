@@ -59,13 +59,12 @@ class ShapeActivity : Activity() {
     }
 
     private fun setupShapes() {
+        val tmp = FloatArray(2)
         // Note: all RoundedPolygon(4) shapes are placeholders for shapes not yet handled
         val matrix1 = Matrix().apply { setRotate(-45f) }
         val matrix2 = Matrix().apply { setRotate(45f) }
-        val blobR1 = MaterialShapes.blobR(.19f, .86f)
-        blobR1.transform(matrix1)
-        val blobR2 = MaterialShapes.blobR(.19f, .86f)
-        blobR2.transform(matrix2)
+        val blobR1 = MaterialShapes.blobR(.19f, .86f).transformed(matrix1, tmp)
+        val blobR2 = MaterialShapes.blobR(.19f, .86f).transformed(matrix2, tmp)
 
         //        "Circle" to DefaultShapes.star(4, 1f, 1f),
         shapes.add(RoundedPolygon.circle())

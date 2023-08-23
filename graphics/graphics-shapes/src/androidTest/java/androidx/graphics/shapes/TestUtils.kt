@@ -16,53 +16,64 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
 private val Epsilon = 1e-4f
 
 // Test equality within Epsilon
-fun assertPointsEqualish(expected: PointF, actual: PointF) {
-    assertEquals(expected.x, actual.x, Epsilon)
-    assertEquals(expected.y, actual.y, Epsilon)
+internal fun assertPointsEqualish(expected: Point, actual: Point) {
+    val msg = "$expected vs. $actual"
+    assertEquals(msg, expected.x, actual.x, Epsilon)
+    assertEquals(msg, expected.y, actual.y, Epsilon)
 }
 
-fun assertCubicsEqua1ish(expected: Cubic, actual: Cubic) {
-    assertPointsEqualish(PointF(expected.anchor0X, expected.anchor0Y),
-        PointF(actual.anchor0X, actual.anchor0Y))
-    assertPointsEqualish(PointF(expected.control0X, expected.control0Y),
-        PointF(actual.control0X, actual.control0Y))
-    assertPointsEqualish(PointF(expected.control1X, expected.control1Y),
-        PointF(actual.control1X, actual.control1Y))
-    assertPointsEqualish(PointF(expected.anchor1X, expected.anchor1Y),
-        PointF(actual.anchor1X, actual.anchor1Y))
+internal fun assertCubicsEqualish(expected: Cubic, actual: Cubic) {
+    assertPointsEqualish(Point(expected.anchor0X, expected.anchor0Y),
+        Point(actual.anchor0X, actual.anchor0Y))
+    assertPointsEqualish(Point(expected.control0X, expected.control0Y),
+        Point(actual.control0X, actual.control0Y))
+    assertPointsEqualish(Point(expected.control1X, expected.control1Y),
+        Point(actual.control1X, actual.control1Y))
+    assertPointsEqualish(Point(expected.anchor1X, expected.anchor1Y),
+        Point(actual.anchor1X, actual.anchor1Y))
 }
 
-fun assertPointGreaterish(expected: PointF, actual: PointF) {
+internal fun assertPointGreaterish(expected: Point, actual: Point) {
     assertTrue(actual.x >= expected.x - Epsilon)
     assertTrue(actual.y >= expected.y - Epsilon)
 }
 
-fun assertPointLessish(expected: PointF, actual: PointF) {
+internal fun assertPointLessish(expected: Point, actual: Point) {
     assertTrue(actual.x <= expected.x + Epsilon)
     assertTrue(actual.y <= expected.y + Epsilon)
 }
 
-fun assertEqualish(expected: Float, actual: Float, message: String? = null) {
+internal fun assertEqualish(expected: Float, actual: Float, message: String? = null) {
     assertEquals(message ?: "", expected, actual, Epsilon)
 }
 
-fun assertInBounds(shape: CubicShape, minPoint: PointF, maxPoint: PointF) {
-    val cubics = shape.cubics
-    for (cubic in cubics) {
-        assertPointGreaterish(minPoint, PointF(cubic.anchor0X, cubic.anchor0Y))
-        assertPointLessish(maxPoint, PointF(cubic.anchor0X, cubic.anchor0Y))
-        assertPointGreaterish(minPoint, PointF(cubic.control0X, cubic.control0Y))
-        assertPointLessish(maxPoint, PointF(cubic.control0X, cubic.control0Y))
-        assertPointGreaterish(minPoint, PointF(cubic.control1X, cubic.control1Y))
-        assertPointLessish(maxPoint, PointF(cubic.control1X, cubic.control1Y))
-        assertPointGreaterish(minPoint, PointF(cubic.anchor1X, cubic.anchor1Y))
-        assertPointLessish(maxPoint, PointF(cubic.anchor1X, cubic.anchor1Y))
+internal fun assertInBounds(shape: List<Cubic>, minPoint: Point, maxPoint: Point) {
+    for (cubic in shape) {
+        assertPointGreaterish(minPoint, Point(cubic.anchor0X, cubic.anchor0Y))
+        assertPointLessish(maxPoint, Point(cubic.anchor0X, cubic.anchor0Y))
+        assertPointGreaterish(minPoint, Point(cubic.control0X, cubic.control0Y))
+        assertPointLessish(maxPoint, Point(cubic.control0X, cubic.control0Y))
+        assertPointGreaterish(minPoint, Point(cubic.control1X, cubic.control1Y))
+        assertPointLessish(maxPoint, Point(cubic.control1X, cubic.control1Y))
+        assertPointGreaterish(minPoint, Point(cubic.anchor1X, cubic.anchor1Y))
+        assertPointLessish(maxPoint, Point(cubic.anchor1X, cubic.anchor1Y))
     }
+}
+
+internal fun identityTransform() = PointTransformer { }
+
+internal fun scaleTransform(sx: Float, sy: Float) = PointTransformer {
+    x *= sx
+    y *= sy
+}
+
+internal fun translateTransform(dx: Float, dy: Float) = PointTransformer {
+    x += dx
+    y += dy
 }

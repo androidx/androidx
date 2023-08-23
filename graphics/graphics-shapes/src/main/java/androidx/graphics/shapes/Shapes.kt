@@ -57,7 +57,7 @@ fun RoundedPolygon.Companion.circle(
  *
  * As with all [RoundedPolygon] objects, if this shape is created with default dimensions and
  * center, it is sized to fit within the 2x2 bounding box around a center of (0, 0) and will
- * need to be scaled and moved using [RoundedPolygon.transform] to fit the intended area
+ * need to be scaled and moved using [RoundedPolygon.transformed] to fit the intended area
  * in a UI.
  *
  * @param width The width of the rectangle, default value is 2

@@ -16,56 +16,50 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.Matrix
-import android.graphics.PointF
-import androidx.core.graphics.plus
-import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SmallTest
 class PolygonTest {
-
     val square = RoundedPolygon(4)
 
     @Test
     fun constructionTest() {
         // We can't be too specific on how exactly the square is constructed, but
         // we can at least test whether all points are within the unit square
-        var min = PointF(-1f, -1f)
-        var max = PointF(1f, 1f)
-        assertInBounds(square.toCubicShape(), min, max)
+        var min = Point(-1f, -1f)
+        var max = Point(1f, 1f)
+        assertInBounds(square.cubics, min, max)
 
         val doubleSquare = RoundedPolygon(4, 2f)
         min = min * 2f
         max = max * 2f
-        assertInBounds(doubleSquare.toCubicShape(), min, max)
+        assertInBounds(doubleSquare.cubics, min, max)
 
         val offsetSquare = RoundedPolygon(4, centerX = 1f, centerY = 2f)
-        min = PointF(0f, 1f)
-        max = PointF(2f, 3f)
-        assertInBounds(offsetSquare.toCubicShape(), min, max)
+        min = Point(0f, 1f)
+        max = Point(2f, 3f)
+        assertInBounds(offsetSquare.cubics, min, max)
 
         val squareCopy = RoundedPolygon(square)
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(squareCopy.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(squareCopy.cubics, min, max)
 
-        val p0 = PointF(1f, 0f)
-        val p1 = PointF(0f, 1f)
-        val p2 = PointF(-1f, 0f)
-        val p3 = PointF(0f, -1f)
+        val p0 = Point(1f, 0f)
+        val p1 = Point(0f, 1f)
+        val p2 = Point(-1f, 0f)
+        val p3 = Point(0f, -1f)
         val manualSquare = RoundedPolygon(floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y,
             p3.x, p3.y))
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(manualSquare.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(manualSquare.cubics, min, max)
 
-        val offset = PointF(1f, 2f)
+        val offset = Point(1f, 2f)
         val p0Offset = p0 + offset
         val p1Offset = p1 + offset
         val p2Offset = p2 + offset
@@ -74,60 +68,56 @@ class PolygonTest {
             vertices = floatArrayOf(p0Offset.x, p0Offset.y, p1Offset.x, p1Offset.y,
                 p2Offset.x, p2Offset.y, p3Offset.x, p3Offset.y),
             centerX = offset.x, centerY = offset.y)
-        min = PointF(0f, 1f)
-        max = PointF(2f, 3f)
-        assertInBounds(manualSquareOffset.toCubicShape(), min, max)
-    }
-
-    @Test
-    fun pathTest() {
-        val shape = square.toCubicShape()
-        val path = shape.toPath()
-        assertFalse(path.isEmpty)
+        min = Point(0f, 1f)
+        max = Point(2f, 3f)
+        assertInBounds(manualSquareOffset.cubics, min, max)
     }
 
     @Test
     fun boundsTest() {
-        val shape = square.toCubicShape()
-        val bounds = shape.bounds
-        assertPointsEqualish(PointF(-1f, 1f), PointF(bounds.left, bounds.bottom))
-        assertPointsEqualish(PointF(1f, -1f), PointF(bounds.right, bounds.top))
+        val bounds = square.calculateBounds()
+        assertEqualish(-1f, bounds[0]) // Left
+        assertEqualish(-1f, bounds[1]) // Top
+        assertEqualish(1f, bounds[2]) // Right
+        assertEqualish(1f, bounds[3]) // Bottom
     }
 
     @Test
     fun centerTest() {
-        assertPointsEqualish(PointF(0f, 0f), PointF(square.centerX, square.centerY))
+        assertPointsEqualish(Point(0f, 0f), Point(square.centerX, square.centerY))
     }
 
     @Test
     fun transformTest() {
         // First, make sure the shape doesn't change when transformed by the identity
-        val squareCopy = RoundedPolygon(square)
-        val identity = Matrix()
-        square.transform(identity)
-        assertEquals(square, squareCopy)
+        val squareCopy = square.transformed(identityTransform())
+        val n = square.cubics.size
 
-        // Now create a matrix which translates points by (1, 2) and make sure
+        assertEquals(n, squareCopy.cubics.size)
+        for (i in 0 until n) {
+            assertCubicsEqualish(square.cubics[i], squareCopy.cubics[i])
+        }
+
+        // Now create a function which translates points by (1, 2) and make sure
         // the shape is translated similarly by it
-        val translator = Matrix()
-        val offset = PointF(1f, 2f)
-        translator.setTranslate(offset.x, offset.y)
-        square.transform(translator)
-        val squareCubics = square.toCubicShape().cubics
-        val squareCopyCubics = squareCopy.toCubicShape().cubics
-        for (i in 0 until squareCubics.size) {
-            assertPointsEqualish(PointF(squareCopyCubics[i].anchor0X,
-                squareCopyCubics[i].anchor0Y) + offset,
-                PointF(squareCubics[i].anchor0X, squareCubics[i].anchor0Y))
-            assertPointsEqualish(PointF(squareCopyCubics[i].control0X,
-                squareCopyCubics[i].control0Y) + offset,
-                PointF(squareCubics[i].control0X, squareCubics[i].control0Y))
-            assertPointsEqualish(PointF(squareCopyCubics[i].control1X,
-                squareCopyCubics[i].control1Y) + offset,
-                PointF(squareCubics[i].control1X, squareCubics[i].control1Y))
-            assertPointsEqualish(PointF(squareCopyCubics[i].anchor1X,
-                squareCopyCubics[i].anchor1Y) + offset,
-                PointF(squareCubics[i].anchor1X, squareCubics[i].anchor1Y))
+        val offset = Point(1f, 2f)
+        val squareCubics = square.cubics
+        val translator = translateTransform(offset.x, offset.y)
+        val translatedSquareCubics = square.transformed(translator).cubics
+
+        for (i in squareCubics.indices) {
+            assertPointsEqualish(Point(squareCubics[i].anchor0X,
+                squareCubics[i].anchor0Y) + offset,
+                Point(translatedSquareCubics[i].anchor0X, translatedSquareCubics[i].anchor0Y))
+            assertPointsEqualish(Point(squareCubics[i].control0X,
+                squareCubics[i].control0Y) + offset,
+                Point(translatedSquareCubics[i].control0X, translatedSquareCubics[i].control0Y))
+            assertPointsEqualish(Point(squareCubics[i].control1X,
+                squareCubics[i].control1Y) + offset,
+                Point(translatedSquareCubics[i].control1X, translatedSquareCubics[i].control1Y))
+            assertPointsEqualish(Point(squareCubics[i].anchor1X,
+                squareCubics[i].anchor1Y) + offset,
+                Point(translatedSquareCubics[i].anchor1X, translatedSquareCubics[i].anchor1Y))
         }
     }
 
@@ -136,37 +126,35 @@ class PolygonTest {
         val squareFeatures = square.features
 
         // Verify that cubics of polygon == cubics of features of that polygon
-        assertTrue(square.toCubicShape().cubics == squareFeatures.flatMap { it.cubics })
+        assertTrue(square.cubics == squareFeatures.flatMap { it.cubics })
 
         // Same as above but with rounded corners
         val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.1f))
         val roundedFeatures = roundedSquare.features
-        assertTrue(roundedSquare.toCubicShape().cubics == roundedFeatures.flatMap { it.cubics })
+        assertTrue(roundedSquare.cubics == roundedFeatures.flatMap { it.cubics })
 
         // Same as the first polygon test, but with a copy of that polygon
         val squareCopy = RoundedPolygon(square)
         val squareCopyFeatures = squareCopy.features
-        assertTrue(squareCopy.toCubicShape().cubics == squareCopyFeatures.flatMap { it.cubics })
+        assertTrue(squareCopy.cubics == squareCopyFeatures.flatMap { it.cubics })
 
         // Test other elements of Features
-        val copy = RoundedPolygon(square)
-        val matrix = Matrix()
-        matrix.setTranslate(1f, 2f)
-        val features = copy.features
-        val preTransformVertices = mutableListOf<PointF>()
-        val preTransformCenters = mutableListOf<PointF>()
+        val translator = translateTransform(1f, 2f)
+        val features = square.features
+        val preTransformVertices = mutableListOf<Point>()
+        val preTransformCenters = mutableListOf<Point>()
         for (feature in features) {
-            if (feature is RoundedPolygon.Corner) {
+            if (feature is Feature.Corner) {
                 // Copy into new Point objects since the ones in the feature should transform
-                preTransformVertices.add(PointF(feature.vertex.x, feature.vertex.y))
-                preTransformCenters.add(PointF(feature.roundedCenter.x, feature.roundedCenter.y))
+                preTransformVertices.add(Point(feature.vertex.x, feature.vertex.y))
+                preTransformCenters.add(Point(feature.roundedCenter.x, feature.roundedCenter.y))
             }
         }
-        copy.transform(matrix)
-        val postTransformVertices = mutableListOf<PointF>()
-        val postTransformCenters = mutableListOf<PointF>()
-        for (feature in features) {
-            if (feature is RoundedPolygon.Corner) {
+        val transformedFeatures = square.transformed(translator).features
+        val postTransformVertices = mutableListOf<Point>()
+        val postTransformCenters = mutableListOf<Point>()
+        for (feature in transformedFeatures) {
+            if (feature is Feature.Corner) {
                 postTransformVertices.add(feature.vertex)
                 postTransformCenters.add(feature.roundedCenter)
             }

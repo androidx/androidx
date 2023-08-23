@@ -16,18 +16,17 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
 import androidx.annotation.FloatRange
 import kotlin.math.abs
 
 internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
     private val measurer: Measurer
     private val cubics: List<MeasuredCubic>
-    val features: List<Pair<Float, RoundedPolygon.Feature>>
+    val features: List<ProgressableFeature>
 
     private constructor(
         measurer: Measurer,
-        features: List<Pair<Float, RoundedPolygon.Feature>>,
+        features: List<ProgressableFeature>,
         cubics: List<Cubic>,
         outlineProgress: List<Float>
     ) {
@@ -217,7 +216,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
 
         // Shift the feature's outline progress too.
         val newFeatures = features.map { (outlineProgress, feature) ->
-            positiveModulo(outlineProgress - cuttingPoint, 1f) to feature
+            ProgressableFeature(positiveModulo(outlineProgress - cuttingPoint, 1f), feature)
         }
 
         // Filter out all empty cubics (i.e. start and end anchor are (almost) the same point.)
@@ -233,13 +232,13 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
     companion object {
         internal fun measurePolygon(measurer: Measurer, polygon: RoundedPolygon): MeasuredPolygon {
             val cubics = mutableListOf<Cubic>()
-            val featureToCubic = mutableListOf<Pair<RoundedPolygon.Feature, Int>>()
+            val featureToCubic = mutableListOf<Pair<Feature, Int>>()
 
             // Get the cubics from the polygon, at the same time, extract the features and keep a
             // reference to the representative cubic we will use.
             polygon.features.forEach { feature ->
                 feature.cubics.forEachIndexed { index, cubic ->
-                    if (feature is RoundedPolygon.Corner &&
+                    if (feature is Feature.Corner &&
                         index == feature.cubics.size / 2) {
                         featureToCubic.add(feature to cubics.size)
                     }
@@ -256,8 +255,8 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
 
             val features = featureToCubic.map { featureAndIndex ->
                 val ix = featureAndIndex.second
-                (outlineProgress[ix] + outlineProgress[ix + 1]) / 2 to
-                    featureAndIndex.first
+                ProgressableFeature((outlineProgress[ix] + outlineProgress[ix + 1]) / 2,
+                    featureAndIndex.first)
             }
 
             return MeasuredPolygon(measurer, features, cubics, outlineProgress)
@@ -298,9 +297,6 @@ internal interface Measurer {
  */
 internal class AngleMeasurer(val centerX: Float, val centerY: Float) : Measurer {
 
-    // Holds temporary pointOnCurve result, avoids re-allocations
-    private val tempPoint = PointF()
-
     /**
      * The measurement for a given cubic is the difference in angles between the start
      * and end points (first and last anchors) of the cubic.
@@ -319,7 +315,7 @@ internal class AngleMeasurer(val centerX: Float, val centerY: Float) : Measurer 
         val angle0 = angle(c.anchor0X - centerX, c.anchor0Y - centerY)
         // TODO: use binary search.
         return findMinimum(0f, 1f, tolerance = 1e-5f) { t ->
-            val curvePoint = c.pointOnCurve(t, tempPoint)
+            val curvePoint = c.pointOnCurve(t)
             val angle = angle(curvePoint.x - centerX, curvePoint.y - centerY)
             abs(positiveModulo(angle - angle0, TwoPi) - m)
         }
