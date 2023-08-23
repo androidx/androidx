@@ -30,7 +30,7 @@ import kotlinx.datetime.toLocalDateTime
 internal class KotlinxDatetimeCalendarModel : CalendarModel {
 
     override val today: CalendarDate
-        get() = Clock.System.now().toCalendarDate()
+        get() = Clock.System.now().toCalendarDate(systemTZ)
 
     override val firstDayOfWeek: Int
         get() = PlatformDateFormat.firstDayOfWeek
@@ -57,13 +57,13 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
             .toLocalDateTime(TimeZone.UTC)
             .date
             .atStartOfDayIn(TimeZone.UTC)
-            .toCalendarDate()
+            .toCalendarDate(TimeZone.UTC)
     }
 
     override fun getMonth(timeInMillis: Long): CalendarMonth {
         return Instant
             .fromEpochMilliseconds(timeInMillis)
-            .toCalendarMonth()
+            .toCalendarMonth(TimeZone.UTC)
     }
 
     override fun getMonth(date: CalendarDate): CalendarMonth {
@@ -75,7 +75,7 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
             year = year,
             monthNumber = month,
             dayOfMonth = 1,
-        ).atStartOfDayIn(systemTZ)
+        ).atStartOfDayIn(TimeZone.UTC)
 
         return getMonth(instant.toEpochMilliseconds())
     }
@@ -90,11 +90,11 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
     override fun plusMonths(from: CalendarMonth, addedMonthsCount: Int): CalendarMonth {
         return Instant
             .fromEpochMilliseconds(from.startUtcTimeMillis)
-            .toLocalDateTime(systemTZ)
+            .toLocalDateTime(TimeZone.UTC)
             .date
             .plus(DatePeriod(months = addedMonthsCount))
-            .atStartOfDayIn(systemTZ)
-            .toCalendarMonth()
+            .atStartOfDayIn(TimeZone.UTC)
+            .toCalendarMonth(TimeZone.UTC)
     }
 
     override fun minusMonths(from: CalendarMonth, subtractedMonthsCount: Int): CalendarMonth {
@@ -114,7 +114,7 @@ internal class KotlinxDatetimeCalendarModel : CalendarModel {
     }
 
     private fun Instant.toCalendarMonth(
-        timeZone : TimeZone = systemTZ
+        timeZone : TimeZone
     ) : CalendarMonth {
 
         val dateTime = toLocalDateTime(timeZone)
@@ -192,7 +192,7 @@ private val EnglishWeekdaysNames = listOf(
 )
 
 internal fun Instant.toCalendarDate(
-    timeZone : TimeZone = TimeZone.currentSystemDefault()
+    timeZone : TimeZone
 ) : CalendarDate {
 
     val dateTime = toLocalDateTime(timeZone)

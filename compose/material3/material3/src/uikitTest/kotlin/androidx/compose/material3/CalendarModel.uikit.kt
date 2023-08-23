@@ -17,9 +17,21 @@
 package androidx.compose.material3
 
 import platform.Foundation.NSLocale
+import platform.Foundation.NSTimeZone
+import platform.Foundation.defaultTimeZone
+import platform.Foundation.setDefaultTimeZone
+import platform.Foundation.timeZoneWithName
 
 actual fun calendarLocale(language : String, country : String) : CalendarLocale =
     NSLocale("$language-${country}")
 
 actual val supportsDateSkeleton: Boolean
     get() = true
+
+actual fun setTimeZone(id: String) {
+    NSTimeZone.setDefaultTimeZone(NSTimeZone.timeZoneWithName(id)!!)
+}
+
+actual fun getTimeZone(): String {
+    return NSTimeZone.defaultTimeZone().name
+}

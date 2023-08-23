@@ -24,3 +24,12 @@ actual fun calendarLocale(language: String, country : String): CalendarLocale {
 
 actual val supportsDateSkeleton: Boolean
     get() = true
+
+// not implemented
+actual fun setTimeZone(id: String) {
+}
+
+// not implemented
+actual fun getTimeZone(): String {
+    return ""
+}
