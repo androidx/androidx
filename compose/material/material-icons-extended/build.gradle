@@ -33,8 +33,6 @@ IconGenerationTask.registerExtendedIconMainProject(
         android
 )
 
-apply from: "shared-dependencies.gradle"
-
 androidXMultiplatform {
     android()
     if (desktopEnabled) desktop()
@@ -124,22 +122,6 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-configurations {
-    embedThemesDebug {
-        attributes {
-            attribute(iconExportAttr, "true")
-            attribute(iconBuildTypeAttr, "debug")
-        }
-    }
-    embedThemesRelease {
-        attributes {
-            attribute(iconExportAttr, "true")
-            attribute(iconBuildTypeAttr, "release")
-        }
-    }
-
 }
 
 IconGenerationTask.registerExtendedIconThemeProject(project, android)
