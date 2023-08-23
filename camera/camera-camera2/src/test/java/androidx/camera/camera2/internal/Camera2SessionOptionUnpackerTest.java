@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
@@ -30,7 +29,6 @@ import android.util.Size;
 
 import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
@@ -73,16 +71,10 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraDevice.StateCallback deviceCallback = mock(CameraDevice.StateCallback.class);
         CameraCaptureSession.StateCallback sessionStateCallback =
                 mock(CameraCaptureSession.StateCallback.class);
-        CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
-        when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
-
         new Camera2Interop.Extender<>(imageCaptureBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
                 .setSessionStateCallback(sessionStateCallback);
-        new Camera2ImplConfig.Extender<>(imageCaptureBuilder)
-                .setCameraEventCallback(cameraEventCallbacks);
-
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         mUnpacker.unpack(RESOLUTION_VGA, imageCaptureBuilder.getUseCaseConfig(), sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
@@ -98,10 +90,6 @@ public final class Camera2SessionOptionUnpackerTest {
         assertThat(sessionConfig.getDeviceStateCallbacks()).containsExactly(deviceCallback);
         assertThat(sessionConfig.getSessionStateCallbacks())
                 .containsExactly(sessionStateCallback);
-        assertThat(
-                new Camera2ImplConfig(
-                        sessionConfig.getImplementationOptions()).getCameraEventCallback(
-                        null)).isEqualTo(cameraEventCallbacks);
     }
 
     @Test
