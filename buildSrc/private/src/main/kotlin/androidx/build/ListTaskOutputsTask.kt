@@ -106,10 +106,8 @@ abstract class ListTaskOutputsTask : DefaultTask() {
 // TODO(149103692): remove all elements of this set
 val taskNamesKnownToDuplicateOutputs =
     setOf(
-        "kotlinSourcesJar",
-        "releaseSourcesJar",
-        "sourceJarRelease",
-        "sourceJar",
+        // Instead of adding new elements to this set, prefer to disable unused tasks when possible
+
         // The following tests intentionally have the same output of golden images
         "updateGoldenDesktopTest",
         "updateGoldenDebugUnitTest"
