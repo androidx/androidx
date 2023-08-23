@@ -50,8 +50,10 @@ class DisablePackages(
         // https://source.corp.google.com/piper///depot/google3/java/com/google/android/libraries/swpower/fixture/DisableModule.java
         internal val DEFAULT_PACKAGES_TO_DISABLE = listOf(
             "com.android.chrome",
+            "com.android.dialer",
             "com.android.phone",
             "com.android.ramdump",
+            "com.android.server.telecom",
             "com.android.vending",
             "com.google.android.apps.docs",
             "com.google.android.apps.gcs",
