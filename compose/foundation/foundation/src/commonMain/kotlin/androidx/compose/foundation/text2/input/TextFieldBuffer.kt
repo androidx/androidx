@@ -123,7 +123,7 @@ class TextFieldBuffer internal constructor(
      * @see insert
      * @see delete
      */
-    fun replace(start: Int, end: Int, text: String) {
+    fun replace(start: Int, end: Int, text: CharSequence) {
         replace(start, end, text, 0, text.length)
     }
 

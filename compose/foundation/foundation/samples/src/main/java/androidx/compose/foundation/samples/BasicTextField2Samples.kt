@@ -171,10 +171,9 @@ fun BasicTextField2StateEditSample() {
     }
 }
 
-// TODO convert to InputTransformation
 @Sampled
 @Composable
-fun BasicTextField2CustomFilterSample() {
+fun BasicTextField2CustomInputTransformationSample() {
     val state = remember { TextFieldState() }
     BasicTextField2(state, inputTransformation = { _, new ->
         // A filter that always places newly-input text at the start of the string, after a
@@ -213,7 +212,33 @@ fun BasicTextField2CustomFilterSample() {
 }
 
 @Sampled
-fun BasicTextField2FilterChainingSample() {
+@Composable
+fun BasicTextField2InputTransformationByValueReplaceSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Convert tabs to spaces.
+        inputTransformation = InputTransformation.byValue { _, proposed ->
+            proposed.replace("""\t""".toRegex(), "  ")
+        }
+    )
+}
+
+@Sampled
+@Composable
+fun BasicTextField2InputTransformationByValueChooseSample() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state,
+        // Reject whitespace.
+        inputTransformation = InputTransformation.byValue { current, proposed ->
+            if ("""\s""".toRegex() in proposed) current else proposed
+        }
+    )
+}
+
+@Sampled
+fun BasicTextField2InputTransformationChainingSample() {
     val removeFirstEFilter = InputTransformation { _, new ->
         val index = new.asCharSequence().indexOf('e')
         if (index != -1) {
