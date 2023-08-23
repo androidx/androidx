@@ -66,6 +66,9 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionInfo
 import androidx.compose.ui.platform.accessibility.setCollectionItemInfo
+import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
+import androidx.compose.ui.platform.coreshims.ViewCompatShims
+import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -97,12 +100,10 @@ import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
-import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -1947,16 +1948,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 Log.e(LogTag, "Invalid arguments for accessibility character locations")
                 return
             }
-            val textLayoutResults = mutableListOf<TextLayoutResult>()
-            // Note now it only works for single Text/TextField until we fix b/157474582.
-            val getLayoutResult = node.unmergedConfig[SemanticsActions.GetTextLayoutResult]
-                .action?.invoke(textLayoutResults)
-            val textLayoutResult: TextLayoutResult
-            if (getLayoutResult == true) {
-                textLayoutResult = textLayoutResults[0]
-            } else {
-                return
-            }
+            val textLayoutResult = getTextLayoutResult(node.unmergedConfig) ?: return
             val boundingRects = mutableListOf<RectF?>()
             for (i in 0 until positionInfoLength) {
                 // This is a workaround until we fix the merging issue in b/157474582.
@@ -2774,8 +2766,22 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
-        ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
-        return ViewCompat.getContentCaptureSession(this)
+        ViewCompatShims.setImportantForContentCapture(
+            this,
+            ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES
+        )
+        return ViewCompatShims.getContentCaptureSession(this)
+    }
+
+    private fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLayoutResult? {
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        val getLayoutResult = configuration.getOrNull(SemanticsActions.GetTextLayoutResult)
+            ?.action?.invoke(textLayoutResults) ?: return null
+        return if (getLayoutResult) {
+            textLayoutResults[0]
+        } else {
+            null
+        }
     }
 
     private fun SemanticsNode.toViewStructure(): ViewStructureCompat? {
@@ -2784,7 +2790,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return null
         }
 
-        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
+        val rootAutofillId = ViewCompatShims.getAutofillId(view) ?: return null
         val parentNode = parent
         val parentAutofillId = if (parentNode != null) {
             session.newAutofillId(parentNode.id.toLong()) ?: return null
@@ -2812,6 +2818,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         configuration.getOrNull(SemanticsProperties.Role)?.toLegacyClassName()?.let {
             structure.setClassName(it)
+        }
+
+        getTextLayoutResult(configuration)?.let {
+            val input = it.layoutInput
+            val px = input.style.fontSize.value * input.density.density * input.density.fontScale
+            structure.setTextStyle(px, 0, 0, 0)
         }
 
         with(boundsInParent) {
@@ -3208,17 +3220,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 if (!node.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)) {
                     return null
                 }
-                // TODO(b/157474582): Note now it only works for single Text/TextField until we
-                //  fix the merging issue.
-                val textLayoutResults = mutableListOf<TextLayoutResult>()
-                val textLayoutResult: TextLayoutResult
-                val getLayoutResult = node.unmergedConfig[SemanticsActions.GetTextLayoutResult]
-                    .action?.invoke(textLayoutResults)
-                if (getLayoutResult == true) {
-                    textLayoutResult = textLayoutResults[0]
-                } else {
-                    return null
-                }
+                val textLayoutResult = getTextLayoutResult(node.unmergedConfig) ?: return null
                 if (granularity == AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_LINE) {
                     iterator = AccessibilityIterators.LineTextSegmentIterator.getInstance()
                     iterator.initialize(text, textLayoutResult)
