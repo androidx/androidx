@@ -89,11 +89,10 @@ internal class DefaultSpecialEffectsController(
         }
 
         // Start transition special effects
-        val startedTransitions = createTransitionEffect(transitions, isPop, firstOut, lastIn)
-        val startedAnyTransition = startedTransitions.containsValue(true)
+        createTransitionEffect(transitions, isPop, firstOut, lastIn)
 
         // Collect Animation and Animator Effects
-        collectAnimEffects(animations, startedAnyTransition, startedTransitions)
+        collectAnimEffects(animations)
     }
 
     /**
@@ -114,12 +113,11 @@ internal class DefaultSpecialEffectsController(
     }
 
     @SuppressLint("NewApi", "PrereleaseSdkCoreDependency")
-    private fun collectAnimEffects(
-        animationInfos: List<AnimationInfo>,
-        startedAnyTransition: Boolean,
-        startedTransitions: Map<Operation, Boolean>
-    ) {
+    private fun collectAnimEffects(animationInfos: List<AnimationInfo>) {
         val animationsToRun = mutableListOf<AnimationInfo>()
+        val startedAnyTransition = animationInfos.flatMap {
+            it.operation.effects
+        }.isNotEmpty()
         var startedAnyAnimator = false
         // Find all Animators and add the effect to the operation
         for (animatorInfo: AnimationInfo in animationInfos) {
@@ -139,7 +137,7 @@ internal class DefaultSpecialEffectsController(
             // First make sure we haven't already started a Transition for this Operation
 
             val fragment = operation.fragment
-            val startedTransition = startedTransitions[operation] == true
+            val startedTransition = operation.effects.isNotEmpty()
             if (startedTransition) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(FragmentManager.TAG,
@@ -189,10 +187,7 @@ internal class DefaultSpecialEffectsController(
         isPop: Boolean,
         firstOut: Operation?,
         lastIn: Operation?
-    ): Map<Operation, Boolean> {
-        // Start transition special effects
-        val startedTransitions = mutableMapOf<Operation, Boolean>()
-
+    ) {
         // First verify that we can run all transitions together
         val transitionImpl = transitionInfos.filterNot { transitionInfo ->
             // If there is no change in visibility, we can skip the TransitionInfo
@@ -208,14 +203,8 @@ internal class DefaultSpecialEffectsController(
                     "type than other Fragments."
             }
             handlingImpl
-        }
-        if (transitionImpl == null) {
-            // There were no transitions at all so we can just complete all of them
-            for (transitionInfo: TransitionInfo in transitionInfos) {
-                startedTransitions[transitionInfo.operation] = false
-            }
-            return startedTransitions
-        }
+        } ?: // Early return if there were no transitions at all
+            return
 
         // Now find the shared element transition if it exists
         var sharedElementTransition: Any? = null
@@ -357,14 +346,12 @@ internal class DefaultSpecialEffectsController(
         val transitionEffect = TransitionEffect(
             transitionInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
             sharedElementFirstOutViews, sharedElementLastInViews, sharedElementNameMapping,
-            enteringNames, exitingNames, firstOutViews, lastInViews, isPop, startedTransitions
+            enteringNames, exitingNames, firstOutViews, lastInViews, isPop
         )
 
         transitionInfos.forEach { transitionInfo ->
             transitionInfo.operation.addEffect(transitionEffect)
         }
-
-        return startedTransitions
     }
 
     /**
@@ -709,8 +696,7 @@ internal class DefaultSpecialEffectsController(
         val exitingNames: ArrayList<String>,
         val firstOutViews: ArrayMap<String, View>,
         val lastInViews: ArrayMap<String, View>,
-        val isPop: Boolean,
-        val startedTransitions: MutableMap<Operation, Boolean>
+        val isPop: Boolean
     ) : Effect() {
         val transitionSignal = CancellationSignal()
 
@@ -775,10 +761,6 @@ internal class DefaultSpecialEffectsController(
                         // runs directly after the swap
                         transitionImpl.scheduleRemoveTargets(sharedElementTransition, null, null,
                             null, null, sharedElementTransition, sharedElementLastInViews)
-                        // Both the firstOut and lastIn Operations are now associated
-                        // with a Transition
-                        startedTransitions[firstOut] = true
-                        startedTransitions[lastIn] = true
                     }
                 }
             }
@@ -792,7 +774,6 @@ internal class DefaultSpecialEffectsController(
                 val operation: Operation = transitionInfo.operation
                 if (transitionInfo.isVisibilityUnchanged) {
                     // No change in visibility, so we can immediately complete the transition
-                    startedTransitions[transitionInfo.operation] = false
                     transitionInfo.operation.completeEffect(this)
                     continue
                 }
@@ -805,7 +786,6 @@ internal class DefaultSpecialEffectsController(
                         // Only complete the transition if this fragment isn't involved
                         // in the shared element transition (as otherwise we need to wait
                         // for that to finish)
-                        startedTransitions[operation] = false
                         transitionInfo.operation.completeEffect(this)
                     }
                 } else {
@@ -856,7 +836,6 @@ internal class DefaultSpecialEffectsController(
                     } else {
                         transitionImpl.setEpicenter(transition, firstOutEpicenterView)
                     }
-                    startedTransitions[operation] = true
                     // Now determine how this transition should be merged together
                     if (transitionInfo.isOverlapAllowed) {
                         // Overlap is allowed, so add them to the mergeTransition set

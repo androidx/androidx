@@ -320,9 +320,9 @@ class FragmentTransitionAnimTest(
                 .commit()
             executePendingTransactions()
 
-            assertThat(fragment2.startTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+            // We need to wait for the exit transitions to end
+            assertThat(fragment2.endTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
                 .isTrue()
-            // We need to wait for the exit animation to end
             assertThat(
                 fragment1.endTransitionCountDownLatch.await(
                     1000,
@@ -340,7 +340,7 @@ class FragmentTransitionAnimTest(
             dispatcher.dispatchOnBackProgressed(
                 BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
             )
-            dispatcher.onBackPressed()
+            withActivity { dispatcher.onBackPressed() }
             executePendingTransactions()
 
             fragment1.waitForTransition()
@@ -405,12 +405,7 @@ class FragmentTransitionAnimTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "ordering={0}")
-        fun data() = mutableListOf<Array<Any>>().apply {
-            arrayOf(
-                Ordered,
-                Reordered
-            )
-        }
+        fun data() = arrayOf(Ordered, Reordered)
 
         @AnimRes
         private val ENTER = 1
