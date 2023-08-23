@@ -17,6 +17,7 @@
 package androidx.glance.session
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
  * state changes). These will be sent on Dispatchers.Default.
  * This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(Scope.LIBRARY_GROUP)
 object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
     private val sent = AtomicBoolean(false)
@@ -59,7 +60,8 @@ object GlobalSnapshotManager {
 /**
  * Monitors global snapshot state writes and sends apply notifications.
  */
-internal suspend fun globalSnapshotMonitor() {
+@RestrictTo(Scope.LIBRARY_GROUP)
+suspend fun globalSnapshotMonitor() {
     val channel = Channel<Unit>(1)
     val sent = AtomicBoolean(false)
     val observerHandle = Snapshot.registerGlobalWriteObserver {
