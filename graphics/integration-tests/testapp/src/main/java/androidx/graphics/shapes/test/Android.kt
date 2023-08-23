@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
+import androidx.core.graphics.scaleMatrix
 import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.RoundedPolygon
 
@@ -57,5 +58,5 @@ fun Iterator<Cubic>.toPath(path: Path = Path()): Path {
 
 fun Canvas.drawPolygon(shape: RoundedPolygon, scale: Int, paint: Paint) =
     drawPath(shape.cubics.iterator().toPath().apply {
-        scale(scale.toFloat(), scale.toFloat())
-    }, paint)
+        transform(scaleMatrix(scale.toFloat(), scale.toFloat()))
+}, paint)
