@@ -226,6 +226,30 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
             }
         }
     }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_1() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            Rect()
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_10() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(10) { Rect() }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_f_compose_Rect_100() = runBlockingTestWithFrameClock {
+        measureComposeFocused {
+            repeat(100) { Rect() }
+        }
+    }
 }
 
 class ColorModel(color: Color = Color.Black) {

@@ -36,6 +36,7 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":compose:foundation:foundation-layout"))
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation(projectOrArtifact(":compose:runtime:runtime"))
+    androidTestImplementation(projectOrArtifact(":compose:runtime:runtime-saveable"))
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-text"))
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-util"))
     androidTestImplementation(projectOrArtifact(":compose:test-utils"))
