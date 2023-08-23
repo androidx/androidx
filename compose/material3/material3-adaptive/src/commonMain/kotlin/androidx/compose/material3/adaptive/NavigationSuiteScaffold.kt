@@ -65,6 +65,11 @@ import androidx.compose.ui.util.fastMap
  * The Navigation Suite Scaffold wraps the provided content and places the adequate provided
  * navigation component on the screen according to the current [NavigationSuiteType].
  *
+ * Example default usage:
+ * @sample androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldSample
+ * Example custom configuration usage:
+ * @sample androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldCustomConfigSample
+ *
  * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
  * @param modifier the [Modifier] to be applied to the navigation suite scaffold
  * @param containerColor the color used for the background of the navigation suite scaffold. Use
