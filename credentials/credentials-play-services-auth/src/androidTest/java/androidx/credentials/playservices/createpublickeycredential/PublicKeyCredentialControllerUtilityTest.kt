@@ -19,9 +19,11 @@ package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.android.gms.fido.fido2.api.common.ErrorCode
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -388,5 +390,264 @@ class PublicKeyCredentialControllerUtilityTest {
       .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(byteArrayAttestationObject))
     assertThat(response.get(PublicKeyCredentialControllerUtility.JSON_KEY_TRANSPORTS))
       .isEqualTo(JSONArray(transportArray))
+  }
+
+  @Test
+  fun convertJSON_requiredFields_success() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+    var output = PublicKeyCredentialControllerUtility.convertJSON(json)
+
+    assertThat(output.getUser().getId()).isNotEmpty()
+    assertThat(output.getUser().getName()).isEqualTo("Name of User")
+    assertThat(output.getUser().getDisplayName()).isEqualTo("Display Name of User")
+    assertThat(output.getUser().getIcon()).isEqualTo("icon.png")
+    assertThat(output.getChallenge()).isNotEmpty()
+    assertThat(output.getRp().getId()).isNotEmpty()
+    assertThat(output.getRp().getName()).isEqualTo("Name of RP")
+    assertThat(output.getRp().getIcon()).isEqualTo("rpicon.png")
+    assertThat(output.getParameters().get(0).getAlgorithmIdAsInteger()).isEqualTo(-7)
+    assertThat(output.getParameters().get(0).getTypeAsString()).isEqualTo("public-key")
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingRpId() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingRpName() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingRp() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingPubKeyCredParams() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingChallenge() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingUser() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingUserId() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingUserName() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
+  }
+
+  @Test
+  fun convertJSON_requiredFields_failOnMissingUserDisplayName() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+
+    assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
   }
 }
