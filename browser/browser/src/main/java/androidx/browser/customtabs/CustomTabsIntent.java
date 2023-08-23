@@ -200,6 +200,13 @@ public final class CustomTabsIntent {
             "android.support.customtabs.customaction.SHOW_ON_TOOLBAR";
 
     /**
+     * Extra that specifies the {@link PendingIntent} to be sent when the user swipes up from
+     * the secondary (bottom) toolbar.
+     */
+    public static final String EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE =
+            "androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_SWIPE_UP_GESTURE";
+
+    /**
      * Don't show any title. Shows only the domain.
      */
     public static final int NO_TITLE = 0;
@@ -896,6 +903,18 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets the {@link PendingIntent} to be sent when the user swipes up from
+         * the secondary (bottom) toolbar.
+         * @param pendingIntent The {@link PendingIntent} that will be sent when
+         *                      the user swipes up from the secondary toolbar.
+         */
+        @NonNull
+        public Builder setSecondaryToolbarSwipeUpGesture(@Nullable PendingIntent pendingIntent) {
+            mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE, pendingIntent);
+            return this;
+        }
+
+        /**
          * Sets whether Instant Apps is enabled for this Custom Tab.
 
          * @param enabled Whether Instant Apps should be enabled.
@@ -1449,6 +1468,17 @@ public final class CustomTabsIntent {
      */
     public static boolean isShowOnToolbarEnabled(@NonNull Intent intent) {
         return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
+    }
+
+    /**
+     * @return The {@link PendingIntent} that will be sent when the user swipes up
+     *     from the secondary toolbar.
+     * @see CustomTabsIntent#EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE
+     */
+    @SuppressWarnings("deprecation")
+    @Nullable
+    public PendingIntent getSecondaryToolbarSwipeUpGesture(@NonNull Intent intent) {
+        return intent.getParcelableExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
