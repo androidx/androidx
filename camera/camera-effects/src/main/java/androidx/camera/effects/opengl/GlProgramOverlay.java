@@ -16,24 +16,15 @@
 
 package androidx.camera.effects.opengl;
 
-import static androidx.camera.core.ImageProcessingUtil.copyByteBufferToBitmap;
 import static androidx.camera.effects.opengl.Utils.checkGlErrorOrThrow;
 import static androidx.camera.effects.opengl.Utils.checkLocationOrThrow;
-import static androidx.camera.effects.opengl.Utils.configureTexture2D;
-import static androidx.camera.effects.opengl.Utils.createFbo;
-import static androidx.camera.effects.opengl.Utils.createTextureId;
-import static androidx.camera.effects.opengl.Utils.drawArrays;
-import static androidx.core.util.Preconditions.checkArgument;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-
-import java.nio.ByteBuffer;
 
 /**
  * A GL program that copies the source while overlaying a texture on top of it.
@@ -42,8 +33,6 @@ import java.nio.ByteBuffer;
 class GlProgramOverlay extends GlProgram {
 
     private static final String TAG = "GlProgramOverlay";
-
-    private static final int SNAPSHOT_PIXEL_STRIDE = 4;
 
     static final String TEXTURE_MATRIX = "uTexMatrix";
     static final String OVERLAY_SAMPLER = "samplerOverlayTexture";
@@ -120,91 +109,7 @@ class GlProgramOverlay extends GlProgram {
             @NonNull float[] matrix, @NonNull GlContext glContext, @NonNull Surface surface,
             long timestampNs) {
         use();
-        uploadParameters(inputTextureTarget, inputTextureId, overlayTextureId, matrix);
-        try {
-            glContext.drawAndSwap(surface, timestampNs);
-        } catch (IllegalStateException e) {
-            Logger.w(TAG, "Failed to draw the frame", e);
-        }
-    }
 
-    /**
-     * Draws the input texture and overlay to a Bitmap.
-     *
-     * @param inputTextureTarget the texture target of the input texture. This could be either
-     *                           GLES11Ext.GL_TEXTURE_EXTERNAL_OES or GLES20.GL_TEXTURE_2D,
-     *                           depending if copying from an external texture or a 2D texture.
-     * @param inputTextureId     the texture id of the input texture. This could be either an
-     *                           external texture or a 2D texture.
-     * @param overlayTextureId   the texture id of the overlay texture. This must be a 2D texture.
-     * @param width              the width of the output bitmap.
-     * @param height             the height of the output bitmap.
-     * @param matrix             the texture transformation matrix.
-     */
-    @NonNull
-    Bitmap snapshot(int inputTextureTarget, int inputTextureId, int overlayTextureId, int width,
-            int height, @NonNull float[] matrix) {
-        use();
-        // Allocate buffer.
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(width * height * SNAPSHOT_PIXEL_STRIDE);
-        // Take a snapshot.
-        snapshot(inputTextureTarget, inputTextureId, overlayTextureId, width, height,
-                matrix, byteBuffer);
-        // Create a Bitmap and copy the bytes over.
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        byteBuffer.rewind();
-        copyByteBufferToBitmap(bitmap, byteBuffer, width * SNAPSHOT_PIXEL_STRIDE);
-        return bitmap;
-    }
-
-    /**
-     * Draws the input texture and overlay to a FBO and download the bytes to the given ByteBuffer.
-     */
-    private void snapshot(int inputTextureTarget,
-            int inputTextureId, int overlayTextureId, int width,
-            int height, @NonNull float[] textureTransform, @NonNull ByteBuffer byteBuffer) {
-        checkArgument(byteBuffer.capacity() == width * height * 4,
-                "ByteBuffer capacity is not equal to width * height * 4.");
-        checkArgument(byteBuffer.isDirect(), "ByteBuffer is not direct.");
-
-        // Create a FBO as the drawing target.
-        int fbo = createFbo();
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fbo);
-        checkGlErrorOrThrow("glBindFramebuffer");
-        // Create the texture behind the FBO
-        int textureId = createTextureId();
-        configureTexture2D(textureId);
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, width,
-                height, 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, null);
-        checkGlErrorOrThrow("glTexImage2D");
-        // Attach the texture to the FBO
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-                GLES20.GL_TEXTURE_2D, textureId, 0);
-        checkGlErrorOrThrow("glFramebufferTexture2D");
-
-        // Draw
-        uploadParameters(inputTextureTarget, inputTextureId, overlayTextureId, textureTransform);
-        drawArrays(width, height);
-
-        // Download the pixels from the FBO
-        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
-                byteBuffer);
-        checkGlErrorOrThrow("glReadPixels");
-
-        // Clean up
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-        checkGlErrorOrThrow("glBindFramebuffer");
-        GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
-        checkGlErrorOrThrow("glDeleteTextures");
-        GLES20.glDeleteFramebuffers(1, new int[]{fbo}, 0);
-        checkGlErrorOrThrow("glDeleteFramebuffers");
-    }
-
-    /**
-     * Uploads the parameters to the shader.
-     */
-    private void uploadParameters(int inputTextureTarget, int inputTextureId, int overlayTextureId,
-            @NonNull float[] matrix) {
         // Uploads the texture transformation matrix.
         GLES20.glUniformMatrix4fv(mTextureMatrixLoc, 1, false, matrix, 0);
         checkGlErrorOrThrow("glUniformMatrix4fv");
@@ -218,5 +123,11 @@ class GlProgramOverlay extends GlProgram {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, overlayTextureId);
         checkGlErrorOrThrow("glBindTexture");
+
+        try {
+            glContext.drawAndSwap(surface, timestampNs);
+        } catch (IllegalStateException e) {
+            Logger.w(TAG, "Failed to draw the frame", e);
+        }
     }
 }
