@@ -237,7 +237,12 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 val thisArtifact = thisCoordinates?.artifactId
                 val methodArtifact = methodCoordinates.artifactId
                 if (thisArtifact != methodArtifact) {
-                    val where = "from within the same library ($methodGroup:$methodArtifact)"
+                    val name = if (methodGroup == "__local_aars__") {
+                        "missing Maven coordinate due to repackaging"
+                    } else {
+                        "$methodGroup:$methodArtifact"
+                    }
+                    val where = "from within the same library ($name)"
                     reportRestriction(where, containingClass, member, context, node, usageInfo)
                 }
             } else if (member !is PsiCompiledElement) {
