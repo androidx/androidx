@@ -646,9 +646,11 @@ public class SurfaceEdge {
                     + "provider, call SurfaceEdge#invalidate before calling "
                     + "SurfaceEdge#setProvider");
             checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
-                    "The provider's size must match the parent");
+                    String.format("The provider's size(%s) must match the parent(%s)",
+                            getPrescribedSize(), provider.getPrescribedSize()));
             checkArgument(getPrescribedStreamFormat() == provider.getPrescribedStreamFormat(),
-                    "The provider's format must match the parent");
+                    String.format("The provider's format(%s) must match the parent(%s)",
+                            getPrescribedStreamFormat(), provider.getPrescribedStreamFormat()));
             checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
                     + "setting a new provider.");
             mProvider = provider;

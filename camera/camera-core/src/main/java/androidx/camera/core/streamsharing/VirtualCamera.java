@@ -96,6 +96,8 @@ class VirtualCamera implements CameraInternal {
     private final CameraCaptureCallback mParentMetadataCallback = createCameraCaptureCallback();
     @NonNull
     private final VirtualCameraControl mVirtualCameraControl;
+    @NonNull
+    private final VirtualCameraInfo mVirtualCameraInfo;
 
     /**
      * @param parentCamera         the parent {@link CameraInternal} instance. For example, the
@@ -112,6 +114,7 @@ class VirtualCamera implements CameraInternal {
         mChildren = children;
         mVirtualCameraControl = new VirtualCameraControl(parentCamera.getCameraControlInternal(),
                 streamSharingControl);
+        mVirtualCameraInfo = new VirtualCameraInfo(parentCamera.getCameraInfoInternal());
         // Set children state to inactive by default.
         for (UseCase child : children) {
             mChildrenActiveState.put(child, false);
@@ -306,9 +309,7 @@ class VirtualCamera implements CameraInternal {
     @NonNull
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
-        // TODO(b/265818567): replace this with a virtual camera info that returns a updated sensor
-        //  rotation degrees based on buffer transformation applied in StreamSharing.
-        return mParentCamera.getCameraInfoInternal();
+        return mVirtualCameraInfo;
     }
 
     @NonNull
