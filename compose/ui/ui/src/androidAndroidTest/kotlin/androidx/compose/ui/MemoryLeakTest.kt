@@ -62,6 +62,7 @@ class MemoryLeakTest {
     val activityTestRule = androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
     @Test
+    @SdkSuppress(minSdkVersion = 22) // b/266743031
     fun disposeAndRemoveOwnerView_assertViewWasGarbageCollected() = runBlocking {
         class SimpleTestCase : ComposeTestCase {
             @Composable
