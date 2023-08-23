@@ -35,6 +35,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import kotlin.test.assertFalse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -301,6 +302,75 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
 
         // Assert
         Truth.assertThat(pagerState.currentPage).isEqualTo(5)
+    }
+
+    @Test
+    fun updateCurrentPage_shouldUpdateCurrentPageImmediately() {
+        createPager(modifier = Modifier.fillMaxSize())
+
+        Truth.assertThat(pagerState.currentPage).isEqualTo(0)
+
+        rule.runOnUiThread {
+            scope.launch {
+                with(pagerState) {
+                    scroll {
+                        updateCurrentPage(5)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(pagerState.currentPage).isEqualTo(5)
+        }
+    }
+
+    @Test
+    fun updateCurrentPage_shouldUpdateCurrentPageOffsetFractionImmediately() {
+        createPager(modifier = Modifier.fillMaxSize())
+
+        Truth.assertThat(pagerState.currentPage).isEqualTo(0)
+
+        rule.runOnUiThread {
+            scope.launch {
+                with(pagerState) {
+                    scroll {
+                        updateCurrentPage(5, 0.3f)
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(pagerState.currentPageOffsetFraction).isWithin(0.01f).of(0.3f)
+        }
+    }
+
+    @Test
+    fun updateTargetPage_shouldUpdateTargetPageImmediately_andResetIfNotMoved() {
+        createPager(modifier = Modifier.fillMaxSize())
+
+        Truth.assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage)
+
+        rule.mainClock.autoAdvance = false
+
+        rule.runOnUiThread {
+            scope.launch {
+                with(pagerState) {
+                    scroll {
+                        updateTargetPage(5)
+                        delay(1_000L) // simulate an animation
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame() // pump a frame
+        Truth.assertThat(pagerState.targetPage).isEqualTo(5) // target page changed
+        rule.mainClock.advanceTimeBy(2_000L) // scroll block finished but we didn't move
+        // target page reset
+        Truth.assertThat(pagerState.currentPage).isEqualTo(0)
+        Truth.assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage)
     }
 
     companion object {

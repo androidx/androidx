@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -527,6 +528,66 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.runOnIdle {
             scope.launch {
                 pagerState.animateScrollToPage(0)
+            }
+        }
+        rule.mainClock.advanceTimeUntil { pagerState.targetPage != previousTarget }
+
+        // Assert
+        assertThat(pagerState.targetPage).isEqualTo(0)
+        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
+    }
+
+    @Test
+    fun targetPage_shouldReflectTargetWithCustomAnimation() {
+        // Arrange
+        suspend fun PagerState.customAnimateScrollToPage(page: Int) {
+            scroll {
+                updateTargetPage(page)
+                val targetPageDiff = page - currentPage
+                val distance = targetPageDiff * layoutInfo.pageSize.toFloat()
+                var previousValue = 0.0f
+                animate(
+                    0f,
+                    distance,
+                ) { currentValue, _ ->
+                    previousValue += scrollBy(currentValue - previousValue)
+                }
+            }
+        }
+
+        createPager(
+            modifier = Modifier.fillMaxSize()
+        )
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
+
+        rule.mainClock.autoAdvance = false
+        // Act
+        // Moving forward
+        var previousTarget = pagerState.targetPage
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.customAnimateScrollToPage(DefaultPageCount - 1)
+            }
+        }
+        rule.mainClock.advanceTimeUntil { pagerState.targetPage != previousTarget }
+
+        // Assert
+        assertThat(pagerState.targetPage).isEqualTo(DefaultPageCount - 1)
+        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
+        rule.mainClock.autoAdvance = false
+
+        // Act
+        // Moving backward
+        previousTarget = pagerState.targetPage
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.customAnimateScrollToPage(0)
             }
         }
         rule.mainClock.advanceTimeUntil { pagerState.targetPage != previousTarget }
