@@ -16,9 +16,6 @@
 
 package androidx.graphics.shapes.testcompose
 
-import android.graphics.Matrix
-import android.graphics.PointF
-import android.graphics.RectF
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -52,12 +49,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.graphics.shapes.Cubic
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import kotlin.math.abs
 import kotlin.math.min
 import kotlinx.coroutines.launch
 
@@ -67,56 +63,15 @@ fun PolygonComposable(polygon: RoundedPolygon, modifier: Modifier = Modifier) =
 
 @Composable
 private fun MorphComposable(
-    sizedMorph: SizedMorph,
+    morph: Morph,
     progress: Float,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false
-) = MorphComposableImpl(sizedMorph, modifier, isDebug, progress)
-
-internal fun calculateMatrix(bounds: RectF, width: Float, height: Float): Matrix {
-    val originalWidth = bounds.right - bounds.left
-    val originalHeight = bounds.bottom - bounds.top
-    val scale = min(width / originalWidth, height / originalHeight)
-    val newLeft = bounds.left - (width / scale - originalWidth) / 2
-    val newTop = bounds.top - (height / scale - originalHeight) / 2
-    val matrix = Matrix()
-    matrix.setTranslate(-newLeft, -newTop)
-    matrix.postScale(scale, scale)
-    return matrix
-}
-
-internal fun PointF.transform(
-    matrix: Matrix,
-    dst: PointF = PointF(),
-    floatArray: FloatArray = FloatArray(2)
-): PointF {
-    floatArray[0] = x
-    floatArray[1] = y
-    matrix.mapPoints(floatArray)
-    dst.x = floatArray[0]
-    dst.y = floatArray[1]
-    return dst
-}
-
-private val TheBounds = RectF(0f, 0f, 1f, 1f)
-
-private class SizedMorph(val morph: Morph) {
-    var width = 1f
-    var height = 1f
-
-    fun resizeMaybe(newWidth: Float, newHeight: Float) {
-        if (abs(width - newWidth) > 1e-4 || abs(height - newHeight) > 1e-4) {
-            val matrix = calculateMatrix(RectF(0f, 0f, width, height), newWidth, newHeight)
-            morph.transform(matrix)
-            width = newWidth
-            height = newHeight
-        }
-    }
-}
+) = MorphComposableImpl(morph, modifier, isDebug, progress)
 
 @Composable
 private fun MorphComposableImpl(
-    sizedMorph: SizedMorph,
+    morph: Morph,
     modifier: Modifier = Modifier,
     isDebug: Boolean = false,
     progress: Float
@@ -126,37 +81,42 @@ private fun MorphComposableImpl(
             .fillMaxSize()
             .drawWithContent {
                 drawContent()
-                sizedMorph.resizeMaybe(size.width, size.height)
+                val scale = min(size.width, size.height)
+                val shape = morph
+                    .asMutableCubics(progress)
+                    .scaled(scale)
+
                 if (isDebug) {
-                    debugDraw(sizedMorph.morph, progress = progress)
+                    debugDraw(shape)
                 } else {
-                    drawPath(sizedMorph.morph.asPath(progress).asComposePath(), Color.White)
+                    drawPath(shape.toPath(), Color.White)
                 }
             })
 }
 
 @Composable
 internal fun PolygonComposableImpl(
-    shape: RoundedPolygon,
+    polygon: RoundedPolygon,
     modifier: Modifier = Modifier,
     debug: Boolean = false
 ) {
-    val sizedPolygonCache = remember(shape) {
-        mutableMapOf<Size, RoundedPolygon>()
-    }
+    val sizedShapes = remember(polygon) { mutableMapOf<Size, Sequence<Cubic>>() }
     Box(
         modifier
             .fillMaxSize()
             .drawWithContent {
+                // TODO: Can we use drawWithCache to simplify this?
                 drawContent()
-                val sizedPolygon = sizedPolygonCache.getOrPut(size) {
-                    val matrix = calculateMatrix(TheBounds, size.width, size.height)
-                    RoundedPolygon(shape).apply { transform(matrix) }
+                val scale = min(size.width, size.height)
+                val shape = sizedShapes.getOrPut(size) {
+                    polygon.cubics
+                        .scaled(scale)
+                        .asSequence()
                 }
                 if (debug) {
-                    debugDraw(sizedPolygon.toCubicShape())
+                    debugDraw(shape)
                 } else {
-                    drawPath(sizedPolygon.toPath().asComposePath(), Color.White)
+                    drawPath(shape.toPath(), Color.White)
                 }
             })
 }
@@ -288,13 +248,9 @@ fun MorphScreen(
 ) {
     val shapes = remember {
         shapeParams.map { sp ->
-            sp.genShape().also { poly ->
-                val matrix = calculateMatrix(poly.bounds, 1f, 1f)
-                poly.transform(matrix)
-            }
+            sp.genShape().let { poly -> poly.normalized() }
         }
     }
-
     var currShape by remember { mutableStateOf(selectedShape.value) }
     val progress = remember { Animatable(0f) }
 
@@ -304,11 +260,9 @@ fun MorphScreen(
         derivedStateOf {
             // NOTE: We need to access this variable to ensure we recalculate the morph !
             debugLog("Re-computing morph / $debug")
-            SizedMorph(
-                Morph(
-                    shapes[currShape],
-                    shapes[selectedShape.value]
-                )
+            Morph(
+                shapes[currShape],
+                shapes[selectedShape.value]
             )
         }
     }

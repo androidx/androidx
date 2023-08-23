@@ -20,22 +20,23 @@ package androidx.graphics.shapes
  * MeasuredFeatures contains a list of all features in a polygon along with the [0..1] progress
  * at that feature
  */
-internal typealias MeasuredFeatures = List<Pair<Float, RoundedPolygon.Feature>>
+internal typealias MeasuredFeatures = List<ProgressableFeature>
+internal data class ProgressableFeature(val progress: Float, val feature: Feature)
 
 /**
  * featureMapper creates a mapping between the "features" (rounded corners) of two shapes
  */
 internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatures): DoubleMapper {
     // We only use corners for this mapping.
-    val filteredFeatures1 = features1.filter { it.second is RoundedPolygon.Corner }
-    val filteredFeatures2 = features2.filter { it.second is RoundedPolygon.Corner }
+    val filteredFeatures1 = features1.filter { it.feature is Feature.Corner }
+    val filteredFeatures2 = features2.filter { it.feature is Feature.Corner }
 
     val (m1, m2) = if (filteredFeatures1.size > filteredFeatures2.size) {
         doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
     } else {
         filteredFeatures1 to doMapping(filteredFeatures1, filteredFeatures2)
     }
-    val mm = m1.zip(m2).map { (f1, f2) -> f1.first to f2.first }
+    val mm = m1.zip(m2).map { (f1, f2) -> f1.progress to f2.progress }
 
     debugLog(LOG_TAG) { mm.joinToString { "${it.first} -> ${it.second}" } }
     return DoubleMapper(*mm.toTypedArray()).also { dm ->
@@ -54,10 +55,10 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
  * This information is used to determine how to map features (and the curves that make up
  * those features).
  */
-internal fun featureDistSquared(f1: RoundedPolygon.Feature, f2: RoundedPolygon.Feature): Float {
+internal fun featureDistSquared(f1: Feature, f2: Feature): Float {
     // TODO: We might want to enable concave-convex matching in some situations. If so, the
     //  approach below will not work
-    if (f1 is RoundedPolygon.Corner && f2 is RoundedPolygon.Corner && f1.convex != f2.convex) {
+    if (f1 is Feature.Corner && f2 is Feature.Corner && f1.convex != f2.convex) {
         // Simple hack to force all features to map only to features of the same concavity, by
         // returning an infinitely large distance in that case
         debugLog(LOG_TAG) { "*** Feature distance ∞ for convex-vs-concave corners" }
@@ -82,7 +83,7 @@ internal fun featureDistSquared(f1: RoundedPolygon.Feature, f2: RoundedPolygon.F
  */
 internal fun doMapping(f1: MeasuredFeatures, f2: MeasuredFeatures): MeasuredFeatures {
     // Pick the first mapping in a greedy way.
-    val ix = f2.indices.minBy { featureDistSquared(f1[0].second, f2[it].second) }
+    val ix = f2.indices.minBy { featureDistSquared(f1[0].feature, f2[it].feature) }
 
     val m = f1.size
     val n = f2.size
@@ -94,7 +95,7 @@ internal fun doMapping(f1: MeasuredFeatures, f2: MeasuredFeatures): MeasuredFeat
         // Leave enough items in f2 to pick matches for the items left in f1.
         val last = (ix - (m - i)).let { if (it > lastPicked) it else it + n }
         val best = (lastPicked + 1..last).minBy {
-            featureDistSquared(f1[i].second, f2[it % n].second)
+            featureDistSquared(f1[i].feature, f2[it % n].feature)
         }
         ret.add(f2[best % n])
         lastPicked = best

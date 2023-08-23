@@ -16,8 +16,6 @@
 
 package androidx.graphics.shapes
 
-import android.graphics.PointF
-import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -36,32 +34,32 @@ class RoundedPolygonTest {
         }
 
         val square = RoundedPolygon(4)
-        var min = PointF(-1f, -1f)
-        var max = PointF(1f, 1f)
-        assertInBounds(square.toCubicShape(), min, max)
+        var min = Point(-1f, -1f)
+        var max = Point(1f, 1f)
+        assertInBounds(square.cubics, min, max)
 
         val doubleSquare = RoundedPolygon(4, 2f)
         min *= 2f
         max *= 2f
-        assertInBounds(doubleSquare.toCubicShape(), min, max)
+        assertInBounds(doubleSquare.cubics, min, max)
 
         val squareRounded = RoundedPolygon(4, rounding = rounding)
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(squareRounded.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(squareRounded.cubics, min, max)
 
         val squarePVRounded = RoundedPolygon(4, perVertexRounding = perVtxRounded)
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(squarePVRounded.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(squarePVRounded.cubics, min, max)
     }
 
     @Test
     fun verticesConstructorTest() {
-        val p0 = PointF(1f, 0f)
-        val p1 = PointF(0f, 1f)
-        val p2 = PointF(-1f, 0f)
-        val p3 = PointF(0f, -1f)
+        val p0 = Point(1f, 0f)
+        val p1 = Point(0f, 1f)
+        val p2 = Point(-1f, 0f)
+        val p3 = Point(0f, -1f)
         val verts = floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -69,32 +67,32 @@ class RoundedPolygonTest {
         }
 
         val manualSquare = RoundedPolygon(verts)
-        var min = PointF(-1f, -1f)
-        var max = PointF(1f, 1f)
-        assertInBounds(manualSquare.toCubicShape(), min, max)
+        var min = Point(-1f, -1f)
+        var max = Point(1f, 1f)
+        assertInBounds(manualSquare.cubics, min, max)
 
-        val offset = PointF(1f, 2f)
+        val offset = Point(1f, 2f)
         val offsetVerts = floatArrayOf(p0.x + offset.x, p0.y + offset.y,
             p1.x + offset.x, p1.y + offset.y, p2.x + offset.x, p2.y + offset.y,
             p3.x + offset.x, p3.y + offset.y)
         val manualSquareOffset = RoundedPolygon(offsetVerts, centerX = offset.x, centerY = offset.y)
-        min = PointF(0f, 1f)
-        max = PointF(2f, 3f)
-        assertInBounds(manualSquareOffset.toCubicShape(), min, max)
+        min = Point(0f, 1f)
+        max = Point(2f, 3f)
+        assertInBounds(manualSquareOffset.cubics, min, max)
 
         val manualSquareRounded = RoundedPolygon(verts, rounding = rounding)
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(manualSquareRounded.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(manualSquareRounded.cubics, min, max)
 
         val manualSquarePVRounded = RoundedPolygon(verts,
             perVertexRounding = perVtxRounded)
-        min = PointF(-1f, -1f)
-        max = PointF(1f, 1f)
-        assertInBounds(manualSquarePVRounded.toCubicShape(), min, max)
+        min = Point(-1f, -1f)
+        max = Point(1f, 1f)
+        assertInBounds(manualSquarePVRounded.cubics, min, max)
     }
 
-    fun pointsToFloats(points: List<PointF>): FloatArray {
+    private fun pointsToFloats(points: List<Point>): FloatArray {
         val result = FloatArray(points.size * 2)
         var index = 0
         for (point in points) {
@@ -106,9 +104,9 @@ class RoundedPolygonTest {
 
     @Test
     fun roundingSpaceUsageTest() {
-        val p0 = PointF(0f, 0f)
-        val p1 = PointF(1f, 0f)
-        val p2 = PointF(0.5f, 1f)
+        val p0 = Point(0f, 0f)
+        val p1 = Point(1f, 0f)
+        val p2 = Point(0.5f, 1f)
         val pvRounding = listOf(
             CornerRounding(1f, 0f),
             CornerRounding(1f, 1f),
@@ -121,8 +119,8 @@ class RoundedPolygonTest {
 
         // Since there is not enough room in the p0 -> p1 side even for the roundings, we shouldn't
         // take smoothing into account, so the corners should end in the middle point.
-        val lowerEdgeFeature = polygon.features.first { it is RoundedPolygon.Edge }
-            as RoundedPolygon.Edge
+        val lowerEdgeFeature = polygon.features.first { it is Feature.Edge }
+            as Feature.Edge
         assertEquals(1, lowerEdgeFeature.cubics.size)
 
         val lowerEdge = lowerEdgeFeature.cubics.first()
@@ -211,10 +209,10 @@ class RoundedPolygonTest {
         // Corner rounding parameter for vertex 3 (bottom left)
         rounding3: CornerRounding = CornerRounding(0.5f)
     ) {
-        val p0 = PointF(0f, 0f)
-        val p1 = PointF(5f, 0f)
-        val p2 = PointF(5f, 1f)
-        val p3 = PointF(0f, 1f)
+        val p0 = Point(0f, 0f)
+        val p1 = Point(5f, 0f)
+        val p2 = Point(5f, 1f)
+        val p3 = Point(0f, 1f)
 
         val pvRounding = listOf(
             rounding0,
@@ -226,7 +224,7 @@ class RoundedPolygonTest {
             vertices = pointsToFloats(listOf(p0, p1, p2, p3)),
             perVertexRounding = pvRounding
         )
-        val (e01, _, _, e30) = polygon.features.filterIsInstance<RoundedPolygon.Edge>()
+        val (e01, _, _, e30) = polygon.features.filterIsInstance<Feature.Edge>()
         val msg = "r0 = ${show(rounding0)}, r3 = ${show(rounding3)}"
         assertEqualish(expectedV0SX, e01.cubics.first().anchor0X, msg)
         assertEqualish(expectedV0SY, e30.cubics.first().anchor1Y, msg)
