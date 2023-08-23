@@ -1,5 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                    visibleItems.find { info ->"
+        errorLine2="                                                 ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val placeables = measurables.map { it.measure(constraints) }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            placeables.forEach {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    placeables.forEach { p ->"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val maxChildrenHeight = placeables.maxOf { it.height }"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/PickerGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val currentItem = items.find { it.index == index }"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .map { animationState.value + it.unadjustedOffset + snapOffset }"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumnSnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .minByOrNull { abs(it - decayTarget) } ?: decayTarget)"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyColumnSnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.find { it.index == itemIndexToFind }"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.map {"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.find { it.index == itemIndexToFind }"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.map {"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    return this.visibleItemsInfo.find { it.index == index }"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    visibleItemsInfo.forEach { totalSize += it.unadjustedSize }"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {"
+        errorLine2="                                                          ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScrollAway.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {"
+        errorLine2="                                                          ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScrollAway.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {"
+        errorLine2="                                                          ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ScrollAway.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val a = anchors.filter { it &lt;= offset + 0.001 }.maxOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()"
+        errorLine2="                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"

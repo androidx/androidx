@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            return emittable.children.map { child ->"
+        errorLine2="                                      ~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/unit/GlanceMappedNode.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (child in node.children()) {"
+        errorLine2="                   ~~">
+        <location
+            file="src/main/java/androidx/glance/testing/GlanceNodeAssertion.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return matching.toList()"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/GlanceNodeAssertion.kt"/>
+    </issue>
+
+</issues>

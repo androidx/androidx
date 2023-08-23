@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanSuppressTag"
@@ -78,6 +78,87 @@
         message="@suppress is not allowed in documentation"
         errorLine1="fun &lt;S, T, V : AnimationVector> Transition&lt;S>.createDeferredAnimation("
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _animations.forEach {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _transitions.forEach {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _animations.forEach {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _transitions.forEach {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _transitions.forEach {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        _animations.forEach {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                _animations.forEach { it.resetAnimation() }"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return animations.fold(&quot;Transition animation values: &quot;) { acc, anim -> &quot;$acc$anim, &quot; }"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            _animations.forEach {"
+        errorLine2="                        ~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
     </issue>
