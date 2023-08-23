@@ -413,7 +413,12 @@ class VectorizedInfiniteRepeatableSpec<V : AnimationVector>(
     ): V = if (playTimeNanos + initialOffsetNanos > durationNanos) {
         // Start velocity of the 2nd and subsequent iteration will be the velocity at the end
         // of the first iteration, instead of the initial velocity.
-        getVelocityFromNanos(durationNanos - initialOffsetNanos, start, startVelocity, end)
+        animation.getVelocityFromNanos(
+            playTimeNanos = durationNanos - initialOffsetNanos,
+            initialValue = start,
+            targetValue = end,
+            initialVelocity = startVelocity
+        )
     } else {
         startVelocity
     }
