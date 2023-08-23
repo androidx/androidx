@@ -2674,16 +2674,13 @@ internal suspend fun savePointerInputEventsWithFix(
                             .firstOrNull()
 
                         if (currentEvent != null && !currentEvent.changedToUpIgnoreConsumed()) {
-                            if (currentEvent.historical.isEmpty()) {
-                                tracker.addPosition(
-                                    currentEvent.uptimeMillis,
-                                    currentEvent.position
-                                )
-                            } else {
-                                currentEvent.historical.fastForEach {
-                                    tracker.addPosition(it.uptimeMillis, it.position)
-                                }
+                            currentEvent.historical.fastForEach {
+                                tracker.addPosition(it.uptimeMillis, it.position)
                             }
+                            tracker.addPosition(
+                                currentEvent.uptimeMillis,
+                                currentEvent.position
+                            )
                         }
 
                         event = currentEvent

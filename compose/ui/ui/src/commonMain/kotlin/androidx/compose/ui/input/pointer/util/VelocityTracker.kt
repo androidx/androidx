@@ -109,6 +109,7 @@ class VelocityTracker {
     fun resetTracking() {
         xVelocityTracker.resetTracking()
         yVelocityTracker.resetTracking()
+        lastMoveEventTimeStamp = 0L
     }
 }
 
@@ -405,38 +406,22 @@ private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChang
 }
 
 private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChange) {
-    // If this is ACTION_DOWN: Register down event as the starting point for the accumulator
-    // Since compose uses relative positions, for a more accurate velocity calculation we'll need
-    // to transform all events positions. We use the start of the movement signaled by the DOWN
-    // event as the start point. Any subsequent event will be accumulated into
-    // [currentPointerPositionAccumulator] and used to update the tracker.
-    // We also use this to reset [lastMoveEventTimeStamp].
+    // If this is ACTION_DOWN: Reset the tracking.
     if (event.changedToDownIgnoreConsumed()) {
-        lastMoveEventTimeStamp = 0L
-        currentPointerPositionAccumulator = event.position
         resetTracking()
-        return
     }
 
-    // If this is a ACTION_MOVE event: Add events to the tracker as per the platform implementation.
-    // ACTION_MOVE may or may not have a historical array. If they do have a historical array, use
-    // the data provided by the array only, if they do not have historical data, use the data
-    // provided by the event itself. This is in line with the platform implementation.
+    // If this is not ACTION_UP event: Add events to the tracker as per the platform implementation.
+    // In the platform implementation the historical events array is used, they store the current
+    // event data in the position HistoricalArray.Size. Our historical array doesn't have access
+    // to the final position, but we can get that information from the original event data X and Y
+    // coordinates.
     @OptIn(ExperimentalComposeUiApi::class)
-    if (!event.changedToUpIgnoreConsumed() && !event.changedToDownIgnoreConsumed()) {
-        lastMoveEventTimeStamp = event.uptimeMillis
-        if (event.historical.isEmpty()) {
-            val delta = event.position - currentPointerPositionAccumulator
-            currentPointerPositionAccumulator += delta
-            addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
-        } else {
-            event.historical.fastForEach {
-                val historicalDelta = it.position - currentPointerPositionAccumulator
-                // Update the current position with the historical delta and add it to the tracker
-                currentPointerPositionAccumulator += historicalDelta
-                addPosition(it.uptimeMillis, currentPointerPositionAccumulator)
-            }
+    if (!event.changedToUpIgnoreConsumed()) {
+        event.historical.fastForEach {
+            addPosition(it.uptimeMillis, it.originalEventPosition)
         }
+        addPosition(event.uptimeMillis, event.originalEventPosition)
     }
 
     // If this is ACTION_UP. Fix for b/238654963. If there's been enough time after the last MOVE
@@ -444,6 +429,7 @@ private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChan
     if (event.changedToUpIgnoreConsumed() && (event.uptimeMillis - lastMoveEventTimeStamp) > 40L) {
         resetTracking()
     }
+    lastMoveEventTimeStamp = event.uptimeMillis
 }
 
 internal data class DataPointAtTime(var time: Long, var dataPoint: Float)
