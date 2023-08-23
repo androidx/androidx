@@ -66,7 +66,6 @@ internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> = Config.Option.crea
 internal val SESSION_PHYSICAL_CAMERA_ID_OPTION: Config.Option<String> = Config.Option.create(
     "camera2.cameraCaptureSession.physicalCameraId", String::class.java
 )
-// TODO: Porting the CameraEventCallback option constant.
 
 /**
  * Internal shared implementation details for camera 2 interop.
@@ -169,8 +168,6 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
     ): CaptureCallback? {
         return config.retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing)
     }
-
-    // TODO: Prepare a getter for CameraEventCallbacks
 
     /**
      * Returns the capture request tag.
@@ -275,8 +272,6 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
             return Camera2ImplConfig(OptionsBundle.from(mutableOptionsBundle))
         }
     }
-
-    // TODO: Prepare a setter for CameraEventCallbacks, ex: setCameraEventCallback
 }
 
 internal fun CaptureRequest.Key<*>.createCaptureRequestOption(): Config.Option<Any> {
