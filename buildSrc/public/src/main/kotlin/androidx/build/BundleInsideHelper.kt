@@ -17,9 +17,14 @@
 package androidx.build
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileTreeElement
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.findByType
@@ -27,6 +32,7 @@ import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import shadow.org.apache.tools.zip.ZipOutputStream
 
 /** Allow java and Android libraries to bundle other projects inside the project jar/aar. */
 object BundleInsideHelper {
@@ -45,13 +51,15 @@ object BundleInsideHelper {
      * Used project are expected
      *
      * @param relocations a list of package relocations to apply
+     * @param dropResourcesWithSuffix used to drop Java resources if they match this suffix,
+     *        null means no filtering
      * @receiver the project that should bundle jars specified by this configuration
      * @see forInsideAar(String, String)
      */
     @JvmStatic
-    fun Project.forInsideAar(relocations: List<Relocation>) {
+    fun Project.forInsideAar(relocations: List<Relocation>, dropResourcesWithSuffix: String?) {
         val bundle = configurations.create(CONFIGURATION_NAME)
-        val repackage = configureRepackageTaskForType(relocations, bundle)
+        val repackage = configureRepackageTaskForType(relocations, bundle, dropResourcesWithSuffix)
         // Add to AGP's configuration so this jar get packaged inside of the aar.
         dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
     }
@@ -69,11 +77,13 @@ object BundleInsideHelper {
      *
      * @param from specifies from which package the rename should happen
      * @param to specifies to which package to put the renamed classes
+     * @param dropResourcesWithSuffix used to drop Java resources if they match this suffix,
+     *        null means no filtering
      * @receiver the project that should bundle jars specified by these configurations
      */
     @JvmStatic
-    fun Project.forInsideAar(from: String, to: String) {
-        forInsideAar(listOf(Relocation(from, to)))
+    fun Project.forInsideAar(from: String, to: String, dropResourcesWithSuffix: String?) {
+        forInsideAar(listOf(Relocation(from, to)), dropResourcesWithSuffix)
     }
 
     /**
@@ -90,12 +100,18 @@ object BundleInsideHelper {
      *
      * @param from specifies from which package the rename should happen
      * @param to specifies to which package to put the renamed classes
+     * @param dropResourcesWithSuffix used to drop Java resources if they match this suffix,
+     * null means no filtering
      * @receiver the project that should bundle jars specified by these configurations
      */
     @JvmStatic
-    fun Project.forInsideJar(from: String, to: String) {
+    fun Project.forInsideJar(from: String, to: String, dropResourcesWithSuffix: String?) {
         val bundle = configurations.create(CONFIGURATION_NAME)
-        val repackage = configureRepackageTaskForType(listOf(Relocation(from, to)), bundle)
+        val repackage = configureRepackageTaskForType(
+            relocations = listOf(Relocation(from, to)),
+            configuration = bundle,
+            dropResourcesWithSuffix = dropResourcesWithSuffix
+        )
         dependencies.add("compileOnly", files(repackage.flatMap { it.archiveFile }))
         dependencies.add("testImplementation", files(repackage.flatMap { it.archiveFile }))
 
@@ -126,15 +142,21 @@ object BundleInsideHelper {
     /**
      * KMP Version of [Project.forInsideJar]. See those docs for details.
      *
+     * @param dropResourcesWithSuffix used to drop Java resources if they match this suffix,
+     *      * null means no filtering
      * TODO(b/237104605): bundleInside is a global configuration. Should figure out how to make it
      *   work properly with kmp and source sets so it can reside inside a sourceSet dependency.
      */
     @JvmStatic
-    fun Project.forInsideJarKmp(from: String, to: String) {
+    fun Project.forInsideJarKmp(from: String, to: String, dropResourcesWithSuffix: String?) {
         val kmpExtension =
             extensions.findByType<KotlinMultiplatformExtension>() ?: error("kmp only")
         val bundle = configurations.create(CONFIGURATION_NAME)
-        val repackage = configureRepackageTaskForType(listOf(Relocation(from, to)), bundle)
+        val repackage = configureRepackageTaskForType(
+            relocations = listOf(Relocation(from, to)),
+            configuration = bundle,
+            dropResourcesWithSuffix = dropResourcesWithSuffix
+        )
 
         // To account for KMP structure we need to find the jvm specific target
         // and add the repackaged archive files to only their compilations.
@@ -210,18 +232,50 @@ object BundleInsideHelper {
 
     private fun Project.configureRepackageTaskForType(
         relocations: List<Relocation>,
-        configuration: Configuration
-    ): TaskProvider<ShadowJar> {
+        configuration: Configuration,
+        dropResourcesWithSuffix: String?
+        ): TaskProvider<ShadowJar> {
         return tasks.register(REPACKAGE_TASK_NAME, ShadowJar::class.java) { task ->
             task.apply {
                 configurations = listOf(configuration)
                 for (relocation in relocations) {
                     relocate(relocation.from, relocation.to)
                 }
+                val dontIncludeResourceTransformer = DontIncludeResourceTransformer()
+                dontIncludeResourceTransformer.dropResourcesWithSuffix = dropResourcesWithSuffix
+                transformers.add(dontIncludeResourceTransformer)
                 archiveBaseName.set("repackaged")
                 archiveVersion.set("")
                 destinationDirectory.set(layout.buildDirectory.dir("repackaged"))
             }
+        }
+    }
+
+    internal class DontIncludeResourceTransformer : Transformer {
+        @Optional
+        @Input
+        var dropResourcesWithSuffix: String? = null
+
+        override fun getName(): String {
+            return "DontIncludeResourceTransformer"
+        }
+
+        override fun canTransformResource(element: FileTreeElement?): Boolean {
+            val path = element?.relativePath?.pathString
+            return dropResourcesWithSuffix != null &&
+                (path?.endsWith(dropResourcesWithSuffix!!) == true)
+        }
+
+        override fun transform(context: TransformerContext?) {
+            // no op
+        }
+
+        override fun hasTransformedResource(): Boolean {
+            return true
+        }
+
+        override fun modifyOutputStream(zipOutputStream: ZipOutputStream?, b: Boolean) {
+            // no op
         }
     }
 }

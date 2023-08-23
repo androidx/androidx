@@ -26,11 +26,14 @@ plugins {
 BundleInsideHelper.forInsideAar(
         project,
         /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.test.screenshot.protobuf"
+        /* to =   */ "androidx.test.screenshot.protobuf",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
-    bundleInside(project(path: ":test:screenshot:screenshot-proto", configuration: "export"))
+    bundleInside(project(":test:screenshot:screenshot-proto"))
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.5.0-rc02")
 
