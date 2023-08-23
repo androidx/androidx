@@ -18,7 +18,7 @@
 
     <application>
         <activity android:name=".MainActivity"
-            android:label="Graphics Shapes Test"
+            android:label="Graphics Shapes Test - Compose"
             android:exported="true"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
