@@ -50,8 +50,7 @@ import java.util.Locale
 class IconProcessor(
     private val iconDirectories: List<File>,
     private val expectedApiFile: File,
-    private val generatedApiFile: File,
-    private val verifyApi: Boolean = true
+    private val generatedApiFile: File
 ) {
     /**
      * @return a list of processed [Icon]s, from the provided [iconDirectories].
@@ -59,11 +58,9 @@ class IconProcessor(
     fun process(): List<Icon> {
         val icons = loadIcons()
 
-        if (verifyApi) {
-            ensureIconsExistInAllThemes(icons)
-            writeApiFile(icons, generatedApiFile)
-            checkApi(expectedApiFile, generatedApiFile)
-        }
+        ensureIconsExistInAllThemes(icons)
+        writeApiFile(icons, generatedApiFile)
+        checkApi(expectedApiFile, generatedApiFile)
 
         return icons
     }

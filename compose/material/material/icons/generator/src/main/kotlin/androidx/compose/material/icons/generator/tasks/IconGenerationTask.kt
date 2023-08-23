@@ -24,11 +24,9 @@ import java.util.Locale
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -54,23 +52,11 @@ abstract class IconGenerationTask : DefaultTask() {
         project.rootProject.project(GeneratorProject).projectDir.resolve("raw-icons")
 
     /**
-     * Specific theme to generate icons for, or null to generate all
-     */
-    @Optional
-    @Input
-    var themeName: String? = null
-
-    /**
      * Specific icon directories to use in this task
      */
     @Internal
     fun getIconDirectories(): List<File> {
-        val themeName = themeName
-        if (themeName != null) {
-            return listOf(allIconsDirectory.resolve(themeName))
-        } else {
-            return allIconsDirectory.listFiles()!!.filter { it.isDirectory }
-        }
+        return allIconsDirectory.listFiles()!!.filter { it.isDirectory }
     }
 
     /**
@@ -102,12 +88,10 @@ abstract class IconGenerationTask : DefaultTask() {
         // material-icons-core loads and verifies all of the icons from all of the themes:
         // both that all icons are present in all themes, and also that no icons have been removed.
         // So, when we're loading just one theme, we don't need to verify it
-        val verifyApi = themeName == null
         return IconProcessor(
             getIconDirectories(),
             expectedApiFile,
-            generatedApiFile,
-            verifyApi
+            generatedApiFile
         ).process()
     }
 
@@ -213,16 +197,9 @@ fun <T : IconGenerationTask> Project.registerGenerationTask(
 ): Pair<TaskProvider<T>, File> {
     val variantName = variant?.name ?: "allVariants"
 
-    val themeName = if (project.name.contains("material-icons-extended-")) {
-        project.name.replace("material-icons-extended-", "")
-    } else {
-        null
-    }
-
     val buildDirectory = project.buildDir.resolve("generatedIcons/$variantName")
 
     return tasks.register("$taskName${variantName.capitalize(Locale.getDefault())}", taskClass) {
-        it.themeName = themeName
         it.buildDirectory = buildDirectory
     } to buildDirectory
 }
