@@ -451,8 +451,8 @@ class CanvasFrontBufferedRenderer<T>(
             }
             val params = mParams
             mParams = ArrayList<T>()
-            val width = surfaceView.width
-            val height = surfaceView.height
+            val width = mWidth
+            val height = mHeight
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl
             val parentSurfaceControl = mParentSurfaceControl
             val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
