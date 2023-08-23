@@ -945,16 +945,22 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    public boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
+    public boolean isUseCasesCombinationSupported(boolean withStreamSharing,
+            @NonNull UseCase... useCases) {
+        Collection<UseCase> useCasesToVerify = Arrays.asList(useCases);
+        if (withStreamSharing) {
+            StreamSharing streamSharing = createOrReuseStreamSharing(useCasesToVerify, true);
+            useCasesToVerify = calculateCameraUseCases(useCasesToVerify, null, streamSharing);
+        }
         synchronized (mLock) {
             // If the UseCases exceed the resolutions then it will throw an exception
             try {
-                Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
+                Map<UseCase, ConfigPair> configs = getConfigs(useCasesToVerify,
                         mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
                 calculateSuggestedStreamSpecs(
                         getCameraMode(),
                         mCameraInternal.getCameraInfoInternal(),
-                        Arrays.asList(useCases), emptyList(), configs);
+                        useCasesToVerify, emptyList(), configs);
             } catch (IllegalArgumentException e) {
                 return false;
             }

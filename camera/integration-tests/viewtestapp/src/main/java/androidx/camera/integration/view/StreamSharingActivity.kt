@@ -212,9 +212,10 @@ class StreamSharingActivity : AppCompatActivity() {
         return null
     }
 
+    @SuppressLint("RestrictedApi")
     private fun isStreamSharingEnabled(): Boolean {
         val isCombinationSupported =
-            camera != null && camera!!.isUseCasesCombinationSupported(*useCases)
+            camera != null && camera!!.isUseCasesCombinationSupportedByFramework(*useCases)
         return !isCombinationSupported && isUseCasesBound
     }
 
