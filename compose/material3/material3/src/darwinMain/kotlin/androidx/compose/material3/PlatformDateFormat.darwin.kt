@@ -43,8 +43,8 @@ internal actual object PlatformDateFormat {
         val nsDate = NSDate.dateWithTimeIntervalSince1970(utcTimeMillis / 1000.0)
 
         return NSDateFormatter().apply {
-            setDateFormat(pattern)
             setLocale(locale)
+            setDateFormat(pattern)
         }.stringFromDate(nsDate)
     }
 
@@ -57,8 +57,8 @@ internal actual object PlatformDateFormat {
         val nsDate = NSDate.dateWithTimeIntervalSince1970(utcTimeMillis / 1000.0)
 
         return NSDateFormatter().apply {
-            setLocalizedDateFormatFromTemplate(skeleton)
             setLocale(locale)
+            setLocalizedDateFormatFromTemplate(skeleton)
         }.stringFromDate(nsDate)
     }
 
@@ -68,8 +68,8 @@ internal actual object PlatformDateFormat {
     ): CalendarDate? {
 
         val nsDate = NSDateFormatter().apply {
-            setDateFormat(pattern)
             setTimeZone(TimeZone.UTC.toNSTimeZone())
+            setDateFormat(pattern)
         }.dateFromString(date) ?: return null
 
         return Instant

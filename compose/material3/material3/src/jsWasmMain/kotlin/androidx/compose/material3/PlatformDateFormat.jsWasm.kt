@@ -152,7 +152,7 @@ internal actual object PlatformDateFormat {
         return LocalDate(
             year, month, day
         ).atStartOfDayIn(TimeZone.UTC)
-            .toCalendarDate()
+            .toCalendarDate(TimeZone.UTC)
     }
 
     private fun parseSegment(date: String, pattern: String, segmentPattern: String): Int? {

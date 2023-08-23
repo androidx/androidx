@@ -47,7 +47,15 @@ internal actual object PlatformDateFormat {
         // TODO: support ICU skeleton on JVM
         // Maybe it will be supported in kotlinx.datetime in the future.
         // See https://github.com/Kotlin/kotlinx-datetime/pull/251
-        return formatWithPattern(utcTimeMillis, skeleton, locale)
+
+        // stub: not localized but at least readable variant
+        val pattern = when(skeleton){
+            DatePickerDefaults.YearMonthSkeleton -> "MMMM yyyy"
+            DatePickerDefaults.YearAbbrMonthDaySkeleton -> "MMM d, yyyy"
+            DatePickerDefaults.YearMonthWeekdayDaySkeleton -> "EEEE, MMMM d, yyyy"
+            else -> skeleton
+        }
+        return formatWithPattern(utcTimeMillis, pattern, locale)
     }
 
     actual fun parse(
