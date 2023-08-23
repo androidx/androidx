@@ -235,7 +235,6 @@ public final class GlRenderer {
      */
     public void renderQueueTextureToSurface(int textureId, long timestampNs,
             @NonNull float[] textureTransform, @NonNull Surface surface) {
-        checkGlThreadAndInitialized();
         mGlProgramOverlay.draw(GLES20.GL_TEXTURE_2D, textureId, mOverlayTextureId,
                 textureTransform, mGlContext, surface, timestampNs);
     }
@@ -246,29 +245,7 @@ public final class GlRenderer {
      * <p>The texture ID must be from the latest return value of{@link #createBufferTextureIds}.
      */
     public void renderInputToQueueTexture(int textureId) {
-        checkGlThreadAndInitialized();
         mGlProgramCopy.draw(mInputTextureId, textureId, mQueueTextureWidth, mQueueTextureHeight);
-    }
-
-    /**
-     * Renders a queued texture to a Bitmap and returns.
-     */
-    @NonNull
-    public Bitmap renderQueueTextureToBitmap(int textureId, int width, int height,
-            @NonNull float[] textureTransform) {
-        checkGlThreadAndInitialized();
-        return mGlProgramOverlay.snapshot(GLES20.GL_TEXTURE_2D, textureId, mOverlayTextureId,
-                width, height, textureTransform);
-    }
-
-    /**
-     * Renders the input texture to a Bitmap and returns.
-     */
-    @NonNull
-    public Bitmap renderInputToBitmap(int width, int height, @NonNull float[] textureTransform) {
-        checkGlThreadAndInitialized();
-        return mGlProgramOverlay.snapshot(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mInputTextureId,
-                mOverlayTextureId, width, height, textureTransform);
     }
 
     // --- Private methods ---
