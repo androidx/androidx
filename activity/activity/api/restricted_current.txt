@@ -3,7 +3,7 @@ package androidx.activity {
 
   public final class BackEventCompat {
     ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
-    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, float progress, int swipeEdge);
+    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, @FloatRange(from=0.0, to=1.0) float progress, int swipeEdge);
     method public float getProgress();
     method public int getSwipeEdge();
     method public float getTouchX();
