@@ -104,6 +104,7 @@ package androidx.browser.customtabs {
     method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
     method public static int getMaxToolbarItems();
+    method public android.app.PendingIntent? getSecondaryToolbarSwipeUpGesture(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
     method public static java.util.Locale? getTranslateLocale(android.content.Intent);
     method public static boolean isBackgroundInteractionEnabled(android.content.Intent);
@@ -145,6 +146,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_REMOTEVIEWS_PENDINGINTENT = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT";
     field public static final String EXTRA_REMOTEVIEWS_VIEW_IDS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS";
     field public static final String EXTRA_SECONDARY_TOOLBAR_COLOR = "android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR";
+    field public static final String EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE = "androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_SWIPE_UP_GESTURE";
     field public static final String EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER = "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
     field public static final String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
     field public static final String EXTRA_SHARE_STATE = "androidx.browser.customtabs.extra.SHARE_STATE";
@@ -196,6 +198,7 @@ package androidx.browser.customtabs {
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarSwipeUpGesture(android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSendToExternalDefaultHandlerEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
@@ -266,6 +269,7 @@ package androidx.browser.customtabs {
     method public boolean setActionButton(android.graphics.Bitmap, String);
     method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
     method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(java.util.concurrent.Executor, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
+    method public boolean setSecondaryToolbarSwipeUpGesture(android.app.PendingIntent?);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews?, int[]?, android.app.PendingIntent?);
     method @Deprecated public boolean setToolbarItem(int, android.graphics.Bitmap, String);
     method public boolean validateRelationship(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -619,6 +620,18 @@ public class CustomTabsIntentTest {
         intent = new CustomTabsIntent.Builder().setTranslateLocale(Locale.FRANCE).build().intent;
         Locale locale = CustomTabsIntent.getTranslateLocale(intent);
         assertEquals(locale.toLanguageTag(), Locale.FRANCE.toLanguageTag());
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void testSecondaryToolbarSwipeUpGesture() {
+        PendingIntent pendingIntent = TestUtil.makeMockPendingIntent();
+        Intent intent = new CustomTabsIntent.Builder()
+                .setSecondaryToolbarSwipeUpGesture(pendingIntent)
+                .build()
+                .intent;
+        assertEquals(pendingIntent, intent.getParcelableExtra(
+                        CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE));
     }
 
     private void assertNullSessionInExtras(Intent intent) {
