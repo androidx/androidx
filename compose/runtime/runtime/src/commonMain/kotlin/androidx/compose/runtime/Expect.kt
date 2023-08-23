@@ -131,3 +131,7 @@ internal expect class SnapshotContextElementImpl(
 ) : SnapshotContextElement
 
 internal expect fun logError(message: String, e: Throwable)
+
+internal expect fun currentThreadId(): Long
+
+internal expect fun currentThreadName(): String
