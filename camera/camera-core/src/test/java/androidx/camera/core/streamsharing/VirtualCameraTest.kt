@@ -116,6 +116,12 @@ class VirtualCameraTest {
     }
 
     @Test
+    fun getCameraId_returnsVirtualCameraId() {
+        assertThat(virtualCamera.cameraInfoInternal.cameraId)
+            .startsWith("virtual-" + parentCamera.cameraInfoInternal.cameraId)
+    }
+
+    @Test
     fun submitStillCaptureRequests_triggersSnapshot() {
         // Arrange.
         virtualCamera.bindChildren()
@@ -249,7 +255,8 @@ class VirtualCameraTest {
     @Test
     fun virtualCameraInheritsParentProperties() {
         assertThat(virtualCamera.cameraState).isEqualTo(parentCamera.cameraState)
-        assertThat(virtualCamera.cameraInfo).isEqualTo(parentCamera.cameraInfo)
+        assertThat(virtualCamera.cameraInfoInternal.implementation)
+            .isEqualTo(virtualCamera.cameraInfoInternal.implementation)
     }
 
     @Test
