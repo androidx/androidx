@@ -18,6 +18,7 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
+import androidx.compose.material3.catalog.library.util.AdaptiveMaterial3SourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -243,6 +244,20 @@ private val NavigationRail = Component(
     examples = NavigationRailExamples
 )
 
+private val NavigationSuiteScaffold = Component(
+    id = nextId(),
+    name = "Navigation Suite Scaffold",
+    description = "The Navigation Suite Scaffold wraps the provided content and places the " +
+        "adequate provided navigation component on the screen according to the current " +
+        "NavigationSuiteType. \n\n" +
+        "Note: this sample is better experienced in a resizable emulator or foldable device.",
+    // No navigation suite scaffold icon
+    guidelinesUrl = "", // TODO: Add guidelines url when available
+    docsUrl = "", // TODO: Add docs url when available
+    sourceUrl = "$AdaptiveMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    examples = NavigationSuiteScaffoldExamples
+)
+
 private val ProgressIndicators = Component(
     id = nextId(),
     name = "Progress indicators",
@@ -398,6 +413,7 @@ val Components = listOf(
     NavigationBar,
     NavigationDrawer,
     NavigationRail,
+    NavigationSuiteScaffold,
     ProgressIndicators,
     RadioButtons,
     SearchBars,

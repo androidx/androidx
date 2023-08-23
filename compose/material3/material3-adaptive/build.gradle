@@ -119,3 +119,10 @@ android {
             project.rootDir.absolutePath + "/../../golden/compose/material3/material3-adaptive"
     namespace "androidx.compose.material3.adaptive"
 }
+
+// b/295947829 createProjectZip mustRunAfter samples createProjectZip. Remove after https://github.com/gradle/gradle/issues/24368 is resolved
+project.tasks.configureEach { task ->
+    if (task.name == "createProjectZip") {
+        task.mustRunAfter(":compose:material3:material3-adaptive:material3-adaptive-samples:createProjectZip")
+    }
+}
