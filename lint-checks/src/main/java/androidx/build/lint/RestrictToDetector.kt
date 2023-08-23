@@ -458,6 +458,12 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 return true
             }
 
+            // Implementation for AndroidX differs from the standard RestrictToDetector, since we
+            // treat LIBRARY_GROUP_PREFIX as anything in the androidx.* package. See b/297047524.
+            if (group1.startsWith(ANDROIDX_PREFIX) && group2.startsWith(ANDROIDX_PREFIX)) {
+                return true
+            }
+
             val i1 = group1.lastIndexOf('.')
             val i2 = group2.lastIndexOf('.')
             if (i2 != i1 || i1 == -1) {
@@ -466,6 +472,8 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
 
             return group1.regionMatches(0, group2, 0, i1)
         }
+
+        private const val ANDROIDX_PREFIX = "androidx."
 
         /** Using a restricted API. */
         @JvmField

@@ -955,6 +955,10 @@ class RestrictToDetectorTest : AbstractCheckTest() {
         assertTrue(sameLibraryGroupPrefix("foo.bar", "foo.baz"))
         assertTrue(sameLibraryGroupPrefix("com.foo.bar", "com.foo.baz"))
         assertFalse(sameLibraryGroupPrefix("com.foo.bar", "com.bar.qux"))
+
+        // Implementation for AndroidX differs from the standard RestrictToDetector, since we
+        // treat LIBRARY_GROUP_PREFIX as anything in the androidx.* package. See b/297047524.
+        assertTrue(sameLibraryGroupPrefix("androidx.foo.foo", "androidx.bar.bar"))
     }
 
     fun test278573413() {
