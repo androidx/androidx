@@ -672,26 +672,28 @@ private class PagerLazyAnimateScrollScope(val state: PagerState) : LazyLayoutAni
 
     override val itemCount: Int get() = state.pageCount
 
-    override fun getOffsetForItem(index: Int): Int? {
-        return state.layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == index }?.offset
+    override fun getVisibleItemScrollOffset(index: Int): Int {
+        return state.layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == index }?.offset ?: 0
     }
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItem(index, scrollOffset)
     }
 
-    override fun expectedDistanceTo(index: Int, targetScrollOffset: Int): Float {
-        return (index - state.currentPage) * averageItemSize.toFloat() + targetScrollOffset
+    override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
+        return (targetIndex - state.currentPage) * visibleItemsAverageSize.toFloat() +
+            targetItemOffset
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {
         state.scroll(block = block)
     }
 
-    override val averageItemSize: Int
+    override val visibleItemsAverageSize: Int
         get() = state.pageSize + state.pageSpacing
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
     index: Int,
     offset: Int,
@@ -718,7 +720,7 @@ private suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
             snapToItem(preJumpPosition, 0)
         }
         val targetPage = index
-        val pageAvailableSpace = averageItemSize
+        val pageAvailableSpace = visibleItemsAverageSize
         val currentPosition = firstVisibleItemIndex
         val targetOffset = targetPage * pageAvailableSpace
         val currentOffset = currentPosition * pageAvailableSpace
