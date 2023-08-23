@@ -23,6 +23,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
@@ -194,7 +196,8 @@ abstract class GlanceAppWidget(
     }
 }
 
-internal data class AppWidgetId(val appWidgetId: Int) : GlanceId
+@RestrictTo(Scope.LIBRARY_GROUP)
+data class AppWidgetId(val appWidgetId: Int) : GlanceId
 
 /** Update all App Widgets managed by the [GlanceAppWidget] class. */
 suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {

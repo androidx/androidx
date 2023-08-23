@@ -14,6 +14,10 @@ package androidx.glance.testing {
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertExists();
   }
 
+  public interface GlanceNodeAssertionsProvider<R, T extends androidx.glance.testing.GlanceNode<R>> {
+    method public androidx.glance.testing.GlanceNodeAssertion<R,T> onNode(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
+  }
+
   public final class GlanceNodeMatcher<R> {
     ctor public GlanceNodeMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.glance.testing.GlanceNode<R>,java.lang.Boolean> matcher);
     method public boolean matches(androidx.glance.testing.GlanceNode<R> node);
