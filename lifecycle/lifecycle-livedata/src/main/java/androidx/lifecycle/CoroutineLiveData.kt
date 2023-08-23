@@ -351,6 +351,7 @@ internal class CoroutineLiveData<T>(
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  * @param block The block to run when the [LiveData] has active observers.
  */
+@JvmOverloads
 public fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT,
@@ -462,9 +463,10 @@ public fun <T> liveData(
  * @param block The block to run when the [LiveData] has active observers.
  */
 @RequiresApi(Build.VERSION_CODES.O)
+@JvmOverloads
 public fun <T> liveData(
-    context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration,
+    context: CoroutineContext = EmptyCoroutineContext,
     block: suspend LiveDataScope<T>.() -> Unit
 ): LiveData<T> = CoroutineLiveData(context, Api26Impl.toMillis(timeout), block)
 

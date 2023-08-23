@@ -18,9 +18,9 @@
 
 package androidx.lifecycle
 
+import androidx.lifecycle.util.ScopesRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
