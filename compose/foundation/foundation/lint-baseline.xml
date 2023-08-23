@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="NewApi"
@@ -1462,42 +1462,6 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method HorizontalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
-        errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/pager/Pager.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method VerticalPager has parameter &apos;pageContent&apos; with type Function2&lt;? super PagerScope, ? super Integer, Unit>."
         errorLine1="    pageContent: @Composable PagerScope.(page: Int) -> Unit"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

@@ -1,5 +1,284 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val maxSweep = children.maxOfOrNull { child ->"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.forEach { child ->"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedBox.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        maxRadius - children.fold(maxRadius) { currentMaxRadius, node ->"
+        errorLine2="                             ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val weights = childrenInLayoutOrder.map { node ->"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val extraSpace = parentThickness - childrenInLayoutOrder.mapIndexed { ix, node ->"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        childrenInLayoutOrder.forEachIndexed { ix, node ->"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        var maxSweep = childrenInLayoutOrder.maxOfOrNull { it.sweepRadians } ?: 0f"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.forEach { child ->"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.forEach {"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    ) = children.forEach { node ->"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    override fun DrawScope.draw() = children.forEach { with(it) { draw() } }"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.forEach { with(it) { placeIfNeeded() } }"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        }.reversed().toTypedArray()),"
+        errorLine2="          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedDraw.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    }.sortedBy { it.first }"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedDraw.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        var totalSweep = children.sumOf { child ->"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val weights = childrenInLayoutOrder.map { node ->"
+        errorLine2="                                            ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val extraSpace = parentSweepRadians - childrenInLayoutOrder.mapIndexed { ix, node ->"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        childrenInLayoutOrder.forEachIndexed { ix, node ->"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val placeables = measurables.map { it.measure(constraints) }"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/Expandable.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val currentItem = items.find { it.index == index }"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .map { animationState.value + it.unadjustedOffset + snapOffset }"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumnSnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    .minByOrNull { abs(it - decayTarget) } ?: decayTarget)"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyColumnSnapFlingBehavior.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.find { it.index == itemIndexToFind }"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.map {"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.find { it.index == itemIndexToFind }"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            visibleItems.map {"
+        errorLine2="                         ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    return this.visibleItemsInfo.find { it.index == index }"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    visibleItemsInfo.forEach { totalSize += it.unadjustedSize }"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/ScalingLazyListState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        awaitPointerEvent(PointerEventPass.Initial).changes.forEach { change ->"
+        errorLine2="                                                                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/SwipeToDismissBox.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"
