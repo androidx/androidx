@@ -216,6 +216,8 @@ class MacrobenchmarkScopeTest {
         )
         // Turn on method tracing
         scope.launchWithMethodTracing = true
+        // Force Method Tracing
+        scope.methodTracingForTests = true
         // Launch first activity, and validate it is displayed
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         assertTrue(device.hasObject(By.text("InitialText")))

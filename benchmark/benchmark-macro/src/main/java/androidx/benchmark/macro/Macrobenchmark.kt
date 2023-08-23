@@ -290,13 +290,14 @@ private fun macrobenchmark(
                             metrics.forEach {
                                 it.stop()
                             }
-                            if (launchWithMethodTracing) {
+                            if (launchWithMethodTracing && scope.isMethodTracing) {
                                 val (label, tracePath) = scope.stopMethodTracing()
                                 val resultFile = Profiler.ResultFile(
                                     label = label,
                                     absolutePath = tracePath
                                 )
                                 resultFiles += resultFile
+                                scope.isMethodTracing = false
                             }
                         }
                     }
