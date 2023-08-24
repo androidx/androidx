@@ -35,7 +35,10 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Utility class for generating specific implementations of {@link ListenableFuture}.
@@ -408,6 +411,30 @@ public final class Futures {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    /**
+     * Returns a future that delegates to the supplied future but will finish early
+     * (via a TimeoutException) if the specified duration expires.
+     *
+     * @param timeoutMillis     When to time out the future in milliseconds.
+     * @param scheduledExecutor The executor service to enforce the timeout.
+     * @param input             The future to delegate to.
+     */
+    @NonNull
+    public static <V> ListenableFuture<V> makeTimeoutFuture(
+            long timeoutMillis,
+            @NonNull ScheduledExecutorService scheduledExecutor,
+            @NonNull ListenableFuture<V> input) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            propagate(input, completer);
+            ScheduledFuture<?> timeoutFuture = scheduledExecutor.schedule(
+                    () -> completer.setException(new TimeoutException("Future[" + input + "] is "
+                            + "not done within " + timeoutMillis + " ms.")),
+                    timeoutMillis, TimeUnit.MILLISECONDS);
+            input.addListener(() -> timeoutFuture.cancel(true), CameraXExecutors.directExecutor());
+            return "TimeoutFuture[" + input + "]";
+        });
     }
 
     /**

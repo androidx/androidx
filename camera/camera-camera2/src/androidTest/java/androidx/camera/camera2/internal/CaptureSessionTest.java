@@ -177,7 +177,7 @@ public final class CaptureSessionTest {
     private CameraUtil.CameraDeviceHolder mCameraDeviceHolder;
 
     private CaptureSessionRepository mCaptureSessionRepository;
-    private SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
+    private SynchronizedCaptureSession.OpenerBuilder mCaptureSessionOpenerBuilder;
 
     private final List<CaptureSession> mCaptureSessions = new ArrayList<>();
     private final List<DeferrableSurface> mDeferrableSurfaces = new ArrayList<>();
@@ -233,7 +233,7 @@ public final class CaptureSessionTest {
 
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
                 new Quirks(new ArrayList<>()), DeviceQuirks.getAll());
 
@@ -937,7 +937,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void surfaceTerminationFutureIsCalledWhenSessionIsClose() throws InterruptedException {
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
                 new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk())),
                 DeviceQuirks.getAll());
@@ -962,7 +962,7 @@ public final class CaptureSessionTest {
     @Test
     public void closingCaptureSessionClosesDeferrableSurface()
             throws ExecutionException, InterruptedException {
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(mExecutor,
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
                 new Quirks(Arrays.asList(new ConfigureSurfaceToSecondarySessionFailQuirk())),
                 DeviceQuirks.getAll());
@@ -1114,18 +1114,35 @@ public final class CaptureSessionTest {
         outputConfigList.add(
                 new OutputConfigurationCompat(mTestParameters0.mImageReader.getSurface()));
 
-        SynchronizedCaptureSessionOpener synchronizedCaptureSessionOpener =
-                mCaptureSessionOpenerBuilder.build();
+        CountDownLatch endedCountDown = new CountDownLatch(1);
+        CameraCaptureSession.StateCallback testStateCallback =
+                new CameraCaptureSession.StateCallback() {
 
-        SessionConfigurationCompat sessionConfigCompat =
-                synchronizedCaptureSessionOpener.createSessionConfigurationCompat(
-                        SessionConfigurationCompat.SESSION_REGULAR,
-                        outputConfigList,
-                        new SynchronizedCaptureSessionStateCallbacks.Adapter(
-                                mTestParameters0.mSessionStateCallback));
+                    @Override
+                    public void onClosed(@NonNull CameraCaptureSession session) {
+                        endedCountDown.countDown();
+                    }
+
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+
+                    }
+
+                    @Override
+                    public void onConfigureFailed(
+                            @NonNull CameraCaptureSession cameraCaptureSession) {
+                        endedCountDown.countDown();
+                    }
+                };
+
+        SynchronizedCaptureSession.Opener opener = mCaptureSessionOpenerBuilder.build();
+        SessionConfigurationCompat sessionConfigCompat = opener.createSessionConfigurationCompat(
+                SessionConfigurationCompat.SESSION_REGULAR,
+                outputConfigList,
+                new SynchronizedCaptureSessionStateCallbacks.Adapter(testStateCallback));
 
         // Open the CameraCaptureSession without waiting for the onConfigured() callback.
-        synchronizedCaptureSessionOpener.openCaptureSession(mCameraDeviceHolder.get(),
+        opener.openCaptureSession(mCameraDeviceHolder.get(),
                 sessionConfigCompat, mTestParameters0.mSessionConfig.getSurfaces());
 
         // Open the camera again to simulate the cameraDevice is disconnected
@@ -1148,11 +1165,10 @@ public final class CaptureSessionTest {
                     }
                 });
         // Only verify the result when the camera can open successfully.
-        assumeTrue(countDownLatch.await(3000, TimeUnit.MILLISECONDS));
+        assumeTrue(countDownLatch.await(3, TimeUnit.SECONDS));
 
         // The opened CaptureSession should be closed after the CameraDevice is disconnected.
-        verify(mTestParameters0.mSessionStateCallback, timeout(5000)).onClosed(
-                any(CameraCaptureSession.class));
+        assumeTrue(endedCountDown.await(3, TimeUnit.SECONDS));
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
 
         CameraUtil.releaseCameraDevice(holder);
@@ -1264,7 +1280,7 @@ public final class CaptureSessionTest {
         outputConfigList.add(
                 new OutputConfigurationCompat(mTestParameters0.mImageReader.getSurface()));
 
-        SynchronizedCaptureSessionOpener synchronizedCaptureSessionOpener =
+        SynchronizedCaptureSession.Opener synchronizedCaptureSessionOpener =
                 mCaptureSessionOpenerBuilder.build();
 
         SessionConfigurationCompat sessionConfigCompat =
@@ -1330,12 +1346,11 @@ public final class CaptureSessionTest {
             sessionConfigBuilder.addSurface(deferrableSurface);
         }
 
-        FakeOpenerImpl fakeOpener = new FakeOpenerImpl();
-        SynchronizedCaptureSessionOpener opener = new SynchronizedCaptureSessionOpener(fakeOpener);
+        FakeOpener fakeOpener = new FakeOpener();
         // Don't use #createCaptureSession since FakeOpenerImpl won't create CameraCaptureSession
         // so no need to be released.
         CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
-        captureSession.open(sessionConfigBuilder.build(), mCameraDeviceHolder.get(), opener);
+        captureSession.open(sessionConfigBuilder.build(), mCameraDeviceHolder.get(), fakeOpener);
 
         ArgumentCaptor<SessionConfigurationCompat> captor =
                 ArgumentCaptor.forClass(SessionConfigurationCompat.class);
@@ -1581,10 +1596,10 @@ public final class CaptureSessionTest {
         return captureConfigBuilder.build();
     }
 
-    private static class FakeOpenerImpl implements SynchronizedCaptureSessionOpener.OpenerImpl {
+    private static class FakeOpener implements SynchronizedCaptureSession.Opener {
 
-        final SynchronizedCaptureSessionOpener.OpenerImpl mMock = mock(
-                SynchronizedCaptureSessionOpener.OpenerImpl.class);
+        final SynchronizedCaptureSession.Opener mMock = mock(
+                SynchronizedCaptureSession.Opener.class);
 
         @NonNull
         @Override

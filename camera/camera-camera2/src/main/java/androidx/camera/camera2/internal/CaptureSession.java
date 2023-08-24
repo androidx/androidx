@@ -91,7 +91,7 @@ final class CaptureSession implements CaptureSessionInterface {
     /** The Opener to help on creating the SynchronizedCaptureSession. */
     @Nullable
     @GuardedBy("mSessionLock")
-    SynchronizedCaptureSessionOpener mSynchronizedCaptureSessionOpener;
+    SynchronizedCaptureSession.Opener mSessionOpener;
     /** The framework camera capture session held by this session. */
     @Nullable
     @GuardedBy("mSessionLock")
@@ -201,22 +201,19 @@ final class CaptureSession implements CaptureSessionInterface {
     @Override
     public ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
             @NonNull CameraDevice cameraDevice,
-            @NonNull SynchronizedCaptureSessionOpener opener) {
+            @NonNull SynchronizedCaptureSession.Opener opener) {
         synchronized (mSessionLock) {
             switch (mState) {
                 case INITIALIZED:
                     mState = State.GET_SURFACE;
-                    List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
-                    mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
-                    mSynchronizedCaptureSessionOpener = opener;
+                    mConfiguredDeferrableSurfaces = new ArrayList<>(sessionConfig.getSurfaces());
+                    mSessionOpener = opener;
                     ListenableFuture<Void> openFuture = FutureChain.from(
-                                    mSynchronizedCaptureSessionOpener.startWithDeferrableSurface(
-                                            mConfiguredDeferrableSurfaces,
-                                            TIMEOUT_GET_SURFACE_IN_MS))
-                            .transformAsync(
-                                    surfaceList -> openCaptureSession(surfaceList, sessionConfig,
-                                            cameraDevice),
-                                    mSynchronizedCaptureSessionOpener.getExecutor());
+                            mSessionOpener.startWithDeferrableSurface(
+                                    mConfiguredDeferrableSurfaces, TIMEOUT_GET_SURFACE_IN_MS)
+                    ).transformAsync(
+                            surfaces -> openCaptureSession(surfaces, sessionConfig, cameraDevice),
+                            mSessionOpener.getExecutor());
 
                     Futures.addCallback(openFuture, new FutureCallback<Void>() {
                         @Override
@@ -228,7 +225,7 @@ final class CaptureSession implements CaptureSessionInterface {
                         public void onFailure(@NonNull Throwable t) {
                             synchronized (mSessionLock) {
                                 // Stop the Opener if we get any failure during opening.
-                                mSynchronizedCaptureSessionOpener.stop();
+                                mSessionOpener.stop();
                                 switch (mState) {
                                     case OPENING:
                                     case CLOSED:
@@ -242,7 +239,7 @@ final class CaptureSession implements CaptureSessionInterface {
                                 }
                             }
                         }
-                    }, mSynchronizedCaptureSessionOpener.getExecutor());
+                    }, mSessionOpener.getExecutor());
 
                     // The cancellation of the external ListenableFuture cannot actually stop
                     // the open session since we can't cancel the camera2 flow. The underlying
@@ -321,7 +318,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     outputConfigList = getUniqueOutputConfigurations(outputConfigList);
 
                     SessionConfigurationCompat sessionConfigCompat =
-                            mSynchronizedCaptureSessionOpener.createSessionConfigurationCompat(
+                            mSessionOpener.createSessionConfigurationCompat(
                                     SessionConfigurationCompat.SESSION_REGULAR, outputConfigList,
                                     callbacks);
 
@@ -343,7 +340,7 @@ final class CaptureSession implements CaptureSessionInterface {
                         return Futures.immediateFailedFuture(e);
                     }
 
-                    return mSynchronizedCaptureSessionOpener.openCaptureSession(cameraDevice,
+                    return mSessionOpener.openCaptureSession(cameraDevice,
                             sessionConfigCompat, mConfiguredDeferrableSurfaces);
                 default:
                     return Futures.immediateFailedFuture(new CancellationException(
@@ -434,9 +431,9 @@ final class CaptureSession implements CaptureSessionInterface {
                     throw new IllegalStateException(
                             "close() should not be possible in state: " + mState);
                 case GET_SURFACE:
-                    Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
-                            + "Opener shouldn't null in state:" + mState);
-                    mSynchronizedCaptureSessionOpener.stop();
+                    Preconditions.checkNotNull(mSessionOpener,
+                            "The Opener shouldn't null in state:" + mState);
+                    mSessionOpener.stop();
                     // Fall through
                 case INITIALIZED:
                     mState = State.RELEASED;
@@ -444,9 +441,9 @@ final class CaptureSession implements CaptureSessionInterface {
                 case OPENED:
                     // Not break close flow. Fall through
                 case OPENING:
-                    Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
-                            + "Opener shouldn't null in state:" + mState);
-                    mSynchronizedCaptureSessionOpener.stop();
+                    Preconditions.checkNotNull(mSessionOpener,
+                            "The Opener shouldn't null in state:" + mState);
+                    mSessionOpener.stop();
                     mState = State.CLOSED;
                     mSessionConfig = null;
 
@@ -488,9 +485,9 @@ final class CaptureSession implements CaptureSessionInterface {
                     // Fall through
                 case OPENING:
                     mState = State.RELEASING;
-                    Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
-                            + "Opener shouldn't null in state:" + mState);
-                    if (mSynchronizedCaptureSessionOpener.stop()) {
+                    Preconditions.checkNotNull(mSessionOpener,
+                            "The Opener shouldn't null in state:" + mState);
+                    if (mSessionOpener.stop()) {
                         // The CameraCaptureSession doesn't created finish the release flow
                         // directly.
                         finishClose();
@@ -512,9 +509,9 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     return mReleaseFuture;
                 case GET_SURFACE:
-                    Preconditions.checkNotNull(mSynchronizedCaptureSessionOpener, "The "
-                            + "Opener shouldn't null in state:" + mState);
-                    mSynchronizedCaptureSessionOpener.stop();
+                    Preconditions.checkNotNull(mSessionOpener,
+                            "The Opener shouldn't null in state:" + mState);
+                    mSessionOpener.stop();
                     // Fall through
                 case INITIALIZED:
                     mState = State.RELEASED;
