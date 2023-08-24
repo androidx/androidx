@@ -19,6 +19,10 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         google()
+
+        if (settings.extra.get("androidx.allowJetbrainsDev") == "true") {
+            maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/")
+        }
     }
 }
 
@@ -27,6 +31,10 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
+
+        if (settings.extra.get("androidx.allowJetbrainsDev") == "true") {
+            maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/")
+        }
     }
     versionCatalogs {
         create("importMavenLibs") {
