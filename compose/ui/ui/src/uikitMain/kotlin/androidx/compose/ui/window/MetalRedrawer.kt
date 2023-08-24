@@ -114,6 +114,10 @@ private class ApplicationStateListener(
     }
 }
 
+private enum class DrawReason {
+    DISPLAY_LINK_CALLBACK, SYNC_WITH_UIKIT
+}
+
 internal class MetalRedrawer(
     private val metalLayer: CAMetalLayer,
     private val drawCallback: (Surface) -> Unit,
@@ -134,7 +138,7 @@ internal class MetalRedrawer(
     // Semaphore for preventing command buffers count more than swapchain size to be scheduled/executed at the same time
     private val inflightSemaphore = dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
 
-    internal var maximumFramesPerSecond: NSInteger
+    var maximumFramesPerSecond: NSInteger
         get() = caDisplayLink?.preferredFramesPerSecond ?: 0
         set(value) {
             caDisplayLink?.preferredFramesPerSecond = value
@@ -189,7 +193,7 @@ internal class MetalRedrawer(
         }
     }
 
-    internal fun dispose() {
+    fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
 
         disposeCallback(this)
@@ -207,7 +211,7 @@ internal class MetalRedrawer(
      * Marks current state as dirty and unpauses display link if needed and enables draw dispatch operation on
      * next vsync
      */
-    internal fun needRedraw() {
+    fun needRedraw() {
         displayLinkConditions.needsRedrawOnNextVsync = true
     }
 
@@ -215,11 +219,18 @@ internal class MetalRedrawer(
         if (displayLinkConditions.needsRedrawOnNextVsync) {
             displayLinkConditions.needsRedrawOnNextVsync = false
 
-            draw()
+            draw(DrawReason.DISPLAY_LINK_CALLBACK)
         }
     }
 
-    private fun draw() {
+    /**
+     * Immediately dispatch draw and block the thread until it's finished and presented on the screen.
+     */
+    fun drawSynchronously() {
+        draw(DrawReason.SYNC_WITH_UIKIT)
+    }
+
+    private fun draw(reason: DrawReason) {
         if (caDisplayLink == null) {
             // TODO: anomaly, log
             // Logger.warn { "caDisplayLink callback called after it was invalidated " }
@@ -289,6 +300,10 @@ internal class MetalRedrawer(
             }
 
             inflightCommandBuffers.add(commandBuffer)
+
+            if (reason == DrawReason.SYNC_WITH_UIKIT) {
+                commandBuffer.waitUntilCompleted()
+            }
         }
     }
 }
