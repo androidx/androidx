@@ -20,24 +20,29 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.view.View
+import androidx.core.graphics.scaleMatrix
 import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.toPath
 import kotlin.math.min
 
 class ShapeView(context: Context, shape: RoundedPolygon) : View(context) {
     val paint = Paint()
     val shape = shape.normalized()
-    var scale = 1
+    val path = Path()
 
     init {
         paint.setColor(Color.WHITE)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        scale = min(w, h)
+        val scale = min(w, h).toFloat()
+        shape.toPath(path)
+        path.transform(scaleMatrix(scale, scale))
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawPolygon(shape, scale, paint)
+        canvas.drawPath(path, paint)
     }
 }
