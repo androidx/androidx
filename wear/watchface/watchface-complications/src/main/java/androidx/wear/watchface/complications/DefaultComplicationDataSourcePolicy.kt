@@ -355,11 +355,6 @@ public class DefaultComplicationDataSourcePolicy {
             }
             val systemDataSourceFallback =
                 parser.getAttributeIntValue(NAMESPACE_APP, "systemDataSourceFallback", 0)
-            require(SystemDataSources.isAllowedOnDevice(systemDataSourceFallback)) {
-                "$nodeName at line ${parser.lineNumber} cannot have the supplied " +
-                    "systemDataSourceFallback value at the current API level."
-            }
-
             require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
                 "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
             }
