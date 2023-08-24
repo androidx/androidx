@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from GuidedStepActivity.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -16,9 +19,9 @@
 
 package com.example.android.leanback;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -34,7 +37,7 @@ import android.view.inputmethod.EditorInfo;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.leanback.app.GuidedStepFragment;
+import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
@@ -46,9 +49,9 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Activity that showcases different aspects of GuidedStepFragments.
+ * Activity that showcases different aspects of GuidedStepSupportFragments.
  */
-public class GuidedStepActivity extends Activity {
+public class GuidedStepAppCompatActivity extends AppCompatActivity {
 
     private static final int BACK = 2;
 
@@ -69,7 +72,7 @@ public class GuidedStepActivity extends Activity {
     private static final String[] OPTION_DESCRIPTIONS = { "Here's one thing you can do",
             "Here's another thing you can do", "Here's one more thing you can do" };
 
-    private static final String TAG = GuidedStepActivity.class.getSimpleName();
+    private static final String TAG = GuidedStepAppCompatActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,7 +80,7 @@ public class GuidedStepActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guided_step_activity);
         if (savedInstanceState == null) {
-            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(),
+            GuidedStepSupportFragment.addAsRoot(this, new FirstStepFragment(),
                     R.id.lb_guidedstep_host);
         }
     }
@@ -188,7 +191,7 @@ public class GuidedStepActivity extends Activity {
         return action;
     }
 
-    public static class FirstStepFragment extends GuidedStepFragment {
+    public static class FirstStepFragment extends GuidedStepSupportFragment {
 
         @Override
         public int onProvideTheme() {
@@ -229,7 +232,7 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
-                GuidedStepFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
+                GuidedStepSupportFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
             } else if (action.getId() == REFRESH) {
                 // swap actions position and change content:
                 Context context = getActivity();
@@ -248,7 +251,7 @@ public class GuidedStepActivity extends Activity {
                         .build());
                 setActions(newActions);
             } else if (action.getId() == GuidedAction.ACTION_ID_CANCEL){
-                finishGuidedStepFragments();
+                finishGuidedStepSupportFragments();
             }
         }
     }
@@ -265,7 +268,7 @@ public class GuidedStepActivity extends Activity {
         sCards.add("AmEx-4321");
     }
 
-    public static class NewPaymentStepFragment extends GuidedStepFragment {
+    public static class NewPaymentStepFragment extends GuidedStepSupportFragment {
 
         NewPaymentFragmentTarget mNewPaymentTarget;
 
@@ -325,7 +328,7 @@ public class GuidedStepActivity extends Activity {
                 if (mNewPaymentTarget != null) {
                     mNewPaymentTarget.onNewPaymentAdded(selection);
                 }
-                popBackStackToGuidedStepFragment(NewPaymentStepFragment.class,
+                popBackStackToGuidedStepSupportFragment(NewPaymentStepFragment.class,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         }
@@ -372,7 +375,7 @@ public class GuidedStepActivity extends Activity {
         }
     }
 
-    public static class SecondStepFragment extends GuidedStepFragment
+    public static class SecondStepFragment extends GuidedStepSupportFragment
             implements NewPaymentFragmentTarget {
 
 
@@ -448,7 +451,7 @@ public class GuidedStepActivity extends Activity {
         public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 FragmentManager fm = getFragmentManager();
-                GuidedStepFragment.add(fm, new ThirdStepFragment(), R.id.lb_guidedstep_host);
+                GuidedStepSupportFragment.add(fm, new ThirdStepFragment(), R.id.lb_guidedstep_host);
             }
         }
 
@@ -504,7 +507,7 @@ public class GuidedStepActivity extends Activity {
                 FragmentManager fm = getFragmentManager();
                 NewPaymentStepFragment newPaymentFragment = new NewPaymentStepFragment();
                 newPaymentFragment.setTargetFragment(this, 0);
-                GuidedStepFragment.add(fm, newPaymentFragment, R.id.lb_guidedstep_host);
+                GuidedStepSupportFragment.add(fm, newPaymentFragment, R.id.lb_guidedstep_host);
                 return false;
             }
         }
@@ -539,7 +542,7 @@ public class GuidedStepActivity extends Activity {
         }
     }
 
-    public static class ThirdStepFragment extends GuidedStepFragment {
+    public static class ThirdStepFragment extends GuidedStepSupportFragment {
 
         private long mSelectedOption = DEFAULT_OPTION;
 
@@ -610,7 +613,7 @@ public class GuidedStepActivity extends Activity {
                 Bundle arguments = new Bundle();
                 arguments.putLong(FourthStepFragment.EXTRA_OPTION, mSelectedOption);
                 f.setArguments(arguments);
-                GuidedStepFragment.add(fm, f, R.id.lb_guidedstep_host);
+                GuidedStepSupportFragment.add(fm, f, R.id.lb_guidedstep_host);
             } else if (action.getCheckSetId() == GuidedAction.DEFAULT_CHECK_SET_ID) {
                 mSelectedOption = action.getId();
             }
@@ -618,7 +621,7 @@ public class GuidedStepActivity extends Activity {
 
     }
 
-    public static class FourthStepFragment extends GuidedStepFragment {
+    public static class FourthStepFragment extends GuidedStepSupportFragment {
         public static final String EXTRA_OPTION = "extra_option";
 
         public FourthStepFragment() {
@@ -655,10 +658,10 @@ public class GuidedStepActivity extends Activity {
         @Override
         public void onGuidedActionClicked(@NonNull GuidedAction action) {
             if (action.getId() == GuidedAction.ACTION_ID_FINISH) {
-                finishGuidedStepFragments();
+                finishGuidedStepSupportFragments();
             } else if (action.getId() == BACK) {
                 // pop 4, 3, 2
-                popBackStackToGuidedStepFragment(SecondStepFragment.class,
+                popBackStackToGuidedStepSupportFragment(SecondStepFragment.class,
                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         }

@@ -19,6 +19,8 @@
 
 package com.example.android.leanback;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -27,8 +29,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
@@ -53,7 +53,6 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
 
     public static class FirstStepFragment extends GuidedStepSupportFragment {
 
-       @NonNull
        @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_first_title);
@@ -66,10 +65,8 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(
-                @NonNull List<GuidedAction> actions,
-                @Nullable Bundle savedInstanceState
-        ) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
@@ -97,7 +94,7 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             if (action.getId() == GuidedAction.ACTION_ID_CONTINUE) {
                 GuidedStepSupportFragment.add(fm, new SecondStepFragment(), R.id.lb_guidedstep_host);
@@ -114,7 +111,6 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
             return R.style.Theme_Example_Leanback_GuidedStep_Half;
         }
 
-        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
@@ -127,7 +123,8 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_FINISH)
@@ -140,7 +137,8 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateButtonActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
+                @Nullable Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_CANCEL)
                     .description("Cancel")
@@ -148,7 +146,7 @@ public class GuidedStepSupportHalfScreenActivity extends FragmentActivity {
         }
 
         @Override
-        public void onGuidedActionClicked(GuidedAction action) {
+        public void onGuidedActionClicked(@NonNull GuidedAction action) {
             FragmentManager fm = getFragmentManager();
             fm.popBackStack();
         }
