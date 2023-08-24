@@ -35,10 +35,12 @@ import androidx.camera.camera2.internal.compat.workaround.WaitForRepeatingReques
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -72,7 +74,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     private List<DeferrableSurface> mDeferrableSurfaces;
     @Nullable
     @GuardedBy("mObjectLock")
-    ListenableFuture<Void> mOpeningCaptureSession;
+    ListenableFuture<List<Void>> mOpenSessionBlockerFuture;
 
     private final ForceCloseDeferrableSurface mCloseSurfaceQuirk;
     private final WaitForRepeatingRequestStart mWaitForOtherSessionCompleteQuirk;
@@ -97,11 +99,22 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull SessionConfigurationCompat sessionConfigurationCompat,
             @NonNull List<DeferrableSurface> deferrableSurfaces) {
         synchronized (mObjectLock) {
-            mOpeningCaptureSession = mWaitForOtherSessionCompleteQuirk.openCaptureSession(
-                    cameraDevice, sessionConfigurationCompat, deferrableSurfaces,
-                    mCaptureSessionRepository.getClosingCaptureSession(),
-                    super::openCaptureSession);
-            return Futures.nonCancellationPropagating(mOpeningCaptureSession);
+            // For b/146773463: It needs to check all the releasing capture sessions are ready for
+            // opening next capture session.
+            List<SynchronizedCaptureSession>
+                    closingSessions = mCaptureSessionRepository.getClosingCaptureSession();
+            List<ListenableFuture<Void>> futureList = new ArrayList<>();
+            for (SynchronizedCaptureSession session : closingSessions) {
+                futureList.add(session.getOpeningBlocker());
+            }
+            mOpenSessionBlockerFuture = Futures.successfulAsList(futureList);
+
+            return Futures.nonCancellationPropagating(
+                    FutureChain.from(mOpenSessionBlockerFuture).transformAsync(v -> {
+                        debugLog("start openCaptureSession");
+                        return super.openCaptureSession(cameraDevice, sessionConfigurationCompat,
+                                deferrableSurfaces);
+                    }, getExecutor()));
         }
     }
 
@@ -126,8 +139,10 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         synchronized (mObjectLock) {
             if (isCameraCaptureSessionOpen()) {
                 mCloseSurfaceQuirk.onSessionEnd(mDeferrableSurfaces);
-            } else if (mOpeningCaptureSession != null) {
-                mOpeningCaptureSession.cancel(true);
+            } else {
+                if (mOpenSessionBlockerFuture != null) {
+                    mOpenSessionBlockerFuture.cancel(true);
+                }
             }
             return super.stop();
         }
@@ -167,6 +182,12 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         }
         debugLog("onClosed()");
         super.onClosed(session);
+    }
+
+    @Override
+    public void finishClose() {
+        super.finishClose();
+        mWaitForOtherSessionCompleteQuirk.onFinishClosed();
     }
 
     void debugLog(String message) {

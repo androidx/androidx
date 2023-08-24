@@ -62,7 +62,7 @@ interface CaptureSessionInterface {
     @NonNull
     ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
             @NonNull CameraDevice cameraDevice,
-            @NonNull SynchronizedCaptureSessionOpener opener);
+            @NonNull SynchronizedCaptureSession.Opener opener);
 
 
     /**
