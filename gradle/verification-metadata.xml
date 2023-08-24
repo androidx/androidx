@@ -463,19 +463,19 @@
       </trusted-keys>
    </configuration>
    <components>
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.9.0">
-         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.9.0.tar.gz">
-            <sha256 value="31737a9739fc37208e1f532b7472c3fbbf0d753f3621c9dfc1d72a69d5bc35c0" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.9.0.tar.gz" reason="Artifact is not signed"/>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.9.10">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.9.10.tar.gz">
+            <sha256 value="0e10e98c9310cf458dd58f3cce01bd6287b7101a14f57ffa233afbae6282e165" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.9.0.tar.gz" reason="Artifact is not signed"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.9.0">
-         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.9.0.tar.gz">
-            <sha256 value="cbb700baef01980b9b9a6d499da7adff5c611dc61ed247efdf649a073c4dbb3c" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.9.0.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.9.10">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.9.10.tar.gz">
+            <sha256 value="5edce17e755f49915e82e9702c030f77b568e742511bcff5aada1de8b9f01335" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.9.0.tar.gz"/>
          </artifact>
       </component>
-      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.9.0">
-         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.9.0.tar.gz">
-            <sha256 value="ab02e67bc82d986875941036e147179e2812502bd2d6a8d8b3c511a93a8dbd1d" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.9.0.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.9.10">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.9.10.tar.gz">
+            <sha256 value="f19eeb858a76631d6b6691354d6975afe6b50f381fa527051f73e1d42daa0aaa" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.9.0.tar.gz"/>
          </artifact>
       </component>
       <component group="aopalliance" name="aopalliance" version="1.0">
