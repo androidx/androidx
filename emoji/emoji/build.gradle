@@ -4,7 +4,6 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.github.johnrengelman.shadow")
 }
 
 ext {
@@ -14,7 +13,8 @@ ext {
 BundleInsideHelper.forInsideAar(
     project,
     /* from = */ "com.google.flatbuffers",
-    /* to =   */ "androidx.text.emoji.flatbuffer"
+    /* to =   */ "androidx.text.emoji.flatbuffer",
+    /* dropResourcesWithSuffix = */ null
 )
 
 dependencies {

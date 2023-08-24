@@ -31,7 +31,10 @@ BundleInsideHelper.forInsideAar(
             new BundleInsideHelper.Relocation(
                 /* from = */ "com.google.protobuf",
                 /* to =   */ "androidx.appactions.interaction.protobuf")
-        ]
+        ],
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
