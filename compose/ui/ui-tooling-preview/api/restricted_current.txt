@@ -24,8 +24,18 @@ package androidx.compose.ui.tooling.preview {
     field public static final String PIXEL_3A_XL = "id:pixel_3a_xl";
     field public static final String PIXEL_3_XL = "id:pixel_3_xl";
     field public static final String PIXEL_4 = "id:pixel_4";
+    field public static final String PIXEL_4A = "id:pixel_4a";
     field public static final String PIXEL_4_XL = "id:pixel_4_xl";
+    field public static final String PIXEL_5 = "id:pixel_5";
+    field public static final String PIXEL_6 = "id:pixel_6";
+    field public static final String PIXEL_6A = "id:pixel_6a";
+    field public static final String PIXEL_6_PRO = "id:pixel_6_pro";
+    field public static final String PIXEL_7 = "id:pixel_7";
+    field public static final String PIXEL_7A = "id:pixel_7a";
+    field public static final String PIXEL_7_PRO = "id:pixel_7_pro";
     field public static final String PIXEL_C = "id:pixel_c";
+    field public static final String PIXEL_FOLD = "id:pixel_fold";
+    field public static final String PIXEL_TABLET = "id:pixel_tablet";
     field public static final String PIXEL_XL = "id:pixel_xl";
     field public static final String TABLET = "spec:id=reference_tablet,shape=Normal,width=1280,height=800,unit=dp,dpi=240";
     field public static final String TV_1080p = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420";
