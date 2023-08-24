@@ -46,20 +46,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * <p>The SynchronizedCaptureSessionImpl synchronizing methods between the other
- * SynchronizedCaptureSessions to fix b/135050586, b/145725334, b/144817309, b/146773463. The
- * SynchronizedCaptureSessionBaseImpl would be a non-synchronizing version.
- *
- * <p>In b/144817309, the onClosed() callback on
- * {@link android.hardware.camera2.CameraCaptureSession.StateCallback}
- * might not be invoked if the capture session is not the latest one. To align the fixed
- * framework behavior, we manually call the onClosed() when a new CameraCaptureSession is created.
- *
- * <p>The b/135050586, b/145725334 need to close the {@link DeferrableSurface} to force the
- * {@link DeferrableSurface} recreate in the new CaptureSession.
- *
- * <p>b/146773463: It needs to check all the releasing capture sessions are ready for opening
- * next capture session.
+ * The SynchronizedCaptureSessionImpl applies a few workarounds for Quirks.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl {
