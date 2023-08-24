@@ -21,6 +21,7 @@ import android.telecom.Connection
 import android.telecom.ConnectionRequest
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
@@ -35,6 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,6 +99,52 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         // verify / assert connection properties
         verifyConnectionPropertiesBasics(connection)
         assertEquals(Connection.STATE_RINGING, connection!!.state)
+    }
+
+    /**
+     * Ensure an incoming Connection object has its extras set before sending it off to the
+     * platform.
+     */
+    @SmallTest
+    @Test
+    fun testConnectionServiceExtrasAreSet_incomingCall() {
+        // create the CallAttributes
+        val attributes = TestUtils.createCallAttributes(
+            CallAttributesCompat.DIRECTION_INCOMING,
+            mPackagePhoneAccountHandle
+        )
+        // simulate the connection being created
+        val connection = mConnectionService.createSelfManagedConnection(
+            createConnectionRequest(attributes),
+            CallAttributesCompat.DIRECTION_INCOMING
+        )
+        // verify / assert connection extras
+        val unwrappedConnection = connection!!
+        assertTrue(unwrappedConnection.extras.getBoolean(
+            CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED))
+    }
+
+    /**
+     * Ensure an outgoing Connection object has its extras set before sending it off to the
+     * platform.
+     */
+    @SmallTest
+    @Test
+    fun testConnectionServiceExtrasAreSet_outgoingCall() {
+        // create the CallAttributes
+        val attributes = TestUtils.createCallAttributes(
+            CallAttributesCompat.DIRECTION_OUTGOING,
+            mPackagePhoneAccountHandle
+        )
+        // simulate the connection being created
+        val connection = mConnectionService.createSelfManagedConnection(
+            createConnectionRequest(attributes),
+            CallAttributesCompat.DIRECTION_OUTGOING
+        )
+        // verify / assert connection extras
+        val unwrappedConnection = connection!!
+        assertTrue(unwrappedConnection.extras.getBoolean(
+            CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED))
     }
 
     private fun verifyConnectionPropertiesBasics(connection: Connection?) {

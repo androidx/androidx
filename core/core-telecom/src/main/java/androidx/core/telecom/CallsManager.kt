@@ -82,6 +82,13 @@ class CallsManager constructor(context: Context) {
         annotation class Capability
 
         /**
+         * Set on Jetpack Connections that are emulating the transactional APIs using
+         * ConnectionService.
+         */
+        internal const val EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED =
+            "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
+
+        /**
          * If your VoIP application does not want support any of the capabilities below, then your
          * application can register with [CAPABILITY_BASELINE].
          *
