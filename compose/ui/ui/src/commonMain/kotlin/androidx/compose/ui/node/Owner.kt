@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.node
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
@@ -148,7 +149,7 @@ internal interface Owner {
      * `true` when layout should draw debug bounds.
      */
     var showLayoutBounds: Boolean
-        /** @suppress */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @InternalCoreApi
         set
 
