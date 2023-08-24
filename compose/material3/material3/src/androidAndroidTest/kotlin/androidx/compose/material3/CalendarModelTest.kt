@@ -223,16 +223,16 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         assertThat(newModel.plusMonths(month, 3)).isEqualTo(legacyModel.plusMonths(month, 3))
         assertThat(date).isEqualTo(legacyDate)
         assertThat(newModel.getDayOfWeek(date)).isEqualTo(legacyModel.getDayOfWeek(date))
-        assertThat(newModel.formatWithSkeleton(date, "MMM d, yyyy")).isEqualTo(
+        assertThat(newModel.formatWithSkeleton(date, "dMMMy")).isEqualTo(
             legacyModel.formatWithSkeleton(
                 date,
-                "MMM d, yyyy"
+                "dMMMy"
             )
         )
-        assertThat(newModel.formatWithSkeleton(month, "MMM yyyy")).isEqualTo(
+        assertThat(newModel.formatWithSkeleton(month, "MMMy")).isEqualTo(
             legacyModel.formatWithSkeleton(
                 month,
-                "MMM yyyy"
+                "MMMy"
             )
         )
     }
