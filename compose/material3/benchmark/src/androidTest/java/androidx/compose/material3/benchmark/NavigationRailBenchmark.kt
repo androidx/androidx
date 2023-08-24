@@ -22,9 +22,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,14 +50,31 @@ class NavigationRailBenchmark {
     fun firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(testCaseFactory)
     }
+
+    @Test
+    fun changeSelection() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            testCaseFactory,
+            assertOneRecomposition = false,
+        )
+    }
 }
 
-internal class NavigationRailTestCase : LayeredComposeTestCase() {
+internal class NavigationRailTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+    private lateinit var selectedIndexState: MutableIntState
+
     @Composable
     override fun MeasuredContent() {
+        selectedIndexState = remember { mutableIntStateOf(0) }
+
         NavigationRail {
             NavigationRailItem(
-                selected = true,
+                selected = selectedIndexState.value == 0,
+                onClick = {},
+                icon = { Spacer(Modifier.size(24.dp)) },
+            )
+            NavigationRailItem(
+                selected = selectedIndexState.value == 1,
                 onClick = {},
                 icon = { Spacer(Modifier.size(24.dp)) },
             )
@@ -64,5 +86,9 @@ internal class NavigationRailTestCase : LayeredComposeTestCase() {
         MaterialTheme {
             content()
         }
+    }
+
+    override fun toggleState() {
+        selectedIndexState.value = if (selectedIndexState.value == 0) 1 else 0
     }
 }
