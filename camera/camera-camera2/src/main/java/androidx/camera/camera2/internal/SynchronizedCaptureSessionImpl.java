@@ -31,6 +31,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseDeferrableSurface;
+import androidx.camera.camera2.internal.compat.workaround.SessionResetPolicy;
 import androidx.camera.camera2.internal.compat.workaround.WaitForRepeatingRequestStart;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The SynchronizedCaptureSessionImpl applies a few workarounds for Quirks.
@@ -66,6 +68,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     private final ForceCloseDeferrableSurface mCloseSurfaceQuirk;
     private final WaitForRepeatingRequestStart mWaitForOtherSessionCompleteQuirk;
     private final ForceCloseCaptureSession mForceCloseSessionQuirk;
+    private final SessionResetPolicy mSessionResetPolicy;
+    private final AtomicBoolean mClosed = new AtomicBoolean(false);
 
     SynchronizedCaptureSessionImpl(
             @NonNull Quirks cameraQuirks,
@@ -78,6 +82,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(cameraQuirks, deviceQuirks);
         mWaitForOtherSessionCompleteQuirk = new WaitForRepeatingRequestStart(cameraQuirks);
         mForceCloseSessionQuirk = new ForceCloseCaptureSession(deviceQuirks);
+        mSessionResetPolicy = new SessionResetPolicy(deviceQuirks);
     }
 
     @NonNull
@@ -98,10 +103,20 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
 
             return Futures.nonCancellationPropagating(
                     FutureChain.from(mOpenSessionBlockerFuture).transformAsync(v -> {
+                        if (mSessionResetPolicy.needAbortCapture()) {
+                            closeCreatedSession();
+                        }
                         debugLog("start openCaptureSession");
                         return super.openCaptureSession(cameraDevice, sessionConfigurationCompat,
                                 deferrableSurfaces);
                     }, getExecutor()));
+        }
+    }
+
+    private void closeCreatedSession() {
+        List<SynchronizedCaptureSession> sessions = mCaptureSessionRepository.getCaptureSessions();
+        for (SynchronizedCaptureSession session : sessions) {
+            session.close();
         }
     }
 
@@ -153,6 +168,20 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
 
     @Override
     public void close() {
+        if (!mClosed.compareAndSet(false, true)) {
+            debugLog("close() has been called. Skip this invocation.");
+            return;
+        }
+
+        if (mSessionResetPolicy.needAbortCapture()) {
+            try {
+                debugLog("Call abortCaptures() before closing session.");
+                abortCaptures();
+            } catch (Exception e) {
+                debugLog("Exception when calling abortCaptures()" + e);
+            }
+        }
+
         debugLog("Session call close()");
         mWaitForOtherSessionCompleteQuirk.onSessionEnd();
         mWaitForOtherSessionCompleteQuirk.getStartStreamFuture().addListener(() -> {
