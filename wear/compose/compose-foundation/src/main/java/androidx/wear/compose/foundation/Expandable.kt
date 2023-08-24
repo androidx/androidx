@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import kotlin.math.roundToInt
@@ -189,7 +190,7 @@ private fun ScalingLazyListScope.expandableItemImpl(
             },
             modifier = Modifier.clipToBounds()
         ) { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
+            val placeables = measurables.fastMap { it.measure(constraints) }
 
             val width = lerp(placeables[0].width, placeables[1].width, progress)
             val height = lerp(placeables[0].height, placeables[1].height, progress)

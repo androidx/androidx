@@ -26,6 +26,7 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.util.fastForEach
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.state.getAppWidgetState
@@ -202,7 +203,7 @@ data class AppWidgetId(val appWidgetId: Int) : GlanceId
 /** Update all App Widgets managed by the [GlanceAppWidget] class. */
 suspend fun GlanceAppWidget.updateAll(@Suppress("ContextFirst") context: Context) {
     val manager = GlanceAppWidgetManager(context)
-    manager.getGlanceIds(javaClass).forEach { update(context, it) }
+    manager.getGlanceIds(javaClass).fastForEach { update(context, it) }
 }
 
 /**
@@ -215,7 +216,7 @@ suspend inline fun <reified State> GlanceAppWidget.updateIf(
     val stateDef = stateDefinition
     requireNotNull(stateDef) { "GlanceAppWidget.updateIf cannot be used if no state is defined." }
     val manager = GlanceAppWidgetManager(context)
-    manager.getGlanceIds(javaClass).forEach { glanceId ->
+    manager.getGlanceIds(javaClass).fastForEach { glanceId ->
         val state = getAppWidgetState(context, stateDef, glanceId) as State
         if (predicate(state)) update(context, glanceId)
     }

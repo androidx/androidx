@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -1346,10 +1347,10 @@ private fun TopAppBarLayout(
         modifier = modifier
     ) { measurables, constraints ->
         val navigationIconPlaceable =
-            measurables.first { it.layoutId == "navigationIcon" }
+            measurables.fastFirst { it.layoutId == "navigationIcon" }
                 .measure(constraints.copy(minWidth = 0))
         val actionIconsPlaceable =
-            measurables.first { it.layoutId == "actionIcons" }
+            measurables.fastFirst { it.layoutId == "actionIcons" }
                 .measure(constraints.copy(minWidth = 0))
 
         val maxTitleWidth = if (constraints.maxWidth == Constraints.Infinity) {
@@ -1359,7 +1360,7 @@ private fun TopAppBarLayout(
                 .coerceAtLeast(0)
         }
         val titlePlaceable =
-            measurables.first { it.layoutId == "title" }
+            measurables.fastFirst { it.layoutId == "title" }
                 .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
 
         // Locate the title's baseline.

@@ -79,6 +79,9 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import kotlinx.coroutines.launch
 
@@ -323,12 +326,12 @@ private fun SegmentedButtonContent(
             val scope = rememberCoroutineScope()
 
             Layout(listOf(icon, content)) { (iconMeasurables, contentMeasurables), constraints ->
-                val iconPlaceables = iconMeasurables.map { it.measure(constraints) }
-                val iconDesiredWidth = iconMeasurables.fold(0) { acc, it ->
+                val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
+                val iconDesiredWidth = iconMeasurables.fastFold(0) { acc, it ->
                     maxOf(acc, it.maxIntrinsicWidth(Constraints.Infinity))
                 }
                 val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
-                val contentPlaceables = contentMeasurables.map { it.measure(constraints) }
+                val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
                 val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
                 val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconDesiredWidth) +
                     IconSpacing.roundToPx() +
@@ -350,14 +353,14 @@ private fun SegmentedButtonContent(
                 }
 
                 layout(width, constraints.maxHeight) {
-                    iconPlaceables.forEach {
+                    iconPlaceables.fastForEach {
                         it.place(0, (constraints.maxHeight - it.height) / 2)
                     }
 
                     val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
                         IconSpacing.roundToPx() + anim.value
 
-                    contentPlaceables.forEach {
+                    contentPlaceables.fastForEach {
                         it.place(contentOffsetX, (constraints.maxHeight - it.height) / 2)
                     }
                 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Window size classes are a set of opinionated viewport breakpoints to design, develop, and test
@@ -199,7 +200,7 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
             val sortedSizeClasses = supportedSizeClasses.sortedDescending()
             // Find the largest supported size class that matches the width
-            sortedSizeClasses.forEach {
+            sortedSizeClasses.fastForEach {
                 if (width >= with(density) { it.breakpoint().toPx() }) {
                     return it
                 }
@@ -297,7 +298,7 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
             val sortedSizeClasses = supportedSizeClasses.sortedDescending()
             // Find the largest supported size class that matches the width
-            sortedSizeClasses.forEach {
+            sortedSizeClasses.fastForEach {
                 if (height >= with(density) { it.breakpoint().toPx() }) {
                     return it
                 }

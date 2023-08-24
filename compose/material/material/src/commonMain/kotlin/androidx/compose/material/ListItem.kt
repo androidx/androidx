@@ -37,7 +37,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
@@ -353,9 +355,9 @@ private fun BaselinesOffsetColumn(
 ) {
     Layout(content, modifier) { measurables, constraints ->
         val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
-        val placeables = measurables.map { it.measure(childConstraints) }
+        val placeables = measurables.fastMap { it.measure(childConstraints) }
 
-        val containerWidth = placeables.fold(0) { maxWidth, placeable ->
+        val containerWidth = placeables.fastFold(0) { maxWidth, placeable ->
             max(maxWidth, placeable.width)
         }
         val y = Array(placeables.size) { 0 }

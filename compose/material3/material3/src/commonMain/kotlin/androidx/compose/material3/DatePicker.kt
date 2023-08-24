@@ -110,6 +110,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -1568,7 +1569,7 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                for (it in dayNames) {
+                dayNames.fastForEach {
                     Box(
                         modifier = Modifier
                             .clearAndSetSemantics { contentDescription = it.first }

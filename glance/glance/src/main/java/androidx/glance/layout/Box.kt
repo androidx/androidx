@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -32,7 +33,7 @@ class EmittableBox : EmittableWithChildren() {
     override fun copy(): Emittable = EmittableBox().also {
         it.modifier = modifier
         it.contentAlignment = contentAlignment
-        it.children.addAll(children.map { it.copy() })
+        it.children.addAll(children.fastMap { it.copy() })
     }
 
     override fun toString(): String = "EmittableBox(" +

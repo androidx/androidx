@@ -118,6 +118,7 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
         return testContext.cachedMatchedNodes
     }
 
+    @Suppress("ListIterator")
     private fun findMatchingNodes(node: GlanceNode<R>): List<GlanceNode<R>> {
         val matching = mutableListOf<GlanceNode<R>>()
         if (matcher.matches(node)) {

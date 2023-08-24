@@ -158,6 +158,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
 import kotlin.math.PI
 import kotlin.math.abs
@@ -924,7 +929,7 @@ private fun HorizontalPeriodToggle(
 ) {
     val measurePolicy = remember {
         MeasurePolicy { measurables, constraints ->
-            val spacer = measurables.first { it.layoutId == "Spacer" }
+            val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
             val spacerPlaceable = spacer.measure(
                 constraints.copy(
                     minWidth = 0,
@@ -932,7 +937,7 @@ private fun HorizontalPeriodToggle(
                 )
             )
 
-            val items = measurables.filter { it.layoutId != "Spacer" }.map { item ->
+            val items = measurables.fastFilter { it.layoutId != "Spacer" }.fastMap { item ->
                 item.measure(
                     constraints.copy(
                         minWidth = 0,
@@ -969,7 +974,7 @@ private fun VerticalPeriodToggle(
 ) {
     val measurePolicy = remember {
         MeasurePolicy { measurables, constraints ->
-            val spacer = measurables.first { it.layoutId == "Spacer" }
+            val spacer = measurables.fastFirst { it.layoutId == "Spacer" }
             val spacerPlaceable = spacer.measure(
                 constraints.copy(
                     minHeight = 0,
@@ -977,7 +982,7 @@ private fun VerticalPeriodToggle(
                 )
             )
 
-            val items = measurables.filter { it.layoutId != "Spacer" }.map { item ->
+            val items = measurables.fastFilter { it.layoutId != "Spacer" }.fastMap { item ->
                 item.measure(
                     constraints.copy(
                         minHeight = 0,
@@ -1604,11 +1609,11 @@ private fun CircularLayout(
     ) { measurables, constraints ->
         val radiusPx = radius.toPx()
         val itemConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val placeables = measurables.filter {
+        val placeables = measurables.fastFilter {
             it.layoutId != LayoutId.Selector && it.layoutId != LayoutId.InnerCircle
-        }.map { measurable -> measurable.measure(itemConstraints) }
-        val selectorMeasurable = measurables.find { it.layoutId == LayoutId.Selector }
-        val innerMeasurable = measurables.find { it.layoutId == LayoutId.InnerCircle }
+        }.fastMap { measurable -> measurable.measure(itemConstraints) }
+        val selectorMeasurable = measurables.fastFirstOrNull { it.layoutId == LayoutId.Selector }
+        val innerMeasurable = measurables.fastFirstOrNull { it.layoutId == LayoutId.InnerCircle }
         val theta = FullCircle / (placeables.count())
         val selectorPlaceable = selectorMeasurable?.measure(itemConstraints)
         val innerCirclePlaceable = innerMeasurable?.measure(itemConstraints)
@@ -1619,7 +1624,7 @@ private fun CircularLayout(
         ) {
             selectorPlaceable?.place(0, 0)
 
-            placeables.forEachIndexed { i, it ->
+            placeables.fastForEachIndexed { i, it ->
                 val centerOffsetX = constraints.maxWidth / 2 - it.width / 2
                 val centerOffsetY = constraints.maxHeight / 2 - it.height / 2
                 val offsetX = radiusPx * cos(theta * i - QuarterCircle) + centerOffsetX
@@ -1717,7 +1722,7 @@ private val MaxDistance = 74.dp
 private val MinimumInteractiveSize = 48.dp
 private val Minutes = listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
 private val Hours = listOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-private val ExtraHours = Hours.map { (it % 12 + 12) }
+private val ExtraHours = Hours.fastMap { (it % 12 + 12) }
 private val PeriodToggleMargin = 12.dp
 
 /**

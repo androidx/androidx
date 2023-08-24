@@ -249,8 +249,6 @@ inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
- *
- * @param [operation] function that takes current accumulator value and an element, and calculates the next accumulator value.
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
@@ -365,6 +363,8 @@ inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
  *
  * @param [operation] function that takes current accumulator value and an element,
  * and calculates the next accumulator value.
+ *
+ * @throws UnsupportedOperationException if this collection is empty
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
@@ -532,11 +532,11 @@ fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
 /**
  * Returns the first value that [predicate] returns `true` for
  *
- * @throws [NoSuchElementException] if no such element is found.
- *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
+ *
+ * @throws [NoSuchElementException] if no such element is found
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)

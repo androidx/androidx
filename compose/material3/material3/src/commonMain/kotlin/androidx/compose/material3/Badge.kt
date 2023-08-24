@@ -42,6 +42,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.roundToInt
 
 /**
@@ -103,13 +104,13 @@ fun BadgedBox(
             }
     ) { measurables, constraints ->
 
-        val badgePlaceable = measurables.first { it.layoutId == "badge" }.measure(
+        val badgePlaceable = measurables.fastFirst { it.layoutId == "badge" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs.
             constraints.copy(minHeight = 0)
         )
 
-        val anchorPlaceable = measurables.first { it.layoutId == "anchor" }.measure(constraints)
+        val anchorPlaceable = measurables.fastFirst { it.layoutId == "anchor" }.measure(constraints)
 
         val firstBaseline = anchorPlaceable[FirstBaseline]
         val lastBaseline = anchorPlaceable[LastBaseline]

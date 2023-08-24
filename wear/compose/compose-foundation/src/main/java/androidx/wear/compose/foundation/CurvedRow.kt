@@ -18,6 +18,10 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMapIndexed
+import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * A layout composable that places its children in an arc, rotating them as needed. This is
@@ -60,13 +64,14 @@ internal class CurvedRowChild(
 ) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.clockwise(), contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
-        children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
+        children.fastMaxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float,
     ): PartialLayoutInfo {
         // position children, sum angles.
+        @Suppress("ListIterator")
         var totalSweep = children.sumOf { child ->
             var childRadialPosition = parentOuterRadius
             var childThickness = parentThickness
@@ -96,11 +101,11 @@ internal class CurvedRowChild(
         parentSweepRadians: Float,
         centerOffset: Offset
     ): Float {
-        val weights = childrenInLayoutOrder.map { node ->
+        val weights = childrenInLayoutOrder.fastMap { node ->
             (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
         }
         val sumWeights = weights.sum()
-        val extraSpace = parentSweepRadians - childrenInLayoutOrder.mapIndexed { ix, node ->
+        val extraSpace = parentSweepRadians - childrenInLayoutOrder.fastMapIndexed { ix, node ->
             if (weights[ix] == 0f) {
                 node.sweepRadians
             } else {
@@ -109,7 +114,7 @@ internal class CurvedRowChild(
         }.sum()
 
         var currentStartAngle = parentStartAngleRadians
-        childrenInLayoutOrder.forEachIndexed { ix, node ->
+        childrenInLayoutOrder.fastForEachIndexed { ix, node ->
             val actualSweep = if (weights[ix] > 0f) {
                     extraSpace * weights[ix] / sumWeights
                 } else {
