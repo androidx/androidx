@@ -329,19 +329,21 @@ internal class UIKitTextInputService(
                 else -> UIReturnKeyType.UIReturnKeyDefault
             }
 
-        override fun textContentType(): UITextContentType? =
-            when (currentImeOptions?.keyboardType) {
-                KeyboardType.Password, KeyboardType.NumberPassword -> UITextContentTypePassword
-                KeyboardType.Email -> UITextContentTypeEmailAddress
-                KeyboardType.Phone -> UITextContentTypeTelephoneNumber
-                else -> null
-            }
+        override fun textContentType(): UITextContentType? = null
+//           TODO: Prevent Issue https://youtrack.jetbrains.com/issue/COMPOSE-319/iOS-Bug-password-TextField-changes-behavior-for-all-other-TextFieds
+//            when (currentImeOptions?.keyboardType) {
+//                KeyboardType.Password, KeyboardType.NumberPassword -> UITextContentTypePassword
+//                KeyboardType.Email -> UITextContentTypeEmailAddress
+//                KeyboardType.Phone -> UITextContentTypeTelephoneNumber
+//                else -> null
+//            }
 
-        override fun isSecureTextEntry(): Boolean =
-            when (currentImeOptions?.keyboardType) {
-                KeyboardType.Password, KeyboardType.NumberPassword -> true
-                else -> false
-            }
+        override fun isSecureTextEntry(): Boolean = false
+//           TODO: Prevent Issue https://youtrack.jetbrains.com/issue/COMPOSE-319/iOS-Bug-password-TextField-changes-behavior-for-all-other-TextFieds
+//            when (currentImeOptions?.keyboardType) {
+//                KeyboardType.Password, KeyboardType.NumberPassword -> true
+//                else -> false
+//            }
 
         override fun enablesReturnKeyAutomatically(): Boolean = false
 
