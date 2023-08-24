@@ -33,12 +33,14 @@ import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.Long
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
+import kotlin.collections.emptyList
 import kotlin.collections.emptyMap
 import kotlin.collections.isNotEmpty
 import kotlin.collections.joinToString
@@ -72,7 +74,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byDay for more context.
    */
-  @get:Document.DocumentProperty(name = "byDay") public val byDays: List<ByDay>
+  @get:Document.DocumentProperty(name = "byDay")
+  public val byDays: List<ByDay>
+    get() = emptyList()
 
   /**
    * Defines the month(s) of the year on which a recurring Event takes place. Specified as an
@@ -80,7 +84,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonth for more context.
    */
-  @get:Document.LongProperty(name = "byMonth") public val byMonths: List<Long>
+  @get:Document.LongProperty(name = "byMonth")
+  public val byMonths: List<Long>
+    get() = emptyList()
 
   /**
    * Defines the day(s) of the month on which a recurring Event takes place. Specified as an Integer
@@ -88,7 +94,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthDay for more context.
    */
-  @get:Document.LongProperty(name = "byMonthDay") public val byMonthDays: List<Long>
+  @get:Document.LongProperty(name = "byMonthDay")
+  public val byMonthDays: List<Long>
+    get() = emptyList()
 
   /**
    * Defines the week(s) of the month on which a recurring Event takes place. Specified as an
@@ -97,14 +105,18 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthWeek for more context.
    */
-  @get:Document.LongProperty(name = "byMonthWeek") public val byMonthWeeks: List<Long>
+  @get:Document.LongProperty(name = "byMonthWeek")
+  public val byMonthWeeks: List<Long>
+    get() = emptyList()
 
   /**
    * The end date and time of the item.
    *
    * See https://schema.org/endDate for more context.
    */
-  @get:Document.DocumentProperty public val endDate: EndDate?
+  @get:Document.DocumentProperty
+  public val endDate: EndDate?
+    get() = null
 
   /**
    * The endTime of something.
@@ -116,7 +128,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/endTime for more context.
    */
-  @get:Document.DocumentProperty public val endTime: EndTime?
+  @get:Document.DocumentProperty
+  public val endTime: EndTime?
+    get() = null
 
   /**
    * Defines a `Date` or `DateTime` during which a scheduled `Event` will not take place. The
@@ -128,14 +142,19 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/exceptDate for more context.
    */
-  @get:Document.DocumentProperty public val exceptDate: ExceptDate?
+  @get:Document.DocumentProperty
+  public val exceptDate: ExceptDate?
+    get() = null
 
   /**
    * Defines the number of times a recurring `Event` will take place.
    *
    * See https://schema.org/repeatCount for more context.
    */
-  @get:Document.LongProperty @get:Suppress("AutoBoxing") public val repeatCount: Long?
+  @get:Document.LongProperty
+  @get:Suppress("AutoBoxing")
+  public val repeatCount: Long?
+    get() = null
 
   /**
    * Defines the frequency at which `Event`s will occur according to a schedule `Schedule`. The
@@ -143,7 +162,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/repeatFrequency for more context.
    */
-  @get:Document.DocumentProperty public val repeatFrequency: RepeatFrequency?
+  @get:Document.DocumentProperty
+  public val repeatFrequency: RepeatFrequency?
+    get() = null
 
   /**
    * Indicates the timezone for which the time(s) indicated in the `Schedule` are given. The value
@@ -151,14 +172,18 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/scheduleTimezone for more context.
    */
-  @get:Document.StringProperty public val scheduleTimezone: String?
+  @get:Document.StringProperty
+  public val scheduleTimezone: String?
+    get() = null
 
   /**
    * The start date and time of the item.
    *
    * See https://schema.org/startDate for more context.
    */
-  @get:Document.DocumentProperty public val startDate: StartDate?
+  @get:Document.DocumentProperty
+  public val startDate: StartDate?
+    get() = null
 
   /**
    * The startTime of something.
@@ -170,7 +195,9 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/startTime for more context.
    */
-  @get:Document.DocumentProperty public val startTime: StartTime?
+  @get:Document.DocumentProperty
+  public val startTime: StartTime?
+    get() = null
 
   /** Converts this [Schedule] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -197,40 +224,50 @@ public interface Schedule : Intangible {
     public fun addByDay(dayOfWeek: DayOfWeek): Self = addByDay(ByDay(dayOfWeek))
 
     /** Appends a value to `byDays`. */
-    public fun addByDay(byDay: ByDay): Self
+    @Suppress("DocumentExceptions")
+    public fun addByDay(byDay: ByDay): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byDays`. */
-    public fun addByDays(values: Iterable<ByDay>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByDays(values: Iterable<ByDay>): Self = throw NotImplementedError()
 
     /** Clears `byDays`. */
-    public fun clearByDays(): Self
+    @Suppress("DocumentExceptions") public fun clearByDays(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonths`. */
-    public fun addByMonth(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonth(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonths`. */
-    public fun addByMonths(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonths(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonths`. */
-    public fun clearByMonths(): Self
+    @Suppress("DocumentExceptions") public fun clearByMonths(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonthDays`. */
-    public fun addByMonthDay(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthDay(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonthDays`. */
-    public fun addByMonthDays(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthDays(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonthDays`. */
-    public fun clearByMonthDays(): Self
+    @Suppress("DocumentExceptions")
+    public fun clearByMonthDays(): Self = throw NotImplementedError()
 
     /** Appends a value to `byMonthWeeks`. */
-    public fun addByMonthWeek(integer: Long): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthWeek(integer: Long): Self = throw NotImplementedError()
 
     /** Appends multiple values to `byMonthWeeks`. */
-    public fun addByMonthWeeks(values: Iterable<Long>): Self
+    @Suppress("DocumentExceptions")
+    public fun addByMonthWeeks(values: Iterable<Long>): Self = throw NotImplementedError()
 
     /** Clears `byMonthWeeks`. */
-    public fun clearByMonthWeeks(): Self
+    @Suppress("DocumentExceptions")
+    public fun clearByMonthWeeks(): Self = throw NotImplementedError()
 
     /** Sets the `endDate` to [LocalDate]. */
     public fun setEndDate(date: LocalDate): Self = setEndDate(EndDate(date))
@@ -242,7 +279,8 @@ public interface Schedule : Intangible {
     public fun setEndDate(instant: Instant): Self = setEndDate(EndDate(instant))
 
     /** Sets the `endDate`. */
-    public fun setEndDate(endDate: EndDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setEndDate(endDate: EndDate?): Self = throw NotImplementedError()
 
     /** Sets the `endTime` to [LocalTime]. */
     public fun setEndTime(time: LocalTime): Self = setEndTime(EndTime(time))
@@ -254,7 +292,8 @@ public interface Schedule : Intangible {
     public fun setEndTime(instant: Instant): Self = setEndTime(EndTime(instant))
 
     /** Sets the `endTime`. */
-    public fun setEndTime(endTime: EndTime?): Self
+    @Suppress("DocumentExceptions")
+    public fun setEndTime(endTime: EndTime?): Self = throw NotImplementedError()
 
     /** Sets the `exceptDate` to [LocalDate]. */
     public fun setExceptDate(date: LocalDate): Self = setExceptDate(ExceptDate(date))
@@ -267,10 +306,13 @@ public interface Schedule : Intangible {
     public fun setExceptDate(instant: Instant): Self = setExceptDate(ExceptDate(instant))
 
     /** Sets the `exceptDate`. */
-    public fun setExceptDate(exceptDate: ExceptDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setExceptDate(exceptDate: ExceptDate?): Self = throw NotImplementedError()
 
     /** Sets the `repeatCount`. */
-    public fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self
+    @Suppress("DocumentExceptions")
+    public fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self =
+      throw NotImplementedError()
 
     /** Sets the `repeatFrequency` to [Duration]. */
     public fun setRepeatFrequency(duration: Duration): Self =
@@ -280,10 +322,13 @@ public interface Schedule : Intangible {
     public fun setRepeatFrequency(text: String): Self = setRepeatFrequency(RepeatFrequency(text))
 
     /** Sets the `repeatFrequency`. */
-    public fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self
+    @Suppress("DocumentExceptions")
+    public fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self =
+      throw NotImplementedError()
 
     /** Sets the `scheduleTimezone`. */
-    public fun setScheduleTimezone(text: String?): Self
+    @Suppress("DocumentExceptions")
+    public fun setScheduleTimezone(text: String?): Self = throw NotImplementedError()
 
     /** Sets the `startDate` to [LocalDate]. */
     public fun setStartDate(date: LocalDate): Self = setStartDate(StartDate(date))
@@ -296,7 +341,8 @@ public interface Schedule : Intangible {
     public fun setStartDate(instant: Instant): Self = setStartDate(StartDate(instant))
 
     /** Sets the `startDate`. */
-    public fun setStartDate(startDate: StartDate?): Self
+    @Suppress("DocumentExceptions")
+    public fun setStartDate(startDate: StartDate?): Self = throw NotImplementedError()
 
     /** Sets the `startTime` to [LocalTime]. */
     public fun setStartTime(time: LocalTime): Self = setStartTime(StartTime(time))
@@ -309,7 +355,8 @@ public interface Schedule : Intangible {
     public fun setStartTime(instant: Instant): Self = setStartTime(StartTime(instant))
 
     /** Sets the `startTime`. */
-    public fun setStartTime(startTime: StartTime?): Self
+    @Suppress("DocumentExceptions")
+    public fun setStartTime(startTime: StartTime?): Self = throw NotImplementedError()
   }
 }
 
