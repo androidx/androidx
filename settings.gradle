@@ -1232,8 +1232,11 @@ if (isAllProjects()) {
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests")
 
-// Workaround for b/203825166
-includeBuild("placeholder")
+// Add includedBuild in most cases for b/203825166
+// Skip adding includeBuild when regenerating signatures for https://github.com/gradle/gradle/issues/26179
+if (!startParameter.projectProperties.containsKey('androidx.update.signatures')) {
+    includeBuild("placeholder")
+}
 
 // ---------------------------------------------------------------------
 // --- there should be no includeProject additions after this line -----
