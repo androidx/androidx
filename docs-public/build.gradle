@@ -184,8 +184,7 @@ dependencies {
     docs("androidx.gridlayout:gridlayout:1.1.0-beta01")
     docs("androidx.health.connect:connect-client:1.1.0-alpha03")
     samples("androidx.health.connect:connect-client-samples:1.1.0-alpha03")
-    // TODO(b/294531403): Turn on apiSince for health-services-client when it releases as alpha
-    docsWithoutApiSince("androidx.health:health-services-client:1.1.0-alpha01")
+    docs("androidx.health:health-services-client:1.1.0-alpha01")
     docs("androidx.heifwriter:heifwriter:1.1.0-alpha02")
     docs("androidx.hilt:hilt-common:1.1.0-alpha01")
     docs("androidx.hilt:hilt-navigation:1.1.0-alpha02")
