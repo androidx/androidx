@@ -144,7 +144,9 @@ abstract class IconGenerationTask : DefaultTask() {
             libraryExtension: LibraryExtension
         ) {
             libraryExtension.libraryVariants.all { variant ->
-                ExtendedIconGenerationTask.register(project, variant)
+                if (variant.name == "release") {
+                    ExtendedIconGenerationTask.register(project, variant)
+                }
             }
 
             // b/175401659 - disable lint as it takes a long time, and most errors should
