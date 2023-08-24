@@ -250,8 +250,8 @@ private fun Modifier.pointerScrollable(
 ): Modifier {
     val fling = flingBehavior ?: ScrollableDefaults.flingBehavior()
     val nestedScrollDispatcher = remember { mutableStateOf(NestedScrollDispatcher()) }
-    val scrollLogic = rememberUpdatedState(
-        ScrollingLogic(
+    val scrollLogicValue =
+        rememberScrollingLogic(
             orientation,
             reverseDirection,
             nestedScrollDispatcher,
@@ -259,7 +259,7 @@ private fun Modifier.pointerScrollable(
             fling,
             overscrollEffect
         )
-    )
+    val scrollLogic = rememberUpdatedState(scrollLogicValue)
     val nestedScrollConnection = remember(enabled) {
         scrollableNestedScrollConnection(scrollLogic, enabled)
     }
@@ -283,12 +283,38 @@ private fun Modifier.pointerScrollable(
             },
             canDrag = { down -> down.type != PointerType.Mouse }
         ))
-        .then(MouseWheelScrollableElement(scrollLogic, scrollConfig, density))
+        .then(MouseWheelScrollableElement(scrollLogicValue, scrollConfig, density))
         .nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
 }
 
 // {} isn't being memoized for us, so extract this to make sure we compare equally on recomposition.
 private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
+
+@Composable
+private fun rememberScrollingLogic(
+    orientation: Orientation,
+    reverseDirection: Boolean,
+    nestedScrollDispatcher: State<NestedScrollDispatcher>,
+    scrollableState: ScrollableState,
+    flingBehavior: FlingBehavior,
+    overscrollEffect: OverscrollEffect?
+) = remember(
+    orientation,
+    reverseDirection,
+    nestedScrollDispatcher,
+    scrollableState,
+    flingBehavior,
+    overscrollEffect
+) {
+    ScrollingLogic(
+        orientation,
+        reverseDirection,
+        nestedScrollDispatcher,
+        scrollableState,
+        flingBehavior,
+        overscrollEffect
+    )
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class ScrollingLogic(

@@ -20,7 +20,6 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.State
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.node.DelegatingNode
@@ -38,27 +37,26 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-
 internal class MouseWheelScrollableElement(
-    val scrollingLogicState: State<ScrollingLogic>,
+    val scrollingLogic: ScrollingLogic,
     val mouseWheelScrollConfig: ScrollConfig,
-    val density: Float
+    val density: Float,
 ) : ModifierNodeElement<MouseWheelScrollNode>() {
     override fun create(): MouseWheelScrollNode {
         return if (mouseWheelScrollConfig.isSmoothScrollingEnabled) {
-            AnimatedMouseWheelScrollNode(scrollingLogicState.value, mouseWheelScrollConfig, density)
+            AnimatedMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, density)
         } else {
-            RawMouseWheelScrollNode(scrollingLogicState.value, mouseWheelScrollConfig)
+            RawMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig)
         }
     }
 
     override fun update(node: MouseWheelScrollNode) {
-        node.scrollingLogic = scrollingLogicState.value
+        node.scrollingLogic = scrollingLogic
         node.mouseWheelScrollConfig = mouseWheelScrollConfig
     }
 
     override fun hashCode(): Int {
-        var result = scrollingLogicState.hashCode()
+        var result = scrollingLogic.hashCode()
         result = 31 * result + mouseWheelScrollConfig.hashCode()
         return result
     }
@@ -67,7 +65,7 @@ internal class MouseWheelScrollableElement(
         if (this === other) return true
         if (other !is MouseWheelScrollableElement) return false
 
-        if (scrollingLogicState != other.scrollingLogicState) return false
+        if (scrollingLogic != other.scrollingLogic) return false
         if (mouseWheelScrollConfig != other.mouseWheelScrollConfig) return false
         return true
     }
