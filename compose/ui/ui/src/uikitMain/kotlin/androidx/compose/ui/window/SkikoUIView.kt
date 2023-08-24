@@ -545,7 +545,15 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
 
     //Working with Geometry and Hit-Testing. All methods return stubs for now.
     override fun firstRectForRange(range: UITextRange): CValue<CGRect> = CGRectNull.readValue()
-    override fun caretRectForPosition(position: UITextPosition): CValue<CGRect> = CGRectNull.readValue()
+    override fun caretRectForPosition(position: UITextPosition): CValue<CGRect> {
+        /* TODO: https://youtrack.jetbrains.com/issue/COMPOSE-332/
+            CGRectNull here led to crash with Speech-to-text on iOS 16.0
+            Set all fields to 1.0 to avoid potential dividing by zero
+            Ideally, here should be correct rect for caret from Compose.
+         */
+        return CGRectMake(x = 1.0, y = 1.0, width = 1.0, height = 1.0)
+    }
+
     override fun selectionRectsForRange(range: UITextRange): List<*> = listOf<UITextSelectionRect>()
     override fun closestPositionToPoint(point: CValue<CGPoint>): UITextPosition? = null
     override fun closestPositionToPoint(point: CValue<CGPoint>, withinRange: UITextRange): UITextPosition? = null
