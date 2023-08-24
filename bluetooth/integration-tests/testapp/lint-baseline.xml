@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="DiffUtilEquals"
@@ -8,42 +8,6 @@
         errorLine2="                              ~~">
         <location
             file="src/main/java/androidx/bluetooth/integration/testapp/ui/scanner/ScannerAdapter.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="BluetoothLe.openGattServer can only be called from within the same library (androidx.bluetooth:bluetooth)"
-        errorLine1="            bluetoothLe.openGattServer(viewModel.gattServerServices).collect {"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/bluetooth/integration/testapp/ui/advertiser/AdvertiserFragment.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GattServerConnectionRequest.accept can only be called from within the same library (androidx.bluetooth:bluetooth)"
-        errorLine1="                    it.accept {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/bluetooth/integration/testapp/ui/advertiser/AdvertiserFragment.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GattServerConnectionRequest.accept can only be called from within the same library (androidx.bluetooth:bluetooth)"
-        errorLine1="                    it.accept {"
-        errorLine2="                              ^">
-        <location
-            file="src/main/java/androidx/bluetooth/integration/testapp/ui/advertiser/AdvertiserFragment.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GattServerScope.getRequests can only be called from within the same library (androidx.bluetooth:bluetooth)"
-        errorLine1="                            requests.collect {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/bluetooth/integration/testapp/ui/advertiser/AdvertiserFragment.kt"/>
     </issue>
 
 </issues>
