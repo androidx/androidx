@@ -13,6 +13,8 @@ AutoBoxing: androidx.kruth.KruthKt#assertThat(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.KruthKt#assertThat(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.kruth.KruthKt#assertThat(Integer) parameter #0:
+    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
