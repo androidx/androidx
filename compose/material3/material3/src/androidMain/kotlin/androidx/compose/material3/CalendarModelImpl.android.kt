@@ -134,8 +134,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
         utcTimeMillis: Long,
         pattern: String,
         locale: CalendarLocale
-    ): String =
-        CalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale)
+    ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
     override fun parse(date: String, pattern: String): CalendarDate? {
         // TODO: A DateTimeFormatter can be reused.
@@ -166,15 +165,15 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
          * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
          * @param pattern a date format pattern
          * @param locale the [CalendarLocale] to use when formatting the given timestamp
+         * @param cache a [MutableMap] for caching formatter related results for better performance
          */
         fun formatWithPattern(
             utcTimeMillis: Long,
             pattern: String,
-            locale: CalendarLocale
+            locale: CalendarLocale,
+            cache: MutableMap<String, Any>
         ): String {
-            val formatter: DateTimeFormatter =
-                DateTimeFormatter.ofPattern(pattern, locale)
-                    .withDecimalStyle(DecimalStyle.of(locale))
+            val formatter = getCachedDateTimeFormatter(pattern, locale, cache)
             return Instant
                 .ofEpochMilli(utcTimeMillis)
                 .atZone(utcTimeZoneId)
@@ -186,6 +185,18 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
          * Holds a UTC [ZoneId].
          */
         internal val utcTimeZoneId: ZoneId = ZoneId.of("UTC")
+
+        private fun getCachedDateTimeFormatter(
+            pattern: String,
+            locale: CalendarLocale,
+            cache: MutableMap<String, Any>
+        ): DateTimeFormatter {
+            val key = pattern + locale.toLanguageTag()
+            return cache.getOrPut(key) {
+                DateTimeFormatter.ofPattern(pattern, locale)
+                    .withDecimalStyle(DecimalStyle.of(locale))
+            } as DateTimeFormatter
+        }
     }
 
     private fun getMonth(firstDayLocalDate: LocalDate): CalendarMonth {

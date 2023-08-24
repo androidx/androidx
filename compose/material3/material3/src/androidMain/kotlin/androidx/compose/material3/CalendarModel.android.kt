@@ -43,17 +43,21 @@ internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
  * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
  * @param skeleton a date format skeleton
  * @param locale the [CalendarLocale] to use when formatting the given timestamp
+ * @param cache a [MutableMap] for caching formatter related results for better performance
  */
 @ExperimentalMaterial3Api
 actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
-    locale: CalendarLocale
+    locale: CalendarLocale,
+    cache: MutableMap<String, Any>
 ): String {
-    val pattern = DateFormat.getBestDateTimePattern(locale, skeleton)
+    val pattern = cache.getOrPut(key = skeleton + locale.toLanguageTag()) {
+        DateFormat.getBestDateTimePattern(locale, skeleton)
+    }.toString()
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        CalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale)
+        CalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
     } else {
-        LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale)
+        LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
     }
 }
