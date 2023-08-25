@@ -25,17 +25,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -67,8 +68,6 @@ class TextFieldKeyboardActionsTest {
 
     @get:Rule
     val rule = createComposeRule()
-
-    private val keyboardHelper = KeyboardHelper(rule)
 
     @Test
     fun textField_performsImeAction_viaSemantics() {
@@ -194,21 +193,22 @@ class TextFieldKeyboardActionsTest {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_performsDefaultBehavior_forDone() {
+        val testKeyboardController = TestSoftwareKeyboardController(rule)
         rule.setContent {
-            keyboardHelper.initialize()
-            BasicTextField2(
-                state = TextFieldState(),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
-            )
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides testKeyboardController
+            ) {
+                BasicTextField2(
+                    state = TextFieldState(),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                )
+            }
         }
 
-        with(rule.onNode(hasSetTextAction())) {
-            performClick()
-            keyboardHelper.waitForKeyboardVisibility(true)
-            performImeAction()
-            keyboardHelper.waitForKeyboardVisibility(false)
-            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isEqualTo(false)
-        }
+        rule.onNode(hasSetTextAction()).performClick()
+        testKeyboardController.assertShown()
+        rule.onNode(hasSetTextAction()).performImeAction()
+        testKeyboardController.assertHidden()
     }
 
     @Test
