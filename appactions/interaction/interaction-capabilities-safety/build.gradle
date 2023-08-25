@@ -43,4 +43,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Capability APIs for Safety vertical."
+    metalavaK2UastEnabled = true
 }

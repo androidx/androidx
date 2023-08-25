@@ -32,4 +32,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
+    metalavaK2UastEnabled = true
 }

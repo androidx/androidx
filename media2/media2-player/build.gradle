@@ -54,4 +54,5 @@ androidx {
     inceptionYear = "2018"
     description = "Media2 Player"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

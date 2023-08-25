@@ -92,4 +92,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Library for integrating with Google Assistant via GRPC binder channel."
+    metalavaK2UastEnabled = true
 }

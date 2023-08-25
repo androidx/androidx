@@ -39,4 +39,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Composable ViewFinder implementation for CameraX"
+    metalavaK2UastEnabled = true
 }

@@ -41,6 +41,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2021'
     description = 'AndroidX AppSearch - Kotlin Extensions'
+    metalavaK2UastEnabled = true
 }
 
 android {

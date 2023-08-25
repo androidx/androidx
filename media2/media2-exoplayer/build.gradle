@@ -39,4 +39,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Repackaged ExoPlayer for 'media2' artifact"
+    metalavaK2UastEnabled = true
 }

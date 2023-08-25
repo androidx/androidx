@@ -59,4 +59,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "write Java code to call PP APIs."
+    metalavaK2UastEnabled = true
 }

@@ -21,6 +21,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2014"
     description = "Android Support Palette"
+    metalavaK2UastEnabled = true
 }
 
 android {

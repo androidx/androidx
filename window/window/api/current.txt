@@ -232,7 +232,7 @@ package androidx.window.embedding {
   }
 
   public final class SplitAttributesCalculatorParams {
-    method public boolean getAreDefaultConstraintsSatisfied();
+    method public boolean areDefaultConstraintsSatisfied();
     method public androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
     method public android.content.res.Configuration getParentConfiguration();
     method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();

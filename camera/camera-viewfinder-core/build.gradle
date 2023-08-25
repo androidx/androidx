@@ -38,4 +38,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Core dependencies for ViewFinder"
+    metalavaK2UastEnabled = true
 }

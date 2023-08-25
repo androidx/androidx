@@ -48,4 +48,5 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE_RUNTIME_TRACING
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
+    metalavaK2UastEnabled = true
 }

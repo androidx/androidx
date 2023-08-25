@@ -31,6 +31,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
+    metalavaK2UastEnabled = true
 }
 
 android {

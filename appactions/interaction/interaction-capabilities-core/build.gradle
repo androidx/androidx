@@ -68,4 +68,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
+    metalavaK2UastEnabled = true
 }
