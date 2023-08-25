@@ -275,14 +275,16 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             }
 
             Idle -> {
-                if (!forced && (layoutNode.measurePending || layoutNode.layoutPending)) {
+                if (!forced && (layoutNode.isPlaced == layoutNode.isPlacedByParent) &&
+                    (layoutNode.measurePending || layoutNode.layoutPending)
+                ) {
                     // don't need to do anything else since the parent is already scheduled
                     // for a relayout (measure will trigger relayout), or is laying out right now
                     consistencyChecker?.assertConsistent()
                     false
                 } else {
                     layoutNode.markLayoutPending()
-                    if (layoutNode.isPlaced) {
+                    if (layoutNode.isPlacedByParent) {
                         val parent = layoutNode.parent
                         if (parent?.layoutPending != true && parent?.measurePending != true) {
                             relayoutNodes.add(layoutNode, false)
@@ -462,7 +464,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         relayoutNeeded: Boolean = true
     ): Boolean {
         var sizeChanged = false
-        if (layoutNode.isPlaced ||
+        if (layoutNode.isPlaced || // the root node doesn't have isPlacedByParent = true
+            layoutNode.isPlacedByParent ||
             layoutNode.canAffectParent ||
             layoutNode.isPlacedInLookahead == true ||
             layoutNode.canAffectParentInLookahead ||

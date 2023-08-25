@@ -17,6 +17,7 @@
 package androidx.compose.ui.layout
 
 import android.os.Build
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -418,6 +419,37 @@ class PlacedChildTest {
             7, // relayout root.first.first
             5, // relayout root.second
         ))
+    }
+
+    @Test
+    fun invalidatePlacementMutableStateChange() {
+        var placeChild by mutableStateOf(false)
+        var placeCount = 0
+        var childPlaceCount = 0
+        rule.setContent {
+            Box(Modifier.layout { measurable, constraints ->
+                val p = measurable.measure(constraints)
+                layout(p.width, p.height) {
+                    placeCount++
+                    if (placeChild) {
+                        childPlaceCount++
+                        p.place(0, 0)
+                    }
+                }
+            }.size(10.dp).background(Color.White)) {
+                Box(Modifier.size(5.dp).background(Color.Green))
+            }
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertThat(placeCount).isEqualTo(1)
+            assertThat(childPlaceCount).isEqualTo(0)
+            placeChild = true
+        }
+        rule.runOnIdle {
+            assertThat(placeCount).isEqualTo(2)
+            assertThat(childPlaceCount).isEqualTo(1)
+        }
     }
 }
 
