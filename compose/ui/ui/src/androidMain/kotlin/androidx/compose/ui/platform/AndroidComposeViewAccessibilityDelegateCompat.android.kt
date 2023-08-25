@@ -50,6 +50,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
 import androidx.collection.SparseArrayCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.fastJoinToString
@@ -262,13 +265,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     /**
      * True if any content capture service enabled in the system.
-     *
-     * TODO(b/272068594): follow up on improving the performance and actually enabling the content
-     * capture feature in production later.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     private val isEnabledForContentCapture: Boolean
         get() {
-            return contentCaptureForceEnabledForTesting
+            if (DisableContentCapture) {
+                return false
+            }
+            return contentCaptureSession != null || contentCaptureForceEnabledForTesting
         }
 
     /**
@@ -3632,3 +3636,16 @@ private fun Role.toLegacyClassName(): String? =
  */
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
+
+/**
+ * A flag to force disable the content capture feature.
+ *
+ * If you find any issues with the new feature, flip this flag to true to confirm they are newly
+ * introduced then file a bug.
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var DisableContentCapture: Boolean by mutableStateOf(false)
