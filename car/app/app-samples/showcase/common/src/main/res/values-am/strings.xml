@@ -171,7 +171,7 @@
     <string name="continue_route" msgid="5172258139245088080">"ወደ አቅጣጫ ቀጥል"</string>
     <string name="routes_title" msgid="7799772149932075357">"መንገዶች"</string>
     <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"የዝርዝር አሰሳ ቅንብር ደንብ ቅንጭብ ማሳያን ይመድቡ"</string>
-    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ እይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ ዕይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="notification_template_demo_title" msgid="5076051497316030274">"የማሳወቂያ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"የአሰሳ ቅንብር ደንብ በካርታ ብቻ ማሳያ"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"የአሰሳ ቅንጭብ ማሳያዎች"</string>
