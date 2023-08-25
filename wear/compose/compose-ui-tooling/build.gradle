@@ -42,4 +42,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Tools for Wear Composable"
+    metalavaK2UastEnabled = true
 }

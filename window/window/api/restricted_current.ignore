@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.window.embedding.SplitAttributesCalculatorParams#areDefaultConstraintsSatisfied():
+    Added method androidx.window.embedding.SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied()
+
+
+RemovedMethod: androidx.window.embedding.SplitAttributesCalculatorParams#getAreDefaultConstraintsSatisfied():
+    Removed method androidx.window.embedding.SplitAttributesCalculatorParams.getAreDefaultConstraintsSatisfied()

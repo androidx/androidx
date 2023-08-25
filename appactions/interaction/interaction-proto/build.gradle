@@ -102,4 +102,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Protos for use with App Action interaction libraries."
+    metalavaK2UastEnabled = true
 }

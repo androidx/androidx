@@ -50,4 +50,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2016"
     description = "Android Transition Support Library"
+    metalavaK2UastEnabled = true
 }

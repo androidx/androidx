@@ -38,4 +38,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Kotlin Extensions for Androidx implementation of Guava's ListenableFuture"
+    metalavaK2UastEnabled = true
 }

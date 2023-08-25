@@ -55,4 +55,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides components for SdkRuntime aware SDKs"
+    metalavaK2UastEnabled = true
 }

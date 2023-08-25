@@ -31,4 +31,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Provide helper classes for Emoji2 views."
+    metalavaK2UastEnabled = true
 }

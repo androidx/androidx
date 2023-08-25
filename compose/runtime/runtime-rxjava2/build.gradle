@@ -47,6 +47,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with RxJava 2"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }
 
 android {

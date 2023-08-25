@@ -28,4 +28,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "Android Percent Support Library"
+    metalavaK2UastEnabled = true
 }

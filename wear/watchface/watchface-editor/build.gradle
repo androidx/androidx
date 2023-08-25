@@ -63,4 +63,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Classes for building Android Wear watchface editors"
+    metalavaK2UastEnabled = true
 }

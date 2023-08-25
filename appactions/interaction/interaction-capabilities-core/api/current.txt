@@ -60,9 +60,9 @@ package androidx.appactions.interaction.capabilities.core.properties {
     ctor public Property(kotlin.jvm.functions.Function0<? extends java.util.List<? extends T>> possibleValueSupplier, optional boolean isRequiredForExecution);
     ctor public Property(kotlin.jvm.functions.Function0<? extends java.util.List<? extends T>> possibleValueSupplier, optional boolean isRequiredForExecution, optional boolean shouldMatchPossibleValues);
     method public java.util.List<T> getPossibleValues();
-    method public boolean getShouldMatchPossibleValues();
     method public boolean isRequiredForExecution();
     method public boolean isSupported();
+    method public boolean shouldMatchPossibleValues();
     method public static <T> androidx.appactions.interaction.capabilities.core.properties.Property<T> unsupported();
     property public final boolean isRequiredForExecution;
     property public final boolean isSupported;

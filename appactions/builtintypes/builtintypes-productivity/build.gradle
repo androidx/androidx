@@ -48,4 +48,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "This library exposes a set of productivity related data types based on schema.org definitions."
+    metalavaK2UastEnabled = true
 }

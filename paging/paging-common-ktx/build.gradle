@@ -30,4 +30,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'paging-common' artifact"
+    metalavaK2UastEnabled = true
 }

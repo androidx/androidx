@@ -40,4 +40,5 @@ androidx {
     description = "Tools for Wear UI Previews"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR_TOOLING_PREVIEW
+    metalavaK2UastEnabled = true
 }

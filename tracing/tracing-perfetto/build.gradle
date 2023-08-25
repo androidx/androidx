@@ -62,6 +62,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto SDK"
+    metalavaK2UastEnabled = true
 }
 
 android {
