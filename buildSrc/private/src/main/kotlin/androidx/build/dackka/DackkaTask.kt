@@ -97,6 +97,8 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     @Input lateinit var annotationsNotToDisplayKotlin: List<String>
 
+    @Input lateinit var hidingAnnotations: List<String>
+
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
     lateinit var versionMetadataFiles: Provider<List<File>>
@@ -209,6 +211,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                             annotationsNotToDisplayJava,
                                         "annotationsNotToDisplayKotlin" to
                                             annotationsNotToDisplayKotlin,
+                                        "hidingAnnotations" to hidingAnnotations,
                                         "versionMetadataFilenames" to checkVersionMetadataFiles()
                                     )
                                 )
