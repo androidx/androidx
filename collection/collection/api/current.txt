@@ -1639,7 +1639,7 @@ package androidx.collection {
     method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public V? remove(K key);
     method public boolean remove(K key, V value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public operator void set(K key, V value);
     method public int trim();
   }
