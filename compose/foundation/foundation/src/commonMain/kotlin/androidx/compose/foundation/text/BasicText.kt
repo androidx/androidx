@@ -30,6 +30,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -95,8 +96,12 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        remember(selectionRegistrar, backgroundSelectionColor) {
+        val selectableId = rememberSaveable(selectionRegistrar) {
+            selectionRegistrar.nextSelectableId()
+        }
+        remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
+                selectableId,
                 selectionRegistrar,
                 backgroundSelectionColor
             )
@@ -184,8 +189,12 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        remember(selectionRegistrar, backgroundSelectionColor) {
+        val selectableId = rememberSaveable(selectionRegistrar) {
+            selectionRegistrar.nextSelectableId()
+        }
+        remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
+                selectableId,
                 selectionRegistrar,
                 backgroundSelectionColor
             )

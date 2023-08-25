@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -55,7 +56,7 @@ internal class SelectableTextAnnotatedStringNode(
     minLines: Int = DefaultMinLines,
     placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
-    private val selectionController: SelectionController? = null,
+    private var selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
 
@@ -147,6 +148,7 @@ internal class SelectableTextAnnotatedStringNode(
                 selectionController = selectionController
             ),
         )
+        this.selectionController = selectionController
         // we always relayout when we're selectable
         invalidateMeasurement()
     }
