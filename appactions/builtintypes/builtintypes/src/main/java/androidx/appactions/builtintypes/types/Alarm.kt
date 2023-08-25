@@ -20,6 +20,7 @@ import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Map
@@ -49,7 +50,9 @@ public interface Alarm : Thing {
    *
    * See https://schema.googleapis.com/alarmSchedule for more context.
    */
-  @get:Document.DocumentProperty public val alarmSchedule: Schedule?
+  @get:Document.DocumentProperty
+  public val alarmSchedule: Schedule?
+    get() = null
 
   /**
    * Specifies if the alarm enabled or disabled.
@@ -58,7 +61,10 @@ public interface Alarm : Thing {
    *
    * See https://schema.googleapis.com/isAlarmEnabled for more context.
    */
-  @get:Document.BooleanProperty @get:Suppress("AutoBoxing") public val isAlarmEnabled: Boolean?
+  @get:Document.BooleanProperty
+  @get:Suppress("AutoBoxing")
+  public val isAlarmEnabled: Boolean?
+    get() = null
 
   /** Converts this [Alarm] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -79,10 +85,13 @@ public interface Alarm : Thing {
     public override fun build(): Alarm
 
     /** Sets the `alarmSchedule`. */
-    public fun setAlarmSchedule(schedule: Schedule?): Self
+    @Suppress("DocumentExceptions")
+    public fun setAlarmSchedule(schedule: Schedule?): Self = throw NotImplementedError()
 
     /** Sets the `isAlarmEnabled`. */
-    public fun setAlarmEnabled(@Suppress("AutoBoxing") boolean: Boolean?): Self
+    @Suppress("DocumentExceptions")
+    public fun setAlarmEnabled(@Suppress("AutoBoxing") boolean: Boolean?): Self =
+      throw NotImplementedError()
 
     /** Sets the `disambiguatingDescription` to a canonical [DisambiguatingDescriptionValue]. */
     public fun setDisambiguatingDescription(canonicalValue: DisambiguatingDescriptionValue): Self =
