@@ -32,10 +32,21 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
 
 android {
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 23
+    }
+
     namespace "androidx.glance.testing"
 }
 
