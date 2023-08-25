@@ -29,7 +29,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /** Dynamic colors in Material. */
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(31)
 internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
     // The neutral tonal range from the generated dynamic color palette.
     neutral100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_0),
@@ -72,16 +72,38 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
     // generated dynamic color palette.
     neutralVariant100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_0),
     neutralVariant99 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_10),
+    neutralVariant98 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(98f),
+    neutralVariant96 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(96f),
     neutralVariant95 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_50),
+    neutralVariant94 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(94f),
+    neutralVariant92 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(92f),
     neutralVariant90 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_100),
+    neutralVariant87 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(87f),
     neutralVariant80 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_200),
     neutralVariant70 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_300),
     neutralVariant60 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_400),
     neutralVariant50 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_500),
     neutralVariant40 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600),
     neutralVariant30 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_700),
+    neutralVariant24 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(24f),
+    neutralVariant22 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(22f),
     neutralVariant20 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_800),
+    neutralVariant17 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(17f),
+    neutralVariant12 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(12f),
     neutralVariant10 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_900),
+    neutralVariant6 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(6f),
+    neutralVariant4 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_600)
+        .setLuminance(4f),
     neutralVariant0 = ColorResourceHelper.getColor(context, android.R.color.system_neutral2_1000),
 
     // The primary tonal range from the generated dynamic color palette.
@@ -142,40 +164,14 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
 @RequiresApi(Build.VERSION_CODES.S)
 fun dynamicLightColorScheme(context: Context): ColorScheme {
     val tonalPalette = dynamicTonalPalette(context)
-    return lightColorScheme(
-        primary = tonalPalette.primary40,
-        onPrimary = tonalPalette.primary100,
-        primaryContainer = tonalPalette.primary90,
-        onPrimaryContainer = tonalPalette.primary10,
-        inversePrimary = tonalPalette.primary80,
-        secondary = tonalPalette.secondary40,
-        onSecondary = tonalPalette.secondary100,
-        secondaryContainer = tonalPalette.secondary90,
-        onSecondaryContainer = tonalPalette.secondary10,
-        tertiary = tonalPalette.tertiary40,
-        onTertiary = tonalPalette.tertiary100,
-        tertiaryContainer = tonalPalette.tertiary90,
-        onTertiaryContainer = tonalPalette.tertiary10,
-        background = tonalPalette.neutral99,
-        onBackground = tonalPalette.neutral10,
-        surface = tonalPalette.neutral99,
-        onSurface = tonalPalette.neutral10,
-        surfaceVariant = tonalPalette.neutralVariant90,
-        onSurfaceVariant = tonalPalette.neutralVariant30,
-        inverseSurface = tonalPalette.neutral20,
-        inverseOnSurface = tonalPalette.neutral95,
-        outline = tonalPalette.neutralVariant50,
-        outlineVariant = tonalPalette.neutralVariant80,
-        scrim = tonalPalette.neutral0,
-        surfaceBright = tonalPalette.neutral98,
-        surfaceDim = tonalPalette.neutral87,
-        surfaceContainer = tonalPalette.neutral94,
-        surfaceContainerHigh = tonalPalette.neutral92,
-        surfaceContainerHighest = tonalPalette.neutral90,
-        surfaceContainerLow = tonalPalette.neutral96,
-        surfaceContainerLowest = tonalPalette.neutral100,
-        surfaceTint = tonalPalette.primary40,
-    )
+    return if (Build.VERSION.SDK_INT >= 34) {
+        // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
+        dynamicLightColorScheme34(tonalPalette)
+    } else {
+        // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
+        // variant which provides chroma8 for less grey tones.
+        dynamicLightColorScheme31(tonalPalette)
+    }
 }
 
 /**
@@ -190,40 +186,14 @@ fun dynamicLightColorScheme(context: Context): ColorScheme {
 @RequiresApi(Build.VERSION_CODES.S)
 fun dynamicDarkColorScheme(context: Context): ColorScheme {
     val tonalPalette = dynamicTonalPalette(context)
-    return darkColorScheme(
-        primary = tonalPalette.primary80,
-        onPrimary = tonalPalette.primary20,
-        primaryContainer = tonalPalette.primary30,
-        onPrimaryContainer = tonalPalette.primary90,
-        inversePrimary = tonalPalette.primary40,
-        secondary = tonalPalette.secondary80,
-        onSecondary = tonalPalette.secondary20,
-        secondaryContainer = tonalPalette.secondary30,
-        onSecondaryContainer = tonalPalette.secondary90,
-        tertiary = tonalPalette.tertiary80,
-        onTertiary = tonalPalette.tertiary20,
-        tertiaryContainer = tonalPalette.tertiary30,
-        onTertiaryContainer = tonalPalette.tertiary90,
-        background = tonalPalette.neutral10,
-        onBackground = tonalPalette.neutral90,
-        surface = tonalPalette.neutral10,
-        onSurface = tonalPalette.neutral90,
-        surfaceVariant = tonalPalette.neutralVariant30,
-        onSurfaceVariant = tonalPalette.neutralVariant80,
-        inverseSurface = tonalPalette.neutral90,
-        inverseOnSurface = tonalPalette.neutral20,
-        outline = tonalPalette.neutralVariant60,
-        outlineVariant = tonalPalette.neutral30,
-        scrim = tonalPalette.neutral0,
-        surfaceBright = tonalPalette.neutral24,
-        surfaceDim = tonalPalette.neutral6,
-        surfaceContainer = tonalPalette.neutral12,
-        surfaceContainerHigh = tonalPalette.neutral17,
-        surfaceContainerHighest = tonalPalette.neutral22,
-        surfaceContainerLow = tonalPalette.neutral10,
-        surfaceContainerLowest = tonalPalette.neutral4,
-        surfaceTint = tonalPalette.primary80,
-    )
+    return if (Build.VERSION.SDK_INT >= 34) {
+        // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
+        dynamicDarkColorScheme34(tonalPalette)
+    } else {
+        // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
+        // variant which provides chroma8 for less grey tones.
+        dynamicDarkColorScheme31(tonalPalette)
+    }
 }
 
 @RequiresApi(23)
@@ -296,3 +266,147 @@ private fun delinearized(rgbComponent: Float): Int {
     }
     return MathUtils.clamp((delinearized * 255.0).roundToInt(), 0, 255)
 }
+
+@RequiresApi(31)
+internal fun dynamicLightColorScheme31(tonalPalette: TonalPalette) = lightColorScheme(
+    primary = tonalPalette.primary40,
+    onPrimary = tonalPalette.primary100,
+    primaryContainer = tonalPalette.primary90,
+    onPrimaryContainer = tonalPalette.primary10,
+    inversePrimary = tonalPalette.primary80,
+    secondary = tonalPalette.secondary40,
+    onSecondary = tonalPalette.secondary100,
+    secondaryContainer = tonalPalette.secondary90,
+    onSecondaryContainer = tonalPalette.secondary10,
+    tertiary = tonalPalette.tertiary40,
+    onTertiary = tonalPalette.tertiary100,
+    tertiaryContainer = tonalPalette.tertiary90,
+    onTertiaryContainer = tonalPalette.tertiary10,
+    background = tonalPalette.neutralVariant98,
+    onBackground = tonalPalette.neutralVariant10,
+    surface = tonalPalette.neutralVariant98,
+    onSurface = tonalPalette.neutralVariant10,
+    surfaceVariant = tonalPalette.neutralVariant90,
+    onSurfaceVariant = tonalPalette.neutralVariant30,
+    inverseSurface = tonalPalette.neutralVariant20,
+    inverseOnSurface = tonalPalette.neutralVariant95,
+    outline = tonalPalette.neutralVariant50,
+    outlineVariant = tonalPalette.neutralVariant80,
+    scrim = tonalPalette.neutralVariant0,
+    surfaceBright = tonalPalette.neutralVariant98,
+    surfaceDim = tonalPalette.neutralVariant87,
+    surfaceContainer = tonalPalette.neutralVariant94,
+    surfaceContainerHigh = tonalPalette.neutralVariant92,
+    surfaceContainerHighest = tonalPalette.neutralVariant90,
+    surfaceContainerLow = tonalPalette.neutralVariant96,
+    surfaceContainerLowest = tonalPalette.neutralVariant100,
+    surfaceTint = tonalPalette.primary40,
+)
+
+@RequiresApi(34)
+internal fun dynamicLightColorScheme34(tonalPalette: TonalPalette) = lightColorScheme(
+    primary = tonalPalette.primary40,
+    onPrimary = tonalPalette.primary100,
+    primaryContainer = tonalPalette.primary90,
+    onPrimaryContainer = tonalPalette.primary10,
+    inversePrimary = tonalPalette.primary80,
+    secondary = tonalPalette.secondary40,
+    onSecondary = tonalPalette.secondary100,
+    secondaryContainer = tonalPalette.secondary90,
+    onSecondaryContainer = tonalPalette.secondary10,
+    tertiary = tonalPalette.tertiary40,
+    onTertiary = tonalPalette.tertiary100,
+    tertiaryContainer = tonalPalette.tertiary90,
+    onTertiaryContainer = tonalPalette.tertiary10,
+    background = tonalPalette.neutral99,
+    onBackground = tonalPalette.neutral10,
+    surface = tonalPalette.neutral99,
+    onSurface = tonalPalette.neutral10,
+    surfaceVariant = tonalPalette.neutralVariant90,
+    onSurfaceVariant = tonalPalette.neutralVariant30,
+    inverseSurface = tonalPalette.neutral20,
+    inverseOnSurface = tonalPalette.neutral95,
+    outline = tonalPalette.neutralVariant50,
+    outlineVariant = tonalPalette.neutralVariant80,
+    scrim = tonalPalette.neutral0,
+    surfaceBright = tonalPalette.neutral98,
+    surfaceDim = tonalPalette.neutral87,
+    surfaceContainer = tonalPalette.neutral94,
+    surfaceContainerHigh = tonalPalette.neutral92,
+    surfaceContainerHighest = tonalPalette.neutral90,
+    surfaceContainerLow = tonalPalette.neutral96,
+    surfaceContainerLowest = tonalPalette.neutral100,
+    surfaceTint = tonalPalette.primary40,
+)
+
+@RequiresApi(31)
+internal fun dynamicDarkColorScheme31(tonalPalette: TonalPalette) = darkColorScheme(
+    primary = tonalPalette.primary80,
+    onPrimary = tonalPalette.primary20,
+    primaryContainer = tonalPalette.primary30,
+    onPrimaryContainer = tonalPalette.primary90,
+    inversePrimary = tonalPalette.primary40,
+    secondary = tonalPalette.secondary80,
+    onSecondary = tonalPalette.secondary20,
+    secondaryContainer = tonalPalette.secondary30,
+    onSecondaryContainer = tonalPalette.secondary90,
+    tertiary = tonalPalette.tertiary80,
+    onTertiary = tonalPalette.tertiary20,
+    tertiaryContainer = tonalPalette.tertiary30,
+    onTertiaryContainer = tonalPalette.tertiary90,
+    background = tonalPalette.neutralVariant10,
+    onBackground = tonalPalette.neutralVariant90,
+    surface = tonalPalette.neutralVariant10,
+    onSurface = tonalPalette.neutralVariant90,
+    surfaceVariant = tonalPalette.neutralVariant30,
+    onSurfaceVariant = tonalPalette.neutralVariant80,
+    inverseSurface = tonalPalette.neutralVariant90,
+    inverseOnSurface = tonalPalette.neutralVariant20,
+    outline = tonalPalette.neutralVariant60,
+    outlineVariant = tonalPalette.neutralVariant30,
+    scrim = tonalPalette.neutralVariant0,
+    surfaceBright = tonalPalette.neutralVariant24,
+    surfaceDim = tonalPalette.neutralVariant6,
+    surfaceContainer = tonalPalette.neutralVariant12,
+    surfaceContainerHigh = tonalPalette.neutralVariant17,
+    surfaceContainerHighest = tonalPalette.neutralVariant22,
+    surfaceContainerLow = tonalPalette.neutralVariant10,
+    surfaceContainerLowest = tonalPalette.neutralVariant4,
+    surfaceTint = tonalPalette.primary80,
+)
+
+@RequiresApi(34)
+internal fun dynamicDarkColorScheme34(tonalPalette: TonalPalette) = darkColorScheme(
+    primary = tonalPalette.primary80,
+    onPrimary = tonalPalette.primary20,
+    primaryContainer = tonalPalette.primary30,
+    onPrimaryContainer = tonalPalette.primary90,
+    inversePrimary = tonalPalette.primary40,
+    secondary = tonalPalette.secondary80,
+    onSecondary = tonalPalette.secondary20,
+    secondaryContainer = tonalPalette.secondary30,
+    onSecondaryContainer = tonalPalette.secondary90,
+    tertiary = tonalPalette.tertiary80,
+    onTertiary = tonalPalette.tertiary20,
+    tertiaryContainer = tonalPalette.tertiary30,
+    onTertiaryContainer = tonalPalette.tertiary90,
+    background = tonalPalette.neutral10,
+    onBackground = tonalPalette.neutral90,
+    surface = tonalPalette.neutral10,
+    onSurface = tonalPalette.neutral90,
+    surfaceVariant = tonalPalette.neutralVariant30,
+    onSurfaceVariant = tonalPalette.neutralVariant80,
+    inverseSurface = tonalPalette.neutral90,
+    inverseOnSurface = tonalPalette.neutral20,
+    outline = tonalPalette.neutralVariant60,
+    outlineVariant = tonalPalette.neutral30,
+    scrim = tonalPalette.neutral0,
+    surfaceBright = tonalPalette.neutral24,
+    surfaceDim = tonalPalette.neutral6,
+    surfaceContainer = tonalPalette.neutral12,
+    surfaceContainerHigh = tonalPalette.neutral17,
+    surfaceContainerHighest = tonalPalette.neutral22,
+    surfaceContainerLow = tonalPalette.neutral10,
+    surfaceContainerLowest = tonalPalette.neutral4,
+    surfaceTint = tonalPalette.primary80,
+)
