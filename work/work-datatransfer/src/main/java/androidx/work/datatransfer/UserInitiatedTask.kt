@@ -50,13 +50,13 @@ public abstract class UserInitiatedTask(
     /**
      * Override this method to provide the notification information associated with your work.
      *
-     * <p>On Android 14+, the notification will be delegated to the dedicated JobService.
-     * While on Android 13-, the default policy to this API is FIFO:
+     * On Android 14 and above, the notification will be delegated to the dedicated JobService.
+     * While on Android 14- devices, the default policy to this API is FIFO:
      * whoever calls this API later will get posted as a foreground service notification here.
      * The notifications from the previous calls to this method would be posted as regular
      * notifications (unless they have the same notification ID).
      *
-     * <p> To change this behavior on Android 13-, override
+     * To change this behavior on Android 14-, override
      * [AbstractUitService.handleTaskNotification]
      */
     abstract suspend fun createForegroundInfo(): UitForegroundInfo
