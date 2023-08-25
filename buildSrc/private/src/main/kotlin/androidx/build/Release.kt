@@ -63,18 +63,22 @@ open class GMavenZipTask : Zip() {
     fun addCandidate(artifact: Artifact) {
         val groupSubdir = artifact.mavenGroup.replace('.', '/')
         val projectSubdir = File("$groupSubdir/${artifact.projectName}")
-        val includes =
-            listOfNotNull(
-                "${artifact.version}/**",
-                if (includeMetadata) "maven-metadata.*" else null
-            )
-        // We specifically pass the subdirectory into 'from' so that changes in other artifacts
-        // won't cause this task to become out of date
-        val fromDir = project.file("$androidxRepoOut/$projectSubdir")
-        from(fromDir) { spec ->
-            spec.into("m2repository/$projectSubdir")
-            for (inclusion in includes) {
-                include(inclusion)
+        val artifactSubdir = File("$projectSubdir/${artifact.version}")
+        // We specifically pass the subdirectory and specific files into 'from' so that Gradle
+        // knows that other directories aren't related:
+        // 1. changes in other directories shouldn't cause this task to become out of date
+        // 2. contents of other directories shouldn't be cached:
+        //    https://github.com/gradle/gradle/issues/24368
+        from("$androidxRepoOut/$artifactSubdir") { spec ->
+            spec.into("m2repository/$artifactSubdir")
+        }
+        if (includeMetadata) {
+            val suffixes = setOf("", ".md5", ".sha1", ".sha256", ".sha512")
+            for (suffix in suffixes) {
+                val filename = "maven-metadata.xml$suffix"
+                from("$androidxRepoOut/$projectSubdir/$filename") { spec ->
+                    spec.into("m2repository/$projectSubdir")
+                }
             }
         }
     }
