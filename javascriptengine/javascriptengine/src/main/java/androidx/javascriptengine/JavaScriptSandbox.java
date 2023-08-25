@@ -55,6 +55,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -91,11 +92,20 @@ public final class JavaScriptSandbox implements AutoCloseable {
     private final Object mLock = new Object();
     private final CloseGuardHelper mGuard = CloseGuardHelper.create();
 
+    // This is null iff the sandbox is closed.
     @Nullable
     @GuardedBy("mLock")
     private IJsSandboxService mJsSandboxService;
 
-    private final ConnectionSetup mConnection;
+    // Don't use mLock for the connection, allowing it to be severed at any time, regardless of
+    // the status of the main mLock. Use an AtomicReference instead.
+    //
+    // The underlying ConnectionSetup is nullable, and is null iff the service has been unbound
+    // (which should also imply dead or closed).
+    @NonNull
+    private final AtomicReference<ConnectionSetup> mConnection;
+    @NonNull
+    private final Context mContext;
 
     @GuardedBy("mLock")
     @NonNull
@@ -221,7 +231,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
         private CallbackToFutureAdapter.Completer<JavaScriptSandbox> mCompleter;
         @Nullable
         private JavaScriptSandbox mJsSandbox;
-        final Context mContext;
+        @NonNull
+        private final Context mContext;
 
         @Override
         @SuppressWarnings("NullAway")
@@ -236,7 +247,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
             IJsSandboxService jsSandboxService =
                     IJsSandboxService.Stub.asInterface(service);
             try {
-                mJsSandbox = new JavaScriptSandbox(this, jsSandboxService);
+                mJsSandbox = new JavaScriptSandbox(mContext, this, jsSandboxService);
             } catch (RemoteException e) {
                 runShutdownTasks(e);
                 return;
@@ -400,9 +411,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
 
     // We prevent direct initializations of this class.
     // Use JavaScriptSandbox.createConnectedInstance().
-    JavaScriptSandbox(@NonNull ConnectionSetup connectionSetup,
+    JavaScriptSandbox(@NonNull Context context, @NonNull ConnectionSetup connectionSetup,
             @NonNull IJsSandboxService jsSandboxService) throws RemoteException {
-        mConnection = connectionSetup;
+        mContext = context;
+        mConnection = new AtomicReference<>(connectionSetup);
         mJsSandboxService = jsSandboxService;
         final List<String> features = mJsSandboxService.getSupportedFeatures();
         mClientSideFeatureSet = buildClientSideFeatureSet(features);
@@ -430,7 +442,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
     public JavaScriptIsolate createIsolate(@NonNull IsolateStartupParameters settings) {
         Objects.requireNonNull(settings);
         synchronized (mLock) {
-            if (mJsSandboxService == null) {
+            // TODO(b/290750354, b/290749782): Implement separate closed vs dead state and use
+            //  that instead of a mConnection nullness check.
+            if (mJsSandboxService == null || mConnection.get() == null) {
                 throw new IllegalStateException(
                         "Attempting to createIsolate on a service that isn't connected");
             }
@@ -530,13 +544,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
             if (mJsSandboxService == null) {
                 return;
             }
-            // This is the closest thing to a .close() method for ExecutorServices. This doesn't
-            // force the threads or their Runnables to immediately terminate, but will ensure
-            // that once the
-            // worker threads finish their current runnable (if any) that the thread pool terminates
-            // them, preventing a leak of threads.
-            mThreadPoolTaskExecutor.shutdownNow();
-            mConnection.mContext.unbindService(mConnection);
+            unbindService();
             // Currently we consider that we are ready for a new connection once we unbind. This
             // might not be true if the process is not immediately killed by ActivityManager once it
             // is unbound.
@@ -544,6 +552,29 @@ public final class JavaScriptSandbox implements AutoCloseable {
             mJsSandboxService = null;
         }
         notifyIsolatesAboutClosure();
+        // This is the closest thing to a .close() method for ExecutorServices. This doesn't
+        // force the threads or their Runnables to immediately terminate, but will ensure
+        // that once the worker threads finish their current runnable (if any) that the thread
+        // pool terminates them, preventing a leak of threads.
+        mThreadPoolTaskExecutor.shutdownNow();
+    }
+
+    // Unbind the service if it hasn't been unbound already.
+    private void unbindService() {
+        final ConnectionSetup connection = mConnection.getAndSet(null);
+        if (connection != null) {
+            mContext.unbindService(connection);
+        }
+    }
+
+    // Kill the sandbox immediately.
+    //
+    // This will unbind the sandbox service so that any future IPC will fail immediately.
+    // However, isolates will be notified asynchronously, from the main thread.
+    void kill() {
+        unbindService();
+        // TODO(b/290750354, b/290749782): Implement separate closed vs dead state.
+        getMainExecutor().execute(this::close);
     }
 
     private void notifyIsolatesAboutClosure() {
@@ -577,6 +608,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
 
     @NonNull
     Executor getMainExecutor() {
-        return ContextCompat.getMainExecutor(mConnection.mContext);
+        return ContextCompat.getMainExecutor(mContext);
     }
 }

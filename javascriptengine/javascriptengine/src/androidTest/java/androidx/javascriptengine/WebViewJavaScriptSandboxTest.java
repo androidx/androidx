@@ -654,11 +654,18 @@ public class WebViewJavaScriptSandboxTest {
                     }
                 }
 
-                // Check that other pre-existing isolates can still be used.
+                // Check that other pre-existing isolate in the same sandbox can no longer be used.
+                // (That the sandbox as a whole is dead.)
                 ListenableFuture<String> otherIsolateResultFuture =
                         jsIsolate2.evaluateJavaScriptAsync(stableCode);
-                String otherIsolateResult = otherIsolateResultFuture.get(5, TimeUnit.SECONDS);
-                Assert.assertEquals(stableExpected, otherIsolateResult);
+                try {
+                    otherIsolateResultFuture.get(5, TimeUnit.SECONDS);
+                    Assert.fail("Should have thrown.");
+                } catch (ExecutionException e) {
+                    if (!(e.getCause() instanceof SandboxDeadException)) {
+                        throw e;
+                    }
+                }
             }
         }
     }
@@ -711,28 +718,14 @@ public class WebViewJavaScriptSandboxTest {
                 });
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-                // Check that other isolates can still be created and used (without closing
-                // jsIsolate1).
-                try (JavaScriptIsolate jsIsolate2 =
-                             jsSandbox.createIsolate(isolateStartupParameters)) {
-                    ListenableFuture<String> resultFuture =
-                            jsIsolate2.evaluateJavaScriptAsync(stableCode);
-                    String result = resultFuture.get(5, TimeUnit.SECONDS);
-                    Assert.assertEquals(stableExpected, result);
-                }
-            }
-
-            // Check that other isolates can still be created and used (after closing jsIsolate1).
-            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate(isolateStartupParameters)) {
-                ListenableFuture<String> resultFuture =
-                        jsIsolate.evaluateJavaScriptAsync(stableCode);
-                String result = resultFuture.get(5, TimeUnit.SECONDS);
-                Assert.assertEquals(stableExpected, result);
+                // Check that new isolates can no longer be created in the same sandbox.
+                Assert.assertThrows(IllegalStateException.class,
+                        () -> jsSandbox.createIsolate(isolateStartupParameters));
             }
         }
 
-        // Check that the old sandbox with the "crashed" isolate can be torn down and that a new
-        // sandbox and isolate can be spun up.
+        // Check that after the old OOMed sandbox is closed and torn down that a new sandbox and
+        // isolate can be spun up.
         ListenableFuture<JavaScriptSandbox> jsSandboxFuture2 =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture2.get(5, TimeUnit.SECONDS);
