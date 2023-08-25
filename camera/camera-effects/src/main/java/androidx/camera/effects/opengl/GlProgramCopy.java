@@ -17,6 +17,7 @@
 package androidx.camera.effects.opengl;
 
 import static androidx.camera.effects.opengl.Utils.checkGlErrorOrThrow;
+import static androidx.camera.effects.opengl.Utils.createFbo;
 import static androidx.camera.effects.opengl.Utils.drawArrays;
 
 import android.opengl.GLES11Ext;
@@ -61,10 +62,7 @@ class GlProgramCopy extends GlProgram {
     protected void configure() {
         super.configure();
         // Create a FBO for attaching the output texture.
-        int[] fbos = new int[1];
-        GLES20.glGenFramebuffers(1, fbos, 0);
-        checkGlErrorOrThrow("glGenFramebuffers");
-        mFbo = fbos[0];
+        mFbo = createFbo();
     }
 
     @Override
