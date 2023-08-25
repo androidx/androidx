@@ -225,7 +225,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                 // being reset so we use the latest lambda, even if the keys provided as input
                 // didn't change.
                 if (element is SuspendPointerInputElement) {
-                    elements[i] = ForceUpdateElement
+                    elements[i] = ForceUpdateElement(element)
                 }
             }
         }
@@ -806,12 +806,15 @@ private const val ActionReuse = 2
  * 3. else REPLACE (NO REUSE, NO UPDATE)
  */
 internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element): Int {
-    return if (prev == next)
+    return if (prev == next) {
         ActionReuse
-    else if (areObjectsOfSameType(prev, next) || prev === ForceUpdateElement)
+    } else if (areObjectsOfSameType(prev, next) ||
+        (prev is ForceUpdateElement && areObjectsOfSameType(prev.original, next))
+    ) {
         ActionUpdate
-    else
+    } else {
         ActionReplace
+    }
 }
 
 private fun <T : Modifier.Node> ModifierNodeElement<T>.updateUnsafe(
@@ -846,7 +849,8 @@ private fun Modifier.fillVector(
 }
 
 @Suppress("ModifierNodeInspectableProperties")
-private object ForceUpdateElement : ModifierNodeElement<Modifier.Node>() {
+private data class ForceUpdateElement(val original: ModifierNodeElement<*>) :
+    ModifierNodeElement<Modifier.Node>() {
     override fun create(): Modifier.Node {
         throw IllegalStateException("Shouldn't be called")
     }
@@ -854,10 +858,4 @@ private object ForceUpdateElement : ModifierNodeElement<Modifier.Node>() {
     override fun update(node: Modifier.Node) {
         throw IllegalStateException("Shouldn't be called")
     }
-
-    override fun hashCode(): Int = 100
-
-    override fun equals(other: Any?): Boolean = other === this
-
-    override fun toString() = "ForceUpdateElement"
 }
