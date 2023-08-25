@@ -237,6 +237,7 @@ public @interface RestrictTo {
         LIBRARY,
         LIBRARY_GROUP,
         LIBRARY_GROUP_PREFIX,
+        /** @deprecated Use {@link #LIBRARY_GROUP_PREFIX} instead */
         @Deprecated
         GROUP_ID,
         TESTS,
