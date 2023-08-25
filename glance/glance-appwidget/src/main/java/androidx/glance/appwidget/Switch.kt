@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.EmittableCheckable
@@ -160,6 +161,19 @@ object SwitchDefaults {
         uncheckedThumbColor: ColorProvider,
         checkedTrackColor: ColorProvider,
         uncheckedTrackColor: ColorProvider,
+    ): SwitchColors = switchColors(
+        checkedThumbColor = checkedThumbColor,
+        uncheckedThumbColor = uncheckedThumbColor,
+        checkedTrackColor = checkedTrackColor,
+        uncheckedTrackColor = uncheckedTrackColor
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun switchColors(
+        checkedThumbColor: ColorProvider,
+        uncheckedThumbColor: ColorProvider,
+        checkedTrackColor: ColorProvider,
+        uncheckedTrackColor: ColorProvider,
     ): SwitchColors {
         return SwitchColorsImpl(
             thumb = createCheckableColorProvider(
@@ -225,7 +239,8 @@ private fun SwitchElement(
         })
 }
 
-internal class EmittableSwitch(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class EmittableSwitch(
     var colors: SwitchColors
 ) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier

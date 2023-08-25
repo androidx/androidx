@@ -28,4 +28,13 @@
             file="src/main/java/androidx/glance/testing/GlanceNodeAssertion.kt"/>
     </issue>
 
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            ?.joinToString()"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/unit/UnitTestFilters.kt"/>
+    </issue>
+
 </issues>

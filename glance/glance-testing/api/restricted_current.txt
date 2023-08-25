@@ -28,12 +28,44 @@ package androidx.glance.testing {
 
 package androidx.glance.testing.unit {
 
-  public final class FiltersKt {
-    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasTestTag(String testTag);
-    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text, optional boolean substring, optional boolean ignoreCase);
+  public final class GlanceMappedNode extends androidx.glance.testing.GlanceNode<androidx.glance.testing.unit.MappedNode> {
+    ctor public GlanceMappedNode(androidx.glance.testing.unit.MappedNode mappedNode);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.glance.testing.GlanceNode<androidx.glance.testing.unit.MappedNode>> children();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public String toDebugString();
   }
 
   public final class MappedNode {
+  }
+
+  public final class UnitTestAssertionExtensionsKt {
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasContentDescription(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String value);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasContentDescription(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String value, optional boolean substring);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasContentDescription(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasNoClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.ComponentName componentName);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, Class<T> activityClass);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, Class<T> activityClass, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, Class<T> activityClass, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasTestTag(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String testTag);
+  }
+
+  public final class UnitTestFiltersKt {
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasClickAction();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value, optional boolean substring);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasNoClickAction();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(android.content.ComponentName componentName);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(Class<T> activityClass);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(Class<T> activityClass, optional androidx.glance.action.ActionParameters parameters);
+    method public static <T extends android.app.Activity> androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(Class<T> activityClass, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasTestTag(String testTag);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text, optional boolean substring);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text, optional boolean substring, optional boolean ignoreCase);
   }
 
 }
