@@ -15,12 +15,14 @@ package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.Name
+import androidx.appactions.builtintypes.serializers.DurationAsNanosSerializer
 import androidx.appsearch.`annotation`.Document
 import java.time.Duration
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
+import kotlin.NotImplementedError
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.Map
@@ -49,7 +51,9 @@ public interface Timer : Thing {
    *
    * See https://schema.org/duration for more context.
    */
+  @get:Document.LongProperty(serializer = DurationAsNanosSerializer::class)
   public val duration: Duration?
+    get() = null
 
   /** Converts this [Timer] to its builder with all the properties copied over. */
   public override fun toBuilder(): Builder<*>
@@ -70,7 +74,8 @@ public interface Timer : Thing {
     public override fun build(): Timer
 
     /** Sets the `duration`. */
-    public fun setDuration(duration: Duration?): Self
+    @Suppress("DocumentExceptions")
+    public fun setDuration(duration: Duration?): Self = throw NotImplementedError()
   }
 }
 
