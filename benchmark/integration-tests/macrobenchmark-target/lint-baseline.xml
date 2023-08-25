@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -22,64 +22,10 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(1000)"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/viewpager2/widget/BaseTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(eventTime - now - 10);"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/viewpager2/widget/swipe/ManualSwipeInjector.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="                    trace(&quot;tracing&quot;) { Thread.sleep(50) }"
         errorLine2="                                              ~~~~~">
         <location
             file="src/main/java/androidx/benchmark/integration/macrobenchmark/target/TrivialStartupActivity.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
-        errorLine2="                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
-        errorLine2="                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Api16Impl.cancel can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="                            SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal)"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/CoroutinesRoom.kt"/>
     </issue>
 
 </issues>
