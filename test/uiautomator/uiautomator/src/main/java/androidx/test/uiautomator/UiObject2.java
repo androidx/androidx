@@ -71,6 +71,8 @@ public class UiObject2 implements Searchable {
     private static final int DEFAULT_FLING_SPEED = 7_500; // dp/s
     private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
     private static final int DEFAULT_PINCH_SPEED = 1_000; // dp/s
+    // Retry if scrollFinished has null result
+    private static final int MAX_NULL_SCROLL_RETRY = 2;
     private static final long SCROLL_TIMEOUT = 1_000; // ms
     private static final long FLING_TIMEOUT = 5_000; // ms; longer as motion may continue.
 
@@ -732,6 +734,7 @@ public class UiObject2 implements Searchable {
             @NonNull Condition<? super UiObject2, U> condition) {
         Rect bounds = getVisibleBoundsForGestures();
         int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+        int nullScrollRetryCount = 0;
 
         EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
 
@@ -749,9 +752,18 @@ public class UiObject2 implements Searchable {
             }
             PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
                     DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
-            if (mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe)) {
+            Boolean scrollFinishedResult =
+                    mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe);
+            if (Boolean.TRUE.equals(scrollFinishedResult)) {
                 // Scroll has finished.
                 break;
+            } else if (scrollFinishedResult == null) {
+                // Couldn't determine whether scroll finished after retries.
+                if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    break;
+                }
+                Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
+                        + "retrying: count %d", nullScrollRetryCount - 1));
             }
         }
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
@@ -773,13 +785,14 @@ public class UiObject2 implements Searchable {
     public <U> U scrollUntil(@NonNull Direction direction, @NonNull EventCondition<U> condition) {
         Rect bounds = getVisibleBoundsForGestures();
         int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+        int nullScrollRetryCount = 0;
 
         // combine the input condition with scroll finished condition.
         EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
         EventCondition<Boolean> combinedEventCondition = new EventCondition<Boolean>() {
             @Override
             public Boolean getResult() {
-                if (scrollFinished.getResult()) {
+                if (Boolean.TRUE.equals(scrollFinished.getResult())) {
                     // scroll has finished.
                     return true;
                 }
@@ -802,6 +815,13 @@ public class UiObject2 implements Searchable {
                     swipe)) {
                 // Either scroll has finished or the accessibility event has appeared.
                 break;
+            } else if (scrollFinished.getResult() == null) {
+                // Couldn't determine whether scroll finished after retries.
+                if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    break;
+                }
+                Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
+                        + "retrying: count %d", nullScrollRetryCount - 1));
             }
         }
         return condition.getResult();
