@@ -16,6 +16,7 @@
 package androidx.core.telecom.internal
 
 import android.os.Build
+import android.os.Bundle
 import android.os.ParcelUuid
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
@@ -27,6 +28,7 @@ import android.telecom.VideoProfile
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
@@ -166,6 +168,11 @@ internal class JetpackConnectionService : ConnectionService() {
             targetRequest.callAttributes.address,
             TelecomManager.PRESENTATION_ALLOWED
         )
+
+        // set the extra EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED to true
+        val extras = Bundle()
+        extras.putBoolean(CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED, true)
+        jetpackConnection.putExtras(extras)
 
         // set the call state for the given direction
         if (direction == CallAttributesCompat.DIRECTION_OUTGOING) {
