@@ -34,6 +34,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    // NOTE, if you add android target here, make sure to add the proguard file as well.
 
     defaultPlatform(PlatformIdentifier.JVM)
 
