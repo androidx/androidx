@@ -19,24 +19,29 @@ package androidx.glance.appwidget.action
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Intent
+import androidx.annotation.RestrictTo
 import androidx.glance.action.Action
 
 internal sealed interface SendBroadcastAction : Action
 
-internal class SendBroadcastActionAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class SendBroadcastActionAction(
     val action: String,
     val componentName: ComponentName? = null,
 ) : SendBroadcastAction
 
-internal class SendBroadcastComponentAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class SendBroadcastComponentAction(
     val componentName: ComponentName,
 ) : SendBroadcastAction
 
-internal class SendBroadcastClassAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class SendBroadcastClassAction(
     val receiverClass: Class<out BroadcastReceiver>,
 ) : SendBroadcastAction
 
-internal class SendBroadcastIntentAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class SendBroadcastIntentAction(
     val intent: Intent,
 ) : SendBroadcastAction
 

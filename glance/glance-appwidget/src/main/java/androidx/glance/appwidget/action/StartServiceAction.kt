@@ -19,23 +19,27 @@ package androidx.glance.appwidget.action
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
+import androidx.annotation.RestrictTo
 import androidx.glance.action.Action
 
 internal sealed interface StartServiceAction : Action {
     val isForegroundService: Boolean
 }
 
-internal class StartServiceComponentAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class StartServiceComponentAction(
     val componentName: ComponentName,
     override val isForegroundService: Boolean
 ) : StartServiceAction
 
-internal class StartServiceClassAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class StartServiceClassAction(
     val serviceClass: Class<out Service>,
     override val isForegroundService: Boolean
 ) : StartServiceAction
 
-internal class StartServiceIntentAction(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class StartServiceIntentAction(
     val intent: Intent,
     override val isForegroundService: Boolean
 ) : StartServiceAction

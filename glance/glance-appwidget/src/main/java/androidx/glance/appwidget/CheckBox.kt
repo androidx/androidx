@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
@@ -182,6 +183,12 @@ object CheckboxDefaults {
     fun colors(
         checkedColor: ColorProvider,
         uncheckedColor: ColorProvider
+    ): CheckBoxColors = checkBoxColors(checkedColor, uncheckedColor)
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun checkBoxColors(
+        checkedColor: ColorProvider,
+        uncheckedColor: ColorProvider
     ): CheckBoxColors =
         CheckBoxColorsImpl(
             createCheckableColorProvider(
@@ -228,7 +235,8 @@ object CheckboxDefaults {
     }
 }
 
-internal class EmittableCheckBox(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class EmittableCheckBox(
     var colors: CheckBoxColors
 ) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier
