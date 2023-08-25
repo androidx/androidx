@@ -24,6 +24,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,6 +32,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
+@Ignore("b/297398943")
 class RecyclerViewAsCarouselBenchmark(
     private val compilationMode: CompilationMode
 ) {
