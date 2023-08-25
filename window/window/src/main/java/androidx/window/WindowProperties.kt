@@ -209,7 +209,7 @@ object WindowProperties {
      * that have the ignore orientation request display setting enabled by OEMs
      * (enables compatibility mode for fixed orientation on Android 12 (API
      * level 31) or higher; see
-     * [Large screen app compatibility](https://developer.android.com/guide/topics/large-screens/large-screen-app-compatibility)
+     * [Large screen compatibility mode](https://developer.android.com/guide/topics/large-screens/large-screen-compatibility-mode)
      * for more details).
      *
      * To opt out of the user aspect ratio compatibility override, add this property
@@ -248,7 +248,7 @@ object WindowProperties {
      * the ignore orientation request display setting enabled by OEMs (enables
      * compatibility mode for fixed orientation on Android 12 (API level 31) or
      * higher; see
-     * [Large screen app compatibility](https://developer.android.com/guide/topics/large-screens/large-screen-app-compatibility)
+     * [Large screen compatibility mode](https://developer.android.com/guide/topics/large-screens/large-screen-compatibility-mode)
      * for more details).
      *
      * To opt out of the full-screen option of the user aspect ratio compatibility
