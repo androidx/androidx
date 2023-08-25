@@ -10,6 +10,7 @@ package androidx.lifecycle.testing {
     method public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
     method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    method public suspend Object? setCurrentState(androidx.lifecycle.Lifecycle.State state, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final androidx.lifecycle.Lifecycle.State currentState;
     property public androidx.lifecycle.LifecycleRegistry lifecycle;
     property public final int observerCount;
