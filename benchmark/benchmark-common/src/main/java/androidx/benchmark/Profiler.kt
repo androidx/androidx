@@ -201,8 +201,7 @@ internal object MethodTracing : Profiler() {
 
     override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
         ArtTrace(profilerTrace)
-            .toPerfettoTrace()
-            .encode(FileOutputStream(perfettoTrace, /* append = */ true))
+            .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append = */ true))
     }
 }
 @SuppressLint("BanThreadSleep") // needed for connected profiling
