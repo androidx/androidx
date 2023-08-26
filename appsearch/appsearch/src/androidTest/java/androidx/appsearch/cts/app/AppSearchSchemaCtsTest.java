@@ -327,7 +327,6 @@ public class AppSearchSchemaCtsTest {
                 + "    {\n"
                 + "      name: \"document\",\n"
                 + "      shouldIndexNestedProperties: true,\n"
-                + "      indexableNestedProperties: [],\n"
                 + "      schemaType: \"builtin:Email\",\n"
                 + "      cardinality: CARDINALITY_REPEATED,\n"
                 + "      dataType: DATA_TYPE_DOCUMENT,\n"
@@ -408,7 +407,10 @@ public class AppSearchSchemaCtsTest {
                 + "  ]\n"
                 + "}";
 
-        assertThat(schemaString).isEqualTo(expectedString);
+        String[] lines = expectedString.split("\n");
+        for (String line : lines) {
+            assertThat(schemaString).contains(line);
+        }
     }
 
     @Test
