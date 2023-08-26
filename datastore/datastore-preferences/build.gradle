@@ -24,9 +24,6 @@ plugins {
 }
 
 android{
-    buildTypes.all{
-        consumerProguardFiles "proguard-rules.pro"
-    }
     namespace "androidx.datastore.preferences"
 }
 androidXMultiplatform {
