@@ -20,18 +20,13 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalView
-import kotlin.math.roundToInt
 
 /**
  * Excludes the layout rectangle from the system gesture.
@@ -78,7 +73,7 @@ private class ExcludeFromSystemGestureElement(
     }
 
     override fun update(node: ExcludeFromSystemGestureNode) {
-        node.exclusion = exclusion
+        node.rect = exclusion
     }
 
     override fun hashCode(): Int {
@@ -100,76 +95,14 @@ private class ExcludeFromSystemGestureElement(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private class ExcludeFromSystemGestureNode(
-    var exclusion: ((LayoutCoordinates) -> Rect)?
-) : Modifier.Node(), GlobalPositionAwareModifierNode, CompositionLocalConsumerModifierNode {
-    var rect: android.graphics.Rect? = null
-
-    private val view: View
-        get() = currentValueOf(LocalView)
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        val newRect = if (exclusion == null) {
-            val boundsInRoot = coordinates.boundsInRoot()
-            android.graphics.Rect(
-                boundsInRoot.left.roundToInt(),
-                boundsInRoot.top.roundToInt(),
-                boundsInRoot.right.roundToInt(),
-                boundsInRoot.bottom.roundToInt()
-            )
-        } else {
-            calcBounds(coordinates, exclusion!!.invoke(coordinates))
-        }
-        replaceRect(newRect)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        replaceRect(null) // On Node detach, reset
-    }
-
-    fun replaceRect(newRect: android.graphics.Rect?) {
+    rect: ((LayoutCoordinates) -> Rect)?
+) : RectListNode(rect) {
+    override fun currentRects(): MutableVector<android.graphics.Rect> {
         val rects = mutableVectorOf<android.graphics.Rect>()
         rects.addAll(view.systemGestureExclusionRects)
-
-        rect?.let { rects.remove(it) }
-
-        if (newRect?.isEmpty == false) {
-            rects += newRect
-        }
+        return rects
+    }
+    override fun updateRects(rects: MutableVector<android.graphics.Rect>) {
         view.systemGestureExclusionRects = rects.asMutableList()
-        rect = newRect
-    }
-
-    private fun calcBounds(
-        layoutCoordinates: LayoutCoordinates,
-        rect: Rect
-    ): android.graphics.Rect {
-        val root = findRoot(layoutCoordinates)
-        val topLeft = root.localPositionOf(layoutCoordinates, rect.topLeft)
-        val topRight = root.localPositionOf(layoutCoordinates, rect.topRight)
-        val bottomLeft = root.localPositionOf(layoutCoordinates, rect.bottomLeft)
-        val bottomRight = root.localPositionOf(layoutCoordinates, rect.bottomRight)
-
-        val left = minOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-        val top = minOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
-        val right = maxOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-        val bottom = maxOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
-
-        return android.graphics.Rect(
-            left.roundToInt(),
-            top.roundToInt(),
-            right.roundToInt(),
-            bottom.roundToInt()
-        )
-    }
-
-    private fun findRoot(layoutCoordinates: LayoutCoordinates): LayoutCoordinates {
-        var coordinates = layoutCoordinates
-        var parent = layoutCoordinates.parentLayoutCoordinates
-        while (parent != null) {
-            coordinates = parent
-            parent = coordinates.parentLayoutCoordinates
-        }
-        return coordinates
     }
 }
