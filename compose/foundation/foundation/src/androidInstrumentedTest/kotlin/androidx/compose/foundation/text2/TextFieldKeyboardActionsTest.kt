@@ -67,8 +67,7 @@ class TextFieldKeyboardActionsTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @get:Rule
-    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     @Test
     fun textField_performsImeAction_viaSemantics() {
@@ -91,7 +90,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsImeAction_viaInputConnection() {
         var called = false
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -112,7 +111,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
         var calledFor: ImeAction? = null
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -265,7 +264,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsGo_whenReceivedImeActionIsGo() {
         var called = false
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardActions = KeyboardActions(onGo = {
@@ -285,7 +284,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
         var called = false
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardActions = KeyboardActions(onGo = {

@@ -340,6 +340,10 @@ package androidx.compose.ui.test {
     method public static String printToString(androidx.compose.ui.test.SemanticsNodeInteractionCollection, optional int maxDepth);
   }
 
+  public final class PlatformTextInputMethodOverrideKt {
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.ui.test.ExperimentalTestApi public static void PlatformTextInputMethodTestOverride(androidx.compose.ui.platform.PlatformTextInputSession sessionHandler, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public interface RotaryInjectionScope extends androidx.compose.ui.test.InjectionScope {
     method public void rotateToScrollHorizontally(float horizontalScrollPixels);
     method public void rotateToScrollVertically(float verticalScrollPixels);
