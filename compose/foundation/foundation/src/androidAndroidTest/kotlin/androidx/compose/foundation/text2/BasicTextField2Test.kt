@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
 import androidx.compose.ui.semantics.getOrNull
@@ -988,34 +989,26 @@ internal class BasicTextField2Test {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
-        val keyboardHelper = KeyboardHelper(rule)
+        val testKeyboardController = TestSoftwareKeyboardController(rule)
         rule.setContent {
-            keyboardHelper.initialize()
-            BasicTextField2(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides testKeyboardController
+            ) {
+                BasicTextField2(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier.testTag(Tag)
+                )
+            }
         }
+        // Focusing the field will show the keyboard without using the SoftwareKeyboardController.
+        rule.onNodeWithTag(Tag).requestFocus()
+        testKeyboardController.hide()
 
-        // make sure keyboard is hidden initially
-        keyboardHelper.hideKeyboardIfShown()
-
-        // click the first time to gain focus.
-        rule.onNodeWithTag(Tag).performClick()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
-
-        // hide it again.
-        keyboardHelper.hideKeyboardIfShown()
-        rule.onNodeWithTag(Tag).assertIsFocused()
-
-        rule.mainClock.advanceTimeBy(1000) // to not cause double click
-
+        // This will go through the SoftwareKeyboardController to show the keyboard, since a session
+        // is already active.
         rule.onNodeWithTag(Tag).performClick()
 
-        // expect keyboard to show up again.
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+        testKeyboardController.assertShown()
     }
 
     @Test
