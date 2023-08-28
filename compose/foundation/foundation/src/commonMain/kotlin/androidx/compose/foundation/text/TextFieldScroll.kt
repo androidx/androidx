@@ -16,12 +16,16 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
+import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -51,6 +55,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.min
 import kotlin.math.roundToInt
+
+@ExperimentalFoundationApi
+@Composable
+internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
 
 // Scrollable
 internal fun Modifier.textFieldScrollable(
@@ -84,14 +92,24 @@ internal fun Modifier.textFieldScrollable(
     val wrappedScrollableState = remember(scrollableState, scrollerPosition) {
         createScrollableState(scrollableState, scrollerPosition)
     }
+
+    val overscrollEffect = rememberTextFieldOverscrollEffect()
+
     val scroll = Modifier.scrollable(
         orientation = scrollerPosition.orientation,
         reverseDirection = reverseDirection,
+        overscrollEffect = overscrollEffect,
         state = wrappedScrollableState,
         interactionSource = interactionSource,
         enabled = enabled && scrollerPosition.maximum != 0f
     )
-    scroll
+
+    overscrollEffect?.effectModifier?.let { overscrollModifer ->
+        // Just like LazyList does, we need to apply clipScrollableContainer
+        // to avoid situation where overscroll modifier causes text to clip through the container
+        Modifier.clipScrollableContainer(scrollerPosition.orientation) then overscrollModifer then scroll
+    } ?: scroll
+
 }
 
 // Workaround for K/JS
