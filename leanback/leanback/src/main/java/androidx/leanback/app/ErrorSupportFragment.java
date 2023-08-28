@@ -161,8 +161,8 @@ public class ErrorSupportFragment extends BrandedSupportFragment {
         return mButtonClickListener;
     }
 
-    @NonNull
     @Override
+    @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_error_fragment, container, false);

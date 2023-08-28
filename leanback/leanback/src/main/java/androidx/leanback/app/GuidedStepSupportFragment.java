@@ -1105,11 +1105,9 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
+    @Nullable
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onCreateView");
 
