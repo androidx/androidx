@@ -50,7 +50,7 @@ import androidx.compose.ui.semantics.semantics
  *
  * @param imageVector [ImageVector] to draw inside this icon
  * @param contentDescription text used by accessibility services to describe what this icon
- * represents. This should always be gprovided unless this icon is used for decorative purposes, and
+ * represents. This should always be provided unless this icon is used for decorative purposes, and
  * does not represent a meaningful action that a user can take. This text should be localized, such
  * as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier the [Modifier] to be applied to this icon
