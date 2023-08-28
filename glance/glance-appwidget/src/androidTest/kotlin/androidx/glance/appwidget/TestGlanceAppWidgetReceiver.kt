@@ -41,7 +41,8 @@ class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     }
 }
 
-object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
+object TestGlanceAppWidget : GlanceAppWidget() {
+    public override var errorUiLayout: Int = 0
 
     override var sizeMode: SizeMode = SizeMode.Single
 
@@ -49,9 +50,12 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
         context: Context,
         id: GlanceId
     ) {
-        onProvideGlance?.invoke(this)
-        onProvideGlance = null
-        provideContent(uiDefinition)
+        try {
+            onProvideGlance?.invoke(this)
+                ?: provideContent(uiDefinition)
+        } finally {
+          onProvideGlance = null
+        }
     }
 
     var onProvideGlance: (suspend TestGlanceAppWidget.() -> Unit)? = null
@@ -71,4 +75,14 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
     }
 
     var uiDefinition: @Composable () -> Unit = { }
+
+    inline fun withErrorLayout(layout: Int, block: () -> Unit) {
+        val previousErrorLayout = errorUiLayout
+        errorUiLayout = layout
+        try {
+            block()
+        } finally {
+            errorUiLayout = previousErrorLayout
+        }
+    }
 }

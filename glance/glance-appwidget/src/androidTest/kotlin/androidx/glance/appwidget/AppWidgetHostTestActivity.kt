@@ -175,7 +175,8 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     private var mLatch: CountDownLatch? = null
-    private var mRemoteViews: RemoteViews? = null
+    var mRemoteViews: RemoteViews? = null
+        private set
     private var mPortraitSize: DpSize = DpSize(0.dp, 0.dp)
     private var mLandscapeSize: DpSize = DpSize(0.dp, 0.dp)
 
