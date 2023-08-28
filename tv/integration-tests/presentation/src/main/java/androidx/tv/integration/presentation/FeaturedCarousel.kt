@@ -83,6 +83,7 @@ fun FeaturedCarousel(
                 LandscapeImageBackground(movie)
             },
             actions = {
+                @Suppress("DEPRECATION")
                 AppButton(
                     text = "Watch on YouTube",
                     icon = Icons.Outlined.ArrowRight,

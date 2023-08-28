@@ -40,8 +40,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -751,7 +751,7 @@ public fun DatePicker(
                 ) {
                     Icon(
                         imageVector = if (pickerGroupState.selectedIndex < 2)
-                            Icons.Filled.KeyboardArrowRight else Icons.Filled.Check,
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight else Icons.Filled.Check,
                         contentDescription = if (pickerGroupState.selectedIndex < 2)
                             "next"
                         else

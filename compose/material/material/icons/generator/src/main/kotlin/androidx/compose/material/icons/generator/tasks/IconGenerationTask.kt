@@ -60,12 +60,23 @@ abstract class IconGenerationTask : DefaultTask() {
     }
 
     /**
-     * Checked-in API file for the generator module, where we will track all the generated icons
+     * Checked-in API file for the generator module, where we will track all the generated icons.
      */
     @PathSensitive(PathSensitivity.NONE)
     @InputFile
     val expectedApiFile =
         project.rootProject.project(GeneratorProject).projectDir.resolve("api/icons.txt")
+
+    /**
+     * Checked-in API file for the generator module, where we will track all the generated
+     * auto-mirrored icons.
+     */
+    @PathSensitive(PathSensitivity.NONE)
+    @InputFile
+    val expectedAutoMirroredApiFile =
+        project.rootProject.project(GeneratorProject).projectDir.resolve(
+            "api/automirrored_icons.txt"
+        )
 
     /**
      * Root build directory for this task, where outputs will be placed into.
@@ -82,6 +93,15 @@ abstract class IconGenerationTask : DefaultTask() {
         get() = buildDirectory.resolve("api/icons.txt")
 
     /**
+     * Generated API file that will be placed in the build directory. This can be copied manually
+     * to [expectedAutoMirroredApiFile] to confirm that auto-mirrored icons API changes were
+     * intended.
+     */
+    @get:OutputFile
+    val generatedAutoMirroredApiFile: File
+        get() = buildDirectory.resolve("api/automirrored_icons.txt")
+
+    /**
      * @return a list of all processed [Icon]s from [getIconDirectories].
      */
     fun loadIcons(): List<Icon> {
@@ -91,7 +111,9 @@ abstract class IconGenerationTask : DefaultTask() {
         return IconProcessor(
             getIconDirectories(),
             expectedApiFile,
-            generatedApiFile
+            generatedApiFile,
+            expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile,
         ).process()
     }
 

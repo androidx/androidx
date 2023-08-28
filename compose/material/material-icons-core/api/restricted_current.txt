@@ -7,6 +7,32 @@ package androidx.compose.material.icons {
     field public static final androidx.compose.material.icons.Icons INSTANCE;
   }
 
+  public static final class Icons.AutoMirrored {
+    method public androidx.compose.material.icons.Icons.AutoMirrored.Filled getDefault();
+    property public final androidx.compose.material.icons.Icons.AutoMirrored.Filled Default;
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored INSTANCE;
+  }
+
+  public static final class Icons.AutoMirrored.Filled {
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored.Filled INSTANCE;
+  }
+
+  public static final class Icons.AutoMirrored.Outlined {
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored.Outlined INSTANCE;
+  }
+
+  public static final class Icons.AutoMirrored.Rounded {
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored.Rounded INSTANCE;
+  }
+
+  public static final class Icons.AutoMirrored.Sharp {
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored.Sharp INSTANCE;
+  }
+
+  public static final class Icons.AutoMirrored.TwoTone {
+    field public static final androidx.compose.material.icons.Icons.AutoMirrored.TwoTone INSTANCE;
+  }
+
   public static final class Icons.Filled {
     field public static final androidx.compose.material.icons.Icons.Filled INSTANCE;
   }
@@ -28,9 +54,170 @@ package androidx.compose.material.icons {
   }
 
   public final class IconsKt {
+    method public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, boolean autoMirror, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
     method public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
     method public static inline androidx.compose.ui.graphics.vector.ImageVector.Builder materialPath(androidx.compose.ui.graphics.vector.ImageVector.Builder, optional float fillAlpha, optional float strokeAlpha, optional int pathFillType, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
     field @kotlin.PublishedApi internal static final float MaterialIconDimension = 24.0f;
+  }
+
+}
+
+package androidx.compose.material.icons.automirrored.filled {
+
+  public final class ArrowBackKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class ArrowForwardKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class ExitToAppKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class KeyboardArrowLeftKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class KeyboardArrowRightKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class ListKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+  public final class SendKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.AutoMirrored.Filled);
+  }
+
+}
+
+package androidx.compose.material.icons.automirrored.outlined {
+
+  public final class ArrowBackKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class ArrowForwardKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class ExitToAppKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class KeyboardArrowLeftKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class KeyboardArrowRightKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class ListKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+  public final class SendKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.AutoMirrored.Outlined);
+  }
+
+}
+
+package androidx.compose.material.icons.automirrored.rounded {
+
+  public final class ArrowBackKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class ArrowForwardKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class ExitToAppKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class KeyboardArrowLeftKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class KeyboardArrowRightKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class ListKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+  public final class SendKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.AutoMirrored.Rounded);
+  }
+
+}
+
+package androidx.compose.material.icons.automirrored.sharp {
+
+  public final class ArrowBackKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class ArrowForwardKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class ExitToAppKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class KeyboardArrowLeftKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class KeyboardArrowRightKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class ListKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+  public final class SendKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.AutoMirrored.Sharp);
+  }
+
+}
+
+package androidx.compose.material.icons.automirrored.twotone {
+
+  public final class ArrowBackKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class ArrowForwardKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class ExitToAppKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class KeyboardArrowLeftKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class KeyboardArrowRightKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class ListKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
+  }
+
+  public final class SendKt {
+    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.AutoMirrored.TwoTone);
   }
 
 }
@@ -54,7 +241,7 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class ArrowBackKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class ArrowDropDownKt {
@@ -62,7 +249,7 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class ArrowForwardKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class BuildKt {
@@ -114,7 +301,7 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class ExitToAppKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class FaceKt {
@@ -142,11 +329,11 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class KeyboardArrowLeftKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class KeyboardArrowRightKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class KeyboardArrowUpKt {
@@ -154,7 +341,7 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class ListKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class LocationOnKt {
@@ -206,7 +393,7 @@ package androidx.compose.material.icons.filled {
   }
 
   public final class SendKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Filled);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Filled);
   }
 
   public final class SettingsKt {
@@ -254,7 +441,7 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class ArrowBackKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class ArrowDropDownKt {
@@ -262,7 +449,7 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class ArrowForwardKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class BuildKt {
@@ -314,7 +501,7 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class ExitToAppKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class FaceKt {
@@ -342,11 +529,11 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class KeyboardArrowLeftKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class KeyboardArrowRightKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class KeyboardArrowUpKt {
@@ -354,7 +541,7 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class ListKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class LocationOnKt {
@@ -406,7 +593,7 @@ package androidx.compose.material.icons.outlined {
   }
 
   public final class SendKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Outlined);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Outlined);
   }
 
   public final class SettingsKt {
@@ -454,7 +641,7 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class ArrowBackKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class ArrowDropDownKt {
@@ -462,7 +649,7 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class ArrowForwardKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class BuildKt {
@@ -514,7 +701,7 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class ExitToAppKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class FaceKt {
@@ -542,11 +729,11 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class KeyboardArrowLeftKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class KeyboardArrowRightKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class KeyboardArrowUpKt {
@@ -554,7 +741,7 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class ListKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class LocationOnKt {
@@ -606,7 +793,7 @@ package androidx.compose.material.icons.rounded {
   }
 
   public final class SendKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Rounded);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Rounded);
   }
 
   public final class SettingsKt {
@@ -654,7 +841,7 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class ArrowBackKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class ArrowDropDownKt {
@@ -662,7 +849,7 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class ArrowForwardKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class BuildKt {
@@ -714,7 +901,7 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class ExitToAppKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class FaceKt {
@@ -742,11 +929,11 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class KeyboardArrowLeftKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class KeyboardArrowRightKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class KeyboardArrowUpKt {
@@ -754,7 +941,7 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class ListKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class LocationOnKt {
@@ -806,7 +993,7 @@ package androidx.compose.material.icons.sharp {
   }
 
   public final class SendKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Sharp);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.Sharp);
   }
 
   public final class SettingsKt {
@@ -854,7 +1041,7 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class ArrowBackKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowBack(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class ArrowDropDownKt {
@@ -862,7 +1049,7 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class ArrowForwardKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getArrowForward(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class BuildKt {
@@ -914,7 +1101,7 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class ExitToAppKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getExitToApp(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class FaceKt {
@@ -942,11 +1129,11 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class KeyboardArrowLeftKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowLeft(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class KeyboardArrowRightKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getKeyboardArrowRight(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class KeyboardArrowUpKt {
@@ -954,7 +1141,7 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class ListKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getList(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class LocationOnKt {
@@ -1006,7 +1193,7 @@ package androidx.compose.material.icons.twotone {
   }
 
   public final class SendKt {
-    method public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.TwoTone);
+    method @Deprecated public static androidx.compose.ui.graphics.vector.ImageVector getSend(androidx.compose.material.icons.Icons.TwoTone);
   }
 
   public final class SettingsKt {
