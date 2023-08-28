@@ -527,7 +527,7 @@ class TimePickerState(
     internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
-    internal var hourAngle by mutableStateOf(RadiansPerHour * initialHour % 12 - FullCircle / 4)
+    internal var hourAngle by mutableStateOf(RadiansPerHour * (initialHour % 12) - FullCircle / 4)
     internal var minuteAngle by mutableStateOf(RadiansPerMinute * initialMinute - FullCircle / 4)
 
     private val mutex = MutatorMutex()
@@ -541,7 +541,7 @@ class TimePickerState(
 
     internal fun setHour(hour: Int) {
         isInnerCircle = hour > 12 || hour == 0
-        hourAngle = RadiansPerHour * hour % 12 - FullCircle / 4
+        hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
