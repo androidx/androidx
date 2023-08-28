@@ -61,8 +61,16 @@ public class OutputsTest {
     @Test
     public fun sanitizeFilename() {
         assertEquals(
-            "testFilename[one-Thing[],two-other]",
+            "testFilename_one_Thing_two_other_",
             Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]")
+        )
+    }
+
+    @Test
+    public fun sanitizeFilename_withExtension() {
+        assertEquals(
+            "testFilename_one_Thing_two_other_.trace",
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other].trace")
         )
     }
 

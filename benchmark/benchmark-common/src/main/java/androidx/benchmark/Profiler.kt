@@ -128,7 +128,9 @@ sealed class Profiler {
             .mapKeys { it.key.lowercase() }[name.lowercase()]
 
         fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
-            return "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            return Outputs.sanitizeFilename(
+                "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            )
         }
     }
 }
