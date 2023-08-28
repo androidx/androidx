@@ -630,8 +630,7 @@ public class CustomTabsIntentTest {
                 .setSecondaryToolbarSwipeUpGesture(pendingIntent)
                 .build()
                 .intent;
-        assertEquals(pendingIntent, intent.getParcelableExtra(
-                        CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE));
+        assertEquals(pendingIntent, CustomTabsIntent.getSecondaryToolbarSwipeUpGesture(intent));
     }
 
     private void assertNullSessionInExtras(Intent intent) {
