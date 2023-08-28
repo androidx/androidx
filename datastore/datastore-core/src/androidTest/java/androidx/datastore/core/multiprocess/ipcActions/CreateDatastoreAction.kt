@@ -18,6 +18,7 @@ package androidx.datastore.core.multiprocess.ipcActions
 
 import android.os.Parcelable
 import androidx.datastore.core.CorruptionHandler
+import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreImpl
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.MultiProcessCoordinator
@@ -61,7 +62,7 @@ internal suspend fun createMultiProcessTestDatastore(
     hostDatastoreScope: CoroutineScope,
     corruptionHandler: Class<out CorruptionHandler<FooProto>>? = null,
     vararg subjects: TwoWayIpcSubject
-): DataStoreImpl<FooProto> {
+): DataStore<FooProto> {
     val currentProcessDatastore = createDatastore(
         filePath = filePath,
         storageVariant = storageVariant,
