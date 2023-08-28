@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -123,7 +124,7 @@ internal class SessionWorker(
         }
         launch {
             var lastRecomposeCount = recomposer.changeCount
-            recomposer.currentState.collect { state ->
+            recomposer.currentState.collectLatest { state ->
                 if (DEBUG) Log.d(TAG, "Recomposer(${session.key}): currentState=$state")
                 when (state) {
                     Recomposer.State.Idle -> {
