@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text2
 
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -29,7 +28,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +67,9 @@ class TextFieldKeyboardActionsTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @get:Rule
+    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
+
     @Test
     fun textField_performsImeAction_viaSemantics() {
         var called = false
@@ -90,11 +91,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsImeAction_viaInputConnection() {
         var called = false
-        var inputConnection: InputConnection? = null
-
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -107,8 +103,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEND)
             assertThat(called).isTrue()
         }
     }
@@ -116,10 +112,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
         var calledFor: ImeAction? = null
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -132,8 +124,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEARCH)
             assertThat(calledFor).isEqualTo(ImeAction.Search)
         }
     }
@@ -273,10 +265,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsGo_whenReceivedImeActionIsGo() {
         var called = false
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -288,8 +276,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_GO)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_GO)
             assertThat(called).isTrue()
         }
     }
@@ -297,10 +285,6 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
         var called = false
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = TextFieldState(),
@@ -312,8 +296,8 @@ class TextFieldKeyboardActionsTest {
 
         rule.onNode(hasSetTextAction()).requestFocus()
 
-        rule.runOnIdle {
-            inputConnection?.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_SEARCH)
             assertThat(called).isFalse()
         }
     }
