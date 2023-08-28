@@ -1,5 +1,6 @@
 // CHECKSTYLE:OFF Generated code
 /* This file is auto-generated from RowsFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -41,7 +42,6 @@ public class RowsSupportFragment extends androidx.leanback.app.RowsSupportFragme
     private static final String TAG = "leanback.RowsSupportFragment";
 
     private static final int NUM_ROWS = 10;
-
     // Row heights default to wrap content
     private static final boolean USE_FIXED_ROW_HEIGHT = false;
 
@@ -55,6 +55,7 @@ public class RowsSupportFragment extends androidx.leanback.app.RowsSupportFragme
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
         setupRows();
         setOnItemViewClickedListener(new ItemViewClickedListener());
         setOnItemViewSelectedListener(new OnItemViewSelectedListener() {

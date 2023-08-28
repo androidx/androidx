@@ -17,8 +17,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.leanback.paging.PagingDataAdapter;
 import androidx.leanback.widget.ArrayObjectAdapter;
+import androidx.leanback.widget.ClassPresenterSelector;
 import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.ListRow;
@@ -29,6 +32,7 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.TitleHelper;
+import androidx.recyclerview.widget.DiffUtil;
 
 public class RowsFragment extends androidx.leanback.app.RowsFragment {
 
@@ -65,7 +69,9 @@ public class RowsFragment extends androidx.leanback.app.RowsFragment {
     }
 
     private void setupRows() {
+        ClassPresenterSelector cs = new ClassPresenterSelector();
         ListRowPresenter lrp = new ListRowPresenter();
+        PagedRowPresenter prp = new PagedRowPresenter();
 
         // For good performance, it's important to use a single instance of
         // a card presenter for all rows using that presenter.
@@ -74,9 +80,11 @@ public class RowsFragment extends androidx.leanback.app.RowsFragment {
         if (USE_FIXED_ROW_HEIGHT) {
             lrp.setRowHeight(cardPresenter.getRowHeight(getActivity()));
             lrp.setExpandedRowHeight(cardPresenter.getExpandedRowHeight(getActivity()));
+            prp.setRowHeight(cardPresenter.getRowHeight(getActivity()));
+            prp.setExpandedRowHeight(cardPresenter.getExpandedRowHeight(getActivity()));
         }
 
-        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(lrp);
+        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(cs);
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
@@ -92,6 +100,9 @@ public class RowsFragment extends androidx.leanback.app.RowsFragment {
             rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
 
+        rowsAdapter.add(getLiveDataRow(NUM_ROWS, cardPresenter));
+        cs.addClassPresenter(ListRow.class, lrp);
+        cs.addClassPresenter(LiveDataListRow.class, prp);
         setAdapter(rowsAdapter);
     }
 
@@ -99,14 +110,34 @@ public class RowsFragment extends androidx.leanback.app.RowsFragment {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
-            Intent intent = new Intent(getActivity(), DetailsActivity.class);
-            intent.putExtra(DetailsActivity.EXTRA_ITEM, (PhotoItem) item);
+            Intent intent = new Intent(getActivity(), DetailsSupportActivity.class);
+            intent.putExtra(DetailsSupportActivity.EXTRA_ITEM, (PhotoItem) item);
 
             Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     getActivity(),
-                    ((ImageCardView)itemViewHolder.view).getMainImageView(),
-                    DetailsActivity.SHARED_ELEMENT_NAME).toBundle();
+                    ((ImageCardView) itemViewHolder.view).getMainImageView(),
+                    DetailsSupportActivity.SHARED_ELEMENT_NAME).toBundle();
             getActivity().startActivity(intent, bundle);
         }
+    }
+
+    private ListRow getLiveDataRow(int index, CardPresenter cardPresenter) {
+        PagingDataAdapter<PhotoItem> pagedListAdapter =
+                new PagingDataAdapter<PhotoItem>(cardPresenter,
+                        new DiffUtil.ItemCallback<PhotoItem>() {
+                            @Override
+                            public boolean areItemsTheSame(@NonNull PhotoItem oldItem,
+                                    @NonNull PhotoItem newItem) {
+                                return oldItem.getId() == newItem.getId();
+                            }
+                            @Override
+                            public boolean areContentsTheSame(@NonNull PhotoItem oldItem,
+                                    @NonNull PhotoItem newItem) {
+                                return oldItem.equals(newItem);
+                            }
+                        });
+
+        HeaderItem header = new HeaderItem(index, "Row with paging data adapter");
+        return new LiveDataListRow(header, pagedListAdapter);
     }
 }

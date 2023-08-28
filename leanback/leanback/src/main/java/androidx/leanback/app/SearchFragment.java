@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.widget.BrowseFrameLayout;
@@ -294,8 +296,8 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_search_fragment, container, false);
 
         BrowseFrameLayout searchFrame = root.findViewById(R.id.lb_search_frame);
