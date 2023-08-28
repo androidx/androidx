@@ -64,31 +64,4 @@
             file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/Rx3PagingSourceTest.kt"/>
     </issue>
 
-    <issue
-        id="RestrictedApi"
-        message="CursorUtil.useCursor can only be called from within the same library group prefix (referenced groupId=`androidx.room` with prefix androidx from groupId=`androidx.room.integration-tests`)"
-        errorLine1="                getUsers().useCursor {"
-        errorLine2="                ~~~~~~~~">
-        <location
-            file="src/androidTestWithKspGenJava/java/androidx/room/integration/kotlintestapp/NullabilityAwareTypeConversionTest.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="CursorUtil.useCursor can only be called from within the same library group prefix (referenced groupId=`androidx.room` with prefix androidx from groupId=`androidx.room.integration-tests`)"
-        errorLine1="                getUsers().useCursor {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/androidTestWithKspGenJava/java/androidx/room/integration/kotlintestapp/NullabilityAwareTypeConversionTest.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="CursorUtil.useCursor can only be called from within the same library group prefix (referenced groupId=`androidx.room` with prefix androidx from groupId=`androidx.room.integration-tests`)"
-        errorLine1="                getUsers().useCursor {"
-        errorLine2="                                     ^">
-        <location
-            file="src/androidTestWithKspGenJava/java/androidx/room/integration/kotlintestapp/NullabilityAwareTypeConversionTest.kt"/>
-    </issue>
-
 </issues>

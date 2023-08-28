@@ -164,7 +164,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
@@ -173,7 +173,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                              ~~~~~~~~">
@@ -182,7 +182,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                                        ~~">
@@ -191,7 +191,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                                            ~~~~">
@@ -200,7 +200,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api19Impl.getNotificationUri can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~">
@@ -209,7 +209,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api19Impl.getNotificationUri can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)"
         errorLine2="                                                                    ~~~~~~~~">
@@ -218,7 +218,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.getNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
@@ -227,7 +227,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api29Impl.getNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
         errorLine2="                                                                     ~~~~~~~~">
@@ -236,7 +236,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                          ~~~~~~~~~">
@@ -245,7 +245,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                                    ~~~~~~~~">
@@ -254,7 +254,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                                              ~~~~~~">
@@ -263,7 +263,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api16Impl.createCancellationSignal can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="        SupportSQLiteCompat.Api16Impl.createCancellationSignal()"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -272,16 +272,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="SafeIterableMap can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.room`)"
-        errorLine1="    internal val observerMap = SafeIterableMap&lt;Observer, ObserverWrapper>()"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api19Impl.isLowRamDevice can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)"
         errorLine2="                                              ~~~~~~~~~~~~~~">
@@ -290,7 +281,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Api19Impl.isLowRamDevice can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)"
         errorLine2="                                                             ~~~~~~~~~~~~~~~">
@@ -299,16 +290,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="ArchTaskExecutor.getIOThreadExecutor can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.room`)"
-        errorLine1="                transactionExecutor = ArchTaskExecutor.getIOThreadExecutor()"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="        val copyLock = ProcessLock("
         errorLine2="                       ~~~~~~~~~~~">
@@ -317,7 +299,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            name,"
         errorLine2="            ~~~~">
@@ -326,7 +308,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            context.filesDir,"
         errorLine2="            ~~~~~~~~~~~~~~~~">
@@ -335,7 +317,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ProcessLock.lock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            copyLock.lock()"
         errorLine2="                     ~~~~">
@@ -344,7 +326,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ProcessLock.unlock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
         errorLine1="            copyLock.unlock()"
         errorLine2="                     ~~~~~~">

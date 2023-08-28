@@ -78,6 +78,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanVisibleForTestingParams.ISSUE,
                 PrereleaseSdkCoreDependencyDetector.ISSUE,
                 DeprecationMismatchDetector.ISSUE,
+                RestrictToDetector.RESTRICTED,
             )
         }
     }

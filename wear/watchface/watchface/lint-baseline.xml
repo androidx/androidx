@@ -2,24 +2,6 @@
 <issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="RestrictedApi"
-        message="ParcelUtils.fromInputStream can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
-        errorLine1="                    ParcelUtils.fromInputStream&lt;WallpaperInteractiveWatchFaceInstanceParams>(reader)"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ParcelUtils.toOutputStream can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
-        errorLine1="            writer.use { ParcelUtils.toOutputStream(prefs, writer) }"
-        errorLine2="                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"/>
-    </issue>
-
-    <issue
         id="VisibleForTests"
         message="This method should only be accessed from tests or within private scope"
         errorLine1="            complicationSlotsManager.watchState,"

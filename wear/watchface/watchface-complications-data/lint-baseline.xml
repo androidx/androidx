@@ -73,22 +73,4 @@
             file="src/main/aidl/android/support/wearable/complications/IProviderInfoService.aidl"/>
     </issue>
 
-    <issue
-        id="RestrictedApi"
-        message="ParcelUtils.toParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
-        errorLine1="        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);"
-        errorLine2="                                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/complications/data/DefaultComplicationDataSourcePolicyWireFormat.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ParcelUtils.fromParcelable can only be called from within the same library group prefix (referenced groupId=`androidx.versionedparcelable` with prefix androidx from groupId=`androidx.wear.watchface`)"
-        errorLine1="                    return ParcelUtils.fromParcelable("
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/complications/data/DefaultComplicationDataSourcePolicyWireFormat.java"/>
-    </issue>
-
 </issues>

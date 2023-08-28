@@ -2,24 +2,6 @@
 <issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="RestrictedApi"
-        message="Preconditions.checkState can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.car.app`)"
-        errorLine1="            Preconditions.checkState((carPropertyResponse.getStatus() == CarValue.STATUS_SUCCESS"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyResponse.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkState can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.car.app`)"
-        errorLine1="                    &quot;Invalid status and value combo: &quot; + carPropertyResponse);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyResponse.java"/>
-    </issue>
-
-    <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="                        Collections.singleton(CarZone.CAR_ZONE_GLOBAL)))"

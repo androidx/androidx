@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Modifiers.newBuilder can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    ModifiersProto.Modifiers.newBuilder(modifiers.toProto())"
         errorLine2="                                             ~~~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setMetadata can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                            .setMetadata("
         errorLine2="                             ~~~~~~~~~~~">
