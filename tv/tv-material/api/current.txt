@@ -584,10 +584,133 @@ package androidx.tv.material3 {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemBorder {
+    ctor public NavigationDrawerItemBorder(androidx.tv.material3.Border border, androidx.tv.material3.Border focusedBorder, androidx.tv.material3.Border pressedBorder, androidx.tv.material3.Border selectedBorder, androidx.tv.material3.Border disabledBorder, androidx.tv.material3.Border focusedSelectedBorder, androidx.tv.material3.Border focusedDisabledBorder, androidx.tv.material3.Border pressedSelectedBorder);
+    method public androidx.tv.material3.Border getBorder();
+    method public androidx.tv.material3.Border getDisabledBorder();
+    method public androidx.tv.material3.Border getFocusedBorder();
+    method public androidx.tv.material3.Border getFocusedDisabledBorder();
+    method public androidx.tv.material3.Border getFocusedSelectedBorder();
+    method public androidx.tv.material3.Border getPressedBorder();
+    method public androidx.tv.material3.Border getPressedSelectedBorder();
+    method public androidx.tv.material3.Border getSelectedBorder();
+    property public final androidx.tv.material3.Border border;
+    property public final androidx.tv.material3.Border disabledBorder;
+    property public final androidx.tv.material3.Border focusedBorder;
+    property public final androidx.tv.material3.Border focusedDisabledBorder;
+    property public final androidx.tv.material3.Border focusedSelectedBorder;
+    property public final androidx.tv.material3.Border pressedBorder;
+    property public final androidx.tv.material3.Border pressedSelectedBorder;
+    property public final androidx.tv.material3.Border selectedBorder;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemColors {
+    ctor public NavigationDrawerItemColors(long containerColor, long contentColor, long inactiveContentColor, long focusedContainerColor, long focusedContentColor, long pressedContainerColor, long pressedContentColor, long selectedContainerColor, long selectedContentColor, long disabledContainerColor, long disabledContentColor, long disabledInactiveContentColor, long focusedSelectedContainerColor, long focusedSelectedContentColor, long pressedSelectedContainerColor, long pressedSelectedContentColor);
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    method public long getDisabledInactiveContentColor();
+    method public long getFocusedContainerColor();
+    method public long getFocusedContentColor();
+    method public long getFocusedSelectedContainerColor();
+    method public long getFocusedSelectedContentColor();
+    method public long getInactiveContentColor();
+    method public long getPressedContainerColor();
+    method public long getPressedContentColor();
+    method public long getPressedSelectedContainerColor();
+    method public long getPressedSelectedContentColor();
+    method public long getSelectedContainerColor();
+    method public long getSelectedContentColor();
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
+    property public final long disabledInactiveContentColor;
+    property public final long focusedContainerColor;
+    property public final long focusedContentColor;
+    property public final long focusedSelectedContainerColor;
+    property public final long focusedSelectedContentColor;
+    property public final long inactiveContentColor;
+    property public final long pressedContainerColor;
+    property public final long pressedContentColor;
+    property public final long pressedSelectedContainerColor;
+    property public final long pressedSelectedContentColor;
+    property public final long selectedContainerColor;
+    property public final long selectedContentColor;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemGlow {
+    ctor public NavigationDrawerItemGlow(androidx.tv.material3.Glow glow, androidx.tv.material3.Glow focusedGlow, androidx.tv.material3.Glow pressedGlow, androidx.tv.material3.Glow selectedGlow, androidx.tv.material3.Glow focusedSelectedGlow, androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.Glow getFocusedGlow();
+    method public androidx.tv.material3.Glow getFocusedSelectedGlow();
+    method public androidx.tv.material3.Glow getGlow();
+    method public androidx.tv.material3.Glow getPressedGlow();
+    method public androidx.tv.material3.Glow getPressedSelectedGlow();
+    method public androidx.tv.material3.Glow getSelectedGlow();
+    property public final androidx.tv.material3.Glow focusedGlow;
+    property public final androidx.tv.material3.Glow focusedSelectedGlow;
+    property public final androidx.tv.material3.Glow glow;
+    property public final androidx.tv.material3.Glow pressedGlow;
+    property public final androidx.tv.material3.Glow pressedSelectedGlow;
+    property public final androidx.tv.material3.Glow selectedGlow;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemScale {
+    ctor public NavigationDrawerItemScale(@FloatRange(from=0.0) float scale, @FloatRange(from=0.0) float focusedScale, @FloatRange(from=0.0) float pressedScale, @FloatRange(from=0.0) float selectedScale, @FloatRange(from=0.0) float disabledScale, @FloatRange(from=0.0) float focusedSelectedScale, @FloatRange(from=0.0) float focusedDisabledScale, @FloatRange(from=0.0) float pressedSelectedScale);
+    method public float getDisabledScale();
+    method public float getFocusedDisabledScale();
+    method public float getFocusedScale();
+    method public float getFocusedSelectedScale();
+    method public float getPressedScale();
+    method public float getPressedSelectedScale();
+    method public float getScale();
+    method public float getSelectedScale();
+    property public final float disabledScale;
+    property public final float focusedDisabledScale;
+    property public final float focusedScale;
+    property public final float focusedSelectedScale;
+    property public final float pressedScale;
+    property public final float pressedSelectedScale;
+    property public final float scale;
+    property public final float selectedScale;
+    field public static final androidx.tv.material3.NavigationDrawerItemScale.Companion Companion;
+  }
+
+  public static final class NavigationDrawerItemScale.Companion {
+    method public androidx.tv.material3.NavigationDrawerItemScale getNone();
+    property public final androidx.tv.material3.NavigationDrawerItemScale None;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemShape {
+    ctor public NavigationDrawerItemShape(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape focusedShape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape selectedShape, androidx.compose.ui.graphics.Shape disabledShape, androidx.compose.ui.graphics.Shape focusedSelectedShape, androidx.compose.ui.graphics.Shape focusedDisabledShape, androidx.compose.ui.graphics.Shape pressedSelectedShape);
+    method public androidx.compose.ui.graphics.Shape getDisabledShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedDisabledShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedSelectedShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getPressedSelectedShape();
+    method public androidx.compose.ui.graphics.Shape getPressedShape();
+    method public androidx.compose.ui.graphics.Shape getSelectedShape();
+    method public androidx.compose.ui.graphics.Shape getShape();
+    property public final androidx.compose.ui.graphics.Shape disabledShape;
+    property public final androidx.compose.ui.graphics.Shape focusedDisabledShape;
+    property public final androidx.compose.ui.graphics.Shape focusedSelectedShape;
+    property public final androidx.compose.ui.graphics.Shape focusedShape;
+    property public final androidx.compose.ui.graphics.Shape pressedSelectedShape;
+    property public final androidx.compose.ui.graphics.Shape pressedShape;
+    property public final androidx.compose.ui.graphics.Shape selectedShape;
+    property public final androidx.compose.ui.graphics.Shape shape;
+  }
+
   public final class NavigationDrawerKt {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional androidx.compose.ui.graphics.Brush scrimBrush, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
+  }
+
+  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface NavigationDrawerScope {
+    method public boolean isActivated();
+    property public abstract boolean isActivated;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceColors {
