@@ -40,8 +40,8 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -123,13 +123,13 @@ fun SlideInContentVariedSizes() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Icon(
-                    Icons.Default.ArrowBack, contentDescription = null,
+                    Icons.AutoMirrored.Default.ArrowBack, contentDescription = null,
                     Modifier.clickable {
                         contentState = PaneState.values()[max(0, contentState.ordinal - 1)]
                     }.padding(top = 300.dp, bottom = 300.dp, end = 60.dp)
                 )
                 Icon(
-                    Icons.Default.ArrowForward, contentDescription = null,
+                    Icons.AutoMirrored.Default.ArrowForward, contentDescription = null,
                     Modifier.clickable {
                         contentState = PaneState.values()[min(2, contentState.ordinal + 1)]
                     }.padding(top = 300.dp, bottom = 300.dp, start = 60.dp)

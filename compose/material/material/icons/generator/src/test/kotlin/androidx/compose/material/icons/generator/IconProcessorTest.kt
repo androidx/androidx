@@ -49,13 +49,22 @@ class IconProcessorTest {
         val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
             writeText(ExpectedApiFile)
         }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText("")
+            }
 
         val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
 
         val processor = IconProcessor(
             iconDirectories = iconDirectory.listFiles()!!.toList(),
             expectedApiFile = expectedApiFile,
-            generatedApiFile = generatedApiFile
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
+
         )
 
         val icons = processor.process()
@@ -67,6 +76,51 @@ class IconProcessorTest {
             val themePackage = icon.theme.themePackageName
             Truth.assertThat(icon.xmlFileName).isEqualTo("${themePackage}_test_icon")
             Truth.assertThat(icon.fileContent).isEqualTo(ExpectedIconFile)
+        }
+    }
+
+    /**
+     * Tests that the processed auto-mirrored icons match what we expect.
+     */
+    @Test
+    fun iconProcessor_noAutoMirroredApiChanges() {
+        val iconDirectory = temporaryFolder.createIconDirectory()
+
+        // Write the test icon to each theme folder
+        iconDirectory.listFiles()!!.forEach { themeDirectory ->
+            themeDirectory.resolve("test_icon.xml").writeText(TestAutoMirroredIconFile)
+        }
+
+        val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
+            writeText("")
+        }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText(ExpectedApiFile)
+            }
+
+        val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
+
+        val processor = IconProcessor(
+            iconDirectories = iconDirectory.listFiles()!!.toList(),
+            expectedApiFile = expectedApiFile,
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
+        )
+
+        val icons = processor.process()
+
+        Truth.assertThat(icons.size).isEqualTo(5)
+
+        icons.forEach { icon ->
+            Truth.assertThat(icon.kotlinName).isEqualTo("TestIcon")
+            val themePackage = icon.theme.themePackageName
+            Truth.assertThat(icon.xmlFileName).isEqualTo("${themePackage}_test_icon")
+            Truth.assertThat(icon.fileContent).isEqualTo(ExpectedAutoMirroredIconFile)
+            Truth.assertThat(icon.autoMirrored).isTrue()
         }
     }
 
@@ -87,13 +141,61 @@ class IconProcessorTest {
         val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
             writeText("")
         }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText("")
+            }
 
         val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
 
         val processor = IconProcessor(
             iconDirectories = iconDirectory.listFiles()!!.toList(),
             expectedApiFile = expectedApiFile,
-            generatedApiFile = generatedApiFile
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
+        )
+
+        // The generated api file conflicts with the expected api file, so we should throw here
+        assertIllegalStateContainingMessage("Found differences when comparing API files") {
+            processor.process()
+        }
+    }
+
+    /**
+     * Tests that an exception is thrown, failing the build, when there are changes between the
+     * checked in and generated auto-mirrored API files.
+     */
+    @Test
+    fun iconProcessor_autoMirroredApiChanges() {
+        val iconDirectory = temporaryFolder.createIconDirectory()
+
+        // Write the test icon to each theme folder
+        iconDirectory.listFiles()!!.forEach { themeDirectory ->
+            themeDirectory.resolve("test_icon.xml").writeText(TestAutoMirroredIconFile)
+        }
+
+        // Create an empty expected API file
+        val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
+            writeText("")
+        }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText("")
+            }
+
+        val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
+
+        val processor = IconProcessor(
+            iconDirectories = iconDirectory.listFiles()!!.toList(),
+            expectedApiFile = expectedApiFile,
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
         )
 
         // The generated api file conflicts with the expected api file, so we should throw here
@@ -119,13 +221,62 @@ class IconProcessorTest {
         val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
             writeText(ExpectedIconFile)
         }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText("")
+            }
 
         val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
 
         val processor = IconProcessor(
             iconDirectories = iconDirectory.listFiles()!!.toList(),
             expectedApiFile = expectedApiFile,
-            generatedApiFile = generatedApiFile
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
+        )
+
+        // Not all icons exist in all themes, so we should throw here
+        assertIllegalStateContainingMessage("Some themes were missing") {
+            processor.process()
+        }
+    }
+
+    /**
+     * Tests that an exception is thrown, failing the build, when not all themes contain the
+     * auto-mirrored icons.
+     */
+    @Test
+    fun iconProcessor_missingAutoMirroredTheme() {
+        val iconDirectory = temporaryFolder.createIconDirectory()
+
+        // Write the test icon to all but one theme folder
+        iconDirectory.listFiles()!!.forEachIndexed { index, themeDirectory ->
+            if (index != 0) {
+                themeDirectory.resolve("test_icon.xml").writeText(TestAutoMirroredIconFile)
+            }
+        }
+
+        val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
+            writeText("")
+        }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText(ExpectedAutoMirroredIconFile)
+            }
+
+        val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
+
+        val processor = IconProcessor(
+            iconDirectories = iconDirectory.listFiles()!!.toList(),
+            expectedApiFile = expectedApiFile,
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
         )
 
         // Not all icons exist in all themes, so we should throw here
@@ -153,13 +304,66 @@ class IconProcessorTest {
         val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
             writeText(ExpectedIconFile)
         }
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText("")
+            }
 
         val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
 
         val processor = IconProcessor(
             iconDirectories = iconDirectory.listFiles()!!.toList(),
             expectedApiFile = expectedApiFile,
-            generatedApiFile = generatedApiFile
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
+        )
+
+        // Not all icons exist in all themes, so we should throw here
+        assertIllegalStateContainingMessage("Not all icons were found") {
+            processor.process()
+        }
+    }
+
+    /**
+     * Tests that an exception is thrown, failing the build, when the number of icons in each
+     * theme is not the same.
+     */
+    @Test
+    fun iconProcessor_missingAutoMirroredIcons() {
+        val iconDirectory = temporaryFolder.createIconDirectory()
+
+        // Write the test icon to all themes
+        iconDirectory.listFiles()!!.forEach { themeDirectory ->
+            themeDirectory.resolve("test_icon.xml").writeText(TestAutoMirroredIconFile)
+        }
+
+        // Write a new icon to only one theme
+        iconDirectory.listFiles()!![0].resolve("unique_test_icon")
+            .writeText(TestAutoMirroredIconFile)
+
+        val expectedApiFile = temporaryFolder.newFile("expected-api.txt").apply {
+            writeText("")
+        }
+
+        val expectedAutoMirroredApiFile =
+            temporaryFolder.newFile("expected-automirrored-api.txt").apply {
+                writeText(ExpectedAutoMirroredIconFile)
+            }
+
+        val generatedApiFile = temporaryFolder.newFile("generated-api.txt")
+
+        val generatedAutoMirroredApiFile =
+            temporaryFolder.newFile("generated-automirrored-api.txt")
+
+        val processor = IconProcessor(
+            iconDirectories = iconDirectory.listFiles()!!.toList(),
+            expectedApiFile = expectedApiFile,
+            generatedApiFile = generatedApiFile,
+            expectedAutoMirroredApiFile = expectedAutoMirroredApiFile,
+            generatedAutoMirroredApiFile = generatedAutoMirroredApiFile
         )
 
         // Not all icons exist in all themes, so we should throw here
@@ -185,7 +389,9 @@ class IconProcessorTest {
             iconDirectories = iconDirectory.listFiles()!!.toList(),
             // Should crash before reaching this point, so just use an empty file
             expectedApiFile = temporaryFolder.root,
-            generatedApiFile = temporaryFolder.root
+            generatedApiFile = temporaryFolder.root,
+            expectedAutoMirroredApiFile = temporaryFolder.root,
+            generatedAutoMirroredApiFile = temporaryFolder.root
         )
 
         // Duplicate icon names, so we should throw here
@@ -240,12 +446,41 @@ private val TestIconFile = """
 
 """.trimIndent()
 
+private val TestAutoMirroredIconFile = """
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24"
+        android:tint="?attr/colorControlNormal"
+        android:autoMirrored="true">
+      <path
+          android:fillColor="@android:color/white"
+          android:pathData="M16.5,9h3.5v9h-3.5z"/>
+    </vector>
+
+""".trimIndent()
+
 private val ExpectedIconFile = """
     <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="24dp"
         android:height="24dp"
         android:viewportWidth="24"
         android:viewportHeight="24">
+      <path
+          android:fillColor="@android:color/black"
+          android:pathData="M16.5,9h3.5v9h-3.5z"/>
+    </vector>
+
+""".trimIndent()
+
+private val ExpectedAutoMirroredIconFile = """
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24"
+        android:autoMirrored="true">
       <path
           android:fillColor="@android:color/black"
           android:pathData="M16.5,9h3.5v9h-3.5z"/>

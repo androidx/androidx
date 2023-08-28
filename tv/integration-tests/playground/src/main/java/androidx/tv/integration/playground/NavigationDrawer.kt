@@ -136,6 +136,7 @@ private fun Sidebar(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        @Suppress("DEPRECATION")
         NavigationItem(
             imageVector = Icons.Default.KeyboardArrowRight,
             text = "LTR",
@@ -143,6 +144,7 @@ private fun Sidebar(
             selectedIndex = selectedIndex,
             index = 0
         )
+        @Suppress("DEPRECATION")
         NavigationItem(
             imageVector = Icons.Default.KeyboardArrowLeft,
             text = "RTL",

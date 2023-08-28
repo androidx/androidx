@@ -39,8 +39,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
@@ -105,14 +105,14 @@ fun PlatformTextInputAdapterDemo() {
                     .coerceIn(0, textFieldState.buffer.length)
                 textFieldState.selection = TextRange(newCursor)
             }) {
-                Image(Icons.Default.KeyboardArrowLeft, contentDescription = "left")
+                Image(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "backward")
             }
             IconButton(onClick = {
                 val newCursor = (textFieldState.selection.end + 1)
                     .coerceIn(0, textFieldState.buffer.length)
                 textFieldState.selection = TextRange(newCursor)
             }) {
-                Image(Icons.Default.KeyboardArrowRight, contentDescription = "right")
+                Image(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "forward")
             }
         }
     }

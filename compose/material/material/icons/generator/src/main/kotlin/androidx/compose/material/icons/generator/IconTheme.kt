@@ -16,6 +16,8 @@
 
 package androidx.compose.material.icons.generator
 
+import java.util.Locale
+
 /**
  * Enum representing the different themes for Material icons.
  *
@@ -42,5 +44,22 @@ fun String.toIconTheme() = requireNotNull(
 /**
  * The ClassName representing this [IconTheme] object, so we can generate extension properties on
  * the object.
+ *
+ * @see [autoMirroredClassName]
  */
-val IconTheme.className get() = PackageNames.MaterialIconsPackage.className("Icons", themeClassName)
+val IconTheme.className
+    get() =
+        PackageNames.MaterialIconsPackage.className("Icons", themeClassName)
+
+/**
+ * The ClassName representing this [IconTheme] object so we can generate extension properties on the
+ * object when used for auto-mirrored icons.
+ *
+ * @see [className]
+ */
+val IconTheme.autoMirroredClassName
+    get() =
+        PackageNames.MaterialIconsPackage.className("Icons", AutoMirroredName, themeClassName)
+
+internal const val AutoMirroredName = "AutoMirrored"
+internal val AutoMirroredPackageName = AutoMirroredName.lowercase(Locale.ROOT)

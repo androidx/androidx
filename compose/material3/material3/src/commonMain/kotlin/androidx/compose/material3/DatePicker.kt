@@ -57,11 +57,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
@@ -88,7 +88,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -108,7 +107,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
@@ -1992,24 +1990,15 @@ private fun MonthsNavigation(
             // Show arrows for traversing months (only visible when the year selection is off)
             if (!yearPickerVisible) {
                 Row {
-                    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                     IconButton(onClick = onPreviousClicked, enabled = previousAvailable) {
                         Icon(
-                            if (rtl) {
-                                Icons.Filled.KeyboardArrowRight
-                            } else {
-                                Icons.Filled.KeyboardArrowLeft
-                            },
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = getString(Strings.DatePickerSwitchToPreviousMonth)
                         )
                     }
                     IconButton(onClick = onNextClicked, enabled = nextAvailable) {
                         Icon(
-                            if (rtl) {
-                                Icons.Filled.KeyboardArrowLeft
-                            } else {
-                                Icons.Filled.KeyboardArrowRight
-                            },
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = getString(Strings.DatePickerSwitchToNextMonth)
                         )
                     }
@@ -2093,7 +2082,8 @@ internal val DatePickerHorizontalPadding = 12.dp
 internal val DatePickerModeTogglePadding = PaddingValues(end = 12.dp, bottom = 12.dp)
 
 private val DatePickerTitlePadding = PaddingValues(start = 24.dp, end = 12.dp, top = 16.dp)
-private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
+private val DatePickerHeadlinePadding =
+    PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
 
 private val YearsVerticalPadding = 16.dp
 
