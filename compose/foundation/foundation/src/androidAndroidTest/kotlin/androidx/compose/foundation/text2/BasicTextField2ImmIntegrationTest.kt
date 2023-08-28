@@ -17,14 +17,10 @@
 package androidx.compose.foundation.text2
 
 import android.view.KeyEvent
-import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
-import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
-import androidx.compose.foundation.text2.input.internal.setInputConnectionCreatedListenerForTests
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
 import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.getValue
@@ -34,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -59,13 +54,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextField2ImmIntegrationTest {
 
-    private lateinit var hostView: View
-
     @get:Rule
     val rule = createComposeRule()
 
     @get:Rule
     val immRule = ComposeInputMethodManagerTestRule()
+
+    @get:Rule
+    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
 
     private val Tag = "BasicTextField2"
     private val imm = FakeInputMethodManager()
@@ -79,17 +75,13 @@ internal class BasicTextField2ImmIntegrationTest {
     fun becomesTextEditor_whenFocusGained() {
         val state = TextFieldState()
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
 
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-            val connection = hostView.onCreateInputConnection(EditorInfo())
-            assertThat(connection).isNotNull()
-            connection.commitText("hello", 0)
+        inputMethodInterceptor.withInputConnection {
+            commitText("hello", 0)
             assertThat(state.text.toString()).isEqualTo("hello")
         }
     }
@@ -99,7 +91,6 @@ internal class BasicTextField2ImmIntegrationTest {
         val state = TextFieldState()
         var focusManager: FocusManager? = null
         rule.setContent {
-            hostView = LocalView.current
             focusManager = LocalFocusManager.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
@@ -107,10 +98,7 @@ internal class BasicTextField2ImmIntegrationTest {
         rule.runOnIdle {
             focusManager!!.clearFocus()
         }
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isFalse()
-            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -118,20 +106,14 @@ internal class BasicTextField2ImmIntegrationTest {
         val state = TextFieldState()
         var readOnly by mutableStateOf(false)
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag), readOnly = readOnly)
         }
         requestFocus(Tag)
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-        }
+        inputMethodInterceptor.assertSessionActive()
 
         readOnly = true
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isFalse()
-            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -139,20 +121,14 @@ internal class BasicTextField2ImmIntegrationTest {
         val state = TextFieldState()
         var enabled by mutableStateOf(true)
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag), enabled = enabled)
         }
         requestFocus(Tag)
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-        }
+        inputMethodInterceptor.assertSessionActive()
 
         enabled = false
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isFalse()
-            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -160,7 +136,6 @@ internal class BasicTextField2ImmIntegrationTest {
         val state1 = TextFieldState()
         val state2 = TextFieldState()
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(state1, Modifier.testTag(Tag + 1))
             BasicTextField2(state2, Modifier.testTag(Tag + 2))
         }
@@ -168,12 +143,9 @@ internal class BasicTextField2ImmIntegrationTest {
         requestFocus(Tag + 1)
         requestFocus(Tag + 2)
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-            val connection = hostView.onCreateInputConnection(EditorInfo())
-            assertThat(connection).isNotNull()
-            connection.commitText("hello", 0)
-            connection.endBatchEdit()
+        inputMethodInterceptor.withInputConnection {
+            commitText("hello", 0)
+            endBatchEdit()
             assertThat(state2.text.toString()).isEqualTo("hello")
             assertThat(state1.text.toString()).isEmpty()
         }
@@ -184,7 +156,6 @@ internal class BasicTextField2ImmIntegrationTest {
         val state = TextFieldState()
         var compose by mutableStateOf(true)
         rule.setContent {
-            hostView = LocalView.current
             if (compose) {
                 BasicTextField2(state, Modifier.testTag(Tag))
             }
@@ -194,10 +165,7 @@ internal class BasicTextField2ImmIntegrationTest {
             compose = false
         }
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isFalse()
-            assertThat(hostView.onCreateInputConnection(EditorInfo())).isNull()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -206,18 +174,14 @@ internal class BasicTextField2ImmIntegrationTest {
         val state2 = TextFieldState()
         var state by mutableStateOf(state1)
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
 
         state = state2
 
-        rule.runOnIdle {
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-            val connection = hostView.onCreateInputConnection(EditorInfo())
-            assertThat(connection).isNotNull()
-            connection.commitText("hello", 0)
+        inputMethodInterceptor.withInputConnection {
+            commitText("hello", 0)
             assertThat(state2.text.toString()).isEqualTo("hello")
             assertThat(state1.text.toString()).isEmpty()
         }
@@ -227,7 +191,6 @@ internal class BasicTextField2ImmIntegrationTest {
     fun immUpdated_whenFilterChangesText_fromInputConnection() {
         val state = TextFieldState()
         rule.setContent {
-            hostView = LocalView.current
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -240,13 +203,11 @@ internal class BasicTextField2ImmIntegrationTest {
             )
         }
         requestFocus(Tag)
-        rule.runOnIdle {
+        inputMethodInterceptor.withInputConnection {
+            // TODO move this before withInputConnection?
             imm.resetCalls()
-            assertThat(hostView.onCheckIsTextEditor()).isTrue()
-            val connection = hostView.onCreateInputConnection(EditorInfo())
-            assertThat(connection).isNotNull()
 
-            connection.commitText("hello", 1)
+            commitText("hello", 1)
 
             assertThat(state.text.toString()).isEqualTo("helloworld")
         }
@@ -285,10 +246,6 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
-        var inputConnection: InputConnection? = null
-        setInputConnectionCreatedListenerForTests { _, ic ->
-            inputConnection = ic
-        }
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -297,9 +254,9 @@ internal class BasicTextField2ImmIntegrationTest {
             )
         }
         requestFocus(Tag)
-        rule.runOnIdle {
+        inputMethodInterceptor.withInputConnection {
             imm.resetCalls()
-            inputConnection!!.setComposingText("hello", 1)
+            setComposingText("hello", 1)
         }
 
         rule.runOnIdle {
