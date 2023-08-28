@@ -138,6 +138,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_RESULT_ALREADY_EXISTS =
             FLAG_PREFIX + "enable_result_already_exists";
 
+    /**  Enable {@link androidx.appsearch.app.AppSearchBlobHandle}.  */
+    public static final String FLAG_ENABLE_BLOB_STORE =
+            FLAG_PREFIX + "enable_blob_store";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -252,6 +256,11 @@ public final class Flags {
      * enabled.
      */
     public static boolean enableResultAlreadyExists() {
+        return true;
+    }
+
+    /**  Whether {@link androidx.appsearch.app.AppSearchBlobHandle} should be enabled. */
+    public static boolean enableBlobStore() {
         return true;
     }
 }

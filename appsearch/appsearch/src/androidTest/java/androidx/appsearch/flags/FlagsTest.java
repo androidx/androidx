@@ -127,4 +127,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)
                 .isEqualTo("com.android.appsearch.flags.enable_result_already_exists");
     }
+
+    @Test
+    public void testFlagValue_enableBlobStore() {
+        assertThat(Flags.FLAG_ENABLE_BLOB_STORE)
+                .isEqualTo("com.android.appsearch.flags.enable_blob_store");
+    }
 }

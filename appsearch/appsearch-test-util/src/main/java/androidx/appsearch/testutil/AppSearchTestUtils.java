@@ -31,10 +31,13 @@ import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Class with helper functions for testing for AppSearch.
@@ -43,9 +46,6 @@ import java.util.concurrent.Future;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchTestUtils {
-    private AppSearchTestUtils() {
-    }
-
     /** Checks batch result. */
     @NonNull
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
@@ -168,5 +168,25 @@ public class AppSearchTestUtils {
                 return false;
             }
         };
+    }
+
+    /** Generate an array contains random bytes for the given length.     */
+    @NonNull
+    public static byte[] generateRandomBytes(int length) {
+        byte[] bytes = new byte[length];
+        ThreadLocalRandom.current().nextBytes(bytes);
+        return bytes;
+    }
+
+    /** Calculate the sha-256 digest for the given data.     */
+    @NonNull
+    public static byte[] calculateDigest(@NonNull byte[] data)
+            throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        messageDigest.update(data);
+        return messageDigest.digest();
+    }
+
+    private AppSearchTestUtils() {
     }
 }
