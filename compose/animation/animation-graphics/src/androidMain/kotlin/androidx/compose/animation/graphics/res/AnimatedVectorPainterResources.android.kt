@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.vector.VectorComposable
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Creates and remembers a [Painter] to render an [AnimatedImageVector]. It renders the image
@@ -69,7 +70,7 @@ internal fun rememberAnimatedVectorPainter(
     ) { _, _ ->
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
         val map = mutableMapOf<String, StateVectorConfig>()
-        for (target in animatedImageVector.targets) {
+        animatedImageVector.targets.fastForEach { target ->
             val config = target.animator.createVectorConfig(
                 transition,
                 animatedImageVector.totalDuration

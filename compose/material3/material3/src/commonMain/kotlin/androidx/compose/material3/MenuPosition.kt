@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.window.PopupPositionProvider
 
 /**
@@ -366,7 +368,7 @@ internal data class DropdownMenuPositionProvider(
             } else {
                 rightToWindowRight
             }
-        ).map {
+        ).fastMap {
             it.position(
                 anchorBounds = anchorBounds,
                 windowSize = windowSize,
@@ -374,7 +376,7 @@ internal data class DropdownMenuPositionProvider(
                 layoutDirection = layoutDirection
             )
         }
-        val x = xCandidates.firstOrNull {
+        val x = xCandidates.fastFirstOrNull {
             it >= 0 && it + popupContentSize.width <= windowSize.width
         } ?: xCandidates.last()
 
@@ -387,14 +389,14 @@ internal data class DropdownMenuPositionProvider(
             } else {
                 bottomToWindowBottom
             }
-        ).map {
+        ).fastMap {
             it.position(
                 anchorBounds = anchorBounds,
                 windowSize = windowSize,
                 menuHeight = popupContentSize.height
             )
         }
-        val y = yCandidates.firstOrNull {
+        val y = yCandidates.fastFirstOrNull {
             it >= verticalMargin &&
                 it + popupContentSize.height <= windowSize.height - verticalMargin
         } ?: yCandidates.last()

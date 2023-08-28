@@ -32,6 +32,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
 @Composable
@@ -150,6 +152,7 @@ internal fun AlertDialogFlowRow(
                 crossAxisSpace += crossAxisSpacing.roundToPx()
             }
             // Ensures that confirming actions appear above dismissive actions.
+            @Suppress("ListIterator")
             sequences.add(0, currentSequence.toList())
             crossAxisSizes += currentCrossAxisSize
             crossAxisPositions += crossAxisSpace
@@ -162,7 +165,7 @@ internal fun AlertDialogFlowRow(
             currentCrossAxisSize = 0
         }
 
-        for (measurable in measurables) {
+        measurables.fastForEach { measurable ->
             // Ask the child for its preferred size.
             val placeable = measurable.measure(constraints)
 
@@ -189,7 +192,7 @@ internal fun AlertDialogFlowRow(
         val layoutHeight = crossAxisLayoutSize
 
         layout(layoutWidth, layoutHeight) {
-            sequences.forEachIndexed { i, placeables ->
+            sequences.fastForEachIndexed { i, placeables ->
                 val childrenMainAxisSizes = IntArray(placeables.size) { j ->
                     placeables[j].width +
                         if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
@@ -200,7 +203,7 @@ internal fun AlertDialogFlowRow(
                     arrange(mainAxisLayoutSize, childrenMainAxisSizes,
                         layoutDirection, mainAxisPositions)
                 }
-                placeables.forEachIndexed { j, placeable ->
+                placeables.fastForEachIndexed { j, placeable ->
                     placeable.place(
                         x = mainAxisPositions[j],
                         y = crossAxisPositions[i]

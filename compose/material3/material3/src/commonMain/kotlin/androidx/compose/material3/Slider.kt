@@ -86,6 +86,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
@@ -712,11 +714,11 @@ private fun SliderImpl(
             .then(drag)
     ) { measurables, constraints ->
 
-        val thumbPlaceable = measurables.first {
+        val thumbPlaceable = measurables.fastFirst {
             it.layoutId == SliderComponents.THUMB
         }.measure(constraints)
 
-        val trackPlaceable = measurables.first {
+        val trackPlaceable = measurables.fastFirst {
             it.layoutId == SliderComponents.TRACK
         }.measure(
             constraints.offset(
@@ -807,19 +809,19 @@ private fun RangeSliderImpl(
             )
             .then(pressDrag)
     ) { measurables, constraints ->
-        val startThumbPlaceable = measurables.first {
+        val startThumbPlaceable = measurables.fastFirst {
             it.layoutId == RangeSliderComponents.STARTTHUMB
         }.measure(
             constraints
         )
 
-        val endThumbPlaceable = measurables.first {
+        val endThumbPlaceable = measurables.fastFirst {
             it.layoutId == RangeSliderComponents.ENDTHUMB
         }.measure(
             constraints
         )
 
-        val trackPlaceable = measurables.first {
+        val trackPlaceable = measurables.fastFirst {
             it.layoutId == RangeSliderComponents.TRACK
         }.measure(
             constraints.offset(
@@ -1072,7 +1074,7 @@ object SliderDefaults {
                     it < sliderPositions.activeRange.start
             }.forEach { (outsideFraction, list) ->
                     drawPoints(
-                        list.map {
+                        list.fastMap {
                             Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                         },
                         PointMode.Points,
@@ -1211,7 +1213,7 @@ object SliderDefaults {
                 it < activeRangeStart
         }.forEach { (outsideFraction, list) ->
             drawPoints(
-                list.map {
+                list.fastMap {
                     Offset(lerp(sliderStart, sliderEnd, it).x, center.y)
                 },
                 PointMode.Points,

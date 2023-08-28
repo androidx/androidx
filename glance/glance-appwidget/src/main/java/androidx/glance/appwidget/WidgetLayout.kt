@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.util.fastMap
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -114,6 +115,7 @@ internal class LayoutConfiguration private constructor(
                 )
                 LayoutProto.LayoutConfig.getDefaultInstance()
             }
+            @Suppress("ListIterator")
             val layouts = config.layoutList.associate {
                 it.layout to it.layoutIndex
             }.toMutableMap()
@@ -241,7 +243,7 @@ internal fun createNode(context: Context, element: Emittable): LayoutNode =
             is EmittableLazyColumn -> setLazyListColumn(element)
         }
         if (element is EmittableWithChildren && element !is EmittableLazyList) {
-            addAllChildren(element.children.map { createNode(context, it) })
+            addAllChildren(element.children.fastMap { createNode(context, it) })
         }
     }.build()
 

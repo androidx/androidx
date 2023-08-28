@@ -64,7 +64,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
 
         if (DEBUG) {
             root.debugName = "ConstraintLayout"
-            root.children.forEach { child ->
+            root.children.fastForEach { child ->
                 child.debugName =
                     (child.companionWidget as? Measurable)?.layoutId?.toString() ?: "NOTAG"
             }
@@ -284,7 +284,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         val pos = IntArray(50)
         val key = FloatArray(100)
 
-        for (child in root.children) {
+        root.children.fastForEach { child ->
             val start = transition.getStart(child.stringId)
             val end = transition.getEnd(child.stringId)
             val interpolated = transition.getInterpolated(child.stringId)
@@ -325,7 +325,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
     ) {
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
 
-        for (child in root.children) {
+        root.children.fastForEach { child ->
             val startFrame = transition.getStart(child)
             val endFrame = transition.getEnd(child)
             if (drawBounds) {

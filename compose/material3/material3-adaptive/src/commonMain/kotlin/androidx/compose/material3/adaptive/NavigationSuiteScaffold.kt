@@ -59,7 +59,11 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastFilterNotNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * The Navigation Suite Scaffold wraps the provided content and places the adequate provided
@@ -113,28 +117,28 @@ private fun NavigationSuiteScaffoldLayout(
     Layout(
         contents = listOf({ NavigationSuiteScaffoldScopeImpl.navigationSuite() }, content)
     ) { (navigationMeasurables, contentMeasurables), constraints ->
-        val navigationPlaceables = navigationMeasurables.map { it.measure(constraints) }
+        val navigationPlaceables = navigationMeasurables.fastMap { it.measure(constraints) }
         val alignments = navigationPlaceables.fastMap {
             (it.parentData as NavigationSuiteParentData).alignment
-        }.filterNotNull()
-        if (alignments.all { alignments[0] != it }) {
+        }.fastFilterNotNull()
+        if (alignments.fastAll { alignments[0] != it }) {
             throw IllegalArgumentException("There should be only one NavigationSuiteAlignment.")
         }
         val alignment = alignments.firstOrNull() ?: NavigationSuiteAlignment.StartVertical
         val layoutHeight = constraints.maxHeight
         val layoutWidth = constraints.maxWidth
-        val contentPlaceables = contentMeasurables.map { it.measure(
+        val contentPlaceables = contentMeasurables.fastMap { it.measure(
             if (alignment == NavigationSuiteAlignment.TopHorizontal ||
                 alignment == NavigationSuiteAlignment.BottomHorizontal
             ) {
                 constraints.copy(
-                    minHeight = layoutHeight - navigationPlaceables.maxOf { it.height },
-                    maxHeight = layoutHeight - navigationPlaceables.maxOf { it.height }
+                    minHeight = layoutHeight - navigationPlaceables.fastMaxOfOrNull { it.height }!!,
+                    maxHeight = layoutHeight - navigationPlaceables.fastMaxOfOrNull { it.height }!!
                 )
             } else {
                 constraints.copy(
-                    minWidth = layoutWidth - navigationPlaceables.maxOf { it.width },
-                    maxWidth = layoutWidth - navigationPlaceables.maxOf { it.width }
+                    minWidth = layoutWidth - navigationPlaceables.fastMaxOfOrNull { it.width }!!,
+                    maxWidth = layoutWidth - navigationPlaceables.fastMaxOfOrNull { it.width }!!
                 )
             }
         ) }
@@ -143,50 +147,50 @@ private fun NavigationSuiteScaffoldLayout(
             when (alignment) {
                 NavigationSuiteAlignment.StartVertical -> {
                     // Place the navigation component at the start of the screen.
-                    navigationPlaceables.forEach {
+                    navigationPlaceables.fastForEach {
                         it.placeRelative(0, 0)
                     }
                     // Place content to the side of the navigation component.
-                    contentPlaceables.forEach {
-                        it.placeRelative(navigationPlaceables.maxOf { it.width }, 0)
+                    contentPlaceables.fastForEach {
+                        it.placeRelative(navigationPlaceables.fastMaxOfOrNull { it.width }!!, 0)
                     }
                 }
 
                 NavigationSuiteAlignment.EndVertical -> {
                     // Place the navigation component at the end of the screen.
-                    navigationPlaceables.forEach {
+                    navigationPlaceables.fastForEach {
                         it.placeRelative(
-                            layoutWidth - navigationPlaceables.maxOf { it.width },
+                            layoutWidth - navigationPlaceables.fastMaxOfOrNull { it.width }!!,
                             0
                         )
                     }
                     // Place content at the start of the screen.
-                    contentPlaceables.forEach {
+                    contentPlaceables.fastForEach {
                         it.placeRelative(0, 0)
                     }
                 }
 
                 NavigationSuiteAlignment.TopHorizontal -> {
                     // Place the navigation component at the start of the screen.
-                    navigationPlaceables.forEach {
+                    navigationPlaceables.fastForEach {
                         it.placeRelative(0, 0)
                     }
                     // Place content below the navigation component.
-                    contentPlaceables.forEach {
-                        it.placeRelative(0, navigationPlaceables.maxOf { it.height })
+                    contentPlaceables.fastForEach {
+                        it.placeRelative(0, navigationPlaceables.fastMaxOfOrNull { it.height }!!)
                     }
                 }
 
                 NavigationSuiteAlignment.BottomHorizontal -> {
                     // Place content above the navigation component.
-                    contentPlaceables.forEach {
+                    contentPlaceables.fastForEach {
                         it.placeRelative(0, 0)
                     }
                     // Place the navigation component at the bottom of the screen.
-                    navigationPlaceables.forEach {
+                    navigationPlaceables.fastForEach {
                         it.placeRelative(
                             0,
-                            layoutHeight - navigationPlaceables.maxOf { it.height })
+                            layoutHeight - navigationPlaceables.fastMaxOfOrNull { it.height }!!)
                     }
                 }
             }

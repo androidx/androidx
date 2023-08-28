@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.platform.accessibility
 
-import androidx.compose.ui.fastReduce
-import androidx.compose.ui.fastZipWithNext
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
@@ -25,6 +23,8 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastReduce
+import androidx.compose.ui.util.fastZipWithNext
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import kotlin.math.abs
 

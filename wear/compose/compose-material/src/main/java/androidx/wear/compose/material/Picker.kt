@@ -60,6 +60,7 @@ import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
@@ -171,7 +172,7 @@ public fun Picker(
                                 state.scalingLazyListState.layoutInfo.visibleItemsInfo
                             if (visibleItems.isNotEmpty()) {
                                 val centerItem =
-                                    visibleItems.find { info ->
+                                    visibleItems.fastFirstOrNull { info ->
                                         info.index == state.scalingLazyListState.centerItemIndex
                                     } ?: visibleItems[visibleItems.size / 2]
                                 val shimHeight =

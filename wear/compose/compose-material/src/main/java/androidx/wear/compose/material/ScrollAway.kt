@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -71,9 +72,10 @@ public fun Modifier.scrollAway(
     scrollAway {
         ScrollParams(
             valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
-            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-                -it.offset - offset.toPx()
-            }
+            yPx = scrollState.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == itemIndex }
+                ?.let {
+                    -it.offset - offset.toPx()
+                }
         )
     }
 
@@ -95,9 +97,10 @@ public fun Modifier.scrollAway(
     scrollAway {
         ScrollParams(
             valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
-            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-                -it.offset - offset.toPx()
-            }
+            yPx = scrollState.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == itemIndex }
+                ?.let {
+                    -it.offset - offset.toPx()
+                }
         )
     }
 
@@ -125,9 +128,10 @@ public fun Modifier.scrollAway(
     scrollAway {
         ScrollParams(
             valid = itemIndex < scrollState.layoutInfo.totalItemsCount,
-            yPx = scrollState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }?.let {
-                -it.offset - offset.toPx()
-            }
+            yPx = scrollState.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == itemIndex }
+                ?.let {
+                    -it.offset - offset.toPx()
+                }
         )
     }
 

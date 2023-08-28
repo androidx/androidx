@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.util.fastAny
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
@@ -51,7 +52,7 @@ internal fun Emittable.shouldIgnoreResult(): Boolean {
     if (this is EmittableIgnoreResult) {
         return true
     } else if (this is EmittableWithChildren) {
-        if (children.any { it.shouldIgnoreResult() }) return true
+        if (children.fastAny { it.shouldIgnoreResult() }) return true
     }
     return false
 }

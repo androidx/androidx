@@ -18,6 +18,8 @@ package androidx.glance.wear.tiles.curved
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -123,7 +125,7 @@ private fun applyCurvedScope(
     curvedScopeImpl.apply(content)
 
     return {
-        curvedChildList.forEach { composable ->
+        curvedChildList.fastForEach { composable ->
             object : CurvedChildScope {}.apply { composable() }
         }
     }
@@ -155,7 +157,7 @@ internal class EmittableCurvedRow : EmittableWithChildren() {
         it.anchorDegrees = anchorDegrees
         it.anchorType = anchorType
         it.radialAlignment = radialAlignment
-        it.children.addAll(children.map { it.copy() })
+        it.children.addAll(children.fastMap { it.copy() })
     }
 
     override fun toString(): String =
@@ -171,7 +173,7 @@ internal class EmittableCurvedChild : EmittableWithChildren() {
     override fun copy(): Emittable = EmittableCurvedChild().also {
         it.modifier = modifier
         it.rotateContent = rotateContent
-        it.children.addAll(children.map { it.copy() })
+        it.children.addAll(children.fastMap { it.copy() })
     }
 
     override fun toString(): String = "EmittableCurvedChild(" +

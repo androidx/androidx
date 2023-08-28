@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 import kotlin.math.min
 
@@ -171,7 +172,7 @@ fun ThreePaneScaffold(
                     }
                 } else {
                     // Layout each pane in a physical partition
-                    paneMeasurables.forEachIndexed { index, paneMeasurable ->
+                    paneMeasurables.fastForEachIndexed { index, paneMeasurable ->
                         measureAndPlacePane(layoutPhysicalPartitions[index], paneMeasurable)
                     }
                 }
@@ -252,12 +253,12 @@ private fun Placeable.PlacementScope.measureAndPlacePanesWithLocalBounds(
     } else if (allocatableWidth < totalPreferredWidth) {
         // Scale down all panes to fit in the available space.
         val scale = allocatableWidth.toFloat() / totalPreferredWidth
-        measurables.forEach {
+        measurables.fastForEach {
             it.measuredWidth = (it.measuredWidth * scale).toInt()
         }
     }
     var positionX = partitionBounds.left
-    measurables.forEach {
+    measurables.fastForEach {
         it.measure(Constraints.fixed(it.measuredWidth, partitionBounds.height))
             .place(positionX, partitionBounds.top)
         positionX += it.measuredWidth + spacerSize

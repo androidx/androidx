@@ -19,8 +19,6 @@ package androidx.compose.ui.text.android
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-// TODO: remove these when we can add new APIs to ui-util outside of beta cycle
-
 /**
  * Iterates through a [List] using the index and calls [action] for each item.
  * This does not allocate an iterator like [Iterable.forEach].
@@ -29,6 +27,7 @@ import kotlin.contracts.contract
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
     contract { callsInPlace(action) }
@@ -46,6 +45,7 @@ internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     destination: C,
@@ -68,6 +68,7 @@ internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  */
+@Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
     contract { callsInPlace(transform) }

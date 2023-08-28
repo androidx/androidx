@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Layout scope used for curved containers.
@@ -53,14 +54,14 @@ internal abstract class ContainerChild(
 
     @Composable
     override fun SubComposition() {
-        children.forEach {
+        children.fastForEach {
             it.SubComposition()
         }
     }
 
     override fun CurvedMeasureScope.initializeMeasure(
         measurables: Iterator<Measurable>
-    ) = children.forEach { node ->
+    ) = children.fastForEach { node ->
             with(CurvedMeasureScope(
                 subDensity = this,
                 curvedContainerScope.curvedLayoutDirection,
@@ -72,9 +73,9 @@ internal abstract class ContainerChild(
             }
         }
 
-    override fun DrawScope.draw() = children.forEach { with(it) { draw() } }
+    override fun DrawScope.draw() = children.fastForEach { with(it) { draw() } }
 
     override fun (Placeable.PlacementScope).placeIfNeeded() {
-        children.forEach { with(it) { placeIfNeeded() } }
+        children.fastForEach { with(it) { placeIfNeeded() } }
     }
 }

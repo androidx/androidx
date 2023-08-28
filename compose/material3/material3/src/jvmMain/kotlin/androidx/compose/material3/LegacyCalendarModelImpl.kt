@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.ui.util.fastForEachIndexed
 import java.text.DateFormat
 import java.text.DateFormatSymbols
 import java.text.ParseException
@@ -56,7 +57,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
         val shortWeekdays = DateFormatSymbols(locale).shortWeekdays
         // Skip the first item, as it's empty, and the second item, as it represents Sunday while it
         // should be last according to ISO-8601.
-        weekdays.drop(2).forEachIndexed { index, day ->
+        weekdays.drop(2).fastForEachIndexed { index, day ->
             add(Pair(day, shortWeekdays[index + 2]))
         }
         // Add Sunday to the end.
