@@ -27,6 +27,13 @@ dependencies {
 
     annotationProcessor(libs.autoValue)
 
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
