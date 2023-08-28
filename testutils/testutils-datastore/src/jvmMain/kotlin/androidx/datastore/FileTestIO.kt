@@ -48,6 +48,9 @@ class FileTestIO : TestIO<JavaIOFile, IOException>(
 }
 
 class JavaIOFile(val file: File) : TestFile<JavaIOFile>() {
+    override val name: String
+        get() = file.name
+
     override fun delete(): Boolean {
         return file.delete()
     }
