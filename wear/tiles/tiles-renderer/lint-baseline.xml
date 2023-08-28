@@ -11,7 +11,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    res.toProto()"
         errorLine2="                        ~~~~~~~">
@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Resources.parseFrom can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        val resources = ResourceProto.Resources.parseFrom(resourcesData.contents)"
         errorLine2="                                                                ~~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Resources.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                            ResourceBuilders.Resources.fromProto(resources))"
         errorLine2="                                                       ~~~~~~~~~">
@@ -38,43 +38,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="ResolvableFuture.create can only be called from within the same library group prefix (referenced groupId=`androidx.concurrent` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="        val future = ResolvableFuture.create&lt;T>()"
-        errorLine2="                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ResolvableFuture.set can only be called from within the same library group prefix (referenced groupId=`androidx.concurrent` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                        future.set(fn(it))"
-        errorLine2="                               ~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ResolvableFuture.set can only be called from within the same library group prefix (referenced groupId=`androidx.concurrent` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                        future.set(fn(it))"
-        errorLine2="                                   ~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ResolvableFuture.setException can only be called from within the same library group prefix (referenced groupId=`androidx.concurrent` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                future.setException(ex)"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Resources.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        res -> ResourceBuilders.Resources.fromProto(res.toProto()),"
         errorLine2="                                                          ~~~~~~~~~">
@@ -83,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="State.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                                StateBuilders.State.fromProto(nextState)));"
         errorLine2="                                                                    ~~~~~~~~~">
@@ -92,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setAnimationEnabled can only be called from within the same library (androidx.wear.protolayout:protolayout-renderer)"
         errorLine1="                        .setAnimationEnabled(true)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
@@ -101,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setIsViewFullyVisible can only be called from within the same library (androidx.wear.protolayout:protolayout-renderer)"
         errorLine1="                        .setIsViewFullyVisible(true)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
@@ -110,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setProtoLayoutTheme can only be called from within the same library (androidx.wear.protolayout:protolayout-renderer)"
         errorLine1="            config.setProtoLayoutTheme(new ProtoLayoutThemeImpl(uiContext, tilesTheme));"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
@@ -119,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="State.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        androidx.wear.tiles.StateBuilders.State.fromProto(nextState.toProto()));"
         errorLine2="                                                                                    ~~~~~~~">
@@ -128,61 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mLayout, errorMessage),"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mLayout, errorMessage),"
-        errorLine2="                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mLayout, errorMessage),"
-        errorLine2="                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mResources, errorMessage),"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mResources, errorMessage),"
-        errorLine2="                                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkNotNull can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            checkNotNull(mResources, errorMessage),"
-        errorLine2="                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Layout.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return inflateLayout(layout.toProto(), resources.toProto(), parent);"
         errorLine2="                                    ~~~~~~~">
@@ -191,7 +101,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return inflateLayout(layout.toProto(), resources.toProto(), parent);"
         errorLine2="                                                         ~~~~~~~">
@@ -200,7 +110,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Timeline.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        mCache = new TilesTimelineCacheInternal(timeline.toProto());"
         errorLine2="                                                         ~~~~~~~">
@@ -209,7 +119,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return TimelineBuilders.TimelineEntry.fromProto(entry);"
         errorLine2="                                              ~~~~~~~~~">
@@ -218,7 +128,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return TimelineBuilders.TimelineEntry.fromProto(entry);"
         errorLine2="                                              ~~~~~~~~~">
@@ -227,7 +137,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return mCache.findCurrentTimelineEntryExpiry(entry.toProto(), fromTimeMillis);"
         errorLine2="                                                           ~~~~~~~">
@@ -236,7 +146,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Timeline.getTimelineEntriesList can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        for (TimelineEntry entry : mTimeline.getTimelineEntriesList()) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
@@ -245,7 +155,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.hasValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (!entry.hasValidity()) {"
         errorLine2="                       ~~~~~~~~~~~">
@@ -254,7 +164,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                TimeInterval validity = entry.getValidity();"
         errorLine2="                                              ~~~~~~~~~~~">
@@ -263,7 +173,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                long validityLength = validity.getEndMillis() - validity.getStartMillis();"
         errorLine2="                                               ~~~~~~~~~~~~">
@@ -272,7 +182,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                long validityLength = validity.getEndMillis() - validity.getStartMillis();"
         errorLine2="                                                                         ~~~~~~~~~~~~~~">
@@ -281,7 +191,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                if (validity.getStartMillis() &lt;= timeMillis"
         errorLine2="                             ~~~~~~~~~~~~~~">
@@ -290,7 +200,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        &amp;&amp; timeMillis &lt; validity.getEndMillis()) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
@@ -299,7 +209,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Timeline.getTimelineEntriesList can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        for (TimelineEntry entry : mTimeline.getTimelineEntriesList()) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
@@ -308,7 +218,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.hasValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (!entry.hasValidity()) {"
         errorLine2="                       ~~~~~~~~~~~">
@@ -317,7 +227,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            TimeInterval validity = entry.getValidity();"
         errorLine2="                                          ~~~~~~~~~~~">
@@ -326,7 +236,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (validity.getStartMillis() &lt;= timeMillis &amp;&amp; timeMillis &lt; validity.getEndMillis()) {"
         errorLine2="                                                                                 ~~~~~~~~~~~~">
@@ -335,7 +245,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (validity.getStartMillis() &lt;= timeMillis &amp;&amp; timeMillis &lt; validity.getEndMillis()) {"
         errorLine2="                         ~~~~~~~~~~~~~~">
@@ -344,7 +254,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (validity.getStartMillis() > timeMillis) {"
         errorLine2="                         ~~~~~~~~~~~~~~">
@@ -353,7 +263,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                error = validity.getStartMillis() - timeMillis;"
         errorLine2="                                 ~~~~~~~~~~~~~~">
@@ -362,7 +272,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                error = timeMillis - validity.getEndMillis();"
         errorLine2="                                              ~~~~~~~~~~~~">
@@ -371,7 +281,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        if (entry.hasValidity() &amp;&amp; entry.getValidity().getEndMillis() > fromTimeMillis) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
@@ -380,7 +290,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        if (entry.hasValidity() &amp;&amp; entry.getValidity().getEndMillis() > fromTimeMillis) {"
         errorLine2="                                         ~~~~~~~~~~~">
@@ -389,7 +299,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.hasValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        if (entry.hasValidity() &amp;&amp; entry.getValidity().getEndMillis() > fromTimeMillis) {"
         errorLine2="                  ~~~~~~~~~~~">
@@ -398,7 +308,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            currentSmallestExpiry = entry.getValidity().getEndMillis();"
         errorLine2="                                                        ~~~~~~~~~~~~">
@@ -407,7 +317,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            currentSmallestExpiry = entry.getValidity().getEndMillis();"
         errorLine2="                                          ~~~~~~~~~~~">
@@ -416,7 +326,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    entry.getValidity().getEndMillis() - entry.getValidity().getStartMillis();"
         errorLine2="                                        ~~~~~~~~~~~~">
@@ -425,7 +335,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    entry.getValidity().getEndMillis() - entry.getValidity().getStartMillis();"
         errorLine2="                                                                             ~~~~~~~~~~~~~~">
@@ -434,7 +344,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    entry.getValidity().getEndMillis() - entry.getValidity().getStartMillis();"
         errorLine2="                          ~~~~~~~~~~~">
@@ -443,7 +353,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    entry.getValidity().getEndMillis() - entry.getValidity().getStartMillis();"
         errorLine2="                                                               ~~~~~~~~~~~">
@@ -452,7 +362,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Timeline.getTimelineEntriesList can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        for (TimelineEntry nextEntry : mTimeline.getTimelineEntriesList()) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
@@ -461,7 +371,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.hasValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (!nextEntry.hasValidity()) {"
         errorLine2="                           ~~~~~~~~~~~">
@@ -470,7 +380,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            TimeInterval nextEntryValidity = nextEntry.getValidity();"
         errorLine2="                                                       ~~~~~~~~~~~">
@@ -479,7 +389,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.hasValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (entry.hasValidity()) {"
         errorLine2="                      ~~~~~~~~~~~">
@@ -488,7 +398,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                if (nextEntryValidity.getStartMillis() > entry.getValidity().getEndMillis()"
         errorLine2="                                                                             ~~~~~~~~~~~~">
@@ -497,7 +407,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                if (nextEntryValidity.getStartMillis() > entry.getValidity().getEndMillis()"
         errorLine2="                                      ~~~~~~~~~~~~~~">
@@ -506,7 +416,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                if (nextEntryValidity.getStartMillis() > entry.getValidity().getEndMillis()"
         errorLine2="                                                               ~~~~~~~~~~~">
@@ -515,7 +425,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        || nextEntryValidity.getStartMillis()"
         errorLine2="                                             ~~~~~~~~~~~~~~">
@@ -524,7 +434,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                &lt; entry.getValidity().getStartMillis()) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~">
@@ -533,7 +443,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getValidity can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                &lt; entry.getValidity().getStartMillis()) {"
         errorLine2="                                        ~~~~~~~~~~~">
@@ -542,7 +452,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (nextEntryValidity.getStartMillis() > currentSmallestExpiry) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
@@ -551,7 +461,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="            if (nextEntryValidity.getStartMillis() &lt; fromTimeMillis) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
@@ -560,7 +470,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    nextEntryValidity.getEndMillis() - nextEntryValidity.getStartMillis();"
         errorLine2="                                      ~~~~~~~~~~~~">
@@ -569,7 +479,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    nextEntryValidity.getEndMillis() - nextEntryValidity.getStartMillis();"
         errorLine2="                                                                         ~~~~~~~~~~~~~~">
@@ -578,7 +488,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                currentSmallestExpiry = nextEntryValidity.getStartMillis();"
         errorLine2="                                                          ~~~~~~~~~~~~~~">
@@ -587,7 +497,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getEndMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return timeInterval.getEndMillis() > timeInterval.getStartMillis();"
         errorLine2="                            ~~~~~~~~~~~~">
@@ -596,7 +506,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimeInterval.getStartMillis can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="        return timeInterval.getEndMillis() > timeInterval.getStartMillis();"
         errorLine2="                                                          ~~~~~~~~~~~~~~">
@@ -605,7 +515,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                                entry.getLayout())));"
         errorLine2="                                                      ~~~~~~~~~">
@@ -614,7 +524,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Timeline.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                        timeline.toProto(),"
         errorLine2="                                 ~~~~~~~">
@@ -623,7 +533,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Layout.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                        LayoutElementBuilders.Layout.fromProto(entry.getLayout())));"
         errorLine2="                                                                     ~~~~~~~~~">
@@ -632,7 +542,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TimelineEntry.getLayout can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
         errorLine1="                                        LayoutElementBuilders.Layout.fromProto(entry.getLayout())));"
         errorLine2="                                                                                     ~~~~~~~~~">

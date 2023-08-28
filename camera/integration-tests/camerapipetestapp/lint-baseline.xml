@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="    private var operatingMode: CameraGraph.OperatingMode = CameraGraph.OperatingMode.NORMAL"
         errorLine2="                                                                                     ~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.cameras can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        val cameraDevices = cameraPipe.cameras()"
         errorLine2="                                       ~~~~~~~">
@@ -38,7 +38,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraIds-SeavPBo can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        cameraIdGroups = cameraDevices.awaitCameraIds()!!.map { listOf(it) } +"
         errorLine2="                                       ~~~~~~~~~~~~~~">
@@ -47,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitConcurrentCameraIds-SeavPBo can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraDevices.awaitConcurrentCameraIds()!!.filter { it.size &lt;= 2 }.map { it.toList() }"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -56,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        if (lastCameraIdGroup.size == 1 &amp;&amp; operatingMode == CameraGraph.OperatingMode.NORMAL) {"
         errorLine2="                                                                                      ~~~~~~">
@@ -65,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getHIGH_SPEED can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            operatingMode = CameraGraph.OperatingMode.HIGH_SPEED"
         errorLine2="                                                      ~~~~~~~~~~">
@@ -74,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        operatingMode = CameraGraph.OperatingMode.NORMAL"
         errorLine2="                                                  ~~~~~~">
@@ -83,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            result = CameraPipe(CameraPipe.Config(appContext = this))"
         errorLine2="                     ~~~~~~~~~~">
@@ -92,7 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            result = CameraPipe(CameraPipe.Config(appContext = this))"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -101,7 +101,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Config can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            result = CameraPipe(CameraPipe.Config(appContext = this))"
         errorLine2="                                           ~~~~~~">
@@ -110,7 +110,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Config can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            result = CameraPipe(CameraPipe.Config(appContext = this))"
         errorLine2="                                                               ~~~~">
@@ -119,7 +119,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            operatingMode: CameraGraph.OperatingMode? = CameraGraph.OperatingMode.NORMAL"
         errorLine2="                                                                                  ~~~~~~">
@@ -128,7 +128,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getHIGH_SPEED can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            if (operatingMode == CameraGraph.OperatingMode.HIGH_SPEED) {"
         errorLine2="                                                           ~~~~~~~~~~">
@@ -137,7 +137,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
@@ -146,7 +146,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                                          ~~~~~~~~">
@@ -155,7 +155,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.cameras can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                            ~~~~~~~">
@@ -164,7 +164,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                              ~">
@@ -173,7 +173,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -182,7 +182,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                              ~">
@@ -191,7 +191,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -200,7 +200,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
@@ -209,7 +209,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
@@ -218,7 +218,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getUNKNOWN-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                StreamFormat.UNKNOWN,"
         errorLine2="                             ~~~~~~~">
@@ -227,7 +227,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -236,7 +236,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getSURFACE_VIEW can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                                                     ~~~~~~~~~~~~">
@@ -245,7 +245,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateStreamConfig = Config.create("
         errorLine2="                                             ~~~~~~">
@@ -254,7 +254,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                privateOutputSize,"
         errorLine2="                ~~~~~~~~~~~~~~~~~">
@@ -263,7 +263,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getPRIVATE-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                StreamFormat.PRIVATE,"
         errorLine2="                             ~~~~~~~">
@@ -272,7 +272,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -281,7 +281,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getSURFACE_VIEW can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                                                     ~~~~~~~~~~~~">
@@ -290,7 +290,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                streamUseCase = OutputStream.StreamUseCase.PREVIEW"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -299,7 +299,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getPREVIEW-vrKr8v8 can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                streamUseCase = OutputStream.StreamUseCase.PREVIEW"
         errorLine2="                                                           ~~~~~~~">
@@ -308,7 +308,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getHIGH_SPEED can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                sessionMode = CameraGraph.OperatingMode.HIGH_SPEED,"
         errorLine2="                                                        ~~~~~~~~~~">
@@ -317,7 +317,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.create can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraph = cameraPipe.create(config)"
         errorLine2="                                         ~~~~~~">
@@ -326,7 +326,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.create can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraph = cameraPipe.create(config)"
         errorLine2="                                                ~~~~~~">
@@ -335,7 +335,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                               ~~~~~~~">
@@ -344,7 +344,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                                      ~">
@@ -353,7 +353,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
@@ -362,7 +362,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.outputs can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderOutput = viewfinderStream.outputs.single()"
         errorLine2="                                                    ~~~~~~~">
@@ -371,7 +371,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                viewfinderOutput.size,"
         errorLine2="                                 ~~~~">
@@ -380,7 +380,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                    ~~~~~~~~~~">
@@ -389,7 +389,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                                                    ~~~~~~~">
@@ -398,7 +398,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                                                ~~">
@@ -407,7 +407,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                            ~~~~~~~">
@@ -416,7 +416,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                                   ~">
@@ -425,7 +425,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateStream = cameraGraph.streams[privateStreamConfig]!!"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
@@ -434,7 +434,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.outputs can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val privateOutput = privateStream.outputs.single()"
         errorLine2="                                              ~~~~~~~">
@@ -443,7 +443,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.size.width,"
         errorLine2="                                  ~~~~">
@@ -452,7 +452,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.size.height,"
         errorLine2="                                  ~~~~">
@@ -461,7 +461,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getFormat-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.format.value,"
         errorLine2="                                  ~~~~~~">
@@ -470,7 +470,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.size.width,"
         errorLine2="                                  ~~~~">
@@ -479,7 +479,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.size.height,"
         errorLine2="                                  ~~~~">
@@ -488,7 +488,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getFormat-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    privateOutput.format.value,"
         errorLine2="                                  ~~~~~~">
@@ -497,7 +497,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(privateStream.id, imageReader.surface)"
         errorLine2="                        ~~~~~~~~~~">
@@ -506,7 +506,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(privateStream.id, imageReader.surface)"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
@@ -515,7 +515,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(privateStream.id, imageReader.surface)"
         errorLine2="                                                 ~~">
@@ -524,7 +524,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
@@ -533,7 +533,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                it.startRepeating("
         errorLine2="                   ~~~~~~~~~~~~~~">
@@ -542,7 +542,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    Request("
         errorLine2="                    ~~~~~~~">
@@ -551,7 +551,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, privateStream.id)"
         errorLine2="                                                          ~~">
@@ -560,7 +560,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, privateStream.id)"
         errorLine2="                                                                            ~~">
@@ -569,7 +569,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
@@ -578,7 +578,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                                          ~~~~~~~~">
@@ -587,7 +587,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.cameras can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                            ~~~~~~~">
@@ -596,7 +596,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                              ~">
@@ -605,7 +605,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraMetadata.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -614,7 +614,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
@@ -623,7 +623,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
@@ -632,7 +632,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getUNKNOWN-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                StreamFormat.UNKNOWN,"
         errorLine2="                             ~~~~~~~">
@@ -641,7 +641,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -650,7 +650,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getSURFACE_VIEW can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                                                     ~~~~~~~~~~~~">
@@ -659,7 +659,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStreamConfig = Config.create("
         errorLine2="                                         ~~~~~~">
@@ -668,7 +668,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvSize,"
         errorLine2="                ~~~~~~~">
@@ -677,7 +677,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getYUV_420_888-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                StreamFormat.YUV_420_888"
         errorLine2="                             ~~~~~~~~~~~">
@@ -686,7 +686,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.create can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraph = cameraPipe.create(config)"
         errorLine2="                                         ~~~~~~">
@@ -695,7 +695,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.create can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraph = cameraPipe.create(config)"
         errorLine2="                                                ~~~~~~">
@@ -704,7 +704,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                               ~~~~~~~">
@@ -713,7 +713,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                                      ~">
@@ -722,7 +722,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~">
@@ -731,7 +731,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.outputs can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderOutput = viewfinderStream.outputs.single()"
         errorLine2="                                                    ~~~~~~~">
@@ -740,7 +740,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                viewfinderOutput.size,"
         errorLine2="                                 ~~~~">
@@ -749,7 +749,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                    ~~~~~~~~~~">
@@ -758,7 +758,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                                                    ~~~~~~~">
@@ -767,7 +767,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        cameraGraph.setSurface(viewfinderStream.id, surface)"
         errorLine2="                                                                ~~">
@@ -776,7 +776,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStream = cameraGraph.streams[yuvStreamConfig]!!"
         errorLine2="                                        ~~~~~~~">
@@ -785,7 +785,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStream = cameraGraph.streams[yuvStreamConfig]!!"
         errorLine2="                                               ~">
@@ -794,7 +794,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStream = cameraGraph.streams[yuvStreamConfig]!!"
         errorLine2="                                                ~~~~~~~~~~~~~~~">
@@ -803,7 +803,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.outputs can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvOutput = yuvStream.outputs.single()"
         errorLine2="                                      ~~~~~~~">
@@ -812,7 +812,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvOutput.size.width,"
         errorLine2="                          ~~~~">
@@ -821,7 +821,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvOutput.size.height,"
         errorLine2="                          ~~~~">
@@ -830,7 +830,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getFormat-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                yuvOutput.format.value,"
         errorLine2="                          ~~~~~~">
@@ -839,7 +839,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(yuvStream.id, imageReader.surface)"
         errorLine2="                        ~~~~~~~~~~">
@@ -848,7 +848,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(yuvStream.id, imageReader.surface)"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
@@ -857,7 +857,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.setSurface(yuvStream.id, imageReader.surface)"
         errorLine2="                                             ~~">
@@ -866,7 +866,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
@@ -875,7 +875,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                it.startRepeating("
         errorLine2="                   ~~~~~~~~~~~~~~">
@@ -884,7 +884,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    Request("
         errorLine2="                    ~~~~~~~">
@@ -893,7 +893,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, yuvStream.id)"
         errorLine2="                                                          ~~">
@@ -902,7 +902,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, yuvStream.id)"
         errorLine2="                                                                        ~~">
@@ -911,7 +911,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
@@ -920,7 +920,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraDevices.awaitCameraMetadata-FpsL5FU can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                                              ~~~~~~~~">
@@ -929,7 +929,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.cameras can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)"
         errorLine2="                                                ~~~~~~~">
@@ -938,7 +938,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                Config.create("
         errorLine2="                       ~~~~~~">
@@ -947,7 +947,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    size,"
         errorLine2="                    ~~~~">
@@ -956,7 +956,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getPRIVATE-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    StreamFormat.PRIVATE,"
         errorLine2="                                 ~~~~~~~">
@@ -965,7 +965,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -974,7 +974,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Companion.getSURFACE_VIEW can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    outputType = OutputStream.OutputType.SURFACE_VIEW,"
         errorLine2="                                                         ~~~~~~~~~~~~">
@@ -983,7 +983,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.createCameraGraphs can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraphs = cameraPipe.createCameraGraphs(configs)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
@@ -992,7 +992,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraPipe.createCameraGraphs can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val cameraGraphs = cameraPipe.createCameraGraphs(configs)"
         errorLine2="                                                             ~~~~~~~">
@@ -1001,7 +1001,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.getStreams can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                ~~~~~~~">
@@ -1010,7 +1010,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                       ~">
@@ -1019,7 +1019,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StreamGraph.get can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    cameraGraph.streams[viewfinderStreamConfig]!!"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
@@ -1028,7 +1028,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.outputs can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderOutputs = viewfinderStreams.map { it.outputs.single() }"
         errorLine2="                                                               ~~~~~~~">
@@ -1037,7 +1037,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="OutputStream.getSize can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    viewfinderOutputs[i].size,"
         errorLine2="                                         ~~~~">
@@ -1046,7 +1046,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            cameraGraphs[i].setSurface(viewfinderStreams[i].id, surface)"
         errorLine2="                                            ~~~~~~~~~~">
@@ -1055,7 +1055,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setSurface-NYG5g8E can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            cameraGraphs[i].setSurface(viewfinderStreams[i].id, surface)"
         errorLine2="                                                                                ~~~~~~~">
@@ -1064,7 +1064,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            cameraGraphs[i].setSurface(viewfinderStreams[i].id, surface)"
         errorLine2="                                                                            ~~">
@@ -1073,7 +1073,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
@@ -1082,7 +1082,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    it.startRepeating("
         errorLine2="                       ~~~~~~~~~~~~~~">
@@ -1091,7 +1091,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Session.startRepeating can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        Request("
         errorLine2="                        ~~~~~~~">
@@ -1100,7 +1100,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            streams = listOf(viewfinderStream.id)"
         errorLine2="                                                              ~~">
@@ -1109,7 +1109,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.start can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        cameraGraph.start()"
         errorLine2="                    ~~~~~">
@@ -1118,7 +1118,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setForeground can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        cameraGraph.isForeground = true"
         errorLine2="                    ~~~~~~~~~~~~">
@@ -1127,7 +1127,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.setForeground can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        cameraGraph.isForeground = false"
         errorLine2="                    ~~~~~~~~~~~~">
@@ -1136,7 +1136,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraGraph.stop can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        cameraGraph.stop()"
         errorLine2="                    ~~~~">
@@ -1145,7 +1145,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Debug.formatCameraGraphProperties can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        Debug.formatCameraGraphProperties(cameraMetadata, cameraConfig, cameraGraph)"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1154,7 +1154,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Debug.formatCameraGraphProperties can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        Debug.formatCameraGraphProperties(cameraMetadata, cameraConfig, cameraGraph)"
         errorLine2="                                          ~~~~~~~~~~~~~~">
@@ -1163,7 +1163,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Debug.formatCameraGraphProperties can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        Debug.formatCameraGraphProperties(cameraMetadata, cameraConfig, cameraGraph)"
         errorLine2="                                                          ~~~~~~~~~~~~">
@@ -1172,7 +1172,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Debug.formatCameraGraphProperties can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        Debug.formatCameraGraphProperties(cameraMetadata, cameraConfig, cameraGraph)"
         errorLine2="                                                                        ~~~~~~~~~~~">

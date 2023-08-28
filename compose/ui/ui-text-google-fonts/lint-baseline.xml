@@ -2,34 +2,7 @@
 <issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="RestrictedApi"
-        message="FontResourcesParserCompat.readCerts can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
-        errorLine1="    return FontResourcesParserCompat.readCerts(resources, certificatesRes)"
-        errorLine2="                                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/googlefonts/FontProviderHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="FontResourcesParserCompat.readCerts can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
-        errorLine1="    return FontResourcesParserCompat.readCerts(resources, certificatesRes)"
-        errorLine2="                                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/googlefonts/FontProviderHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="FontResourcesParserCompat.readCerts can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.compose.ui`)"
-        errorLine1="    return FontResourcesParserCompat.readCerts(resources, certificatesRes)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/text/googlefonts/FontProviderHelper.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FontsContractCompat.requestFont can only be called from within the same library (androidx.core:core)"
         errorLine1="        FontsContractCompat.requestFont("
         errorLine2="                            ~~~~~~~~~~~">

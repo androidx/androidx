@@ -2,7 +2,7 @@
 <issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RouteInfo.isDefaultOrBluetooth can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="            if (!routeInfo.isDefaultOrBluetooth()) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
@@ -11,7 +11,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RouteInfo.DEVICE_TYPE_BLUETOOTH can only be accessed from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="        BLUETOOTH(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH),"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RouteInfo.DEVICE_TYPE_UNKNOWN can only be accessed from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="        UNKNOWN(MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteProvider.onCreateRouteController can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="    public RouteController onCreateRouteController(@NonNull String routeId,"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -38,7 +38,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="        if (initialRoute.getGroupMemberIds().isEmpty()) {"
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
@@ -47,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="            memberIds.addAll(initialRoute.getGroupMemberIds());"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
@@ -56,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.addGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="                            .addGroupMemberIds(memberIds);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~">
@@ -65,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="            for (String memberRouteId : routeDescriptor.getGroupMemberIds()) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
@@ -74,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.clearGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="                            .clearGroupMemberIds();"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
@@ -83,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.addGroupMemberId can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="                groupDescriptorBuilder.addGroupMemberId(memberRouteId);"
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
@@ -92,7 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="                if (!routeDescriptor.getGroupMemberIds().isEmpty()"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
@@ -101,7 +101,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="                        &amp;&amp; mMemberRouteIds.containsAll(routeDescriptor.getGroupMemberIds())) {"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~">
@@ -110,7 +110,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="            if (routeDescriptor.getGroupMemberIds().isEmpty()) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
@@ -119,7 +119,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaRouteDescriptor.getGroupMemberIds can only be called from within the same library (androidx.mediarouter:mediarouter)"
         errorLine1="            for (String routeId : routeDescriptor.getGroupMemberIds()) {"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">

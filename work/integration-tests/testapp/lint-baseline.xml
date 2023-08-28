@@ -47,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        remoteWorkManager.enqueue(listOf(request)).await()"
         errorLine2="                                                   ~~~~~">
@@ -56,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        ).await()"
         errorLine2="          ~~~~~">
@@ -65,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        ).await()"
         errorLine2="          ~~~~~">
@@ -74,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="            .await()"
         errorLine2="             ~~~~~">
@@ -83,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        remoteWorkManager.cancelAllWorkByTag(WORK_TAG).await()"
         errorLine2="                                                       ~~~~~">
@@ -92,7 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        remoteWorkManager.cancelAllWork().await()"
         errorLine2="                                          ~~~~~">
@@ -101,7 +101,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="        val workInfoList: List&lt;WorkInfo> = remoteWorkManager.getWorkInfos(query).await()"
         errorLine2="                                                                                 ~~~~~">
@@ -110,7 +110,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
         errorLine1="                    setProgressAsync(progress).await()"
         errorLine2="                                               ~~~~~">

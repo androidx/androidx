@@ -2,7 +2,7 @@
 <issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
@@ -11,7 +11,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~">
@@ -38,7 +38,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~">
@@ -47,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
@@ -56,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
@@ -65,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
@@ -74,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~">
@@ -83,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~">
@@ -92,7 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FragmentManager.isLoggingEnabled can only be called from within the same library (androidx.fragment:fragment)"
         errorLine1="        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~">

@@ -1,5 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListContent can only be called from within the same library (androidx.slice:slice-view)"
+        errorLine1="        ListContent content = new ListContent(loadedSlice);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListContent can only be called from within the same library (androidx.slice:slice-view)"
+        errorLine1="        ListContent content = new ListContent(loadedSlice);"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListContent.getHeader can only be called from within the same library (androidx.slice:slice-view)"
+        errorLine1="        SliceItem headerItem = content.getHeader() != null"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListContent.getHeader can only be called from within the same library (androidx.slice:slice-view)"
+        errorLine1="                ? content.getHeader().getSliceItem() : null;"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceContent.getSliceItem can only be called from within the same library (androidx.slice:slice-view)"
+        errorLine1="                ? content.getHeader().getSliceItem() : null;"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);"
+        errorLine2="                                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        SliceItem title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_TITLE, null);"
+        errorLine2="                                                                               ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_LARGE, null);"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_LARGE, null);"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_LARGE, null);"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_LARGE, null);"
+        errorLine2="                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT, HINT_LARGE, null);"
+        errorLine2="                                                                     ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT);"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT);"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SliceQuery.find can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
+        errorLine1="        title = SliceQuery.find(headerItem, FORMAT_TEXT);"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
+    </issue>
 
     <issue
         id="UnknownNullness"

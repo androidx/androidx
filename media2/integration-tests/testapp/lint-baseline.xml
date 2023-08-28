@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaItem.getMediaId can only be called from within the same library group (referenced groupId=`androidx.media2` from groupId=`androidx.media2.integration-tests`)"
         errorLine1="                    &amp;&amp; TextUtils.equals(currentItem.getMediaId(), mUri.toString())"
         errorLine2="                                                    ~~~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="BaseResult.RESULT_SUCCESS can only be accessed from within the same library group (referenced groupId=`androidx.media2` from groupId=`androidx.media2.integration-tests`)"
         errorLine1="                if (playerResult.getResultCode() != SessionPlayer.PlayerResult.RESULT_SUCCESS) {"
         errorLine2="                                                                               ~~~~~~~~~~~~~~">

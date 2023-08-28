@@ -338,7 +338,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        checkArgument(selectionTracker != null);"
         errorLine2="        ~~~~~~~~~~~~~">
@@ -347,7 +347,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        checkArgument(selectionTracker != null);"
         errorLine2="        ~~~~~~~~~~~~~">
@@ -356,7 +356,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        checkArgument(tracker != null);"
         errorLine2="        ~~~~~~~~~~~~~">
@@ -365,7 +365,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="SelectionObserver.onSelectionCleared can only be called from within the same library (androidx.recyclerview:recyclerview-selection)"
         errorLine1="                    public void onSelectionCleared() {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~">
@@ -374,7 +374,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        Preconditions.checkArgument(group != null);"
         errorLine2="                      ~~~~~~~~~~~~~">
@@ -383,7 +383,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Preconditions.checkArgument can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx`)"
         errorLine1="        Preconditions.checkArgument(isCheese(uri));"
         errorLine2="                      ~~~~~~~~~~~~~">

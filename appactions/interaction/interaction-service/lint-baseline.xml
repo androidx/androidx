@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionMetadata.parseFrom can only be called from within the same library (:)"
         errorLine1="                    AppInteractionMetadata.parseFrom(serialized)"
         errorLine2="                                           ~~~~~~~~~">
@@ -11,7 +11,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.UNKNOWN_ERROR_STATUS can only be accessed from within the same library (:)"
         errorLine1="            -> ErrorStatus.UNKNOWN_ERROR_STATUS"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
@@ -20,7 +20,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.INTERNAL can only be accessed from within the same library (:)"
         errorLine1="            ErrorStatusInternal.INTERNAL -> ErrorStatus.INTERNAL"
         errorLine2="                                                        ~~~~~~~~">
@@ -29,7 +29,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.CANCELED can only be accessed from within the same library (:)"
         errorLine1="            ErrorStatusInternal.CANCELED -> ErrorStatus.CANCELED"
         errorLine2="                                                        ~~~~~~~~">
@@ -38,7 +38,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.TIMEOUT can only be accessed from within the same library (:)"
         errorLine1="            ErrorStatusInternal.TIMEOUT -> ErrorStatus.TIMEOUT"
         errorLine2="                                                       ~~~~~~~">
@@ -47,7 +47,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.INVALID_REQUEST can only be accessed from within the same library (:)"
         errorLine1="            ErrorStatusInternal.INVALID_REQUEST -> ErrorStatus.INVALID_REQUEST"
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
@@ -56,7 +56,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.SESSION_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="            -> ErrorStatus.SESSION_NOT_FOUND"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
@@ -65,7 +65,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.EXTERNAL_EXCEPTION can only be accessed from within the same library (:)"
         errorLine1="            ErrorStatusInternal.EXTERNAL_EXCEPTION -> ErrorStatus.EXTERNAL_EXCEPTION"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
@@ -74,7 +74,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionMetadata.newBuilder can only be called from within the same library (:)"
         errorLine1="        return AppInteractionMetadata.newBuilder()"
         errorLine2="                                      ~~~~~~~~~~">
@@ -83,7 +83,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setErrorStatus can only be called from within the same library (:)"
         errorLine1="            .setErrorStatus(errorStatus)"
         errorLine2="             ~~~~~~~~~~~~~~">
@@ -92,7 +92,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionMetadata.newBuilder can only be called from within the same library (:)"
         errorLine1="            AppInteractionMetadata.newBuilder()"
         errorLine2="                                   ~~~~~~~~~~">
@@ -101,7 +101,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setErrorStatus can only be called from within the same library (:)"
         errorLine1="                .setErrorStatus(errorStatus)"
         errorLine2="                 ~~~~~~~~~~~~~~">
@@ -110,7 +110,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceGrpc.SERVICE_NAME can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .servicePolicy(AppInteractionServiceGrpc.SERVICE_NAME, securityPolicy)"
         errorLine2="                                                         ~~~~~~~~~~~~">
@@ -119,7 +119,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1=") : AppInteractionServiceImplBase() {"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -128,7 +128,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase.startUpSession can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="    override fun startUpSession("
         errorLine2="                 ~~~~~~~~~~~~~~">
@@ -137,7 +137,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            val sessionId = request.sessionIdentifier!!"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~">
@@ -146,7 +146,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            val sessionId = request.sessionIdentifier!!"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~">
@@ -155,7 +155,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                registeredCapabilities.firstOrNull { request.identifier == it.id }"
         errorLine2="                                                             ~~~~~~~~~~">
@@ -164,7 +164,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                registeredCapabilities.firstOrNull { request.identifier == it.id }"
         errorLine2="                                                             ~~~~~~~~~~">
@@ -173,7 +173,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.CAPABILITY_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                        AppInteractionGrpcMetadata.metadataOf(ErrorStatus.CAPABILITY_NOT_FOUND)"
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -182,7 +182,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="HostProperties.getHostViewHeightDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewHeightDp,"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
@@ -191,7 +191,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="HostProperties.getHostViewHeightDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewHeightDp,"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
@@ -200,7 +200,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getHostProperties can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewHeightDp,"
         errorLine2="                                ~~~~~~~~~~~~~~">
@@ -209,7 +209,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getHostProperties can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewHeightDp,"
         errorLine2="                                ~~~~~~~~~~~~~~">
@@ -218,7 +218,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="HostProperties.getHostViewWidthDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewWidthDp,"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
@@ -227,7 +227,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="HostProperties.getHostViewWidthDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewWidthDp,"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
@@ -236,7 +236,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getHostProperties can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewWidthDp,"
         errorLine2="                                ~~~~~~~~~~~~~~">
@@ -245,7 +245,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionRequest.getHostProperties can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        request.hostProperties.hostViewWidthDp,"
         errorLine2="                                ~~~~~~~~~~~~~~">
@@ -254,7 +254,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="StartSessionResponse.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            startSessionResponseObserver.onNext(StartSessionResponse.getDefaultInstance())"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~">
@@ -263,7 +263,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase.sendRequestFulfillment can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="    override fun sendRequestFulfillment("
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
@@ -272,7 +272,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FulfillmentRequest.getFulfillmentsList can only be called from within the same library (:)"
         errorLine1="        if (request.fulfillmentRequest.fulfillmentsList.isEmpty()) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
@@ -281,7 +281,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FulfillmentRequest.getFulfillmentsList can only be called from within the same library (:)"
         errorLine1="        if (request.fulfillmentRequest.fulfillmentsList.isEmpty()) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
@@ -290,7 +290,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getFulfillmentRequest can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        if (request.fulfillmentRequest.fulfillmentsList.isEmpty()) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
@@ -299,7 +299,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getFulfillmentRequest can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        if (request.fulfillmentRequest.fulfillmentsList.isEmpty()) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
@@ -308,7 +308,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.INVALID_REQUEST can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.INVALID_REQUEST)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
@@ -317,7 +317,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="FulfillmentRequest.getFulfillments can only be called from within the same library (:)"
         errorLine1="        val selectedFulfillment = request.fulfillmentRequest.getFulfillments(0)"
         errorLine2="                                                             ~~~~~~~~~~~~~~~">
@@ -326,7 +326,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getFulfillmentRequest can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val selectedFulfillment = request.fulfillmentRequest.getFulfillments(0)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
@@ -335,7 +335,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getFulfillmentRequest can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val selectedFulfillment = request.fulfillmentRequest.getFulfillments(0)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
@@ -344,7 +344,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Fulfillment.getIdentifier can only be called from within the same library (:)"
         errorLine1="            registeredCapabilities.firstOrNull { selectedFulfillment.identifier == it.id }"
         errorLine2="                                                                     ~~~~~~~~~~">
@@ -353,7 +353,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Fulfillment.getIdentifier can only be called from within the same library (:)"
         errorLine1="            registeredCapabilities.firstOrNull { selectedFulfillment.identifier == it.id }"
         errorLine2="                                                                     ~~~~~~~~~~">
@@ -362,7 +362,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.CAPABILITY_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.CAPABILITY_NOT_FOUND)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~">
@@ -371,7 +371,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = request.sessionIdentifier!!"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
@@ -380,7 +380,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = request.sessionIdentifier!!"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
@@ -389,7 +389,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.SESSION_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
@@ -398,7 +398,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.SESSION_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
@@ -407,7 +407,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setUiUpdate can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        responseBuilder.uiUpdate = UiUpdate.getDefaultInstance()"
         errorLine2="                                        ~~~~~~~~">
@@ -416,7 +416,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setUiUpdate can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        responseBuilder.uiUpdate = UiUpdate.getDefaultInstance()"
         errorLine2="                                        ~~~~~~~~">
@@ -425,7 +425,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="UiUpdate.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        responseBuilder.uiUpdate = UiUpdate.getDefaultInstance()"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
@@ -434,7 +434,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="UiUpdate.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        responseBuilder.uiUpdate = UiUpdate.getDefaultInstance()"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
@@ -443,7 +443,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setCollectionUpdate can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                            responseBuilder.setCollectionUpdate("
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
@@ -452,7 +452,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionUpdate.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                                AppInteractionServiceProto.CollectionUpdate.newBuilder()"
         errorLine2="                                                                            ~~~~~~~~~~">
@@ -461,7 +461,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.addAllViewIds can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                                    .addAllViewIds("
         errorLine2="                                     ~~~~~~~~~~~~~">
@@ -470,7 +470,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.UNKNOWN_ERROR_STATUS can only be accessed from within the same library (:)"
         errorLine1="                                    ErrorStatus.UNKNOWN_ERROR_STATUS)"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~">
@@ -479,7 +479,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase.requestUi can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="    override fun requestUi("
         errorLine2="                 ~~~~~~~~~">
@@ -488,7 +488,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="UiRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = req.sessionIdentifier!!"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
@@ -497,7 +497,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="UiRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = req.sessionIdentifier!!"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
@@ -506,7 +506,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.SESSION_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
@@ -515,7 +515,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.NO_UI_ELEMENTS can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)),"
         errorLine2="                                                                      ~~~~~~~~~~~~~~">
@@ -524,7 +524,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.NO_UI_ELEMENTS can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)),"
         errorLine2="                                                                      ~~~~~~~~~~~~~~">
@@ -533,7 +533,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="UiResponse.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val uiResponseBuilder = AppInteractionServiceProto.UiResponse.newBuilder()"
         errorLine2="                                                                      ~~~~~~~~~~">
@@ -542,7 +542,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setTileLayout can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        tileLayoutInternal?.let { uiResponseBuilder.tileLayout = it.toProto() }"
         errorLine2="                                                    ~~~~~~~~~~">
@@ -551,7 +551,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setTileLayout can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        tileLayoutInternal?.let { uiResponseBuilder.tileLayout = it.toProto() }"
         errorLine2="                                                    ~~~~~~~~~~">
@@ -560,7 +560,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setRemoteViewsInfo can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setRemoteViewsInfo("
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
@@ -569,7 +569,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RemoteViewsInfo.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    RemoteViewsInfo.newBuilder()"
         errorLine2="                                    ~~~~~~~~~~">
@@ -578,7 +578,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setWidthDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setWidthDp(remoteViewsInternal.size.width)"
         errorLine2="                         ~~~~~~~~~~">
@@ -587,7 +587,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setHeightDp can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setHeightDp(remoteViewsInternal.size.height)"
         errorLine2="                         ~~~~~~~~~~~">
@@ -596,7 +596,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase.requestCollection can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="    override fun requestCollection("
         errorLine2="                 ~~~~~~~~~~~~~~~~~">
@@ -605,7 +605,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = req.sessionIdentifier!!"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
@@ -614,7 +614,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getSessionIdentifier can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val sessionId = req.sessionIdentifier!!"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
@@ -623,7 +623,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.SESSION_NOT_FOUND can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.SESSION_NOT_FOUND)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
@@ -632,7 +632,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.NO_UI_ELEMENTS can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.NO_UI_ELEMENTS)"
         errorLine2="                                                                      ~~~~~~~~~~~~~~">
@@ -641,7 +641,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getViewId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val factory = uiCache.cachedRemoteViewsInternal?.collectionViewFactories?.get(req.viewId)"
         errorLine2="                                                                                          ~~~~~~">
@@ -650,7 +650,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getViewId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        val factory = uiCache.cachedRemoteViewsInternal?.collectionViewFactories?.get(req.viewId)"
         errorLine2="                                                                                          ~~~~~~">
@@ -659,7 +659,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.UNKNOWN_ERROR_STATUS can only be accessed from within the same library (:)"
         errorLine1="                    AppInteractionGrpcMetadata.metadataOf(ErrorStatus.UNKNOWN_ERROR_STATUS),"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~">
@@ -668,7 +668,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getRequestDataCase can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        when (req.requestDataCase) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
@@ -677,7 +677,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getRequestDataCase can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        when (req.requestDataCase) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
@@ -686,7 +686,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.ON_DESTROY can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.ON_DESTROY -> {"
         errorLine2="                            ~~~~~~~~~~">
@@ -695,7 +695,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.GET_COUNT can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.GET_COUNT -> {"
         errorLine2="                            ~~~~~~~~~">
@@ -704,7 +704,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.GET_VIEW_AT can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.GET_VIEW_AT -> {"
         errorLine2="                            ~~~~~~~~~~~">
@@ -713,7 +713,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getGetViewAt can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getViewAt.position,"
         errorLine2="                        ~~~~~~~~~">
@@ -722,7 +722,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getGetViewAt can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getViewAt.position,"
         errorLine2="                        ~~~~~~~~~">
@@ -731,7 +731,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetViewAt.getPosition can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getViewAt.position,"
         errorLine2="                                  ~~~~~~~~">
@@ -740,7 +740,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetViewAt.getPosition can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getViewAt.position,"
         errorLine2="                                  ~~~~~~~~">
@@ -749,7 +749,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.GET_LOADING_VIEW can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.GET_LOADING_VIEW -> {"
         errorLine2="                            ~~~~~~~~~~~~~~~~">
@@ -758,7 +758,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.GET_VIEW_TYPE_COUNT can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.GET_VIEW_TYPE_COUNT -> {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
@@ -767,7 +767,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.GET_ITEM_ID can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.GET_ITEM_ID -> {"
         errorLine2="                            ~~~~~~~~~~~">
@@ -776,7 +776,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getGetItemId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getItemId.position,"
         errorLine2="                        ~~~~~~~~~">
@@ -785,7 +785,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionRequest.getGetItemId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getItemId.position,"
         errorLine2="                        ~~~~~~~~~">
@@ -794,7 +794,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetItemId.getPosition can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getItemId.position,"
         errorLine2="                                  ~~~~~~~~">
@@ -803,7 +803,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetItemId.getPosition can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    req.getItemId.position,"
         errorLine2="                                  ~~~~~~~~">
@@ -812,7 +812,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="RequestDataCase.HAS_STABLE_IDS can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            RequestDataCase.HAS_STABLE_IDS -> {"
         errorLine2="                            ~~~~~~~~~~~~~~">
@@ -821,7 +821,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppInteractionServiceImplBase.requestGrounding can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="    override fun requestGrounding("
         errorLine2="                 ~~~~~~~~~~~~~~~~">
@@ -830,7 +830,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GroundingRequest.getRequest can only be called from within the same library (:)"
         errorLine1="            it.id == request.request.entityProviderId"
         errorLine2="                             ~~~~~~~">
@@ -839,7 +839,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GroundingRequest.getRequest can only be called from within the same library (:)"
         errorLine1="            it.id == request.request.entityProviderId"
         errorLine2="                             ~~~~~~~">
@@ -848,7 +848,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getEntityProviderId can only be called from within the same library (:)"
         errorLine1="            it.id == request.request.entityProviderId"
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
@@ -857,7 +857,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Request.getEntityProviderId can only be called from within the same library (:)"
         errorLine1="            it.id == request.request.entityProviderId"
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
@@ -866,7 +866,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GroundingResponse.newBuilder can only be called from within the same library (:)"
         errorLine1="                GroundingResponse.newBuilder()"
         errorLine2="                                  ~~~~~~~~~~">
@@ -875,7 +875,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setResponse can only be called from within the same library (:)"
         errorLine1="                    .setResponse("
         errorLine2="                     ~~~~~~~~~~~">
@@ -884,7 +884,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setStatus can only be called from within the same library (:)"
         errorLine1="                        GroundingResponse.Response.newBuilder().setStatus("
         errorLine2="                                                                ~~~~~~~~~">
@@ -893,7 +893,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Response.newBuilder can only be called from within the same library (:)"
         errorLine1="                        GroundingResponse.Response.newBuilder().setStatus("
         errorLine2="                                                   ~~~~~~~~~~">
@@ -902,7 +902,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Status.INVALID_ENTITY_PROVIDER can only be accessed from within the same library (:)"
         errorLine1="                            GroundingResponse.Status.INVALID_ENTITY_PROVIDER,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -911,7 +911,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="ErrorStatus.UNKNOWN_ERROR_STATUS can only be accessed from within the same library (:)"
         errorLine1="                            AppInteractionGrpcMetadata.metadataOf(ErrorStatus.UNKNOWN_ERROR_STATUS)"
         errorLine2="                                                                              ~~~~~~~~~~~~~~~~~~~~">
@@ -920,7 +920,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        respondAndComplete(CollectionResponse.getDefaultInstance(), observer)"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
@@ -929,7 +929,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            CollectionResponse.newBuilder()"
         errorLine2="                               ~~~~~~~~~~">
@@ -938,7 +938,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setGetCount can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setGetCount("
         errorLine2="                 ~~~~~~~~~~~">
@@ -947,7 +947,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetCount.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    CollectionResponse.GetCount.newBuilder()"
         errorLine2="                                                ~~~~~~~~~~">
@@ -956,7 +956,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setCount can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setCount(factory.count),"
         errorLine2="                         ~~~~~~~~">
@@ -965,7 +965,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        respondAndComplete(CollectionResponse.getDefaultInstance(), observer)"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
@@ -974,7 +974,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.getDefaultInstance can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        respondAndComplete(CollectionResponse.getDefaultInstance(), observer)"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
@@ -983,7 +983,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            CollectionResponse.newBuilder()"
         errorLine2="                               ~~~~~~~~~~">
@@ -992,7 +992,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setGetViewTypeCount can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setGetViewTypeCount("
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
@@ -1001,7 +1001,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetViewTypeCount.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    CollectionResponse.GetViewTypeCount.newBuilder()"
         errorLine2="                                                        ~~~~~~~~~~">
@@ -1010,7 +1010,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setViewTypeCount can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setViewTypeCount(factory.viewTypeCount),"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
@@ -1019,7 +1019,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            CollectionResponse.newBuilder()"
         errorLine2="                               ~~~~~~~~~~">
@@ -1028,7 +1028,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setGetItemId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setGetItemId("
         errorLine2="                 ~~~~~~~~~~~~">
@@ -1037,7 +1037,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GetItemId.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    CollectionResponse.GetItemId.newBuilder()"
         errorLine2="                                                 ~~~~~~~~~~">
@@ -1046,7 +1046,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setItemId can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setItemId(factory.getItemId(position)),"
         errorLine2="                         ~~~~~~~~~">
@@ -1055,7 +1055,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CollectionResponse.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            CollectionResponse.newBuilder()"
         errorLine2="                               ~~~~~~~~~~">
@@ -1064,7 +1064,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setHasStableIds can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setHasStableIds("
         errorLine2="                 ~~~~~~~~~~~~~~~">
@@ -1073,7 +1073,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="HasStableIds.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                    CollectionResponse.HasStableIds.newBuilder()"
         errorLine2="                                                    ~~~~~~~~~~">
@@ -1082,7 +1082,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setHasStableIds can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                        .setHasStableIds(factory.hasStableIds()),"
         errorLine2="                         ~~~~~~~~~~~~~~~">
@@ -1091,7 +1091,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Version.newBuilder can only be called from within the same library (:)"
         errorLine1="        val builder = Version.newBuilder()"
         errorLine2="                              ~~~~~~~~~~">
@@ -1100,7 +1100,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setMajor can only be called from within the same library (:)"
         errorLine1="            .setMajor(libInfoVersion.major.toLong())"
         errorLine2="             ~~~~~~~~">
@@ -1109,7 +1109,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setMinor can only be called from within the same library (:)"
         errorLine1="            .setMinor(libInfoVersion.minor.toLong())"
         errorLine2="             ~~~~~~~~">
@@ -1118,7 +1118,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setPatch can only be called from within the same library (:)"
         errorLine1="            .setPatch(libInfoVersion.patch.toLong())"
         errorLine2="             ~~~~~~~~">
@@ -1127,7 +1127,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setPrereleaseId can only be called from within the same library (:)"
         errorLine1="        libInfoVersion.preReleaseId?.let(builder::setPrereleaseId)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1136,7 +1136,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppAction.getTaskInfo can only be called from within the same library (:)"
         errorLine1="        val isDialogSession = appAction.taskInfo.supportsPartialFulfillment"
         errorLine2="                                        ~~~~~~~~">
@@ -1145,7 +1145,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppAction.getTaskInfo can only be called from within the same library (:)"
         errorLine1="        val isDialogSession = appAction.taskInfo.supportsPartialFulfillment"
         errorLine2="                                        ~~~~~~~~">
@@ -1154,7 +1154,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TaskInfo.getSupportsPartialFulfillment can only be called from within the same library (:)"
         errorLine1="        val isDialogSession = appAction.taskInfo.supportsPartialFulfillment"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1163,7 +1163,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TaskInfo.getSupportsPartialFulfillment can only be called from within the same library (:)"
         errorLine1="        val isDialogSession = appAction.taskInfo.supportsPartialFulfillment"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1172,7 +1172,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="AppActionsContext.newBuilder can only be called from within the same library (:)"
         errorLine1="        val appActionsContextBuilder = AppActionsContext.newBuilder()"
         errorLine2="                                                         ~~~~~~~~~~">
@@ -1181,7 +1181,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.addActions can only be called from within the same library (:)"
         errorLine1="            .addActions(appAction)"
         errorLine2="             ~~~~~~~~~~">
@@ -1190,7 +1190,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setVersion can only be called from within the same library (:)"
         errorLine1="            .setVersion(version)"
         errorLine2="             ~~~~~~~~~~">
@@ -1199,7 +1199,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.addDialogStates can only be called from within the same library (:)"
         errorLine1="        currentSession.state?.let(appActionsContextBuilder::addDialogStates)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -1208,7 +1208,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Response.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            Response.newBuilder()"
         errorLine2="                     ~~~~~~~~~~">
@@ -1217,7 +1217,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setFulfillmentResponse can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setFulfillmentResponse(fulfillmentResponse)"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
@@ -1226,7 +1226,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setAppActionsContext can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setAppActionsContext(appActionsContextBuilder.build())"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
@@ -1235,7 +1235,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setEndingStatus can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            responseBuilder.endingStatus = AppInteractionServiceProto.Status.newBuilder()"
         errorLine2="                            ~~~~~~~~~~~~">
@@ -1244,7 +1244,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setEndingStatus can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            responseBuilder.endingStatus = AppInteractionServiceProto.Status.newBuilder()"
         errorLine2="                            ~~~~~~~~~~~~">
@@ -1253,7 +1253,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Status.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            responseBuilder.endingStatus = AppInteractionServiceProto.Status.newBuilder()"
         errorLine2="                                                                             ~~~~~~~~~~">
@@ -1262,7 +1262,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Status.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            responseBuilder.endingStatus = AppInteractionServiceProto.Status.newBuilder()"
         errorLine2="                                                                             ~~~~~~~~~~">
@@ -1271,7 +1271,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setStatusCode can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setStatusCode(Code.COMPLETE)"
         errorLine2="                 ~~~~~~~~~~~~~">
@@ -1280,7 +1280,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setStatusCode can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setStatusCode(Code.COMPLETE)"
         errorLine2="                 ~~~~~~~~~~~~~">
@@ -1289,7 +1289,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Code.COMPLETE can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setStatusCode(Code.COMPLETE)"
         errorLine2="                                    ~~~~~~~~">
@@ -1298,7 +1298,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Code.COMPLETE can only be accessed from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="                .setStatusCode(Code.COMPLETE)"
         errorLine2="                                    ~~~~~~~~">
@@ -1307,7 +1307,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="TileLayout.newBuilder can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="        return AppInteractionServiceProto.TileLayout.newBuilder()"
         errorLine2="                                                     ~~~~~~~~~~">
@@ -1316,7 +1316,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="Builder.setLayout can only be called from within the same library group (referenced groupId=`__local_aars__` from groupId=`androidx.appactions.interaction`)"
         errorLine1="            .setLayout(ByteString.copyFrom(byteArray))"
         errorLine2="             ~~~~~~~~~">
