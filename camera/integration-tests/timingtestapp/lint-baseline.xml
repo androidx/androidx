@@ -128,7 +128,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    surface, CameraXExecutors.directExecutor(),"
         errorLine2="                                              ~~~~~~~~~~~~~~">
@@ -137,7 +137,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                CameraXExecutors.mainThreadExecutor(),"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">

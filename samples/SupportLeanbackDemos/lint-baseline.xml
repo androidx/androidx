@@ -596,7 +596,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GuidedStepFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
@@ -605,7 +605,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GuidedStepFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -614,7 +614,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GuidedStepSupportFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
@@ -623,7 +623,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="GuidedStepSupportFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -632,7 +632,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -641,7 +641,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.REPEAT_ONE can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
         errorLine2="                                                ~~~~~~~~~~">
@@ -650,7 +650,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
         errorLine2="                        ~~~~~~~">
@@ -659,7 +659,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
         errorLine2="                        ~~~~~~~~~">
@@ -668,7 +668,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
         errorLine2="                        ~~~~~~~~">
@@ -677,7 +677,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
         errorLine2="                        ~~~~~~~~~~~~~~">
@@ -686,7 +686,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -695,7 +695,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.REPEAT_ONE can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
         errorLine2="                                                ~~~~~~~~~~">
@@ -704,7 +704,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
         errorLine2="                        ~~~~~~~">
@@ -713,7 +713,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
         errorLine2="                        ~~~~~~~~~">
@@ -722,7 +722,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
         errorLine2="                        ~~~~~~~~">
@@ -731,7 +731,7 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
+        id="RestrictedApiAndroidX"
         message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
         errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
         errorLine2="                        ~~~~~~~~~~~~~~">

@@ -380,24 +380,6 @@
     </issue>
 
     <issue
-        id="RestrictedApi"
-        message="Preconditions.checkState can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.car.app`)"
-        errorLine1="        checkState(!mMessages.isEmpty(), &quot;Message list cannot be empty.&quot;);"
-        errorLine2="        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/messaging/model/ConversationItem.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Preconditions.checkState can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`androidx.car.app`)"
-        errorLine1="        checkState(!mMessages.isEmpty(), &quot;Message list cannot be empty.&quot;);"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/messaging/model/ConversationItem.java"/>
-    </issue>
-
-    <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="            } else if (rowObj instanceof ConversationItem) {"
