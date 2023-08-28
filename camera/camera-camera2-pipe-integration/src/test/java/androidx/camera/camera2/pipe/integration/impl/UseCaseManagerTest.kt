@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -396,7 +397,14 @@ class UseCaseManagerTest {
             }
 
     private fun UseCase.simulateActivation() {
-        bindToCamera(FakeCamera("0"), null, null)
+        bindToCamera(
+            FakeCamera("0"),
+            null,
+            getDefaultConfig(
+                true,
+                CameraUseCaseAdapter(ApplicationProvider.getApplicationContext())
+            )
+        )
         updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build())
     }
 }

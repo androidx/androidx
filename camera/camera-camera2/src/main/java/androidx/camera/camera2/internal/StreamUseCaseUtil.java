@@ -60,7 +60,7 @@ import java.util.Set;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class StreamUseCaseUtil {
 
-    private static final String TAG = "Camera2CameraImpl";
+    private static final String TAG = "StreamUseCaseUtil";
 
     public static final Config.Option<Long> STREAM_USE_CASE_STREAM_SPEC_OPTION =
             Config.Option.create("camera2.streamSpec.streamUseCase", long.class);
@@ -75,12 +75,14 @@ public final class StreamUseCaseUtil {
         if (Build.VERSION.SDK_INT >= 33) {
             Set<UseCaseConfigFactory.CaptureType> captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.METERING_REPEATING);
             STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(
                             CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL),
                     captureTypes);
             captureTypes = new HashSet<>();
             captureTypes.add(UseCaseConfigFactory.CaptureType.PREVIEW);
+            captureTypes.add(UseCaseConfigFactory.CaptureType.METERING_REPEATING);
             captureTypes.add(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
             STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP.put(
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW),
