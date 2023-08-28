@@ -1765,6 +1765,7 @@ internal open class Measurer(
         json.append("  bottom:  ${root.height} ,")
         json.append(" } }")
 
+        @Suppress("ListIterator")
         for (child in root.children) {
             val measurable = child.companionWidget
             if (measurable !is Measurable) {
@@ -1906,13 +1907,13 @@ internal open class Measurer(
 
         if (DEBUG) {
             root.debugName = "ConstraintLayout"
-            root.children.forEach { child ->
+            root.children.fastForEach { child ->
                 child.debugName =
                     (child.companionWidget as? Measurable)?.layoutId?.toString() ?: "NOTAG"
             }
             Log.d("CCL", "ConstraintLayout is asked to measure with $constraints")
             Log.d("CCL", root.toDebugString())
-            for (child in root.children) {
+            root.children.fastForEach { child ->
                 Log.d("CCL", child.toDebugString())
             }
         }
@@ -1969,6 +1970,7 @@ internal open class Measurer(
 
     fun Placeable.PlacementScope.performLayout(measurables: List<Measurable>) {
         if (frameCache.isEmpty()) {
+            @Suppress("ListIterator")
             for (child in root.children) {
                 val measurable = child.companionWidget
                 if (measurable !is Measurable) continue
@@ -2108,7 +2110,7 @@ internal open class Measurer(
 
     @Composable
     fun createDesignElements() {
-        for (element in designElements) {
+        designElements.fastForEach { element ->
             var id = element.id
             var function = DesignElements.map[element.type]
             if (function != null) {

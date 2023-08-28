@@ -59,6 +59,7 @@ class GlanceMappedNode(private val mappedNode: MappedNode) : GlanceNode<MappedNo
     @RestrictTo(Scope.LIBRARY_GROUP)
     override fun children(): List<GlanceNode<MappedNode>> {
         val emittable = mappedNode.emittable
+        @Suppress("ListIterator")
         if (emittable is EmittableWithChildren) {
             return emittable.children.map { child ->
                 GlanceMappedNode(child)

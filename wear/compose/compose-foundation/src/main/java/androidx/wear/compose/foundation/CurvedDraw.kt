@@ -53,6 +53,7 @@ public fun CurvedModifier.radialGradientBackground(
     cap: StrokeCap = StrokeCap.Butt
 ) = background(cap) { layoutInfo ->
     val radiusRatio = layoutInfo.innerRadius / layoutInfo.outerRadius
+    @Suppress("ListIterator")
     Brush.radialGradient(
         *(colorStops.map { (step, color) ->
             1f - step * (1f - radiusRatio) to color
@@ -89,6 +90,7 @@ public fun CurvedModifier.angularGradientBackground(
     vararg colorStops: Pair<Float, Color>,
     cap: StrokeCap = StrokeCap.Butt
 ) = background(cap) { layoutInfo ->
+    @Suppress("ListIterator")
     val actualStops = colorStops.map { (step, color) ->
         (layoutInfo.startAngleRadians + layoutInfo.sweepRadians * step) /
             (2 * PI).toFloat() to color

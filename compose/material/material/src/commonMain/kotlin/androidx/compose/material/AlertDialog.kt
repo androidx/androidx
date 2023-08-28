@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
@@ -111,10 +113,10 @@ internal fun ColumnScope.AlertDialogBaselineLayout(
     ) { measurables, constraints ->
         // Measure with loose constraints for height as we don't want the text to take up more
         // space than it needs
-        val titlePlaceable = measurables.firstOrNull { it.layoutId == "title" }?.measure(
+        val titlePlaceable = measurables.fastFirstOrNull { it.layoutId == "title" }?.measure(
             constraints.copy(minHeight = 0)
         )
-        val textPlaceable = measurables.firstOrNull { it.layoutId == "text" }?.measure(
+        val textPlaceable = measurables.fastFirstOrNull { it.layoutId == "text" }?.measure(
             constraints.copy(minHeight = 0)
         )
 
@@ -215,6 +217,7 @@ internal fun AlertDialogFlowRow(
                 crossAxisSpace += crossAxisSpacing.roundToPx()
             }
             // Ensures that confirming actions appear above dismissive actions.
+            @Suppress("ListIterator")
             sequences.add(0, currentSequence.toList())
             crossAxisSizes += currentCrossAxisSize
             crossAxisPositions += crossAxisSpace
@@ -227,7 +230,7 @@ internal fun AlertDialogFlowRow(
             currentCrossAxisSize = 0
         }
 
-        for (measurable in measurables) {
+        measurables.fastForEach { measurable ->
             // Ask the child for its preferred size.
             val placeable = measurable.measure(childConstraints)
 

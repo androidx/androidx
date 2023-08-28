@@ -65,6 +65,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
 /**
@@ -468,14 +470,14 @@ private fun NavigationBarItemLayout(
     }) { measurables, constraints ->
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
-            measurables.first { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
+            measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
 
         val totalIndicatorWidth = iconPlaceable.width + (IndicatorHorizontalPadding * 2).roundToPx()
         val animatedIndicatorWidth = (totalIndicatorWidth * animationProgress).roundToInt()
         val indicatorHeight = iconPlaceable.height + (IndicatorVerticalPadding * 2).roundToPx()
         val indicatorRipplePlaceable =
             measurables
-                .first { it.layoutId == IndicatorRippleLayoutIdTag }
+                .fastFirst { it.layoutId == IndicatorRippleLayoutIdTag }
                 .measure(
                     Constraints.fixed(
                         width = totalIndicatorWidth,
@@ -484,7 +486,7 @@ private fun NavigationBarItemLayout(
                 )
         val indicatorPlaceable =
             measurables
-                .firstOrNull { it.layoutId == IndicatorLayoutIdTag }
+                .fastFirstOrNull { it.layoutId == IndicatorLayoutIdTag }
                 ?.measure(
                     Constraints.fixed(
                         width = animatedIndicatorWidth,
@@ -495,7 +497,7 @@ private fun NavigationBarItemLayout(
         val labelPlaceable =
             label?.let {
                 measurables
-                    .first { it.layoutId == LabelLayoutIdTag }
+                    .fastFirst { it.layoutId == LabelLayoutIdTag }
                     .measure(looseConstraints)
             }
 

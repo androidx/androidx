@@ -49,6 +49,10 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.zIndex
 
 /**
@@ -119,7 +123,7 @@ fun TabRow(
 
             // Tab placeables
             val tabPlaceables =
-                tabMeasurables.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+                tabMeasurables.fastMap { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
             val tabsCount = tabMeasurables.size
             val separatorsCount = tabsCount - 1
 
@@ -127,7 +131,7 @@ fun TabRow(
             val separators = @Composable { repeat(separatorsCount) { separator() } }
             val separatorMeasurables = subcompose(TabRowSlots.Separator, separators)
             val separatorPlaceables =
-                separatorMeasurables.map {
+                separatorMeasurables.fastMap {
                     it.measure(
                         constraints.copy(
                             minWidth = 0,
@@ -138,9 +142,9 @@ fun TabRow(
             val separatorWidth = separatorPlaceables.firstOrNull()?.width ?: 0
 
             val layoutWidth = tabPlaceables.sumOf { it.width } + separatorsCount * separatorWidth
-            val layoutHeight =
-                (tabMeasurables.maxOfOrNull { it.maxIntrinsicHeight(Constraints.Infinity) } ?: 0)
-                    .coerceAtLeast(0)
+            val layoutHeight = (tabMeasurables.fastMaxOfOrNull {
+                it.maxIntrinsicHeight(Constraints.Infinity)
+            } ?: 0).coerceAtLeast(0)
 
             // Position the children
             layout(layoutWidth, layoutHeight) {
@@ -148,7 +152,7 @@ fun TabRow(
                 // Place the tabs
                 val tabPositions = mutableListOf<DpRect>()
                 var left = 0
-                tabPlaceables.forEachIndexed { index, tabPlaceable ->
+                tabPlaceables.fastForEachIndexed { index, tabPlaceable ->
                     // place the tab
                     tabPlaceable.placeRelative(left, 0)
 
@@ -172,7 +176,7 @@ fun TabRow(
                 subcompose(TabRowSlots.Indicator) {
                     indicator(tabPositions, isActivated)
                 }
-                    .forEach {
+                    .fastForEach {
                         it.measure(Constraints.fixed(layoutWidth, layoutHeight)).placeRelative(0, 0)
                     }
             }

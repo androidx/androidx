@@ -32,6 +32,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.util.fastForEach
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import androidx.glance.LocalContext
@@ -183,7 +184,7 @@ internal class AppWidgetSession(
             is RunLambda -> {
                 if (DEBUG) Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
                 Snapshot.withMutableSnapshot {
-                    lambdas[event.key]?.forEach { it.block() }
+                    lambdas[event.key]?.fastForEach { it.block() }
                 } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
             is WaitForReady -> event.resume.send(Unit)

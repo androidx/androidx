@@ -400,7 +400,7 @@ private fun ScaffoldLayout(
 
         val topBarHeight = topBarPlaceables.fastMaxBy { it.height }?.height ?: 0
 
-        val snackbarPlaceables = subcompose(ScaffoldLayoutContent.Snackbar, snackbar).map {
+        val snackbarPlaceables = subcompose(ScaffoldLayoutContent.Snackbar, snackbar).fastMap {
             // respect only bottom and horizontal for snackbar and fab
             val leftInset = contentWindowInsets
                 .getLeft(this@SubcomposeLayout, layoutDirection)

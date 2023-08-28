@@ -23,8 +23,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.fastJoinToString
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastJoinToString
 
 /**
  * Primary internal interface for resolving typefaces from Android platform

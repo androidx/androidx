@@ -37,8 +37,10 @@ import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorProperty
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import androidx.compose.ui.util.fastSumBy
+import androidx.compose.ui.util.fastZip
 import androidx.compose.ui.util.lerp
 
 internal const val RepeatCountInfinite = -1
@@ -146,7 +148,7 @@ internal sealed class PropertyValues<T> {
     ): @Composable Transition.Segment<Boolean>.() -> FiniteAnimationSpec<T> {
         return {
             @Suppress("UNCHECKED_CAST")
-            val spec = combined(timestamps.map { timestamp ->
+            val spec = combined(timestamps.fastMap { timestamp ->
                 timestamp.timeMillis to timestamp.asAnimationSpec()
             })
             if (targetState) spec else spec.reversed(overallDuration)
@@ -381,7 +383,7 @@ internal class PropertyValuesHolderFloat(
     fun asKeyframeSpec(duration: Int): KeyframesSpec<Float> {
         return keyframes {
             durationMillis = duration
-            for (keyframe in animatorKeyframes) {
+            animatorKeyframes.fastForEach { keyframe ->
                 keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
             }
         }
@@ -401,7 +403,7 @@ internal class PropertyValuesHolderColor(
     fun asKeyframeSpec(duration: Int): KeyframesSpec<Color> {
         return keyframes {
             durationMillis = duration
-            for (keyframe in animatorKeyframes) {
+            animatorKeyframes.fastForEach { keyframe ->
                 keyframe.value at (duration * keyframe.fraction).toInt() with keyframe.interpolator
             }
         }
@@ -507,7 +509,7 @@ internal class StateVectorConfig : VectorConfig {
 }
 
 private fun lerp(start: List<PathNode>, stop: List<PathNode>, fraction: Float): List<PathNode> {
-    return start.zip(stop) { a, b -> lerp(a, b, fraction) }
+    return start.fastZip(stop) { a, b -> lerp(a, b, fraction) }
 }
 
 private const val DifferentStartAndStopPathNodes = "start and stop path nodes have different types"

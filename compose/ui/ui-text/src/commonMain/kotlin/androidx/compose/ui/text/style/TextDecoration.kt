@@ -17,8 +17,8 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.fastFold
-import androidx.compose.ui.text.fastJoinToString
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastJoinToString
 
 /**
  * Defines a horizontal line to be drawn on the text.
