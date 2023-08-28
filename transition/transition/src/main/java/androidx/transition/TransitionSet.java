@@ -528,7 +528,7 @@ public class TransitionSet extends Transition {
         return false;
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     void prepareAnimatorsForSeeking() {
         mTotalDuration = 0;
@@ -572,7 +572,7 @@ public class TransitionSet extends Transition {
         return mTransitions.size() - 1;
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     void setCurrentPlayTimeMillis(long playTimeMillis, long lastPlayTimeMillis) {
         long duration = getTotalDurationMillis();
