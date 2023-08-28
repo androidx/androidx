@@ -798,22 +798,53 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
 
     @Test
     fun testCreateDuplicateActiveDataStore() = doTest {
-        val file = testIO.newTempFile()
-        val dataStore = newDataStore(
-            file = file,
+        val datastoreFile = testIO.newTempFile()
+        @Suppress("UNUSED_VARIABLE") // keep it in memory
+        val original = newDataStore(
+            file = datastoreFile,
             scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
-        )
+        ).also { it.data.first() }
 
-        dataStore.data.first()
-
-        val duplicateDataStore = newDataStore(
-            file = file,
-            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
-        )
-
-        assertThrows<IllegalStateException> {
-            duplicateDataStore.data.first()
+        suspend fun DataStore<Byte>.assertFailsToOpen() {
+            assertThrows<IllegalStateException> {
+                data.first()
+            }.hasMessageThat().contains(
+                "There are multiple DataStores active for the same file"
+            )
         }
+
+        newDataStore(
+            file = datastoreFile,
+            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+        ).also {
+            it.assertFailsToOpen()
+        }
+
+        newDataStore(
+            file = datastoreFile.resolve("../${datastoreFile.name}"),
+            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+        ).also {
+            it.assertFailsToOpen()
+        }
+
+        newDataStore(
+            file = datastoreFile.resolve(".././${datastoreFile.name}"),
+            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+        ).also {
+            it.assertFailsToOpen()
+        }
+
+        newDataStore(
+            file = datastoreFile.resolve("../nonExisting/../${datastoreFile.name}"),
+            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+        ).also {
+            it.assertFailsToOpen()
+        }
+        // in different folder, hence can read
+        newDataStore(
+            file = datastoreFile.resolve("../newFolder/${datastoreFile.name}"),
+            scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+        ).also { it.data.first() }
     }
 
     @Test
