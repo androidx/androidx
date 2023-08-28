@@ -1400,8 +1400,8 @@ package androidx.health.connect.client.response {
   public final class ChangesResponse {
     method public java.util.List<androidx.health.connect.client.changes.Change> getChanges();
     method public boolean getChangesTokenExpired();
-    method public boolean getHasMore();
     method public String getNextChangesToken();
+    method public boolean hasMore();
     property public final java.util.List<androidx.health.connect.client.changes.Change> changes;
     property public final boolean changesTokenExpired;
     property public final boolean hasMore;
