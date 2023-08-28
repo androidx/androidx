@@ -52,4 +52,5 @@ dependencies {
     runtimeOnly(libs.javapoet) // for hiltAndroidGradlePluginz to workaround https://github.com/google/dagger/issues/3068
     runtimeOnly(libs.kspGradlePluginz)
     runtimeOnly(libs.wireGradlePluginz)
+    runtimeOnly(libs.roomGradlePlugin)
 }

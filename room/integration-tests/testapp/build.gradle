@@ -24,18 +24,12 @@ buildscript {
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("androidx.room")
 }
 
 android {
     defaultConfig {
         multiDexEnabled true
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                ]
-            }
-        }
     }
     buildFeatures {
         aidl = true
@@ -56,10 +50,7 @@ android {
             dimension "processorConfiguration"
             javaCompileOptions {
                 annotationProcessorOptions {
-                    arguments = [
-                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                            "room.expandProjection"  : "true"
-                    ]
+                    arguments = ["room.expandProjection"  : "true"]
                 }
             }
         }
@@ -67,10 +58,7 @@ android {
             dimension "processorConfiguration"
             javaCompileOptions {
                 annotationProcessorOptions {
-                    arguments = [
-                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                            "room.expandProjection"  : "false"
-                    ]
+                    arguments = ["room.expandProjection"  : "false"]
                 }
             }
         }
@@ -79,7 +67,6 @@ android {
             javaCompileOptions {
                 annotationProcessorOptions {
                     arguments = [
-                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
                             "room.expandProjection"  : "false",
                             "room.useNullAwareTypeAnalysis": "true"
                     ]
@@ -148,6 +135,12 @@ dependencies {
 
 
     testImplementation(libs.junit)
+}
+
+room {
+    schemaDirectory(
+        provider { layout.projectDirectory.dir("schemas").getAsFile().getAbsolutePath() }
+    )
 }
 
 // Enable parameter names to support Room incremental when its a project() dep.
