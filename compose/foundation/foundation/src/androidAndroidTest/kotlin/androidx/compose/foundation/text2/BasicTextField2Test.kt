@@ -210,7 +210,6 @@ internal class BasicTextField2Test {
     fun textField_imeUpdatesDontCauseRecomposition() {
         val state = TextFieldState()
         var compositionCount = 0
-        var textLayoutResultCount = 0
         rule.setContent {
             compositionCount++
             BasicTextField2(
@@ -218,17 +217,15 @@ internal class BasicTextField2Test {
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag),
-                onTextLayout = { textLayoutResultCount++ }
             )
         }
 
-        with(rule.onNodeWithTag(Tag)) {
-            performTextInput("hello")
-        }
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).performTextInput("world")
 
+        rule.onNodeWithTag(Tag).assertTextEquals("helloworld")
         rule.runOnIdle {
             assertThat(compositionCount).isEqualTo(1)
-            assertThat(textLayoutResultCount).isEqualTo(2)
         }
     }
 
