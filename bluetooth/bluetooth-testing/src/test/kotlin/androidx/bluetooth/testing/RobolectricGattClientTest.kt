@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -109,23 +110,22 @@ class RobolectricGattClientTest {
 
         acceptConnect()
 
-        Assert.assertEquals(true, bluetoothLe.connectGatt(device) {
+        bluetoothLe.connectGatt(device) {
             Assert.assertEquals(sampleServices.size, getServices().size)
             sampleServices.forEachIndexed { index, service ->
                 Assert.assertEquals(service.uuid, getServices()[index].uuid)
             }
-            awaitClose { closed.complete(Unit) }
-            true
-        }.getOrNull())
+            closed.complete(Unit)
+        }
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test
     fun connectFail() = runTest {
         val device = createDevice("00:11:22:33:44:55")
         rejectConnect()
-        Assert.assertEquals(true, bluetoothLe.connectGatt(device) { true }.isFailure)
+        assertTrue(runCatching { bluetoothLe.connectGatt(device) { } }.isFailure)
     }
 
     @Test
@@ -155,11 +155,9 @@ class RobolectricGattClientTest {
                 readCharacteristic(
                     getServices()[0].getCharacteristic(readCharUuid)!!
                 ).getOrNull()?.toInt())
-            awaitClose {
-                closed.complete(Unit)
-            }
+            closed.complete(Unit)
         }
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test
@@ -175,7 +173,7 @@ class RobolectricGattClientTest {
 
         bluetoothLe.connectGatt(device) {
             Assert.assertEquals(sampleServices.size, getServices().size)
-            Assert.assertTrue(
+            assertTrue(
                 readCharacteristic(
                     getServices()[0].getCharacteristic(noPropertyCharUuid)!!
                 ).exceptionOrNull()
@@ -228,11 +226,9 @@ class RobolectricGattClientTest {
                 valueToWrite.toByteArray())
             Assert.assertEquals(valueToWrite,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
-            awaitClose {
-                closed.complete(Unit)
-            }
+            closed.complete(Unit)
         }
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test
@@ -248,7 +244,7 @@ class RobolectricGattClientTest {
 
         bluetoothLe.connectGatt(device) {
             Assert.assertEquals(sampleServices.size, getServices().size)
-            Assert.assertTrue(
+            assertTrue(
                 writeCharacteristic(
                     getServices()[0].getCharacteristic(readCharUuid)!!,
                     48.toByteArray()
@@ -305,11 +301,9 @@ class RobolectricGattClientTest {
                 subscribeToCharacteristic(characteristic).first().toInt())
             Assert.assertEquals(valueToNotify,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
-            awaitClose {
-                closed.complete(Unit)
-            }
+            closed.complete(Unit)
         }
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test

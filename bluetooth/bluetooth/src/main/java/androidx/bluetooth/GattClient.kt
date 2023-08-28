@@ -48,6 +48,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 
 /**
  * A class for handling operations as a GATT client role.
@@ -88,6 +89,8 @@ class GattClient(private val context: Context) {
          * The maximum ATT size(512) + header(3)
          */
         private const val GATT_MAX_MTU = 515
+
+        private const val CONNECT_TIMEOUT_MS = 30_000L
         private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
@@ -131,7 +134,7 @@ class GattClient(private val context: Context) {
     suspend fun <R> connect(
         device: BluetoothDevice,
         block: suspend BluetoothLe.GattClientScope.() -> R
-    ): Result<R> = coroutineScope {
+    ): R = coroutineScope {
         val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
         val callbackResultsFlow =
             MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
@@ -144,7 +147,7 @@ class GattClient(private val context: Context) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     fwkAdapter.requestMtu(GATT_MAX_MTU)
                 } else {
-                    connectResult.cancel("connect failed")
+                    cancel("connect failed")
                 }
             }
 
@@ -152,14 +155,14 @@ class GattClient(private val context: Context) {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     fwkAdapter.discoverServices()
                 } else {
-                    connectResult.cancel("mtu request failed")
+                    cancel("mtu request failed")
                 }
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
                 attributeMap.updateWithFrameworkServices(fwkAdapter.getServices())
                 if (status == BluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
-                else connectResult.cancel("service discover failed")
+                else cancel("service discover failed")
             }
 
             override fun onCharacteristicRead(
@@ -219,13 +222,11 @@ class GattClient(private val context: Context) {
             }
         }
         if (!fwkAdapter.connectGatt(context, device.fwkDevice, callback)) {
-            return@coroutineScope Result.failure(CancellationException("failed to connect"))
+            throw CancellationException("failed to connect")
         }
 
-        try {
+        withTimeout(CONNECT_TIMEOUT_MS) {
             connectResult.await()
-        } catch (e: Throwable) {
-            return@coroutineScope Result.failure(e)
         }
         val gattScope = object : BluetoothLe.GattClientScope {
             val taskMutex = Mutex()
@@ -339,19 +340,6 @@ class GattClient(private val context: Context) {
                 }
             }
 
-            override suspend fun awaitClose(block: () -> Unit) {
-                try {
-                    // Wait for queued tasks done
-                    taskMutex.withLock {
-                        subscribeMutex.withLock {
-                            subscribeMap.values.forEach { it.finish() }
-                        }
-                    }
-                } finally {
-                    block()
-                }
-            }
-
             private suspend fun registerSubscribeListener(
                 characteristic: FwkCharacteristic,
                 callback: SubscribeListener
@@ -373,11 +361,7 @@ class GattClient(private val context: Context) {
                 }
             }
         }
-        try {
-            Result.success(gattScope.block())
-        } catch (e: CancellationException) {
-            Result.failure(e)
-        }
+        gattScope.block()
     }
 
     private suspend inline fun <reified R : CallbackResult> takeMatchingResult(
