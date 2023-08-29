@@ -34,6 +34,11 @@ internal class BufferTransformer() {
     val transform: FloatArray
         get() = mViewTransform
 
+    var logicalWidth = 0
+        private set
+
+    var logicalHeight = 0
+        private set
     var glWidth = 0
         private set
 
@@ -66,6 +71,8 @@ internal class BufferTransformer() {
     ) {
         val fWidth = width.toFloat()
         val fHeight = height.toFloat()
+        logicalWidth = width
+        logicalHeight = height
         glWidth = width
         glHeight = height
         computedTransform = transformHint
