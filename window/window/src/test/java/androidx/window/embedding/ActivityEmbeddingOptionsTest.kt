@@ -19,18 +19,12 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
-import androidx.window.core.ExtensionsUtil
-import androidx.window.extensions.WindowExtensions
+import androidx.window.core.ExperimentalWindowApi
 import org.junit.After
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -38,9 +32,8 @@ import org.mockito.kotlin.whenever
  * The unit tests for activity embedding extension functions to [ActivityOptions]
  *
  * @see [ActivityOptions.setLaunchingActivityStack]
- * @see [ActivityOptions.isSetLaunchingActivityStackSupported]
  */
-@OptIn(androidx.window.core.ExperimentalWindowApi::class)
+@OptIn(ExperimentalWindowApi::class)
 class ActivityEmbeddingOptionsTest {
 
     private lateinit var mockEmbeddingBackend: EmbeddingBackend
@@ -64,15 +57,11 @@ class ActivityEmbeddingOptionsTest {
             override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =
                 mockEmbeddingBackend
         })
-
-        // ActivityEmbeddingOptions is only supported since level 3
-        ExtensionsUtil.setOverrideVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_3)
     }
 
     @After
     fun tearDown() {
         EmbeddingBackend.reset()
-        ExtensionsUtil.resetOverrideVendorApiLevel()
     }
 
     @Test
@@ -89,26 +78,5 @@ class ActivityEmbeddingOptionsTest {
 
         verify(mockEmbeddingBackend).setLaunchingActivityStack(
             mockActivityOptions, mockActivityStack.token)
-    }
-
-    @Test
-    fun testSetLaunchingActivityStack_unsupportedApiLevel() {
-        ExtensionsUtil.setOverrideVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
-
-        assertThrows(UnsupportedOperationException::class.java) {
-            mockActivityOptions.setLaunchingActivityStack(mockActivity, mockActivityStack)
-        }
-        verify(mockEmbeddingBackend, never()).setLaunchingActivityStack(any(), any())
-    }
-
-    @Test
-    fun testIsSetLaunchingActivityStackSupported() {
-        ExtensionsUtil.setOverrideVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
-
-        assertFalse(mockActivityOptions.isSetLaunchingActivityStackSupported())
-
-        ExtensionsUtil.setOverrideVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_3)
-
-        assertTrue(mockActivityOptions.isSetLaunchingActivityStackSupported())
     }
 }

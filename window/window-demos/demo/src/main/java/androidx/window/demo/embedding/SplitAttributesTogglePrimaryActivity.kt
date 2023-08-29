@@ -24,6 +24,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.embedding.ActivityStack
@@ -43,8 +44,7 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
 
         viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#e8f5e9"))
 
-        val isRuntimeApiSupported = activityEmbeddingController
-            .isFinishingActivityStacksSupported()
+        val isRuntimeApiSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3
 
         secondaryActivityIntent = Intent(
             this,

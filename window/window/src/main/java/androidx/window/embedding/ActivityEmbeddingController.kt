@@ -20,9 +20,13 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.os.IBinder
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 
-/** The controller that allows checking the current [Activity] embedding status. */
+/**
+ * The controller that allows checking the current [Activity] embedding status.
+ */
 class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
@@ -41,7 +45,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activity The [Activity] to check.
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
-     *   [ActivityStack].
+     * [ActivityStack].
      */
     @ExperimentalWindowApi
     fun getActivityStack(activity: Activity): ActivityStack? =
@@ -53,6 +57,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param options The [android.app.ActivityOptions] to be updated.
      * @param token The token of the [ActivityStack] to be set.
      */
+    @RequiresWindowSdkExtension(3)
     internal fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
@@ -73,28 +78,20 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * will be expanded to fill the parent task container. This is useful to expand the primary
      * container as the sample linked below shows.
      *
-     * **Note** that it's caller's responsibility to check whether this API is supported by calling
-     * [isFinishingActivityStacksSupported]. If not, an alternative approach to finishing all
-     * containers above a particular activity can be to launch it again with flag
-     * [android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP].
+     * **Note** that it's caller's responsibility to check whether this API is supported by checking
+     * [WindowSdkExtensions.extensionVersion] is greater than or equal to 3. If not, an alternative
+     * approach to finishing all containers above a particular activity can be to launch it again
+     * with flag [android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP].
      *
      * @param activityStacks The set of [ActivityStack] to be finished.
-     * @throws UnsupportedOperationException if this device doesn't support this API and
-     * [isFinishingActivityStacksSupported] returns `false`.
+     * @throws UnsupportedOperationException if extension version is less than 3.
      * @sample androidx.window.samples.embedding.expandPrimaryContainer
      */
     @ExperimentalWindowApi
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>) =
+    @RequiresWindowSdkExtension(3)
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
         backend.finishActivityStacks(activityStacks)
-
-    /**
-     * Checks whether [finishActivityStacks] is supported.
-     *
-     * @return `true` if [finishActivityStacks] is supported on the device, `false` otherwise.
-     */
-    @ExperimentalWindowApi
-    fun isFinishingActivityStacksSupported(): Boolean =
-        backend.isFinishActivityStacksSupported()
+    }
 
     companion object {
         /**
