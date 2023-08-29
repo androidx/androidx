@@ -1477,7 +1477,7 @@ public final class CustomTabsIntent {
      */
     @SuppressWarnings("deprecation")
     @Nullable
-    public PendingIntent getSecondaryToolbarSwipeUpGesture(@NonNull Intent intent) {
+    public static PendingIntent getSecondaryToolbarSwipeUpGesture(@NonNull Intent intent) {
         return intent.getParcelableExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE);
     }
 

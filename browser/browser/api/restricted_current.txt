@@ -115,7 +115,7 @@ package androidx.browser.customtabs {
     method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
     method public static int getMaxToolbarItems();
-    method public android.app.PendingIntent? getSecondaryToolbarSwipeUpGesture(android.content.Intent);
+    method public static android.app.PendingIntent? getSecondaryToolbarSwipeUpGesture(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
     method public static java.util.Locale? getTranslateLocale(android.content.Intent);
     method public static boolean isBackgroundInteractionEnabled(android.content.Intent);
