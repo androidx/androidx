@@ -150,7 +150,7 @@ public class ImageCaptureTest {
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
-            fakeCameraControl.notifyAllRequestOnCaptureCancelled();
+            fakeCameraControl.notifyAllRequestsOnCaptureCancelled();
         });
 
         mInstrumentation.runOnMainSync(
