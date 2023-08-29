@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.util.fastForEach
 import kotlinx.cinterop.*
 import org.jetbrains.skia.*
 import platform.Foundation.NSNotificationCenter
@@ -29,6 +30,7 @@ import platform.UIKit.UIApplicationState
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.darwin.*
 import kotlin.math.roundToInt
+import platform.Foundation.NSThread
 
 private class DisplayLinkConditions(
     val setPausedCallback: (Boolean) -> Unit
@@ -115,12 +117,13 @@ private class ApplicationStateListener(
 }
 
 private enum class DrawReason {
-    DISPLAY_LINK_CALLBACK, SYNC_WITH_UIKIT
+    DISPLAY_LINK_CALLBACK, SYNCHRONOUS_DRAW_REQUEST
 }
 
 internal class MetalRedrawer(
     private val metalLayer: CAMetalLayer,
     private val drawCallback: (Surface) -> Unit,
+    private val retrieveCATransactionCommands: () -> List<() -> Unit>,
 
     // Used for tests, access to NSRunLoop crashes in test environment
     addDisplayLinkToRunLoop: ((CADisplayLink) -> Unit)? = null,
@@ -227,10 +230,12 @@ internal class MetalRedrawer(
      * Immediately dispatch draw and block the thread until it's finished and presented on the screen.
      */
     fun drawSynchronously() {
-        draw(DrawReason.SYNC_WITH_UIKIT)
+        draw(DrawReason.SYNCHRONOUS_DRAW_REQUEST)
     }
 
     private fun draw(reason: DrawReason) {
+        check(NSThread.isMainThread)
+
         if (caDisplayLink == null) {
             // TODO: anomaly, log
             // Logger.warn { "caDisplayLink callback called after it was invalidated " }
@@ -281,14 +286,31 @@ internal class MetalRedrawer(
             drawCallback(surface)
             surface.flushAndSubmit()
 
+            val caTransactionCommands = retrieveCATransactionCommands()
+            metalLayer.presentsWithTransaction = caTransactionCommands.isNotEmpty()
+
             val commandBuffer = queue.commandBuffer()!!
             commandBuffer.label = "Present"
-            commandBuffer.presentDrawable(metalDrawable)
+
+            if (caTransactionCommands.isEmpty()) {
+                // If there are no pending changes in UIKit interop, present the drawable ASAP
+                commandBuffer.presentDrawable(metalDrawable)
+            }
+
             commandBuffer.addCompletedHandler {
                 // Signal work finish, allow a new command buffer to be scheduled
                 dispatch_semaphore_signal(inflightSemaphore)
             }
             commandBuffer.commit()
+
+            if (caTransactionCommands.isNotEmpty()) {
+                // If there are pending changes in UIKit interop, [waitUntilScheduled](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) is called
+                // to ensure that transaction is available
+                commandBuffer.waitUntilScheduled()
+                metalDrawable.present()
+                caTransactionCommands.fastForEach { it.invoke() }
+                CATransaction.flush()
+            }
 
             surface.close()
             renderTarget.close()
@@ -301,7 +323,7 @@ internal class MetalRedrawer(
 
             inflightCommandBuffers.add(commandBuffer)
 
-            if (reason == DrawReason.SYNC_WITH_UIKIT) {
+            if (reason == DrawReason.SYNCHRONOUS_DRAW_REQUEST) {
                 commandBuffer.waitUntilCompleted()
             }
         }

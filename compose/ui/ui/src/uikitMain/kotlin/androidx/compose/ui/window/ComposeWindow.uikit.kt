@@ -30,13 +30,16 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.interop.LocalLayerContainer
+import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.LocalUIViewController
+import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.native.getMainDispatcher
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.*
 import kotlin.math.roundToInt
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.useContents
@@ -44,6 +47,7 @@ import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoPointerEvent
 import org.jetbrains.skiko.currentNanoTime
+import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.*
@@ -104,6 +108,9 @@ internal actual class ComposeWindow : UIViewController {
     private val keyboardOverlapHeightState = mutableStateOf(0f)
     private val safeAreaState = mutableStateOf(IOSInsets())
     private val layoutMarginsState = mutableStateOf(IOSInsets())
+    private val interopContext = UIKitInteropContext(requestRedraw = {
+        attachedComposeContext?.view?.needRedraw()
+    })
 
     /*
      * Initial value is arbitarily chosen to avoid propagating invalid value logic
@@ -374,16 +381,7 @@ internal actual class ComposeWindow : UIViewController {
             return // already attached
         }
 
-        val skikoUIView = SkikoUIView(
-            pointInside = { point, _ ->
-                val hitsInteropView = attachedComposeContext?.scene?.mainOwner?.hitInteropView(
-                    pointerPosition = Offset(point.x * density.density, point.y * density.density),
-                    isTouchEvent = true,
-                ) ?: false
-
-                !hitsInteropView
-            },
-        )
+        val skikoUIView = SkikoUIView()
 
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(skikoUIView)
@@ -484,6 +482,16 @@ internal actual class ComposeWindow : UIViewController {
                 scene.sendKeyEvent(KeyEvent(event))
             }
 
+            override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
+                point.useContents {
+                    val hitsInteropView = attachedComposeContext?.scene?.mainOwner?.hitInteropView(
+                        pointerPosition = Offset((x * density.density).toFloat(), (y * density.density).toFloat()),
+                        isTouchEvent = true,
+                    ) ?: false
+
+                    !hitsInteropView
+                }
+
             override fun onPointerEvent(event: SkikoPointerEvent) {
                 val scale = density.density
 
@@ -506,6 +514,9 @@ internal actual class ComposeWindow : UIViewController {
                 )
             }
 
+            override fun retrieveCATransactionCommands(): List<() -> Unit> =
+                interopContext.getActionsAndClear()
+
             override fun draw(surface: Surface) {
                 scene.render(surface.canvas, currentNanoTime())
             }
@@ -522,7 +533,8 @@ internal actual class ComposeWindow : UIViewController {
                     LocalSafeAreaState provides safeAreaState,
                     LocalLayoutMarginsState provides layoutMarginsState,
                     LocalInterfaceOrientationState provides interfaceOrientationState,
-                    LocalSystemTheme provides systemTheme.value
+                    LocalSystemTheme provides systemTheme.value,
+                    LocalUIKitInteropContext provides interopContext,
                 ) {
                     content()
                 }

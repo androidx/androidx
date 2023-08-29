@@ -45,9 +45,9 @@ import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSThread
 import platform.UIKit.UIColor
 import platform.UIKit.UIView
-import platform.UIKit.backgroundColor
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
@@ -85,6 +85,8 @@ fun <T : UIView> UIKitView(
     val density = LocalDensity.current.density
     var rectInPixels by remember { mutableStateOf(IntRect(0, 0, 0, 0)) }
     var localToWindowOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    val interopContext = LocalUIKitInteropContext.current
+
     Place(
         modifier.onGloballyPositioned { childCoordinates ->
             val coordinates = childCoordinates.parentCoordinates!!
@@ -92,12 +94,18 @@ fun <T : UIView> UIKitView(
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
                 val rect = newRectInPixels / density
-                componentInfo.container.setFrame(rect.toCGRect())
+
+                interopContext.deferAction {
+                    componentInfo.container.setFrame(rect.toCGRect())
+                }
+
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
-                    onResize(
-                        componentInfo.component,
-                        CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
-                    )
+                    interopContext.deferAction {
+                        onResize(
+                            componentInfo.component,
+                            CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
+                        )
+                    }
                 }
                 rectInPixels = newRectInPixels
             }
@@ -114,23 +122,31 @@ fun <T : UIView> UIKitView(
 
     DisposableEffect(Unit) {
         componentInfo.component = factory()
-        componentInfo.container = UIView().apply {
-            addSubview(componentInfo.component)
+        componentInfo.updater = Updater(componentInfo.component, update, interopContext::deferAction)
+
+        interopContext.deferAction {
+            componentInfo.container = UIView().apply {
+                addSubview(componentInfo.component)
+            }
+            root.insertSubview(componentInfo.container, 0)
         }
-        componentInfo.updater = Updater(componentInfo.component, update)
-        root.insertSubview(componentInfo.container, 0)
+
         onDispose {
-            componentInfo.container.removeFromSuperview()
-            componentInfo.updater.dispose()
-            onRelease(componentInfo.component)
+            interopContext.deferAction {
+                componentInfo.container.removeFromSuperview()
+                componentInfo.updater.dispose()
+                onRelease(componentInfo.component)
+            }
         }
     }
 
     LaunchedEffect(background) {
-        if (background == Color.Unspecified) {
-            componentInfo.container.backgroundColor = root.backgroundColor
-        } else {
-            componentInfo.container.backgroundColor = parseColor(background)
+        interopContext.deferAction {
+            if (background == Color.Unspecified) {
+                componentInfo.container.backgroundColor = root.backgroundColor
+            } else {
+                componentInfo.container.backgroundColor = parseColor(background)
+            }
         }
     }
 
@@ -166,7 +182,12 @@ private class ComponentInfo<T : UIView> {
 
 private class Updater<T : UIView>(
     private val component: T,
-    update: (T) -> Unit
+    update: (T) -> Unit,
+
+    /**
+     * Updater will not execute the [update] method by itself, but will pass it to this lambda
+     */
+    private val deferAction: (() -> Unit) -> Unit,
 ) {
     private var isDisposed = false
     private val isUpdateScheduled = atomic(false)
@@ -176,7 +197,9 @@ private class Updater<T : UIView>(
 
     private val scheduleUpdate = { _: T ->
         if (!isUpdateScheduled.getAndSet(true)) {
-            dispatch_async(dispatch_get_main_queue()) {
+            deferAction {
+                check(NSThread.isMainThread)
+
                 isUpdateScheduled.value = false
                 if (!isDisposed) {
                     performUpdate()
