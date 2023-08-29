@@ -47,12 +47,12 @@ class ListDetailPaneScaffoldStateTest {
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Hidden)
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
+            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
         }
     }
@@ -70,12 +70,12 @@ class ListDetailPaneScaffoldStateTest {
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isFalse()
         }
     }
@@ -93,17 +93,17 @@ class ListDetailPaneScaffoldStateTest {
         }
 
         composeRule.runOnIdle {
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
+            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
             layoutState.navigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(canNavigateBack).isFalse()
         }
     }
@@ -114,9 +114,12 @@ class ListDetailPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
-                layoutDirectives = MockDualPaneLayoutDirective
+                layoutDirectives = MockDualPaneLayoutDirective,
+                initialFocusHistory = listOf(
+                    ListDetailPaneScaffoldRole.List,
+                    ListDetailPaneScaffoldRole.Detail,
+                )
             )
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
         }
 
         composeRule.runOnIdle {
@@ -130,19 +133,22 @@ class ListDetailPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
-                layoutDirectives = MockDualPaneLayoutDirective
+                layoutDirectives = MockDualPaneLayoutDirective,
+                initialFocusHistory = listOf(
+                    ListDetailPaneScaffoldRole.List,
+                    ListDetailPaneScaffoldRole.Detail,
+                )
             )
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(layoutState.canNavigateBack(false)).isTrue()
             layoutState.navigateBack(false)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
         }
     }
 
@@ -153,16 +159,15 @@ class ListDetailPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberListDetailPaneScaffoldState(
-                layoutDirectives = mockCurrentLayoutDirective.value
+                layoutDirectives = mockCurrentLayoutDirective.value,
+                initialFocusHistory = listOf(
+                    ListDetailPaneScaffoldRole.List,
+                    ListDetailPaneScaffoldRole.Detail,
+                )
             )
         }
-
         composeRule.runOnIdle {
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.List)
-        }
-
-        composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.secondary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             // Switches to dual pane
             mockCurrentLayoutDirective.value = MockDualPaneLayoutDirective
         }
