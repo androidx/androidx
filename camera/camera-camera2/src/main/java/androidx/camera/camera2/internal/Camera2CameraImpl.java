@@ -1122,7 +1122,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         try {
             mSupportedSurfaceCombination.getSuggestedStreamSpecifications(cameraMode,
-                    attachedSurfaces, useCaseConfigToSizeMap);
+                    attachedSurfaces, useCaseConfigToSizeMap, false);
         } catch (IllegalArgumentException e) {
             debugLog("Surface combination with metering repeating  not supported!", e);
             return false;
