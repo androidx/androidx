@@ -32,7 +32,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@Ignore("b/297398943")
 class RecyclerViewAsCarouselBenchmark(
     private val compilationMode: CompilationMode
 ) {
@@ -47,6 +46,7 @@ class RecyclerViewAsCarouselBenchmark(
     }
 
     @Test
+    @Ignore("b/297398943")
     fun scroll() {
         val carousel = device.findObject(
             By.res(
