@@ -325,32 +325,33 @@ class AdvertiserFragment : Fragment() {
         advertiseJob = advertiseScope.launch {
             isAdvertising = true
 
-            bluetoothLe.advertise(viewModel.advertiseParams)
-                .collect {
-                    Log.d(TAG, "AdvertiseResult collected: $it")
+            bluetoothLe.advertise(viewModel.advertiseParams) {
+                when (it) {
+                    AdvertiseResult.ADVERTISE_STARTED -> {
+                        toast("ADVERTISE_STARTED").show()
+                    }
 
-                    when (it) {
-                        AdvertiseResult.ADVERTISE_STARTED -> {
-                            toast("ADVERTISE_STARTED").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
-                        }
+                    AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
+                        isAdvertising = false
+                        toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
+                    }
+
+                    AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
+                        isAdvertising = false
+                        toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
+                    }
+
+                    AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> {
+                        isAdvertising = false
+                        toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
+                    }
+
+                    AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
+                        isAdvertising = false
+                        toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
                     }
                 }
+            }
         }
     }
 

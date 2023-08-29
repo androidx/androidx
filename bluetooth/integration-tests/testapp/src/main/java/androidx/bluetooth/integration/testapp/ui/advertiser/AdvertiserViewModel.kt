@@ -32,7 +32,7 @@ class AdvertiserViewModel : ViewModel() {
     var includeDeviceName = false
     var connectable = false
     var discoverable = false
-    var timeoutMillis = 0
+    var durationMillis = 0
     var manufacturerDatas = mutableListOf<Pair<Int, ByteArray>>()
     var serviceDatas = mutableListOf<Pair<UUID, ByteArray>>()
     var serviceUuids = mutableListOf<UUID>()
@@ -56,7 +56,7 @@ class AdvertiserViewModel : ViewModel() {
             includeDeviceName,
             connectable,
             discoverable,
-            timeoutMillis,
+            durationMillis,
             manufacturerDatas.toMap(),
             serviceDatas.toMap(),
             serviceUuids
