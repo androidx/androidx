@@ -1,6 +1,13 @@
 // Signature format: 4.0
 package androidx.graphics.shapes {
 
+  public final class AndroidKt {
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional android.graphics.Path path);
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon);
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional android.graphics.Path path);
+    method public static androidx.graphics.shapes.RoundedPolygon transformed(androidx.graphics.shapes.RoundedPolygon, android.graphics.Matrix matrix);
+  }
+
   public final class CornerRounding {
     ctor public CornerRounding(optional @FloatRange(from=0.0) float radius, optional @FloatRange(from=0.0, to=1.0) float smoothing);
     method public float getRadius();
