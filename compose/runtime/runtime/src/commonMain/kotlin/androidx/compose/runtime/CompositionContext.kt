@@ -38,6 +38,7 @@ private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
 abstract class CompositionContext internal constructor() {
     internal abstract val compoundHashKey: Int
     internal abstract val collectingParameterInformation: Boolean
+    internal abstract val collectingSourceInformation: Boolean
     internal open val observerHolder: CompositionObserverHolder? get() = null
 
     /**

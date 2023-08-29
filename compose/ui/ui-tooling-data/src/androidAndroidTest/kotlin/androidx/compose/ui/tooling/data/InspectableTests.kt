@@ -150,9 +150,6 @@ class InspectableTests : ToolingTest() {
             assertFalse(receiver.parameterCursor.hasNext())
         }
 
-        // Skip Inspectable
-        callCursor.next()
-
         // OneParameter(1)
         validate {
             parameter(name = "a", value = 1, fromDefault = false, static = true, compared = false)
@@ -339,11 +336,11 @@ class InspectableTests : ToolingTest() {
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
         val parameters = list.filter { group ->
-            group.parameters.isNotEmpty() && group.location.let {
+            group.parameters.isNotEmpty() && group.name == "Text" && group.location.let {
                 it != null && it.sourceFile == "InspectableTests.kt"
             }
         }
-        val names = parameters.drop(1).first().parameters.map { it.name }
+        val names = parameters.first().parameters.map { it.name }
         assertEquals(
             "text, modifier, color, fontSize, fontStyle, fontWeight, fontFamily, " +
                 "letterSpacing, textDecoration, textAlign, lineHeight, overflow, softWrap, " +
