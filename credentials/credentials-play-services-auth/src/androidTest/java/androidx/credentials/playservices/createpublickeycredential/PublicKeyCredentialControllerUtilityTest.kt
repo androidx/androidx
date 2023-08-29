@@ -650,4 +650,39 @@ class PublicKeyCredentialControllerUtilityTest {
 
     assertThrows<JSONException> { PublicKeyCredentialControllerUtility.convertJSON(json) }
   }
+
+  @Test
+  fun convertJSON_optionalFields_extensions_success() {
+    var json =
+      JSONObject(
+        "{" +
+          "\"rp\": {" +
+          "\"id\": \"rpidvalue\"," +
+          "\"name\": \"Name of RP\"," +
+          "\"icon\": \"rpicon.png\"" +
+          "}," +
+          "\"extensions\": {" +
+          "\"appid\": \"https://www.android.com/appid1\"," +
+          "\"uvm\": true" +
+          "}," +
+          "\"pubKeyCredParams\": [{" +
+          "\"alg\": -7," +
+          "\"type\": \"public-key\"" +
+          "}]," +
+          "\"challenge\": \"dGVzdA==\"," +
+          "\"user\": {" +
+          "\"id\": \"idvalue\"," +
+          "\"name\": \"Name of User\"," +
+          "\"displayName\": \"Display Name of User\"," +
+          "\"icon\": \"icon.png\"" +
+          "}" +
+          "}"
+      )
+    var output = PublicKeyCredentialControllerUtility.convertJSON(json)
+
+    assertThat(output.getAuthenticationExtensions()
+        !!.getFidoAppIdExtension()!!.getAppId()).isEqualTo("https://www.android.com/appid1")
+    assertThat(output.getAuthenticationExtensions()
+        !!.getUserVerificationMethodExtension()!!.getUvm()).isTrue()
+  }
 }
