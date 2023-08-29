@@ -124,17 +124,43 @@ class TextFieldBuffer internal constructor(
      * @see delete
      */
     fun replace(start: Int, end: Int, text: String) {
-        onTextWillChange(TextRange(start, end), text.length)
-        buffer.replace(start, end, text)
+        replace(start, end, text, 0, text.length)
+    }
+
+    /**
+     * Replaces the text between [start] (inclusive) and [end] (exclusive) in this value with
+     * [text], and records the change in [changes].
+     *
+     * @param start The character offset of the first character to replace.
+     * @param end The character offset of the first character after the text to replace.
+     * @param text The text to replace the range `[start, end)` with.
+     * @param textStart The character offset of the first character in [text] to copy.
+     * @param textEnd The character offset after the last character in [text] to copy.
+     *
+     * @see append
+     * @see insert
+     * @see delete
+     */
+    internal fun replace(
+        start: Int,
+        end: Int,
+        text: CharSequence,
+        textStart: Int = 0,
+        textEnd: Int = text.length
+    ) {
+        require(start <= end) { "Expected start=$start <= end=$end" }
+        require(textStart <= textEnd) { "Expected textStart=$textStart <= textEnd=$textEnd" }
+        onTextWillChange(TextRange(start, end), textEnd - textStart)
+        buffer.replace(start, end, text, textStart, textEnd)
     }
 
     /**
      * Similar to `replace(0, length, newText)` but only records a change if [newText] is actually
      * different from the current buffer value.
      */
-    internal fun setTextIfChanged(newText: String) {
-        if (!buffer.contentEquals(newText)) {
-            replace(0, length, newText)
+    internal fun setTextIfChanged(newText: CharSequence) {
+        findCommonPrefixAndSuffix(buffer, newText) { thisStart, thisEnd, newStart, newEnd ->
+            replace(thisStart, thisEnd, newText, newStart, newEnd)
         }
     }
 
@@ -543,6 +569,64 @@ inline fun ChangeList.forEachChangeReversed(
         block(getRange(i), getOriginalRange(i))
         i--
     }
+}
+
+/**
+ * Finds the common prefix and suffix between [a] and [b] and then reports the ranges of each that
+ * excludes those. The values are reported via an (inline) callback instead of a return value to
+ * avoid having to allocate something to hold them. If the [CharSequence]s are identical, the
+ * callback is not invoked.
+ *
+ * E.g. given `a="abcde"` and `b="abbbdefe"`, the middle diff for `a` is `"ab[cd]e"` and for `b` is
+ * `ab[bbdef]e`, so reports `aMiddle=TextRange(2, 4)` and `bMiddle=TextRange(2, 7)`.
+ */
+internal inline fun findCommonPrefixAndSuffix(
+    a: CharSequence,
+    b: CharSequence,
+    onFound: (aPrefixStart: Int, aSuffixStart: Int, bPrefixStart: Int, bSuffixStart: Int) -> Unit
+) {
+    var aStart = 0
+    var aEnd = a.length
+    var bStart = 0
+    var bEnd = b.length
+
+    // If either one is empty, the diff range is the entire non-empty one.
+    if (a.isNotEmpty() && b.isNotEmpty()) {
+        var prefixFound = false
+        var suffixFound = false
+
+        do {
+            if (!prefixFound) {
+                if (a[aStart] == b[bStart]) {
+                    aStart += 1
+                    bStart += 1
+                } else {
+                    prefixFound = true
+                }
+            }
+            if (!suffixFound) {
+                if (a[aEnd - 1] == b[bEnd - 1]) {
+                    aEnd -= 1
+                    bEnd -= 1
+                } else {
+                    suffixFound = true
+                }
+            }
+        } while (
+        // As soon as we've completely traversed one of the strings, if the other hasn't also
+        // finished being traversed then we've found the diff region.
+            aStart < aEnd && bStart < bEnd &&
+            // If we've found the end of the common prefix and the start of the common suffix we're
+            // done.
+            !(prefixFound && suffixFound)
+        )
+    }
+
+    if (aStart >= aEnd && bStart >= bEnd) {
+        return
+    }
+
+    onFound(aStart, aEnd, bStart, bEnd)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
