@@ -227,7 +227,7 @@ class MacrobenchmarkScopeTest {
         }.toSet()
         val testOutputs = outputs - files
         val trace = testOutputs.singleOrNull { file ->
-            file.absolutePath.endsWith("-method.trace")
+            file.absolutePath.endsWith("method.trace")
         }
         // One method trace should have been created
         assertNotNull(trace)
