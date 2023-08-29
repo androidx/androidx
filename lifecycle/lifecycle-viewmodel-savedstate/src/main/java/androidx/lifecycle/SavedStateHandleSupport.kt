@@ -161,7 +161,11 @@ internal class SavedStateHandlesProvider(
      */
     fun performRestore() {
         if (!restored) {
-            restoredState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
+            val newState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
+            restoredState = Bundle().apply {
+                restoredState?.let { putAll(it) }
+                newState?.let { putAll(it) }
+            }
             restored = true
             // Grab a reference to the ViewModel for later usage when we saveState()
             // This ensures that even if saveState() is called after the Lifecycle is
