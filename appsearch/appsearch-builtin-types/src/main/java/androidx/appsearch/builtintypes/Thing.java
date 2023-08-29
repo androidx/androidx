@@ -300,10 +300,9 @@ public class Thing {
         @NonNull
         public T setAlternateNames(@Nullable List<String> alternateNames) {
             resetIfBuilt();
+            clearAlternateNames();
             if (alternateNames != null) {
-                mAlternateNames = new ArrayList<>(alternateNames);
-            } else {
-                clearAlternateNames();
+                mAlternateNames.addAll(alternateNames);
             }
             return (T) this;
         }
@@ -367,10 +366,9 @@ public class Thing {
         @NonNull
         public T setPotentialActions(@Nullable List<PotentialAction> newPotentialActions) {
             resetIfBuilt();
+            clearPotentialActions();
             if (newPotentialActions != null) {
-                mPotentialActions = new ArrayList<>(newPotentialActions);
-            } else {
-                clearPotentialActions();
+                mPotentialActions.addAll(newPotentialActions);
             }
             return (T) this;
         }
@@ -385,6 +383,9 @@ public class Thing {
             return (T) this;
         }
 
+        /**
+         * If built, make a copy of previous data for every field so that the builder can be reused.
+         */
         private void resetIfBuilt() {
             if (mBuilt) {
                 mAlternateNames = new ArrayList<>(mAlternateNames);
