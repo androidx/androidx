@@ -65,6 +65,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -358,7 +359,7 @@ internal fun ModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val layoutDirection = LocalLayoutDirection.current
-    val modalBottomSheetWindow = remember {
+    val modalBottomSheetWindow = remember(LocalConfiguration.current) {
         ModalBottomSheetWindow(
             onDismissRequest = onDismissRequest,
             composeView = view,
@@ -413,12 +414,6 @@ private class ModalBottomSheetWindow(
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    private val displayWidth: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
-        }
-
     private val params: WindowManager.LayoutParams =
         WindowManager.LayoutParams().apply {
             // Position bottom sheet from the bottom of the screen
@@ -426,7 +421,7 @@ private class ModalBottomSheetWindow(
             // Application panel window
             type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
             // Fill up the entire app view
-            width = displayWidth
+            width = WindowManager.LayoutParams.MATCH_PARENT
             height = WindowManager.LayoutParams.MATCH_PARENT
 
             // Format of screen pixels
