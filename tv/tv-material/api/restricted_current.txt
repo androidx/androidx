@@ -640,6 +640,40 @@ package androidx.tv.material3 {
     property public final long selectedContentColor;
   }
 
+  @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemDefaults {
+    method @androidx.compose.runtime.Composable public void TrailingBadge(String text, optional long containerColor, optional long contentColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.NavigationDrawerItemBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.NavigationDrawerItemColors colors(optional long containerColor, optional long contentColor, optional long inactiveContentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledInactiveContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
+    method public float getCollapsedDrawerItemWidth();
+    method public float getContainerHeightOneLine();
+    method public float getContainerHeightTwoLine();
+    method public androidx.compose.animation.EnterTransition getContentAnimationEnter();
+    method public androidx.compose.animation.ExitTransition getContentAnimationExit();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Border getDefaultBorder();
+    method public float getExpandedDrawerItemWidth();
+    method public float getIconSize();
+    method public float getNavigationDrawerItemElevation();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getTrailingBadgeContainerColor();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getTrailingBadgeContentColor();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getTrailingBadgeTextStyle();
+    method public androidx.tv.material3.NavigationDrawerItemGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.NavigationDrawerItemScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float selectedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedSelectedScale, optional @FloatRange(from=0.0) float focusedDisabledScale, optional @FloatRange(from=0.0) float pressedSelectedScale);
+    method public androidx.tv.material3.NavigationDrawerItemShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape);
+    property public final float CollapsedDrawerItemWidth;
+    property public final float ContainerHeightOneLine;
+    property public final float ContainerHeightTwoLine;
+    property public final androidx.compose.animation.EnterTransition ContentAnimationEnter;
+    property public final androidx.compose.animation.ExitTransition ContentAnimationExit;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Border DefaultBorder;
+    property public final float ExpandedDrawerItemWidth;
+    property public final float IconSize;
+    property public final float NavigationDrawerItemElevation;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final long TrailingBadgeContainerColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final long TrailingBadgeContentColor;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.ui.text.TextStyle TrailingBadgeTextStyle;
+    field public static final androidx.tv.material3.NavigationDrawerItemDefaults INSTANCE;
+  }
+
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemGlow {
     ctor public NavigationDrawerItemGlow(androidx.tv.material3.Glow glow, androidx.tv.material3.Glow focusedGlow, androidx.tv.material3.Glow pressedGlow, androidx.tv.material3.Glow selectedGlow, androidx.tv.material3.Glow focusedSelectedGlow, androidx.tv.material3.Glow pressedSelectedGlow);
     method public androidx.tv.material3.Glow getFocusedGlow();
