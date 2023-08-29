@@ -45,7 +45,7 @@ class FileStorage<T>(
 ) : Storage<T> {
 
     override fun createConnection(): StorageConnection<T> {
-        val file = produceFile()
+        val file = produceFile().canonicalFile
 
         synchronized(activeFilesLock) {
             val path = file.absolutePath
