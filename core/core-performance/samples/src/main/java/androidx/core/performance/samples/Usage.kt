@@ -16,8 +16,10 @@
 
 package androidx.core.performance.samples
 
+import android.app.Activity
 import android.app.Application
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.Sampled
 import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
@@ -26,15 +28,25 @@ import androidx.core.performance.DevicePerformance
 fun usage() {
 
     class MyApplication : Application() {
-
-        private lateinit var devicePerformance: DevicePerformance
+        lateinit var devicePerformance: DevicePerformance
 
         override fun onCreate() {
             // use a DevicePerformance derived class
             devicePerformance = DefaultDevicePerformance()
         }
+    }
 
-        fun doSomeThing() {
+    class MyActivity : Activity() {
+        private lateinit var devicePerformance: DevicePerformance
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            // Production applications should use a dependency framework.
+            // See https://developer.android.com/training/dependency-injection for more information.
+            devicePerformance = (application as MyApplication).devicePerformance
+        }
+
+        override fun onResume() {
+            super.onResume()
             when {
                 devicePerformance.mediaPerformanceClass >= Build.VERSION_CODES.TIRAMISU -> {
                     // Provide the most premium experience for highest performing devices
