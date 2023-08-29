@@ -57,9 +57,6 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     override val pointerAreaTag = "selectionContainer"
 
     private val textContent = "line1\nline2 text1 text2\nline3"
-    private val selectionContainerTestTag = "selectionContainer"
-    private val testTag = "testTag"
-
     private val selection = mutableStateOf<Selection?>(null)
 
     private lateinit var asserter: SelectionAsserter<Selection?>
@@ -67,7 +64,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     @Before
     fun setupAsserter() {
         performTouchGesture {
-            longClick(characterBox(13).center)
+            longClick(characterBox(13).centerLeft)
         }
 
         asserter = object : SelectionAsserter<Selection?>(
@@ -81,7 +78,11 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             override fun subAssert() {
                 Truth.assertAbout(SelectionSubject.withContent(textContent))
                     .that(getActual())
-                    .hasSelection(selection)
+                    .hasSelection(
+                        expected = selection,
+                        startTextDirection = startLayoutDirection,
+                        endTextDirection = endLayoutDirection,
+                    )
             }
         }.apply {
             selection = 12 to 17
@@ -96,9 +97,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag(selectionContainerTestTag)
+            modifier = Modifier.fillMaxSize()
         ) {
             BasicText(
                 text = textContent,
@@ -109,7 +108,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .testTag(testTag),
+                    .testTag(pointerAreaTag),
             )
         }
     }
@@ -173,8 +172,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     }
 
     private fun characterBox(offset: Int): Rect {
-        val nodePosition = rule.onNodeWithTag(testTag).fetchSemanticsNode().positionInRoot
-        val textLayoutResult = rule.onNodeWithTag(testTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset).translate(nodePosition)
+        val textLayoutResult = rule.onNodeWithTag(pointerAreaTag).fetchTextLayoutResult()
+        return textLayoutResult.getBoundingBox(offset)
     }
 }
