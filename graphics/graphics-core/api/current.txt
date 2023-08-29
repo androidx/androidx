@@ -55,8 +55,8 @@ package androidx.graphics.lowlatency {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public static interface GLFrontBufferedRenderer.Callback<T> {
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T param);
-    method @WorkerThread public void onDrawMultiBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, T param);
+    method @WorkerThread public void onDrawMultiBufferedLayer(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform, java.util.Collection<? extends T> params);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
     method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
@@ -117,7 +117,7 @@ package androidx.graphics.opengl {
 
   public static interface GLFrameBufferRenderer.Callback {
     method @WorkerThread public default void onDrawComplete(androidx.graphics.surface.SurfaceControlCompat targetSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction, androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFence);
-    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform);
+    method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform);
   }
 
   public final class GLRenderer {
