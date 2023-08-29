@@ -43,7 +43,11 @@ internal class SelectionSubject constructor(
             }
     }
 
-    fun hasSelection(expected: TextRange?) {
+    fun hasSelection(
+        expected: TextRange?,
+        startTextDirection: ResolvedTextDirection,
+        endTextDirection: ResolvedTextDirection,
+    ) {
         if (expected == null) {
             Truth.assertThat(subject).isNull()
             return
@@ -52,8 +56,8 @@ internal class SelectionSubject constructor(
         check("selection").that(subject).isNotNull()
         subject!! // smart cast to non-nullable
 
-        val startHandle = Selection.AnchorInfo(ResolvedTextDirection.Ltr, expected.start, 1)
-        val endHandle = Selection.AnchorInfo(ResolvedTextDirection.Ltr, expected.end, 1)
+        val startHandle = Selection.AnchorInfo(startTextDirection, expected.start, 1)
+        val endHandle = Selection.AnchorInfo(endTextDirection, expected.end, 1)
         val expectedSelection = Selection(
             start = startHandle,
             end = endHandle,

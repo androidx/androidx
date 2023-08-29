@@ -36,11 +36,16 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
+internal class SingleTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTest() {
 
     private val testTag = "testTag"
-    override val word = "hello"
-    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+    private val ltrWord = "hello"
+    private val rtlWord = "בבבבב"
+    override val textContent = mutableStateOf("""
+        $ltrWord $rtlWord $ltrWord
+        $rtlWord $ltrWord $rtlWord
+        $ltrWord $rtlWord $ltrWord
+    """.trimIndent().trim())
 
     override lateinit var asserter: TextSelectionAsserter
 
@@ -79,8 +84,10 @@ internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
         )
     }
 
-    override fun characterPosition(offset: Int): Offset {
+    override fun characterPosition(offset: Int, isRtl: Boolean): Offset {
         val textLayoutResult = rule.onNodeWithTag(testTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset).centerLeft.nudge(HorizontalDirection.END)
+        val boundingBox = textLayoutResult.getBoundingBox(offset)
+        return if (isRtl) boundingBox.centerRight - Offset(2f, 0f)
+        else boundingBox.centerLeft + Offset(2f, 0f)
     }
 }

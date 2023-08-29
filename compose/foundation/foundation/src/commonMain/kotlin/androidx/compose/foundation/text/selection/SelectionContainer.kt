@@ -96,7 +96,10 @@ internal fun SelectionContainer(
             // cross-composable selection.
             SimpleLayout(modifier = modifier.then(manager.modifier)) {
                 children()
-                if (manager.isInTouchMode && manager.hasFocus && manager.isNonEmptySelection()) {
+                if (manager.isInTouchMode &&
+                    manager.hasFocus &&
+                    !manager.isTriviallyCollapsedSelection()
+                ) {
                     manager.selection?.let {
                         listOf(true, false).fastForEach { isStartHandle ->
                             val observer = remember(isStartHandle) {

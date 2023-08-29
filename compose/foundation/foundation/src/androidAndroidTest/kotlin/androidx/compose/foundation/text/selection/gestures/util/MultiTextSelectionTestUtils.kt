@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.selection.gestures.util
 
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.style.ResolvedTextDirection.Ltr
+import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -44,7 +44,11 @@ internal class MultiSelectionSubject(
             }
     }
 
-    fun hasSelection(expected: TextRange?) {
+    fun hasSelection(
+        expected: TextRange?,
+        startTextDirection: ResolvedTextDirection,
+        endTextDirection: ResolvedTextDirection,
+    ) {
         if (expected == null) {
             Truth.assertThat(subject).isNull()
             return
@@ -57,9 +61,12 @@ internal class MultiSelectionSubject(
         val endSelectableId = textContentIndices.offsetToSelectableId(expected.end) + 1
         val endOffset = textContentIndices.offsetToLocalOffset(expected.end)
 
+        val startAnchor =
+            Selection.AnchorInfo(startTextDirection, startOffset, startSelectableId.toLong())
+        val endAnchor = Selection.AnchorInfo(endTextDirection, endOffset, endSelectableId.toLong())
         val expectedSelection = Selection(
-            start = Selection.AnchorInfo(Ltr, startOffset, startSelectableId.toLong()),
-            end = Selection.AnchorInfo(Ltr, endOffset, endSelectableId.toLong()),
+            start = startAnchor,
+            end = endAnchor,
             handlesCrossed = startSelectableId > endSelectableId ||
                 (startSelectableId == endSelectableId && startOffset > endOffset),
         )

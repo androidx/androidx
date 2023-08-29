@@ -22,12 +22,16 @@ import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
@@ -36,11 +40,13 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
+internal class SingleTextSelectionGesturesRtlTest : TextSelectionGesturesTest() {
 
     private val testTag = "testTag"
-    override val word = "hello"
-    override val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+
+    override val word = "בבבבב"
+    override val textContent = mutableStateOf("בבבבב\nבבבבב בבבבב בבבבב\nבבבבב")
+    override var textDirection: ResolvedTextDirection = ResolvedTextDirection.Rtl
 
     override lateinit var asserter: TextSelectionAsserter
 
@@ -62,25 +68,30 @@ internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
                         endTextDirection = endLayoutDirection,
                     )
             }
+        }.apply {
+            startLayoutDirection = ResolvedTextDirection.Rtl
+            endLayoutDirection = ResolvedTextDirection.Rtl
         }
     }
 
     @Composable
     override fun TextContent() {
-        BasicText(
-            text = textContent.value,
-            style = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(testTag),
-        )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            BasicText(
+                text = textContent.value,
+                style = TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(testTag),
+            )
+        }
     }
 
     override fun characterPosition(offset: Int): Offset {
         val textLayoutResult = rule.onNodeWithTag(testTag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(offset).centerLeft.nudge(HorizontalDirection.END)
+        return textLayoutResult.getBoundingBox(offset).centerRight.nudge(HorizontalDirection.END)
     }
 }
