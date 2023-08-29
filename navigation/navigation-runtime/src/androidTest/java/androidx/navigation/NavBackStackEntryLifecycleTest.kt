@@ -229,6 +229,353 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
+     * Test that all visible floating windows underneath the top one are marked started.
+     */
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithConsecutiveDialogs() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "graph",
+            startDestination = "start"
+        ) {
+            test("start")
+            dialog("bottomDialog")
+            dialog("midDialog")
+            dialog("topDialog")
+        }
+        navController.graph = navGraph
+
+        val graphEntry = navController.getBackStackEntry("graph")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val startEntry = navController.getBackStackEntry("start")
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("bottomDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val bottomDialogEntry = navController.getBackStackEntry("bottomDialog")
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("midDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val midDialogEntry = navController.getBackStackEntry("midDialog")
+        assertThat(midDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("topDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(midDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val topDialogEntry = navController.getBackStackEntry("topDialog")
+        assertThat(topDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithDialogsAndGraphs() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "graph",
+            startDestination = "firstNested"
+        ) {
+            navigation(route = "firstNested", startDestination = "bottomDialog") {
+                dialog(route = "bottomDialog")
+            }
+            navigation(route = "secondNested", startDestination = "midDialog") {
+                dialog(route = "midDialog")
+                dialog(route = "topDialog")
+            }
+        }
+
+        navController.graph = navGraph
+
+        val graphEntry = navController.getBackStackEntry("graph")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val firstNestedGraphEntry = navController.getBackStackEntry("firstNested")
+        assertThat(firstNestedGraphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val bottomDialog = navController.getBackStackEntry("bottomDialog")
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("midDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstNestedGraphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val secondNestedGraphEntry = navController.getBackStackEntry("secondNested")
+        assertThat(secondNestedGraphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val midDialog = navController.getBackStackEntry("midDialog")
+        assertThat(midDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("topDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(firstNestedGraphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondNestedGraphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(midDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val topDialog = navController.getBackStackEntry("topDialog")
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithDialogsAndGraphsOrdering() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "graph",
+            startDestination = "firstNested"
+        ) {
+            navigation(route = "firstNested", startDestination = "bottomDialog") {
+                dialog(route = "bottomDialog")
+            }
+            navigation(route = "secondNested", startDestination = "midDialog") {
+                dialog(route = "midDialog")
+                dialog(route = "topDialog")
+            }
+        }
+
+        navController.graph = navGraph
+
+        val firstNestedGraphEntry = navController.getBackStackEntry("firstNested")
+        val firstNestedGraphEntryObserver = mock(LifecycleEventObserver::class.java)
+        firstNestedGraphEntry.lifecycle.addObserver(firstNestedGraphEntryObserver)
+        val bottomDialog = navController.getBackStackEntry("bottomDialog")
+        val bottomDialogObserver = mock(LifecycleEventObserver::class.java)
+        bottomDialog.lifecycle.addObserver(bottomDialogObserver)
+
+        navController.navigate("midDialog")
+        val secondNestedGraphEntry = navController.getBackStackEntry("secondNested")
+        val secondNestedGraphEntryObserver = mock(LifecycleEventObserver::class.java)
+        secondNestedGraphEntry.lifecycle.addObserver(secondNestedGraphEntryObserver)
+        val midDialog = navController.getBackStackEntry("midDialog")
+        val midDialogObserver = mock(LifecycleEventObserver::class.java)
+        midDialog.lifecycle.addObserver(midDialogObserver)
+        val inOrder = inOrder(
+            firstNestedGraphEntryObserver, bottomDialogObserver, secondNestedGraphEntryObserver,
+            midDialogObserver
+        )
+        inOrder.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(firstNestedGraphEntryObserver).onStateChanged(
+            firstNestedGraphEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
+            secondNestedGraphEntry, Lifecycle.Event.ON_CREATE
+        )
+        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
+            secondNestedGraphEntry, Lifecycle.Event.ON_START
+        )
+        inOrder.verify(secondNestedGraphEntryObserver).onStateChanged(
+            secondNestedGraphEntry, Lifecycle.Event.ON_RESUME
+        )
+        inOrder.verify(midDialogObserver).onStateChanged(
+            midDialog, Lifecycle.Event.ON_CREATE
+        )
+        inOrder.verify(midDialogObserver).onStateChanged(
+            midDialog, Lifecycle.Event.ON_START
+        )
+        inOrder.verify(midDialogObserver).onStateChanged(
+            midDialog, Lifecycle.Event.ON_RESUME
+        )
+        inOrder.verifyNoMoreInteractions()
+
+        navController.navigate("topDialog")
+        val topDialog = navController.getBackStackEntry("topDialog")
+        val topDialogObserver = mock(LifecycleEventObserver::class.java)
+        topDialog.lifecycle.addObserver(topDialogObserver)
+
+        val inOrder2 = inOrder(secondNestedGraphEntryObserver, midDialogObserver, topDialogObserver)
+        inOrder2.verify(midDialogObserver).onStateChanged(
+            midDialog, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder2.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_CREATE
+        )
+        inOrder2.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_START
+        )
+        inOrder2.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_RESUME
+        )
+        inOrder2.verifyNoMoreInteractions()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithDialogsAndFragments() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "graph",
+            startDestination = "nested"
+        ) {
+            navigation(route = "nested", startDestination = "bottomFrag") {
+                test("bottomFrag")
+                dialog(route = "bottomDialog")
+                test("topFrag")
+                dialog(route = "topDialog")
+            }
+        }
+
+        navController.graph = navGraph
+
+        navController.navigate("bottomDialog")
+        val graphEntry = navController.getBackStackEntry("graph")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val nestedEntry = navController.getBackStackEntry("nested")
+        assertThat(nestedEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val bottomFragEntry = navController.getBackStackEntry("bottomFrag")
+        assertThat(bottomFragEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val bottomDialog = navController.getBackStackEntry("bottomDialog")
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("topFrag")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(nestedEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(bottomFragEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        val topFragEntry = navController.getBackStackEntry("topFrag")
+        assertThat(topFragEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("topDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(nestedEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(bottomFragEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(topFragEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val topDialogEntry = navController.getBackStackEntry("topDialog")
+        assertThat(topDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithDialogsAndFragmentsOrdering() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "graph",
+            startDestination = "nested"
+        ) {
+            navigation(route = "nested", startDestination = "bottomFrag") {
+                test("bottomFrag")
+                dialog(route = "bottomDialog")
+                test("topFrag")
+                dialog(route = "topDialog")
+            }
+        }
+
+        navController.graph = navGraph
+
+        val graphEntry = navController.getBackStackEntry("graph")
+        val graphObserver = mock(LifecycleEventObserver::class.java)
+        graphEntry.lifecycle.addObserver(graphObserver)
+        val nestedGraphEntry = navController.getBackStackEntry("nested")
+        val nestedGraphEntryObserver = mock(LifecycleEventObserver::class.java)
+        nestedGraphEntry.lifecycle.addObserver(nestedGraphEntryObserver)
+        val bottomFrag = navController.getBackStackEntry("bottomFrag")
+        val bottomFragObserver = mock(LifecycleEventObserver::class.java)
+        bottomFrag.lifecycle.addObserver(bottomFragObserver)
+
+        val inOrder = inOrder(graphObserver, nestedGraphEntryObserver, bottomFragObserver)
+        inOrder.verify(graphObserver).onStateChanged(
+            graphEntry, Lifecycle.Event.ON_CREATE
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphEntry, Lifecycle.Event.ON_START
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphEntry, Lifecycle.Event.ON_RESUME
+        )
+        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
+            nestedGraphEntry, Lifecycle.Event.ON_CREATE
+        )
+        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
+            nestedGraphEntry, Lifecycle.Event.ON_START
+        )
+        inOrder.verify(nestedGraphEntryObserver).onStateChanged(
+            nestedGraphEntry, Lifecycle.Event.ON_RESUME
+        )
+        inOrder.verify(bottomFragObserver).onStateChanged(
+            bottomFrag, Lifecycle.Event.ON_CREATE
+        )
+        inOrder.verify(bottomFragObserver).onStateChanged(
+            bottomFrag, Lifecycle.Event.ON_START
+        )
+        inOrder.verify(bottomFragObserver).onStateChanged(
+            bottomFrag, Lifecycle.Event.ON_RESUME
+        )
+
+        navController.navigate("bottomDialog")
+        val bottomDialog = navController.getBackStackEntry("bottomDialog")
+        val bottomDialogObserver = mock(LifecycleEventObserver::class.java)
+        bottomDialog.lifecycle.addObserver(bottomDialogObserver)
+
+        val inOrder2 = inOrder(nestedGraphEntryObserver, bottomFragObserver, bottomDialogObserver)
+        inOrder2.verify(bottomFragObserver).onStateChanged(
+            bottomFrag, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder2.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_CREATE
+        )
+        inOrder2.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_START
+        )
+        inOrder2.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_RESUME
+        )
+        inOrder2.verifyNoMoreInteractions()
+
+        navController.navigate("topFrag")
+        val topFrag = navController.getBackStackEntry("topFrag")
+        val topFragObserver = mock(LifecycleEventObserver::class.java)
+        topFrag.lifecycle.addObserver(topFragObserver)
+
+        val inOrder3 = inOrder(
+            nestedGraphEntryObserver, bottomFragObserver, bottomDialogObserver, topFragObserver
+        )
+        inOrder3.verify(bottomFragObserver).onStateChanged(
+            bottomFrag, Lifecycle.Event.ON_CREATE
+        )
+        inOrder3.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder3.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_STOP
+        )
+        inOrder3.verify(bottomDialogObserver).onStateChanged(
+            bottomDialog, Lifecycle.Event.ON_DESTROY
+        )
+        inOrder3.verify(topFragObserver).onStateChanged(
+            topFrag, Lifecycle.Event.ON_CREATE
+        )
+        inOrder3.verify(topFragObserver).onStateChanged(
+            topFrag, Lifecycle.Event.ON_START
+        )
+        inOrder3.verify(topFragObserver).onStateChanged(
+            topFrag, Lifecycle.Event.ON_RESUME
+        )
+        inOrder3.verifyNoMoreInteractions()
+
+        navController.navigate("topDialog")
+        val topDialog = navController.getBackStackEntry("topDialog")
+        val topDialogObserver = mock(LifecycleEventObserver::class.java)
+        topDialog.lifecycle.addObserver(topDialogObserver)
+        val inOrder4 = inOrder(nestedGraphEntryObserver, topFragObserver, topDialogObserver)
+        inOrder4.verify(topFragObserver).onStateChanged(
+            topFrag, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder4.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_CREATE
+        )
+        inOrder4.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_START
+        )
+        inOrder4.verify(topDialogObserver).onStateChanged(
+            topDialog, Lifecycle.Event.ON_RESUME
+        )
+        inOrder4.verifyNoMoreInteractions()
+    }
+
+    /**
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
