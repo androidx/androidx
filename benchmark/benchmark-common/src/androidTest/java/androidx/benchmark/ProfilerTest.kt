@@ -74,13 +74,13 @@ class ProfilerTest {
     @Test
     fun methodTracing() = verifyProfiler(
         profiler = MethodTracing,
-        regex = Regex("test-methodTracing-.+.trace")
+        regex = Regex("test_methodTracing_.+.trace")
     )
 
     @Test
     fun stackSamplingLegacy() = verifyProfiler(
         profiler = StackSamplingLegacy,
-        regex = Regex("test-stackSamplingLegacy-.+.trace")
+        regex = Regex("test_stackSamplingLegacy_.+.trace")
     )
 
     @SdkSuppress(minSdkVersion = 29) // simpleperf on system image starting API 29
@@ -91,7 +91,7 @@ class ProfilerTest {
 
         verifyProfiler(
             profiler = StackSamplingSimpleperf,
-            regex = Regex("test-stackSampling-.+.trace")
+            regex = Regex("test_stackSampling_.+.trace")
         )
     }
 }
