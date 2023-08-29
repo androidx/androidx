@@ -740,6 +740,36 @@ class AndroidAccessibilityTest {
         assertEquals(overlaidTraversalAfter, 0)
     }
 
+    @Test
+    fun testSortedAccessibilityNodeInfo_readableTraversalGroups() {
+        val clickableRowTag = "readableRow"
+        val clickableButtonTag = "readableButton"
+        container.setContent {
+            Column {
+                Row(
+                    Modifier
+                        .testTag(clickableRowTag)
+                        .semantics { isTraversalGroup = true }
+                        .clickable { }
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+                    Button(onClick = { }, modifier = Modifier.testTag(clickableButtonTag)) {
+                        Text("First button")
+                    }
+                }
+            }
+        }
+
+        val rowNode = rule.onNodeWithTag(clickableRowTag).fetchSemanticsNode()
+        val buttonNode = rule.onNodeWithTag(clickableButtonTag).fetchSemanticsNode()
+
+        val rowANI = provider.createAccessibilityNodeInfo(rowNode.id)
+        val rowBefore = rowANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Since the column is screenReaderFocusable, it comes before the button
+        assertEquals(rowBefore, buttonNode.id)
+    }
+
     @Composable
     fun CardRow(
         modifier: Modifier,
