@@ -21,8 +21,8 @@ import android.app.Application
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.Sampled
-import androidx.core.performance.DefaultDevicePerformance
 import androidx.core.performance.DevicePerformance
+import androidx.core.performance.play.services.PlayServicesDevicePerformance
 
 @Sampled
 fun usage() {
@@ -32,7 +32,7 @@ fun usage() {
 
         override fun onCreate() {
             // use a DevicePerformance derived class
-            devicePerformance = DefaultDevicePerformance()
+            devicePerformance = PlayServicesDevicePerformance(applicationContext)
         }
     }
 
