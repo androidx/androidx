@@ -93,8 +93,8 @@ class GattServer(private val context: Context) {
     suspend fun <R> open(
         services: List<GattService>,
         block: suspend BluetoothLe.GattServerConnectScope.() -> R
-    ): Result<R> {
-        return Result.success(createServerScope(services).block())
+    ): R {
+        return createServerScope(services).block()
     }
 
     private fun createServerScope(services: List<GattService>): BluetoothLe.GattServerConnectScope {
@@ -103,7 +103,7 @@ class GattServer(private val context: Context) {
             // Should be accessed only from the callback thread
             private val sessions: MutableMap<FwkDevice, Session> = mutableMapOf()
 
-            override val connectRequest = callbackFlow {
+            override val connectRequests = callbackFlow {
                     attributeMap.updateWithServices(services)
                     val callback = object : BluetoothGattServerCallback() {
                         override fun onConnectionStateChange(
@@ -133,7 +133,7 @@ class GattServer(private val context: Context) {
                             attributeMap.fromFwkCharacteristic(characteristic)?.let { char ->
                                 findActiveSessionWithDevice(device)?.run {
                                     requestChannel.trySend(
-                                        GattServerRequest.ReadCharacteristicRequest(
+                                        GattServerRequest.ReadCharacteristic(
                                             this, requestId, offset, char
                                         )
                                     )
@@ -159,7 +159,7 @@ class GattServer(private val context: Context) {
                             attributeMap.fromFwkCharacteristic(characteristic)?.let {
                                 findActiveSessionWithDevice(device)?.run {
                                     requestChannel.trySend(
-                                        GattServerRequest.WriteCharacteristicRequest(
+                                        GattServerRequest.WriteCharacteristic(
                                             this,
                                             requestId,
                                             it,

@@ -245,7 +245,7 @@ class BluetoothLe constructor(private val context: Context) {
     /**
      * A scope for handling connect requests from remote devices.
      *
-     * @property connectRequest connect requests from remote devices.
+     * @property connectRequests connect requests from remote devices.
      *
      * @see BluetoothLe#openGattServer
      */
@@ -253,7 +253,7 @@ class BluetoothLe constructor(private val context: Context) {
         /**
          * A _hot_ flow of [GattServerConnectRequest].
          */
-        val connectRequest: Flow<GattServerConnectRequest>
+        val connectRequests: Flow<GattServerConnectRequest>
 
         /**
          * Updates the services of the opened GATT server.
@@ -281,8 +281,8 @@ class BluetoothLe constructor(private val context: Context) {
         /**
          * A _hot_ [Flow] of incoming requests from the client.
          *
-         * A request is either [GattServerRequest.ReadCharacteristicRequest] or
-         * [GattServerRequest.WriteCharacteristicRequest]
+         * A request is either [GattServerRequest.ReadCharacteristic] or
+         * [GattServerRequest.WriteCharacteristic]
          */
         val requests: Flow<GattServerRequest>
 
@@ -342,7 +342,7 @@ class BluetoothLe constructor(private val context: Context) {
     suspend fun <R> openGattServer(
         services: List<GattService>,
         block: suspend GattServerConnectScope.() -> R
-    ): Result<R> {
+    ): R {
         return server.open(services, block)
     }
 
