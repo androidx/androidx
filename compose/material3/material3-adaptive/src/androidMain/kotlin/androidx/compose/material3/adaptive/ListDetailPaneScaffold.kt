@@ -224,7 +224,8 @@ private class DefaultListDetailPaneScaffoldState(
  *        Calculated with [calculateStandardAdaptiveLayoutDirective] using [WindowAdaptiveInfo]
  *        retrieved from the current context.
  * @param adaptStrategies adaptation strategies of each pane.
- * @param initialFocus the initial focus of the scaffold, by default it will be the detail pane.
+ * @param initialFocusHistory the initial focus history of the scaffold, by default it will be just
+ *        the list pane.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -233,7 +234,7 @@ fun rememberListDetailPaneScaffoldState(
         calculateStandardAdaptiveLayoutDirective(calculateWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
-    initialFocus: ListDetailPaneScaffoldRole = ListDetailPaneScaffoldRole.Detail
+    initialFocusHistory: List<ListDetailPaneScaffoldRole> = listOf(ListDetailPaneScaffoldRole.List)
 ): ListDetailPaneScaffoldState =
     rememberSaveable(
         saver = DefaultListDetailPaneScaffoldState.saver(
@@ -242,7 +243,7 @@ fun rememberListDetailPaneScaffoldState(
         )
     ) {
         DefaultListDetailPaneScaffoldState(
-            initialFocusHistory = listOf(initialFocus),
+            initialFocusHistory = initialFocusHistory,
             initialLayoutDirective = layoutDirectives,
             initialAdaptStrategies = adaptStrategies,
         )
