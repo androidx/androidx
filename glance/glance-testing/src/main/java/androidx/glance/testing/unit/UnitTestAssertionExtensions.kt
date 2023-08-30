@@ -30,6 +30,35 @@ import androidx.glance.testing.GlanceNodeAssertion
 internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMappedNode>
 
 /**
+ * Asserts that text on the given node is a text node and its text contains the provided [text] as
+ * substring.
+ *
+ * @param text value to match.
+ * @param ignoreCase whether to perform case insensitive matching
+ */
+@JvmOverloads
+fun UnitTestAssertion.assertHasText(
+    text: String,
+    ignoreCase: Boolean = false
+): UnitTestAssertion {
+    return assert(hasText(text, ignoreCase))
+}
+
+/**
+ * Asserts that text on the given node is text node and its text is equal to the provided [text].
+ *
+ * @param text value to match.
+ * @param ignoreCase whether to perform case insensitive matching
+ */
+@JvmOverloads
+fun UnitTestAssertion.assertHasTextEqualTo(
+    text: String,
+    ignoreCase: Boolean = false
+): UnitTestAssertion {
+    return assert(hasTextEqualTo(text, ignoreCase))
+}
+
+/**
  * Asserts that a given node is annotated by the given test tag.
  *
  * @param testTag value to match against the free form string specified in the `testTag` semantics
@@ -41,11 +70,10 @@ fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
 }
 
 /**
- * Asserts that a given node matches content description with the provided [value]
+ * Asserts that the content description set on the node contains the provided [value] as substring.
  *
- * @param value value to match as one of the items in the list of content descriptions.
- * @param substring whether to use substring matching.
- * @param ignoreCase whether case should be ignored.
+ * @param value value that should be matched as a substring of the node's content description.
+ * @param ignoreCase whether case should be ignored. Defaults to case sensitive.
  *
  * @see SemanticsProperties.ContentDescription
  *
@@ -54,10 +82,27 @@ fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
 @JvmOverloads
 fun UnitTestAssertion.assertHasContentDescription(
     value: String,
-    substring: Boolean = false,
     ignoreCase: Boolean = false
 ): UnitTestAssertion {
-    return assert(hasContentDescription(value, substring, ignoreCase))
+    return assert(hasContentDescription(value, ignoreCase))
+}
+
+/**
+ * Asserts that the content description set on the node is equal to the provided [value]
+ *
+ * @param value value that should be matched to be equal to the node's content description.
+ * @param ignoreCase whether case should be ignored. Defaults to case sensitive.
+ *
+ * @see SemanticsProperties.ContentDescription
+ *
+ * @throws AssertionError if the matcher does not match or the node can no longer be found.
+ */
+@JvmOverloads
+fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
+    value: String,
+    ignoreCase: Boolean = false
+): UnitTestAssertion {
+    return assert(hasContentDescriptionEqualTo(value, ignoreCase))
 }
 
 /**
@@ -80,9 +125,6 @@ fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
 
 /**
  * Asserts that a given node has a clickable set with action that starts an activity.
- *
- * This can be passed in "onNode" and "onNodeAll" functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
  *
  * @param activityClass class of the activity that is expected to have been passed in the
  *                      `actionStartActivity` method call

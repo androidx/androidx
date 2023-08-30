@@ -271,7 +271,7 @@ class GlanceNodeAssertionTest {
             .hasMessageThat()
             .startsWith(
                 "Failed to assert condition: " +
-                    "(has text = 'non-existing text' (ignoreCase: 'false'))" +
+                    "(contains text 'non-existing text' (ignoreCase: 'false') as substring)" +
                     "\nGlance Node:"
             )
     }

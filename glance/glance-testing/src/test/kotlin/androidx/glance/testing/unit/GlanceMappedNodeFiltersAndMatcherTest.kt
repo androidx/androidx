@@ -68,6 +68,123 @@ class GlanceMappedNodeFiltersAndMatcherTest {
     }
 
     @Test
+    fun andBetweenMatchers_match_returnsTrue() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("test-tag") and hasText("node")).matches(node)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun andBetweenMatchers_partialMatch_returnsFalse() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("test-tag") and hasText("non-existing-node"))
+            .matches(node)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun andBetweenMatchers_noMatch_returnsFalse() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("non-existing") and hasText("non-existing-node"))
+            .matches(node)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun orBetweenMatchers_bothMatch_returnsTrue() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("test-tag") or hasText("node"))
+            .matches(node)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun orBetweenMatchers_secondMatch_returnsTrue() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("non-existing-tag") or hasText("node"))
+            .matches(node)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun orBetweenMatchers_noneMatch_returnsFalse() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (hasTestTag("non-existing-tag") or hasText("non-existing-node"))
+            .matches(node)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun not_match_returnsTrue() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (!hasTestTag("non-existing-test-tag")).matches(node)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun not_noMatch_returnsFalse() {
+        val node = GlanceMappedNode(
+            EmittableText().apply {
+                text = "node"
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+            }
+        )
+
+        val result = (!hasTestTag("test-tag")).matches(node)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
     fun hasTestTag_match_returnsTrue() {
         // a single node that will be matched against matcher returned by the filter under test
         val testSingleNode = GlanceMappedNode(
@@ -97,14 +214,74 @@ class GlanceMappedNodeFiltersAndMatcherTest {
     }
 
     @Test
-    fun hasText_match_returnsTrue() {
+    fun hasTextEqualTo_match_returnsTrue() {
         val testSingleNode = GlanceMappedNode(
             EmittableText().apply {
                 text = "existing text"
             }
         )
 
-        val result = hasText("existing text").matches(testSingleNode)
+        val result = hasTextEqualTo("existing text").matches(testSingleNode)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun hasTextEqualTo_noMatch_returnsFalse() {
+        val testSingleNode = GlanceMappedNode(
+            EmittableText().apply {
+                text = "existing text"
+            }
+        )
+
+        val result = hasTextEqualTo("non-existing text").matches(testSingleNode)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun hasTextEqualTo_caseInsensitiveMatch_returnsTrue() {
+        val testSingleNode = GlanceMappedNode(
+            EmittableText().apply {
+                text = "some EXISTING text"
+            }
+        )
+
+        val result =
+            hasTextEqualTo(
+                text = "SOME existing TEXT",
+                ignoreCase = true
+            ).matches(testSingleNode)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun hasTextEqualTo_caseInsensitiveButNoMatch_returnsFalse() {
+        val testSingleNode = GlanceMappedNode(
+            EmittableText().apply {
+                text = "some EXISTING text"
+            }
+        )
+
+        val result =
+            hasTextEqualTo(
+                text = "SOME non-existing TEXT",
+                ignoreCase = true
+            ).matches(testSingleNode)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun hasText_match_returnsTrue() {
+        val testSingleNode = GlanceMappedNode(
+            EmittableText().apply {
+                text = "some existing text"
+            }
+        )
+
+        val result = hasText("existing").matches(testSingleNode)
 
         assertThat(result).isTrue()
     }
@@ -113,94 +290,43 @@ class GlanceMappedNodeFiltersAndMatcherTest {
     fun hasText_noMatch_returnsFalse() {
         val testSingleNode = GlanceMappedNode(
             EmittableText().apply {
-                text = "existing text"
-            }
-        )
-
-        val result = hasText("non-existing text").matches(testSingleNode)
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun hasText_subStringMatch_returnsTrue() {
-        val testSingleNode = GlanceMappedNode(
-            EmittableText().apply {
                 text = "some existing text"
             }
         )
 
-        val result = hasText(text = "existing", substring = true).matches(testSingleNode)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun hasText_subStringNoMatch_returnsFalse() {
-        val testSingleNode = GlanceMappedNode(
-            EmittableText().apply {
-                text = "some existing text"
-            }
-        )
-
-        val result = hasText(text = "non-existing", substring = true).matches(testSingleNode)
+        val result = hasText("non-existing").matches(testSingleNode)
 
         assertThat(result).isFalse()
     }
 
     @Test
-    fun hasText_subStringCaseInsensitiveMatch_returnsTrue() {
+    fun hasText_insensitiveMatch_returnsTrue() {
         val testSingleNode = GlanceMappedNode(
             EmittableText().apply {
                 text = "some EXISTING text"
             }
         )
 
-        val result =
-            hasText(text = "existing", substring = true, ignoreCase = true).matches(testSingleNode)
+        val result = hasText(
+            text = "existing",
+            ignoreCase = true
+        ).matches(testSingleNode)
 
         assertThat(result).isTrue()
     }
 
     @Test
-    fun hasText_subStringCaseInsensitiveNoMatch_returnsFalse() {
+    fun hasText_caseInsensitiveButNoMatch_returnsFalse() {
         val testSingleNode = GlanceMappedNode(
             EmittableText().apply {
                 text = "some EXISTING text"
             }
         )
 
-        val result =
-            hasText(text = "non-EXISTING", substring = true, ignoreCase = true)
-                .matches(testSingleNode)
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun hasText_caseInsensitiveMatch_returnsTrue() {
-        val testSingleNode = GlanceMappedNode(
-            EmittableText().apply {
-                text = "some EXISTING text"
-            }
-        )
-
-        val result =
-            hasText(text = "SOME existing TEXT", ignoreCase = true).matches(testSingleNode)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun hasText_caseInsensitiveNoMatch_returnsFalse() {
-        val testSingleNode = GlanceMappedNode(
-            EmittableText().apply {
-                text = "some EXISTING text"
-            }
-        )
-
-        val result =
-            hasText(text = "SOME non-existing TEXT", ignoreCase = true).matches(testSingleNode)
+        val result = hasText(
+            text = "non-EXISTING",
+            ignoreCase = true
+        ).matches(testSingleNode)
 
         assertThat(result).isFalse()
     }

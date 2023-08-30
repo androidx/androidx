@@ -38,4 +38,35 @@ class GlanceNodeMatcher<R>(
     fun matchesAny(nodes: Iterable<GlanceNode<R>>): Boolean {
         return nodes.any(matcher)
     }
+
+    /**
+     * Returns whether the given node is matched by this and the [other] matcher.
+     *
+     * @param other matcher that should also match in addition to current matcher
+     */
+    infix fun and(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
+        return GlanceNodeMatcher("($description) && (${other.description})") {
+            matcher(it) && other.matches(it)
+        }
+    }
+
+    /**
+     * Returns whether the given node is matched by this or the [other] matcher.
+     *
+     * @param other matcher that can be tested to match if the current matcher doesn't.
+     */
+    infix fun or(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
+        return GlanceNodeMatcher("($description) || (${other.description})") {
+            matcher(it) || other.matches(it)
+        }
+    }
+
+    /**
+     * Returns whether the given node does not match the matcher.
+     */
+    operator fun not(): GlanceNodeMatcher<R> {
+        return GlanceNodeMatcher(("NOT ($description)")) {
+            !matcher(it)
+        }
+    }
 }
