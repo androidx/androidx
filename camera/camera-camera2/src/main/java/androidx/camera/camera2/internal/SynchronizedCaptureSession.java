@@ -295,6 +295,14 @@ public interface SynchronizedCaptureSession {
     void finishClose();
 
     /**
+     * This method should be called when CameraDevice.StateCallback#onError happens.
+     *
+     * <p>It is used to inform the error of the CameraDevice, and should not be called for
+     * other reasons.
+     */
+    void onCameraDeviceError(int error);
+
+    /**
      * A callback object interface to adapting the updates from
      * {@link CameraCaptureSession.StateCallback}.
      *
