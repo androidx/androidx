@@ -35,7 +35,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class FrameBufferTest {
+class TextureFrameBufferTest {
 
     companion object {
         private const val TIMESTAMP_1 = 11L
@@ -82,8 +82,25 @@ class FrameBufferTest {
     }
 
     @Test
+    fun getFrameToRender_returnsFilledFrame() {
+        // Arrange: create a buffer with 1 texture and mark them filled.
+        val buffer = TextureFrameBuffer(intArrayOf(1))
+        buffer.frameToFill.markFilled(TIMESTAMP_1, transform1, surface1)
+
+        // Act: get frame with the same timestamp.
+        val frame = buffer.getFrameToRender(TIMESTAMP_1)!!
+
+        // Assert: the frame has the correct values.
+        assertThat(frame.textureId).isEqualTo(1)
+        assertThat(frame.timestampNs).isEqualTo(TIMESTAMP_1)
+        assertThat(frame.transform.contentEquals(transform1)).isTrue()
+        assertThat(frame.transform).isNotSameInstanceAs(transform1)
+        assertThat(frame.surface).isSameInstanceAs(surface1)
+    }
+
+    @Test
     fun getFrameToRender_returnsNullIfNotFound() {
-        // Arrange: create a buffer with 1 texture and mark them occupied.
+        // Arrange: create a buffer with 1 texture and mark them filled.
         val buffer = TextureFrameBuffer(intArrayOf(1))
         buffer.frameToFill.markFilled(TIMESTAMP_1, transform1, surface1)
         // Act and assert: get frame with a different timestamp and it should be null.
@@ -91,15 +108,15 @@ class FrameBufferTest {
     }
 
     @Test
-    fun getFrameToRender_markOlderFramesVacant() {
-        // Arrange: create a buffer with two textures and mark them occupied.
+    fun getFrameToRender_markOlderFramesEmpty() {
+        // Arrange: create a buffer with two textures and mark them filled.
         val buffer = TextureFrameBuffer(intArrayOf(1, 2))
         val frames = fillBufferWithTwoFrames(buffer)
 
         // Act: get frame2 for rendering.
         assertThat(buffer.getFrameToRender(TIMESTAMP_2)).isSameInstanceAs(frames.second)
 
-        // Assert: frame1 is vacant now.
+        // Assert: frame1 is empty now.
         assertThat(frames.second.isEmpty).isFalse()
         assertThat(frames.first.isEmpty).isTrue()
     }
