@@ -18,6 +18,7 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
@@ -31,10 +32,12 @@ import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.elementFor
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -907,5 +910,29 @@ class SuspendingPointerInputFilterTest {
             down(Offset.Zero)
         }
         assertThat(events).isEqualTo(listOf(key))
+    }
+
+    @Test
+    fun reuseWithReplacingPointerInputWithOtherModifier() {
+        val tag = "box"
+        var key by mutableStateOf(0)
+
+        rule.setContent {
+            ReusableContent(key = key) {
+                val modifier = if (key == 0) {
+                    Modifier.pointerInput(Unit) {}
+                } else {
+                    Modifier.size(10.dp)
+                }
+                Box(modifier.testTag(tag))
+            }
+        }
+
+        rule.runOnIdle {
+            key++
+        }
+
+        rule.onNodeWithTag(tag)
+            .assertHeightIsEqualTo(10.dp)
     }
 }
