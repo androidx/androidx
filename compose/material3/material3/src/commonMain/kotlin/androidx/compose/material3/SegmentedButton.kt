@@ -32,6 +32,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -61,12 +62,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,6 +72,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -85,6 +87,7 @@ import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -312,57 +315,76 @@ private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ProvideTextStyle(value = MaterialTheme.typography.labelLarge) {
-            var animatable by remember {
-                mutableStateOf<Animatable<Int, AnimationVector1D>?>(null)
+    Box(contentAlignment = Alignment.Center) {
+        val typography =
+            MaterialTheme.typography.fromToken(OutlinedSegmentedButtonTokens.LabelTextFont)
+        ProvideTextStyle(typography) {
+            val scope = rememberCoroutineScope()
+            val measurePolicy = remember { SegmentedButtonContentMeasurePolicy(scope) }
+
+            Layout(
+                modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
+                contents = listOf(icon, content),
+                measurePolicy = measurePolicy
+            )
+        }
+    }
+}
+
+internal class SegmentedButtonContentMeasurePolicy(
+    val scope: CoroutineScope
+) : MultiContentMeasurePolicy {
+    var animatable: Animatable<Int, AnimationVector1D>? = null
+    private var initialOffset: Int? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun MeasureScope.measure(
+        measurables: List<List<Measurable>>,
+        constraints: Constraints
+    ): MeasureResult {
+        val (iconMeasurables, contentMeasurables) = measurables
+        val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
+        val iconDesiredWidth = iconMeasurables.fastFold(0) { acc, it ->
+            maxOf(acc, it.maxIntrinsicWidth(Constraints.Infinity))
+        }
+        val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
+        val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
+        val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
+        val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconDesiredWidth) +
+            IconSpacing.roundToPx() +
+            (contentWidth ?: 0)
+
+        val offsetX = if (iconWidth == 0) {
+            -(SegmentedButtonDefaults.IconSize.roundToPx() + IconSpacing.roundToPx()) / 2
+        } else {
+            iconDesiredWidth - SegmentedButtonDefaults.IconSize.roundToPx()
+        }
+
+        if (initialOffset == null) {
+            initialOffset = offsetX
+        } else {
+            val anim = animatable ?: Animatable(initialOffset!!, Int.VectorConverter)
+                .also { animatable = it }
+            if (anim.targetValue != offsetX) {
+                scope.launch {
+                    anim.animateTo(offsetX, tween(MotionTokens.DurationMedium3.toInt()))
+                }
+            }
+        }
+
+        return layout(width, constraints.maxHeight) {
+            iconPlaceables.fastForEach {
+                it.place(0, (constraints.maxHeight - it.height) / 2)
             }
 
-            val scope = rememberCoroutineScope()
+            val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
+                IconSpacing.roundToPx() + (animatable?.value ?: offsetX)
 
-            Layout(listOf(icon, content)) { (iconMeasurables, contentMeasurables), constraints ->
-                val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
-                val iconDesiredWidth = iconMeasurables.fastFold(0) { acc, it ->
-                    maxOf(acc, it.maxIntrinsicWidth(Constraints.Infinity))
-                }
-                val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
-                val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
-                val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
-                val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconDesiredWidth) +
-                    IconSpacing.roundToPx() +
-                    (contentWidth ?: 0)
-
-                val offsetX = if (iconWidth == 0) {
-                    -(SegmentedButtonDefaults.IconSize.roundToPx() + IconSpacing.roundToPx()) / 2
-                } else {
-                    iconDesiredWidth - SegmentedButtonDefaults.IconSize.roundToPx()
-                }
-
-                val anim = animatable ?: Animatable(offsetX, Int.VectorConverter)
-                    .also { animatable = it }
-
-                if (anim.targetValue != offsetX) {
-                    scope.launch {
-                        anim.animateTo(offsetX, tween(MotionTokens.DurationMedium3.toInt()))
-                    }
-                }
-
-                layout(width, constraints.maxHeight) {
-                    iconPlaceables.fastForEach {
-                        it.place(0, (constraints.maxHeight - it.height) / 2)
-                    }
-
-                    val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
-                        IconSpacing.roundToPx() + anim.value
-
-                    contentPlaceables.fastForEach {
-                        it.place(contentOffsetX, (constraints.maxHeight - it.height) / 2)
-                    }
-                }
+            contentPlaceables.fastForEach {
+                it.place(
+                    contentOffsetX,
+                    (constraints.maxHeight - it.height) / 2
+                )
             }
         }
     }
