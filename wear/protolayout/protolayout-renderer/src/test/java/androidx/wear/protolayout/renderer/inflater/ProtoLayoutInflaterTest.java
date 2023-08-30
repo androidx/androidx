@@ -4136,6 +4136,58 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void layoutGetsApplied_whenApplyingSecondMutation_beforeExitAnimationsAreFinished()
+            throws Exception {
+        Renderer renderer =
+                renderer(
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation("Hello", /* iterations= */ 10)));
+        mDataPipeline.setFullyVisible(true);
+        FrameLayout inflatedViewParent = renderer.inflate();
+        shadowOf(getMainLooper()).idle();
+        ShadowChoreographer.setPaused(true);
+        ShadowChoreographer.setFrameDelay(Duration.ofMillis(15));
+
+        ViewGroupMutation mutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation("World", /* iterations= */ 10)));
+        ListenableFuture<Void> applyMutationFuture =
+                renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
+
+        shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(1);
+
+        ViewGroupMutation secondMutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation(
+                                        "Second mutation",
+                                        /* iterations= */ 10)));
+
+        ListenableFuture<Void> applySecondMutationFuture =
+                renderer.mRenderer.applyMutation(inflatedViewParent, secondMutation);
+
+        // the previous mutation should be finished
+        assertThat(applyMutationFuture.isDone()).isTrue();
+        assertThat(((TextView) inflatedViewParent.getChildAt(0)).getText().toString())
+                .isEqualTo("World");
+
+        shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(1);
+
+        ShadowChoreographer.setPaused(false);
+        shadowOf(getMainLooper()).idleFor(Duration.ofSeconds(5));
+        applySecondMutationFuture.get();
+
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(0);
+        assertThat(((TextView) inflatedViewParent.getChildAt(0)).getText().toString())
+                .isEqualTo("Second mutation");
+    }
+
+    @Test
     public void slideInTransition_snapToOutside_startsFromOutsideParentBounds() throws Exception {
         Renderer renderer =
                 renderer(
