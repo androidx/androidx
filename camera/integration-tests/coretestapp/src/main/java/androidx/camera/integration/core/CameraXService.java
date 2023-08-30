@@ -50,6 +50,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -76,6 +77,8 @@ public class CameraXService extends LifecycleService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     @Nullable
     private Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;
+    @Nullable
+    private CountDownLatch mAnalysisFrameLatch;
     //--------------------------------------------------------------------------------------------//
 
     @Override
@@ -156,6 +159,7 @@ public class CameraXService extends LifecycleService {
         }
         if (intent.getBooleanExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, false)) {
             ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+            imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), mAnalyzer);
             useCaseGroupBuilder.addUseCase(imageAnalysis);
             hasUseCase = true;
         }
@@ -178,6 +182,13 @@ public class CameraXService extends LifecycleService {
     private NotificationManager getNotificationManager() {
         return checkNotNull(ContextCompat.getSystemService(this, NotificationManager.class));
     }
+
+    private final ImageAnalysis.Analyzer mAnalyzer = image -> {
+        if (mAnalysisFrameLatch != null) {
+            mAnalysisFrameLatch.countDown();
+        }
+        image.close();
+    };
 
     @RequiresApi(26)
     static class Api26Impl {
@@ -203,6 +214,12 @@ public class CameraXService extends LifecycleService {
     @VisibleForTesting
     void setOnUseCaseBoundCallback(@NonNull Consumer<Collection<UseCase>> callback) {
         mOnUseCaseBoundCallback = callback;
+    }
+
+    @VisibleForTesting
+    CountDownLatch acquireAnalysisFrameCountDownLatch() {
+        mAnalysisFrameLatch = new CountDownLatch(3);
+        return mAnalysisFrameLatch;
     }
 
     class CameraXServiceBinder extends Binder {

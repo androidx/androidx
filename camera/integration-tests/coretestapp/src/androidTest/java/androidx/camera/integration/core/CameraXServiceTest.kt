@@ -47,6 +47,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.LifecycleOwnerUtils
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -148,6 +149,20 @@ class CameraXServiceTest(
         assertThat(captor.value!!.map { it.javaClass }).containsExactly(
             ImageAnalysis::class.java,
         )
+    }
+
+    @Test
+    fun canReceiveAnalysisFrame() = runBlocking {
+        // Arrange.
+        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
+            putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
+        })
+
+        // Act.
+        val latch = service.acquireAnalysisFrameCountDownLatch()
+
+        // Assert.
+        assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
     }
 
     private fun createServiceIntent(action: String? = null) =
