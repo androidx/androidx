@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -59,7 +60,11 @@ class SegmentedButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow {
                 values.forEach {
-                    SegmentedButton(checked = false, onCheckedChange = {}) {
+                    SegmentedButton(
+                        shape = RectangleShape,
+                        checked = false,
+                        onCheckedChange = {}
+                    ) {
                         Text(it)
                     }
                 }
@@ -76,7 +81,11 @@ class SegmentedButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             SingleChoiceSegmentedButtonRow {
                 values.forEach {
-                    SegmentedButton(selected = false, onClick = {}) {
+                    SegmentedButton(
+                        shape = RectangleShape,
+                        selected = false,
+                        onClick = {}
+                    ) {
                         Text(it)
                     }
                 }
@@ -91,10 +100,18 @@ class SegmentedButtonTest {
         var checked by mutableStateOf(true)
         rule.setMaterialContent(lightColorScheme()) {
             MultiChoiceSegmentedButtonRow {
-                SegmentedButton(onCheckedChange = { checked = it }, checked = checked) {
+                SegmentedButton(
+                    onCheckedChange = { checked = it },
+                    checked = checked,
+                    shape = RectangleShape,
+                ) {
                     Text("Day")
                 }
-                SegmentedButton(onCheckedChange = { checked = it }, checked = !checked) {
+                SegmentedButton(
+                    onCheckedChange = { checked = it },
+                    checked = !checked,
+                    shape = RectangleShape,
+                ) {
                     Text("Month")
                 }
             }
@@ -115,10 +132,18 @@ class SegmentedButtonTest {
     fun selectableSegmentedButton_semantics() {
         rule.setMaterialContent(lightColorScheme()) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.testTag("row")) {
-                SegmentedButton(selected = false, onClick = {}) {
+                SegmentedButton(
+                    selected = false,
+                    onClick = {},
+                    shape = RectangleShape,
+                ) {
                     Text("Day")
                 }
-                SegmentedButton(selected = false, onClick = {}) {
+                SegmentedButton(
+                    selected = false,
+                    onClick = {},
+                    shape = RectangleShape,
+                ) {
                     Text("Month")
                 }
             }
@@ -139,6 +164,7 @@ class SegmentedButtonTest {
                     checked = checked,
                     onCheckedChange = {},
                     icon = { Text(if (checked) "checked" else "unchecked") },
+                    shape = RectangleShape,
                 ) {
                     Text("Day")
                 }
@@ -161,10 +187,10 @@ class SegmentedButtonTest {
             parentMaxWidth = 300.dp, parentMaxHeight = 100.dp
         ) {
             MultiChoiceSegmentedButtonRow {
-                SegmentedButton(checked = false, onCheckedChange = {}) {
+                SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
                     Text(modifier = Modifier.width(60.dp), text = "Day")
                 }
-                SegmentedButton(checked = false, onCheckedChange = {}) {
+                SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
                     Text(modifier = Modifier.width(30.dp), text = "Month")
                 }
             }
