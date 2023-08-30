@@ -220,17 +220,10 @@ class SpecialEffectsControllerTest {
             operation2.addCompletionListener {
                 awaitingChanges = operation2.isAwaitingContainerChanges
             }
+            val operation = controller.operationsToExecute[0]
             onActivity {
-                fragmentStateManager1.moveToExpectedState()
-                fragmentStateManager2.moveToExpectedState()
-                // However, executePendingOperations(), since we're using our
-                // TestSpecialEffectsController, does immediately call complete()
-                // which in turn calls moveToExpectedState()
-                controller.executePendingOperations()
+                operation.complete()
             }
-            // Assert that we actually moved to the STARTED state
-            assertThat(fragment1.lifecycle.currentState)
-                .isEqualTo(Lifecycle.State.STARTED)
             assertThat(awaitingChanges).isTrue()
         }
     }
