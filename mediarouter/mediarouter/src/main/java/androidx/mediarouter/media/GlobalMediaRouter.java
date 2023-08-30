@@ -115,6 +115,7 @@ import java.util.Set;
             };
 
     private boolean mTransferReceiverDeclared;
+    private boolean mUseMediaRouter2ForSystemRouting;
     private MediaRoute2Provider mMr2Provider;
     private SystemMediaRouteProvider mSystemProvider;
     private DisplayManagerCompat mDisplayManager;
@@ -142,6 +143,15 @@ import java.util.Set;
         mTransferReceiverDeclared =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                         && MediaTransferReceiver.isDeclared(mApplicationContext);
+        mUseMediaRouter2ForSystemRouting =
+                SystemRoutingUsingMediaRouter2Receiver.isDeclared(mApplicationContext);
+
+        if (DEBUG && mUseMediaRouter2ForSystemRouting) {
+            // This is only added to skip the presubmit check for UnusedVariable
+            // TODO: Remove it once mUseMediaRouter2ForSystemRouting is actually used
+            Log.d(TAG, "Using MediaRouter2 for system routing");
+        }
+
         mMr2Provider =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && mTransferReceiverDeclared
                         ? new MediaRoute2Provider(mApplicationContext, new Mr2ProviderCallback())
