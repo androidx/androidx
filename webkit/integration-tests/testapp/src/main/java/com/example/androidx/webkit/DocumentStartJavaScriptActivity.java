@@ -28,6 +28,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,15 +38,14 @@ import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 /**
- * An {@link Activity} to exercise {@link WebViewCompat#addDocumentStartJavaScript(WebView, String,
- * Set)} related functionality.
+ * An {@link Activity} to exercise
+ * {@link WebViewCompat#addDocumentStartJavaScript(WebView, String, java.util.Set)} related
+ * functionality.
  */
-// TODO(swestphal): Remove the @SuppressLint after addDocumentStartJavaScript is unhidden.
-@SuppressLint("RestrictedApi")
 public class DocumentStartJavaScriptActivity extends AppCompatActivity {
     private final Uri mExampleUri = new Uri.Builder()
                                             .scheme("https")
@@ -54,7 +54,6 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
                                             .appendPath("example")
                                             .appendPath("assets")
                                             .build();
-    private Button mReplyProxyButton;
 
     private static class MyWebViewClient extends WebViewClient {
         private final WebViewAssetLoader mAssetLoader;
@@ -88,9 +87,10 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
-            if (message.getData().equals("initialization")) {
+        public void onPostMessage(@NonNull WebView view, WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
+            if ("initialization".equals(message.getData())) {
                 mReplyProxy = replyProxy;
             }
         }
@@ -117,16 +117,17 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
                         .addPathHandler(mExampleUri.getPath() + "/", new AssetsPathHandler(this))
                         .build();
 
-        mReplyProxyButton = findViewById(R.id.button_reply_proxy);
+        Button replyProxyButton = findViewById(R.id.button_reply_proxy);
 
         WebView webView = findViewById(R.id.webview);
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
         webView.getSettings().setJavaScriptEnabled(true);
 
-        HashSet<String> allowedOriginRules = new HashSet<>(Arrays.asList("https://example.com"));
+        HashSet<String> allowedOriginRules = new HashSet<>(
+                Collections.singletonList("https://example.com"));
         // Add WebMessageListeners.
         WebViewCompat.addWebMessageListener(webView, "replyObject", allowedOriginRules,
-                new ReplyMessageListener(mReplyProxyButton));
+                new ReplyMessageListener(replyProxyButton));
         final String jsCode = "replyObject.onmessage = function(event) {"
                 + "    document.getElementById('result').innerHTML = event.data;"
                 + "};"
