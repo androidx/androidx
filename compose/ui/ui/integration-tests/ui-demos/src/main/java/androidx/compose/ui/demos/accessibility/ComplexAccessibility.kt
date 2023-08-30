@@ -17,6 +17,7 @@
 package androidx.compose.ui.demos
 
 import android.widget.TextView
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -514,4 +515,17 @@ fun InteropSampleBackwards() {
         bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
             Text("Bottom App Bar") } }
     )
+}
+
+@Preview
+@Composable
+fun ReadableTraversalGroups() {
+    Column {
+        Row(Modifier.semantics { isTraversalGroup = true }.clickable {}) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+            Button(onClick = { }) {
+                Text("First button")
+            }
+        }
+    }
 }
