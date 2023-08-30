@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
+import androidx.wear.watchface.complications.ComplicationDataSourceInfo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
@@ -370,17 +371,29 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun selectComplicationDataForInstant(instant: Instant) {
         for ((_, complication) in complicationSlots) {
-            complication.selectComplicationDataForInstant(
-                instant,
-                loadDrawablesAsynchronous = true,
-                forceUpdate = false
-            )
+            complication.selectComplicationDataForInstant(instant, forceUpdate = false)
         }
 
         // selectComplicationDataForInstant may have changed the complication, if so we need to
         // update the content description labels.
         if (complicationSlots.isNotEmpty()) {
             onComplicationsUpdated()
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun freezeSlotForEdit(
+        slotId: Int,
+        from: ComplicationDataSourceInfo?,
+        to: ComplicationDataSourceInfo?,
+    ) {
+        complicationSlots[slotId]?.freezeForEdit(from = from, to = to)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun unfreezeAllSlotsForEdit(clearData: Boolean) {
+        for (slot in complicationSlots.values) {
+            slot.unfreezeForEdit(clearData)
         }
     }
 
