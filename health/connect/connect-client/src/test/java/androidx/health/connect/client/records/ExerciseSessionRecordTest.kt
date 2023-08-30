@@ -121,6 +121,99 @@ class ExerciseSessionRecordTest {
     }
 
     @Test
+    fun validRecord_emptyRoute_equals() {
+        assertThat(
+                ExerciseSessionRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_BIKING,
+                    title = "title",
+                    notes = "notes",
+                    segments =
+                        listOf(
+                            ExerciseSegment(
+                                startTime = Instant.ofEpochMilli(1234L),
+                                endTime = Instant.ofEpochMilli(1235L),
+                                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING
+                            )
+                        ),
+                    laps =
+                        listOf(
+                            ExerciseLap(
+                                startTime = Instant.ofEpochMilli(1235L),
+                                endTime = Instant.ofEpochMilli(1236L),
+                                length = 10.meters,
+                            )
+                        ),
+                    exerciseRoute = ExerciseRoute(route = listOf()),
+                )
+            )
+            .isEqualTo(
+                ExerciseSessionRecord(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    startZoneOffset = null,
+                    endTime = Instant.ofEpochMilli(1236L),
+                    endZoneOffset = null,
+                    exerciseType = EXERCISE_TYPE_BIKING,
+                    title = "title",
+                    notes = "notes",
+                    segments =
+                        listOf(
+                            ExerciseSegment(
+                                startTime = Instant.ofEpochMilli(1234L),
+                                endTime = Instant.ofEpochMilli(1235L),
+                                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING
+                            )
+                        ),
+                    laps =
+                        listOf(
+                            ExerciseLap(
+                                startTime = Instant.ofEpochMilli(1235L),
+                                endTime = Instant.ofEpochMilli(1236L),
+                                length = 10.meters,
+                            )
+                        ),
+                    exerciseRoute = ExerciseRoute(route = listOf()),
+                )
+            )
+    }
+
+    @Test
+    fun validRecord_emptyRoute_hasExerciseRouteData() {
+        val record =
+            ExerciseSessionRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = null,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = null,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_BIKING,
+                title = "title",
+                notes = "notes",
+                segments =
+                    listOf(
+                        ExerciseSegment(
+                            startTime = Instant.ofEpochMilli(1234L),
+                            endTime = Instant.ofEpochMilli(1235L),
+                            segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING
+                        )
+                    ),
+                laps =
+                    listOf(
+                        ExerciseLap(
+                            startTime = Instant.ofEpochMilli(1235L),
+                            endTime = Instant.ofEpochMilli(1236L),
+                            length = 10.meters,
+                        )
+                    ),
+                exerciseRoute = ExerciseRoute(route = listOf()),
+            )
+        assertThat((record.exerciseRouteResult as ExerciseRouteResult.Data))
+            .isEqualTo(ExerciseRouteResult.Data(ExerciseRoute(listOf())))
+    }
+
+    @Test
     fun invalidTimes_throws() {
         assertFailsWith<IllegalArgumentException> {
             ExerciseSessionRecord(
