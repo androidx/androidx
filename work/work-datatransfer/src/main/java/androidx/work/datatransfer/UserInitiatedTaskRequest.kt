@@ -25,20 +25,9 @@ import java.util.UUID
 class UserInitiatedTaskRequest constructor(
     private val task: Class<out UserInitiatedTask>,
     /**
-     * The foreground service which will be used as a fallback solution on Android 14- devices.
-     *
-     * <p>
-     * Upon scheduling the task request, the library will call [Context.startForegroundService] with
-     * [ACTION_UIT_SCHEDULE] on the given service here.
-     * The app needs to call [android.app.Service.startForeground] within a certain amount of time,
-     * otherwise it will crash with a [android.app.ForegroundServiceDidNotStartInTimeException].
+     * [FallbackPolicy] indicating what the library should do on Android 14- devices.
      */
-    private val service: Class<out AbstractUitService>,
-    /**
-     * [ForegroundServiceOnTaskFinishPolicy] indicating what should occur when the task is finished.
-     */
-    private val onTaskFinishPolicy: ForegroundServiceOnTaskFinishPolicy =
-        ForegroundServiceOnTaskFinishPolicy.FOREGROUND_SERVICE_STOP_FOREGROUND,
+    private val fallbackPolicy: FallbackPolicy = FallbackPolicy.FALLBACK_NONE,
     /**
      * [Constraints] required for this task to run.
      * The default value assumes a requirement of any internet.
@@ -71,9 +60,44 @@ class UserInitiatedTaskRequest constructor(
     val tags: List<String>
         get() = _tags
 
+    /**
+     * The foreground service which will be used as a fallback solution on Android 14- devices.
+     * This is only used if [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set.
+     */
+    var service: Class<out AbstractUitService>? = null
+
+    /**
+     * [ForegroundServiceOnTaskFinishPolicy] indicating what should occur when the task is finished.
+     */
+    var onTaskFinishPolicy: ForegroundServiceOnTaskFinishPolicy =
+        ForegroundServiceOnTaskFinishPolicy.FOREGROUND_SERVICE_STOP_FOREGROUND
+
     init {
         // Update the list of tags to include the UserInitiatedTask class name if available
         _tags += task.name
+    }
+
+    /**
+     * Set the [AbstractUitService] service to fallback to on Android 14- devices along with
+     * a [ForegroundServiceOnTaskFinishPolicy] policy which defines what will happen when the
+     * task is finished.
+     *
+     * This is only used if [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set. If this method
+     * is not called and [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set, an exception will
+     * be thrown when the task is enqueued.
+     *
+     * Upon scheduling the task request, the library will call [Context.startForegroundService] with
+     * [ACTION_UIT_SCHEDULE] on the given service here.
+     * The app needs to call [android.app.Service.startForeground] within a certain amount of time,
+     * otherwise it will crash with a [android.app.ForegroundServiceDidNotStartInTimeException].
+     */
+    fun setForegroundService(
+        service: Class<out AbstractUitService>,
+        onTaskFinishPolicy: ForegroundServiceOnTaskFinishPolicy =
+            ForegroundServiceOnTaskFinishPolicy.FOREGROUND_SERVICE_STOP_FOREGROUND
+    ) {
+        this.service = service
+        this.onTaskFinishPolicy = onTaskFinishPolicy
     }
 
     internal fun getTaskState(): TaskState {
@@ -81,6 +105,11 @@ class UserInitiatedTaskRequest constructor(
     }
 
     suspend fun enqueue(@Suppress("UNUSED_PARAMETER") context: Context) {
+        if (this.fallbackPolicy == FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE &&
+            this.service == null) {
+            throw IllegalArgumentException("FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE is set," +
+                " but a foreground service has not been set via setForegroundService().")
+        }
         // TODO: update impl
     }
 
@@ -91,6 +120,26 @@ class UserInitiatedTaskRequest constructor(
     companion object {
         const val ACTION_UIT_SCHEDULE =
             "androidx.work.datatransfer.UserInitiatedTaskRequest.SCHEDULE"
+    }
+
+    enum class FallbackPolicy {
+        /**
+         * Indicates to the library that it should not do anything on Android 14- devices. The
+         * developer will perform the data transfer task on previous versions of Android with their
+         * own logic.
+         *
+         * **This is the default policy.**
+         */
+        FALLBACK_NONE,
+
+        /**
+         * Indicates that the developer will provide an implementation of [AbstractUitService] which
+         * will be used by the library to perform the data transfer work on Android 14- devices.
+         *
+         * _The foreground service fallback will act as a best effort to perform the data transfer
+         * work on Android 14- devices._
+         */
+        FALLBACK_TO_FOREGROUND_SERVICE,
     }
 
     enum class ForegroundServiceOnTaskFinishPolicy {
