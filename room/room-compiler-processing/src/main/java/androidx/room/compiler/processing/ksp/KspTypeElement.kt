@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XPackageElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
@@ -68,7 +69,11 @@ internal sealed class KspTypeElement(
     }
 
     override val packageName: String by lazy {
-        declaration.getNormalizedPackageName()
+        packageElement.qualifiedName
+    }
+
+    override val packageElement: XPackageElement by lazy {
+        KspPackageElement(env, declaration.packageName.asString())
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {

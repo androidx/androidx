@@ -123,6 +123,60 @@ class XRoundEnvTest {
     }
 
     @Test
+    fun getAnnotatedPackageElements() {
+        val source = Source.java(
+            // Packages can be annotated in `package-info.java` files.
+            "foo.bar.foobar.package-info",
+            """
+            @OtherAnnotation(value = "xx")
+            package foo.bar.foobar;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+            """.trimIndent()
+        )
+
+        runProcessorTest(listOf(source)) { testInvocation ->
+            (testInvocation.roundEnv.getElementsAnnotatedWith(
+                OtherAnnotation::class
+            ).single() as XPackageElement).apply {
+                assertThat(name).isEqualTo("foobar")
+                assertThat(qualifiedName).isEqualTo("foo.bar.foobar")
+                assertThat(kindName()).isEqualTo("package")
+                assertThat(validate()).isTrue()
+            }.getAllAnnotations().single().apply {
+                assertThat(qualifiedName)
+                    .isEqualTo("androidx.room.compiler.processing.testcode.OtherAnnotation")
+            }.annotationValues.single().apply {
+                assertThat(name).isEqualTo("value")
+                assertThat(value).isEqualTo("xx")
+            }
+        }
+    }
+
+    @Test
+    fun defaultPackage() {
+        val javaSource = Source.java(
+            "FooBar",
+            """
+            class FooBar {}
+            """.trimIndent()
+        )
+        val kotlinSource = Source.kotlin(
+            "FooBarKt.kt",
+            """
+            class FooBarKt
+            """.trimIndent()
+        )
+        runProcessorTest(listOf(javaSource, kotlinSource)) { testInvocation ->
+            testInvocation.processingEnv.requireTypeElement("FooBar").apply {
+                assertThat(packageName).isEqualTo("")
+            }
+            testInvocation.processingEnv.requireTypeElement("FooBarKt").apply {
+                assertThat(packageName).isEqualTo("")
+            }
+        }
+    }
+
+    @Test
     fun misalignedAnnotationTargetFailsCompilation() {
         val source = Source.kotlin(
             "Baz.kt",
