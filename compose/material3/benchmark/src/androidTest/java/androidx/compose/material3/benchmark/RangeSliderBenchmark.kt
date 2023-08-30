@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +46,7 @@ class RangeSliderBenchmark {
 
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(sliderTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(sliderTestCaseFactory)
     }
 
     @Test
@@ -87,7 +88,7 @@ internal class RangeSliderTestCase : LayeredComposeTestCase(), ToggleableTestCas
 
     override fun toggleState() {
         if (state.activeRangeStart == 0f) {
-            state.activeRangeStart = 1f
+            state.activeRangeStart = .7f
         } else {
             state.activeRangeStart = 0f
         }
