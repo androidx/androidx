@@ -35,6 +35,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DIS
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
@@ -104,6 +105,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.TransformUtils;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -279,6 +281,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @NonNull
     public Range<Integer> getTargetFrameRate() {
         return getTargetFrameRateInternal();
+    }
+
+    /**
+     * Returns whether video stabilization is enabled.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isVideoStabilizationEnabled() {
+        return getCurrentConfig().getVideoStabilizationMode() == StabilizationMode.ON;
     }
 
     /**
@@ -684,6 +694,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // Use the frame rate range directly from the StreamSpec here (don't resolve it to the
         // default if unresolved).
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        sessionConfigBuilder.setVideoStabilization(config.getVideoStabilizationMode());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
         if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
@@ -1795,6 +1806,20 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @NonNull
         public Builder<T> setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
+            return this;
+        }
+
+        /**
+         * Enable video stabilization.
+         *
+         * @param enabled True if enable, otherwise false.
+         * @return the current Builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder<T> setVideoStabilizationEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_VIDEO_STABILIZATION_MODE,
+                    enabled ? StabilizationMode.ON : StabilizationMode.OFF);
             return this;
         }
 

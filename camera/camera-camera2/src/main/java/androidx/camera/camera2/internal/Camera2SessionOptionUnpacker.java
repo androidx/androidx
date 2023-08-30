@@ -89,6 +89,10 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
                         camera2Config.getSessionCaptureCallback(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
+        // Set video stabilization mode
+        builder.setVideoStabilization(config.getVideoStabilizationMode());
+        builder.setPreviewStabilization(config.getPreviewStabilizationMode());
+
         // Copy extended Camera2 configurations
         MutableOptionsBundle extendedConfig = MutableOptionsBundle.create();
         extendedConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION,

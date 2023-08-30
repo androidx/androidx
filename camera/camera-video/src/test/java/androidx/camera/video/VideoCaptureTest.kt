@@ -1354,6 +1354,14 @@ class VideoCaptureTest {
         ).isEqualTo(newImplementationOptionValue)
     }
 
+    @Test
+    fun canSetVideoStabilization() {
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build())
+            .setVideoStabilizationEnabled(true)
+            .build()
+        assertThat(videoCapture.isVideoStabilizationEnabled).isTrue()
+    }
+
     private fun testSurfaceRequestContainsExpected(
         quality: Quality = HD, // HD maps to 1280x720 (4:3)
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),

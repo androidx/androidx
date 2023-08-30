@@ -21,7 +21,9 @@ import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
@@ -57,6 +59,7 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig;
 
@@ -158,6 +161,21 @@ class VirtualCamera implements CameraInternal {
                     + " a dynamic range that satisfies all children.");
         }
         mutableConfig.insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
+
+        // Merge Preview stabilization and video stabilization configs.
+        for (UseCase useCase : mChildren) {
+            if (useCase.getCurrentConfig().getVideoStabilizationMode()
+                    != StabilizationMode.UNSPECIFIED) {
+                mutableConfig.insertOption(OPTION_VIDEO_STABILIZATION_MODE,
+                        useCase.getCurrentConfig().getVideoStabilizationMode());
+            }
+
+            if (useCase.getCurrentConfig().getPreviewStabilizationMode()
+                    != StabilizationMode.UNSPECIFIED) {
+                mutableConfig.insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                        useCase.getCurrentConfig().getPreviewStabilizationMode());
+            }
+        }
     }
 
     void bindChildren() {
