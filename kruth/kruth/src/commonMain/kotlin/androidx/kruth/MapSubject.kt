@@ -16,6 +16,9 @@
 
 package androidx.kruth
 
+import androidx.kruth.Fact.Companion.fact
+import androidx.kruth.Fact.Companion.simpleFact
+
 class MapSubject<K, V> internal constructor(
     actual: Map<K, V>?,
     metadata: FailureMetadata = FailureMetadata(),
@@ -53,6 +56,97 @@ class MapSubject<K, V> internal constructor(
         if (!actual.containsKey(key)) {
             metadata.fail("Expected to contain $key, but was ${actual.keys}")
         }
+    }
+
+    /** Fails if the map contains the given key.  */
+    fun doesNotContainKey(key: Any?) {
+        requireNonNull(actual) { "Expected not to contain $key, but was null" }
+        if (key in actual) {
+            failWithoutActual(fact("Expected not to contain", key), fact("but was", actual.keys))
+        }
+    }
+
+    /** Fails if the map does not contain the given entry.  */
+    fun containsEntry(key: K, value: V) {
+        val entry = key to value
+
+        requireNonNull(actual) { "Expected to contain $entry, but was null" }
+
+        if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
+            return
+        }
+
+        val keyList = listOf(key)
+        val valueList = listOf(value)
+
+        if (key in actual) {
+            val actualValue = actual[key]
+            /*
+             * In the case of a null expected or actual value, clarify that the key *is* present
+             * and *is* expected to be present. That is, get() isn't returning null to indicate
+             * that the key is missing, and the user isn't making an assertion that the key is
+             * missing.
+             */
+            if ((value == null) || (actualValue == null)) {
+                failWithActual(
+                    fact("Expected to contain entry", entry),
+                    fact("key is present but with a different value"),
+                )
+            } else {
+                failWithActual(fact("Expected to contain entry", entry))
+            }
+        } else if (actual.keys.hasMatchingToStringPair(keyList)) {
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                fact("an instance of", entry.typeName()),
+                simpleFact("but did not"),
+                fact(
+                    "though it did contain keys",
+                    actual.keys.retainMatchingToString(keyList).countDuplicatesAndAddTypeInfo(),
+                ),
+            )
+        } else if (actual.containsValue(value)) {
+            val keys = actual.filterValues { it == value }.keys
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                simpleFact("but did not"),
+                fact("though it did contain keys with that value", keys),
+            )
+        } else if (actual.values.hasMatchingToStringPair(valueList)) {
+            failWithActual(
+                fact("Expected to contain entry", entry),
+                fact("an instance of", entry.typeName()),
+                simpleFact("but did not"),
+                fact(
+                    "though it did contain values",
+                    actual.values.retainMatchingToString(valueList)
+                        .countDuplicatesAndAddTypeInfo(),
+                ),
+            )
+        } else {
+            failWithActual(fact("Expected to contain entry", entry))
+        }
+    }
+
+    /** Fails if the map does not contain the given entry.  */
+    fun containsEntry(entry: Pair<K, V>) {
+        containsEntry(key = entry.first, value = entry.second)
+    }
+
+    /** Fails if the map contains the given entry. */
+    fun doesNotContainEntry(key: K, value: V) {
+        val entry = key to value
+
+        requireNonNull(actual) { "Expected not to contain $entry, but was null" }
+
+        if (actual.entries.any { (k, v) -> (k == key) && (v == value) }) {
+            failWithActual(fact("Expected not to contain", entry))
+        }
+    }
+
+    /** Fails if the map contains the given entry. */
+    fun doesNotContainEntry(entry: Pair<K, V>) {
+        doesNotContainEntry(key = entry.first, value = entry.second)
     }
 
     /**
