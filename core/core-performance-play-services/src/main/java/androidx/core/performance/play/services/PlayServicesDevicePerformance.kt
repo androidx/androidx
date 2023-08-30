@@ -26,8 +26,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.deviceperformance.DevicePerformanceClient
+import java.util.concurrent.CountDownLatch
 import kotlin.math.max
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -43,7 +43,7 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
     private val tag = "PlayServicesDevicePerformance"
 
     private val defaultMpc = DefaultDevicePerformance()
-    private val playServicesValueStoredDeferred = CompletableDeferred<Boolean>()
+    private var datastoreLatch = CountDownLatch(1)
 
     override val mediaPerformanceClass get() = lazyMpc.value
     private val lazyMpc =
@@ -70,13 +70,18 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
     }
 
     @VisibleForTesting
-    internal constructor(context: Context, client: DevicePerformanceClient) : this(context) {
+    internal constructor(
+        context: Context,
+        client: DevicePerformanceClient,
+        isDelay: Boolean = false
+    ) : this(context) {
         // mock client should wait for the playServices client to finish,
         // so the test results are determined by the mock client.
-        runBlocking {
-            playServicesValueStoredDeferred.await()
-        }
+        datastoreLatch.await()
+        datastoreLatch = CountDownLatch(1)
         updatePerformanceStore(client)
+        if (!isDelay)
+            datastoreLatch.await()
     }
 
     private val mpcKey = intPreferencesKey("mpc_value")
@@ -105,6 +110,7 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
         context.performanceStore.edit { values ->
             values[mpcKey] = value
         }
+        datastoreLatch.countDown()
     }
 
     private fun updatePerformanceStore(client: DevicePerformanceClient) {
@@ -115,7 +121,6 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
                 launch {
                     savePerformanceClass(storedVal)
                     Log.v(tag, "Saved mediaPerformanceClass $storedVal")
-                    playServicesValueStoredDeferred.complete(true)
                 }
             }
         }.addOnFailureListener { e: Exception ->
@@ -124,7 +129,7 @@ class PlayServicesDevicePerformance(private val context: Context) : DevicePerfor
             } else if (e is IllegalStateException) {
                 Log.e(tag, "Error saving mediaPerformanceClass: $e")
             }
-            playServicesValueStoredDeferred.complete(true)
+            datastoreLatch.countDown()
         }
     }
 }

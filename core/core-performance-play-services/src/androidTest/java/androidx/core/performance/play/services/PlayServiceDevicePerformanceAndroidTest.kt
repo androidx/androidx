@@ -35,25 +35,51 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 
 /** Android Unit tests for [PlayServicesDevicePerformance]. */
 @RunWith(AndroidJUnit4::class)
 class PlayServicesDevicePerformanceTest {
-    open class DevicePerformanceClientTest : DevicePerformanceClient {
+    enum class TestType {
+        NONE, DELAY, API_EXCEPTION, IS_EXCEPTION
+    }
+
+    companion object {
+        const val fakeMPC = 100
+    }
+
+    class FakeDevicePerformanceClient : DevicePerformanceClient {
+
+        var testType = TestType.NONE
         override fun getApiKey(): ApiKey<Api.ApiOptions.NoOptions> {
             // method for testing purpose
             return this.apiKey
         }
 
         override fun mediaPerformanceClass(): Task<Int> {
-            return Tasks.forResult(0)
+            when (testType) {
+                TestType.DELAY -> {
+                    TimeUnit.SECONDS.sleep(5)
+                    return Tasks.forResult(fakeMPC)
+                }
+
+                TestType.API_EXCEPTION -> {
+                    return Tasks.forException(ApiException(Status.RESULT_TIMEOUT))
+                }
+
+                TestType.IS_EXCEPTION -> {
+                    return Tasks.forException(IllegalStateException())
+                }
+
+                else -> {
+                    return Tasks.forResult(fakeMPC)
+                }
+            }
         }
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext<Application>()
     private val defaultMediaPerformanceClass = DefaultDevicePerformance().mediaPerformanceClass
+    private val fakeClient: FakeDevicePerformanceClient = FakeDevicePerformanceClient()
 
     @After
     fun tearDown() = runBlocking {
@@ -72,35 +98,24 @@ class PlayServicesDevicePerformanceTest {
 
     @Test
     @MediumTest
-    fun mockPlayServiceDevicePerformanceClassTest() {
-        val mockClient: DevicePerformanceClient = mock(DevicePerformanceClientTest::class.java)
-        val mediaPerformanceClass = 33
-        `when`(mockClient.mediaPerformanceClass()).thenAnswer {
-            Tasks.forResult(mediaPerformanceClass)
-        }
+    fun fakePlayServiceDevicePerformanceClassTest() {
+        fakeClient.testType = TestType.NONE
         val playServicesDevicePerformance = PlayServicesDevicePerformance(
             context,
-            mockClient
+            fakeClient
         )
-        delayRead()
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
-        Truth.assertThat(pcScore).isEqualTo(mediaPerformanceClass)
+        Truth.assertThat(pcScore).isEqualTo(fakeMPC)
     }
 
     @Test
     @MediumTest
-    fun delayMockPlayServiceDevicePerformanceClassTest() {
-        val mockClient: DevicePerformanceClient = mock(DevicePerformanceClientTest::class.java)
-
-        // Delay the response from mockClient.mediaPerformanceClass() so
-        // response will be different that provided.
-        `when`(mockClient.mediaPerformanceClass()).thenAnswer {
-            TimeUnit.SECONDS.sleep(5)
-            Tasks.forResult(defaultMediaPerformanceClass + 100)
-        }
+    fun delayFakePlayServiceDevicePerformanceClassTest() {
+        fakeClient.testType = TestType.DELAY
         val playServicesDevicePerformance = PlayServicesDevicePerformance(
             context,
-            mockClient
+            fakeClient,
+            true
         )
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(defaultMediaPerformanceClass)
@@ -109,36 +124,26 @@ class PlayServicesDevicePerformanceTest {
     @Test
     @MediumTest
     fun playServiceCrashPerformanceClassTest() {
-        val mockClient: DevicePerformanceClient = mock(DevicePerformanceClientTest::class.java)
-        `when`(mockClient.mediaPerformanceClass()).thenReturn( // Throw an exception here.
-            Tasks.forException(IllegalStateException())
-        )
-        val pc = PlayServicesDevicePerformance(
+        fakeClient.testType = TestType.IS_EXCEPTION
+        val playServicesDevicePerformance = PlayServicesDevicePerformance(
             context,
-            mockClient
+            fakeClient
         )
         // Since the gms service has crashed, the library should still return default value.
-        Truth.assertThat(pc.mediaPerformanceClass).isEqualTo(defaultMediaPerformanceClass)
+        Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)
+            .isEqualTo(defaultMediaPerformanceClass)
     }
 
     @Test
     @MediumTest
     fun playServiceNotStartPerformanceClassTest() {
-        val mockClient: DevicePerformanceClient = mock(DevicePerformanceClientTest::class.java)
-        `when`(mockClient.mediaPerformanceClass()).thenReturn( // Throw an exception here.
-            Tasks.forException(ApiException(Status.RESULT_TIMEOUT))
-        )
-        val pc = PlayServicesDevicePerformance(
+        fakeClient.testType = TestType.API_EXCEPTION
+        val playServicesDevicePerformance = PlayServicesDevicePerformance(
             context,
-            mockClient
+            fakeClient
         )
         // Since the gms service not started, the library should still return default value.
-        Truth.assertThat(pc.mediaPerformanceClass).isEqualTo(defaultMediaPerformanceClass)
-    }
-
-    /* Add delay to make sure that value is written in Preference datastore before reading it */
-    private fun delayRead() {
-        val delayTime: Long = 200
-        TimeUnit.MILLISECONDS.sleep(delayTime)
+        Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)
+            .isEqualTo(defaultMediaPerformanceClass)
     }
 }
