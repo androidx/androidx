@@ -20,8 +20,6 @@ package androidx.health.connect.client.samples
 
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
@@ -49,14 +47,4 @@ suspend fun DeleteByTimeRange(
         StepsRecord::class,
         timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
     )
-}
-
-@Sampled
-suspend fun DeleteSleepSession(
-    healthConnectClient: HealthConnectClient,
-    sleepRecord: SleepSessionRecord,
-) {
-    val timeRangeFilter = TimeRangeFilter.between(sleepRecord.startTime, sleepRecord.endTime)
-    healthConnectClient.deleteRecords(SleepSessionRecord::class, timeRangeFilter)
-    healthConnectClient.deleteRecords(SleepStageRecord::class, timeRangeFilter)
 }
