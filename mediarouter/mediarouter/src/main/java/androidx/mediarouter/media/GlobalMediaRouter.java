@@ -115,7 +115,6 @@ import java.util.Set;
             };
 
     private boolean mTransferReceiverDeclared;
-    private boolean mUseMediaRouter2ForSystemRouting;
     private MediaRoute2Provider mMr2Provider;
     private SystemMediaRouteProvider mSystemProvider;
     private DisplayManagerCompat mDisplayManager;
@@ -143,8 +142,6 @@ import java.util.Set;
         mTransferReceiverDeclared =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                         && MediaTransferReceiver.isDeclared(mApplicationContext);
-        mUseMediaRouter2ForSystemRouting =
-                SystemRoutingUsingMediaRouter2Receiver.isDeclared(mApplicationContext);
         mMr2Provider =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && mTransferReceiverDeclared
                         ? new MediaRoute2Provider(mApplicationContext, new Mr2ProviderCallback())
