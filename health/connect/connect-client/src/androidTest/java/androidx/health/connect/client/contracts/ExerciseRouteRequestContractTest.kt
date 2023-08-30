@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,6 +35,13 @@ import org.junit.runner.RunWith
 class ExerciseRouteRequestContractTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+
+    @Test
+    fun requestExerciseRoute_createIntent_emptySessionIdThrowsIAE() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ExerciseRouteRequestContract().createIntent(context, "")
+        }
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
