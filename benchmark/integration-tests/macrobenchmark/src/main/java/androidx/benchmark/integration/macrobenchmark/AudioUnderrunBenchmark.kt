@@ -34,7 +34,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@Ignore("b/297916125")
 @OptIn(ExperimentalMetricApi::class)
 class AudioUnderrunBenchmark() {
     @get:Rule
@@ -49,6 +48,7 @@ class AudioUnderrunBenchmark() {
     }
 
     @Test
+    @Ignore("b/297916125")
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
