@@ -24,6 +24,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.effects.opengl.GlRenderer;
 
 /**
@@ -32,6 +33,7 @@ import androidx.camera.effects.opengl.GlRenderer;
  * <p>The frame can be empty or filled. A filled frame contains valid information on how to
  * render it. An empty frame can be filled with new content.
  */
+@RequiresApi(21)
 class TextureFrame {
 
     private static final long NO_VALUE = Long.MIN_VALUE;
@@ -41,8 +43,9 @@ class TextureFrame {
     private long mTimestampNs = NO_VALUE;
     @Nullable
     private Surface mSurface;
-    @Nullable
-    private float[] mTransform;
+
+    @NonNull
+    private final float[] mTransform = new float[16];
 
     /**
      * Creates a frame that is backed by a texture ID.
@@ -54,7 +57,7 @@ class TextureFrame {
     /**
      * Checks if the frame is empty.
      *
-     * <p>A empty frame means that the texture does not have valid content. It can be filled
+     * <p>An empty frame means that the texture does not have valid content. It can be filled
      * with new content.
      */
     boolean isEmpty() {
@@ -69,25 +72,24 @@ class TextureFrame {
     void markEmpty() {
         checkState(!isEmpty(), "Frame is already empty");
         mTimestampNs = NO_VALUE;
-        mTransform = null;
         mSurface = null;
     }
 
     /**
      * Marks the frame as filled.
      *
-     * <p>Call this method when a valid camera frame is copied to the texture with
+     * <p>Call this method when a valid camera frame has been copied to the texture with
      * {@link GlRenderer#renderInputToQueueTexture}. Once filled, the frame should not be
      * written into until it's made empty again.
      *
-     * @param timestampNs the timestamp of the camera frame.
+     * @param timestampNs the timestamp of the camera frame in nanoseconds.
      * @param transform   the transform to apply when rendering the frame.
      * @param surface     the output surface to which the frame should render.
      */
-    void markFilled(long timestampNs, float[] transform, Surface surface) {
+    void markFilled(long timestampNs, @NonNull float[] transform, @NonNull Surface surface) {
         checkState(isEmpty(), "Frame is already filled");
         mTimestampNs = timestampNs;
-        mTransform = transform;
+        System.arraycopy(transform, 0, mTransform, 0, transform.length);
         mSurface = surface;
     }
 
@@ -117,7 +119,7 @@ class TextureFrame {
      */
     @NonNull
     float[] getTransform() {
-        return requireNonNull(mTransform);
+        return mTransform;
     }
 
     /**
