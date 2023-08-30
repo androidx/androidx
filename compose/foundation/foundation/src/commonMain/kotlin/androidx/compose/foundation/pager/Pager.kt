@@ -537,9 +537,23 @@ private fun SnapLayoutInfoProvider(
             val finalDistance = when (sign(currentVelocity)) {
                 0f -> {
                     if (offsetFromSnappedPositionOverflow.absoluteValue > snapPositionalThreshold) {
+                        // If we crossed the threshold, go to the next bound
                         if (isForward) upperBoundOffset else lowerBoundOffset
                     } else {
-                        if (isForward) lowerBoundOffset else upperBoundOffset
+                        // if we haven't crossed the threshold. but scrolled minimally, we should
+                        // bound to the previous bound
+                        if (abs(pagerState.currentPageOffsetFraction) >=
+                            abs(pagerState.positionThresholdFraction)
+                        ) {
+                            if (isForward) lowerBoundOffset else upperBoundOffset
+                        } else {
+                            // if we haven't scrolled minimally, settle for the closest bound
+                            if (lowerBoundOffset.absoluteValue < upperBoundOffset.absoluteValue) {
+                                lowerBoundOffset
+                            } else {
+                                upperBoundOffset
+                            }
+                        }
                     }
                 }
 

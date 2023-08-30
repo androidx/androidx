@@ -233,7 +233,7 @@ abstract class PagerState(
      * How far the current page needs to scroll so the target page is considered to be the next
      * page.
      */
-    private val positionThresholdFraction: Float
+    internal val positionThresholdFraction: Float
         get() = with(density) {
             val minThreshold = minOf(DefaultPositionThreshold.toPx(), pageSize / 2f)
             minThreshold / pageSize.toFloat()
