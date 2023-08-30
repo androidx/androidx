@@ -91,6 +91,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
+    ctor public CheckboxColors(long checkedBoxColor, long checkedCheckmarkColor, long uncheckedBoxColor, long uncheckedCheckmarkColor, long disabledCheckedBoxColor, long disabledCheckedCheckmarkColor, long disabledUncheckedBoxColor, long disabledUncheckedCheckmarkColor);
     method public long getCheckedBoxColor();
     method public long getCheckedCheckmarkColor();
     method public long getDisabledCheckedBoxColor();
@@ -353,6 +354,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
+    ctor public RadioButtonColors(long selectedColor, long unselectedColor, long disabledSelectedColor, long disabledUnselectedColor);
     method public long getDisabledSelectedColor();
     method public long getDisabledUnselectedColor();
     method public long getSelectedColor();
@@ -431,6 +433,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class SwitchColors {
+    ctor public SwitchColors(long checkedThumbColor, long checkedThumbIconColor, long checkedTrackColor, long checkedTrackBorderColor, long uncheckedThumbColor, long uncheckedThumbIconColor, long uncheckedTrackColor, long uncheckedTrackBorderColor, long disabledCheckedThumbColor, long disabledCheckedThumbIconColor, long disabledCheckedTrackColor, long disabledCheckedTrackBorderColor, long disabledUncheckedThumbColor, long disabledUncheckedThumbIconColor, long disabledUncheckedTrackColor, long disabledUncheckedTrackBorderColor);
     method public long getCheckedThumbColor();
     method public long getCheckedThumbIconColor();
     method public long getCheckedTrackBorderColor();
@@ -466,7 +469,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class SwitchDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackStrokeColor, optional long uncheckedThumbColor, optional long uncheckedThumbIconColor, optional long uncheckedTrackColor, optional long uncheckedTrackStrokeColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackBorderColor, optional long uncheckedThumbColor, optional long uncheckedThumbIconColor, optional long uncheckedTrackColor, optional long uncheckedTrackBorderColor);
     field public static final androidx.wear.compose.material3.SwitchDefaults INSTANCE;
   }
 
