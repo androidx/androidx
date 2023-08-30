@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.core
 
-import android.Manifest
 import android.app.ActivityManager
 import android.app.Service
 import android.content.ComponentName
@@ -25,11 +24,27 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.CameraSelector.LENS_FACING_BACK
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.UseCase
+import androidx.camera.integration.core.CameraXService.ACTION_BIND_USE_CASES
+import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_ANALYSIS_ENABLED
+import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_CAPTURE_ENABLED
+import androidx.camera.integration.core.CameraXService.EXTRA_VIDEO_CAPTURE_ENABLED
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.hasCameraWithLensFacing
+import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
+import androidx.camera.video.VideoCapture
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.LifecycleOwnerUtils
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -37,16 +52,37 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class CameraXServiceTest {
+@RunWith(Parameterized::class)
+class CameraXServiceTest(
+    private val implName: String,
+    private val cameraXConfig: CameraXConfig
+) {
     @get:Rule
-    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(Manifest.permission.CAMERA)
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(cameraXConfig)
+    )
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val activityManager =
@@ -56,6 +92,7 @@ class CameraXServiceTest {
 
     @Before
     fun setUp() = runBlocking {
+        assumeTrue(hasCameraWithLensFacing(LENS_FACING_BACK))
         assumeFalse(isBackgroundRestricted())
 
         service = bindService()
@@ -68,6 +105,7 @@ class CameraXServiceTest {
     fun tearDown() {
         if (this::service.isInitialized) {
             context.unbindService(serviceConnection)
+            context.stopService(createServiceIntent())
 
             // Ensure service is destroyed
             LifecycleOwnerUtils.waitUntilState(service, Lifecycle.State.DESTROYED)
@@ -79,7 +117,43 @@ class CameraXServiceTest {
         assertThat(isForegroundService(service)).isTrue()
     }
 
-    private fun createServiceIntent() = Intent(context, CameraXService::class.java)
+    @Test
+    fun canBindUseCases() {
+        // Arrange: set up onUseCaseBound callback.
+        val useCaseCallback = MockConsumer<Collection<UseCase>>()
+        service.setOnUseCaseBoundCallback(useCaseCallback)
+
+        // Act: bind VideoCapture and ImageCapture.
+        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
+            putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
+            putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
+        })
+
+        // Assert: verify bound UseCases.
+        val captor = ArgumentCaptor<Collection<UseCase>>()
+        useCaseCallback.verifyAcceptCall(Collection::class.java, false, 3000L, CallTimes(1), captor)
+        assertThat(captor.value!!.map { it.javaClass }).containsExactly(
+            VideoCapture::class.java,
+            ImageCapture::class.java
+        )
+
+        // Act: rebind by ImageAnalysis.
+        useCaseCallback.clearAcceptCalls()
+        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
+            putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
+        })
+
+        // Assert: verify bound UseCases.
+        useCaseCallback.verifyAcceptCall(Collection::class.java, false, 3000L, CallTimes(1), captor)
+        assertThat(captor.value!!.map { it.javaClass }).containsExactly(
+            ImageAnalysis::class.java,
+        )
+    }
+
+    private fun createServiceIntent(action: String? = null) =
+        Intent(context, CameraXService::class.java).apply {
+            action?.let { setAction(it) }
+        }
 
     private fun isForegroundService(service: Service): Boolean {
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
