@@ -782,7 +782,7 @@ public class WebViewCompat {
      * origin matches {@code allowedOriginRules} when the document begins to load.
      *
      * <p>Note that the script will run before any of the page's JavaScript code and the DOM tree
-     * might not be ready at this moment. It will block the loadng of the page until it's finished,
+     * might not be ready at this moment. It will block the loading of the page until it's finished,
      * so should be kept as short as possible.
      *
      * <p>The injected object from {@link #addWebMessageListener(WebView, String, Set,
@@ -809,13 +809,10 @@ public class WebViewCompat {
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
-     * @deprecated unreleased API will be removed in 1.9.0
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @Deprecated
     public static @NonNull ScriptHandler addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
