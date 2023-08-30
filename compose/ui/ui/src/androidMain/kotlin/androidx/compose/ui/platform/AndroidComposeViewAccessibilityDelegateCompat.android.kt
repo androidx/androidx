@@ -1250,14 +1250,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val afterId = idToAfterMap[virtualViewId]
         afterId?.let {
             val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
+            // Specially use `traversalAfter` value if the node after is a View,
+            // as expressing the order using traversalBefore in this case would require mutating the
+            // View itself, which is not under Compose's full control.
             if (afterView != null) {
                 info.setTraversalAfter(afterView)
-            } else {
-                info.setTraversalAfter(view, afterId)
+                addExtraDataToAccessibilityNodeInfoHelper(
+                    virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
+                )
             }
-            addExtraDataToAccessibilityNodeInfoHelper(
-                virtualViewId, info.unwrap(), EXTRA_DATA_TEST_TRAVERSALAFTER_VAL, null
-            )
         }
     }
 
