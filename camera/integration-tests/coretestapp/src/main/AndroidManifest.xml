@@ -76,6 +76,12 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".CameraXService"
+            android:exported="true"
+            android:foregroundServiceType="camera"
+            android:label="CameraX Service">
+        </service>
     </application>
 
     <uses-feature android:glEsVersion="0x00020000" />
@@ -85,4 +91,6 @@ limitations under the License.
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
 </manifest>
