@@ -1,0 +1,16 @@
+// Signature format: 4.0
+package androidx.core.performance {
+
+  public final class DefaultDevicePerformance implements androidx.core.performance.DevicePerformance {
+    ctor public DefaultDevicePerformance();
+    method public int getMediaPerformanceClass();
+    property public int mediaPerformanceClass;
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
+    method public int getMediaPerformanceClass();
+    property public abstract int mediaPerformanceClass;
+  }
+
+}
+
