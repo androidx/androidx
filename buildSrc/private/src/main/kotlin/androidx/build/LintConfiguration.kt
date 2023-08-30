@@ -367,9 +367,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         disable.add("RestrictedApi")
         fatal.add("RestrictedApiAndroidX")
 
-        // Disable until ag/19949626 goes in (b/261918265)
-        disable.add("MissingQuantity")
-
         // Provide stricter enforcement for project types intended to run on a device.
         if (extension.type.compilationTarget == CompilationTarget.DEVICE) {
             fatal.add("Assert")
