@@ -2734,6 +2734,12 @@ package androidx.compose.ui.platform {
     method public long calculateRecommendedTimeoutMillis(long originalTimeoutMillis, optional boolean containsIcons, optional boolean containsText, optional boolean containsControls);
   }
 
+  public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
+    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableContentCapture;
+  }
+
   public final class AndroidCompositionLocals_androidKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Configuration> getLocalConfiguration();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
