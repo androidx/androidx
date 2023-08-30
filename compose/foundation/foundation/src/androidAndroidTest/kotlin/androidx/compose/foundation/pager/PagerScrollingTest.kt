@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -272,6 +273,64 @@ class PagerScrollingTest(
         // Assert
         rule.onNodeWithTag("5").assertIsDisplayed()
         confirmPageIsInCorrectPosition(5)
+    }
+
+    @Test
+    fun swipeWithLowVelocity_onEdgeOfList_smallDeltas_shouldGoToClosestPage_backward() {
+        // Arrange
+        createPager(modifier = Modifier.fillMaxSize())
+        val delta = 10f * scrollForwardSign * -1
+
+        onPager().performTouchInput {
+            down(center)
+            // series of backward delta on edge
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+
+            // single delta on opposite direction
+            moveBy(
+                Offset(
+                    if (vertical) 0.0f else -delta,
+                    if (vertical) -delta else 0.0f
+                )
+            )
+            up()
+        }
+        rule.mainClock.advanceTimeUntil { pagerState.isScrollInProgress == false }
+
+        // Assert
+        rule.onNodeWithTag("0").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(0)
+    }
+
+    @Test
+    fun swipeWithLowVelocity_onEdgeOfList_smallDeltas_shouldGoToClosestPage_forward() {
+        // Arrange
+        createPager(modifier = Modifier.fillMaxSize(), initialPage = DefaultPageCount - 1)
+        val delta = 10f * scrollForwardSign
+
+        onPager().performTouchInput {
+            down(center)
+            // series of backward delta on edge
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+            moveBy(Offset(if (vertical) 0.0f else delta, if (vertical) delta else 0.0f))
+
+            // single delta on opposite direction
+            moveBy(
+                Offset(
+                    if (vertical) 0.0f else -delta,
+                    if (vertical) -delta else 0.0f
+                )
+            )
+            up()
+        }
+        rule.mainClock.advanceTimeUntil { pagerState.isScrollInProgress == false }
+
+        // Assert
+        rule.onNodeWithTag("${DefaultPageCount - 1}").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(DefaultPageCount - 1)
     }
 
     @Test
