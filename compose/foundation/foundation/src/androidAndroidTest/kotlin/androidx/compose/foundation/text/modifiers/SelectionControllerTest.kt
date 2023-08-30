@@ -70,9 +70,11 @@ class SelectionControllerTest {
             it.addRect(Rect(0f, 0f, pathSize, pathSize))
         }
 
+        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
         val subject = SelectionController(
-            FixedSelectionFake(0, 1000, 200),
-            Color.White,
+            selectableId = fixedSelectionFake.nextSelectableId(),
+            selectionRegistrar = fixedSelectionFake,
+            backgroundSelectionColor = Color.White,
             params = FakeParams(
                 path, true
             )
@@ -104,9 +106,11 @@ class SelectionControllerTest {
             it.addRect(Rect(0f, 0f, pathSize, pathSize))
         }
 
+        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
         val subject = SelectionController(
-            FixedSelectionFake(0, 1000, 200),
-            Color.White,
+            selectableId = fixedSelectionFake.nextSelectableId(),
+            selectionRegistrar = fixedSelectionFake,
+            backgroundSelectionColor = Color.White,
             params = FakeParams(
                 path, false
             )

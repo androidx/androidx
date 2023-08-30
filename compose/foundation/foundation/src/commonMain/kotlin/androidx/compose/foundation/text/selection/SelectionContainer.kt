@@ -24,6 +24,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -81,7 +82,10 @@ internal fun SelectionContainer(
     onSelectionChange: (Selection?) -> Unit,
     children: @Composable () -> Unit
 ) {
-    val registrarImpl = remember { SelectionRegistrarImpl() }
+    val registrarImpl = rememberSaveable(saver = SelectionRegistrarImpl.Saver) {
+        SelectionRegistrarImpl()
+    }
+
     val manager = remember { SelectionManager(registrarImpl) }
 
     manager.hapticFeedBack = LocalHapticFeedback.current
