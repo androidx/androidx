@@ -79,11 +79,13 @@ limitations under the License.
         <service
             android:name=".CameraXService"
             android:exported="true"
-            android:foregroundServiceType="camera"
+            android:foregroundServiceType="camera|microphone"
             android:label="CameraX Service">
             <intent-filter>
                 <action android:name="androidx.camera.integration.core.intent.action.BIND_USE_CASES" />
                 <action android:name="androidx.camera.integration.core.intent.action.TAKE_PICTURE" />
+                <action android:name="androidx.camera.integration.core.intent.action.START_RECORDING" />
+                <action android:name="androidx.camera.integration.core.intent.action.STOP_RECORDING" />
             </intent-filter>
         </service>
     </application>
@@ -97,4 +99,5 @@ limitations under the License.
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 </manifest>

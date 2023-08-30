@@ -17,7 +17,16 @@
 package androidx.camera.integration.core;
 
 import static androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA;
+import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
 import static androidx.camera.testing.impl.FileUtil.createParentFolder;
+import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
+import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
+import static androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,6 +34,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -45,8 +55,14 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.OutputOptions;
+import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
 import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
@@ -82,6 +98,10 @@ public class CameraXService extends LifecycleService {
             "androidx.camera.integration.core.intent.action.BIND_USE_CASES";
     public static final String ACTION_TAKE_PICTURE =
             "androidx.camera.integration.core.intent.action.TAKE_PICTURE";
+    public static final String ACTION_START_RECORDING =
+            "androidx.camera.integration.core.intent.action.START_RECORDING";
+    public static final String ACTION_STOP_RECORDING =
+            "androidx.camera.integration.core.intent.action.STOP_RECORDING";
 
     // Extras
     public static final String EXTRA_VIDEO_CAPTURE_ENABLED = "EXTRA_VIDEO_CAPTURE_ENABLED";
@@ -94,12 +114,14 @@ public class CameraXService extends LifecycleService {
     //                          Members only accessed on main thread                              //
     ////////////////////////////////////////////////////////////////////////////////////////////////
     private final Map<Class<?>, UseCase> mBoundUseCases = new HashMap<>();
+    @Nullable
+    private Recording mActiveRecording;
     //--------------------------------------------------------------------------------------------//
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                   Members for testing                                      //
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    private final Set<Uri> mSavedImageUri = new HashSet<>();
+    private final Set<Uri> mSavedMediaUri = new HashSet<>();
 
     @Nullable
     private Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;
@@ -107,6 +129,8 @@ public class CameraXService extends LifecycleService {
     private CountDownLatch mAnalysisFrameLatch;
     @Nullable
     private CountDownLatch mTakePictureLatch;
+    @Nullable
+    private CountDownLatch mRecordVideoLatch;
     //--------------------------------------------------------------------------------------------//
 
     @Override
@@ -131,6 +155,10 @@ public class CameraXService extends LifecycleService {
                 bindToLifecycle(intent);
             } else if (ACTION_TAKE_PICTURE.equals(action)) {
                 takePicture();
+            } else if (ACTION_START_RECORDING.equals(action)) {
+                startRecording();
+            } else if (ACTION_STOP_RECORDING.equals(action)) {
+                stopRecording();
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -222,6 +250,12 @@ public class CameraXService extends LifecycleService {
         return (ImageCapture) mBoundUseCases.get(ImageCapture.class);
     }
 
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private VideoCapture<Recorder> getVideoCapture() {
+        return (VideoCapture<Recorder>) mBoundUseCases.get(VideoCapture.class);
+    }
+
     private void takePicture() {
         ImageCapture imageCapture = getImageCapture();
         if (imageCapture == null) {
@@ -250,7 +284,7 @@ public class CameraXService extends LifecycleService {
                         long durationMs = SystemClock.elapsedRealtime() - startTimeMs;
                         Log.d(TAG, "Saved image " + outputFileResults.getSavedUri()
                                 + "  (" + durationMs + " ms)");
-                        mSavedImageUri.add(outputFileResults.getSavedUri());
+                        mSavedMediaUri.add(outputFileResults.getSavedUri());
                         if (mTakePictureLatch != null) {
                             mTakePictureLatch.countDown();
                         }
@@ -272,11 +306,109 @@ public class CameraXService extends LifecycleService {
         }
     }
 
+    private void startRecording() {
+        VideoCapture<Recorder> videoCapture = getVideoCapture();
+        if (videoCapture == null) {
+            Log.w(TAG, "VideoCapture is not bound.");
+            return;
+        }
+
+        createDefaultVideoFolderIfNotExist();
+        if (mActiveRecording == null) {
+            PendingRecording pendingRecording;
+            String fileName = "video_" + System.currentTimeMillis();
+            String extension = "mp4";
+            if (canDeviceWriteToMediaStore()) {
+                // Use MediaStoreOutputOptions for public share media storage.
+                pendingRecording = getVideoCapture().getOutput().prepareRecording(
+                        this,
+                        generateVideoMediaStoreOptions(getContentResolver(), fileName));
+            } else {
+                // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
+                pendingRecording = getVideoCapture().getOutput().prepareRecording(
+                        this, generateVideoFileOutputOptions(fileName, extension));
+            }
+            //noinspection MissingPermission
+            mActiveRecording = pendingRecording
+                    .withAudioEnabled()
+                    .start(ContextCompat.getMainExecutor(this), mRecordingListener);
+        } else {
+            Log.e(TAG, "It should stop the active recording before start a new one.");
+        }
+    }
+
+    private void stopRecording() {
+        if (mActiveRecording != null) {
+            mActiveRecording.stop();
+            mActiveRecording = null;
+        }
+    }
+
+    private void createDefaultVideoFolderIfNotExist() {
+        String videoFilePath = getAbsolutePathFromUri(getContentResolver(),
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        if (videoFilePath == null || !createParentFolder(videoFilePath)) {
+            Log.e(TAG, "Failed to create parent directory for: " + videoFilePath);
+        }
+    }
+
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         if (mAnalysisFrameLatch != null) {
             mAnalysisFrameLatch.countDown();
         }
         image.close();
+    };
+
+    private final Consumer<VideoRecordEvent> mRecordingListener = event -> {
+        if (event instanceof VideoRecordEvent.Finalize) {
+            VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+
+            switch (finalize.getError()) {
+                case ERROR_NONE:
+                case ERROR_FILE_SIZE_LIMIT_REACHED:
+                case ERROR_DURATION_LIMIT_REACHED:
+                case ERROR_INSUFFICIENT_STORAGE:
+                case ERROR_SOURCE_INACTIVE:
+                    Uri uri = finalize.getOutputResults().getOutputUri();
+                    OutputOptions outputOptions = finalize.getOutputOptions();
+                    String msg;
+                    String videoFilePath;
+                    if (outputOptions instanceof MediaStoreOutputOptions) {
+                        msg = "Saved video " + uri;
+                        videoFilePath = getAbsolutePathFromUri(
+                                getApplicationContext().getContentResolver(),
+                                uri
+                        );
+                    } else if (outputOptions instanceof FileOutputOptions) {
+                        videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
+                        MediaScannerConnection.scanFile(this,
+                                new String[]{videoFilePath}, null,
+                                (path, uri1) -> Log.i(TAG, "Scanned " + path + " -> uri= " + uri1));
+                        msg = "Saved video " + videoFilePath;
+                    } else {
+                        throw new AssertionError("Unknown or unsupported OutputOptions type: "
+                                + outputOptions.getClass().getSimpleName());
+                    }
+                    // The video file path is used in tracing e2e test log. Don't remove it.
+                    Log.d(TAG, "Saved video file: " + videoFilePath);
+
+                    if (finalize.getError() != ERROR_NONE) {
+                        msg += " with code (" + finalize.getError() + ")";
+                    }
+                    Log.d(TAG, msg, finalize.getCause());
+
+                    mSavedMediaUri.add(uri);
+                    if (mRecordVideoLatch != null) {
+                        mRecordVideoLatch.countDown();
+                    }
+                    break;
+                default:
+                    String errMsg = "Video capture failed by (" + finalize.getError() + "): "
+                            + finalize.getCause();
+                    Log.e(TAG, errMsg, finalize.getCause());
+            }
+            mActiveRecording = null;
+        }
     };
 
     @RequiresApi(26)
@@ -320,8 +452,15 @@ public class CameraXService extends LifecycleService {
     }
 
     @VisibleForTesting
+    @NonNull
+    CountDownLatch acquireRecordVideoCountDownLatch() {
+        mRecordVideoLatch = new CountDownLatch(1);
+        return mRecordVideoLatch;
+    }
+
+    @VisibleForTesting
     void deleteSavedMediaFiles() {
-        deleteUriSet(mSavedImageUri);
+        deleteUriSet(mSavedMediaUri);
     }
 
     private void deleteUriSet(@NonNull Set<Uri> uriSet) {
