@@ -1038,19 +1038,35 @@ internal constructor(
      * Sets the current [ComplicationData] and if it's a timeline, the correct override for
      * [instant] is chosen. Any images are loaded synchronously. The complication history is not
      * updated.
+     *
+     * Returns a restoration function.
      */
     internal fun setComplicationDataForScreenshot(
         complicationData: ComplicationData,
         instant: Instant
-    ) {
-        lastComplicationUpdate = instant
-        timelineComplicationData = complicationData
-        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.toList()
-        selectComplicationDataForInstant(
-            instant,
-            loadDrawablesAsynchronous = false,
-            forceUpdate = true
-        )
+    ): AutoCloseable {
+        val originalComplicationData = timelineComplicationData
+        val originalInstant = lastComplicationUpdate
+        val restore = AutoCloseable {
+            // Avoid overwriting a change made by someone else, can still race.
+            if (timelineComplicationData !== complicationData) return@AutoCloseable
+            setComplicationDataForScreenshot(originalComplicationData, originalInstant)
+        }
+        try {
+            lastComplicationUpdate = instant
+            timelineComplicationData = complicationData
+            timelineEntries = complicationData.asWireComplicationData().timelineEntries?.toList()
+            selectComplicationDataForInstant(
+                instant,
+                loadDrawablesAsynchronous = false,
+                forceUpdate = true
+            )
+        } catch (e: Throwable) {
+            // Cleanup on failure.
+            restore.close()
+            throw e
+        }
+        return restore
     }
 
     /**
