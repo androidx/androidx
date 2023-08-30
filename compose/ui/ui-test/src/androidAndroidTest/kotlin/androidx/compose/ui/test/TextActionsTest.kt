@@ -195,7 +195,7 @@ class TextActionsTest {
     }
 
     @Test
-    fun sendText_whenReadOnly_isAllowed() {
+    fun sendText_whenReadOnly_isNotAllowed() {
         var lastSeenText = ""
         rule.setContent {
             TextFieldUi(readOnly = true) {
@@ -205,7 +205,7 @@ class TextActionsTest {
 
         rule.onNodeWithTag(fieldTag).performTextInput("hi")
         rule.runOnIdle {
-            assertThat(lastSeenText).isEqualTo("hi")
+            assertThat(lastSeenText).isEqualTo("")
         }
     }
 
