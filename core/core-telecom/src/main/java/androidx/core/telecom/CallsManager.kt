@@ -82,11 +82,25 @@ class CallsManager constructor(context: Context) {
         annotation class Capability
 
         /**
+         * Set on Connections that are using ConnectionService+AUTO specific extension layer.
+         */
+        internal const val EXTRA_VOIP_API_VERSION = "android.telecom.extra.VOIP_API_VERSION"
+
+        /**
          * Set on Jetpack Connections that are emulating the transactional APIs using
          * ConnectionService.
          */
         internal const val EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED =
             "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
+
+        /**
+         * The connection is using transactional call APIs.
+         *
+         *
+         * The underlying connection was added as a transactional call via the
+         * [TelecomManager.addCall] API.
+         */
+        internal const val PROPERTY_IS_TRANSACTIONAL = 0x00008000
 
         /**
          * If your VoIP application does not want support any of the capabilities below, then your

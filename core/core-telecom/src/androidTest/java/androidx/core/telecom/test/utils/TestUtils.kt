@@ -19,6 +19,7 @@ package androidx.core.telecom.test.utils
 import android.content.Context
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.UserHandle
 import android.os.UserManager
@@ -309,5 +310,40 @@ object TestUtils {
                     " but the Actual call state was <${call.state}>"
             )
         }
+    }
+
+    /**
+     * Helper to wait on the call detail extras to be populated from the connection service
+     */
+    suspend fun waitOnCallExtras(call: Call) {
+        try {
+            withTimeout(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT) {
+                while (isActive /* aka  within timeout window */ && call.details?.extras == null) {
+                    yield() // another mechanism to stop the while loop if the coroutine is dead
+                    delay(1) // sleep x millisecond(s) instead of spamming check
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            Log.i(TestUtils.LOG_TAG, "waitOnCallExtras: timeout reached")
+            TestUtils.dumpTelecom()
+            MockInCallService.destroyAllCalls()
+            throw AssertionError("Expected call detail extras to be non-null.")
+        }
+    }
+
+    /**
+     * Used for testing in V. The build version is not available for referencing so this helper
+     * performs a manual check instead.
+     */
+    fun buildIsAtLeastV(): Boolean {
+        // V is not referencable as a valid build version yet. Enforce strict manual check instead.
+        return Build.VERSION.SDK_INT > 34
+    }
+
+    /**
+     * Determine if the current build supports at least U.
+     */
+    fun buildIsAtLeastU(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 }
