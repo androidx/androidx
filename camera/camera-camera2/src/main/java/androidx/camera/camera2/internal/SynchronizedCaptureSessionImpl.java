@@ -206,6 +206,22 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         mWaitForOtherSessionCompleteQuirk.onFinishClosed();
     }
 
+    @Override
+    public void onCameraDeviceError(int error) {
+        super.onCameraDeviceError(error);
+        if (error == CameraDevice.StateCallback.ERROR_CAMERA_SERVICE) {
+            synchronized (mObjectLock) {
+                if (isCameraCaptureSessionOpen() && mDeferrableSurfaces != null) {
+                    debugLog("Close DeferrableSurfaces for CameraDevice error.");
+                    // b/290861504#comment4, close the DeferrableSurfaces.
+                    for (DeferrableSurface deferrableSurface : mDeferrableSurfaces) {
+                        deferrableSurface.close();
+                    }
+                }
+            }
+        }
+    }
+
     void debugLog(String message) {
         Logger.d(TAG, "[" + SynchronizedCaptureSessionImpl.this + "] " + message);
     }

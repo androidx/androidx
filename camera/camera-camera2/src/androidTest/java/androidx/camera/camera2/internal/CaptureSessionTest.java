@@ -960,6 +960,32 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void cameraOnError_closeDeferrableSurfaces() throws InterruptedException {
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
+                mScheduledExecutor, mHandler, mCaptureSessionRepository,
+                new Quirks(Collections.emptyList()), DeviceQuirks.getAll());
+
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get(),
+                mCaptureSessionOpenerBuilder.build());
+
+        assertTrue(mTestParameters0.waitForData());
+
+        Runnable runnable = mock(Runnable.class);
+        mTestParameters0.mDeferrableSurface.getTerminationFuture().addListener(runnable,
+                CameraXExecutors.directExecutor());
+
+        // Act. Simulate CameraDevice.StateCallback#onError
+        mCaptureSessionRepository.getCameraStateCallback().onError(mCameraDeviceHolder.get(),
+                CameraDevice.StateCallback.ERROR_CAMERA_SERVICE);
+
+        // Assert. Verify DeferrableSurfaces are closed.
+        Mockito.verify(runnable, timeout(3000).times(1)).run();
+    }
+
+    @Test
     public void closingCaptureSessionClosesDeferrableSurface()
             throws ExecutionException, InterruptedException {
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,

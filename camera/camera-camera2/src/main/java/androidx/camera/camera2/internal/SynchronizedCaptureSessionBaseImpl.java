@@ -625,6 +625,11 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         releaseDeferrableSurfaces();
     }
 
+    @Override
+    public void onCameraDeviceError(int error) {
+        // Nothing to do for the default implementation.
+    }
+
     /**
      * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
      */
