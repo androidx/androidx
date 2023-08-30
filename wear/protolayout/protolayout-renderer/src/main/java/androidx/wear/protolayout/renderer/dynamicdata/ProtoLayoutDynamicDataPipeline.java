@@ -63,6 +63,8 @@ import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -984,7 +986,7 @@ public class ProtoLayoutDynamicDataPipeline {
     /** Cancel any already running content transition animations. */
     @UiThread
     void cancelContentTransitionAnimations() {
-        mExitAnimations.forEach(QuotaAwareAnimationSet::cancelAnimations);
+        ImmutableList.copyOf(mExitAnimations).forEach(QuotaAwareAnimationSet::cancelAnimations);
         mExitAnimations.clear();
         mEnterAnimations.forEach(QuotaAwareAnimationSet::cancelAnimations);
         mEnterAnimations.clear();
