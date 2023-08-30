@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.LayoutModifierImpl
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -818,6 +819,34 @@ class DrawModifierTest {
             .onNodeWithTag(testTag)
             .assertWidthIsEqualTo(10.dp)
             .assertHeightIsEqualTo(10.dp)
+    }
+
+    @Test
+    fun testInvalidationInsideOnSizeChanged() {
+        var someState by mutableStateOf(1)
+        var drawCount = 0
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .drawBehind {
+                        @Suppress("UNUSED_EXPRESSION")
+                        someState
+                        drawCount++
+                    }
+                    .onSizeChanged {
+                        // assert that draw hasn't happened yet
+                        assertEquals(0, drawCount)
+                        someState++
+                    }
+                    .size(10.dp)
+            )
+        }
+        rule.runOnIdle {
+            // assert that state invalidation inside of onSizeChanged
+            // doesn't schedule additional draw
+            assertEquals(1, drawCount)
+        }
     }
 
     // captureToImage() requires API level 26
