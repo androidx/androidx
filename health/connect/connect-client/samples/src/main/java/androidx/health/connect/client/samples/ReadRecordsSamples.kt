@@ -27,7 +27,6 @@ import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -128,17 +127,6 @@ suspend fun ReadSleepSessions(
             )
         )
     for (sleepRecord in response.records) {
-        // Process each exercise record
-        // Optionally pull in sleep stages of the same time range
-        val sleepStageRecords =
-            healthConnectClient
-                .readRecords(
-                    ReadRecordsRequest(
-                        SleepStageRecord::class,
-                        timeRangeFilter =
-                            TimeRangeFilter.between(sleepRecord.startTime, sleepRecord.endTime)
-                    )
-                )
-                .records
+        // Process each sleep record
     }
 }
