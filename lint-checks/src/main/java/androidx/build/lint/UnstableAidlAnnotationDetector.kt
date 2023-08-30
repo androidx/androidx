@@ -40,6 +40,9 @@ import com.intellij.psi.search.GlobalSearchScope
  */
 private const val JAVA_PASSTHROUGH = "JavaPassthrough"
 
+private const val ANDROIDX_REQUIRESOPTIN = "androidx.annotation.RequiresOptIn"
+private const val KOTLIN_REQUIRESOPTIN = "kotlin.RequiresOptIn"
+
 class UnstableAidlAnnotationDetector : AidlDefinitionDetector() {
 
     override fun visitAidlParcelableDeclaration(context: Context, node: AidlParcelableDeclaration) {
@@ -84,8 +87,8 @@ class UnstableAidlAnnotationDetector : AidlDefinitionDetector() {
                 )
                 // Determine if the class is annotated with RequiresOptIn.
                 psiClass?.annotations?.any { psiAnnotation ->
-                    // Either androidx.annotation or kotlin version is fine here.
-                    psiAnnotation.hasQualifiedName("RequiresOptIn")
+                    psiAnnotation.hasQualifiedName(ANDROIDX_REQUIRESOPTIN) ||
+                        psiAnnotation.hasQualifiedName(KOTLIN_REQUIRESOPTIN)
                 } ?: false
             } else {
                 false
