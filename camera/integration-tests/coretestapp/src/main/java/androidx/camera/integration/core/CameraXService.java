@@ -17,15 +17,21 @@
 package androidx.camera.integration.core;
 
 import static androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA;
+import static androidx.camera.testing.impl.FileUtil.createParentFolder;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Environment;
 import android.os.IBinder;
+import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.DoNotInline;
@@ -35,6 +41,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -47,9 +54,18 @@ import androidx.lifecycle.LifecycleService;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
@@ -64,6 +80,8 @@ public class CameraXService extends LifecycleService {
     // Actions
     public static final String ACTION_BIND_USE_CASES =
             "androidx.camera.integration.core.intent.action.BIND_USE_CASES";
+    public static final String ACTION_TAKE_PICTURE =
+            "androidx.camera.integration.core.intent.action.TAKE_PICTURE";
 
     // Extras
     public static final String EXTRA_VIDEO_CAPTURE_ENABLED = "EXTRA_VIDEO_CAPTURE_ENABLED";
@@ -73,12 +91,22 @@ public class CameraXService extends LifecycleService {
     private final IBinder mBinder = new CameraXServiceBinder();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    //                          Members only accessed on main thread                              //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    private final Map<Class<?>, UseCase> mBoundUseCases = new HashMap<>();
+    //--------------------------------------------------------------------------------------------//
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     //                                   Members for testing                                      //
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    private final Set<Uri> mSavedImageUri = new HashSet<>();
+
     @Nullable
     private Consumer<Collection<UseCase>> mOnUseCaseBoundCallback;
     @Nullable
     private CountDownLatch mAnalysisFrameLatch;
+    @Nullable
+    private CountDownLatch mTakePictureLatch;
     //--------------------------------------------------------------------------------------------//
 
     @Override
@@ -101,6 +129,8 @@ public class CameraXService extends LifecycleService {
             Log.d(TAG, "onStartCommand: action = " + action + ", extras = " + intent.getExtras());
             if (ACTION_BIND_USE_CASES.equals(action)) {
                 bindToLifecycle(intent);
+            } else if (ACTION_TAKE_PICTURE.equals(action)) {
+                takePicture();
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -125,6 +155,7 @@ public class CameraXService extends LifecycleService {
             throw new IllegalStateException(e);
         }
         cameraProvider.unbindAll();
+        mBoundUseCases.clear();
         UseCaseGroup useCaseGroup = resolveUseCaseGroup(intent);
         List<UseCase> boundUseCases = Collections.emptyList();
         if (useCaseGroup != null) {
@@ -136,6 +167,9 @@ public class CameraXService extends LifecycleService {
             }
         }
         Log.d(TAG, "Bound UseCases: " + boundUseCases);
+        for (UseCase boundUseCase : boundUseCases) {
+            mBoundUseCases.put(boundUseCase.getClass(), boundUseCase);
+        }
         if (mOnUseCaseBoundCallback != null) {
             mOnUseCaseBoundCallback.accept(boundUseCases);
         }
@@ -183,6 +217,61 @@ public class CameraXService extends LifecycleService {
         return checkNotNull(ContextCompat.getSystemService(this, NotificationManager.class));
     }
 
+    @Nullable
+    private ImageCapture getImageCapture() {
+        return (ImageCapture) mBoundUseCases.get(ImageCapture.class);
+    }
+
+    private void takePicture() {
+        ImageCapture imageCapture = getImageCapture();
+        if (imageCapture == null) {
+            Log.w(TAG, "ImageCapture is not bound.");
+            return;
+        }
+        createDefaultPictureFolderIfNotExist();
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
+        String fileName = "ServiceTestApp-" + formatter.format(Calendar.getInstance().getTime())
+                + ".jpg";
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build();
+        long startTimeMs = SystemClock.elapsedRealtime();
+        imageCapture.takePicture(outputFileOptions,
+                ContextCompat.getMainExecutor(this),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(
+                            @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        long durationMs = SystemClock.elapsedRealtime() - startTimeMs;
+                        Log.d(TAG, "Saved image " + outputFileResults.getSavedUri()
+                                + "  (" + durationMs + " ms)");
+                        mSavedImageUri.add(outputFileResults.getSavedUri());
+                        if (mTakePictureLatch != null) {
+                            mTakePictureLatch.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e(TAG, "Failed to save image by " + exception.getImageCaptureError(),
+                                exception);
+                    }
+                });
+    }
+
+    private void createDefaultPictureFolderIfNotExist() {
+        File pictureFolder = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        if (!createParentFolder(pictureFolder)) {
+            Log.e(TAG, "Failed to create directory: " + pictureFolder);
+        }
+    }
+
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         if (mAnalysisFrameLatch != null) {
             mAnalysisFrameLatch.countDown();
@@ -217,9 +306,32 @@ public class CameraXService extends LifecycleService {
     }
 
     @VisibleForTesting
+    @NonNull
     CountDownLatch acquireAnalysisFrameCountDownLatch() {
         mAnalysisFrameLatch = new CountDownLatch(3);
         return mAnalysisFrameLatch;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    CountDownLatch acquireTakePictureCountDownLatch() {
+        mTakePictureLatch = new CountDownLatch(1);
+        return mTakePictureLatch;
+    }
+
+    @VisibleForTesting
+    void deleteSavedMediaFiles() {
+        deleteUriSet(mSavedImageUri);
+    }
+
+    private void deleteUriSet(@NonNull Set<Uri> uriSet) {
+        for (Uri uri : uriSet) {
+            try {
+                getContentResolver().delete(uri, null, null);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Unable to delete uri: " + uri, e);
+            }
+        }
     }
 
     class CameraXServiceBinder extends Binder {
