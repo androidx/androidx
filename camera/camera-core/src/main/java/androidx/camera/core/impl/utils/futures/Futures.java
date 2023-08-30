@@ -355,6 +355,7 @@ public final class Futures {
             mCallback.onSuccess(value);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return getClass().getSimpleName() + "," + mCallback;
@@ -428,11 +429,14 @@ public final class Futures {
             @NonNull ListenableFuture<V> input) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             propagate(input, completer);
-            ScheduledFuture<?> timeoutFuture = scheduledExecutor.schedule(
-                    () -> completer.setException(new TimeoutException("Future[" + input + "] is "
-                            + "not done within " + timeoutMillis + " ms.")),
-                    timeoutMillis, TimeUnit.MILLISECONDS);
-            input.addListener(() -> timeoutFuture.cancel(true), CameraXExecutors.directExecutor());
+            if (!input.isDone()) {
+                ScheduledFuture<?> timeoutFuture = scheduledExecutor.schedule(
+                        () -> completer.setException(new TimeoutException("Future[" + input + "] "
+                                + "is not done within " + timeoutMillis + " ms.")),
+                        timeoutMillis, TimeUnit.MILLISECONDS);
+                input.addListener(
+                        () -> timeoutFuture.cancel(true), CameraXExecutors.directExecutor());
+            }
             return "TimeoutFuture[" + input + "]";
         });
     }
