@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Zavihek s seznamom"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Zavihek z mrežo in dolgim naslovom zavihka"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Zavihek za iskanje"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Nalaganje zavihka"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Predstavitvena različica predloge zavihka za stanje nalaganja"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Predstavitvena različica predloge zavihka za stanje brez zavihkov"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Slik ni mogoče prikazati za neznanega gostitelja."</string>

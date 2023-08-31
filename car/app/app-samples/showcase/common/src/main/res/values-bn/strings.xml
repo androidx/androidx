@@ -264,6 +264,8 @@
     <string name="tab_title_list" msgid="5104962518489668123">"তালিকা ট্যাব"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ট্যাবের দীর্ঘ শিরোনাম সহ গ্রিড ট্যাব"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"সার্চ ট্যাব"</string>
+    <!-- no translation found for tab_title_loading (5385807479734490989) -->
+    <skip />
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"টেম্পলেট লোড করার সম্পর্কিত ডেমো ট্যাব"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ট্যাব ছাড়াই ট্যাব টেমপ্লেটের ডেমো"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"অজানা হোস্টের জন্য ছবি দেখানো যায় না"</string>
