@@ -104,7 +104,6 @@ internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
  *
  * @param textList the ordered list of text fields to display in the block
  */
-@Suppress("ListIterator")
 @Composable
 internal fun AppWidgetTextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
@@ -218,7 +217,6 @@ internal fun HeaderBlockTemplate(headerBlock: HeaderBlock?) {
  *
  * @param actionBlock The [ActionBlock] data containing a list of buttons for display
  */
-@Suppress("ListIterator")
 @Composable
 internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
     if (actionBlock?.actionButtons?.isNotEmpty() == true) {

@@ -93,7 +93,6 @@ private fun hasContentDescription(
     substring: Boolean = false,
     ignoreCase: Boolean = false
 ): Boolean {
-    @Suppress("ListIterator")
     val contentDescription =
         semanticsModifier.configuration.getOrNull(SemanticsProperties.ContentDescription)
             ?.joinToString()

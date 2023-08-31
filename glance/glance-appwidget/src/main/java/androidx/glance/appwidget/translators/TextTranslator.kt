@@ -35,7 +35,6 @@ import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.util.fastForEach
 import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
 import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
 import androidx.core.widget.RemoteViewsCompat.setTextViewTextColor
@@ -131,7 +130,7 @@ internal fun RemoteViews.setText(
             spans.add(AlignmentSpan.Standard(align.toAlignment(translationContext.isRtl)))
         }
     }
-    spans.fastForEach { span ->
+    spans.forEach { span ->
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
     setTextViewText(resId, content)
