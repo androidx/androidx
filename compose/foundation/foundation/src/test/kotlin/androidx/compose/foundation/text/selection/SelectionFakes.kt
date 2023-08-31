@@ -268,9 +268,11 @@ internal class FakeSelectable : Selectable {
     var textToReturn: AnnotatedString? = null
 
     var rawStartHandleOffset = 0
-    var startHandleDirection = Direction.ON
+    var startXHandleDirection = Direction.ON
+    var startYHandleDirection = Direction.ON
     var rawEndHandleOffset = 0
-    var endHandleDirection = Direction.ON
+    var endXHandleDirection = Direction.ON
+    var endYHandleDirection = Direction.ON
     var rawPreviousHandleOffset = -1 // -1 = no previous offset
 
     private val selectableKey = 1L
@@ -291,9 +293,11 @@ internal class FakeSelectable : Selectable {
         builder.appendInfo(
             selectableKey,
             rawStartHandleOffset,
-            startHandleDirection,
+            startXHandleDirection,
+            startYHandleDirection,
             rawEndHandleOffset,
-            endHandleDirection,
+            endXHandleDirection,
+            endYHandleDirection,
             rawPreviousHandleOffset,
             getTextLayoutResultMock(),
         )
