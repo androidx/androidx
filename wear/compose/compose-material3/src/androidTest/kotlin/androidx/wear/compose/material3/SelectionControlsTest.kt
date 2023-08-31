@@ -460,7 +460,7 @@ class SelectionControlsTest {
                     checkedThumbColor = thumbColor,
                     checkedThumbIconColor = thumbIconColor,
                     checkedTrackColor = trackColor,
-                    checkedTrackStrokeColor = trackStrokeColor
+                    checkedTrackBorderColor = trackStrokeColor
                 ),
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -487,7 +487,7 @@ class SelectionControlsTest {
                     uncheckedThumbColor = thumbColor,
                     uncheckedThumbIconColor = thumbIconColor,
                     uncheckedTrackColor = trackColor,
-                    uncheckedTrackStrokeColor = trackStrokeColor
+                    uncheckedTrackBorderColor = trackStrokeColor
                 ),
                 modifier = Modifier.testTag(TEST_TAG)
             )

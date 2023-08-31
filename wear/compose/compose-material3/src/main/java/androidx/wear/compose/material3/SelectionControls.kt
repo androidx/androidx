@@ -230,13 +230,26 @@ fun RadioButton(
 
 /**
  * Represents the content colors used in [Checkbox] in different states.
+ *
+ * @param checkedBoxColor The box color of [Checkbox] when enabled and checked.
+ * @param checkedCheckmarkColor The check mark color of [Checkbox] when enabled
+ * and checked.
+ * @param uncheckedBoxColor The box color of [Checkbox] when enabled and unchecked.
+ * @param uncheckedCheckmarkColor The check mark color of [Checkbox] when enabled
+ * and unchecked.
+ * @param disabledCheckedBoxColor The box color of [Checkbox] when disabled and checked.
+ * @param disabledCheckedCheckmarkColor The check mark color of [Checkbox] when disabled
+ * and checked.
+ * @param disabledUncheckedBoxColor The box color of [Checkbox] when disabled and unchecked.
+ * @param disabledUncheckedCheckmarkColor The check mark color of [Checkbox] when disabled
+ * and unchecked.
  */
 @Immutable
-class CheckboxColors internal constructor(
+class CheckboxColors(
     val checkedBoxColor: Color,
     val checkedCheckmarkColor: Color,
-    val uncheckedCheckmarkColor: Color,
     val uncheckedBoxColor: Color,
+    val uncheckedCheckmarkColor: Color,
     val disabledCheckedBoxColor: Color,
     val disabledCheckedCheckmarkColor: Color,
     val disabledUncheckedBoxColor: Color,
@@ -311,9 +324,29 @@ class CheckboxColors internal constructor(
 
 /**
  * Represents the content colors used in [Switch] in different states.
+ *
+ * @param checkedThumbColor The thumb color of [Switch] when enabled and checked.
+ * @param checkedThumbIconColor The thumb icon color of [Switch] when enabled and checked.
+ * @param checkedTrackColor The track color of [Switch] when enabled and checked.
+ * @param checkedTrackBorderColor The track border color of [Switch] when enabled and checked.
+ * @param uncheckedThumbColor The thumb color of [Switch] when enabled and unchecked.
+ * @param uncheckedThumbIconColor The thumb icon color of [Switch] when enabled and unchecked.
+ * @param uncheckedTrackColor The track color of [Switch] when enabled and unchecked.
+ * @param uncheckedTrackBorderColor The track border color of [Switch] when enabled and unchecked.
+ * @param disabledCheckedThumbColor The thumb color of [Switch] when disabled and checked.
+ * @param disabledCheckedThumbIconColor The thumb icon color of [Switch] when disabled and checked.
+ * @param disabledCheckedTrackColor The track color of [Switch] when disabled and checked.
+ * @param disabledCheckedTrackBorderColor The track border color of [Switch] when disabled
+ * and checked.
+ * @param disabledUncheckedThumbColor The thumb color of [Switch] when disabled and unchecked.
+ * @param disabledUncheckedThumbIconColor The thumb icon color of [Switch] when disabled
+ * and unchecked.
+ * @param disabledUncheckedTrackColor The track color of [Switch] when disabled and unchecked.
+ * @param disabledUncheckedTrackBorderColor The track border color of [Switch] when disabled
+ * and unchecked.
  */
 @Immutable
-class SwitchColors internal constructor(
+class SwitchColors(
     val checkedThumbColor: Color,
     val checkedThumbIconColor: Color,
     val checkedTrackColor: Color,
@@ -426,9 +459,14 @@ class SwitchColors internal constructor(
 
 /**
  * Represents the content colors used in [RadioButton] in different states.
+ *
+ * @param selectedColor The color of the radio button when enabled and selected.
+ * @param unselectedColor The color of the radio button when enabled and unselected.
+ * @param disabledSelectedColor The color of the radio button when disabled and selected.
+ * @param disabledUnselectedColor The color of the radio button when disabled and unselected.
  */
 @Immutable
-class RadioButtonColors internal constructor(
+class RadioButtonColors(
     val selectedColor: Color,
     val unselectedColor: Color,
     val disabledSelectedColor: Color,
@@ -508,37 +546,37 @@ object SwitchDefaults {
      * @param checkedThumbColor The thumb color of this [Switch] when enabled and checked.
      * @param checkedThumbIconColor The thumb icon color of this [Switch] when enabled and checked.
      * @param checkedTrackColor The track color of this [Switch] when enabled and checked.
-     * @param checkedTrackStrokeColor The track border color of this [Switch] when enabled and checked.
+     * @param checkedTrackBorderColor The track border color of this [Switch] when enabled and checked.
      * @param uncheckedThumbColor The thumb color of this [Switch] when enabled and unchecked.
      * @param uncheckedThumbIconColor The thumb icon color of this [Switch] when enabled and checked.
      * @param uncheckedTrackColor The track color of this [Switch] when enabled and unchecked.
-     * @param uncheckedTrackStrokeColor The track border color of this [Switch] when enabled and unchecked.
+     * @param uncheckedTrackBorderColor The track border color of this [Switch] when enabled and unchecked.
      */
     @Composable
     fun colors(
         checkedThumbColor: Color = MaterialTheme.colorScheme.onPrimary,
         checkedThumbIconColor: Color = MaterialTheme.colorScheme.primary,
         checkedTrackColor: Color = MaterialTheme.colorScheme.primaryDim,
-        checkedTrackStrokeColor: Color = MaterialTheme.colorScheme.primaryDim,
+        checkedTrackBorderColor: Color = MaterialTheme.colorScheme.primaryDim,
         uncheckedThumbColor: Color = MaterialTheme.colorScheme.outline,
         uncheckedThumbIconColor: Color = MaterialTheme.colorScheme.background,
         uncheckedTrackColor: Color = MaterialTheme.colorScheme.surface,
-        uncheckedTrackStrokeColor: Color = MaterialTheme.colorScheme.outline
+        uncheckedTrackBorderColor: Color = MaterialTheme.colorScheme.outline
     ): SwitchColors = SwitchColors(
         checkedThumbColor = checkedThumbColor,
         checkedThumbIconColor = checkedThumbIconColor,
         checkedTrackColor = checkedTrackColor,
-        checkedTrackBorderColor = checkedTrackStrokeColor,
+        checkedTrackBorderColor = checkedTrackBorderColor,
         uncheckedThumbColor = uncheckedThumbColor,
         uncheckedThumbIconColor = uncheckedThumbIconColor,
         uncheckedTrackColor = uncheckedTrackColor,
-        uncheckedTrackBorderColor = uncheckedTrackStrokeColor,
+        uncheckedTrackBorderColor = uncheckedTrackBorderColor,
         disabledCheckedThumbColor = checkedThumbColor.toDisabledColor(),
         disabledCheckedThumbIconColor = checkedThumbIconColor.toDisabledColor(),
         disabledCheckedTrackColor = checkedTrackColor.toDisabledColor(
             disabledAlpha = DisabledContainerAlpha
         ),
-        disabledCheckedTrackBorderColor = checkedTrackStrokeColor.toDisabledColor(
+        disabledCheckedTrackBorderColor = checkedTrackBorderColor.toDisabledColor(
             disabledAlpha = DisabledBorderAlpha
         ),
         disabledUncheckedThumbColor = uncheckedThumbColor.toDisabledColor(),
@@ -546,7 +584,7 @@ object SwitchDefaults {
         disabledUncheckedTrackColor = uncheckedTrackColor.toDisabledColor(
             disabledAlpha = DisabledContainerAlpha
         ),
-        disabledUncheckedTrackBorderColor = uncheckedTrackStrokeColor.toDisabledColor(
+        disabledUncheckedTrackBorderColor = uncheckedTrackBorderColor.toDisabledColor(
             disabledAlpha = DisabledBorderAlpha
         )
     )
