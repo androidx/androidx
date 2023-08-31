@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
 import androidx.compose.foundation.text.findPrecedingBreak
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextLayoutResult
@@ -66,7 +65,7 @@ internal class TextFieldPreparedSelectionState {
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldPreparedSelection(
-    private val state: TextFieldState,
+    private val state: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textPreparedSelectionState: TextFieldPreparedSelectionState
 ) {
@@ -147,7 +146,7 @@ internal class TextFieldPreparedSelection(
      *
      * @param resetCachedX Whether to reset the cachedX parameter in [TextFieldPreparedSelectionState].
      */
-    inline fun applyIfNotEmpty(
+    private inline fun applyIfNotEmpty(
         resetCachedX: Boolean = true,
         block: TextFieldPreparedSelection.() -> Unit
     ): TextFieldPreparedSelection {
@@ -330,8 +329,8 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    // it selects a text from the original selection start to a current selection end
-    fun selectMovement() = applyIfNotEmpty(false) {
+    /** Selects a text from the original selection start to a current selection end. */
+    fun selectMovement() = applyIfNotEmpty(resetCachedX = false) {
         selection = TextRange(initialValue.selectionInChars.start, selection.end)
     }
 

@@ -14,24 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.platform.PlatformTextInputSession
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
-import kotlinx.coroutines.awaitCancellation
-
-/**
- * Runs desktop-specific text input session logic.
- */
-internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
-    state: TransformedTextFieldState,
-    imeOptions: ImeOptions,
-    onImeAction: ((ImeAction) -> Unit)?
-): Nothing {
-    // TODO(b/267235947) Wire up desktop.
-    awaitCancellation()
-}
+internal expect fun CharSequence.codePointAt(index: Int): Int
+internal expect fun CharSequence.codePointCount(): Int
+internal expect fun charCount(codePoint: Int): Int

@@ -18,6 +18,9 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.appendCodePointX
+import androidx.compose.foundation.text2.input.internal.OffsetMappingCalculator
+import androidx.compose.foundation.text2.input.internal.charCount
+import androidx.compose.foundation.text2.input.internal.codePointAt
 import androidx.compose.runtime.Stable
 
 /**
@@ -84,17 +87,36 @@ internal object SingleLineCodepointTransformation : CodepointTransformation {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal fun CharSequence.toVisualText(
-    codepointTransformation: CodepointTransformation?
+internal fun TextFieldCharSequence.toVisualText(
+    codepointTransformation: CodepointTransformation,
+    offsetMappingCalculator: OffsetMappingCalculator
 ): CharSequence {
-    codepointTransformation ?: return this
     val text = this
-    return buildString {
-        (0 until Character.codePointCount(text, 0, text.length)).forEach { codepointIndex ->
-            val codepoint = codepointTransformation.transform(
-                codepointIndex, Character.codePointAt(text, codepointIndex)
-            )
-            appendCodePointX(codepoint)
+    var changed = false
+    val newText = buildString {
+        var charOffset = 0
+        var codePointOffset = 0
+        while (charOffset < text.length) {
+            val codePoint = text.codePointAt(charOffset)
+            val newCodePoint = codepointTransformation.transform(codePointOffset, codePoint)
+            val charCount = charCount(codePoint)
+            if (newCodePoint != codePoint) {
+                changed = true
+                val newCharCount = charCount(newCodePoint)
+                offsetMappingCalculator.recordEditOperation(
+                    sourceStart = length,
+                    sourceEnd = length + charCount,
+                    newLength = newCharCount
+                )
+            }
+            appendCodePointX(newCodePoint)
+
+            charOffset += charCount
+            codePointOffset += 1
         }
     }
+
+    // Return the same instance if nothing changed, which signals to the caller that nothing changed
+    // and allows the new string to be GC'd earlier.
+    return if (changed) newText else this
 }
