@@ -672,7 +672,7 @@ public class WebViewJavaScriptSandboxTest {
 
     @Test
     @LargeTest
-    public void testIsolateCreationAfterCrash() throws Throwable {
+    public void testIsolateCreationAfterOom() throws Throwable {
         final long maxHeapSize = REASONABLE_HEAP_SIZE;
         // We need to beat the v8 optimizer to ensure it really allocates the required memory. Note
         // that we're allocating an array of elements - not bytes. Filling will ensure that the
@@ -710,17 +710,23 @@ public class WebViewJavaScriptSandboxTest {
                     }
                 }
 
-                final CountDownLatch latch = new CountDownLatch(1);
+                final CountDownLatch latch1 = new CountDownLatch(1);
                 jsIsolate1.addOnTerminatedCallback(Runnable::run, info -> {
                     Assert.assertEquals(TerminationInfo.STATUS_MEMORY_LIMIT_EXCEEDED,
                             info.getStatus());
-                    latch.countDown();
+                    latch1.countDown();
                 });
-                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+                Assert.assertTrue(latch1.await(5, TimeUnit.SECONDS));
 
-                // Check that new isolates can no longer be created in the same sandbox.
-                Assert.assertThrows(IllegalStateException.class,
-                        () -> jsSandbox.createIsolate(isolateStartupParameters));
+                // Check that new isolates can still be created in the sandbox but are created dead.
+                final JavaScriptIsolate jsIsolate2 = jsSandbox.createIsolate();
+                final CountDownLatch latch2 = new CountDownLatch(1);
+                jsIsolate2.addOnTerminatedCallback(Runnable::run, info -> {
+                    Assert.assertEquals(TerminationInfo.STATUS_SANDBOX_DEAD,
+                            info.getStatus());
+                    latch2.countDown();
+                });
+                Assert.assertTrue(latch2.await(5, TimeUnit.SECONDS));
             }
         }
 
@@ -733,6 +739,50 @@ public class WebViewJavaScriptSandboxTest {
             ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(stableCode);
             String result = resultFuture.get(5, TimeUnit.SECONDS);
             Assert.assertEquals(stableExpected, result);
+        }
+    }
+
+    @Test
+    @LargeTest
+    public void testIsolateCreationAfterDeath() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
+                JavaScriptSandbox.createConnectedInstanceAsync(context);
+        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
+            jsSandbox.killImmediatelyOnThread();
+            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+                final CountDownLatch latch = new CountDownLatch(1);
+                jsIsolate.addOnTerminatedCallback(Runnable::run, info -> {
+                    Assert.assertEquals(TerminationInfo.STATUS_SANDBOX_DEAD,
+                            info.getStatus());
+                    Assert.assertEquals("sandbox was dead before call to createIsolate",
+                            info.getMessage());
+                    latch.countDown();
+                });
+                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+            }
+        }
+    }
+
+    @Test
+    @LargeTest
+    public void testIsolateCreationAfterUnbinding() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
+                JavaScriptSandbox.createConnectedInstanceAsync(context);
+        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
+            jsSandbox.unbindService();
+            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+                final CountDownLatch latch = new CountDownLatch(1);
+                jsIsolate.addOnTerminatedCallback(Runnable::run, info -> {
+                    Assert.assertEquals(TerminationInfo.STATUS_SANDBOX_DEAD,
+                            info.getStatus());
+                    Assert.assertEquals("sandbox found dead during call to createIsolate",
+                            info.getMessage());
+                    latch.countDown();
+                });
+                Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+            }
         }
     }
 
@@ -1159,7 +1209,7 @@ public class WebViewJavaScriptSandboxTest {
                     latch.countDown();
                 });
 
-                jsSandbox.close();
+                jsSandbox.killImmediatelyOnThread();
 
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
             }

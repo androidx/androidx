@@ -84,6 +84,20 @@ public final class JavaScriptIsolate implements AutoCloseable {
             IsolateStartupParameters settings) throws RemoteException {
         final JavaScriptIsolate isolate = new JavaScriptIsolate(sandbox);
         isolate.initialize(settings);
+        isolate.mGuard.open("close");
+        return isolate;
+    }
+
+    @NonNull
+    static JavaScriptIsolate createDead(@NonNull JavaScriptSandbox sandbox,
+            @NonNull String message) {
+        final JavaScriptIsolate isolate = new JavaScriptIsolate(sandbox);
+        final TerminationInfo terminationInfo =
+                new TerminationInfo(TerminationInfo.STATUS_SANDBOX_DEAD, message);
+        synchronized (isolate.mLock) {
+            isolate.mIsolateState = new EnvironmentDeadState(terminationInfo);
+        }
+        isolate.mGuard.open("close");
         return isolate;
     }
 
@@ -110,7 +124,6 @@ public final class JavaScriptIsolate implements AutoCloseable {
                     instanceCallback);
             mIsolateState = new IsolateUsableState(this, jsIsolateStub,
                     settings.getMaxEvaluationReturnSizeBytes());
-            mGuard.open("close");
         }
     }
 
@@ -227,9 +240,13 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @Override
     public void close() {
+        closeWithDescription("isolate closed");
+    }
+
+    void closeWithDescription(@NonNull String description) {
         synchronized (mLock) {
             mIsolateState.close();
-            mIsolateState = new IsolateClosedState("isolate closed");
+            mIsolateState = new IsolateClosedState(description);
         }
         // Do not hold mLock whilst calling into JavaScriptSandbox, as JavaScriptSandbox also has
         // its own lock and may want to call into JavaScriptIsolate from another thread.
