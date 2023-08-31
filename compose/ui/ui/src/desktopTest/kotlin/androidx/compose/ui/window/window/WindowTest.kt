@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import androidx.compose.ui.window.runApplicationTest
@@ -58,6 +59,7 @@ import org.junit.Ignore
 import org.junit.Test
 
 class WindowTest {
+
     @Test
     fun `open and close custom window`() = runApplicationTest {
         var window: ComposeWindow? = null
@@ -633,5 +635,59 @@ class WindowTest {
                 constraintsList
             )
         }
+    }
+
+    @Test
+    fun `pass LayoutDirection to Window`() = runApplicationTest {
+        lateinit var localLayoutDirection: LayoutDirection
+
+        var layoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Window(onCloseRequest = {}) {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+        // Test that changing the local propagates it into the window
+        layoutDirection = LayoutDirection.Ltr
+        awaitIdle()
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun `pass LayoutDirection from Window to Popup`() = runApplicationTest {
+        lateinit var windowLayoutDirectionResult: LayoutDirection
+        lateinit var popupLayoutDirectionResult: LayoutDirection
+
+        var windowLayoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        var popupLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides windowLayoutDirection) {
+                Window(onCloseRequest = {}) {
+                    windowLayoutDirectionResult = LocalLayoutDirection.current
+                    CompositionLocalProvider(LocalLayoutDirection provides popupLayoutDirection) {
+                        Popup {
+                            popupLayoutDirectionResult = LocalLayoutDirection.current
+                        }
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+
+        // Test that changing the local propagates it into the window
+        windowLayoutDirection = LayoutDirection.Ltr
+        popupLayoutDirection = LayoutDirection.Rtl
+        awaitIdle()
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
     }
 }

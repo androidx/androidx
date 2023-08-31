@@ -29,6 +29,7 @@ import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
@@ -399,6 +400,7 @@ fun Window(
         LocalWindowExceptionHandlerFactory.current
     )
     val parentScene = LocalComposeScene.current
+    val layoutDirection = LocalLayoutDirection.current
     AwtWindow(
         visible = visible,
         create = {
@@ -416,6 +418,7 @@ fun Window(
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
+            it.scene.mainOwner?.layoutDirection = layoutDirection
 
             val wasDisplayable = it.isDisplayable
 

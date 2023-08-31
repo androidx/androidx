@@ -36,8 +36,8 @@ import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.configureSwingGlobalsForCompose
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -221,7 +221,8 @@ suspend fun awaitApplication(
                             CompositionLocalProvider(
                                 // Resources which are defined at the application level can use
                                 // density to calculate intrinsicSize
-                                LocalDensity provides GlobalDensity
+                                LocalDensity provides GlobalDensity,
+                                LocalLayoutDirection provides GlobalLayoutDirection
                             ) {
                                 applicationScope.content()
                             }

@@ -40,8 +40,10 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.window.toSize
 import com.google.common.truth.Truth.assertThat
@@ -578,5 +580,27 @@ class DialogWindowTest {
             canvasSizeModifier = Modifier.size(canvasSize),
             expectedCanvasSize = { canvasSize }
         )
+    }
+
+    @Test
+    fun `pass LayoutDirection to DialogWindow`() = runApplicationTest {
+        lateinit var localLayoutDirection: LayoutDirection
+
+        var layoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                DialogWindow(onCloseRequest = {}) {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+        // Test that changing the local propagates it into the dialog
+        layoutDirection = LayoutDirection.Ltr
+        awaitIdle()
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
     }
 }

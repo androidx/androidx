@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
@@ -28,6 +27,7 @@ import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
@@ -341,6 +341,7 @@ fun DialogWindow(
         LocalWindowExceptionHandlerFactory.current
     )
     val parentScene = LocalComposeScene.current
+    val layoutDirection = LocalLayoutDirection.current
     AwtWindow(
         visible = visible,
         create = {
@@ -358,6 +359,7 @@ fun DialogWindow(
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
+            it.scene.mainOwner?.layoutDirection = layoutDirection
 
             val wasDisplayable = it.isDisplayable
 
