@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,20 @@
 
 package androidx.window.demo2.embedding
 
+import android.app.Activity
 import android.os.Bundle
-import androidx.window.demo2.R
+import androidx.window.demo.common.util.PictureInPictureUtil
+import androidx.window.demo2.databinding.ActivityEmbeddedBinding
 
-/**
- * Activity that can be embedded by a process with a known certificate. See
- * `android:allowUntrustedActivityEmbedding` in AndroidManifest. Activity can be launched from the
- * split demos in window-samples/demos.
- */
-class TrustedEmbeddingActivity : EmbeddedActivityBase() {
+open class EmbeddedActivityBase : Activity() {
+    lateinit var viewBinding: ActivityEmbeddedBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewBinding.detailTextView.text = getString(R.string.trusted_embedding_activity_detail)
+        viewBinding = ActivityEmbeddedBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        viewBinding.buttonPip.setOnClickListener {
+            PictureInPictureUtil.startPictureInPicture(this, false)
+        }
     }
 }
