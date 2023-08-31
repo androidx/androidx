@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"பட்டியல் டேப் (Tab)"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"நீண்ட தலைப்புள்ள கட்டமான டேப் (Tab)"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"தேடல் டேப் (Tab)"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"பிரிவை ஏற்றுகிறது"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"டேப் (Tab) ஏற்றும்போதுள்ள டெம்ப்ளேட் டெமோ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"டேப் (Tab)  இல்லாதபோதுள்ள டெம்ப்ளேட் டேப்கள் டெமோ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"அறியப்படாத ஹோஸ்ட்டிற்குப் படங்கள் காட்டப்படாது"</string>

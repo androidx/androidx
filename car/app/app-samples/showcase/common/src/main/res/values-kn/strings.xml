@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ಪಟ್ಟಿ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ಲಾಂಗ್ ಟ್ಯಾಬ್ ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಗ್ರಿಡ್ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ಹುಡುಕಾಟ ಟ್ಯಾಬ್"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ಟ್ಯಾಬ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಲೋಡ್ ಆಗುತ್ತಿರುವ ಡೆಮೋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಯಾವುದೇ ಟ್ಯಾಬ್‌ಗಳ ಡೆಮೋ ಇಲ್ಲ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ಅಪರಿಚಿತ ಹೋಸ್ಟ್‌ಗಾಗಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ"</string>
