@@ -162,11 +162,26 @@ private fun resolveLineHeightInPx(
     density: Density
 ): Float {
     return when (lineHeight.type) {
-        TextUnitType.Sp -> with(density) { lineHeight.toPx() }
+        TextUnitType.Sp -> {
+            if (!isNonLinearFontScalingActive(density)) {
+                // Non-linear font scaling is not being used, this SP is safe to use directly.
+                with(density) { lineHeight.toPx() }
+            } else {
+                // Determine the intended line height multiplier and use that, since non-linear font
+                // scaling may compress the line height if it is much larger than the font size.
+                // i.e. preserve the original proportions rather than the absolute converted value.
+                val fontSizeSp = with(density) { contextFontSize.toSp() }
+                val lineHeightMultiplier = lineHeight.value / fontSizeSp.value
+                lineHeightMultiplier * contextFontSize
+            }
+        }
         TextUnitType.Em -> lineHeight.value * contextFontSize
         else -> Float.NaN
     }
 }
+
+// TODO(b/294384826): replace this with the actual platform method once available in core
+private fun isNonLinearFontScalingActive(density: Density) = density.fontScale > 1.05
 
 internal fun Spannable.setSpanStyles(
     contextTextStyle: TextStyle,
