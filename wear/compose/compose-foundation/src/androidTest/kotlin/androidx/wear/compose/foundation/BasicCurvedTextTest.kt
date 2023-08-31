@@ -49,7 +49,7 @@ class BasicCurvedTextTest {
 
         rule.runOnIdle {
             // TODO(b/219885899): Investigate why we need the extra passes.
-            assertEquals(CapturedInfo(2, 3, 2), capturedInfo)
+            assertEquals(CapturedInfo(2, 3, 1), capturedInfo)
         }
     }
 }

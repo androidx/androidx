@@ -60,6 +60,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
@@ -1184,6 +1185,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             invalidateLayers(root)
         }
         measureAndLayout()
+        Snapshot.sendApplyNotifications()
 
         isDrawingContent = true
         // we don't have to observe here because the root has a layer modifier
