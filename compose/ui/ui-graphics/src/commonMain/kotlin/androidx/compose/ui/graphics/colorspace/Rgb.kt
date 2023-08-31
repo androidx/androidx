@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics.colorspace
 
-import androidx.annotation.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.packFloats
 import kotlin.math.abs
@@ -323,7 +322,7 @@ internal constructor(
      *
      * @see whitePoint
      */
-    @Size(6)
+    /*@Size(6)*/
     fun getPrimaries(): FloatArray = primaries.copyOf()
 
     /**
@@ -340,7 +339,7 @@ internal constructor(
      *
      * @see getInverseTransform
      */
-    @Size(9)
+    /*@Size(9)*/
     fun getTransform(): FloatArray = transform.copyOf()
 
     /**
@@ -357,7 +356,7 @@ internal constructor(
      *
      * @see getTransform
      */
-    @Size(9)
+    /*@Size(9)*/
     fun getInverseTransform(): FloatArray = inverseTransform.copyOf()
 
     /**
@@ -379,8 +378,10 @@ internal constructor(
      *  * The minimum valid value is >= the maximum valid value.
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(9) toXYZ: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(9)*/
+        toXYZ: FloatArray,
         oetf: (Double) -> Double,
         eotf: (Double) -> Double
     ) : this(
@@ -430,8 +431,10 @@ internal constructor(
      *  * The minimum valid value is >= the maximum valid value.
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(min = 6, max = 9) primaries: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(min = 6, max = 9)*/
+        primaries: FloatArray,
         whitePoint: WhitePoint,
         oetf: (Double) -> Double,
         eotf: (Double) -> Double,
@@ -467,8 +470,10 @@ internal constructor(
      *  * Gamma is negative.
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(9) toXYZ: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(9)*/
+        toXYZ: FloatArray,
         function: TransferParameters
     ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), function, MinId)
 
@@ -502,8 +507,10 @@ internal constructor(
      *  * The transfer parameters are invalid.
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(min = 6, max = 9) primaries: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(min = 6, max = 9)*/
+        primaries: FloatArray,
         whitePoint: WhitePoint,
         function: TransferParameters
     ) : this(name, primaries, whitePoint, function, MinId)
@@ -602,8 +609,10 @@ internal constructor(
      * @see get
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(9) toXYZ: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(9)*/
+        toXYZ: FloatArray,
         gamma: Double
     ) : this(
         name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), gamma, 0.0f, 1.0f,
@@ -642,8 +651,10 @@ internal constructor(
      * @see get
      */
     constructor(
-        @Size(min = 1) name: String,
-        @Size(min = 6, max = 9) primaries: FloatArray,
+        /*@Size(min = 1)*/
+        name: String,
+        /*@Size(min = 6, max = 9)*/
+        primaries: FloatArray,
         whitePoint: WhitePoint,
         gamma: Double
     ) : this(name, primaries, whitePoint, gamma, 0.0f, 1.0f, MinId)
@@ -734,8 +745,8 @@ internal constructor(
      *
      * @see getPrimaries
      */
-    @Size(min = 6)
-    fun getPrimaries(@Size(min = 6) primaries: FloatArray): FloatArray {
+    /*@Size(min = 6)*/
+    fun getPrimaries(/*@Size(min = 6)*/ primaries: FloatArray): FloatArray {
         return this.primaries.copyInto(primaries)
     }
 
@@ -756,8 +767,8 @@ internal constructor(
      *
      * @see getInverseTransform
      */
-    @Size(min = 9)
-    fun getTransform(@Size(min = 9) transform: FloatArray): FloatArray {
+    /*@Size(min = 9)*/
+    fun getTransform(/*@Size(min = 9)*/ transform: FloatArray): FloatArray {
         return this.transform.copyInto(transform)
     }
 
@@ -779,8 +790,8 @@ internal constructor(
      *
      * @see getTransform
      */
-    @Size(min = 9)
-    fun getInverseTransform(@Size(min = 9) inverseTransform: FloatArray): FloatArray {
+    /*@Size(min = 9)*/
+    fun getInverseTransform(/*@Size(min = 9)*/ inverseTransform: FloatArray): FloatArray {
         return this.inverseTransform.copyInto(inverseTransform)
     }
 
@@ -809,7 +820,7 @@ internal constructor(
      * @see toLinear
      * @see fromLinear
      */
-    @Size(3)
+    /*@Size(3)*/
     fun toLinear(r: Float, g: Float, b: Float): FloatArray {
         return toLinear(floatArrayOf(r, g, b))
     }
@@ -831,8 +842,8 @@ internal constructor(
      * @see toLinear
      * @see fromLinear
      */
-    @Size(min = 3)
-    fun toLinear(@Size(min = 3) v: FloatArray): FloatArray {
+    /*@Size(min = 3)*/
+    fun toLinear(/*@Size(min = 3)*/ v: FloatArray): FloatArray {
         v[0] = eotfFunc(v[0].toDouble()).toFloat()
         v[1] = eotfFunc(v[1].toDouble()).toFloat()
         v[2] = eotfFunc(v[2].toDouble()).toFloat()
@@ -856,7 +867,7 @@ internal constructor(
      * @see fromLinear
      * @see toLinear
      */
-    @Size(3)
+    /*@Size(3)*/
     fun fromLinear(r: Float, g: Float, b: Float): FloatArray {
         return fromLinear(floatArrayOf(r, g, b))
     }
@@ -878,8 +889,8 @@ internal constructor(
      * @see fromLinear
      * @see toLinear
      */
-    @Size(min = 3)
-    fun fromLinear(@Size(min = 3) v: FloatArray): FloatArray {
+    /*@Size(min = 3)*/
+    fun fromLinear(/*@Size(min = 3) */v: FloatArray): FloatArray {
         v[0] = oetfFunc(v[0].toDouble()).toFloat()
         v[1] = oetfFunc(v[1].toDouble()).toFloat()
         v[2] = oetfFunc(v[2].toDouble()).toFloat()
