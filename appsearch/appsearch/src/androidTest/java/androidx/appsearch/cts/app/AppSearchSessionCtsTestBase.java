@@ -6704,4 +6704,42 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(outDocuments).hasSize(1);
         assertThat(outDocuments).containsExactly(org2);
     }
+
+    @Test
+    public void testSetSchema_toString_containsIndexableNestedPropsList() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures()
+                        .isFeatureSupported(Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema emailSchema =
+                new AppSearchSchema.Builder("Email")
+                        .addProperty(
+                                new StringPropertyConfig.Builder("subject")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setIndexingType(
+                                                StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                        .build())
+                        .addProperty(
+                                new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                        "sender", "Person")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                                        .setShouldIndexNestedProperties(false)
+                                        .addIndexableNestedProperties(
+                                                Arrays.asList(
+                                                        "name", "worksFor.name", "worksFor.notes"))
+                                        .build())
+                        .addProperty(
+                                new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                        "recipient", "Person")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                                        .setShouldIndexNestedProperties(true)
+                                        .build())
+                        .build();
+        String expectedIndexableNestedPropertyMessage =
+                "indexableNestedProperties: [name, worksFor.notes, worksFor.name]";
+
+        assertThat(emailSchema.toString()).contains(expectedIndexableNestedPropertyMessage);
+
+    }
 }
