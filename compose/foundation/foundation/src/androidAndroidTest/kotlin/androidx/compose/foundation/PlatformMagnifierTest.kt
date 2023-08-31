@@ -17,6 +17,8 @@
 package androidx.compose.foundation
 
 import android.graphics.Point
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.DisposableEffect
@@ -25,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -39,7 +42,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PlatformMagnifierTest {
@@ -179,6 +181,7 @@ class PlatformMagnifierTest {
         assertThat(magnifier.size).isEqualTo(magnifierSize)
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun createAndroidPlatformMagnifier(
         size: DpSize = DpSize.Unspecified
     ): PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl {
@@ -195,7 +198,11 @@ class PlatformMagnifierTest {
                         view = currentView,
                         density = density,
                         initialZoom = Float.NaN,
-                        style = MagnifierStyle(size = size),
+                        useTextDefault = false,
+                        size = size,
+                        cornerRadius = Dp.Unspecified,
+                        elevation = Dp.Unspecified,
+                        clippingEnabled = true,
                     ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl
                     onDispose {}
                 }
