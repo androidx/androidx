@@ -28,7 +28,6 @@ import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.util.fastJoinToString
 import androidx.core.widget.RemoteViewsCompat.setTextViewHeight
 import androidx.core.widget.RemoteViewsCompat.setTextViewWidth
 import androidx.core.widget.RemoteViewsCompat.setViewBackgroundColor
@@ -136,7 +135,7 @@ internal fun applyModifiers(
         val contentDescription: List<String>? =
             semantics.configuration.getOrNull(SemanticsProperties.ContentDescription)
         if (contentDescription != null) {
-            rv.setContentDescription(viewDef.mainViewId, contentDescription.fastJoinToString())
+            rv.setContentDescription(viewDef.mainViewId, contentDescription.joinToString())
         }
     }
     rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())

@@ -20,8 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
@@ -130,7 +128,7 @@ internal fun applyVerticalGridScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.fastForEachIndexed { index, (itemId, composable) ->
+        itemList.forEachIndexed { index, (itemId, composable) ->
             val id = itemId.takeIf { it != LazyVerticalGridScope.UnspecifiedItemId }
                 ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyVerticalGridScope.UnspecifiedItemId) {
@@ -300,7 +298,7 @@ internal class EmittableLazyVerticalGridListItem : EmittableLazyItemWithChildren
     override fun copy(): Emittable = EmittableLazyVerticalGridListItem().also {
         it.itemId = itemId
         it.alignment = alignment
-        it.children.addAll(children.fastMap { it.copy() })
+        it.children.addAll(children.map { it.copy() })
     }
 
     override fun toString(): String =
@@ -316,7 +314,7 @@ internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList() {
         it.horizontalAlignment = horizontalAlignment
         it.gridCells = gridCells
         it.activityOptions = activityOptions
-        it.children.addAll(children.fastMap { it.copy() })
+        it.children.addAll(children.map { it.copy() })
     }
 }
 
