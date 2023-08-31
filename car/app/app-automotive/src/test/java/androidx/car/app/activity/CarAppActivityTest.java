@@ -323,6 +323,34 @@ public class CarAppActivityTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.R)
+    public void testWindowInsets_whenRAndAbove_handlesInsetsCorrectly() {
+        runOnActivity((scenario, activity) -> {
+            IInsetsListener insetsListener = mock(IInsetsListener.class);
+            mRenderServiceDelegate.getCarAppActivity().setInsetsListener(insetsListener);
+            View activityContainer = activity.mActivityContainerView;
+            Insets insets = Insets.of(50, 60, 70, 80);
+            WindowInsets windowInsets = new WindowInsets.Builder().setInsets(
+                    WindowInsets.Type.systemBars(),
+                    insets.toPlatformInsets()).build();
+            activityContainer.onApplyWindowInsets(windowInsets);
+
+            // Verify that system bars insets are handled correctly.
+            verify(insetsListener).onWindowInsetsChanged(eq(insets.toPlatformInsets()),
+                    eq(Insets.NONE.toPlatformInsets()));
+
+            windowInsets = new WindowInsets.Builder().setInsets(
+                    WindowInsets.Type.ime(),
+                    insets.toPlatformInsets()).build();
+            activityContainer.onApplyWindowInsets(windowInsets);
+
+             // Verify that ime insets are handled correctly.
+            verify(insetsListener).onWindowInsetsChanged(eq(insets.toPlatformInsets()),
+                    eq(Insets.NONE.toPlatformInsets()));
+        });
+    }
+
+    @Test
     public void testServiceNotTerminatedWhenConfigurationChanges() {
         runOnActivity((scenario, activity) -> {
             System.out.println("before");
