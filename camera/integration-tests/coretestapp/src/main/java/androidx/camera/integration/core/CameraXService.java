@@ -43,6 +43,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
@@ -73,6 +74,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -191,16 +193,12 @@ public class CameraXService extends LifecycleService {
                 cameraProvider.bindToLifecycle(this, DEFAULT_BACK_CAMERA, useCaseGroup);
                 boundUseCases = useCaseGroup.getUseCases();
             } catch (IllegalArgumentException e) {
-                Log.w(TAG, "Failed to bind by " + e, e);
+                String msg = "Failed to bind by " + e;
+                Log.w(TAG, msg, e);
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         }
-        Log.d(TAG, "Bound UseCases: " + boundUseCases);
-        for (UseCase boundUseCase : boundUseCases) {
-            mBoundUseCases.put(boundUseCase.getClass(), boundUseCase);
-        }
-        if (mOnUseCaseBoundCallback != null) {
-            mOnUseCaseBoundCallback.accept(boundUseCases);
-        }
+        onUseCaseBound(boundUseCases);
     }
 
     @Nullable
@@ -227,6 +225,18 @@ public class CameraXService extends LifecycleService {
         }
 
         return hasUseCase ? useCaseGroupBuilder.build() : null;
+    }
+
+    private void onUseCaseBound(@NonNull List<UseCase> boundUseCases) {
+        Log.d(TAG, "Bound UseCases: " + boundUseCases);
+        for (UseCase boundUseCase : boundUseCases) {
+            mBoundUseCases.put(boundUseCase.getClass(), boundUseCase);
+        }
+        if (mOnUseCaseBoundCallback != null) {
+            mOnUseCaseBoundCallback.accept(boundUseCases);
+        }
+        Toast.makeText(CameraXService.this, getHumanReadableName(boundUseCases) + " is bound",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void createNotificationChannel() {
@@ -350,6 +360,15 @@ public class CameraXService extends LifecycleService {
         if (videoFilePath == null || !createParentFolder(videoFilePath)) {
             Log.e(TAG, "Failed to create parent directory for: " + videoFilePath);
         }
+    }
+
+    @NonNull
+    private static String getHumanReadableName(@NonNull List<UseCase> useCases) {
+        List<String> useCaseNames = new ArrayList<>();
+        for (UseCase useCase : useCases) {
+            useCaseNames.add(useCase.getClass().getSimpleName());
+        }
+        return useCaseNames.size() > 0 ? String.join(" | ", useCaseNames) : "No UseCase";
     }
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
