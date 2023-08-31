@@ -53,6 +53,7 @@ import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.internal.compat.workaround.AvailableKeysRetriever;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
+import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
 import androidx.camera.extensions.internal.sessionprocessor.BasicExtenderSessionProcessor;
 import androidx.core.util.Preconditions;
 
@@ -76,6 +77,8 @@ public class BasicVendorExtender implements VendorExtender {
     private String mCameraId;
     private CameraCharacteristics mCameraCharacteristics;
     private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
+    @ExtensionMode.Mode
+    private int mMode = ExtensionMode.NONE;
 
     static final List<CaptureRequest.Key> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
             CaptureRequest.SCALER_CROP_REGION,
@@ -97,6 +100,7 @@ public class BasicVendorExtender implements VendorExtender {
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
         try {
+            mMode = mode;
             switch (mode) {
                 case ExtensionMode.BOKEH:
                     mPreviewExtenderImpl = new BokehPreviewExtenderImpl();
@@ -309,8 +313,24 @@ public class BasicVendorExtender implements VendorExtender {
     @NonNull
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
+        ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
+        boolean hasPreviewProcessor = mPreviewExtenderImpl.getProcessorType()
+                == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
+        boolean hasImageCaptureProcessor = mImageCaptureExtenderImpl.getCaptureProcessor() != null;
+        if (!imageAnalysisAvailability.isAvailable(mCameraId, getHardwareLevel(), mMode,
+                hasPreviewProcessor, hasImageCaptureProcessor)) {
+            return new Size[0];
+        }
         Preconditions.checkNotNull(mCameraInfo, "VendorExtender#init() must be called first");
         return getOutputSizes(ImageFormat.YUV_420_888);
+    }
+
+    private int getHardwareLevel() {
+        Integer hardwareLevel =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+
+        return hardwareLevel != null ? hardwareLevel :
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @NonNull
