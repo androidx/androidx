@@ -135,11 +135,8 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                     // cause a mismatch between the insets applied to the content on the hosts side
                     // vs. the actual visible window available on the client side.
                     Insets insets;
-                    // Android U+ (SDK 34+) introduced SYSTEM_OVERLAYS insets, which we pass to the
-                    // host to adjust padding.
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        // TODO(b/287700349): Add tests once Robolectric supports SDK 34.
-                        insets = Api34Impl.getInsets(windowInsets);
+                    if (Build.VERSION.SDK_INT >= 30) {
+                        insets = Api30Impl.getInsets(windowInsets);
                     } else {
                         insets = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
                                 .getInsets(WindowInsetsCompat.Type.systemBars()
@@ -252,21 +249,14 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                 }
             };
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private static class Api34Impl {
-
-        private Api34Impl() {
-        }
-
-        static Insets getInsets(WindowInsets windowInsets) {
-            return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime()
-                    | WindowInsets.Type.systemOverlays());
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.R)
     private static class Api30Impl {
         private Api30Impl() {
+        }
+
+        @DoNotInline
+        static Insets getInsets(WindowInsets windowInsets) {
+            return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime());
         }
 
         @DoNotInline
