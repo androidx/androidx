@@ -23,6 +23,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 class IntSetTest {
     @Test
     fun emptyIntSetConstructor() {
@@ -147,9 +155,9 @@ class IntSetTest {
         val set = MutableIntSet()
         set += 1
         set += 2
-        var element: Int = Int.MIN_VALUE
-        var otherElement: Int = Int.MIN_VALUE
-        set.forEach { if (element == Int.MIN_VALUE) element = it else otherElement = it }
+        var element: Int = -1
+        var otherElement: Int = -1
+        set.forEach { if (element == -1) element = it else otherElement = it }
         assertEquals(element, set.first())
         set -= element
         assertEquals(otherElement, set.first())
@@ -333,8 +341,8 @@ class IntSetTest {
         set += 1
         set += 5
         assertTrue(
-            "[1, 5]" == set.toString() ||
-                "[5, 1]" == set.toString()
+            "[${1}, ${5}]" == set.toString() ||
+                "[${5}, ${1}]" == set.toString()
         )
     }
 

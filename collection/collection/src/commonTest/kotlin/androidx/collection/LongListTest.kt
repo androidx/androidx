@@ -22,6 +22,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 class LongListTest {
     private val list: MutableLongList = mutableLongListOf(1L, 2L, 3L, 4L, 5L)
 
@@ -80,7 +88,7 @@ class LongListTest {
 
     @Test
     fun string() {
-        assertEquals("[1, 2, 3, 4, 5]", list.toString())
+        assertEquals("[${1L}, ${2L}, ${3L}, ${4L}, ${5L}]", list.toString())
         assertEquals("[]", mutableLongListOf().toString())
     }
 
@@ -334,7 +342,7 @@ class LongListTest {
 
     @Test
     fun fold() {
-        assertEquals("12345", list.fold("") { acc, i -> acc + i.toString() })
+        assertEquals("12345", list.fold("") { acc, i -> acc + i.toInt().toString() })
     }
 
     @Test
@@ -342,14 +350,14 @@ class LongListTest {
         assertEquals(
             "01-12-23-34-45-",
             list.foldIndexed("") { index, acc, i ->
-                "$acc$index$i-"
+                "$acc$index${i.toInt()}-"
             }
         )
     }
 
     @Test
     fun foldRight() {
-        assertEquals("54321", list.foldRight("") { i, acc -> acc + i.toString() })
+        assertEquals("54321", list.foldRight("") { i, acc -> acc + i.toInt().toString() })
     }
 
     @Test
@@ -357,7 +365,7 @@ class LongListTest {
         assertEquals(
             "45-34-23-12-01-",
             list.foldRightIndexed("") { index, i, acc ->
-                "$acc$index$i-"
+                "$acc$index${i.toInt()}-"
             }
         )
     }

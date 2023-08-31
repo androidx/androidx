@@ -23,6 +23,14 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 class LongSetTest {
     @Test
     fun emptyLongSetConstructor() {
@@ -147,9 +155,9 @@ class LongSetTest {
         val set = MutableLongSet()
         set += 1L
         set += 2L
-        var element: Long = Long.MIN_VALUE
-        var otherElement: Long = Long.MIN_VALUE
-        set.forEach { if (element == Long.MIN_VALUE) element = it else otherElement = it }
+        var element: Long = -1L
+        var otherElement: Long = -1L
+        set.forEach { if (element == -1L) element = it else otherElement = it }
         assertEquals(element, set.first())
         set -= element
         assertEquals(otherElement, set.first())
@@ -333,8 +341,8 @@ class LongSetTest {
         set += 1L
         set += 5L
         assertTrue(
-            "[1, 5]" == set.toString() ||
-                "[5, 1]" == set.toString()
+            "[${1L}, ${5L}]" == set.toString() ||
+                "[${5L}, ${1L}]" == set.toString()
         )
     }
 
