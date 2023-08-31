@@ -41,6 +41,8 @@ import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material.samples.SwipeToRevealCardSample
+import androidx.wear.compose.material.samples.SwipeToRevealChipSample
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
@@ -167,6 +169,12 @@ val WearFoundationDemos = DemoCategory(
                 },
                 ComposableDemo("Swipe To Reveal - Undo") {
                     SwipeToRevealWithDifferentUndo()
+                },
+                ComposableDemo("Material S2R Chip") {
+                    SwipeToRevealChipSample()
+                },
+                ComposableDemo("Material S2R Card") {
+                    SwipeToRevealCardSample()
                 }
             )
         )
