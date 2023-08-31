@@ -52,10 +52,12 @@ import androidx.room.compiler.processing.ksp.KspExecutableElement
 import androidx.room.compiler.processing.ksp.KspExecutableParameterElement
 import androidx.room.compiler.processing.ksp.KspExecutableType
 import androidx.room.compiler.processing.ksp.KspFieldElement
+import androidx.room.compiler.processing.ksp.KspFileMemberContainer
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticReceiverParameterElement
 import com.google.devtools.ksp.processing.Resolver
@@ -273,6 +275,8 @@ object XConverters {
         }
     }
 
+    // Todo(kuanyingchou): consider adding `env` to XElement as the when expression may break
+    //  when we add new XElement subclasses.
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
     fun XElement.getProcessingEnv(): XProcessingEnv {
@@ -282,6 +286,10 @@ object XConverters {
             is KspSyntheticContinuationParameterElement -> this.env
             is KspSyntheticPropertyMethodElement -> this.env
             is KspSyntheticReceiverParameterElement -> this.env
+            is KspSyntheticPropertyMethodElement.Setter.SyntheticExecutableParameterElement ->
+                this.env
+            is KspFileMemberContainer -> this.env
+            is KspSyntheticFileMemberContainer -> this.env
             else -> error("Unexpected element: $this")
         }
     }
