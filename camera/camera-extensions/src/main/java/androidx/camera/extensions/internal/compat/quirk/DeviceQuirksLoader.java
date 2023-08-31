@@ -52,10 +52,6 @@ public class DeviceQuirksLoader {
             quirks.add(new GetAvailableKeysNeedsOnInit());
         }
 
-        if (ImageAnalysisUnavailableQuirk.load()) {
-            quirks.add(new ImageAnalysisUnavailableQuirk());
-        }
-
         return quirks;
     }
 }
