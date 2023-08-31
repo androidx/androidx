@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":compose:material:material-icons-core"))
     androidTestImplementation(libs.testRunner)
 
     samples(project(":tv:tv-samples"))

@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -136,17 +136,15 @@ private fun Sidebar(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        @Suppress("DEPRECATION")
         NavigationItem(
-            imageVector = Icons.Default.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
             text = "LTR",
             drawerValue = drawerValue,
             selectedIndex = selectedIndex,
             index = 0
         )
-        @Suppress("DEPRECATION")
         NavigationItem(
-            imageVector = Icons.Default.KeyboardArrowLeft,
+            imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
             text = "RTL",
             drawerValue = drawerValue,
             selectedIndex = selectedIndex,
