@@ -294,8 +294,7 @@ public class WebViewJavaScriptSandboxTest {
             Assume.assumeTrue(jsSandbox.isFeatureSupported(
                     JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER));
 
-            boolean provideNamedDataReturn = jsIsolate.provideNamedData("id-1", bytes);
-            Assert.assertTrue(provideNamedDataReturn);
+            jsIsolate.provideNamedData("id-1", bytes);
             ListenableFuture<String> resultFuture1 = jsIsolate.evaluateJavaScriptAsync(code);
             String result = resultFuture1.get(5, TimeUnit.SECONDS);
 
@@ -592,8 +591,7 @@ public class WebViewJavaScriptSandboxTest {
             Assume.assumeTrue(
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_WASM_COMPILATION));
 
-            boolean provideNamedDataReturn = jsIsolate.provideNamedData("id-1", bytes);
-            Assert.assertTrue(provideNamedDataReturn);
+            jsIsolate.provideNamedData("id-1", bytes);
             ListenableFuture<String> resultFuture1 = jsIsolate.evaluateJavaScriptAsync(code);
             String result = resultFuture1.get(5, TimeUnit.SECONDS);
 

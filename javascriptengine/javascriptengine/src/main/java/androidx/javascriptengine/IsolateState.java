@@ -54,7 +54,7 @@ interface IsolateState {
 
     void clearConsoleCallback();
 
-    boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes);
+    void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes);
 
     void close();
 
