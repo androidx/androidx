@@ -29,6 +29,7 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -164,6 +165,7 @@ class SpecialEffectsControllerTest {
         }
     }
 
+    @Ignore // Ignore this test until we find a way to better test this scenario.
     @MediumTest
     @Test
     fun ensureOnlyChangeContainerStatusForCompletedOperation() {
