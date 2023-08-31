@@ -24,6 +24,24 @@ class ComposeUIViewControllerConfiguration {
      * Control Compose behaviour on focus changed inside Compose.
      */
     var onFocusBehavior: OnFocusBehavior = OnFocusBehavior.FocusableAboveKeyboard
+
+    /**
+     * Reassign this property with an object implementing [ComposeUIViewControllerDelegate] to receive
+     * UIViewController lifetime events.
+     */
+    var delegate = object : ComposeUIViewControllerDelegate {}
+}
+
+/**
+ * Interface for UIViewController specific lifetime callbacks to allow injecting logic without overriding internal ComposeWindow.
+ * All of those callbacks are invoked at the very end of overrided function implementation.
+ */
+interface ComposeUIViewControllerDelegate {
+    fun viewDidLoad() = Unit
+    fun viewWillAppear(animated: Boolean) = Unit
+    fun viewDidAppear(animated: Boolean) = Unit
+    fun viewWillDisappear(animated: Boolean) = Unit
+    fun viewDidDisappear(animated: Boolean) = Unit
 }
 
 sealed interface OnFocusBehavior {
