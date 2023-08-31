@@ -64,7 +64,13 @@ public final class AppSearchLoggerHelper {
                 .setNativeIndexMergeLatencyMillis(fromNativeStats.getIndexMergeLatencyMs())
                 .setNativeDocumentSizeBytes(fromNativeStats.getDocumentSize())
                 .setNativeNumTokensIndexed(
-                        fromNativeStats.getTokenizationStats().getNumTokensIndexed());
+                        fromNativeStats.getTokenizationStats().getNumTokensIndexed())
+                .setNativeTermIndexLatencyMillis(fromNativeStats.getTermIndexLatencyMs())
+                .setNativeIntegerIndexLatencyMillis(fromNativeStats.getIntegerIndexLatencyMs())
+                .setNativeQualifiedIdJoinIndexLatencyMillis(
+                        fromNativeStats.getQualifiedIdJoinIndexLatencyMs())
+                .setNativeLiteIndexSortLatencyMillis(
+                        fromNativeStats.getLiteIndexSortLatencyMs());
     }
 
     /**
