@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Tab ng Listahan"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid na Tab na may Mahabang Pamagat ng Tab"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab ng Paghahanap"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Nilo-load ang Tab"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo ng Pag-load ng Template ng Tab"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo ng Walang Tab na Template ng Tab"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Hindi maipapakita ang mga larawan para sa hindi tukoy na host"</string>
