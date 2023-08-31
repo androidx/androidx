@@ -31,9 +31,11 @@ import androidx.compose.material.Button
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -75,24 +77,24 @@ class ShapeParameters(
     rotation: Float = 0f,
     shapeId: ShapeId = ShapeId.Polygon
 ) {
-    internal val sides = mutableStateOf(sides.toFloat())
-    internal val innerRadius = mutableStateOf(innerRadius)
-    internal val roundness = mutableStateOf(roundness)
-    internal val smooth = mutableStateOf(smooth)
-    internal val innerRoundness = mutableStateOf(innerRoundness)
-    internal val innerSmooth = mutableStateOf(innerSmooth)
-    internal val rotation = mutableStateOf(rotation)
+    internal val sides = mutableFloatStateOf(sides.toFloat())
+    internal val innerRadius = mutableFloatStateOf(innerRadius)
+    internal val roundness = mutableFloatStateOf(roundness)
+    internal val smooth = mutableFloatStateOf(smooth)
+    internal val innerRoundness = mutableFloatStateOf(innerRoundness)
+    internal val innerSmooth = mutableFloatStateOf(innerSmooth)
+    internal val rotation = mutableFloatStateOf(rotation)
 
-    internal var shapeIx by mutableStateOf(shapeId.ordinal)
+    internal var shapeIx by mutableIntStateOf(shapeId.ordinal)
 
     fun copy() = ShapeParameters(
-        this.sides.value.roundToInt(),
-        this.innerRadius.value,
-        this.roundness.value,
-        this.smooth.value,
-        this.innerRoundness.value,
-        this.innerSmooth.value,
-        this.rotation.value,
+        this.sides.floatValue.roundToInt(),
+        this.innerRadius.floatValue,
+        this.roundness.floatValue,
+        this.smooth.floatValue,
+        this.innerRoundness.floatValue,
+        this.innerSmooth.floatValue,
+        this.rotation.floatValue,
         ShapeId.values()[this.shapeIx]
     )
 
@@ -107,8 +109,8 @@ class ShapeParameters(
     ) = directionVector(angleRadians) * radius + center
 
     private fun rotationAsString() =
-        if (this.rotation.value != 0f)
-            "rotation = ${this.rotation.value}f, "
+        if (this.rotation.floatValue != 0f)
+            "rotation = ${this.rotation.floatValue}f, "
         else
             ""
 
@@ -116,23 +118,23 @@ class ShapeParameters(
     internal val shapes = listOf(
         ShapeItem("Star", shapegen = {
                 RoundedPolygon.star(
-                    numVerticesPerRadius = this.sides.value.roundToInt(),
-                    innerRadius = this.innerRadius.value,
-                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                    numVerticesPerRadius = this.sides.floatValue.roundToInt(),
+                    innerRadius = this.innerRadius.floatValue,
+                    rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     innerRounding = CornerRounding(
-                        this.innerRoundness.value,
-                        this.innerSmooth.value
+                        this.innerRoundness.floatValue,
+                        this.innerSmooth.floatValue
                     )
                 )
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(sides = ${this.sides.value.roundToInt()}, " +
-                        "innerRadius = ${this.innerRadius.value}f, " +
-                        "roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
-                        "innerRoundness = ${this.innerRoundness.value}f, " +
-                        "innerSmooth = ${this.innerSmooth.value}f, " +
+                    "ShapeParameters(sides = ${this.sides.floatValue.roundToInt()}, " +
+                        "innerRadius = ${this.innerRadius.floatValue}f, " +
+                        "roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
+                        "innerRoundness = ${this.innerRoundness.floatValue}f, " +
+                        "innerSmooth = ${this.innerSmooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Star)"
                 )
@@ -140,15 +142,15 @@ class ShapeParameters(
         ),
         ShapeItem("Polygon", shapegen = {
                 RoundedPolygon(
-                    numVertices = this.sides.value.roundToInt(),
-                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                    numVertices = this.sides.floatValue.roundToInt(),
+                    rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                 )
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(sides = ${this.sides.value.roundToInt()}, " +
-                        "roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(sides = ${this.sides.floatValue.roundToInt()}, " +
+                        "roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         ")"
                 )
@@ -161,22 +163,22 @@ class ShapeParameters(
                     radialToCartesian(1f, 270f.toRadians()).y,
                     radialToCartesian(1f, 30f.toRadians()).x,
                     radialToCartesian(1f, 30f.toRadians()).y,
-                    radialToCartesian(this.innerRadius.value, 90f.toRadians()).x,
-                    radialToCartesian(this.innerRadius.value, 90f.toRadians()).y,
+                    radialToCartesian(this.innerRadius.floatValue, 90f.toRadians()).x,
+                    radialToCartesian(this.innerRadius.floatValue, 90f.toRadians()).y,
                     radialToCartesian(1f, 150f.toRadians()).x,
                     radialToCartesian(1f, 150f.toRadians()).y
                 )
                 RoundedPolygon(
                     points,
-                    CornerRounding(this.roundness.value, this.smooth.value),
+                    CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     centerX = 0f,
                     centerY = 0f
                 )
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(innerRadius = ${this.innerRadius.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(innerRadius = ${this.innerRadius.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Triangle)"
                 )
@@ -185,22 +187,22 @@ class ShapeParameters(
         ),
         ShapeItem(
             "Blob", shapegen = {
-                val sx = this.innerRadius.value.coerceAtLeast(0.1f)
-                val sy = this.roundness.value.coerceAtLeast(0.1f)
+                val sx = this.innerRadius.floatValue.coerceAtLeast(0.1f)
+                val sy = this.roundness.floatValue.coerceAtLeast(0.1f)
                 RoundedPolygon(
                     vertices = floatArrayOf(-sx, -sy,
                         sx, -sy,
                         sx, sy,
                         -sx, sy,
                     ),
-                    rounding = CornerRounding(min(sx, sy), this.smooth.value),
+                    rounding = CornerRounding(min(sx, sy), this.smooth.floatValue),
                     centerX = 0f, centerY = 0f
                 )
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Blob)"
                 )
@@ -212,7 +214,7 @@ class ShapeParameters(
                 RoundedPolygon(
                     squarePoints(),
                     perVertexRounding = listOf(
-                        CornerRounding(this.roundness.value, this.smooth.value),
+                        CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                         CornerRounding(1f),
                         CornerRounding(1f),
                         CornerRounding(1f)
@@ -223,8 +225,8 @@ class ShapeParameters(
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.CornerSE)"
                 )
@@ -235,12 +237,12 @@ class ShapeParameters(
         ),
         ShapeItem(
             "Circle", shapegen = {
-                RoundedPolygon.circle(this.sides.value.roundToInt())
+                RoundedPolygon.circle(this.sides.floatValue.roundToInt())
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Circle)"
                 )
@@ -252,13 +254,13 @@ class ShapeParameters(
         ShapeItem(
             "Rectangle", shapegen = {
                 RoundedPolygon.rectangle(width = 4f, height = 2f,
-                    rounding = CornerRounding(this.roundness.value, this.smooth.value),
+                    rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                 )
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(roundness = ${this.roundness.value}f, " +
-                        "smooth = ${this.smooth.value}f, " +
+                    "ShapeParameters(roundness = ${this.roundness.floatValue}f, " +
+                        "smooth = ${this.smooth.floatValue}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Rectangle)"
                 )
@@ -292,7 +294,7 @@ class ShapeParameters(
                 scale(x = scale, y = scale)
             }
             // Apply the needed rotation
-            rotateZ(rotation.value)
+            rotateZ(rotation.floatValue)
         })
     }
 }
@@ -394,15 +396,15 @@ fun MySlider(
     minValue: Float,
     maxValue: Float,
     step: Float,
-    valueHolder: MutableState<Float>,
+    valueHolder: MutableFloatState,
     enabled: Boolean = true
 ) {
     Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(name, color = Color.White)
         Spacer(Modifier.width(10.dp))
         Slider(
-            value = valueHolder.value,
-            onValueChange = { valueHolder.value = it },
+            value = valueHolder.floatValue,
+            onValueChange = { valueHolder.floatValue = it },
             valueRange = minValue..maxValue,
             steps = if (step > maxValue - minValue)
                 ((maxValue - minValue) / step).roundToInt() - 1
