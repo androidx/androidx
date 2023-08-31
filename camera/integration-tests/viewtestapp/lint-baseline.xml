@@ -264,7 +264,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        return if (canDeviceWriteToMediaStore()) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -273,7 +273,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -282,7 +282,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -291,7 +291,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                generateVideoMediaStoreOptions(context.contentResolver, fileName)"
         errorLine2="                                                                        ~~~~~~~~">
         <location
@@ -300,7 +300,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -309,7 +309,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))"
         errorLine2="                                                                              ~~~~~~~~">
         <location
@@ -318,7 +318,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        writeTextToExternalFile(information, fileName)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -327,7 +327,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        writeTextToExternalFile(information, fileName)"
         errorLine2="                                ~~~~~~~~~~~">
         <location
@@ -336,7 +336,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="E2ETestUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        message="FileUtil.writeTextToExternalFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        writeTextToExternalFile(information, fileName)"
         errorLine2="                                             ~~~~~~~~">
         <location
