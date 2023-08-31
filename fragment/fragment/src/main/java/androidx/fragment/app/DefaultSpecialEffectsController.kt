@@ -594,7 +594,7 @@ internal class DefaultSpecialEffectsController(
                     if (isHideOperation) {
                         // Specifically for hide operations with Animator, we can't
                         // applyState until the Animator finishes
-                        operation.finalState.applyState(viewToAnimate)
+                        operation.finalState.applyState(viewToAnimate, container)
                     }
                     animatorInfo.operation.completeEffect(this@AnimatorEffect)
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
