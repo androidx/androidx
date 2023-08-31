@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -140,7 +141,8 @@ public final class GenericDocumentToProtoConverter {
     @NonNull
     public static GenericDocument toGenericDocument(@NonNull DocumentProtoOrBuilder proto,
             @NonNull String prefix,
-            @NonNull Map<String, SchemaTypeConfigProto> schemaTypeMap) throws AppSearchException {
+            @NonNull Map<String, SchemaTypeConfigProto> schemaTypeMap,
+            @NonNull AppSearchConfig config) throws AppSearchException {
         Preconditions.checkNotNull(proto);
         GenericDocument.Builder<?> documentBuilder =
                 new GenericDocument.Builder<>(proto.getNamespace(), proto.getUri(),
@@ -152,7 +154,12 @@ public final class GenericDocumentToProtoConverter {
         List<String> parentSchemaTypes = getUnprefixedParentSchemaTypes(
                 prefixedSchemaType, schemaTypeMap);
         if (!parentSchemaTypes.isEmpty()) {
-            documentBuilder.setParentTypes(parentSchemaTypes);
+            if (config.shouldStoreParentInfoAsSyntheticProperty()) {
+                documentBuilder.setPropertyString(GenericDocument.PARENT_TYPES_SYNTHETIC_PROPERTY,
+                        parentSchemaTypes.toArray(new String[0]));
+            } else {
+                documentBuilder.setParentTypes(parentSchemaTypes);
+            }
         }
 
         for (int i = 0; i < proto.getPropertiesCount(); i++) {
@@ -192,7 +199,7 @@ public final class GenericDocumentToProtoConverter {
                 GenericDocument[] values = new GenericDocument[property.getDocumentValuesCount()];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = toGenericDocument(property.getDocumentValues(j), prefix,
-                            schemaTypeMap);
+                            schemaTypeMap, config);
                 }
                 documentBuilder.setPropertyDocument(name, values);
             } else {
