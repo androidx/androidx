@@ -48,6 +48,8 @@ import java.util.concurrent.RunnableFuture;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
+    private static final String TAG = "HdrPreviewExtenderImpl";
+
     private static final int DEFAULT_STAGE_ID = 0;
 
     @Nullable
@@ -175,7 +177,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         @Override
         public void process(Image image, TotalCaptureResult result,
                 ProcessResultImpl resultCallback, Executor executor) {
-
+            process(image, result);
         }
 
         @Override

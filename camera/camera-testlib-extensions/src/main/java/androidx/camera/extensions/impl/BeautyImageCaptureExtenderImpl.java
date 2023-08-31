@@ -264,6 +264,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         @Override
         public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            process(results);
         }
 
         @Override
@@ -290,7 +291,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         public void processWithPostview(
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
-
+            throw new UnsupportedOperationException("Postview is not supported");
         }
     }
 

@@ -19,6 +19,7 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -39,6 +40,7 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -205,6 +207,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @RequiresApi(23)
     static final class HdrImageCaptureExtenderCaptureProcessorImpl implements CaptureProcessorImpl {
         private ImageWriter mImageWriter;
+        private Surface mPostViewSurface;
 
         @Override
         public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
@@ -213,7 +216,21 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
         @Override
         public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+            processInternal(results, null, null, false);
+        }
+
+        @Override
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            processInternal(results, resultCallback, executor, false);
+        }
+
+        public void processInternal(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @Nullable ProcessResultImpl resultCallback, @Nullable Executor executor,
+                boolean hasPostview) {
             Log.d(TAG, "Started HDR CaptureProcessor");
+
+            Executor executorForCallback = executor != null ? executor : (cmd) -> cmd.run();
 
             // Check for availability of all requested images
             if (!results.containsKey(UNDER_STAGE_ID)) {
@@ -246,6 +263,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             // Do processing here
             // The sample here simply returns the normal image result
             Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
+            if (hasPostview) {
+                YuvToJpegConverter.writeYuvToJpegSurface(normalImage, mPostViewSurface);
+            }
 
             if (outputImage.getWidth() != normalImage.getWidth()
                     || outputImage.getHeight() != normalImage.getHeight()) {
@@ -254,6 +274,12 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                                 + "output image[%d, %d]", normalImage.getWidth(),
                         normalImage.getHeight(), outputImage.getWidth(),
                         outputImage.getHeight()));
+            }
+
+            if (resultCallback != null) {
+                executorForCallback.execute(() -> {
+                    resultCallback.onCaptureProcessProgressed(10);
+                });
             }
 
             try {
@@ -272,6 +298,11 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                         int outIndex = x * outYRowStride + y * outYPixelStride;
                         outYBuffer.put(outIndex, inYBuffer.get(inIndex));
                     }
+                }
+
+                if (resultCallback != null) {
+                    executorForCallback.execute(
+                            () -> resultCallback.onCaptureProcessProgressed(50));
                 }
 
                 // Copy UV
@@ -302,15 +333,34 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             }
 
             mImageWriter.queueInputImage(outputImage);
+            if (resultCallback != null) {
+                executorForCallback.execute(
+                        () -> resultCallback.onCaptureProcessProgressed(100));
+            }
+
+            TotalCaptureResult captureResult = results.get(NORMAL_STAGE_ID).second;
+
+            if (resultCallback != null) {
+                executorForCallback.execute(
+                        () -> resultCallback.onCaptureCompleted(
+                                captureResult.get(CaptureResult.SENSOR_TIMESTAMP),
+                                getFilteredResults(captureResult)));
+            }
 
             Log.d(TAG, "Completed HDR CaptureProcessor");
         }
 
-        @Override
-        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
-                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+        @SuppressWarnings("unchecked")
+        private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
+                TotalCaptureResult captureResult) {
+            List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
+            for (CaptureResult.Key key : captureResult.getKeys()) {
+                list.add(new Pair<>(key, captureResult.get(key)));
+            }
 
+            return list;
         }
+
 
         @Override
         public void onResolutionUpdate(@NonNull Size size) {
@@ -324,19 +374,20 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
         @Override
         public void onPostviewOutputSurface(@NonNull Surface surface) {
-
+            mPostViewSurface = surface;
         }
 
         @Override
         public void onResolutionUpdate(@NonNull Size size, @NonNull Size postviewSize) {
-
+            onResolutionUpdate(size);
         }
 
         @Override
         public void processWithPostview(
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
-
+            Log.d(TAG, "processWithPostview");
+            processInternal(results, resultCallback, executor, true);
         }
     }
 
@@ -354,12 +405,13 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
-        return null;
+        Pair<Integer, Size[]> pair = new Pair<>(ImageFormat.JPEG, new Size[] {captureSize});
+        return Arrays.asList(pair);
     }
 
     @Override
     public boolean isCaptureProcessProgressAvailable() {
-        return false;
+        return true;
     }
 
     @Nullable
@@ -370,7 +422,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     @Override
     public boolean isPostviewAvailable() {
-        return false;
+        return true;
     }
 
     @NonNull

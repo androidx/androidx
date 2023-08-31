@@ -247,7 +247,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         @Override
         public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
-
+            process(results);
         }
 
         @Override
@@ -264,7 +264,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         public void processWithPostview(
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
-
+            throw new UnsupportedOperationException("Postview is not supported");
         }
     }
 
