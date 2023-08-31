@@ -29,6 +29,7 @@ import kotlin.test.assertFailsWith
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,6 +43,7 @@ class BaselineProfileRuleTest {
     private val filterRegex = "^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex()
 
     @Test
+    @Ignore("b/294123161")
     fun appNotInstalled() {
         val error = assertFailsWith<AssertionError> {
             baselineRule.collect(
@@ -56,6 +58,7 @@ class BaselineProfileRuleTest {
     }
 
     @Test
+    @Ignore("b/294123161")
     fun filter() {
         // TODO: share this 'is supported' check with the one inside BaselineProfileRule, once this
         //  test class is moved out of integration-tests, into benchmark-macro-junit4
@@ -90,6 +93,7 @@ class BaselineProfileRuleTest {
     }
 
     @Test
+    @Ignore("b/294123161")
     fun profileType() {
         assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
 
