@@ -81,9 +81,10 @@ class MainActivity : AppCompatActivity() {
 
         mSandboxedSdkView2 = SandboxedSdkView(this@MainActivity)
         mSandboxedSdkView2.addStateChangedListener(StateChangeListener(mSandboxedSdkView2))
-        mSandboxedSdkView2.layoutParams = ViewGroup.LayoutParams(400, 400)
+        mSandboxedSdkView2.layoutParams = findViewById<LinearLayout>(
+            R.id.bottom_banner_container).layoutParams
         runOnUiThread {
-            findViewById<LinearLayout>(R.id.ad_layout).addView(mSandboxedSdkView2)
+            findViewById<LinearLayout>(R.id.bottom_banner_container).addView(mSandboxedSdkView2)
         }
         mSandboxedSdkView2.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadAd(/*isWebView=*/ false, "Hey!")
