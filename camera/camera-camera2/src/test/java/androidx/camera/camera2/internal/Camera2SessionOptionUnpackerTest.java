@@ -34,11 +34,16 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.OptionPriority;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.impl.VideoCaptureConfig;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -167,6 +172,83 @@ public final class Camera2SessionOptionUnpackerTest {
 
         assertThat(config.getCaptureRequestOption(CaptureRequest.TONEMAP_MODE))
                 .isEqualTo(CaptureRequest.TONEMAP_MODE_HIGH_QUALITY);
+    }
+
+    @Test
+    public void unpackerExtractsPreviewStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        Preview.Builder previewConfigBuilder =
+                new Preview.Builder().setPreviewStabilizationEnabled(true);
+
+        PreviewConfig useCaseConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.UNSPECIFIED);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+    }
+
+    @Test
+    public void unpackerExtractsVideoStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
+                new VideoCapture.Builder<>(new Recorder.Builder().build())
+                        .setVideoStabilizationEnabled(true);
+
+        VideoCaptureConfig<Recorder> useCaseConfig = videoCaptureConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, useCaseConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.UNSPECIFIED);
+    }
+
+    @Test
+    public void unpackerExtractsBothPreviewAndVideoStabilizationMode() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        // unpack for preview
+        Preview.Builder previewConfigBuilder =
+                new Preview.Builder().setPreviewStabilizationEnabled(true);
+
+        PreviewConfig previewConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, previewConfig, sessionBuilder);
+
+        // unpack for preview
+        VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
+                new VideoCapture.Builder<>(new Recorder.Builder().build())
+                        .setVideoStabilizationEnabled(true);
+
+        VideoCaptureConfig<Recorder> videoCaptureConfig =
+                videoCaptureConfigBuilder.getUseCaseConfig();
+
+        mUnpacker.unpack(RESOLUTION_VGA, videoCaptureConfig, sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
     }
 
     private OptionPriority getCaptureRequestOptionPriority(Config config,

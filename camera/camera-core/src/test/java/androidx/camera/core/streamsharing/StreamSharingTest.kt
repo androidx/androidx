@@ -31,6 +31,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
@@ -41,6 +42,7 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
@@ -55,6 +57,8 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
@@ -478,5 +482,35 @@ class StreamSharingTest {
         assertThat(config.captureTypes.size).isEqualTo(2)
         assertThat(config.captureTypes[0]).isEqualTo(CaptureType.PREVIEW)
         assertThat(config.captureTypes[1]).isEqualTo(CaptureType.PREVIEW)
+    }
+
+    @Test
+    fun getParentPreviewStabilizationMode_isPreviewChildMode() {
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(true).build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build())
+            .setVideoStabilizationEnabled(false).build()
+
+        streamSharing =
+            StreamSharing(camera, setOf(preview, videoCapture), useCaseConfigFactory)
+        assertThat(
+            streamSharing.mergeConfigs(
+                camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+            ).previewStabilizationMode
+        ).isEqualTo(StabilizationMode.ON)
+    }
+
+    @Test
+    fun getParentVideoStabilizationMode_isVideoCaptureChildMode() {
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(false).build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build())
+            .setVideoStabilizationEnabled(true).build()
+
+        streamSharing =
+            StreamSharing(camera, setOf(preview, videoCapture), useCaseConfigFactory)
+        assertThat(
+            streamSharing.mergeConfigs(
+                camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+            ).videoStabilizationMode
+        ).isEqualTo(StabilizationMode.ON)
     }
 }

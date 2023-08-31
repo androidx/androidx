@@ -780,6 +780,13 @@ class PreviewTest {
         assertThat(preview.targetFrameRate).isEqualTo(Range(15, 30))
     }
 
+    @Test
+    fun canSetPreviewStabilization() {
+        val preview = Preview.Builder().setPreviewStabilizationEnabled(true)
+            .build()
+        assertThat(preview.isPreviewStabilizationEnabled).isTrue()
+    }
+
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
         return bindToLifecycleAndGetResult(null).first
     }
