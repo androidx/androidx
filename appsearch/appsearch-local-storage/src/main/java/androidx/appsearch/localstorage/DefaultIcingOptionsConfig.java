@@ -78,4 +78,14 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
     public int getIntegerIndexBucketSplitThreshold() {
         return DEFAULT_INTEGER_INDEX_BUCKET_SPLIT_THRESHOLD;
     }
+
+    @Override
+    public boolean getLiteIndexSortAtIndexing() {
+        return DEFAULT_LITE_INDEX_SORT_AT_INDEXING;
+    }
+
+    @Override
+    public int getLiteIndexSortSize() {
+        return DEFAULT_LITE_INDEX_SORT_SIZE;
+    }
 }
