@@ -96,6 +96,7 @@ limitations under the License.
                 <action android:name="androidx.camera.integration.core.intent.action.TAKE_PICTURE" />
                 <action android:name="androidx.camera.integration.core.intent.action.START_RECORDING" />
                 <action android:name="androidx.camera.integration.core.intent.action.STOP_RECORDING" />
+                <action android:name="androidx.camera.integration.core.intent.action.STOP_SERVICE" />
             </intent-filter>
         </service>
     </application>
