@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.IOSSkikoInput
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextActions
 import kotlinx.cinterop.*
-import org.jetbrains.skia.Point
 import org.jetbrains.skia.Rect
 import platform.CoreGraphics.*
 import platform.Foundation.*
@@ -121,6 +120,8 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
     }
 
     fun needRedraw() = _redrawer.needRedraw()
+
+    var isForcedToPresentWithTransactionEveryFrame by _redrawer::isForcedToPresentWithTransactionEveryFrame
 
     /**
      * Show copy/paste text menu

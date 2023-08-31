@@ -42,14 +42,19 @@ import kotlin.math.roundToInt
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
+import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoPointerEvent
 import org.jetbrains.skiko.currentNanoTime
+import platform.CoreGraphics.CGAffineTransformIdentity
+import platform.CoreGraphics.CGAffineTransformInvert
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.CGSize
+import platform.CoreGraphics.CGSizeEqualToSize
 import platform.Foundation.*
 import platform.UIKit.*
 import platform.darwin.NSObject
@@ -94,6 +99,34 @@ private class AttachedComposeContext(
     val scene: ComposeScene,
     val view: SkikoUIView,
 ) {
+    private var constraints: List<NSLayoutConstraint> = emptyList()
+        set(value) {
+            if (field.isNotEmpty()) {
+                NSLayoutConstraint.deactivateConstraints(field)
+            }
+            field = value
+            NSLayoutConstraint.activateConstraints(value)
+        }
+
+    fun setConstraintsToCenterInView(parentView: UIView, size: CValue<CGSize>) {
+        size.useContents {
+            constraints = listOf(
+                view.centerXAnchor.constraintEqualToAnchor(parentView.centerXAnchor),
+                view.centerYAnchor.constraintEqualToAnchor(parentView.centerYAnchor),
+                view.widthAnchor.constraintEqualToConstant(width),
+                view.heightAnchor.constraintEqualToConstant(height)
+            )
+        }
+    }
+
+    fun setConstraintsToFillView(parentView: UIView) {
+        constraints = listOf(
+            view.leftAnchor.constraintEqualToAnchor(parentView.leftAnchor),
+            view.rightAnchor.constraintEqualToAnchor(parentView.rightAnchor),
+            view.topAnchor.constraintEqualToAnchor(parentView.topAnchor),
+            view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor)
+        )
+    }
     fun dispose() {
         scene.close()
         view.dispose()
@@ -106,6 +139,7 @@ internal actual class ComposeWindow : UIViewController {
 
     internal lateinit var configuration: ComposeUIViewControllerConfiguration
     private val keyboardOverlapHeightState = mutableStateOf(0f)
+    private var isInsideSwiftUI = false
     private val safeAreaState = mutableStateOf(IOSInsets())
     private val layoutMarginsState = mutableStateOf(IOSInsets())
     private val interopContext = UIKitInteropContext(requestRedraw = {
@@ -164,7 +198,10 @@ internal actual class ComposeWindow : UIViewController {
         }
 
     private val density: Density
-        get() = Density(attachedComposeContext?.view?.contentScaleFactor?.toFloat() ?: 1f, fontScale)
+        get() = Density(
+            attachedComposeContext?.view?.contentScaleFactor?.toFloat() ?: 1f,
+            fontScale
+        )
 
     private lateinit var content: @Composable () -> Unit
 
@@ -317,11 +354,74 @@ internal actual class ComposeWindow : UIViewController {
         context.view.needRedraw()
     }
 
+    override fun viewWillTransitionToSize(
+        size: CValue<CGSize>,
+        withTransitionCoordinator: UIViewControllerTransitionCoordinatorProtocol
+    ) {
+        super.viewWillTransitionToSize(size, withTransitionCoordinator)
+
+        if (isInsideSwiftUI || presentingViewController != null) {
+            // SwiftUI will do full layout and scene constraints update on each frame of orientation change animation
+            // This logic is not needed
+
+            // When presented modally, UIKit performs non-trivial hierarchy update durting orientation change,
+            // its logic is not feasible to integrate into
+            return
+        }
+
+        val attachedComposeContext = attachedComposeContext ?: return
+
+        // Happens during orientation change from LandscapeLeft to LandscapeRight, for example
+        val isSameSizeTransition = view.frame.useContents {
+            CGSizeEqualToSize(size, this.size.readValue())
+        }
+        if (isSameSizeTransition) {
+            return
+        }
+
+        val startSnapshotView =
+            attachedComposeContext.view.snapshotViewAfterScreenUpdates(false) ?: return
+
+        startSnapshotView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(startSnapshotView)
+        size.useContents {
+            NSLayoutConstraint.activateConstraints(
+                listOf(
+                    startSnapshotView.widthAnchor.constraintEqualToConstant(height),
+                    startSnapshotView.heightAnchor.constraintEqualToConstant(width),
+                    startSnapshotView.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor),
+                    startSnapshotView.centerYAnchor.constraintEqualToAnchor(view.centerYAnchor)
+                )
+            )
+        }
+
+        attachedComposeContext.view.isForcedToPresentWithTransactionEveryFrame = true
+
+        attachedComposeContext.setConstraintsToCenterInView(view, size)
+        attachedComposeContext.view.transform = withTransitionCoordinator.targetTransform
+
+        view.layoutIfNeeded()
+
+        withTransitionCoordinator.animateAlongsideTransition(
+            animation = {
+                startSnapshotView.alpha = 0.0
+                startSnapshotView.transform =
+                    CGAffineTransformInvert(withTransitionCoordinator.targetTransform)
+                attachedComposeContext.view.transform = CGAffineTransformIdentity.readValue()
+            },
+            completion = {
+                startSnapshotView.removeFromSuperview()
+                attachedComposeContext.setConstraintsToFillView(view)
+                attachedComposeContext.view.isForcedToPresentWithTransactionEveryFrame = false
+            }
+        )
+    }
+
     override fun viewWillAppear(animated: Boolean) {
         super.viewWillAppear(animated)
 
+        isInsideSwiftUI = checkIfInsideSwiftUI()
         attachComposeIfNeeded()
-
         configuration.delegate.viewWillAppear(animated)
     }
 
@@ -401,15 +501,6 @@ internal actual class ComposeWindow : UIViewController {
 
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(skikoUIView)
-
-        NSLayoutConstraint.activateConstraints(
-            listOf(
-                skikoUIView.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
-                skikoUIView.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),
-                skikoUIView.topAnchor.constraintEqualToAnchor(view.topAnchor),
-                skikoUIView.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor)
-            )
-        )
 
         val inputServices = UIKitTextInputService(
             showSoftwareKeyboard = {
@@ -501,7 +592,10 @@ internal actual class ComposeWindow : UIViewController {
             override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
                 point.useContents {
                     val hitsInteropView = attachedComposeContext?.scene?.mainOwner?.hitInteropView(
-                        pointerPosition = Offset((x * density.density).toFloat(), (y * density.density).toFloat()),
+                        pointerPosition = Offset(
+                            (x * density.density).toFloat(),
+                            (y * density.density).toFloat()
+                        ),
                         isTouchEvent = true,
                     ) ?: false
 
@@ -560,10 +654,32 @@ internal actual class ComposeWindow : UIViewController {
 
         attachedComposeContext =
             AttachedComposeContext(scene, skikoUIView).also {
+                it.setConstraintsToFillView(view)
                 updateLayout(it)
             }
     }
 }
+
+private fun UIViewController.checkIfInsideSwiftUI(): Boolean {
+        var parent = parentViewController
+
+        while (parent != null) {
+            val isUIHostingController = parent.`class`()?.let {
+                val className = NSStringFromClass(it)
+                // SwiftUI UIHostingController has mangled name depending on generic instantiation type,
+                // It always contains UIHostingController substring though
+                return className.contains("UIHostingController")
+            } ?: false
+
+            if (isUIHostingController) {
+                return true
+            }
+
+            parent = parent.parentViewController
+        }
+
+        return false
+    }
 
 private fun UIUserInterfaceStyle.asComposeSystemTheme(): SystemTheme {
     return when (this) {

@@ -141,6 +141,8 @@ internal class MetalRedrawer(
     // Semaphore for preventing command buffers count more than swapchain size to be scheduled/executed at the same time
     private val inflightSemaphore = dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
 
+    var isForcedToPresentWithTransactionEveryFrame = false
+
     var maximumFramesPerSecond: NSInteger
         get() = caDisplayLink?.preferredFramesPerSecond ?: 0
         set(value) {
@@ -287,12 +289,14 @@ internal class MetalRedrawer(
             surface.flushAndSubmit()
 
             val caTransactionCommands = retrieveCATransactionCommands()
-            metalLayer.presentsWithTransaction = caTransactionCommands.isNotEmpty()
+            val presentsWithTransaction = isForcedToPresentWithTransactionEveryFrame || caTransactionCommands.isNotEmpty()
+
+            metalLayer.presentsWithTransaction = presentsWithTransaction
 
             val commandBuffer = queue.commandBuffer()!!
             commandBuffer.label = "Present"
 
-            if (caTransactionCommands.isEmpty()) {
+            if (!presentsWithTransaction) {
                 // If there are no pending changes in UIKit interop, present the drawable ASAP
                 commandBuffer.presentDrawable(metalDrawable)
             }
@@ -303,7 +307,7 @@ internal class MetalRedrawer(
             }
             commandBuffer.commit()
 
-            if (caTransactionCommands.isNotEmpty()) {
+            if (presentsWithTransaction) {
                 // If there are pending changes in UIKit interop, [waitUntilScheduled](https://developer.apple.com/documentation/metal/mtlcommandbuffer/1443036-waituntilscheduled) is called
                 // to ensure that transaction is available
                 commandBuffer.waitUntilScheduled()
