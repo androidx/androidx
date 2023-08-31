@@ -25,10 +25,10 @@ interface NavigationDrawerScope {
     /**
      * Whether any item within the [NavigationDrawer] or [ModalNavigationDrawer] is focused
      */
-    val isActivated: Boolean
+    val doesNavigationDrawerHaveFocus: Boolean
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-internal class NavigationDrawerScopeImpl constructor(
-    override val isActivated: Boolean
+internal class NavigationDrawerScopeImpl(
+    override val doesNavigationDrawerHaveFocus: Boolean
 ) : NavigationDrawerScope

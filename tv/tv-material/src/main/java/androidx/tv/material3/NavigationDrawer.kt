@@ -79,7 +79,7 @@ import androidx.compose.ui.zIndex
 @ExperimentalTvMaterial3Api
 @Composable
 fun ModalNavigationDrawer(
-    drawerContent: @Composable (DrawerValue) -> Unit,
+    drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     scrimBrush: Brush = SolidColor(LocalColorScheme.current.scrim.copy(alpha = 0.5f)),
@@ -155,7 +155,7 @@ fun ModalNavigationDrawer(
 @ExperimentalTvMaterial3Api
 @Composable
 fun NavigationDrawer(
-    drawerContent: @Composable (DrawerValue) -> Unit,
+    drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     content: @Composable () -> Unit
@@ -237,7 +237,7 @@ private fun DrawerSheet(
     modifier: Modifier = Modifier,
     drawerState: DrawerState = remember { DrawerState() },
     sizeAnimationFinishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
-    content: @Composable (DrawerValue) -> Unit
+    content: @Composable NavigationDrawerScope.(DrawerValue) -> Unit
 ) {
     // indicates that the drawer has been set to its initial state and has grabbed focus if
     // necessary. Controls whether focus is used to decide the state of the drawer going forward.
@@ -269,7 +269,11 @@ private fun DrawerSheet(
             }
             .focusGroup()
 
-    Box(modifier = internalModifier) { content.invoke(drawerState.currentValue) }
+    Box(modifier = internalModifier) {
+        NavigationDrawerScopeImpl(drawerState.currentValue == DrawerValue.Open).apply {
+            content(drawerState.currentValue)
+        }
+    }
 }
 
 private const val ClosedDrawerWidth = 80
