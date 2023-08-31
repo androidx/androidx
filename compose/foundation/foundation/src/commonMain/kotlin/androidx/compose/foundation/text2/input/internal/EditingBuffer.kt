@@ -138,10 +138,6 @@ internal class EditingBuffer(
         checkRange(selection.start, selection.end)
     }
 
-    fun replace(start: Int, end: Int, text: AnnotatedString) {
-        replace(start, end, text.text)
-    }
-
     /**
      * Replace the text and move the cursor to the end of inserted text.
      *
@@ -150,7 +146,7 @@ internal class EditingBuffer(
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
-    fun replace(start: Int, end: Int, text: String) {
+    fun replace(start: Int, end: Int, text: CharSequence) {
         checkRange(start, end)
         val min = minOf(start, end)
         val max = maxOf(start, end)

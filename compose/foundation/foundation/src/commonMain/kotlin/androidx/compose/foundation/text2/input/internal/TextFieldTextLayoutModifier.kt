@@ -16,9 +16,6 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.CodepointTransformation
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
@@ -46,11 +43,9 @@ import kotlin.math.roundToInt
  * coordinates of [TextLayoutResult] to make it relatively easier to calculate the offset between
  * exact touch coordinates and where they map on the [TextLayoutResult].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldTextLayoutModifier(
     private val textLayoutState: TextLayoutState,
-    private val textFieldState: TextFieldState,
-    private val codepointTransformation: CodepointTransformation?,
+    private val textFieldState: TransformedTextFieldState,
     private val textStyle: TextStyle,
     private val singleLine: Boolean,
     private val onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
@@ -58,7 +53,6 @@ internal data class TextFieldTextLayoutModifier(
     override fun create(): TextFieldTextLayoutModifierNode = TextFieldTextLayoutModifierNode(
         textLayoutState = textLayoutState,
         textFieldState = textFieldState,
-        codepointTransformation = codepointTransformation,
         textStyle = textStyle,
         singleLine = singleLine,
         onTextLayout = onTextLayout
@@ -68,7 +62,6 @@ internal data class TextFieldTextLayoutModifier(
         node.updateNode(
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
             textStyle = textStyle,
             singleLine = singleLine,
             onTextLayout = onTextLayout
@@ -80,11 +73,9 @@ internal data class TextFieldTextLayoutModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldTextLayoutModifierNode(
     private var textLayoutState: TextLayoutState,
-    textFieldState: TextFieldState,
-    codepointTransformation: CodepointTransformation?,
+    textFieldState: TransformedTextFieldState,
     textStyle: TextStyle,
     singleLine: Boolean,
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
@@ -97,7 +88,6 @@ internal class TextFieldTextLayoutModifierNode(
         textLayoutState.onTextLayout = onTextLayout
         textLayoutState.updateNonMeasureInputs(
             textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = !singleLine
@@ -109,8 +99,7 @@ internal class TextFieldTextLayoutModifierNode(
      */
     fun updateNode(
         textLayoutState: TextLayoutState,
-        textFieldState: TextFieldState,
-        codepointTransformation: CodepointTransformation?,
+        textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
         singleLine: Boolean,
         onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
@@ -119,7 +108,6 @@ internal class TextFieldTextLayoutModifierNode(
         this.textLayoutState.onTextLayout = onTextLayout
         this.textLayoutState.updateNonMeasureInputs(
             textFieldState = textFieldState,
-            codepointTransformation = codepointTransformation,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = !singleLine

@@ -25,8 +25,8 @@ import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.selection.MagnifierSpringSpec
 import androidx.compose.foundation.text.selection.OffsetDisplacementThreshold
 import androidx.compose.foundation.text.selection.UnspecifiedSafeOffsetVectorConverter
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,8 +43,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class TextFieldMagnifierNodeImpl28 constructor(
-    private var textFieldState: TextFieldState,
+internal class TextFieldMagnifierNodeImpl28(
+    private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var textLayoutState: TextLayoutState,
     private var isFocused: Boolean
@@ -85,7 +85,7 @@ internal class TextFieldMagnifierNodeImpl28 constructor(
     }
 
     override fun update(
-        textFieldState: TextFieldState,
+        textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
         isFocused: Boolean
@@ -170,9 +170,8 @@ internal class TextFieldMagnifierNodeImpl28 constructor(
  * whether magnifier is supported.
  */
 @SuppressLint("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldMagnifierNode(
-    textFieldState: TextFieldState,
+    textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
     isFocused: Boolean
@@ -187,7 +186,7 @@ internal actual fun textFieldMagnifierNode(
     } else {
         object : TextFieldMagnifierNode() {
             override fun update(
-                textFieldState: TextFieldState,
+                textFieldState: TransformedTextFieldState,
                 textFieldSelectionState: TextFieldSelectionState,
                 textLayoutState: TextLayoutState,
                 isFocused: Boolean
