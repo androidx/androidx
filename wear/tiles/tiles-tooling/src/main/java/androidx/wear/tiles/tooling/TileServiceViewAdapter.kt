@@ -77,7 +77,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     }
 
     internal fun init(tilePreviewMethodFqn: String) {
-        val tilePreview = getTilePreview(tilePreviewMethodFqn)
+        val tilePreview = getTilePreview(tilePreviewMethodFqn) ?: return
         lateinit var tileRenderer: TileRenderer
         tileRenderer = TileRenderer(context, executor) { newState ->
             tileRenderer.previewTile(tilePreview, newState)
@@ -98,7 +98,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             .setDeviceConfiguration(deviceParams)
             .build()
 
-        val tile = tilePreview.onTileRequest(tileRequest, context).also { tile ->
+        val tile = tilePreview.onTileRequest(tileRequest).also { tile ->
             tile.state?.let { setState(it.keyToValueMapping) }
         }
         val layout = tile.tileTimeline?.getCurrentLayout() ?: return
@@ -107,7 +107,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             .setDeviceConfiguration(deviceParams)
             .setVersion(tile.resourcesVersion)
             .build()
-        val resources = tilePreview.onTileResourceRequest(resourcesRequest, context)
+        val resources = tilePreview.onTileResourceRequest(resourcesRequest)
 
         val inflateFuture = inflateAsync(layout, resources, this@TileServiceViewAdapter)
         inflateFuture.addListener({
@@ -116,20 +116,27 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             }
         }, executor)
     }
-}
 
-@SuppressLint("BanUncheckedReflection")
-internal fun getTilePreview(tilePreviewMethodFqn: String): TilePreviewData {
-    val className = tilePreviewMethodFqn.substringBeforeLast('.')
-    val methodName = tilePreviewMethodFqn.substringAfterLast('.')
+    @SuppressLint("BanUncheckedReflection")
+    internal fun getTilePreview(tilePreviewMethodFqn: String): TilePreviewData? {
+        val className = tilePreviewMethodFqn.substringBeforeLast('.')
+        val methodName = tilePreviewMethodFqn.substringAfterLast('.')
 
-    val method = Class.forName(className).declaredMethods.first {
-        it.name == methodName && it.parameterCount == 0
-    }.apply {
-        isAccessible = true
+        val methods = Class.forName(className).declaredMethods.filter { it.name == methodName }
+        methods.firstOrNull {
+            it.parameterCount == 1 && it.parameters.first().type == Context::class.java
+        }?.let { methodWithContextParameter ->
+            methodWithContextParameter.isAccessible = true
+            return methodWithContextParameter.invoke(null, context) as? TilePreviewData
+        }
+
+        return methods.firstOrNull {
+            it.name == methodName && it.parameterCount == 0
+        }?.let { methodWithoutContextParameter ->
+            methodWithoutContextParameter.isAccessible = true
+            methodWithoutContextParameter.invoke(null) as? TilePreviewData
+        }
     }
-
-    return method.invoke(null) as TilePreviewData
 }
 
 internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilders.Layout? {

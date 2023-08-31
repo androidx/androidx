@@ -16,7 +16,6 @@
 
 package androidx.wear.tiles.tooling.preview
 
-import android.content.Context
 import androidx.wear.protolayout.ResourceBuilders.Resources
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest
 import androidx.wear.tiles.RequestBuilders.TileRequest
@@ -40,9 +39,8 @@ private val defaultResources = Resources.Builder()
  * @see [TilePreviewHelper.singleTimelineEntryTileBuilder]
  */
 class TilePreviewData(
-    val onTileResourceRequest: (ResourcesRequest, Context) -> Resources =
-        { _, _ -> defaultResources },
-    val onTileRequest: (TileRequest, Context) -> TileBuilders.Tile,
+    val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
+    val onTileRequest: (TileRequest) -> TileBuilders.Tile,
 ) {
     override fun toString(): String {
         return "TilePreviewData(onTileResourceRequest=$onTileResourceRequest," +
