@@ -225,5 +225,14 @@ interface XProcessingEnv {
      */
     fun getTypeElementsFromPackage(packageName: String): List<XTypeElement>
 
-    // TODO: Add support for getting top level members in a package
+    /**
+     * Returns [XElement]s with the given package name. Note that this call can be expensive.
+     *
+     * @param packageName the package name to look up.
+     *
+     * @return A list of [XElement] with matching package name. This will return declarations
+     * from both dependencies and source. If the package is not found an empty list will be
+     * returned.
+     */
+    fun getElementsFromPackage(packageName: String): List<XElement>
 }

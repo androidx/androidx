@@ -120,4 +120,8 @@ internal class KspSyntheticFileMemberContainer(
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
         return false
     }
+
+    override fun isFromJava(): Boolean = false
+
+    override fun isFromKotlin(): Boolean = true
 }
