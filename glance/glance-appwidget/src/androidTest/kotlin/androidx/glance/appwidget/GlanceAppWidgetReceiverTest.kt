@@ -40,6 +40,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +65,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.action.toParametersKey
+import androidx.glance.appwidget.R.layout.glance_error_layout
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
@@ -1189,6 +1191,83 @@ class GlanceAppWidgetReceiverTest {
         mHostRule.startHost()
         mHostRule.onUnboxedHostView<View> { root ->
             assertThat(root.id).isNotIn(0..1)
+        }
+    }
+
+    @Test
+    fun initialCompositionErrorUiLayout() = runBlocking {
+        TestGlanceAppWidget.withErrorLayout(glance_error_layout) {
+            TestGlanceAppWidget.uiDefinition = {
+                 throw Throwable("error")
+            }
+
+            mHostRule.startHost()
+            mHostRule.onHostView { hostView ->
+                val layoutId = assertNotNull(
+                    (hostView as TestAppWidgetHostView).mRemoteViews?.layoutId
+                )
+                assertThat(layoutId).isEqualTo(glance_error_layout)
+            }
+        }
+    }
+
+    @Test
+    fun recompositionErrorUiLayout() = runBlocking {
+        TestGlanceAppWidget.withErrorLayout(glance_error_layout) {
+            val runError = mutableStateOf(false)
+            TestGlanceAppWidget.uiDefinition = {
+                if (runError.value)
+                    throw Throwable("error")
+                else Text("Hello World")
+            }
+
+            mHostRule.startHost()
+            mHostRule.onUnboxedHostView<TextView> {
+                assertThat(it.text.toString()).isEqualTo("Hello World")
+            }
+            mHostRule.runAndWaitForUpdate { runError.value = true }
+            mHostRule.onHostView { hostView ->
+                val layoutId = assertNotNull(
+                    (hostView as TestAppWidgetHostView).mRemoteViews?.layoutId
+                )
+                assertThat(layoutId).isEqualTo(glance_error_layout)
+            }
+        }
+    }
+
+    @Test
+    fun sideEffectErrorUiLayout() = runBlocking {
+        TestGlanceAppWidget.withErrorLayout(glance_error_layout) {
+            TestGlanceAppWidget.uiDefinition = {
+                SideEffect { throw Throwable("error") }
+            }
+
+            mHostRule.startHost()
+            mHostRule.onHostView { hostView ->
+                val layoutId = assertNotNull(
+                    (hostView as TestAppWidgetHostView).mRemoteViews?.layoutId
+                )
+                assertThat(layoutId).isEqualTo(glance_error_layout)
+            }
+        }
+    }
+
+    @Test
+    fun provideGlanceErrorUiLayout() = runBlocking {
+        // This also tests LaunchedEffect error handling, since provideGlance is run in a
+        // LaunchedEffect through collectAsState.
+        TestGlanceAppWidget.withErrorLayout(glance_error_layout) {
+            TestGlanceAppWidget.onProvideGlance = {
+                throw Throwable("error")
+            }
+
+            mHostRule.startHost()
+            mHostRule.onHostView { hostView ->
+                val layoutId = assertNotNull(
+                    (hostView as TestAppWidgetHostView).mRemoteViews?.layoutId
+                )
+                assertThat(layoutId).isEqualTo(glance_error_layout)
+            }
         }
     }
 
