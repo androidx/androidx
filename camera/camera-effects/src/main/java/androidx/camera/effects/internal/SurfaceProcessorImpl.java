@@ -33,10 +33,13 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.effects.Frame;
 import androidx.camera.effects.opengl.GlRenderer;
 import androidx.core.util.Pair;
 
@@ -77,6 +80,10 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     private Canvas mOverlayCanvas;
     @Nullable
     private Pair<SurfaceOutput, Surface> mOutputSurfacePair = null;
+    @Nullable
+    private SurfaceRequest.TransformationInfo mTransformationInfo = null;
+    @Nullable
+    private Function<Frame, Boolean> mOnDrawListener;
 
     private boolean mIsReleased = false;
 
@@ -109,6 +116,11 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
             surface.release();
         });
         surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
+
+        // Listen for transformation updates.
+        mTransformationInfo = null;
+        surfaceRequest.setTransformationInfoListener(mGlExecutor, transformationInfo ->
+                mTransformationInfo = transformationInfo);
 
         // Configure buffers based on the input size.
         createBufferAndOverlay(surfaceRequest.getResolution());
@@ -209,6 +221,20 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         return mGlExecutor;
     }
 
+    /**
+     * Sets the listener that listens to frame updates and draws overlay.
+     *
+     * <p>CameraX invokes this {@link Function} on the GL thread each time a frame is drawn. The
+     * caller can use implement the {@link Function} to draw overlay on the frame.
+     *
+     * <p>The {@link Function} accepts a {@link Frame} object which provides information on how to
+     * draw the overlay. The return value of the {@link Function} indicates whether the frame
+     * should be drawn. If false, the frame will be dropped.
+     */
+    public void setOnDrawListener(@Nullable Function<Frame, Boolean> onDrawListener) {
+        runOnGlThread(() -> mOnDrawListener = onDrawListener);
+    }
+
     // *** Private methods ***
 
     private void runOnGlThread(@NonNull Runnable runnable) {
@@ -264,7 +290,22 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
      */
     @SuppressWarnings("unused")
     private boolean drawOverlay(long timestampNs) {
-        // TODO(b/297509601) implement this method. See: aosp/2676397.
+        checkGlThread();
+        if (mTransformationInfo == null || mOnDrawListener == null) {
+            return true;
+        }
+        Frame frame = Frame.of(
+                requireNonNull(mOverlayCanvas),
+                timestampNs,
+                requireNonNull(mInputSize),
+                mTransformationInfo);
+        if (!mOnDrawListener.apply(frame)) {
+            // The caller wants to drop the frame.
+            return false;
+        }
+        if (frame.isOverlayDirty()) {
+            mGlRenderer.uploadOverlay(requireNonNull(mOverlayBitmap));
+        }
         return true;
     }
 
@@ -274,5 +315,10 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
 
     private boolean isGlThread() {
         return Thread.currentThread() == mGlThread;
+    }
+
+    @VisibleForTesting
+    GlRenderer getGlRendererForTesting() {
+        return mGlRenderer;
     }
 }
