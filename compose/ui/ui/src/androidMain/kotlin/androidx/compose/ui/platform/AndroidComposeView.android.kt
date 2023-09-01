@@ -102,6 +102,8 @@ import androidx.compose.ui.input.key.Key.Companion.DirectionUp
 import androidx.compose.ui.input.key.Key.Companion.Enter
 import androidx.compose.ui.input.key.Key.Companion.Escape
 import androidx.compose.ui.input.key.Key.Companion.NumPadEnter
+import androidx.compose.ui.input.key.Key.Companion.PageDown
+import androidx.compose.ui.input.key.Key.Companion.PageUp
 import androidx.compose.ui.input.key.Key.Companion.Tab
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -1172,8 +1174,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             Tab -> if (keyEvent.isShiftPressed) Previous else Next
             DirectionRight -> Right
             DirectionLeft -> Left
-            DirectionUp -> Up
-            DirectionDown -> Down
+            // For the initial key input of a new composable, both up/down and page up/down will
+            // trigger the composable to get focus (so the composable can handle key events to
+            // move focus or scroll content). Remember, composables can't receive key events without
+            // focus.
+            DirectionUp, PageUp -> Up
+            DirectionDown, PageDown -> Down
             DirectionCenter, Enter, NumPadEnter -> FocusDirection.Enter
             Back, Escape -> Exit
             else -> null

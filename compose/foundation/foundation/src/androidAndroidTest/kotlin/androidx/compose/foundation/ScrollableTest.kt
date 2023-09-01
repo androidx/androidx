@@ -35,10 +35,15 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -61,6 +66,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -86,8 +92,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
@@ -240,6 +249,87 @@ class ScrollableTest {
         }
         rule.runOnIdle {
             assertThat(total).isLessThan(0.01f)
+        }
+    }
+
+    /*
+     * Note: For keyboard scrolling to work (that is, scrolling based on the page up/down keys),
+     * at least one child within the scrollable must be focusable. (This matches the behavior in
+     * Views.)
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun scrollable_horizontalScroll_keyboardPageUpAndDown() {
+        var scrollAmount = 0f
+
+        val scrollableState = ScrollableState(
+            consumeScrollDelta = {
+                scrollAmount += it
+                it
+            }
+        )
+
+        rule.setContent {
+            Row(
+                Modifier
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .background(Color.Red)
+                    .scrollable(
+                        state = scrollableState,
+                        orientation = Orientation.Horizontal
+                    )
+                    .padding(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .testTag(scrollableBoxTag)
+                        .width(50.dp)
+                        .background(Color.Blue)
+                        // Required for keyboard scrolling (page up/down keys) to work.
+                        .focusable()
+                        .padding(10.dp)
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                for (i in 0 until 40) {
+                    val color = if (i % 2 == 0) {
+                        Color.Yellow
+                    } else {
+                        Color.Green
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(50.dp)
+                            .background(color)
+                            .padding(10.dp)
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).requestFocus()
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageDown)
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollAmount).isLessThan(0f)
+        }
+
+        scrollAmount = 0f
+
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageUp)
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollAmount).isGreaterThan(0f)
         }
     }
 
@@ -420,6 +510,86 @@ class ScrollableTest {
         }
         rule.runOnIdle {
             assertThat(total).isLessThan(0.01f)
+        }
+    }
+
+    /*
+     * Note: For keyboard scrolling to work (that is, scrolling based on the page up/down keys),
+     * at least one child within the scrollable must be focusable. (This matches the behavior in
+     * Views.)
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun scrollable_verticalScroll_keyboardPageUpAndDown() {
+        var scrollAmount = 0f
+
+        val scrollableState = ScrollableState(
+            consumeScrollDelta = {
+                scrollAmount += it
+                it
+            }
+        )
+
+        rule.setContent {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.Red)
+                    .scrollable(
+                        state = scrollableState,
+                        orientation = Orientation.Vertical
+                    )
+                    .padding(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(scrollableBoxTag)
+                        .height(50.dp)
+                        .background(Color.Blue)
+                        // Required for keyboard scrolling (page up/down keys) to work.
+                        .focusable()
+                        .padding(10.dp)
+                )
+
+                Spacer(modifier = Modifier.size(10.dp))
+
+                for (i in 0 until 40) {
+                    val color = if (i % 2 == 0) {
+                        Color.Yellow
+                    } else {
+                        Color.Green
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .background(color)
+                            .padding(10.dp)
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).requestFocus()
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageDown)
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollAmount).isLessThan(0f)
+        }
+
+        scrollAmount = 0f
+
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageUp)
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollAmount).isGreaterThan(0f)
         }
     }
 
@@ -855,6 +1025,91 @@ class ScrollableTest {
             // remainder (which is half as well), so they will be equal.
             assertThat(innerDrag).isEqualTo(outerDrag)
             innerDrag
+        }
+    }
+
+    /*
+     * Note: For keyboard scrolling to work (that is, scrolling based on the page up/down keys),
+     * at least one child within the scrollable must be focusable. (This matches the behavior in
+     * Views.)
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun scrollable_nestedScroll_childPartialConsumptionForKeyboardPageUpAndDown() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        val outerState = ScrollableState(
+            consumeScrollDelta = {
+                // Since the child has already consumed half, the parent will consume the rest.
+                outerDrag += it
+                it
+            }
+        )
+        val innerState = ScrollableState(
+            consumeScrollDelta = {
+                // Child consumes half, leaving the rest for the parent to consume.
+                innerDrag += it / 2
+                it / 2
+            }
+        )
+
+        rule.setContent {
+            Box {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(300.dp)
+                        .scrollable(
+                            state = outerState,
+                            orientation = Orientation.Horizontal
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(300.dp)
+                            .scrollable(
+                                state = innerState,
+                                orientation = Orientation.Horizontal
+                            )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .testTag(scrollableBoxTag)
+                                // Required for keyboard scrolling (page up/down keys) to work.
+                                .focusable()
+                                .size(300.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).requestFocus()
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageDown)
+        }
+
+        rule.runOnIdle {
+            assertThat(outerDrag).isLessThan(0f)
+            assertThat(innerDrag).isLessThan(0f)
+            // Since child (inner) consumes half of the scroll, the parent (outer) consumes the
+            // remainder (which is half as well), so they will be equal.
+            assertThat(innerDrag).isEqualTo(outerDrag)
+        }
+
+        outerDrag = 0f
+        innerDrag = 0f
+
+        rule.onNodeWithTag(scrollableBoxTag).performKeyInput {
+            pressKey(Key.PageUp)
+        }
+
+        rule.runOnIdle {
+            assertThat(outerDrag).isGreaterThan(0f)
+            assertThat(innerDrag).isGreaterThan(0f)
+            // Since child (inner) consumes half of the scroll, the parent (outer) consumes the
+            // remainder (which is half as well), so they will be equal.
+            assertThat(innerDrag).isEqualTo(outerDrag)
         }
     }
 
