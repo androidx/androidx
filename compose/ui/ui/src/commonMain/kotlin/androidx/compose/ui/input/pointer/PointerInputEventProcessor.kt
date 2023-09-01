@@ -196,7 +196,8 @@ private class PointerInputChangeEventProducer {
                     false,
                     it.type,
                     it.historical,
-                    it.scrollDelta
+                    it.scrollDelta,
+                    it.originalEventPosition
                 )
             )
             if (it.down) {
