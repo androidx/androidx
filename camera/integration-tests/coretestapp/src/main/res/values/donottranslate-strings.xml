@@ -16,6 +16,7 @@
   -->
 
 <resources>
+    <string name="camerax_service">CameraX Service</string>
     <string name="fps_counter_template">%1$s fps</string>
     <string name="toggle_preview_on">preview\non</string>
     <string name="toggle_preview_off">preview\noff</string>
