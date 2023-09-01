@@ -28,11 +28,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TabRow
@@ -1112,6 +1114,77 @@ class AnimatedContentTest {
             )
             assertEquals(offset, bounds.topLeft.round())
         }
+    }
+
+    @Test
+    fun testRightEnterExitTransitionIsChosenDuringInterruption() {
+        var flag by mutableStateOf(false)
+        var fixedPosition: Offset? = null
+        var slidePosition: Offset? = null
+        rule.setContent {
+            AnimatedContent(
+                targetState = flag,
+                label = "",
+                transitionSpec = {
+                    if (false isTransitioningTo true) {
+                        ContentTransform(
+                            targetContentEnter = EnterTransition.None,
+                            initialContentExit = slideOutOfContainer(
+                                AnimatedContentTransitionScope.SlideDirection.Start,
+                                animationSpec = tween(durationMillis = 500)
+                            ),
+                            targetContentZIndex = -1.0f,
+                            sizeTransform = SizeTransform(clip = false)
+                        )
+                    } else {
+                        ContentTransform(
+                            targetContentEnter = slideIntoContainer(
+                                AnimatedContentTransitionScope.SlideDirection.End
+                            ),
+                            initialContentExit = ExitTransition.Hold,
+                            targetContentZIndex = 0.0f,
+                            sizeTransform = SizeTransform(clip = false)
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            ) { flag ->
+                Spacer(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center)
+                        .size(256.dp)
+                        .onGloballyPositioned {
+                            if (flag) {
+                                fixedPosition = it.positionInRoot()
+                            } else {
+                                slidePosition = it.positionInRoot()
+                            }
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            flag = true
+        }
+        rule.waitUntil { fixedPosition != null }
+        val initialFixedPosition = fixedPosition
+        // Advance 10 frames
+        repeat(10) {
+            val lastSlidePos = slidePosition
+            rule.waitUntil { slidePosition != lastSlidePos }
+            assertEquals(initialFixedPosition, fixedPosition)
+        }
+
+        // Change the target state amid transition, creating an interruption
+        flag = false
+        // Advance 10 frames
+        repeat(10) {
+            val lastSlidePos = slidePosition
+            rule.waitUntil { slidePosition != lastSlidePos }
+            assertEquals(initialFixedPosition, fixedPosition)
+        }
+        rule.waitForIdle()
     }
 
     @Test
