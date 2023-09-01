@@ -56,6 +56,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -91,6 +92,7 @@ class ImageCaptureTest {
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
     private lateinit var camera: FakeCamera
+    private lateinit var cameraFront: FakeCamera
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
@@ -116,13 +118,18 @@ class ImageCaptureTest {
             isPrivateReprocessingSupported = true
         }
 
-        camera = FakeCamera(null, cameraInfo)
+        camera = FakeCamera("0", null, cameraInfo)
+        cameraFront =
+            FakeCamera("1", null, FakeCameraInfoInternal("1", CameraSelector.LENS_FACING_FRONT))
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
                     camera
+                }
+                cameraFactory.insertDefaultFrontCamera(cameraFront.cameraInfoInternal.cameraId) {
+                    cameraFront
                 }
                 cameraFactory
             }
@@ -452,13 +459,75 @@ class ImageCaptureTest {
         }
     }
 
+    @Test
+    fun throwExceptionWhileBuilding_whenScreenFlashSetWithoutScreenFlashUiControl() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_SCREEN).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenScreenFlashSetWithoutScreenFlashUiControl() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+        }
+    }
+
+    @Test
+    fun throwException_whenTakePictureWithScreenFlashButNoUiControl() {
+        val imageCapture = ImageCapture.Builder().build()
+        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+        imageCapture.screenFlashUiControl = null
+
+        assertThrows(IllegalArgumentException::class.java) {
+            imageCapture.takePicture(executor, onImageCapturedCallback)
+        }
+    }
+
+    @Test
+    fun throwException_whenScreenFlashSetToBackCamera() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA)
+        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+        }
+    }
+
+    @Test
+    fun canSetScreenFlash_whenFrontCameraAndUiControlSet() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
+
+        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+    }
+
+    @Test
+    fun throwException_whenSwitchToBackCameraAfterScreenFlashSetToFrontCamera() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
+        imageCapture.screenFlashUiControl = MockScreenFlashUiControl()
+        imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+
+        assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+            val cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+                ApplicationProvider.getApplicationContext(),
+                CameraSelector.DEFAULT_BACK_CAMERA
+            )
+            cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
+        }
+    }
+
     private fun bindImageCapture(
         captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
         viewPort: ViewPort? = null,
         // Set non jpg format so it doesn't trigger the exif code path.
         bufferFormat: Int = ImageFormat.YUV_420_888,
         imageReaderProxyProvider: ImageReaderProxyProvider? = null,
-        sessionProcessor: SessionProcessor? = null
+        sessionProcessor: SessionProcessor? = null,
+        cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
     ): ImageCapture {
         // Arrange.
         val imageCapture = createImageCapture(
@@ -469,7 +538,7 @@ class ImageCaptureTest {
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(),
-            CameraSelector.DEFAULT_BACK_CAMERA
+            cameraSelector
         )
 
         cameraUseCaseAdapter.setViewPort(viewPort)

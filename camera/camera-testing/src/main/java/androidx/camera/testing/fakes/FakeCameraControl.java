@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -94,6 +95,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     private float mLinearZoom = -1;
     private boolean mTorchEnabled = false;
     private int mExposureCompensation = -1;
+    private ScreenFlashUiControl mScreenFlashUiControl;
 
     @Nullable
     private FocusMeteringAction mLastSubmittedFocusMeteringAction = null;
@@ -206,6 +208,17 @@ public final class FakeCameraControl implements CameraControlInternal {
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
         Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
+    }
+
+    @Override
+    public void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {
+        mScreenFlashUiControl = screenFlashUiControl;
+        Logger.d(TAG, "setScreenFlashUiControl(" + mScreenFlashUiControl + ")");
+    }
+
+    @Nullable
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return mScreenFlashUiControl;
     }
 
     @Override

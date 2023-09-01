@@ -17,7 +17,6 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
@@ -38,6 +37,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -213,6 +213,21 @@ public final class FakeCameraControlTest {
         mCameraControl.enableTorch(true);
         mCameraControl.enableTorch(false);
         assertThat(mCameraControl.getTorchEnabled()).isEqualTo(false);
+    }
+
+    @Test
+    public void canSetScreenFlashUiControl() {
+        ImageCapture.ScreenFlashUiControl screenFlashUiControl = new MockScreenFlashUiControl();
+        mCameraControl.setScreenFlashUiControl(screenFlashUiControl);
+        assertThat(mCameraControl.getScreenFlashUiControl()).isEqualTo(screenFlashUiControl);
+    }
+
+    @Test
+    public void canClearScreenFlashUiControl_afterEnable() {
+        ImageCapture.ScreenFlashUiControl screenFlashUiControl = new MockScreenFlashUiControl();
+        mCameraControl.setScreenFlashUiControl(screenFlashUiControl);
+        mCameraControl.setScreenFlashUiControl(null);
+        assertThat(mCameraControl.getScreenFlashUiControl()).isEqualTo(null);
     }
 
     @Test

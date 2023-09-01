@@ -24,6 +24,7 @@ import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
 import static androidx.camera.testing.impl.FileUtil.createFolder;
@@ -40,6 +41,9 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACT
 import static java.util.Objects.requireNonNull;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -71,6 +75,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -316,6 +321,7 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mTakePicture;
     private ImageButton mCameraDirectionButton;
     private ImageButton mFlashButton;
+    private View mWhiteColorOverlay;
     private TextView mTextView;
     private ImageButton mTorchButton;
     private ToggleButton mCaptureQualityToggle;
@@ -589,15 +595,76 @@ public class CameraXActivity extends AppCompatActivity {
     private void setUpFlashButton() {
         mFlashButton.setOnClickListener(v -> {
             @ImageCapture.FlashMode int flashMode = getImageCapture().getFlashMode();
-            if (flashMode == FLASH_MODE_ON) {
-                getImageCapture().setFlashMode(FLASH_MODE_OFF);
-            } else if (flashMode == FLASH_MODE_OFF) {
-                getImageCapture().setFlashMode(FLASH_MODE_AUTO);
+
+            if (flashMode == FLASH_MODE_OFF) {
+                if (isFlashAvailable()) {
+                    getImageCapture().setFlashMode(FLASH_MODE_AUTO);
+                } else {
+                    setUpScreenFlash();
+                }
             } else if (flashMode == FLASH_MODE_AUTO) {
                 getImageCapture().setFlashMode(FLASH_MODE_ON);
+            } else if (flashMode == FLASH_MODE_ON) {
+                if (getLensFacing(Objects.requireNonNull(getCameraInfo()))
+                        != CameraSelector.LENS_FACING_FRONT) {
+                    getImageCapture().setFlashMode(FLASH_MODE_OFF);
+                } else {
+                    setUpScreenFlash();
+                }
+            } else if (flashMode == FLASH_MODE_SCREEN) {
+                getImageCapture().setFlashMode(FLASH_MODE_OFF);
             }
             updateButtonsUi();
         });
+    }
+
+    private void setUpScreenFlash() {
+        getImageCapture().setScreenFlashUiControl(new ImageCapture.ScreenFlashUiControl() {
+            private Float mPreviousBrightness;
+
+            @Override
+            public void applyScreenFlashUi(
+                    @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
+                ValueAnimator animation = ValueAnimator.ofFloat(0f, 1f);
+                animation.setDuration(1000);
+
+                animation.addUpdateListener(updatedAnimation -> {
+                    float animatedValue = (float) updatedAnimation.getAnimatedValue();
+
+                    mWhiteColorOverlay.setAlpha(animatedValue);
+
+                    // Gradually maximize screen brightness
+                    Window window = getWindow();
+                    WindowManager.LayoutParams layoutParam = window.getAttributes();
+                    mPreviousBrightness = layoutParam.screenBrightness;
+                    layoutParam.screenBrightness =
+                            mPreviousBrightness + (1f - mPreviousBrightness) * animatedValue;
+                    window.setAttributes(layoutParam);
+
+                });
+
+                animation.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        screenFlashUiCompleter.complete();
+                    }
+                });
+                animation.start();
+            }
+
+            @Override
+            public void clearScreenFlashUi() {
+                mWhiteColorOverlay.setAlpha(0f);
+
+                // Restore screen brightness
+                Window window = getWindow();
+                WindowManager.LayoutParams layoutParam = window.getAttributes();
+                layoutParam.screenBrightness = mPreviousBrightness;
+                window.setAttributes(layoutParam);
+            }
+        });
+
+        getImageCapture().setFlashMode(FLASH_MODE_SCREEN);
     }
 
     @SuppressLint({"MissingPermission", "NullAnnotationGroup"})
@@ -1156,7 +1223,7 @@ public class CameraXActivity extends AppCompatActivity {
                 && Preview.getPreviewCapabilities(getCameraInfo()).isStabilizationSupported());
         mTorchButton.setEnabled(isFlashAvailable());
         // Flash button
-        mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
+        mFlashButton.setEnabled(mPhotoToggle.isChecked());
         if (mPhotoToggle.isChecked()) {
             int flashMode = getImageCapture().getFlashMode();
             if (isFlashTestSupported(flashMode)) {
@@ -1175,6 +1242,9 @@ public class CameraXActivity extends AppCompatActivity {
                     break;
                 case FLASH_MODE_AUTO:
                     mFlashButton.setImageResource(R.drawable.ic_flash_auto);
+                    break;
+                case FLASH_MODE_SCREEN:
+                    mFlashButton.setImageResource(R.drawable.ic_flash_screen);
                     break;
             }
         }
@@ -1291,6 +1361,7 @@ public class CameraXActivity extends AppCompatActivity {
 
         mTakePicture = findViewById(R.id.Picture);
         mFlashButton = findViewById(R.id.flash_toggle);
+        mWhiteColorOverlay = findViewById(R.id.white_color_overlay);
         mCameraDirectionButton = findViewById(R.id.direction_toggle);
         mTorchButton = findViewById(R.id.torch_toggle);
         mCaptureQualityToggle = findViewById(R.id.capture_quality);
