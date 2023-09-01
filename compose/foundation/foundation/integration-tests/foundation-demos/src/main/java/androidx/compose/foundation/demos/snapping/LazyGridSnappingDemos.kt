@@ -42,12 +42,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 val LazyGridSnappingDemos = listOf(
-    ComposableDemo("Single Page - Same Size Pages") { GridSinglePageSnapping() },
+    ComposableDemo("Single Item - Same Size Items") { GridSingleItemSnapping() },
 )
 
+/**
+ * Snapping happens to the next item and items have the same size. We use the top line in the grid
+ * as a reference point.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun GridSinglePageSnapping() {
+private fun GridSingleItemSnapping() {
     val lazyGridState = rememberLazyGridState()
     val snappingLayout = remember(lazyGridState) { SnapLayoutInfoProvider(lazyGridState) }
     val flingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = snappingLayout)

@@ -533,10 +533,6 @@ private class TestLayoutInfoProvider(
 ) : SnapLayoutInfoProvider {
     var calculateApproachOffsetCount = 0
 
-    override fun Density.calculateSnapStepSize(): Float {
-        return snapStep
-    }
-
     override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
         return calculateFinalOffset(currentVelocity, minOffset, maxOffset)
     }
