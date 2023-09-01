@@ -1289,7 +1289,15 @@ class MotionEventAdapterTest {
         val pointers = pointerInputEvent.pointers
         assertThat(uptime).isEqualTo(0L)
         assertThat(pointers).hasSize(1)
-        assertPointerInputEventData(pointers[0], PointerId(0), true, 1f, 2f)
+        assertPointerInputEventData(
+            pointers[0],
+            PointerId(0),
+            true,
+            1f,
+            2f,
+            originalX = 11f,
+            originalY = 22f
+        )
     }
 
     @Test
@@ -1659,6 +1667,46 @@ class MotionEventAdapterTest {
     }
 
     @Test
+    fun convertToPointerInputEvent_differentCoordinateSpace_useOriginalPointCoordinate() {
+        motionEventAdapter.convertToPointerInputEvent(
+            MotionEvent(
+                10,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(46)),
+                arrayOf(PointerCoords(3f, 4f))
+            )
+        )
+        val motionEvent = MotionEvent(
+            34,
+            ACTION_MOVE,
+            1,
+            0,
+            arrayOf(PointerProperties(46)),
+            arrayOf(PointerCoords(30f, 40f))
+        )
+
+        val positionCalculator = object : PositionCalculator by positionCalculator {
+            override fun screenToLocal(positionOnScreen: Offset): Offset {
+                return positionOnScreen / 2f
+            }
+        }
+
+        val pointerInputEvent =
+            motionEventAdapter.convertToPointerInputEvent(motionEvent, positionCalculator)
+        assertPointerInputEventData(
+            pointerInputEvent!!.pointers[0],
+            PointerId(0),
+            true,
+            30f,
+            40f,
+            originalX = 30f,
+            originalY = 40f
+        )
+    }
+
+    @Test
     fun convertScrollEvent_horizontalPositive() {
         val motionEvent = MotionEvent(
             eventTime = 1,
@@ -1791,11 +1839,15 @@ private fun assertPointerInputEventData(
     isDown: Boolean,
     x: Float,
     y: Float,
-    type: PointerType = PointerType.Touch
+    type: PointerType = PointerType.Touch,
+    originalX: Float = x,
+    originalY: Float = y,
 ) {
     assertThat(actual.id).isEqualTo(id)
     assertThat(actual.down).isEqualTo(isDown)
     assertThat(actual.positionOnScreen.x).isEqualTo(x)
     assertThat(actual.positionOnScreen.y).isEqualTo(y)
+    assertThat(actual.originalEventPosition.x).isEqualTo(originalX)
+    assertThat(actual.originalEventPosition.y).isEqualTo(originalY)
     assertThat(actual.type).isEqualTo(type)
 }

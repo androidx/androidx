@@ -155,6 +155,7 @@ class PointerInputEventProcessorTest {
                 uptime = index.toLong(),
                 positionOnScreen = Offset(offset.x + index, offset.y + index),
                 position = Offset(offset.x + index, offset.y + index),
+                originalEventPosition = Offset(offset.x + index, offset.y + index),
                 down = true,
                 pressure = 1.0f,
                 type = pointerType
