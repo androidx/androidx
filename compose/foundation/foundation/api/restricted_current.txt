@@ -507,7 +507,6 @@ package androidx.compose.foundation.gestures.snapping {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface SnapLayoutInfoProvider {
     method public float calculateApproachOffset(androidx.compose.ui.unit.Density, float initialVelocity);
-    method public float calculateSnapStepSize(androidx.compose.ui.unit.Density);
     method public float calculateSnappingOffset(androidx.compose.ui.unit.Density, float currentVelocity);
   }
 

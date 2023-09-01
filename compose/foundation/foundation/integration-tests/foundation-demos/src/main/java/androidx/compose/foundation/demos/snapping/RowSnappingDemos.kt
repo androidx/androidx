@@ -17,6 +17,7 @@
 package androidx.compose.foundation.demos.snapping
 
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
@@ -48,13 +49,18 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 val RowSnappingDemos = listOf(
-    ComposableDemo("Single Page - Same Size Pages") { SinglePageSnapping() },
-    ComposableDemo("Multi Page - Animation Based Offset") { MultiPageSnappingDemo() },
-    ComposableDemo("Multi Page - View Port Based Offset") { ViewPortBasedSnappingDemo() },
+    ComposableDemo("Single Item - Same Size Items") { SinglePageSnapping() },
+    ComposableDemo("Multi Item - Decayed Snapping") { DecayedSnappingDemo() },
+    ComposableDemo("Multi Item - View Port Based Offset") { ViewPortBasedSnappingDemo() },
 )
 
+/**
+ * Snapping happens to the next item and items have the same size
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SinglePageSnapping() {
@@ -67,30 +73,37 @@ private fun SinglePageSnapping() {
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
+/**
+ * Snapping happens after a decay animation. Items have the same size.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun MultiPageSnappingDemo() {
+private fun DecayedSnappingDemo() {
     val scrollState = rememberScrollState()
     val layoutSizeState = remember { mutableStateOf(IntSize.Zero) }
-    val layoutInfoProvider = rememberMultiPageRowSnapLayoutInfoProvider(scrollState) {
+    val layoutInfoProvider = rememberDecayedSnappingLayoutInfoProvider(scrollState) {
         layoutSizeState.value.width.toFloat()
     }
     val snapFlingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = layoutInfoProvider)
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
+/**
+ * Snapping happens to at max one view port item's worth distance.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ViewPortBasedSnappingDemo() {
     val scrollState = rememberScrollState()
     val layoutSizeState = remember { mutableStateOf(IntSize.Zero) }
-    val layoutInfoProvider = rememberViewPortRowSnapLayoutInfoProvider(scrollState) {
+    val layoutInfoProvider = rememberViewPortSnapLayoutInfoProvider(scrollState) {
         layoutSizeState.value.width.toFloat()
     }
     val snapFlingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = layoutInfoProvider)
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
+@Suppress("PrimitiveInLambda")
 @Composable
 private fun RowSnappingMainLayout(
     snapFlingBehavior: FlingBehavior,
@@ -137,6 +150,7 @@ private fun RowSnappingItem(position: Int) {
     }
 }
 
+@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberRowSnapLayoutInfoProvider(
@@ -152,42 +166,78 @@ private fun rememberRowSnapLayoutInfoProvider(
     }
 }
 
+@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun rememberMultiPageRowSnapLayoutInfoProvider(
+private fun rememberDecayedSnappingLayoutInfoProvider(
     scrollState: ScrollState,
     layoutSize: Density.() -> Float
 ): SnapLayoutInfoProvider {
     val animation: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
+    val scrollStateLayoutInfoProvider = SnapLayoutInfoProvider(
+        scrollState = scrollState,
+        itemSize = { RowItemSize.toPx() },
+        layoutSize = layoutSize
+    )
     return remember(scrollState, layoutSize) {
-        MultiPageSnappingLayoutInfoProvider(
-            SnapLayoutInfoProvider(
-                scrollState = scrollState,
-                itemSize = { RowItemSize.toPx() },
-                layoutSize = layoutSize
-            ),
-            animation
-        )
+        DecayedSnappingLayoutInfoProvider(
+            scrollStateLayoutInfoProvider,
+            animation,
+        ) { RowItemSize.toPx() }
     }
 }
 
+@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun rememberViewPortRowSnapLayoutInfoProvider(
+private fun rememberViewPortSnapLayoutInfoProvider(
     scrollState: ScrollState,
     layoutSize: Density.() -> Float
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     val decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
-    return remember(scrollState, density, layoutSize) {
+    val baseSnapLayoutInfoProvider = rememberScrollStateLayoutInfoProvider(
+        scrollState = scrollState,
+        layoutSize = layoutSize
+    )
+
+    return remember(baseSnapLayoutInfoProvider, density, layoutSize) {
         ViewPortBasedSnappingLayoutInfoProvider(
-            SnapLayoutInfoProvider(
-                scrollState = scrollState,
-                itemSize = { RowItemSize.toPx() },
-                layoutSize = layoutSize
-            ),
-            decayAnimationSpec
-        ) { with(density, layoutSize) }
+            baseSnapLayoutInfoProvider,
+            decayAnimationSpec,
+            viewPortStep = { with(density, layoutSize) },
+            itemSize = { RowItemSize.toPx() }
+        )
+    }
+}
+
+@Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
+internal class DecayedSnappingLayoutInfoProvider(
+    private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
+    private val decayAnimationSpec: DecayAnimationSpec<Float>,
+    private val itemSize: Density.() -> Float
+) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
+    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+        val offset = decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
+        val finalDecayedOffset = (offset.absoluteValue - itemSize()).coerceAtLeast(0f)
+        return finalDecayedOffset * initialVelocity.sign
+    }
+}
+
+@Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun rememberScrollStateLayoutInfoProvider(
+    scrollState: ScrollState,
+    layoutSize: Density.() -> Float
+): SnapLayoutInfoProvider {
+    return remember(scrollState, layoutSize) {
+        SnapLayoutInfoProvider(
+            scrollState = scrollState,
+            itemSize = { RowItemSize.toPx() },
+            layoutSize = layoutSize
+        )
     }
 }
 

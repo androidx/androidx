@@ -211,11 +211,7 @@ class SnapFlingBehavior(
                 HighVelocityApproachAnimation(highVelocityAnimationSpec)
             } else {
                 debugLog { "Low Velocity Approach" }
-                LowVelocityApproachAnimation(
-                    lowVelocityAnimationSpec,
-                    snapLayoutInfoProvider,
-                    density
-                )
+                LowVelocityApproachAnimation(lowVelocityAnimationSpec)
             }
 
         return approach(
@@ -236,12 +232,11 @@ class SnapFlingBehavior(
         velocity: Float
     ): Boolean {
         val decayOffset = highVelocityAnimationSpec.calculateTargetValue(NoDistance, velocity)
-        val snapStepSize = with(snapLayoutInfoProvider) { density.calculateSnapStepSize() }
         debugLog {
             "Evaluating decay possibility with " +
                 "decayOffset=$decayOffset and proposed approach=$offset"
         }
-        return decayOffset.absoluteValue >= (offset.absoluteValue + snapStepSize)
+        return decayOffset.absoluteValue >= offset.absoluteValue
     }
 
     override fun equals(other: Any?): Boolean {
@@ -455,9 +450,7 @@ private interface ApproachAnimation<T, V : AnimationVector> {
 
 @OptIn(ExperimentalFoundationApi::class)
 private class LowVelocityApproachAnimation(
-    private val lowVelocityAnimationSpec: AnimationSpec<Float>,
-    private val layoutInfoProvider: SnapLayoutInfoProvider,
-    private val density: Density
+    private val lowVelocityAnimationSpec: AnimationSpec<Float>
 ) : ApproachAnimation<Float, AnimationVector1D> {
     override suspend fun approachAnimation(
         scope: ScrollScope,
@@ -466,10 +459,7 @@ private class LowVelocityApproachAnimation(
         onAnimationStep: (delta: Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         val animationState = AnimationState(initialValue = 0f, initialVelocity = velocity)
-        val targetOffset =
-            (abs(offset) + with(layoutInfoProvider) { density.calculateSnapStepSize() }) * sign(
-                velocity
-            )
+        val targetOffset = offset.absoluteValue * sign(velocity)
         return with(scope) {
             animateSnap(
                 targetOffset = targetOffset,
@@ -532,6 +522,7 @@ internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound
 }
 
 private const val DEBUG = false
+
 private inline fun debugLog(generateMsg: () -> String) {
     if (DEBUG) {
         println("SnapFlingBehavior: ${generateMsg()}")
