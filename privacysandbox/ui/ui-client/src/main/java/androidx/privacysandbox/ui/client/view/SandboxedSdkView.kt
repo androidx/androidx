@@ -131,6 +131,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var isTransitionGroupSet = false
     private var windowInputToken: IBinder? = null
     private var currentClippingBounds = Rect()
+    private var currentConfig = context.resources.configuration
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
 
     /**
@@ -402,9 +403,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onConfigurationChanged(config: Configuration?) {
         requireNotNull(config) { "Config cannot be null" }
-        if (context.resources.configuration == config)
+        if (config == currentConfig) {
             return
+        }
         super.onConfigurationChanged(config)
+        currentConfig = config
         client?.notifyConfigurationChanged(config)
         checkClientOpenSession()
     }
