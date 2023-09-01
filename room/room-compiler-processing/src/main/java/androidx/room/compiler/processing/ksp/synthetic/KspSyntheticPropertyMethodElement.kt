@@ -255,8 +255,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
             return "synthetic property getter"
         }
 
-        private class SyntheticExecutableParameterElement(
-            private val env: KspProcessingEnv,
+        internal class SyntheticExecutableParameterElement(
+            internal val env: KspProcessingEnv,
             override val enclosingElement: Setter
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(

@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.ksp.KspFieldElement
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
@@ -56,7 +57,8 @@ class KspSyntheticFileMemberContainerTest {
             val className = elements.map {
                 val owner = invocation.kspResolver.getOwnerJvmClassName(it as KSPropertyDeclaration)
                 assertWithMessage(it.toString()).that(owner).isNotNull()
-                KspSyntheticFileMemberContainer(owner!!).asClassName()
+                KspSyntheticFileMemberContainer(
+                    invocation.processingEnv as KspProcessingEnv, owner!!).asClassName()
             }.first()
             assertThat(className.packageName).isEmpty()
             assertThat(className.simpleNames).containsExactly("AppKt")
@@ -135,7 +137,8 @@ class KspSyntheticFileMemberContainerTest {
                     val field = target.getField("member") as KspFieldElement
                     val owner = invocation.kspResolver.getOwnerJvmClassName(field.declaration)
                     assertWithMessage(qName).that(owner).isNotNull()
-                    val synthetic = KspSyntheticFileMemberContainer(owner!!)
+                    val synthetic = KspSyntheticFileMemberContainer(
+                        invocation.processingEnv as KspProcessingEnv, owner!!)
                     assertWithMessage(qName).that(target.asClassName())
                         .isEqualTo(synthetic.asClassName())
                 }
