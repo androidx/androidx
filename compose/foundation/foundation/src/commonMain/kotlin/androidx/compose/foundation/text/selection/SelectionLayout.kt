@@ -352,7 +352,7 @@ private class SingleSelectionLayout(
  * @param rawStartHandleOffset the index of the start handle
  * @param rawEndHandleOffset the index of the end handle
  * @param rawPreviousHandleOffset the previous handle offset based on [isStartHandle],
- * or -1 if none
+ * or [UNASSIGNED_SLOT] if none
  * @param previousSelectionRange the previous selection
  * @param isStartOfSelection whether this is the start of a selection gesture (no previous context)
  * @param isStartHandle whether this is the start or end anchor
@@ -404,6 +404,9 @@ internal enum class CrossStatus {
     COLLAPSED
 }
 
+/** Slot has not been assigned yet */
+internal const val UNASSIGNED_SLOT = -1
+
 /**
  * A builder for [SelectionLayout] that ensures the data structures and slots
  * are properly constructed.
@@ -426,9 +429,9 @@ internal class SelectionLayoutBuilder(
 ) {
     private val selectableIdToInfoListIndex: MutableMap<Long, Int> = mutableMapOf()
     private val infoList: MutableList<SelectableInfo> = mutableListOf()
-    private var startSlot: Int = -1
-    private var endSlot: Int = -1
-    private var currentSlot: Int = -1
+    private var startSlot: Int = UNASSIGNED_SLOT
+    private var endSlot: Int = UNASSIGNED_SLOT
+    private var currentSlot: Int = UNASSIGNED_SLOT
 
     /**
      * Finishes building the [SelectionLayout] and returns it.
@@ -452,8 +455,8 @@ internal class SelectionLayoutBuilder(
                 MultiSelectionLayout(
                     selectableIdToInfoListIndex = selectableIdToInfoListIndex,
                     infoList = infoList,
-                    startSlot = if (startSlot == -1) lastSlot else startSlot,
-                    endSlot = if (endSlot == -1) lastSlot else endSlot,
+                    startSlot = if (startSlot == UNASSIGNED_SLOT) lastSlot else startSlot,
+                    endSlot = if (endSlot == UNASSIGNED_SLOT) lastSlot else endSlot,
                     isStartHandle = isStartHandle,
                     previousSelection = previousSelection,
                 )
@@ -467,9 +470,11 @@ internal class SelectionLayoutBuilder(
     fun appendInfo(
         selectableId: Long,
         rawStartHandleOffset: Int,
-        startHandleDirection: Direction,
+        startXHandleDirection: Direction,
+        startYHandleDirection: Direction,
         rawEndHandleOffset: Int,
-        endHandleDirection: Direction,
+        endXHandleDirection: Direction,
+        endYHandleDirection: Direction,
         rawPreviousHandleOffset: Int,
         textLayoutResult: TextLayoutResult,
     ): SelectableInfo {
@@ -486,41 +491,78 @@ internal class SelectionLayoutBuilder(
             textLayoutResult = textLayoutResult,
         )
 
-        if (startSlot == -1) {
-            startSlot = updateBasedOnDirection(startHandleDirection)
-        }
-
-        if (endSlot == -1) {
-            endSlot = updateBasedOnDirection(endHandleDirection)
-        }
-
+        startSlot = updateSlot(startSlot, startXHandleDirection, startYHandleDirection)
+        endSlot = updateSlot(endSlot, endXHandleDirection, endYHandleDirection)
         selectableIdToInfoListIndex[selectableId] = infoList.size
         infoList += selectableInfo
         return selectableInfo
     }
 
-    private fun updateBasedOnDirection(direction: Direction): Int = when (direction) {
-        Direction.BEFORE -> currentSlot - 1
-        Direction.ON -> currentSlot
-        else -> -1
+    /**
+     * Find the slot for a selectable given the current position's directions from the selectable.
+     *
+     * The selectables must be ordered in the order in which they would be selected, and then
+     * this function should be called for each of those selectables.
+     *
+     * It is expected that the input [slot] is also assigned the result of this function.
+     *
+     * This function is stateful.
+     *
+     * @param slot the current value of this slot.
+     * @param xPositionDirection Where the x-position is relative to the selectable
+     * @param yPositionDirection Where the y-position is relative to the selectable
+     */
+    private fun updateSlot(
+        slot: Int,
+        xPositionDirection: Direction,
+        yPositionDirection: Direction,
+    ): Int {
+        if (slot != UNASSIGNED_SLOT) {
+            // don't overwrite if the slot has already been determined
+            return slot
+        }
+
+        // slot has not been determined yet,
+        // see if we are on or past the selectable we are looking for
+        return when (yPositionDirection) {
+            // If we get here, that means we never found a selectable that intersects our gesture
+            // position on the y-axis. This is the first selectable that is after the position,
+            // so our slot must be between the previous and current selectables.
+            Direction.BEFORE -> currentSlot - 1
+
+            // The gesture position intersects the bounds of the selectable in the y-axis.
+            // Now, search along the x-axis.
+            Direction.ON -> {
+                when (xPositionDirection) {
+                    // Same logic as BEFORE above, but along the x-axis.
+                    Direction.BEFORE -> currentSlot - 1
+
+                    // The gesture position is directly on this selectable, so use this one.
+                    Direction.ON -> currentSlot
+
+                    // keep looking
+                    Direction.AFTER -> slot
+                }
+            }
+
+            // keep looking
+            Direction.AFTER -> slot
+        }
     }
 }
 
 /**
  * Where the position of a cursor/press is compared to a selectable.
  */
-@JvmInline
-internal value class Direction(val direction: Int) {
-    companion object {
-        /** The cursor/press is before the selectable */
-        val BEFORE = Direction(-1)
+internal enum class Direction {
+    /** The cursor/press is before the selectable */
+    BEFORE,
 
-        /** The cursor/press is on the selectable */
-        val ON = Direction(0)
+    /** The cursor/press is on the selectable */
+    ON,
 
-        /** The cursor/press is after the selectable */
-        val AFTER = Direction(1)
-    }
+    /** The cursor/press is after the selectable */
+    AFTER
 }
 
 /**
