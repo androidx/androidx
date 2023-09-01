@@ -151,7 +151,7 @@ internal class EditingBuffer(
         val min = minOf(start, end)
         val max = maxOf(start, end)
 
-        changeTracker.trackChange(TextRange(start, end), text.length)
+        changeTracker.trackChange(start, end, text.length)
 
         gapBuffer.replace(min, max, text)
 
@@ -180,7 +180,7 @@ internal class EditingBuffer(
         checkRange(start, end)
         val deleteRange = TextRange(start, end)
 
-        changeTracker.trackChange(deleteRange, 0)
+        changeTracker.trackChange(start, end, 0)
 
         gapBuffer.replace(deleteRange.min, deleteRange.max, "")
 

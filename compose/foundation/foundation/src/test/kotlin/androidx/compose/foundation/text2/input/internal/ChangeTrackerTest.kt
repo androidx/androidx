@@ -190,7 +190,7 @@ class ChangeTrackerTest {
         val changes = ChangeTracker()
 
         fun append(text: String) {
-            changes.trackChange(TextRange(builder.length), text.length)
+            changes.trackChange(builder.length, builder.length, text.length)
             builder.append(text)
         }
 
@@ -198,7 +198,7 @@ class ChangeTrackerTest {
             val start = builder.indexOf(substring)
             if (start != -1) {
                 val end = start + substring.length
-                changes.trackChange(TextRange(start, end), text.length)
+                changes.trackChange(start, end, text.length)
                 builder.replace(start, end, text)
             }
         }
