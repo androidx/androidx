@@ -25,6 +25,7 @@ import android.os.Parcel;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /** Tests for private APIs of {@link GenericDocument}. */
@@ -59,6 +60,46 @@ public class GenericDocumentInternalTest {
         // Compare results
         GenericDocument outDoc = new GenericDocument(outBundle);
         assertThat(inDoc).isEqualTo(outDoc);
+        assertThat(outDoc.getPropertyString("propString")).isEqualTo("Hello");
+        assertThat(outDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(outDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Goodbye");
+        assertThat(outDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{3, 4}});
+    }
+
+    @Test
+    public void testRecreateFromParcelWithParentTypes() {
+        GenericDocument inDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                .setParentTypes(new ArrayList<>(Arrays.asList("Class1", "Class2")))
+                .setScore(42)
+                .setPropertyString("propString", "Hello")
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id2", "schema2")
+                                .setPropertyString("propString", "Goodbye")
+                                .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
+                                .build())
+                .build();
+
+        // Serialize the document
+        Parcel inParcel = Parcel.obtain();
+        inParcel.writeBundle(inDoc.getBundle());
+        byte[] data = inParcel.marshall();
+        inParcel.recycle();
+
+        // Deserialize the document
+        Parcel outParcel = Parcel.obtain();
+        outParcel.unmarshall(data, 0, data.length);
+        outParcel.setDataPosition(0);
+        Bundle outBundle = outParcel.readBundle();
+        outParcel.recycle();
+
+        // Compare results
+        GenericDocument outDoc = new GenericDocument(outBundle);
+        assertThat(inDoc).isEqualTo(outDoc);
+        assertThat(outDoc.getParentTypes()).isEqualTo(Arrays.asList("Class1", "Class2"));
         assertThat(outDoc.getPropertyString("propString")).isEqualTo("Hello");
         assertThat(outDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
         assertThat(outDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
