@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.text.selection.Direction.AFTER
+import androidx.compose.foundation.text.selection.Direction.BEFORE
+import androidx.compose.foundation.text.selection.Direction.ON
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextRange
@@ -93,16 +96,16 @@ class SelectionLayoutTest {
         val selection = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                endHandleDirection = Direction.AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
             )
         }
         assertThat(selection.size).isEqualTo(3)
@@ -121,13 +124,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startSlot).isEqualTo(0)
@@ -138,13 +141,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startSlot).isEqualTo(1)
@@ -155,13 +158,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startSlot).isEqualTo(2)
@@ -172,13 +175,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = ON,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startSlot).isEqualTo(3)
@@ -189,13 +192,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startSlot).isEqualTo(4)
@@ -214,13 +217,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endSlot).isEqualTo(0)
@@ -231,13 +234,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = ON,
+                endYHandleDirection = ON,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endSlot).isEqualTo(1)
@@ -248,13 +251,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endSlot).isEqualTo(2)
@@ -265,13 +268,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.endSlot).isEqualTo(3)
@@ -282,13 +285,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
         }
         assertThat(layout.endSlot).isEqualTo(4)
@@ -326,8 +329,8 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = ON,
+                endYHandleDirection = ON,
                 rawStartHandleOffset = 0,
                 rawEndHandleOffset = 0,
             )
@@ -340,13 +343,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.crossStatus).isEqualTo(CrossStatus.CROSSED)
@@ -357,13 +360,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.crossStatus).isEqualTo(CrossStatus.NOT_CROSSED)
@@ -377,13 +380,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startInfo.selectableId).isEqualTo(1L)
@@ -394,13 +397,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startInfo.selectableId).isEqualTo(1L)
@@ -411,13 +414,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startInfo.selectableId).isEqualTo(2L)
@@ -428,13 +431,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = ON,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startInfo.selectableId).isEqualTo(2L)
@@ -445,13 +448,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.startInfo.selectableId).isEqualTo(2L)
@@ -465,13 +468,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endInfo.selectableId).isEqualTo(1L)
@@ -482,13 +485,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = ON,
+                endYHandleDirection = ON,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endInfo.selectableId).isEqualTo(1L)
@@ -499,13 +502,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.endInfo.selectableId).isEqualTo(1L)
@@ -516,13 +519,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.endInfo.selectableId).isEqualTo(2L)
@@ -533,13 +536,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
         }
         assertThat(layout.endInfo.selectableId).isEqualTo(2L)
@@ -550,13 +553,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest(isStartHandle = true) {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.currentInfo.selectableId).isEqualTo(1L)
@@ -567,13 +570,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest(isStartHandle = false) {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.currentInfo.selectableId).isEqualTo(2L)
@@ -584,13 +587,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.firstInfo.selectableId).isEqualTo(1L)
@@ -601,13 +604,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.firstInfo.selectableId).isEqualTo(1L)
@@ -618,13 +621,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.lastInfo.selectableId).isEqualTo(2L)
@@ -635,13 +638,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
             )
         }
         assertThat(layout.lastInfo.selectableId).isEqualTo(2L)
@@ -660,13 +663,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
 
@@ -681,18 +684,18 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             info = appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val infoList = mutableListOf<SelectableInfo>()
@@ -707,23 +710,23 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             infoOne = appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             infoTwo = appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 4L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val infoList = mutableListOf<SelectableInfo>()
@@ -849,14 +852,14 @@ class SelectionLayoutTest {
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val otherLayout = buildSelectionLayoutForTest(
@@ -865,14 +868,14 @@ class SelectionLayoutTest {
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
@@ -886,14 +889,14 @@ class SelectionLayoutTest {
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
         }
         val otherLayout = buildSelectionLayoutForTest(
@@ -902,14 +905,14 @@ class SelectionLayoutTest {
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 rawEndHandleOffset = 5,
                 rawPreviousHandleOffset = 5,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
@@ -1069,13 +1072,13 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 2L)
@@ -1090,18 +1093,18 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 3L)
@@ -1117,23 +1120,23 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = ON,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.AFTER,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = AFTER,
             )
             appendInfoForTest(
                 selectableId = 4L,
-                startHandleDirection = Direction.BEFORE,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = BEFORE,
+                endYHandleDirection = ON,
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 4L)
@@ -1150,8 +1153,8 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
@@ -1171,15 +1174,15 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
@@ -1216,22 +1219,22 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
@@ -1276,29 +1279,29 @@ class SelectionLayoutTest {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(
                 selectableId = 1L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.ON,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = ON,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 2L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 3L,
-                startHandleDirection = Direction.AFTER,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = AFTER,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
             appendInfoForTest(
                 selectableId = 4L,
-                startHandleDirection = Direction.ON,
-                endHandleDirection = Direction.BEFORE,
+                startYHandleDirection = ON,
+                endYHandleDirection = BEFORE,
                 rawStartHandleOffset = 5,
                 rawEndHandleOffset = 0,
             )
@@ -1544,9 +1547,11 @@ class SelectionLayoutTest {
         selectableId: Long = 1L,
         text: String = "hello",
         rawStartHandleOffset: Int = 0,
-        startHandleDirection: Direction = Direction.ON,
+        startXHandleDirection: Direction = ON,
+        startYHandleDirection: Direction = ON,
         rawEndHandleOffset: Int = 5,
-        endHandleDirection: Direction = Direction.ON,
+        endXHandleDirection: Direction = ON,
+        endYHandleDirection: Direction = ON,
         rawPreviousHandleOffset: Int = -1,
         rtlRanges: List<IntRange> = emptyList(),
         wordBoundaries: List<TextRange> = listOf(),
@@ -1561,9 +1566,11 @@ class SelectionLayoutTest {
         return appendInfo(
             selectableId = selectableId,
             rawStartHandleOffset = rawStartHandleOffset,
-            startHandleDirection = startHandleDirection,
+            startXHandleDirection = startXHandleDirection,
+            startYHandleDirection = startYHandleDirection,
             rawEndHandleOffset = rawEndHandleOffset,
-            endHandleDirection = endHandleDirection,
+            endXHandleDirection = endXHandleDirection,
+            endYHandleDirection = endYHandleDirection,
             rawPreviousHandleOffset = rawPreviousHandleOffset,
             textLayoutResult = layoutResult
         )
