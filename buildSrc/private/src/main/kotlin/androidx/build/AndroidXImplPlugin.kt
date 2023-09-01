@@ -510,12 +510,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             }
         }
 
-        // Standard docs, resource API, and Metalava configuration for AndroidX projects.
-        project.configureProjectForApiTasks(
-            LibraryApiTaskConfig(libraryExtension),
-            androidXExtension
-        )
-
         project.addToProjectMap(androidXExtension)
     }
 
@@ -562,12 +556,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         if (project.multiplatformExtension == null) {
             project.configureNonAndroidProjectForLint(extension)
         }
-        val apiTaskConfig = if (project.multiplatformExtension != null) {
-            KmpApiTaskConfig
-        } else {
-            JavaApiTaskConfig
-        }
-        project.configureProjectForApiTasks(apiTaskConfig, extension)
 
         project.afterEvaluate {
             if (extension.shouldRelease()) {
