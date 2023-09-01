@@ -123,15 +123,17 @@ class AppWidgetSessionTest {
 
     @Test
     fun processEmittableTree_catchesException() = runTest {
-        val root = RemoteViewsRoot(maxDepth = 1).apply {
-            children += object : Emittable {
-                override var modifier: GlanceModifier = GlanceModifier
-                override fun copy() = this
+        widget.withErrorLayout(R.layout.glance_error_layout) {
+            val root = RemoteViewsRoot(maxDepth = 1).apply {
+                children += object : Emittable {
+                    override var modifier: GlanceModifier = GlanceModifier
+                    override fun copy() = this
+                }
             }
-        }
 
-        session.processEmittableTree(context, root)
-        assertThat(session.lastRemoteViews!!.layoutId).isEqualTo(widget.errorUiLayout)
+            session.processEmittableTree(context, root)
+            assertThat(session.lastRemoteViews!!.layoutId).isEqualTo(R.layout.glance_error_layout)
+        }
     }
 
     @Test
@@ -205,6 +207,19 @@ class AppWidgetSessionTest {
         session.receiveEvents(context) {}
         assertTrue(didRunFirst)
         assertTrue(didRunSecond)
+    }
+
+    @Test
+    fun onCompositionError() = runTest {
+        // Session should rethrow the error when widget.errorUiLayout == 0
+        val throwable = Exception("error")
+        var caught: Throwable? = null
+        try {
+            session.onCompositionError(context, throwable)
+        } catch (t: Throwable) {
+            caught = t
+        }
+        assertThat(caught).isEqualTo(throwable)
     }
 
     private class TestGlanceState : ConfigManager {

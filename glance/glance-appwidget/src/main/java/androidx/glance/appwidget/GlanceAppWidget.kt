@@ -49,7 +49,7 @@ import kotlinx.coroutines.CancellationException
  */
 abstract class GlanceAppWidget(
     @LayoutRes
-    internal val errorUiLayout: Int = R.layout.glance_error_layout,
+    internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
     private val sessionManager: SessionManager = GlanceSessionManager
 
