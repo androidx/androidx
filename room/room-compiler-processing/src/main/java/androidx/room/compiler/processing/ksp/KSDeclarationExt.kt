@@ -70,7 +70,7 @@ internal fun KSDeclaration.findEnclosingMemberContainer(
     }
     // When a top level function/property is compiled, its containing class does not exist in KSP,
     // neither the file. So instead, we synthesize one
-    return KspSyntheticFileMemberContainer(ownerJvmClassName)
+    return KspSyntheticFileMemberContainer(env, ownerJvmClassName)
 }
 
 private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclaration? {
