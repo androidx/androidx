@@ -87,6 +87,13 @@ class ScatterMapTest {
     }
 
     @Test
+    fun insertIndex0() {
+        val map = MutableScatterMap<Float, Long>()
+        map.put(1f, 100L)
+        assertEquals(100L, map[1f])
+    }
+
+    @Test
     fun addToSizedMap() {
         val map = MutableScatterMap<String, String>(12)
         map["Hello"] = "World"

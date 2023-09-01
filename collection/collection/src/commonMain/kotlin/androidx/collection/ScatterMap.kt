@@ -819,16 +819,9 @@ public class MutableScatterMap<K, V>(
      * or `null` if the key was not present in the map.
      */
     public fun put(key: K, value: V): V? {
-        var index = findInsertIndex(key)
-        val oldValue = if (index < 0) {
-            index = -index
-            // New entry, we must add the key
-            keys[index] = key
-            null
-        } else {
-            // Existing entry, we can keep the key
-            values[index]
-        }
+        val index = findAbsoluteInsertIndex(key)
+        val oldValue = values[index]
+        keys[index] = key
         values[index] = value
 
         @Suppress("UNCHECKED_CAST")
@@ -1069,52 +1062,6 @@ public class MutableScatterMap<K, V>(
         writeMetadata(index, hash2.toLong())
 
         return index
-    }
-
-    /**
-     * Equivalent of [findInsertIndex] but the returned index is *negative*
-     * if insertion requires a new mapping, and positive if the value takes
-     * place of an existing mapping.
-     */
-    private fun findInsertIndex(key: K): Int {
-        val hash = hash(key)
-        val hash1 = h1(hash)
-        val hash2 = h2(hash)
-
-        val probeMask = _capacity
-        var probeOffset = hash1 and probeMask
-        var probeIndex = 0
-
-        while (true) {
-            val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
-                if (keys[index] == key) {
-                    return index
-                }
-                m = m.next()
-            }
-
-            if (g.maskEmpty() != 0L) {
-                break
-            }
-
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
-
-        var index = findFirstAvailableSlot(hash1)
-        if (growthLimit == 0 && !isDeleted(metadata, index)) {
-            adjustStorage()
-            index = findFirstAvailableSlot(hash1)
-        }
-
-        _size += 1
-        growthLimit -= if (isEmpty(metadata, index)) 1 else 0
-        writeMetadata(index, hash2.toLong())
-
-        return -index
     }
 
     /**
