@@ -35,12 +35,13 @@ import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
         AnnotationTarget.ANNOTATION_CLASS,
         AnnotationTarget.FUNCTION
 )
-@Preview(name = "Phone", device = PHONE)
+@Preview(name = "Phone", device = PHONE, showSystemUi = true)
 @Preview(name = "Phone - Landscape",
-         device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420")
-@Preview(name = "Unfolded Foldable", device = FOLDABLE)
-@Preview(name = "Tablet", device = TABLET)
-@Preview(name = "Desktop", device = DESKTOP)
+         device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420",
+         showSystemUi = true)
+@Preview(name = "Unfolded Foldable", device = FOLDABLE, showSystemUi = true)
+@Preview(name = "Tablet", device = TABLET, showSystemUi = true)
+@Preview(name = "Desktop", device = DESKTOP, showSystemUi = true)
 annotation class PreviewScreenSizes
 
 /**
