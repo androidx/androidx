@@ -107,6 +107,30 @@ class KeyEventToFocusDirectionTest {
     }
 
     @Test
+    fun page_up() {
+        // Arrange.
+        val keyEvent = KeyEvent(AndroidKeyEvent(KeyDown, Key.PageUp.nativeKeyCode))
+
+        // Act.
+        val focusDirection = owner.getFocusDirection(keyEvent)
+
+        // Assert.
+        assertThat(focusDirection).isEqualTo(Up)
+    }
+
+    @Test
+    fun page_down() {
+        // Arrange.
+        val keyEvent = KeyEvent(AndroidKeyEvent(KeyDown, Key.PageDown.nativeKeyCode))
+
+        // Act.
+        val focusDirection = owner.getFocusDirection(keyEvent)
+
+        // Assert.
+        assertThat(focusDirection).isEqualTo(Down)
+    }
+
+    @Test
     fun tab_next() {
         // Arrange.
         val keyEvent = KeyEvent(AndroidKeyEvent(KeyDown, Key.Tab.nativeKeyCode))
