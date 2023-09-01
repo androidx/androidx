@@ -31,6 +31,11 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     val packageName: String
 
     /**
+     * The package that contains this element.
+     */
+    val packageElement: XPackageElement
+
+    /**
      * The type represented by this [XTypeElement].
      */
     override val type: XType
