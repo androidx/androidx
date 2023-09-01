@@ -22,7 +22,6 @@ package androidx.graphics.shapes {
   }
 
   public class Cubic {
-    ctor public Cubic(float anchor0X, float anchor0Y, float control0X, float control0Y, float control1X, float control1Y, float anchor1X, float anchor1Y);
     method public static final androidx.graphics.shapes.Cubic circularArc(float centerX, float centerY, float x0, float y0, float x1, float y1);
     method public final operator androidx.graphics.shapes.Cubic div(float x);
     method public final operator androidx.graphics.shapes.Cubic div(int x);
@@ -55,6 +54,10 @@ package androidx.graphics.shapes {
   public static final class Cubic.Companion {
     method public androidx.graphics.shapes.Cubic circularArc(float centerX, float centerY, float x0, float y0, float x1, float y1);
     method public androidx.graphics.shapes.Cubic straightLine(float x0, float y0, float x1, float y1);
+  }
+
+  public final class CubicKt {
+    method public static androidx.graphics.shapes.Cubic Cubic(float anchor0X, float anchor0Y, float control0X, float control0Y, float control1X, float control1Y, float anchor1X, float anchor1Y);
   }
 
   public final class Morph {
