@@ -291,6 +291,27 @@ public final class SearchSpecToProtoConverter {
                 .addAllSchemaTypeFilters(mTargetPrefixedSchemaFilters)
                 .setUseReadOnlySearch(mIcingOptionsConfig.getUseReadOnlySearch());
 
+        // Convert type property filter map into type property mask proto.
+        for (Map.Entry<String, List<String>> entry :
+                mSearchSpec.getFilterProperties().entrySet()) {
+            if (entry.getKey().equals(SearchSpec.SCHEMA_TYPE_WILDCARD)) {
+                protoBuilder.addTypePropertyFilters(TypePropertyMask.newBuilder()
+                        .setSchemaType(SearchSpec.SCHEMA_TYPE_WILDCARD)
+                        .addAllPaths(entry.getValue())
+                        .build());
+            } else {
+                for (String prefix : mCurrentSearchSpecPrefixFilters) {
+                    String prefixedSchemaType = prefix + entry.getKey();
+                    if (mTargetPrefixedSchemaFilters.contains(prefixedSchemaType)) {
+                        protoBuilder.addTypePropertyFilters(TypePropertyMask.newBuilder()
+                                .setSchemaType(prefixedSchemaType)
+                                .addAllPaths(entry.getValue())
+                                .build());
+                    }
+                }
+            }
+        }
+
         @SearchSpec.TermMatch int termMatchCode = mSearchSpec.getTermMatch();
         TermMatchType.Code termMatchCodeProto = TermMatchType.Code.forNumber(termMatchCode);
         if (termMatchCodeProto == null || termMatchCodeProto.equals(TermMatchType.Code.UNKNOWN)) {

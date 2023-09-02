@@ -55,9 +55,19 @@ public final class SearchSpec {
      */
     public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
 
+    /**
+     * Schema type to be used in {@link SearchSpec.Builder#addFilterProperties(String, Collection)}
+     * to apply property paths to all results, excepting any types that have had their own, specific
+     * property paths set.
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SCHEMA_TYPE_WILDCARD = "*";
+
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
     static final String SCHEMA_FIELD = "schema";
     static final String NAMESPACE_FIELD = "namespace";
+    static final String PROPERTY_FIELD = "property";
     static final String PACKAGE_NAME_FIELD = "packageName";
     static final String NUM_PER_PAGE_FIELD = "numPerPage";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
@@ -265,6 +275,30 @@ public final class SearchSpec {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(schemas);
+    }
+
+    /**
+     * Returns the map of schema and target properties to search over.
+     *
+     * <p>If empty, will search over all schema and properties.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
+     * by this function, rather than calling it multiple times.
+     *
+     * @exportToFramework:hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Map<String, List<String>> getFilterProperties() {
+        Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
+                mBundle.getBundle(PROPERTY_FIELD));
+        Set<String> schemas = typePropertyPathsBundle.keySet();
+        Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
+        for (String schema : schemas) {
+            typePropertyPathsMap.put(schema, Preconditions.checkNotNull(
+                    typePropertyPathsBundle.getStringArrayList(schema)));
+        }
+        return typePropertyPathsMap;
     }
 
     /**
@@ -512,6 +546,7 @@ public final class SearchSpec {
     public static final class Builder {
         private ArrayList<String> mSchemas = new ArrayList<>();
         private ArrayList<String> mNamespaces = new ArrayList<>();
+        private Bundle mTypePropertyFilters = new Bundle();
         private ArrayList<String> mPackageNames = new ArrayList<>();
         private ArraySet<String> mEnabledFeatures = new ArraySet<>();
         private Bundle mProjectionTypePropertyMasks = new Bundle();
@@ -625,6 +660,145 @@ public final class SearchSpec {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
             return addFilterDocumentClasses(Arrays.asList(documentClasses));
+        }
+// @exportToFramework:endStrip()
+
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSpec} Entry. Only returns documents that have matches under
+         * the specified properties. If property paths are added for a type, then only the
+         * properties referred to will be searched for results of that type.
+         *
+         * <p> If a property path that is specified isn't present in a result, it will be ignored
+         * for that result. Property paths cannot be null.
+         *
+         * <p>If no property paths are added for a particular type, then all properties of
+         * results of that type will be searched.
+         *
+         * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
+         *
+         * <p>If property paths are added for the
+         * {@link SearchSpec#SCHEMA_TYPE_WILDCARD}, then those property paths will
+         * apply to all results, excepting any types that have their own, specific property paths
+         * set.
+         *
+         * @param schema the {@link AppSearchSchema} that contains the target properties
+         * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
+         *                      sequence of property names.
+         *
+         * @exportToFramework:hide
+         */
+         // TODO(b/296088047) unhide from framework when type property filters are made public.
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        // @exportToFramework:endStrip()
+        public Builder addFilterProperties(@NonNull String schema,
+                @NonNull Collection<String> propertyPaths) {
+            Preconditions.checkNotNull(schema);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                Preconditions.checkNotNull(propertyPath);
+                propertyPathsArrayList.add(propertyPath);
+            }
+            mTypePropertyFilters.putStringArrayList(schema, propertyPathsArrayList);
+            return this;
+        }
+
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSpec} Entry. Only returns documents that have matches under the specified
+         * properties. If property paths are added for a type, then only the properties referred
+         * to will be searched for results of that type.
+         *
+         * @see #addFilterProperties(String, Collection)
+         *
+         * @param schema the {@link AppSearchSchema} that contains the target properties
+         * @param propertyPaths The {@link PropertyPath} to search search over
+         *
+         * @exportToFramework:hide
+         */
+         // TODO(b/296088047) unhide from framework when type property filters are made public.
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        // @exportToFramework:endStrip()
+        public Builder addFilterPropertyPaths(@NonNull String schema,
+                @NonNull Collection<PropertyPath> propertyPaths) {
+            Preconditions.checkNotNull(schema);
+            Preconditions.checkNotNull(propertyPaths);
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (PropertyPath propertyPath : propertyPaths) {
+                propertyPathsArrayList.add(propertyPath.toString());
+            }
+            return addFilterProperties(schema, propertyPathsArrayList);
+        }
+
+
+// @exportToFramework:startStrip()
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSpec} Entry. Only returns documents that have matches under the specified
+         * properties. If property paths are added for a type, then only the properties referred
+         * to will be searched for results of that type.
+         *
+         * @see #addFilterProperties(String, Collection)
+         *
+         * @param documentClass class annotated with {@link Document}.
+         * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
+                                sequence of property names.
+         *
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        public Builder addFilterProperties(@NonNull Class<?> documentClass,
+                @NonNull Collection<String> propertyPaths) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addFilterProperties(factory.getSchemaName(), propertyPaths);
+        }
+// @exportToFramework:endStrip()
+
+// @exportToFramework:startStrip()
+        /**
+         * Adds property paths for the specified type to the property filter of
+         * {@link SearchSpec} Entry. Only returns documents that have matches under the specified
+         * properties. If property paths are added for a type, then only the properties referred
+         * to will be searched for results of that type.
+         *
+         * @see #addFilterProperties(String, Collection)
+         *
+         * @param documentClass class annotated with {@link Document}.
+         * @param propertyPaths The {@link PropertyPath} to search search over
+         *
+         */
+        @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        public Builder addFilterPropertyPaths(@NonNull Class<?> documentClass,
+                @NonNull Collection<PropertyPath> propertyPaths) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            Preconditions.checkNotNull(propertyPaths);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addFilterPropertyPaths(factory.getSchemaName(), propertyPaths);
         }
 // @exportToFramework:endStrip()
 
@@ -1478,7 +1652,18 @@ public final class SearchSpec {
                 }
             }
 
+            Set<String> schemaFilter = new ArraySet<>(mSchemas);
+            if (!mSchemas.isEmpty()) {
+                for (String schema : mTypePropertyFilters.keySet()) {
+                    if (!schemaFilter.contains(schema)) {
+                        throw new IllegalStateException(
+                                "The schema: " + schema + " exists in the property filter but "
+                                        + "doesn't exist in the schema filter.");
+                    }
+                }
+            }
             bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
+            bundle.putBundle(PROPERTY_FIELD, mTypePropertyFilters);
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             bundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
             bundle.putStringArrayList(ENABLED_FEATURES_FIELD, new ArrayList<>(mEnabledFeatures));
@@ -1501,6 +1686,7 @@ public final class SearchSpec {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mSchemas = new ArrayList<>(mSchemas);
+                mTypePropertyFilters = BundleUtil.deepCopy(mTypePropertyFilters);
                 mNamespaces = new ArrayList<>(mNamespaces);
                 mPackageNames = new ArrayList<>(mPackageNames);
                 mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
