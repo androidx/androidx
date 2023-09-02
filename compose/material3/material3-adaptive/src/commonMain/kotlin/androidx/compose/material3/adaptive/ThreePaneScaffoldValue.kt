@@ -51,8 +51,7 @@ private inline fun buildThreePaneScaffoldValue(
 @ExperimentalMaterial3AdaptiveApi
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        ThreePaneScaffoldDefaults.adaptStrategies(),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies = ThreePaneScaffoldDefaults.adaptStrategies(),
     currentFocus: ThreePaneScaffoldRole? = null,
 ): ThreePaneScaffoldValue {
     var expandedCount = if (currentFocus != null) 1 else 0
@@ -63,6 +62,7 @@ fun calculateThreePaneScaffoldValue(
                 expandedCount++
                 PaneAdaptedValue.Expanded
             }
+
             else -> adaptStrategies[role].adapt()
         }
     }
