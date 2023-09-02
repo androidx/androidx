@@ -67,6 +67,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 // fall through
             case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 return true;
             default:
                 return false;
