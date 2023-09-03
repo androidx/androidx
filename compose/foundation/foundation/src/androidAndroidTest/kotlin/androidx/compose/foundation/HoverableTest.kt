@@ -31,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -69,14 +70,30 @@ class HoverableTest {
     }
 
     @Test
-    fun hoverableText_testInspectorValue() {
+    fun hoverableTest_returnsDefaultModifier_whenDisabled() {
+        rule.setContent {
+            val modifier = Modifier.hoverable(
+                interactionSource = remember { MutableInteractionSource() },
+                enabled = false
+            )
+
+            Truth.assertThat(modifier).isEqualTo(Modifier)
+        }
+    }
+
+    @Test
+    fun hoverableTest_testInspectableValue() {
         rule.setContent {
             val interactionSource = remember { MutableInteractionSource() }
             val modifier = Modifier.hoverable(interactionSource) as InspectableValue
+
             Truth.assertThat(modifier.nameFallback).isEqualTo("hoverable")
             Truth.assertThat(modifier.valueOverride).isNull()
-            Truth.assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly("interactionSource")
+            Truth.assertThat(modifier.inspectableElements.asIterable())
+                .containsExactly(
+                    ValueElement("interactionSource", interactionSource),
+                    ValueElement("enabled", true)
+                )
         }
     }
 
