@@ -124,7 +124,11 @@ internal abstract class KspType(
             // This matches javac's Types#directSupertypes().
             listOf(env.requireType(TypeName.OBJECT)) + superInterfaces
         } else {
-            check(superClasses.size == 1)
+            check(superClasses.size == 1) {
+                "Class ${this.typeName} should have only one super class. Found" +
+                    " ${superClasses.size}" +
+                    " (${superClasses.joinToString { it.typeName.toString() }})."
+            }
             superClasses + superInterfaces
         }
     }

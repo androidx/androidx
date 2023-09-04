@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
@@ -618,6 +619,33 @@ class KspTypeTest {
             }
             assertParamType(method.parameters.first().type)
             assertParamType(asMember.parameterTypes.first())
+        }
+    }
+
+    @Test
+    fun oneSuperClass() {
+        val src = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            class A {}
+            interface B {}
+            class Baz extends A implements B, C {}
+            """.trimIndent()
+        )
+        runKspTest(
+            listOf(src)
+        ) { invocation ->
+            val typeElement = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val exception = assertThrows(IllegalStateException::class) {
+                typeElement.type.superTypes
+            }
+            exception.hasMessageThat().isEqualTo(
+                "Class foo.bar.Baz should have only one super class." +
+                    " Found 2 (foo.bar.A, error.NonExistentClass).")
+            invocation.assertCompilationResult {
+                compilationDidFail()
+            }
         }
     }
 }
