@@ -28,13 +28,13 @@ import androidx.camera.core.impl.Quirk
  * Quirk denoting the video profile list returns by [EncoderProfiles] is invalid.
  *
  * QuirkSummary
- * - Bug Id: 267727595, 278860860
- * - Description: When using [EncoderProfiles] on TP1A or TD1A builds of Android API 33,
+ * - Bug Id: 267727595, 278860860, 298951126
+ * - Description: When using [EncoderProfiles] on some builds of Android API 33,
  *   [EncoderProfiles.getVideoProfiles] returns a list with size one, but the single value in the
  *   list is null. This is not the expected behavior, and makes [EncoderProfiles] lack of video
  *   information.
  * - Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33), Samsung devices
- *              with TP1A build (API 33).
+ *              with TP1A build (API 33), and Xiaomi with TKQ1 build (API 33).
  *
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -57,7 +57,8 @@ class InvalidVideoProfilesQuirk : Quirk {
         )
 
         fun isEnabled(): Boolean {
-            return isAffectedSamsungDevices() || isAffectedPixelDevices()
+            return isAffectedSamsungDevices() || isAffectedPixelDevices() ||
+                isAffectedXiaomiDevices()
         }
 
         private fun isAffectedSamsungDevices(): Boolean {
@@ -66,6 +67,11 @@ class InvalidVideoProfilesQuirk : Quirk {
 
         private fun isAffectedPixelDevices(): Boolean {
             return isAffectedPixelModel() && isAffectedPixelBuild()
+        }
+
+        private fun isAffectedXiaomiDevices(): Boolean {
+            return ("redmi".equals(Build.BRAND, true) || "xiaomi".equals(Build.BRAND, true)) &&
+                isTkq1Build()
         }
 
         private fun isAffectedPixelModel(): Boolean {
@@ -84,6 +90,10 @@ class InvalidVideoProfilesQuirk : Quirk {
 
         private fun isTd1aBuild(): Boolean {
             return Build.ID.startsWith("TD1A", true)
+        }
+
+        private fun isTkq1Build(): Boolean {
+            return Build.ID.startsWith("TKQ1", true)
         }
     }
 }
