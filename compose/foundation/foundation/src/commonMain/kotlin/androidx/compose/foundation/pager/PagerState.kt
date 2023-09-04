@@ -519,6 +519,10 @@ abstract class PagerState(
         block: suspend ScrollScope.() -> Unit
     ) {
         awaitScrollDependencies()
+        // will scroll and it's not scrolling already update settled page
+        if (!isScrollInProgress) {
+            settledPageState = currentPage
+        }
         scrollableState.scroll(scrollPriority, block)
         programmaticScrollTargetPage = -1 // reset animated scroll target page indicator
     }
@@ -550,10 +554,6 @@ abstract class PagerState(
             result.firstVisiblePageOffset != 0
         numMeasurePasses++
         cancelPrefetchIfVisibleItemsChanged(result)
-        if (!isScrollInProgress) {
-            settledPageState = currentPage
-            upDownDifference = Offset.Zero
-        }
     }
 
     private fun Int.coerceInPageRange() = if (pageCount > 0) {
