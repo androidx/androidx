@@ -41,6 +41,9 @@
 3. The Navigation drawer is pushing my content aside. I don’t like it.
    Consider using a [Modal Navigation Drawer][modal-navigation-drawer] provided
    in [Compose for TV library][compose-for-tv-modal-navigation-drawer]
+4. Sideloading baseline profiles to test performance, without releasing the app.
+   Refer to the steps for [applying baseline profiles][tv-samples-baseline-profiles] in the
+   Jetstream sample app.
 
 [good-design-patterns]: https://developer.android.com/design/ui/tv
 
@@ -79,3 +82,5 @@
 [tv-foundation-lazy-grid]: https://developer.android.com/reference/kotlin/androidx/tv/foundation/lazy/grid/package-summary
 
 [tv-material]: https://developer.android.com/reference/kotlin/androidx/tv/material3/package-summary
+
+[tv-samples-baseline-profiles]: https://github.com/android/tv-samples/blob/main/JetStreamCompose/baseline-profiles.md
