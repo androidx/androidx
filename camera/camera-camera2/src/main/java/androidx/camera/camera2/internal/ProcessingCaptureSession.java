@@ -473,9 +473,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     }
 
     void onConfigured(@NonNull CaptureSession captureSession) {
-        Preconditions.checkArgument(mProcessorState == ProcessorState.SESSION_INITIALIZED,
-                "Invalid state state:" + mProcessorState);
-
+        if (mProcessorState != ProcessorState.SESSION_INITIALIZED) {
+            return;
+        }
         mRequestProcessor = new Camera2RequestProcessor(captureSession,
                 getSessionProcessorSurfaceList(mProcessorSessionConfig.getSurfaces()));
         mSessionProcessor.onCaptureSessionStart(mRequestProcessor);
