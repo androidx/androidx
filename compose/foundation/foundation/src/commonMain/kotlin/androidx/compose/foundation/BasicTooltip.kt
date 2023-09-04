@@ -104,6 +104,7 @@ fun rememberBasicTooltipState(
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
  * with the mutator mutex, only one will be shown on the screen at any time.
  */
+@Stable
 fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,

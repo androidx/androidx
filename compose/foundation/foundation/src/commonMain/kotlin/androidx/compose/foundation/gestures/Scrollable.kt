@@ -110,6 +110,7 @@ import kotlinx.coroutines.withContext
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
  */
+@Stable
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.scrollable(
     state: ScrollableState,
@@ -163,6 +164,7 @@ fun Modifier.scrollable(
  * Note: This API is experimental as it brings support for some experimental features:
  * [overscrollEffect] and [bringIntoViewScroller].
  */
+@Stable
 @ExperimentalFoundationApi
 fun Modifier.scrollable(
     state: ScrollableState,

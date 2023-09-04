@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.draw.CacheDrawScope
@@ -63,6 +64,7 @@ import kotlin.math.min
  * @param border [BorderStroke] class that specifies border appearance, such as size and color
  * @param shape shape of the border
  */
+@Stable
 fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape) =
     border(width = border.width, brush = border.brush, shape = shape)
 
@@ -76,6 +78,7 @@ fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape) =
  * @param color color to paint the border with
  * @param shape shape of the border
  */
+@Stable
 fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
     border(width, SolidColor(color), shape)
 
@@ -90,6 +93,7 @@ fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
  * @param brush brush to paint the border with
  * @param shape shape of the border
  */
+@Stable
 fun Modifier.border(width: Dp, brush: Brush, shape: Shape) =
     this then BorderModifierNodeElement(width, brush, shape)
 
