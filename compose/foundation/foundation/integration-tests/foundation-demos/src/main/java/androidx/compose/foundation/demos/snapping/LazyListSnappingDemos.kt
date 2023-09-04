@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastSumBy
 
@@ -152,7 +151,7 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
     return remember(state) {
         val basedSnappingLayoutInfoProvider = SnapLayoutInfoProvider(lazyListState = state)
         object : SnapLayoutInfoProvider by basedSnappingLayoutInfoProvider {
-            override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+            override fun calculateApproachOffset(initialVelocity: Float): Float {
                 return 0f
             }
         }

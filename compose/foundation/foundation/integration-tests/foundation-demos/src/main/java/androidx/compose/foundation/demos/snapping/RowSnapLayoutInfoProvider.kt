@@ -19,7 +19,6 @@ package androidx.compose.foundation.demos.snapping
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.ui.unit.Density
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -30,23 +29,23 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 fun SnapLayoutInfoProvider(
     scrollState: ScrollState,
-    itemSize: Density.() -> Float,
-    layoutSize: Density.() -> Float
+    itemSize: () -> Float,
+    layoutSize: () -> Float
 ) = object : SnapLayoutInfoProvider {
 
-    fun Density.nextFullItemCenter(layoutCenter: Float): Float {
+    fun nextFullItemCenter(layoutCenter: Float): Float {
         val intItemSize = itemSize().roundToInt()
         return floor((layoutCenter + itemSize()) / itemSize().roundToInt()) *
             intItemSize
     }
 
-    fun Density.previousFullItemCenter(layoutCenter: Float): Float {
+    fun previousFullItemCenter(layoutCenter: Float): Float {
         val intItemSize = itemSize().roundToInt()
         return ceil((layoutCenter - itemSize()) / itemSize().roundToInt()) *
             intItemSize
     }
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         val layoutCenter = layoutSize() / 2f + scrollState.value + itemSize() / 2f
         val lowerBound = nextFullItemCenter(layoutCenter) - layoutCenter
         val upperBound = previousFullItemCenter(layoutCenter) - layoutCenter
@@ -54,7 +53,7 @@ fun SnapLayoutInfoProvider(
         return calculateFinalOffset(currentVelocity, upperBound, lowerBound)
     }
 
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float = 0f
+    override fun calculateApproachOffset(initialVelocity: Float): Float = 0f
 }
 
 @Suppress("PrimitiveInLambda")

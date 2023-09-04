@@ -20,7 +20,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.ui.unit.Density
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -30,9 +29,9 @@ internal class ViewPortBasedSnappingLayoutInfoProvider(
     private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
     private val decayAnimationSpec: DecayAnimationSpec<Float>,
     private val viewPortStep: () -> Float,
-    private val itemSize: Density.() -> Float
+    private val itemSize: () -> Float
 ) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
         val offset = decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
         val finalOffset = (offset.absoluteValue - itemSize()).coerceAtLeast(0.0f) * offset.sign
         val viewPortOffset = viewPortStep()
