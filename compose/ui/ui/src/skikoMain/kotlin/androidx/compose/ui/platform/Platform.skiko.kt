@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Rect
@@ -30,15 +29,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.LayoutDirection
 
 // TODO(demin): make it public when we stabilize it after implementing it for uikit and js
 internal interface Platform {
     val windowInfo: WindowInfo
     val focusManager: FocusManager
     val inputModeManager: InputModeManager
-    val layoutDirection: LayoutDirection
-        get() = LayoutDirection.Ltr
 
     fun requestFocusForOwner(): Boolean
     val textInputService: PlatformTextInputService
@@ -48,7 +44,6 @@ internal interface Platform {
     val textToolbar: TextToolbar
 
     companion object {
-        @OptIn(ExperimentalComposeUiApi::class)
         val Empty = object : Platform {
             override val windowInfo = WindowInfoImpl().apply {
                 // true is a better default if platform doesn't provide WindowInfo.

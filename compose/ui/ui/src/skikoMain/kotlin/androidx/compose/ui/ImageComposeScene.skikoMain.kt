@@ -32,12 +32,12 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.DurationUnit.NANOSECONDS
 import kotlin.time.ExperimentalTime
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Image
@@ -103,22 +103,46 @@ inline fun <R> ImageComposeScene.use(
  * [rememberCoroutineScope]) and run recompositions.
  * @param content Composable content which needed to be rendered.
  */
-class ImageComposeScene(
+class ImageComposeScene @ExperimentalComposeUiApi constructor(
     width: Int,
     height: Int,
     density: Density = Density(1f),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     content: @Composable () -> Unit = {},
 ) {
+
+    constructor(
+        width: Int,
+        height: Int,
+        density: Density = Density(1f),
+        coroutineContext: CoroutineContext = Dispatchers.Unconfined,
+        content: @Composable () -> Unit = {},
+    ): this(
+        width,
+        height,
+        density,
+        LayoutDirection.Ltr,
+        coroutineContext,
+        content
+    )
+
     private val surface = Surface.makeRasterN32Premul(width, height)
 
     private val scene = ComposeScene(
         density = density,
+        layoutDirection = layoutDirection,
         coroutineContext = coroutineContext
     ).apply {
         constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
         setContent(content = content)
     }
+
+    /**
+     * The default direction of layout for content.
+     */
+    @ExperimentalComposeUiApi
+    var layoutDirection: LayoutDirection by scene::layoutDirection
 
     /**
      * Close all resources and subscriptions. Not calling this method when [ImageComposeScene] is no

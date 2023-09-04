@@ -34,6 +34,12 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import com.google.common.truth.Truth
+import java.awt.Component
+import java.awt.ComponentOrientation
+import java.util.*
 
 
 internal fun runApplicationTest(
@@ -164,3 +170,127 @@ internal class WindowTestScope(
         exceptionHandler.throwIfCaught()
     }
 }
+
+internal class ComponentTestMethods<C: Component, S: Any>(
+    val create: () -> C,
+    val setContent: C.(content: @Composable S.() -> Unit) -> Unit,
+    val display: C.() -> Unit,
+    val dispose: C.() -> Unit
+)
+
+internal fun <C: Component, S: Any> componentOrientationModifiesLayoutDirection(
+    componentTestMethods: ComponentTestMethods<C, S>
+) = with(componentTestMethods) {
+        runApplicationTest {
+            lateinit var localLayoutDirection: LayoutDirection
+            lateinit var component: C
+
+            launchTestApplication {
+                component = create()
+                component.componentOrientation = ComponentOrientation.RIGHT_TO_LEFT
+
+                component.setContent {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+                component.display()
+            }
+            awaitIdle()
+
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+            // Test that changing the orientation changes the layout direction
+            component.componentOrientation = ComponentOrientation.LEFT_TO_RIGHT
+            awaitIdle()
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+
+            component.dispose()
+        }
+    }
+
+
+internal fun <C: Component, S: Any> localeModifiesLayoutDirection(
+    componentTestMethods: ComponentTestMethods<C, S>
+) = with(componentTestMethods) {
+        runApplicationTest {
+            lateinit var localLayoutDirection: LayoutDirection
+            lateinit var component: C
+
+            launchTestApplication {
+                component = create()
+                component.locale = Locale("he")
+
+                component.setContent {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+                component.display()
+            }
+            awaitIdle()
+
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+            // Test that changing the locale changes the layout direction
+            component.locale = Locale("en")
+            awaitIdle()
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+
+            component.dispose()
+        }
+    }
+
+internal fun <C: Component, S: Any> componentOrientationOverridesLocaleForLayoutDirection(
+    componentTestMethods: ComponentTestMethods<C, S>
+) = with(componentTestMethods) {
+        runApplicationTest {
+            lateinit var localLayoutDirection: LayoutDirection
+            lateinit var component: C
+
+            launchTestApplication {
+                component = create()
+                component.locale = Locale("he")
+
+                component.setContent {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+                component.display()
+            }
+            awaitIdle()
+
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+            // Test that changing the orientation changes the layout direction
+            component.componentOrientation = ComponentOrientation.LEFT_TO_RIGHT
+            awaitIdle()
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+
+            component.dispose()
+        }
+    }
+
+internal fun  <C: Component, S: Any> localeDoesNotOverrideComponentOrientationForLayoutDirection(
+    componentTestMethods: ComponentTestMethods<C, S>
+) = with(componentTestMethods) {
+        runApplicationTest {
+            lateinit var localLayoutDirection: LayoutDirection
+            lateinit var component: C
+
+            launchTestApplication {
+                component = create()
+                component.componentOrientation = ComponentOrientation.RIGHT_TO_LEFT
+
+                component.setContent {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+                component.display()
+            }
+            awaitIdle()
+
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+            // Test that changing the locale doesn't change the layout direction
+            component.locale = Locale("en")
+            awaitIdle()
+            Truth.assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+            component.dispose()
+        }
+    }

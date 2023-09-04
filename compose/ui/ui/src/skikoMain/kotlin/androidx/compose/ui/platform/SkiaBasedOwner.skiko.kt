@@ -79,7 +79,7 @@ internal class SkiaBasedOwner(
     parentFocusManager: FocusManager = EmptyFocusManager,
     initDensity: Density = Density(1f, 1f),
     coroutineContext: CoroutineContext,
-    initLayoutDirection: LayoutDirection = platform.layoutDirection,
+    initLayoutDirection: LayoutDirection,
     bounds: IntRect = IntRect.Zero,
     val focusable: Boolean = true,
     val onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,

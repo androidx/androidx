@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.awt
 
+import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -32,8 +33,9 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * If smooth interop with Swing is needed, consider using [androidx.compose.ui.awt.SwingComposeBridge]
  */
 internal class WindowComposeBridge(
-    private val skiaLayerAnalytics: SkiaLayerAnalytics
-) : ComposeBridge() {
+    private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    layoutDirection: LayoutDirection
+) : ComposeBridge(layoutDirection) {
     /**
      * See also backend layer for swing interop in [androidx.compose.ui.awt.SwingComposeBridge]
      */

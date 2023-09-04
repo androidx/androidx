@@ -69,8 +69,63 @@ class ComposeScene internal constructor(
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     internal val platform: Platform,
     density: Density = Density(1f),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     private val invalidate: () -> Unit = {}
 ) {
+    /**
+     * Constructs [ComposeScene]
+     *
+     * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
+     * [rememberCoroutineScope]) and run recompositions.
+     * @param density Initial density of the content which will be used to convert [dp] units.
+     * @param layoutDirection Initial layout direction of the content.
+     * @param invalidate Callback which will be called when the content need to be recomposed or
+     * rerendered. If you draw your content using [render] method, in this callback you should
+     * schedule the next [render] in your rendering loop.
+     */
+    @ExperimentalComposeUiApi
+    constructor(
+        coroutineContext: CoroutineContext = Dispatchers.Unconfined,
+        density: Density = Density(1f),
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        invalidate: () -> Unit = {}
+    ) : this(
+        coroutineContext,
+        Platform.Empty,
+        density,
+        layoutDirection,
+        invalidate
+    )
+
+    /**
+     * Constructs [ComposeScene]
+     *
+     * @param textInputService Platform specific text input service
+     * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
+     * [rememberCoroutineScope]) and run recompositions.
+     * @param density Initial density of the content which will be used to convert [dp] units.
+     * @param layoutDirection Initial layout direction of the content.
+     * @param invalidate Callback which will be called when the content need to be recomposed or
+     * rerendered. If you draw your content using [render] method, in this callback you should
+     * schedule the next [render] in your rendering loop.
+     */
+    @ExperimentalComposeUiApi
+    constructor(
+        textInputService: PlatformTextInputService,
+        coroutineContext: CoroutineContext = Dispatchers.Unconfined,
+        density: Density = Density(1f),
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        invalidate: () -> Unit = {}
+    ) : this(
+        coroutineContext,
+        object : Platform by Platform.Empty {
+            override val textInputService: PlatformTextInputService get() = textInputService
+        },
+        density,
+        layoutDirection,
+        invalidate,
+    )
+
     /**
      * Constructs [ComposeScene]
      *
@@ -87,8 +142,8 @@ class ComposeScene internal constructor(
         invalidate: () -> Unit = {}
     ) : this(
         coroutineContext,
-        Platform.Empty,
         density,
+        LayoutDirection.Ltr,
         invalidate
     )
 
@@ -109,11 +164,10 @@ class ComposeScene internal constructor(
         density: Density = Density(1f),
         invalidate: () -> Unit = {}
     ) : this(
+        textInputService,
         coroutineContext,
-        object : Platform by Platform.Empty {
-            override val textInputService: PlatformTextInputService get() = textInputService
-        },
         density,
+        LayoutDirection.Ltr,
         invalidate,
     )
 
@@ -257,6 +311,17 @@ class ComposeScene internal constructor(
             mainOwner?.density = value
         }
 
+    /**
+     * The layout direction of the content, provided to the composition via [LocalLayoutDirection].
+     */
+    @ExperimentalComposeUiApi
+    var layoutDirection: LayoutDirection = layoutDirection
+        set(value) {
+            check(!isClosed) { "ComposeScene is closed" }
+            field = value
+            mainOwner?.layoutDirection = value
+        }
+
     private var isClosed = false
 
     /**
@@ -395,6 +460,7 @@ class ComposeScene internal constructor(
             platform,
             platform.focusManager,
             initDensity = density,
+            initLayoutDirection = layoutDirection,
             coroutineContext = recomposer.effectCoroutineContext,
             bounds = IntSize(constraints.maxWidth, constraints.maxHeight).toIntRect(),
             onPointerUpdate = ::onPointerUpdate,

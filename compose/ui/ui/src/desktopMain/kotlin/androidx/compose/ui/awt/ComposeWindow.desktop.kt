@@ -23,11 +23,14 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Component
+import java.awt.ComponentOrientation
 import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
+import java.util.*
 import javax.accessibility.Accessible
 import javax.swing.JFrame
 import org.jetbrains.skiko.GraphicsApi
@@ -54,12 +57,16 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * @param graphicsConfiguration the GraphicsConfiguration that is used to construct the new window.
      * If null, the system default GraphicsConfiguration is assumed.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     constructor(
         graphicsConfiguration: GraphicsConfiguration? = null
     ) : this(graphicsConfiguration, SkiaLayerAnalytics.Empty)
 
-    private val delegate = ComposeWindowDelegate(this, ::isUndecorated, skiaLayerAnalytics)
+    private val delegate = ComposeWindowDelegate(
+        window = this,
+        isUndecorated = ::isUndecorated,
+        skiaLayerAnalytics = skiaLayerAnalytics,
+        layoutDirection = layoutDirectionFor(this)
+    )
 
     internal val scene: ComposeScene
         get() = delegate.scene
@@ -75,6 +82,26 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     override fun add(component: Component) = delegate.add(component)
 
     override fun remove(component: Component) = delegate.remove(component)
+
+    override fun setComponentOrientation(o: ComponentOrientation?) {
+        super.setComponentOrientation(o)
+
+        updateLayoutDirection()
+    }
+
+    override fun setLocale(l: Locale?) {
+        super.setLocale(l)
+
+        // setLocale is called from JFrame constructor, before ComposeWindow has been initialized
+        @Suppress("SENSELESS_COMPARISON")
+        if (delegate != null) {
+            updateLayoutDirection()
+        }
+    }
+
+    private fun updateLayoutDirection() {
+        scene.layoutDirection = layoutDirectionFor(this)
+    }
 
     /**
      * Handler to catch uncaught exceptions during rendering frames, handling events,

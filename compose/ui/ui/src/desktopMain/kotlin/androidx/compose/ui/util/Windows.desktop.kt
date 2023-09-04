@@ -28,6 +28,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirection
+import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Dimension
@@ -176,7 +177,7 @@ internal fun Dialog.setUndecoratedSafely(value: Boolean) {
 private val iconSize = Size(32f, 32f)
 
 internal fun Window.setIcon(painter: Painter?) {
-    setIconImage(painter?.toAwtImage(density, layoutDirection, iconSize))
+    setIconImage(painter?.toAwtImage(density, layoutDirectionFor(this), iconSize))
 }
 
 internal class ListenerOnWindowRef<T>(

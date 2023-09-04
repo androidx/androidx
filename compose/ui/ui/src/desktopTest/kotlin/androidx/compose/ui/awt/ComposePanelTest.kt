@@ -24,11 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.ComponentTestMethods
+import androidx.compose.ui.window.componentOrientationModifiesLayoutDirection
+import androidx.compose.ui.window.componentOrientationOverridesLocaleForLayoutDirection
 import androidx.compose.ui.window.density
+import androidx.compose.ui.window.localeDoesNotOverrideComponentOrientationForLayoutDirection
+import androidx.compose.ui.window.localeModifiesLayoutDirection
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import javax.swing.JFrame
+import javax.swing.SwingUtilities
 import kotlin.test.assertEquals
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -249,4 +255,35 @@ class ComposePanelTest {
             }
         }
     }
+
+
+    private val PanelTestMethods = ComponentTestMethods(
+        create = {
+            val frame = JFrame("Hello")
+            val panel = ComposePanel()
+            frame.contentPane.add(panel)
+            panel
+        },
+        setContent = { setContent{ it() } },
+        display = {
+            SwingUtilities.getWindowAncestor(this).isVisible = true
+        },
+        dispose = { SwingUtilities.getWindowAncestor(this).dispose() }
+    )
+
+    @Test
+    fun `componentOrientation modifies LayoutDirection`() =
+        componentOrientationModifiesLayoutDirection(PanelTestMethods)
+
+    @Test
+    fun `locale modifies LayoutDirection`() =
+        localeModifiesLayoutDirection(PanelTestMethods)
+
+    @Test
+    fun `component orientation overrides locale for LayoutDirection`() =
+        componentOrientationOverridesLocaleForLayoutDirection(PanelTestMethods)
+
+    @Test
+    fun `locale does not override component orientation for LayoutDirection`() =
+        localeDoesNotOverrideComponentOrientationForLayoutDirection(PanelTestMethods)
 }

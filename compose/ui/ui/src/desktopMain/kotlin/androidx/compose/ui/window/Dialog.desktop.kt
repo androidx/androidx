@@ -359,7 +359,7 @@ fun DialogWindow(
         update = {
             it.compositionLocalContext = compositionLocalContext
             it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
-            it.scene.mainOwner?.layoutDirection = layoutDirection
+            it.componentOrientation = layoutDirection.componentOrientation
 
             val wasDisplayable = it.isDisplayable
 

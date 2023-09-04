@@ -26,6 +26,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.LocalWindow
 import androidx.compose.ui.window.UndecoratedWindowResizer
@@ -42,7 +43,8 @@ import org.jetbrains.skiko.*
 internal class ComposeWindowDelegate(
     private val window: Window,
     private val isUndecorated: () -> Boolean,
-    private val skiaLayerAnalytics: SkiaLayerAnalytics
+    skiaLayerAnalytics: SkiaLayerAnalytics,
+    layoutDirection: LayoutDirection
 ) {
     private var isDisposed = false
 
@@ -50,7 +52,8 @@ internal class ComposeWindowDelegate(
     // (see https://github.com/JetBrains/compose-jb/issues/1688),
     // so we nullify bridge on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
-    private var _bridge: WindowComposeBridge? = WindowComposeBridge(skiaLayerAnalytics)
+    private var _bridge: WindowComposeBridge? =
+        WindowComposeBridge(skiaLayerAnalytics, layoutDirection)
     private val bridge
         get() = requireNotNull(_bridge) {
             "ComposeBridge is disposed"

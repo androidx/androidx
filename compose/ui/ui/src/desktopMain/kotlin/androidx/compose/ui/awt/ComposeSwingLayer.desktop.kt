@@ -19,6 +19,7 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -41,8 +42,9 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  */
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingComposeBridge(
-    private val skiaLayerAnalytics: SkiaLayerAnalytics
-) : ComposeBridge() {
+    private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    layoutDirection: LayoutDirection
+) : ComposeBridge(layoutDirection) {
     /**
      * See also backendLayer for standalone Compose in [androidx.compose.ui.awt.WindowComposeBridge]
      */

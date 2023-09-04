@@ -690,4 +690,27 @@ class WindowTest {
         assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
         assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
     }
+
+    private val WindowTestMethods = ComponentTestMethods(
+        create = { ComposeWindow() },
+        setContent = { setContent{ it() } },
+        display = { isVisible = true },
+        dispose = { dispose() }
+    )
+
+    @Test
+    fun `componentOrientation modifies LayoutDirection`() =
+        componentOrientationModifiesLayoutDirection(WindowTestMethods)
+
+    @Test
+    fun `locale modifies LayoutDirection`() =
+        localeModifiesLayoutDirection(WindowTestMethods)
+
+    @Test
+    fun `component orientation overrides locale for LayoutDirection`() =
+        componentOrientationOverridesLocaleForLayoutDirection(WindowTestMethods)
+
+    @Test
+    fun `locale does not override component orientation for LayoutDirection`() =
+        localeDoesNotOverrideComponentOrientationForLayoutDirection(WindowTestMethods)
 }
