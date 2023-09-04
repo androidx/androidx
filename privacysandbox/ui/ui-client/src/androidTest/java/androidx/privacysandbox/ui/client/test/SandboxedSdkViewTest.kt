@@ -42,6 +42,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -51,7 +53,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +65,8 @@ class SandboxedSdkViewTest {
 
     companion object {
         const val TIMEOUT = 1000.toLong()
+        // Longer timeout used for expensive operations like device rotation.
+        const val UI_INTENSIVE_TIMEOUT = 2000.toLong()
     }
 
     private lateinit var context: Context
@@ -344,17 +347,19 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    @Ignore("b/272324246")
     fun onConfigurationChangedTest() {
         addViewToLayout()
-
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(openSessionLatch.count == 0.toLong())
-        activity.runOnUiThread {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }
-        configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(configChangedLatch.count == 0.toLong())
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        // newWindow() will be triggered by a window state change, even if the activity handles
+        // orientation changes without recreating the activity.
+        device.performActionAndWait({
+            device.setOrientationLeft()
+        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
+        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        device.performActionAndWait({
+            device.setOrientationNatural()
+        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
     }
 
     @Test
@@ -364,7 +369,7 @@ class SandboxedSdkViewTest {
         activity.runOnUiThread {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(configChangedLatch.await(UI_INTENSIVE_TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
     @Test
