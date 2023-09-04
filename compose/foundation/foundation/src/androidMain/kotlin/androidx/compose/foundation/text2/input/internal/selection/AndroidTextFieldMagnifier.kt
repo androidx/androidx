@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierNode
-import androidx.compose.foundation.MagnifierStyle
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.selection.MagnifierSpringSpec
 import androidx.compose.foundation.text.selection.OffsetDisplacementThreshold
@@ -73,8 +72,7 @@ internal class TextFieldMagnifierNodeImpl28(
                     IntSize(size.width.roundToPx(), size.height.roundToPx())
                 }
             },
-            // TODO(b/202451044) Support fisheye magnifier for eloquent.
-            style = MagnifierStyle.TextDefault
+            useTextDefault = true
         )
     )
 
@@ -114,7 +112,7 @@ internal class TextFieldMagnifierNodeImpl28(
         animationJob = null
         // never start an expensive animation job if we do not have focus or
         // magnifier is not supported.
-        if (!isFocused || !MagnifierStyle.TextDefault.isSupported) return
+        if (!isFocused || !isPlatformMagnifierSupported()) return
         animationJob = coroutineScope.launch {
             val animationScope = this
             snapshotFlow {

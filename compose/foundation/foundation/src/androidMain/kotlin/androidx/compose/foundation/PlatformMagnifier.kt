@@ -24,6 +24,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.roundToInt
 
@@ -37,10 +39,13 @@ internal interface PlatformMagnifierFactory {
      */
     val canUpdateZoom: Boolean
 
-    @OptIn(ExperimentalFoundationApi::class)
     fun create(
-        style: MagnifierStyle,
         view: View,
+        useTextDefault: Boolean,
+        size: DpSize,
+        cornerRadius: Dp,
+        elevation: Dp,
+        clippingEnabled: Boolean,
         density: Density,
         initialZoom: Float
     ): PlatformMagnifier
@@ -90,10 +95,13 @@ internal object PlatformMagnifierFactoryApi28Impl : PlatformMagnifierFactory {
     override val canUpdateZoom: Boolean = false
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalFoundationApi::class)
     override fun create(
-        style: MagnifierStyle,
         view: View,
+        useTextDefault: Boolean,
+        size: DpSize,
+        cornerRadius: Dp,
+        elevation: Dp,
+        clippingEnabled: Boolean,
         density: Density,
         initialZoom: Float
     ): PlatformMagnifierImpl = PlatformMagnifierImpl(Magnifier(view))
@@ -126,35 +134,45 @@ internal object PlatformMagnifierFactoryApi28Impl : PlatformMagnifierFactory {
 internal object PlatformMagnifierFactoryApi29Impl : PlatformMagnifierFactory {
     override val canUpdateZoom: Boolean = true
 
-    @OptIn(ExperimentalFoundationApi::class)
     override fun create(
-        style: MagnifierStyle,
         view: View,
+        useTextDefault: Boolean,
+        size: DpSize,
+        cornerRadius: Dp,
+        elevation: Dp,
+        clippingEnabled: Boolean,
         density: Density,
         initialZoom: Float
     ): PlatformMagnifierImpl {
         with(density) {
             // TODO write test for this branch
-            if (style == MagnifierStyle.TextDefault) {
+            if (useTextDefault) {
                 // This deprecated constructor is the only public API to create a Magnifier that
                 // uses the system text magnifier defaults.
                 @Suppress("DEPRECATION")
                 return PlatformMagnifierImpl(Magnifier(view))
             }
 
-            val size = style.size.toSize()
-            val cornerRadius = style.cornerRadius.toPx()
-            val elevation = style.elevation.toPx()
+            val pixelSize = size.toSize()
+            val pixelCornerRadius = cornerRadius.toPx()
+            val pixelElevation = elevation.toPx()
 
             // When Builder properties are not specified, the widget uses different defaults than it
             // does for the non-builder constructor above.
             val magnifier = Magnifier.Builder(view).run {
-                if (size.isSpecified) setSize(size.width.roundToInt(), size.height.roundToInt())
-                if (!cornerRadius.isNaN()) setCornerRadius(cornerRadius)
-                if (!elevation.isNaN()) setElevation(elevation)
-                if (!initialZoom.isNaN()) setInitialZoom(initialZoom)
-                setClippingEnabled(style.clippingEnabled)
-                // TODO(b/202451044) Support setting fisheye style.
+                if (pixelSize.isSpecified) {
+                    setSize(pixelSize.width.roundToInt(), pixelSize.height.roundToInt())
+                }
+                if (!pixelCornerRadius.isNaN()) {
+                    setCornerRadius(pixelCornerRadius)
+                }
+                if (!pixelElevation.isNaN()) {
+                    setElevation(pixelElevation)
+                }
+                if (!initialZoom.isNaN()) {
+                    setInitialZoom(initialZoom)
+                }
+                setClippingEnabled(clippingEnabled)
                 build()
             }
 
