@@ -38,7 +38,8 @@ private val defaultResources = Resources.Builder()
  *
  * @see [TilePreviewHelper.singleTimelineEntryTileBuilder]
  */
-class TilePreviewData(
+class TilePreviewData
+@JvmOverloads constructor(
     val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
     val onTileRequest: (TileRequest) -> TileBuilders.Tile,
 ) {
