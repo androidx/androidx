@@ -24,7 +24,8 @@ import androidx.wear.tooling.preview.devices.WearDevices
 /**
  * The annotation that marks Tile preview components that should have a visual preview in the
  * Android Studio preview panel. Tile preview components are methods that take an optional [Context]
- * parameter and return a [TilePreviewData].
+ * parameter and return a [TilePreviewData]. Methods annotated with [TilePreview] must be top level
+ * declarations or in a top level class with a default constructor.
  *
  * For example:
  * ```kotlin

@@ -52,23 +52,23 @@ private fun tile() = TileBuilders.Tile.Builder()
     ).build()
 
 @TilePreview
-fun TilePreview() = TilePreviewData(
+fun tilePreview() = TilePreviewData(
     onTileResourceRequest = { resources },
     onTileRequest = { tile() },
 )
 
 @TilePreview
-fun TileLayoutPreview() = TilePreviewData {
+fun tileLayoutPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layout()).build()
 }
 
 @TilePreview
-fun TileLayoutElementPreview() = TilePreviewData {
+fun tileLayoutElementPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layoutElement()).build()
 }
 
 @TilePreview
-private fun TilePreviewWithPrivateVisibility() = TilePreviewData { tile() }
+private fun tilePreviewWithPrivateVisibility() = TilePreviewData { tile() }
 
 fun duplicateFunctionName(x: Int) = x
 
@@ -76,12 +76,17 @@ fun duplicateFunctionName(x: Int) = x
 fun duplicateFunctionName() = TilePreviewData { tile() }
 
 @TilePreview
-fun TilePreviewWithContextParameter(@Suppress("UNUSED_PARAMETER") context: Context) =
+fun tilePreviewWithContextParameter(@Suppress("UNUSED_PARAMETER") context: Context) =
     TilePreviewData { tile() }
 
 @TilePreview
-fun TilePreviewWithWrongReturnType() = Unit
+fun tilePreviewWithWrongReturnType() = Unit
 
 @TilePreview
-fun TilePreviewWithNonContextParameter(@Suppress("UNUSED_PARAMETER") i: Int) =
+fun tilePreviewWithNonContextParameter(@Suppress("UNUSED_PARAMETER") i: Int) =
     TilePreviewData { tile() }
+
+class SomeClass {
+    @TilePreview
+    fun nonStaticMethod() = TilePreviewData { tile() }
+}

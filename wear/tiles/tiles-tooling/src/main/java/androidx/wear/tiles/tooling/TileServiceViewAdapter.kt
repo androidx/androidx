@@ -32,6 +32,7 @@ import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineCache
 import androidx.wear.tiles.tooling.preview.TilePreviewData
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import kotlin.math.roundToInt
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
@@ -126,15 +127,24 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         methods.firstOrNull {
             it.parameterCount == 1 && it.parameters.first().type == Context::class.java
         }?.let { methodWithContextParameter ->
-            methodWithContextParameter.isAccessible = true
-            return methodWithContextParameter.invoke(null, context) as? TilePreviewData
+            return invokeTilePreviewMethod(methodWithContextParameter, context)
         }
 
         return methods.firstOrNull {
             it.name == methodName && it.parameterCount == 0
         }?.let { methodWithoutContextParameter ->
-            methodWithoutContextParameter.isAccessible = true
-            methodWithoutContextParameter.invoke(null) as? TilePreviewData
+            return invokeTilePreviewMethod(methodWithoutContextParameter)
+        }
+    }
+
+    @SuppressLint("BanUncheckedReflection")
+    private fun invokeTilePreviewMethod(method: Method, vararg args: Any?): TilePreviewData? {
+        method.isAccessible = true
+        return if (Modifier.isStatic(method.modifiers)) {
+            method.invoke(null, *args) as? TilePreviewData
+        } else {
+            val instance = method.declaringClass.getConstructor().newInstance()
+            method.invoke(instance, *args) as? TilePreviewData
         }
     }
 }

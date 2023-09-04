@@ -27,10 +27,16 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-private const val TEST_TILE_PREVIEWS_FILE = "androidx.wear.tiles.tooling.TestTilePreviewsKt"
+private const val TEST_TILE_PREVIEWS_KOTLIN_FILE = "androidx.wear.tiles.tooling.TestTilePreviewsKt"
+private const val TEST_TILE_PREVIEWS_JAVA_FILE = "androidx.wear.tiles.tooling.TestTilePreviews"
 
-class TileServiceViewAdapterTest {
+@RunWith(Parameterized::class)
+class TileServiceViewAdapterTest(
+    private val testFile: String,
+) {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityTestRule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
@@ -54,58 +60,69 @@ class TileServiceViewAdapterTest {
 
     @Test
     fun testTilePreview() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreview")
+        initAndInflate("$testFile.tilePreview")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTileLayoutPreview() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TileLayoutPreview")
+        initAndInflate("$testFile.tileLayoutPreview")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTileLayoutElementPreview() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TileLayoutElementPreview")
+        initAndInflate("$testFile.tileLayoutElementPreview")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTilePreviewDeclaredWithPrivateMethod() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreviewWithPrivateVisibility")
+        initAndInflate("$testFile.tilePreviewWithPrivateVisibility")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTilePreviewThatHasSharedFunctionName() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.duplicateFunctionName")
+        initAndInflate("$testFile.duplicateFunctionName")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTilePreviewWithContextParameter() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreviewWithContextParameter")
+        initAndInflate("$testFile.tilePreviewWithContextParameter")
 
         assertThatTileHasInflatedSuccessfully()
     }
 
     @Test
     fun testTileWithWrongReturnTypeIsNotInflated() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreviewWithWrongReturnType")
+        initAndInflate("$testFile.tilePreviewWithWrongReturnType")
 
         assertThatTileHasNotInflated()
     }
 
     @Test
     fun testTilePreviewWithNonContextParameterIsNotInflated() {
-        initAndInflate("$TEST_TILE_PREVIEWS_FILE.TilePreviewWithNonContextParameter")
+        initAndInflate("$testFile.tilePreviewWithNonContextParameter")
 
         assertThatTileHasNotInflated()
+    }
+
+    @Test
+    fun testNonStaticPreviewMethodWithDefaultConstructor() {
+        if (testFile == TEST_TILE_PREVIEWS_KOTLIN_FILE) {
+            initAndInflate("androidx.wear.tiles.tooling.SomeClass.nonStaticMethod")
+        } else {
+            initAndInflate("$testFile.nonStaticMethod")
+        }
+
+        assertThatTileHasInflatedSuccessfully()
     }
 
     private fun assertThatTileHasInflatedSuccessfully() {
@@ -129,6 +146,13 @@ class TileServiceViewAdapterTest {
     }
 
     companion object {
+        @Parameterized.Parameters
+        @JvmStatic
+        fun parameters() = listOf(
+            TEST_TILE_PREVIEWS_KOTLIN_FILE,
+            TEST_TILE_PREVIEWS_JAVA_FILE,
+        )
+
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {
                 super.onCreate(savedInstanceState)
