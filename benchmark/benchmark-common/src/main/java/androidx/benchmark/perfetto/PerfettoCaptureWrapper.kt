@@ -76,8 +76,7 @@ class PerfettoCaptureWrapper {
     @RequiresApi(23)
     private fun stop(traceLabel: String): String {
         return Outputs.writeFile(
-            fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace",
-            reportKey = "perfetto_trace_$traceLabel"
+            fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace"
         ) {
             capture!!.stop(it.absolutePath)
             if (Outputs.forceFilesForShellAccessible) {

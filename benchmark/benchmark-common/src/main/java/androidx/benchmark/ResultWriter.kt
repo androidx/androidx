@@ -43,7 +43,6 @@ public object ResultWriter {
 
             Outputs.writeFile(
                 fileName = "$packageName-benchmarkData.json",
-                reportKey = "results_json",
                 reportOnRunEndOnly = true
             ) {
                 Log.d(
