@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Provides information about the Window that is hosting this compose hierarchy.
  */
 @Stable
-expect interface WindowInfo {
+actual interface WindowInfo {
     /**
      * Indicates whether the window hosting this compose hierarchy is in focus.
      *
@@ -36,20 +37,33 @@ expect interface WindowInfo {
      * popup or dialog is visible, this property can be used to determine if the current window
      * is in focus.
      */
-    val isWindowFocused: Boolean
+    actual val isWindowFocused: Boolean
 
     /**
      * Indicates the state of keyboard modifiers (pressed or not).
      */
     @ExperimentalComposeUiApi
-    val keyboardModifiers: PointerKeyboardModifiers
+    actual val keyboardModifiers: PointerKeyboardModifiers
+
+    /**
+     * Size of the window's content container in pixels.
+     */
+    @ExperimentalComposeUiApi
+    val containerSize: IntSize
 }
 
-@Composable
-internal fun WindowFocusObserver(onWindowFocusChanged: (isWindowFocused: Boolean) -> Unit) {
-    val windowInfo = LocalWindowInfo.current
-    val callback = rememberUpdatedState(onWindowFocusChanged)
-    LaunchedEffect(windowInfo) {
-        snapshotFlow { windowInfo.isWindowFocused }.collect { callback.value(it) }
+internal class WindowInfoImpl : WindowInfo {
+    override var isWindowFocused: Boolean by mutableStateOf(false)
+
+    @ExperimentalComposeUiApi
+    override var keyboardModifiers: PointerKeyboardModifiers by GlobalKeyboardModifiers
+
+    @ExperimentalComposeUiApi
+    override var containerSize: IntSize by mutableStateOf(IntSize.Zero)
+
+    companion object {
+        // One instance across all windows makes sense, since the state of KeyboardModifiers is
+        // common for all windows.
+        internal val GlobalKeyboardModifiers = mutableStateOf(EmptyPointerKeyboardModifiers())
     }
 }

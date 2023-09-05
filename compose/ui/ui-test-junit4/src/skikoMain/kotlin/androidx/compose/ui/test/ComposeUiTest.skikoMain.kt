@@ -17,25 +17,33 @@
 package androidx.compose.ui.test
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeScene
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SkiaRootForTest
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.test.junit4.*
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.isOnUiThread
+import androidx.compose.ui.test.junit4.sleep
 import androidx.compose.ui.test.junit4.synchronized
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -189,6 +197,7 @@ class SkikoComposeUiTest(
         invalidate = { }
     ).apply {
         constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+        // TODO: Initialize WindowInfo once public way is available
     }
 
     private fun shouldPumpTime(): Boolean {
@@ -282,12 +291,24 @@ class SkikoComposeUiTest(
         idlingResources.all { it.isIdleNow }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun setContent(composable: @Composable () -> Unit) {
+        // TODO: Remove override once it's properly initialized
+        val overriddenComposable: @Composable () -> Unit = {
+            val windowInfo = object : WindowInfo by LocalWindowInfo.current {
+                override val containerSize: IntSize
+                    get() = IntSize(surface.width, surface.height)
+            }
+            CompositionLocalProvider(
+                LocalWindowInfo provides windowInfo,
+                content = composable
+            )
+        }
         if (isOnUiThread()) {
-            scene.setContent(content = composable)
+            scene.setContent(content = overriddenComposable)
         } else {
             runOnUiThread {
-                scene.setContent(content = composable)
+                scene.setContent(content = overriddenComposable)
             }
 
             // Only wait for idleness if not on the UI thread. If we are on the UI thread, the

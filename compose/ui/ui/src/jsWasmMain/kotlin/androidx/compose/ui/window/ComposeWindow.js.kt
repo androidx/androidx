@@ -29,6 +29,7 @@ import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.JSTextInputService
 import androidx.compose.ui.platform.Platform
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -51,8 +52,12 @@ internal actual class ComposeWindow(val canvasId: String)  {
         fontScale = 1f
     )
 
+    private val _windowInfo = WindowInfoImpl().apply {
+        isWindowFocused = true
+    }
     private val jsTextInputService = JSTextInputService()
     val platform = object : Platform by Platform.Empty {
+        override val windowInfo get() = _windowInfo
         override val textInputService = jsTextInputService
         override val viewConfiguration = object : ViewConfiguration {
             override val longPressTimeoutMillis: Long = 500
@@ -82,6 +87,7 @@ internal actual class ComposeWindow(val canvasId: String)  {
         canvas.setAttribute("tabindex", "0")
         layer.layer.needRedraw()
 
+        _windowInfo.containerSize = IntSize(canvas.width, canvas.height)
         layer.setSize(canvas.width, canvas.height)
     }
 
@@ -94,6 +100,7 @@ internal actual class ComposeWindow(val canvasId: String)  {
 
         canvas.width = newSize.width
         canvas.height = newSize.height
+        _windowInfo.containerSize = IntSize(canvas.width, canvas.height)
         layer.layer.attachTo(canvas)
         layer.setSize(canvas.width, canvas.height)
         layer.layer.needRedraw()

@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
@@ -151,6 +152,12 @@ class ComposeWindowTest {
                 assertThat(window.preferredSize).isEqualTo(Dimension(234, 345))
                 window.pack()
                 assertThat(window.size).isEqualTo(Dimension(234, 345))
+
+                assertThat(window.scene.platform.windowInfo.containerSize)
+                    .isEqualTo(IntSize(
+                        width = (234 * window.density.density).toInt(),
+                        height = (345 * window.density.density).toInt(),
+                    ))
             } finally {
                 window.dispose()
             }
@@ -176,6 +183,12 @@ class ComposeWindowTest {
                 window.isVisible = true
                 assertThat(window.preferredSize).isEqualTo(Dimension(300, 400))
                 assertThat(window.size).isEqualTo(Dimension(300, 400))
+
+                assertThat(window.scene.platform.windowInfo.containerSize)
+                    .isEqualTo(IntSize(
+                        width = (300 * window.density.density).toInt(),
+                        height = (400 * window.density.density).toInt(),
+                    ))
             } finally {
                 window.dispose()
             }
@@ -210,6 +223,12 @@ class ComposeWindowTest {
                         )
                     )
                 )
+                
+                assertThat(window.scene.platform.windowInfo.containerSize)
+                    .isEqualTo(IntSize(
+                        width = (300 * window.density.density).toInt(),
+                        height = (400 * window.density.density).toInt(),
+                    ))
             } finally {
                 window.dispose()
             }

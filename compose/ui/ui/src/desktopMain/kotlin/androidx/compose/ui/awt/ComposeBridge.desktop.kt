@@ -32,6 +32,7 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.toPointerKeyboardModifiers
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -303,9 +304,15 @@ internal abstract class ComposeBridge(
     }
 
     protected fun updateSceneSize() {
+        val scale = component.density.density
+        val size = IntSize(
+            width = (component.width * scale).toInt(),
+            height = (component.height * scale).toInt()
+        )
+        platform.windowInfo.containerSize = size
         scene.constraints = Constraints(
-            maxWidth = (component.width * scene.density.density).toInt(),
-            maxHeight = (component.height * scene.density.density).toInt()
+            maxWidth = size.width,
+            maxHeight = size.height
         )
     }
 

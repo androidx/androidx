@@ -183,6 +183,10 @@ internal actual class ComposeWindow : UIViewController {
             }
         }
 
+    private val _windowInfo = WindowInfoImpl().apply {
+        isWindowFocused = true
+    }
+
     @OverrideInit
     actual constructor() : super(nibName = null, bundle = null)
 
@@ -341,15 +345,19 @@ internal actual class ComposeWindow : UIViewController {
     }
 
     private fun updateLayout(context: AttachedComposeContext) {
-        context.scene.density = density
-        context.scene.constraints = view.frame.useContents {
-            val scale = density.density
-
-            Constraints(
-                maxWidth = (size.width * scale).roundToInt(),
-                maxHeight = (size.height * scale).roundToInt()
+        val scale = density.density
+        val size = view.frame.useContents {
+            IntSize(
+                width = (size.width * scale).roundToInt(),
+                height = (size.height * scale).roundToInt()
             )
         }
+        _windowInfo.containerSize = size
+        context.scene.density = density
+        context.scene.constraints = Constraints(
+            maxWidth = size.width,
+            maxHeight = size.height
+        )
 
         context.view.needRedraw()
     }
@@ -523,6 +531,8 @@ internal actual class ComposeWindow : UIViewController {
         val inputTraits = inputServices.skikoUITextInputTraits
 
         val platform = object : Platform by Platform.Empty {
+            override val windowInfo: WindowInfo
+                get() = _windowInfo
             override val textInputService: PlatformTextInputService = inputServices
             override val viewConfiguration =
                 object : ViewConfiguration {
