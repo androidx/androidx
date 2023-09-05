@@ -16,36 +16,22 @@
 
 package androidx.core.haptics.samples
 
-import android.content.Context
 import androidx.annotation.Sampled
-import androidx.core.haptics.HapticManager
 import androidx.core.haptics.signal.CompositionSignal.Companion.compositionOf
 import androidx.core.haptics.signal.CompositionSignal.Companion.off
 import androidx.core.haptics.signal.CompositionSignal.Companion.quickFall
 import androidx.core.haptics.signal.CompositionSignal.Companion.slowRise
 import androidx.core.haptics.signal.CompositionSignal.Companion.thud
-import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedClick
 
 /**
- * Sample showing how to play a standard click haptic effect on the system vibrator.
+ * Sample showing how to create a composition signal with scaled effects and off atoms.
  */
 @Sampled
-fun PlaySystemStandardClick(context: Context) {
-    val hapticManager = HapticManager.create(context)
-    hapticManager.play(predefinedClick())
-}
-
-/**
- * Sample showing how to play a haptic signal on a vibrator.
- */
-@Sampled
-fun PlayHapticSignal(hapticManager: HapticManager) {
-    hapticManager.play(
-        compositionOf(
-            slowRise(),
-            quickFall(),
-            off(durationMillis = 50),
-            thud(),
-        )
+fun CompositionSignalOfScaledEffectsAndOff() {
+    compositionOf(
+        slowRise().withAmplitudeScale(0.7f),
+        quickFall().withAmplitudeScale(0.7f),
+        off(durationMillis = 50),
+        thud(),
     )
 }
