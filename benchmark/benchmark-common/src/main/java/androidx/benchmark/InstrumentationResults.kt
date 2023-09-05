@@ -298,6 +298,9 @@ object InstrumentationResults {
         absoluteFilePath: String,
         reportOnRunEndOnly: Boolean = false
     ) {
+        require(!key.contains('=')) {
+            "Key must not contain '=', which breaks instrumentation result string parsing"
+        }
         if (reportOnRunEndOnly) {
             InstrumentationResultScope(runEndResultBundle).fileRecord(key, absoluteFilePath)
         } else {

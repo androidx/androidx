@@ -190,23 +190,21 @@ private fun reportResults(
     // Write a file with a timestamp to be able to disambiguate between runs with the same
     // unique name.
 
-    val (fileName, reportKey, tsFileName) =
+    val (fileName, tsFileName) =
         if (includeInStartupProfile && Arguments.enableStartupProfiles) {
             arrayOf(
                 "$uniqueFilePrefix-startup-prof.txt",
-                "startup-profile",
                 "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
             )
         } else {
             arrayOf(
                 "$uniqueFilePrefix-baseline-prof.txt",
-                "baseline-profile",
                 "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
             )
         }
 
-    val absolutePath = Outputs.writeFile(fileName, reportKey) { it.writeText(profile) }
-    val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
+    val absolutePath = Outputs.writeFile(fileName) { it.writeText(profile) }
+    val tsAbsolutePath = Outputs.writeFile(tsFileName) {
         Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
         it.writeText(profile)
     }
