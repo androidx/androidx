@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.max
 import androidx.wear.compose.material3.tokens.FilledIconButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.wear.compose.material3.tokens.IconButtonTokens
+import androidx.wear.compose.material3.tokens.IconToggleButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
 
 /**
@@ -317,7 +318,6 @@ fun IconToggleButton(
         shape = shape,
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
-            MaterialTheme.typography.labelMedium,
             content
         )
     )
@@ -475,14 +475,19 @@ object IconButtonDefaults {
      */
     @Composable
     fun iconToggleButtonColors(
-        checkedContainerColor: Color = MaterialTheme.colorScheme.primary,
-        checkedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
-        uncheckedContainerColor: Color = MaterialTheme.colorScheme.surface,
-        uncheckedContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledCheckedContainerColor: Color = checkedContainerColor.toDisabledColor(),
-        disabledCheckedContentColor: Color = checkedContentColor.toDisabledColor(),
-        disabledUncheckedContainerColor: Color = uncheckedContainerColor.toDisabledColor(),
-        disabledUncheckedContentColor: Color = uncheckedContentColor.toDisabledColor(),
+        checkedContainerColor: Color = IconToggleButtonTokens.CheckedContainerColor.value,
+        checkedContentColor: Color = IconToggleButtonTokens.CheckedContentColor.value,
+        uncheckedContainerColor: Color = IconToggleButtonTokens.UncheckedContainerColor.value,
+        uncheckedContentColor: Color = IconToggleButtonTokens.UncheckedContentColor.value,
+        disabledCheckedContainerColor: Color = IconToggleButtonTokens.DisabledCheckedContainerColor
+            .value.toDisabledColor(IconToggleButtonTokens.DisabledCheckedContainerOpacity),
+        disabledCheckedContentColor: Color = IconToggleButtonTokens.DisabledCheckedContentColor
+            .value.toDisabledColor(IconToggleButtonTokens.DisabledCheckedContentOpacity),
+        disabledUncheckedContainerColor: Color = IconToggleButtonTokens
+            .DisabledUncheckedContainerColor.value
+            .toDisabledColor(IconToggleButtonTokens.DisabledUncheckedContainerOpacity),
+        disabledUncheckedContentColor: Color = IconToggleButtonTokens.DisabledUncheckedContentColor
+            .value.toDisabledColor(IconToggleButtonTokens.DisabledUncheckedContentOpacity),
     ): ToggleButtonColors {
         return ToggleButtonColors(
             checkedContainerColor = checkedContainerColor,
