@@ -18,6 +18,7 @@ package androidx.javascriptengine;
 
 import android.os.Binder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,6 +126,10 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     boolean maybeSetIsolateDead(@NonNull TerminationInfo terminationInfo) {
         synchronized (mLock) {
+            if (terminationInfo.getStatus() == TerminationInfo.STATUS_MEMORY_LIMIT_EXCEEDED) {
+                Log.e(TAG, "isolate exceeded its heap memory limit - killing sandbox");
+                mJsSandbox.kill();
+            }
             final IsolateState oldState = mIsolateState;
             if (oldState.canDie()) {
                 mIsolateState = new EnvironmentDeadState(terminationInfo);
