@@ -37,6 +37,10 @@ private const val lottieData = """
 
 @Composable
 fun LottieAnimation() {
+    // Please note that it's NOT a part of Compose itself, but API of unstable skiko library that is used under the hood.
+    // See:
+    // - https://github.com/JetBrains/compose-multiplatform/issues/362
+    // - https://github.com/JetBrains/compose-multiplatform/issues/3152
     val animation = Animation.makeFromString(lottieData)
     InfiniteAnimation(animation, Modifier.fillMaxSize())
 }
@@ -53,6 +57,15 @@ fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
         )
     )
     val invalidationController = remember { InvalidationController() }
+
+    /*
+     FIXME: https://github.com/JetBrains/compose-multiplatform/issues/3149
+      Animation type doesn't trigger re-drawing the canvas because of incorrect detection
+      "stability" of external types.
+      Adding _any_ mutable state into `drawIntoCanvas` scope resolves the issue.
+
+      Workaround for iOS/Web: move this line into `drawIntoCanvas` block.
+     */
     animation.seekFrameTime(time, invalidationController)
     Canvas(modifier) {
         drawIntoCanvas {
