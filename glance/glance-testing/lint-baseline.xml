@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            return emittable.children.map { child ->"
-        errorLine2="                                      ~~~">
+        errorLine1="    nodes.forEachIndexed { index, glanceNode ->"
+        errorLine2="          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/AssertionErrorMessages.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.forEach { child ->"
+        errorLine2="                 ~~~~~~~">
         <location
             file="src/main/java/androidx/glance/testing/unit/GlanceMappedNode.kt"/>
     </issue>
@@ -13,19 +22,28 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        for (child in node.children()) {"
-        errorLine2="                   ~~">
+        errorLine1="        return mappedNodes.toList()"
+        errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/glance/testing/GlanceNodeAssertion.kt"/>
+            file="src/main/java/androidx/glance/testing/unit/GlanceMappedNode.kt"/>
     </issue>
 
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return matching.toList()"
-        errorLine2="                        ~~~~~~">
+        errorLine1="        val violations = filteredNodes.filter {"
+        errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/glance/testing/GlanceNodeAssertion.kt"/>
+            file="src/main/java/androidx/glance/testing/GlanceNodeAssertionCollection.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            this.allNodes = allNodes.toList()"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/TestContext.kt"/>
     </issue>
 
     <issue
@@ -33,6 +51,15 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="            ?.joinToString()"
         errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/unit/UnitTestFilters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return node.children().any { checkIfSubtreeMatchesRecursive(matcher, it) }"
+        errorLine2="                               ~~~">
         <location
             file="src/main/java/androidx/glance/testing/unit/UnitTestFilters.kt"/>
     </issue>
