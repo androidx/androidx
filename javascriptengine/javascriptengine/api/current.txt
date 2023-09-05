@@ -20,7 +20,7 @@ package androidx.javascriptengine {
     field public static final int DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES = 20971520; // 0x1400000
   }
 
-  public final class IsolateTerminatedException extends androidx.javascriptengine.JavaScriptException {
+  public class IsolateTerminatedException extends androidx.javascriptengine.JavaScriptException {
     ctor public IsolateTerminatedException();
   }
 
@@ -74,12 +74,12 @@ package androidx.javascriptengine {
     field public static final String JS_FEATURE_WASM_COMPILATION = "JS_FEATURE_WASM_COMPILATION";
   }
 
-  public final class MemoryLimitExceededException extends androidx.javascriptengine.JavaScriptException {
+  public final class MemoryLimitExceededException extends androidx.javascriptengine.IsolateTerminatedException {
     ctor public MemoryLimitExceededException();
     ctor public MemoryLimitExceededException(String);
   }
 
-  public final class SandboxDeadException extends androidx.javascriptengine.JavaScriptException {
+  public final class SandboxDeadException extends androidx.javascriptengine.IsolateTerminatedException {
     ctor public SandboxDeadException();
   }
 
