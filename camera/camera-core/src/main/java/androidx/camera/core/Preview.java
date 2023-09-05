@@ -687,7 +687,6 @@ public final class Preview extends UseCase {
     /**
      * Returns whether video stabilization is enabled for preview stream.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isPreviewStabilizationEnabled() {
         return getCurrentConfig().getPreviewStabilizationMode() == StabilizationMode.ON;
     }
@@ -1172,12 +1171,49 @@ public final class Preview extends UseCase {
         }
 
         /**
-         * Enable preview stabilization.
+         * Enable preview stabilization. It will enable stabilization for both the preview and
+         * video capture use cases.
+         *
+         * <p>Devices running Android 13 or higher can provide support for video stabilization.
+         * This feature lets apps provide a what you see is what you get (WYSIWYG) experience
+         * when comparing between the camera preview and the recording.
+         *
+         * <p>It is recommended to query the device capability via
+         * {@link PreviewCapabilities#isStabilizationSupported()} before enabling this feature,
+         * otherwise HAL error might be thrown.
+         *
+         * <p> If both preview stabilization and video stabilization are enabled or disabled, the
+         * final result will be
+         *
+         * <p>
+         * <table>
+         * <tr> <th id="rb">Preview</th> <th id="rb">VideoCapture</th>   <th id="rb">Result</th>
+         * </tr>
+         * <tr> <td>ON</td> <td>ON</td> <td>Both Preview and VideoCapture will be stabilized,
+         * VideoCapture quality might be worse than only VideoCapture stabilized</td>
+         * </tr>
+         * <tr> <td>ON</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>ON</td> <td>NOT SPECIFIED</td> <td>Both Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>ON</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>OFF</td> <td>NOT SPECIFIED</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>ON</td> <td>Only VideoCapture will be stabilized,
+         * Preview might be stabilized depending on devices</td>
+         * </tr>
+         * <tr> <td>NOT SPECIFIED</td> <td>OFF</td> <td>None of Preview and VideoCapture will be
+         * stabilized</td>  </tr>
+         * </table><br>
          *
          * @param enabled True if enable, otherwise false.
          * @return the current Builder.
+         *
+         * @see PreviewCapabilities#isStabilizationSupported()
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setPreviewStabilizationEnabled(boolean enabled) {
             getMutableConfig().insertOption(OPTION_PREVIEW_STABILIZATION_MODE,

@@ -427,6 +427,7 @@ package androidx.camera.core {
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
+    method public boolean isPreviewStabilizationEnabled();
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
     method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method public void setTargetRotation(int);
@@ -435,6 +436,7 @@ package androidx.camera.core {
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
+    method public androidx.camera.core.Preview.Builder setPreviewStabilizationEnabled(boolean);
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.Preview.Builder setTargetFrameRate(android.util.Range<java.lang.Integer!>);
@@ -445,6 +447,10 @@ package androidx.camera.core {
 
   public static interface Preview.SurfaceProvider {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+  @RequiresApi(21) public interface PreviewCapabilities {
+    method public boolean isStabilizationSupported();
   }
 
   public class ProcessingException extends java.lang.Exception {
