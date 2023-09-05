@@ -16,6 +16,7 @@
 
 package androidx.bluetooth
 
+import androidx.annotation.IntRange
 import java.util.UUID
 
 /**
@@ -35,8 +36,14 @@ class AdvertiseParams(
     val isConnectable: Boolean = false,
     /* Whether the advertisement will be discoverable. */
     val isDiscoverable: Boolean = false,
-    /* Advertising time limit in milliseconds. */
-    val timeoutMillis: Int = 0,
+    /**
+     * Advertising duration in milliseconds
+     *
+     * It must not exceed 655350 milliseconds. A value of 0 means advertising continues
+     * until it is stopped explicitly.
+     */
+    @IntRange(from = 0, to = 655350) val durationMillis: Int = 0,
+
     /**
      * A map of manufacturer specific data.
      * <p>
