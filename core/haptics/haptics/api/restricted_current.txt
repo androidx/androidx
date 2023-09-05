@@ -3,7 +3,7 @@ package androidx.core.haptics {
 
   public interface HapticManager {
     method public static androidx.core.haptics.HapticManager create(android.content.Context context);
-    method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.PredefinedEffect effect);
+    method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.HapticSignal signal);
     field public static final androidx.core.haptics.HapticManager.Companion Companion;
   }
 
@@ -15,15 +15,155 @@ package androidx.core.haptics {
 
 package androidx.core.haptics.signal {
 
-  public final class PredefinedEffect {
-    field public static final androidx.core.haptics.signal.PredefinedEffect.Companion Companion;
-    field public static final androidx.core.haptics.signal.PredefinedEffect PredefinedClick;
-    field public static final androidx.core.haptics.signal.PredefinedEffect PredefinedDoubleClick;
-    field public static final androidx.core.haptics.signal.PredefinedEffect PredefinedHeavyClick;
-    field public static final androidx.core.haptics.signal.PredefinedEffect PredefinedTick;
+  public final class CompositionSignal extends androidx.core.haptics.signal.FiniteSignal {
+    ctor public CompositionSignal(java.util.List<? extends androidx.core.haptics.signal.CompositionSignal.Atom> atoms);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal compositionOf(androidx.core.haptics.signal.CompositionSignal.Atom... atoms);
+    method public java.util.List<androidx.core.haptics.signal.CompositionSignal.Atom> getAtoms();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.core.haptics.signal.CompositionSignal.OffAtom off(java.time.Duration duration);
+    method public static androidx.core.haptics.signal.CompositionSignal.OffAtom off(long durationMillis);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick();
+    method public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    property public final java.util.List<androidx.core.haptics.signal.CompositionSignal.Atom> atoms;
+    field public static final androidx.core.haptics.signal.CompositionSignal.Companion Companion;
   }
 
-  public static final class PredefinedEffect.Companion {
+  public abstract static class CompositionSignal.Atom {
+  }
+
+  public static final class CompositionSignal.Companion {
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal compositionOf(androidx.core.haptics.signal.CompositionSignal.Atom... atoms);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.core.haptics.signal.CompositionSignal.OffAtom off(java.time.Duration duration);
+    method public androidx.core.haptics.signal.CompositionSignal.OffAtom off(long durationMillis);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+  }
+
+  public static final class CompositionSignal.OffAtom extends androidx.core.haptics.signal.CompositionSignal.Atom {
+    method public long getDurationMillis();
+    property public final long durationMillis;
+  }
+
+  public static final class CompositionSignal.PrimitiveAtom extends androidx.core.haptics.signal.CompositionSignal.Atom {
+    method public float getAmplitudeScale();
+    method public int getType();
+    method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom withAmplitudeScale(@FloatRange(from=0.0, to=1.0) float newAmplitudeScale);
+    property public final float amplitudeScale;
+    property public final int type;
+    field public static final int CLICK = 1; // 0x1
+    field public static final androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom.Companion Companion;
+    field public static final int LOW_TICK = 8; // 0x8
+    field public static final int QUICK_FALL = 6; // 0x6
+    field public static final int QUICK_RISE = 4; // 0x4
+    field public static final int SLOW_RISE = 5; // 0x5
+    field public static final int SPIN = 3; // 0x3
+    field public static final int THUD = 2; // 0x2
+    field public static final int TICK = 7; // 0x7
+  }
+
+  public static final class CompositionSignal.PrimitiveAtom.Companion {
+  }
+
+  public abstract class FiniteSignal extends androidx.core.haptics.signal.HapticSignal {
+  }
+
+  public abstract class HapticSignal {
+  }
+
+  public abstract class InfiniteSignal extends androidx.core.haptics.signal.HapticSignal {
+  }
+
+  public final class PredefinedEffectSignal extends androidx.core.haptics.signal.FiniteSignal {
+    method public static androidx.core.haptics.signal.PredefinedEffectSignal predefinedClick();
+    method public static androidx.core.haptics.signal.PredefinedEffectSignal predefinedDoubleClick();
+    method public static androidx.core.haptics.signal.PredefinedEffectSignal predefinedHeavyClick();
+    method public static androidx.core.haptics.signal.PredefinedEffectSignal predefinedTick();
+    field public static final androidx.core.haptics.signal.PredefinedEffectSignal.Companion Companion;
+  }
+
+  public static final class PredefinedEffectSignal.Companion {
+    method public androidx.core.haptics.signal.PredefinedEffectSignal predefinedClick();
+    method public androidx.core.haptics.signal.PredefinedEffectSignal predefinedDoubleClick();
+    method public androidx.core.haptics.signal.PredefinedEffectSignal predefinedHeavyClick();
+    method public androidx.core.haptics.signal.PredefinedEffectSignal predefinedTick();
+  }
+
+  public final class RepeatingWaveformSignal extends androidx.core.haptics.signal.InfiniteSignal {
+    method public androidx.core.haptics.signal.WaveformSignal? getInitialWaveform();
+    method public androidx.core.haptics.signal.WaveformSignal getRepeatingWaveform();
+    property public final androidx.core.haptics.signal.WaveformSignal? initialWaveform;
+    property public final androidx.core.haptics.signal.WaveformSignal repeatingWaveform;
+  }
+
+  public final class WaveformSignal extends androidx.core.haptics.signal.FiniteSignal {
+    ctor public WaveformSignal(java.util.List<? extends androidx.core.haptics.signal.WaveformSignal.Atom> atoms);
+    method public java.util.List<androidx.core.haptics.signal.WaveformSignal.Atom> getAtoms();
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom off(java.time.Duration duration);
+    method public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom off(long durationMillis);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(java.time.Duration duration);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(java.time.Duration duration, @FloatRange(from=0.0, to=1.0) float amplitude);
+    method public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(long durationMillis);
+    method public static androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(long durationMillis, @FloatRange(from=0.0, to=1.0) float amplitude);
+    method public androidx.core.haptics.signal.RepeatingWaveformSignal repeat();
+    method public static androidx.core.haptics.signal.RepeatingWaveformSignal repeatingWaveformOf(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
+    method public androidx.core.haptics.signal.RepeatingWaveformSignal thenRepeat(androidx.core.haptics.signal.WaveformSignal waveformToRepeat);
+    method public androidx.core.haptics.signal.RepeatingWaveformSignal thenRepeat(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
+    method public static androidx.core.haptics.signal.WaveformSignal waveformOf(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
+    property public final java.util.List<androidx.core.haptics.signal.WaveformSignal.Atom> atoms;
+    field public static final androidx.core.haptics.signal.WaveformSignal.Companion Companion;
+  }
+
+  public abstract static class WaveformSignal.Atom {
+  }
+
+  public static final class WaveformSignal.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom off(java.time.Duration duration);
+    method public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom off(long durationMillis);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(java.time.Duration duration);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(java.time.Duration duration, @FloatRange(from=0.0, to=1.0) float amplitude);
+    method public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(long durationMillis);
+    method public androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom on(long durationMillis, @FloatRange(from=0.0, to=1.0) float amplitude);
+    method public androidx.core.haptics.signal.RepeatingWaveformSignal repeatingWaveformOf(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
+    method public androidx.core.haptics.signal.WaveformSignal waveformOf(androidx.core.haptics.signal.WaveformSignal.Atom... atoms);
+  }
+
+  public static final class WaveformSignal.ConstantVibrationAtom extends androidx.core.haptics.signal.WaveformSignal.Atom {
+    method public float getAmplitude();
+    method public long getDurationMillis();
+    property public final float amplitude;
+    property public final long durationMillis;
+    field public static final androidx.core.haptics.signal.WaveformSignal.ConstantVibrationAtom.Companion Companion;
+    field public static final float DEFAULT_AMPLITUDE = -1.0f;
+  }
+
+  public static final class WaveformSignal.ConstantVibrationAtom.Companion {
   }
 
 }

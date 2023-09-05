@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:allowBackup="false"
-            android:name=".HapticSamplesActivity"
+            android:name=".HapticDemosActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
