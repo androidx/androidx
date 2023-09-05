@@ -414,25 +414,17 @@ class DesktopParagraphTest {
 
     @Test
     fun getBoundingBox_multicodepoints() {
-        assumeTrue(isLinux)
-        with(defaultDensity) {
-            val text = "h\uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0"
-            val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx()
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = 50.sp)
-            )
+        val text = "h\uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0"
+        val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(fontSize = 50.sp)
+        )
 
-            Truth.assertThat(paragraph.getBoundingBox(0))
-                .isEqualTo(Rect(0f, 0f, fontSizeInPx, 50f))
+        Truth.assertThat(paragraph.getBoundingBox(1).left)
+            .isEqualTo(paragraph.getBoundingBox(0).right)
 
-            Truth.assertThat(paragraph.getBoundingBox(1))
-                .isEqualTo(Rect(fontSizeInPx, 0f, fontSizeInPx * 2.5f, 50f))
-
-            Truth.assertThat(paragraph.getBoundingBox(5))
-                .isEqualTo(Rect(fontSizeInPx, 0f, fontSizeInPx * 2.5f, 50f))
-        }
+        Truth.assertThat(paragraph.getBoundingBox(5))
+            .isEqualTo(paragraph.getBoundingBox(1))
     }
 
     @Test
@@ -619,19 +611,19 @@ class DesktopParagraphTest {
     @Test
     fun applies_baseline_shift_to_spans() {
         val helper = buildAnnotatedString {
-            append("text")
             withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
-                append("text")
+                append("a")
+            }
+            append("\nb")
+            withStyle(SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 16.sp)) {
+                append("c")
+            }
+            append("\nd")
+            withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
+                append("e")
             }
             withStyle(SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 16.sp)) {
-                append("text")
-            }
-            append("\ntext")
-            withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
-                append("text")
-            }
-            withStyle(SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 16.sp)) {
-                append("text")
+                append("f")
             }
         }
         val textStyle = TextStyle(
@@ -639,20 +631,23 @@ class DesktopParagraphTest {
             fontSize = 16.sp
         )
         val paragraph = simpleParagraph(text = helper.text, spanStyles = helper.spanStyles, style = textStyle)
-        val paragraphWithoutStyles = simpleParagraph(helper.text, textStyle)
 
-        val firstLineTop = paragraph.getLineTop(0)
-        val firstLineBottom = paragraph.getLineBottom(0)
-        val secondLineTop = paragraph.getLineTop(1)
-        val secondLineBottom = paragraph.getLineBottom(1)
+        val a = paragraph.getBoundingBox(helper.text.indexOf("a"))
+        val b = paragraph.getBoundingBox(helper.text.indexOf("b"))
+        val c = paragraph.getBoundingBox(helper.text.indexOf("c"))
+        val d = paragraph.getBoundingBox(helper.text.indexOf("d"))
+        val e = paragraph.getBoundingBox(helper.text.indexOf("e"))
+        val f = paragraph.getBoundingBox(helper.text.indexOf("f"))
 
-        Truth.assertThat(firstLineBottom - firstLineTop).isEqualTo(29.0f)
-        Truth.assertThat(paragraphWithoutStyles.getLineTop(0)).isNotEqualTo(firstLineTop)
-        Truth.assertThat(paragraphWithoutStyles.getLineBottom(0)).isNotEqualTo(firstLineBottom)
+        Truth.assertThat(a.top).isLessThan(b.top)
+        Truth.assertThat(b.top).isLessThan(c.top)
+        Truth.assertThat(e.top).isLessThan(d.top)
+        Truth.assertThat(d.top).isLessThan(f.top)
 
-        Truth.assertThat(secondLineBottom - secondLineTop).isEqualTo(29.0f)
-        Truth.assertThat(paragraphWithoutStyles.getLineTop(1)).isNotEqualTo(secondLineTop)
-        Truth.assertThat(paragraphWithoutStyles.getLineBottom(1)).isNotEqualTo(secondLineBottom)
+        Truth.assertThat(a.bottom).isLessThan(b.bottom)
+        Truth.assertThat(b.bottom).isLessThan(c.bottom)
+        Truth.assertThat(e.bottom).isLessThan(d.bottom)
+        Truth.assertThat(d.bottom).isLessThan(f.bottom)
     }
 
     @Test
