@@ -319,4 +319,4 @@ internal class KotlinxDatetimeCalendarModelTest {
     }
 }
 
-private const val January2022Millis = 1640995200000
+internal const val January2022Millis = 1640995200000
