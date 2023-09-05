@@ -24,6 +24,7 @@ import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
@@ -136,39 +137,6 @@ internal class PublicKeyCredentialControllerUtility {
       return builder.build()
     }
 
-    /** Converts the response from fido back to json so it can be passed into CredentialManager. */
-    fun toCreatePasskeyResponseJson(cred: PublicKeyCredential): String {
-      val json = JSONObject()
-      val authenticatorResponse = cred.response
-      if (authenticatorResponse is AuthenticatorAttestationResponse) {
-        val transportArray = convertToProperNamingScheme(authenticatorResponse)
-        addAuthenticatorAttestationResponse(
-          authenticatorResponse.clientDataJSON,
-          authenticatorResponse.attestationObject,
-          transportArray,
-          json
-        )
-      } else {
-        Log.e(
-          TAG,
-          "Authenticator response expected registration response but " +
-            "got: ${authenticatorResponse.javaClass.name}"
-        )
-      }
-
-      addOptionalAuthenticatorAttachmentAndRequiredExtensions(
-        cred.authenticatorAttachment,
-        cred.clientExtensionResults != null,
-        cred.clientExtensionResults?.credProps?.isDiscoverableCredential,
-        json
-      )
-
-      json.put(JSON_KEY_ID, cred.id)
-      json.put(JSON_KEY_RAW_ID, b64Encode(cred.rawId))
-      json.put(JSON_KEY_TYPE, cred.type)
-      return json.toString()
-    }
-
     internal fun addAuthenticatorAttestationResponse(
       clientDataJSON: ByteArray,
       attestationObject: ByteArray,
@@ -240,19 +208,12 @@ internal class PublicKeyCredentialControllerUtility {
           )
         }
         is AuthenticatorAssertionResponse -> {
-          beginSignInAssertionResponse(
-            authenticatorResponse.clientDataJSON,
-            authenticatorResponse.authenticatorData,
-            authenticatorResponse.signature,
-            authenticatorResponse.userHandle,
-            json,
-            publicKeyCred.id,
-            publicKeyCred.rawId,
-            publicKeyCred.type,
-            publicKeyCred.authenticatorAttachment,
-            publicKeyCred.clientExtensionResults != null,
-            publicKeyCred.clientExtensionResults?.credProps?.isDiscoverableCredential
-          )
+          try {
+            return publicKeyCred.toJson()
+          } catch (t: Throwable) {
+            throw GetCredentialUnknownException("The PublicKeyCredential response json had " +
+                "an unexpected exception when parsing: ${t.message}")
+          }
         }
         else -> {
           Log.e(
