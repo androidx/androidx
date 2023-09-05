@@ -28,7 +28,8 @@ import java.util.Objects
  * @property addressType valid address type
  *
  */
-class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
+class BluetoothAddress(val address: String, @AddressType addressType: Int) {
+    @AddressType val addressType: Int
     companion object {
         /** Address type is public and registered with the IEEE. */
         const val ADDRESS_TYPE_PUBLIC: Int = 0
@@ -61,7 +62,7 @@ class BluetoothAddress(val address: String, @AddressType var addressType: Int) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
-        addressType = when (addressType) {
+        this.addressType = when (addressType) {
             ADDRESS_TYPE_PUBLIC,
             ADDRESS_TYPE_RANDOM_STATIC,
             ADDRESS_TYPE_RANDOM_RESOLVABLE,
