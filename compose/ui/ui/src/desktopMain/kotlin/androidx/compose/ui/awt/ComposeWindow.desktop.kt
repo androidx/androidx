@@ -30,7 +30,7 @@ import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
-import java.util.*
+import java.util.Locale
 import javax.accessibility.Accessible
 import javax.swing.JFrame
 import org.jetbrains.skiko.GraphicsApi

@@ -21,10 +21,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.layoutDirectionFor
-import java.awt.*
+import java.awt.Color
+import java.awt.Component
+import java.awt.ComponentOrientation
+import java.awt.Container
+import java.awt.Dimension
+import java.awt.FocusTraversalPolicy
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
-import java.util.*
+import java.util.Locale
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities.isEventDispatchThread
 import org.jetbrains.skiko.ClipComponent

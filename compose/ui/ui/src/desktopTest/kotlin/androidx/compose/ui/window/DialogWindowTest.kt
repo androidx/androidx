@@ -603,27 +603,4 @@ class DialogWindowTest {
         awaitIdle()
         assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
     }
-
-    private val DialogWindowTestMethods = ComponentTestMethods(
-        create = { ComposeDialog() },
-        setContent = { setContent{ it() } },
-        display = { isVisible = true },
-        dispose = { dispose() }
-    )
-
-    @Test
-    fun `componentOrientation modifies LayoutDirection`() =
-        componentOrientationModifiesLayoutDirection(DialogWindowTestMethods)
-
-    @Test
-    fun `locale modifies LayoutDirection`() =
-        localeModifiesLayoutDirection(DialogWindowTestMethods)
-
-    @Test
-    fun `component orientation overrides locale for LayoutDirection`() =
-        componentOrientationOverridesLocaleForLayoutDirection(DialogWindowTestMethods)
-
-    @Test
-    fun `locale does not override component orientation for LayoutDirection`() =
-        localeDoesNotOverrideComponentOrientationForLayoutDirection(DialogWindowTestMethods)
 }
