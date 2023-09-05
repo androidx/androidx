@@ -38,8 +38,6 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -74,9 +72,8 @@ import kotlinx.coroutines.withContext
  * @param highVelocityAnimationSpec The animation spec used to approach the target offset. When
  * the fling velocity is large enough. Large enough means large enough to naturally decay.
  * @param snapAnimationSpec The animation spec used to finally snap to the correct bound.
- * @param density The screen [Density]
- * @param shortSnapVelocityThreshold Use the given velocity to determine if it's a
- * short or long snap.
+ * @param shortSnapVelocityThreshold Use the given velocity to determine if it's a short or long
+ * snap. The velocity should be provided in pixels/s.
  *
  */
 @ExperimentalFoundationApi
@@ -85,11 +82,9 @@ class SnapFlingBehavior(
     private val lowVelocityAnimationSpec: AnimationSpec<Float>,
     private val highVelocityAnimationSpec: DecayAnimationSpec<Float>,
     private val snapAnimationSpec: AnimationSpec<Float>,
-    private val density: Density,
-    private val shortSnapVelocityThreshold: Dp = MinFlingVelocityDp
+    private val shortSnapVelocityThreshold: Float
 ) : FlingBehavior {
 
-    private val velocityThreshold = with(density) { shortSnapVelocityThreshold.toPx() }
     internal var motionScaleDuration = DefaultScrollMotionDurationScale
 
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
@@ -129,7 +124,7 @@ class SnapFlingBehavior(
     ): AnimationResult<Float, AnimationVector1D> {
         // If snapping from scroll (short snap) or fling (long snap)
         val result = withContext(motionScaleDuration) {
-            if (abs(initialVelocity) <= abs(velocityThreshold)) {
+            if (abs(initialVelocity) <= abs(shortSnapVelocityThreshold)) {
                 shortSnap(initialVelocity, onRemainingScrollOffsetUpdate)
             } else {
                 longSnap(initialVelocity, onRemainingScrollOffsetUpdate)
@@ -145,9 +140,7 @@ class SnapFlingBehavior(
         onRemainingScrollOffsetUpdate: (Float) -> Unit
     ): AnimationResult<Float, AnimationVector1D> {
         debugLog { "Short Snapping" }
-        val closestOffset = with(snapLayoutInfoProvider) {
-            density.calculateSnappingOffset(0f)
-        }
+        val closestOffset = snapLayoutInfoProvider.calculateSnappingOffset(0f)
 
         var remainingScrollOffset = closestOffset
 
@@ -169,7 +162,7 @@ class SnapFlingBehavior(
     ): AnimationResult<Float, AnimationVector1D> {
         debugLog { "Long Snapping" }
         val initialOffset =
-            with(snapLayoutInfoProvider) { density.calculateApproachOffset(initialVelocity) }.let {
+            snapLayoutInfoProvider.calculateApproachOffset(initialVelocity).let {
                 abs(it) * sign(initialVelocity) // ensure offset sign is correct
             }
         var remainingScrollOffset = initialOffset
@@ -219,7 +212,6 @@ class SnapFlingBehavior(
             initialVelocity,
             animation,
             snapLayoutInfoProvider,
-            density,
             onAnimationStep
         )
     }
@@ -245,7 +237,6 @@ class SnapFlingBehavior(
                 other.highVelocityAnimationSpec == this.highVelocityAnimationSpec &&
                 other.lowVelocityAnimationSpec == this.lowVelocityAnimationSpec &&
                 other.snapLayoutInfoProvider == this.snapLayoutInfoProvider &&
-                other.density == this.density &&
                 other.shortSnapVelocityThreshold == this.shortSnapVelocityThreshold
         } else {
             false
@@ -257,7 +248,6 @@ class SnapFlingBehavior(
         .let { 31 * it + highVelocityAnimationSpec.hashCode() }
         .let { 31 * it + lowVelocityAnimationSpec.hashCode() }
         .let { 31 * it + snapLayoutInfoProvider.hashCode() }
-        .let { 31 * it + density.hashCode() }
         .let { 31 * it + shortSnapVelocityThreshold.hashCode() }
 }
 
@@ -282,7 +272,7 @@ fun rememberSnapFlingBehavior(
             lowVelocityAnimationSpec = tween(easing = LinearEasing),
             highVelocityAnimationSpec = highVelocityApproachSpec,
             snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-            density = density
+            shortSnapVelocityThreshold = with(density) { MinFlingVelocityDp.toPx() }
         )
     }
 }
@@ -304,7 +294,6 @@ private suspend fun ScrollScope.approach(
     initialVelocity: Float,
     animation: ApproachAnimation<Float, AnimationVector1D>,
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
-    density: Density,
     onAnimationStep: (delta: Float) -> Unit
 ): AnimationResult<Float, AnimationVector1D> {
 
@@ -315,9 +304,8 @@ private suspend fun ScrollScope.approach(
         onAnimationStep
     )
 
-    val remainingOffset = with(snapLayoutInfoProvider) {
-        density.calculateSnappingOffset(currentAnimationState.velocity)
-    }
+    val remainingOffset =
+        snapLayoutInfoProvider.calculateSnappingOffset(currentAnimationState.velocity)
 
     // will snap the remainder
     return AnimationResult(remainingOffset, currentAnimationState)

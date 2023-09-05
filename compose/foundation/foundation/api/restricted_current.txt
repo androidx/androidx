@@ -482,7 +482,7 @@ package androidx.compose.foundation.gestures.snapping {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class SnapFlingBehavior implements androidx.compose.foundation.gestures.FlingBehavior {
-    ctor public SnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider, androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, androidx.compose.ui.unit.Density density, optional float shortSnapVelocityThreshold);
+    ctor public SnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider snapLayoutInfoProvider, androidx.compose.animation.core.AnimationSpec<java.lang.Float> lowVelocityAnimationSpec, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> highVelocityAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, float shortSnapVelocityThreshold);
     method public suspend Object? performFling(androidx.compose.foundation.gestures.ScrollScope, float initialVelocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public suspend Object? performFling(androidx.compose.foundation.gestures.ScrollScope, float initialVelocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onSettlingDistanceUpdated, kotlin.coroutines.Continuation<? super java.lang.Float>);
   }
@@ -492,12 +492,12 @@ package androidx.compose.foundation.gestures.snapping {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface SnapLayoutInfoProvider {
-    method public float calculateApproachOffset(androidx.compose.ui.unit.Density, float initialVelocity);
-    method public float calculateSnappingOffset(androidx.compose.ui.unit.Density, float currentVelocity);
+    method public float calculateApproachOffset(float initialVelocity);
+    method public float calculateSnappingOffset(float currentVelocity);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPositionInLayout {
-    method public int position(androidx.compose.ui.unit.Density, int layoutSize, int itemSize, int itemIndex);
+    method public int position(int layoutSize, int itemSize, int itemIndex);
     field public static final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout.Companion Companion;
   }
 

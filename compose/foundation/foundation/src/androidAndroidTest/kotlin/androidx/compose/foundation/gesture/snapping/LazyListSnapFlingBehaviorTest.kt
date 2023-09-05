@@ -396,7 +396,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         val initialTargetOffset =
-            with(snapLayoutInfoProvider) { density.calculateApproachOffset(velocity) }
+            snapLayoutInfoProvider.calculateApproachOffset(velocity)
         Truth.assertThat(scrollOffset[1]).isWithin(0.5f)
             .of(initialTargetOffset)
 
@@ -408,9 +408,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         }
 
         // assert: next calculated offset is the first value emitted by remainingScrollOffset
-        val finalRemainingOffset = with(snapLayoutInfoProvider) {
-            density.calculateSnappingOffset(10000f)
-        }
+        val finalRemainingOffset = snapLayoutInfoProvider.calculateSnappingOffset(10000f)
         Truth.assertThat(scrollOffset.last()).isWithin(0.5f)
             .of(finalRemainingOffset)
         rule.mainClock.autoAdvance = true
