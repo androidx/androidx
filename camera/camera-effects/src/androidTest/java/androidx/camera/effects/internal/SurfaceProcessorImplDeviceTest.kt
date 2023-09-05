@@ -56,8 +56,6 @@ import org.junit.runner.RunWith
 class SurfaceProcessorImplDeviceTest {
 
     companion object {
-        private val SIZE = Size(640, 480)
-        private val CROP_RECT = sizeToRect(SIZE)
         private const val ROTATION_DEGREES = 90
         private val TRANSFORM = Matrix().apply {
             postRotate(90F)
@@ -69,6 +67,8 @@ class SurfaceProcessorImplDeviceTest {
         private const val TIMEOUT_MILLIS = 200L
     }
 
+    private val size = Size(640, 480)
+    private val cropRect = sizeToRect(size)
     private lateinit var surfaceRequest: SurfaceRequest
     private lateinit var outputTexture: SurfaceTexture
     private lateinit var outputSurface: Surface
@@ -82,14 +82,14 @@ class SurfaceProcessorImplDeviceTest {
     @Before
     fun setUp() {
         transformationInfo = TransformationInfo.of(
-            CROP_RECT,
+            cropRect,
             ROTATION_DEGREES,
             Surface.ROTATION_90,
             true,
             TRANSFORM,
             true
         )
-        surfaceRequest = SurfaceRequest(SIZE, FakeCamera()) {}
+        surfaceRequest = SurfaceRequest(size, FakeCamera()) {}
         surfaceRequest.updateTransformationInfo(transformationInfo)
         outputTexture = SurfaceTexture(0)
         outputTexture.detachFromGLContext()
@@ -97,8 +97,8 @@ class SurfaceProcessorImplDeviceTest {
         outputTexture2 = SurfaceTexture(1)
         outputTexture2.detachFromGLContext()
         outputSurface2 = Surface(outputTexture2)
-        surfaceOutput = SurfaceOutputImpl(outputSurface)
-        surfaceOutput2 = SurfaceOutputImpl(outputSurface2)
+        surfaceOutput = SurfaceOutputImpl(outputSurface, size)
+        surfaceOutput2 = SurfaceOutputImpl(outputSurface2, size)
     }
 
     @After
@@ -135,7 +135,7 @@ class SurfaceProcessorImplDeviceTest {
         }
         // Assert: draw frame listener receives correct transformation info.
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
-        assertThat(frameReceived!!.size).isEqualTo(SIZE)
+        assertThat(frameReceived!!.size).isEqualTo(size)
         assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
         assertThat(frameReceived!!.getMirroring()).isEqualTo(transformationInfo.mirroring)
         assertThat(frameReceived!!.sensorToBufferTransform)
@@ -225,11 +225,11 @@ class SurfaceProcessorImplDeviceTest {
         android.opengl.Matrix.setIdentityM(matrix, 0)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             val bitmap = processor.glRendererForTesting
-                .renderInputToBitmap(SIZE.width, SIZE.height, matrix)
+                .renderInputToBitmap(size.width, size.height, matrix)
             assertThat(
                 getAverageDiff(
                     bitmap,
-                    Rect(0, 0, SIZE.width, SIZE.height),
+                    Rect(0, 0, size.width, size.height),
                     color
                 )
             ).isEqualTo(0)
@@ -289,7 +289,8 @@ class SurfaceProcessorImplDeviceTest {
         return countDownLatch
     }
 
-    private class SurfaceOutputImpl(private val surface: Surface) : SurfaceOutput {
+    private class SurfaceOutputImpl(private val surface: Surface, val surfaceSize: Size) :
+        SurfaceOutput {
 
         override fun close() {
         }
@@ -306,7 +307,7 @@ class SurfaceProcessorImplDeviceTest {
         }
 
         override fun getSize(): Size {
-            return SIZE
+            return surfaceSize
         }
 
         override fun updateTransformMatrix(updated: FloatArray, original: FloatArray) {
