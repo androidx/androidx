@@ -84,19 +84,17 @@ internal actual object PlatformDateFormat {
             setDateStyle(NSDateFormatterShortStyle)
         }.dateFormat
 
-        val delimiter = pattern.first { !it.isLetter() }
-
-        return DateInputFormat(pattern, delimiter)
+        return datePatternAsInputFormat(pattern)
     }
 
     @Suppress("UNCHECKED_CAST")
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>>? {
+    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
         val formatter = NSDateFormatter().apply {
             setLocale(locale)
         }
 
         val fromSundayToSaturday = formatter.standaloneWeekdaySymbols
-            .zip(formatter.shortStandaloneWeekdaySymbols) as List<Pair<String, String>>
+            .zip(formatter.veryShortStandaloneWeekdaySymbols) as List<Pair<String, String>>
 
         return fromSundayToSaturday.drop(1) + fromSundayToSaturday.first()
     }

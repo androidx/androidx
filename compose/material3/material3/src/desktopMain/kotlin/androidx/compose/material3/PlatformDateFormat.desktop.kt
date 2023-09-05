@@ -18,6 +18,9 @@ package androidx.compose.material3
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.format.TextStyle
+import java.util.Locale
 
 
 internal actual object PlatformDateFormat {
@@ -62,8 +65,6 @@ internal actual object PlatformDateFormat {
         date: String,
         pattern: String
     ): CalendarDate? {
-
-
         return delegate.parse(date, pattern)
     }
 
@@ -71,8 +72,19 @@ internal actual object PlatformDateFormat {
         return delegate.getDateInputFormat(locale)
     }
 
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>>? {
-        return delegate.weekdayNames(locale)
+    // From CalendarModelImpl.android.kt weekdayNames.
+    //
+    // Legacy model returns short ('Mon') format while newer version returns narrow ('M') format
+    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
+        return DayOfWeek.values().map {
+            it.getDisplayName(
+                TextStyle.FULL,
+                locale
+            ) to it.getDisplayName(
+                TextStyle.NARROW,
+                locale
+            )
+        }
     }
 
     // https://android.googlesource.com/platform/frameworks/base/+/jb-release/core/java/android/text/format/DateFormat.java

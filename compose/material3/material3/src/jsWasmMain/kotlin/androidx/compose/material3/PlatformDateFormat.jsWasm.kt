@@ -21,7 +21,8 @@ import kotlin.js.Date
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.atTime
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 internal actual object PlatformDateFormat {
@@ -151,7 +152,8 @@ internal actual object PlatformDateFormat {
 
         return LocalDate(
             year, month, day
-        ).atStartOfDayIn(TimeZone.UTC)
+        ).atTime(Midnight)
+            .toInstant(TimeZone.UTC)
             .toCalendarDate(TimeZone.UTC)
     }
 
@@ -170,17 +172,15 @@ internal actual object PlatformDateFormat {
 
         val shortDate = date.toLocaleDateString(locale.toLanguageTag())
 
-        val delimiter = shortDate.first { !it.isDigit() }
-
         val pattern = shortDate
             .replace("2000", "yyyy")
             .replace("11", "MM") //10 -> 11 not an error. month is index
             .replace("23", "dd")
 
-        return DateInputFormat(pattern, delimiter)
+        return datePatternAsInputFormat(pattern)
     }
 
-    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>>? {
+    actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
         val now = Date.now()
 
         val week = List(DaysInWeek) {
@@ -189,7 +189,7 @@ internal actual object PlatformDateFormat {
 
         val mondayToSunday = week.drop(1) + week.first()
 
-        val longAndShortWeekDays = listOf(LONG, SHORT).map { format ->
+        val longAndShortWeekDays = listOf(LONG, NARROW).map { format ->
             mondayToSunday.map {
                 it.toLocaleDateString(
                     locales = locale.toLanguageTag(),
