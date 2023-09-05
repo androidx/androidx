@@ -16,6 +16,9 @@
 
 package androidx.camera.effects.internal
 
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.util.Size
 import android.view.Surface
@@ -23,7 +26,11 @@ import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.SurfaceRequest.TransformationInfo
+import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
+import androidx.camera.effects.Frame
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -50,6 +57,13 @@ class SurfaceProcessorImplDeviceTest {
 
     companion object {
         private val SIZE = Size(640, 480)
+        private val CROP_RECT = sizeToRect(SIZE)
+        private const val ROTATION_DEGREES = 90
+        private val TRANSFORM = Matrix().apply {
+            postRotate(90F)
+        }
+        private const val INPUT_COLOR = Color.GREEN
+        private const val OVERLAY_COLOR = Color.RED
 
         // The timeout is set to 200ms to qualify for @SmallTest.
         private const val TIMEOUT_MILLIS = 200L
@@ -63,10 +77,20 @@ class SurfaceProcessorImplDeviceTest {
     private lateinit var surfaceOutput: SurfaceOutput
     private lateinit var surfaceOutput2: SurfaceOutput
     private lateinit var processor: SurfaceProcessorImpl
+    private lateinit var transformationInfo: TransformationInfo
 
     @Before
     fun setUp() {
+        transformationInfo = TransformationInfo.of(
+            CROP_RECT,
+            ROTATION_DEGREES,
+            Surface.ROTATION_90,
+            true,
+            TRANSFORM,
+            true
+        )
         surfaceRequest = SurfaceRequest(SIZE, FakeCamera()) {}
+        surfaceRequest.updateTransformationInfo(transformationInfo)
         outputTexture = SurfaceTexture(0)
         outputTexture.detachFromGLContext()
         outputSurface = Surface(outputTexture)
@@ -86,6 +110,65 @@ class SurfaceProcessorImplDeviceTest {
         if (::processor.isInitialized) {
             processor.release()
         }
+    }
+
+    @Test
+    fun onDrawListenerReturnsFalse_notDrawnToOutput() = runBlocking {
+        // Act: return false in the on draw listener.
+        val latch = fillFramesAndWaitForOutput(0, 1) {
+            it.setOnDrawListener { false }
+        }
+        // Assert: output is not drawn.
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun onDrawListener_receivesTransformationInfo() = runBlocking {
+        // Arrange.
+        var frameReceived: Frame? = null
+        // Act: fill frames and wait draw frame listener.
+        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
+            processor.setOnDrawListener { frame ->
+                frameReceived = frame
+                true
+            }
+        }
+        // Assert: draw frame listener receives correct transformation info.
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(frameReceived!!.size).isEqualTo(SIZE)
+        assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
+        assertThat(frameReceived!!.getMirroring()).isEqualTo(transformationInfo.mirroring)
+        assertThat(frameReceived!!.sensorToBufferTransform)
+            .isEqualTo(transformationInfo.sensorToBufferTransform)
+        assertThat(frameReceived!!.rotationDegrees).isEqualTo(ROTATION_DEGREES)
+    }
+
+    @Test
+    fun canvasInvalidated_overlayDrawnToOutput(): Unit = runBlocking {
+        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
+            processor.setOnDrawListener { frame ->
+                // Act: invalidate overlay canvas and draw color.
+                frame.invalidateOverlayCanvas().drawColor(OVERLAY_COLOR)
+                true
+            }
+        }
+        // Assert: output receives frame with overlay color.
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+        assertOutputColor(OVERLAY_COLOR)
+    }
+
+    @Test
+    fun canvasNotInvalidated_overlayNotDrawnToOutput() = runBlocking {
+        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
+            processor.setOnDrawListener { frame ->
+                // Act: draw color on overlay canvas without invalidating.
+                frame.overlayCanvas.drawColor(OVERLAY_COLOR)
+                true
+            }
+        }
+        // Assert: output receives frame with input color
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+        assertOutputColor(INPUT_COLOR)
     }
 
     @Test
@@ -122,10 +205,7 @@ class SurfaceProcessorImplDeviceTest {
 
         // Act: replace output surface so the cached frame is no longer valid. The cached frame
         // should be marked empty and not blocking the pipeline.
-        val countDownLatch = CountDownLatch(1)
-        outputTexture2.setOnFrameAvailableListener {
-            countDownLatch.countDown()
-        }
+        val countDownLatch = getTextureUpdateLatch(outputTexture2)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             processor.onOutputSurface(surfaceOutput2)
         }
@@ -138,6 +218,25 @@ class SurfaceProcessorImplDeviceTest {
     }
 
     /**
+     * Renders the input surface to a bitmap and asserts that the color of the bitmap.
+     */
+    private suspend fun assertOutputColor(color: Int) {
+        val matrix = FloatArray(16)
+        android.opengl.Matrix.setIdentityM(matrix, 0)
+        withContext(processor.glExecutor.asCoroutineDispatcher()) {
+            val bitmap = processor.glRendererForTesting
+                .renderInputToBitmap(SIZE.width, SIZE.height, matrix)
+            assertThat(
+                getAverageDiff(
+                    bitmap,
+                    Rect(0, 0, SIZE.width, SIZE.height),
+                    color
+                )
+            ).isEqualTo(0)
+        }
+    }
+
+    /**
      * Creates a processor and draws frames to the input surface.
      *
      * @param queueDepth The queue depth of the processor.
@@ -146,18 +245,17 @@ class SurfaceProcessorImplDeviceTest {
      */
     private suspend fun fillFramesAndWaitForOutput(
         queueDepth: Int,
-        frameCount: Int
+        frameCount: Int,
+        configureProcessor: (SurfaceProcessorImpl) -> Unit = {},
     ): CountDownLatch {
         // Arrange: Create a processor.
         processor = SurfaceProcessorImpl(queueDepth)
+        configureProcessor(processor)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             processor.onInputSurface(surfaceRequest)
             processor.onOutputSurface(surfaceOutput)
         }
-        val countDownLatch = CountDownLatch(1)
-        outputTexture.setOnFrameAvailableListener {
-            countDownLatch.countDown()
-        }
+        val countDownLatch = getTextureUpdateLatch(outputTexture)
 
         // Act: Draw frames to the input surface.
         val inputSurface = surfaceRequest.deferrableSurface.surface.get()
@@ -174,12 +272,21 @@ class SurfaceProcessorImplDeviceTest {
      */
     private suspend fun drawSurface(surface: Surface) {
         val canvas = surface.lockCanvas(null)
+        canvas.drawColor(INPUT_COLOR)
         surface.unlockCanvasAndPost(canvas)
         // Drain the GL thread to ensure the processor caches or draws the frame. Otherwise, the
         // input SurfaceTexture's onSurfaceAvailable callback may only get called once for
         // multiple drawings.
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
         }
+    }
+
+    private fun getTextureUpdateLatch(surfaceTexture: SurfaceTexture): CountDownLatch {
+        val countDownLatch = CountDownLatch(1)
+        surfaceTexture.setOnFrameAvailableListener {
+            countDownLatch.countDown()
+        }
+        return countDownLatch
     }
 
     private class SurfaceOutputImpl(private val surface: Surface) : SurfaceOutput {
