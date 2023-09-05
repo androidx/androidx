@@ -39,7 +39,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
@@ -141,6 +144,7 @@ class GattClient(private val context: Context) {
         val subscribeMap: MutableMap<FwkCharacteristic, SubscribeListener> = mutableMapOf()
         val subscribeMutex = Mutex()
         val attributeMap = AttributeMap()
+        val servicesFlow = MutableStateFlow<List<GattService>>(listOf())
 
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -163,6 +167,16 @@ class GattClient(private val context: Context) {
                 attributeMap.updateWithFrameworkServices(fwkAdapter.getServices())
                 if (status == BluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
                 else cancel("service discover failed")
+                servicesFlow.tryEmit(attributeMap.getServices())
+                if (connectResult.isActive) {
+                    if (status == BluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
+                    else connectResult.cancel("service discover failed")
+                }
+            }
+
+            override fun onServiceChanged(gatt: BluetoothGatt) {
+                // TODO: under API 31, we have to subscribe to the service changed characteristic.
+                fwkAdapter.discoverServices()
             }
 
             override fun onCharacteristicRead(
@@ -236,9 +250,7 @@ class GattClient(private val context: Context) {
                 }
             }
 
-            override fun getServices(): List<GattService> {
-                return attributeMap.getServices()
-            }
+            override val servicesFlow: StateFlow<List<GattService>> = servicesFlow.asStateFlow()
 
             override fun getService(uuid: UUID): GattService? {
                 return fwkAdapter.getService(uuid)?.let { attributeMap.fromFwkService(it) }

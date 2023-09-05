@@ -70,10 +70,13 @@ package androidx.bluetooth {
 
   public static interface BluetoothLe.GattClientScope {
     method public androidx.bluetooth.GattService? getService(java.util.UUID uuid);
-    method public java.util.List<androidx.bluetooth.GattService> getServices();
+    method public default java.util.List<androidx.bluetooth.GattService> getServices();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> getServicesFlow();
     method public suspend Object? readCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, kotlin.coroutines.Continuation<? super kotlin.Result<? extends byte[]>>);
     method public kotlinx.coroutines.flow.Flow<byte[]> subscribeToCharacteristic(androidx.bluetooth.GattCharacteristic characteristic);
     method public suspend Object? writeCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    property public default java.util.List<androidx.bluetooth.GattService> services;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> servicesFlow;
   }
 
   public static final class BluetoothLe.GattServerConnectRequest {
