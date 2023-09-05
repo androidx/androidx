@@ -30,18 +30,18 @@ import java.util.Locale;
  * Quirk denoting the video profile list returns by {@link EncoderProfiles} is invalid.
  *
  * <p>QuirkSummary
- *     Bug Id: 267727595, 278860860
- *     Description: When using {@link EncoderProfiles} on TP1A or TD1A builds of Android API 33,
+ *     Bug Id: 267727595, 278860860, 298951126
+ *     Description: When using {@link EncoderProfiles} on some builds of Android API 33,
  *                  {@link EncoderProfiles#getVideoProfiles()} returns a list with size one, but
  *                  the single value in the list is null. This is not the expected behavior, and
  *                  makes {@link EncoderProfiles} lack of video information.
  *     Device(s): Pixel 4 and above pixel devices with TP1A or TD1A builds (API 33), Samsung devices
- *                with TP1A build (API 33).
+ *                with TP1A build (API 33), and Xiaomi with TKQ1 build (API 33).
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InvalidVideoProfilesQuirk implements Quirk {
 
-    static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(
+    private static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(
             "pixel 4",
             "pixel 4a",
             "pixel 4a (5g)",
@@ -56,7 +56,7 @@ public class InvalidVideoProfilesQuirk implements Quirk {
     );
 
     static boolean load() {
-        return isAffectedSamsungDevices() || isAffectedPixelDevices();
+        return isAffectedSamsungDevices() || isAffectedPixelDevices() || isAffectedXiaomiDevices();
     }
 
     private static boolean isAffectedSamsungDevices() {
@@ -65,6 +65,11 @@ public class InvalidVideoProfilesQuirk implements Quirk {
 
     private static boolean isAffectedPixelDevices() {
         return isAffectedPixelModel() && isAffectedPixelBuild();
+    }
+
+    private static boolean isAffectedXiaomiDevices() {
+        return ("redmi".equalsIgnoreCase(Build.BRAND) || "xiaomi".equalsIgnoreCase(Build.BRAND))
+                && isTkq1Build();
     }
 
     private static boolean isAffectedPixelModel() {
@@ -81,5 +86,9 @@ public class InvalidVideoProfilesQuirk implements Quirk {
 
     private static boolean isTd1aBuild() {
         return Build.ID.toLowerCase(Locale.ROOT).startsWith("td1a");
+    }
+
+    private static boolean isTkq1Build() {
+        return Build.ID.toLowerCase(Locale.ROOT).startsWith("tkq1");
     }
 }
