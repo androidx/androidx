@@ -16,6 +16,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
 
     <application>
         <service
