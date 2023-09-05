@@ -31,10 +31,15 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import java.util.UUID
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.job
 
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
@@ -67,39 +72,44 @@ class BluetoothLe constructor(private val context: Context) {
     var onStartScanListener: OnStartScanListener? = null
 
     /**
-     * Returns a _cold_ [Flow] to start Bluetooth LE Advertising.
-     * When the flow is successfully collected, the operation status [AdvertiseResult] will be
-     * delivered via the flow [kotlinx.coroutines.channels.Channel].
+     * Starts Bluetooth LE advertising
      *
-     * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising
-     * @return a _cold_ [Flow] with [AdvertiseResult] status in the data stream
+     * Note that this method may not complete if the duration is set to 0.
+     * To stop advertising, in that case, you should cancel the coroutine.
+     *
+     * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
+     * @param block an optional block of code that is invoked when advertising is started or failed.
+     *
+     * @throws IllegalArgumentException if the advertise parameters are not valid.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult.ResultType Int> =
-        callbackFlow {
+    suspend fun advertise(
+        advertiseParams: AdvertiseParams,
+        block: (suspend (@AdvertiseResult.ResultType Int) -> Unit)? = null
+    ) {
+        val result = CompletableDeferred<Int>()
+
         val callback = object : AdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
                 Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
                 when (errorCode) {
                     ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
+                        result.complete(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
                     ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
+                        result.complete(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
                     ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+                        result.complete(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
 
                     ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
+                        result.complete(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
 
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                Log.d(TAG, "onStartSuccess() called with: settingsInEffect = $settingsInEffect")
-
-                trySend(AdvertiseResult.ADVERTISE_STARTED)
+                result.complete(AdvertiseResult.ADVERTISE_STARTED)
             }
         }
 
@@ -107,7 +117,11 @@ class BluetoothLe constructor(private val context: Context) {
 
         val advertiseSettings = with(AdvertiseSettings.Builder()) {
             setConnectable(advertiseParams.isConnectable)
-            setTimeout(advertiseParams.timeoutMillis)
+            advertiseParams.durationMillis.let {
+                if (it !in 0..655350)
+                    throw IllegalArgumentException("advertise duration must be in [0, 655350]")
+                setTimeout(it)
+            }
             // TODO(b/290697177) Add when AndroidX is targeting Android U
 //            setDiscoverable(advertiseParams.isDiscoverable)
             build()
@@ -127,12 +141,20 @@ class BluetoothLe constructor(private val context: Context) {
             build()
         }
 
-        Log.d(TAG, "bleAdvertiser.startAdvertising($advertiseSettings, $advertiseData) called")
         bleAdvertiser?.startAdvertising(advertiseSettings, advertiseData, callback)
 
-        awaitClose {
-            Log.d(TAG, "bleAdvertiser.stopAdvertising() called")
+        coroutineContext.job.invokeOnCompletion {
             bleAdvertiser?.stopAdvertising(callback)
+        }
+        result.await().let {
+            block?.invoke(it)
+            if (it == AdvertiseResult.ADVERTISE_STARTED) {
+                if (advertiseParams.durationMillis > 0) {
+                    delay(advertiseParams.durationMillis.toLong())
+                } else {
+                    awaitCancellation()
+                }
+            }
         }
     }
 
