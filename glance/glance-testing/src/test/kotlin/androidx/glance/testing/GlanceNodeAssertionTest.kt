@@ -21,8 +21,7 @@ import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableSpacer
 import androidx.glance.semantics.semantics
 import androidx.glance.semantics.testTag
-import androidx.glance.testing.unit.GlanceMappedNode
-import androidx.glance.testing.unit.MappedNode
+import androidx.glance.testing.unit.getGlanceNodeAssertionFor
 import androidx.glance.testing.unit.hasTestTag
 import androidx.glance.testing.unit.hasText
 import androidx.glance.text.EmittableText
@@ -35,22 +34,17 @@ import org.junit.Test
 class GlanceNodeAssertionTest {
     @Test
     fun assertExists_success() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode = GlanceMappedNode(
-            EmittableColumn().apply {
+        // This is the object that in real usage a rule.onNode(matcher) would return.
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
                 children.add(EmittableText().apply { text = "some text" })
                 children.add(EmittableSpacer())
                 children.add(EmittableText().apply {
                     text = "another text"
                     modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
                 })
-            }
-        )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
         )
 
         assertion.assertExists()
@@ -59,23 +53,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assertExists_error() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                EmittableColumn().apply {
-                    children.add(EmittableText().apply { text = "some text" })
-                    children.add(EmittableSpacer())
-                    children.add(EmittableText().apply {
-                        text = "another text"
-                        modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                    })
-                }
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "non-existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
         )
 
         val assertionError = assertThrows(AssertionError::class.java) {
@@ -91,24 +78,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assertDoesNotExist_success() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                EmittableColumn().apply {
-                    children.add(EmittableText().apply { text = "some text" })
-                    children.add(EmittableSpacer())
-                    children.add(EmittableText().apply {
-                        text = "another text"
-                        modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                    })
-                }
-            )
-
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "non-existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
         )
 
         assertion.assertDoesNotExist()
@@ -117,23 +96,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assertDoesNotExist_error() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                EmittableColumn().apply {
-                    children.add(EmittableText().apply { text = "some text" })
-                    children.add(EmittableSpacer())
-                    children.add(EmittableText().apply {
-                        text = "another text"
-                        modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                    })
-                }
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
         )
 
         val assertionError = assertThrows(AssertionError::class.java) {
@@ -149,23 +121,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun assert_withMatcher_success() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                EmittableColumn().apply {
-                    children.add(EmittableText().apply { text = "some text" })
-                    children.add(EmittableSpacer())
-                    children.add(EmittableText().apply {
-                        text = "another text"
-                        modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                    })
-                }
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
         )
 
         assertion.assert(hasText(text = "another text"))
@@ -174,24 +139,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun chainAssertions() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                MappedNode(
-                    EmittableColumn().apply {
-                        children.add(EmittableText().apply { text = "some text" })
-                        children.add(EmittableSpacer())
-                        children.add(EmittableText().apply {
-                            text = "another text"
-                            modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                        })
-                    })
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
         )
 
         assertion
@@ -202,25 +159,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun chainAssertion_failureInFirst() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                MappedNode(
-                    EmittableColumn().apply {
-                        children.add(EmittableText().apply { text = "some text" })
-                        children.add(EmittableSpacer())
-                        children.add(EmittableText().apply {
-                            text = "another text"
-                            modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                        })
-                    }
-                )
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
         )
 
         val assertionError = assertThrows(AssertionError::class.java) {
@@ -240,25 +188,16 @@ class GlanceNodeAssertionTest {
 
     @Test
     fun chainAssertion_failureInSecond() {
-        val testContext = TestContext<MappedNode, GlanceMappedNode>()
-        // set root node of test tree to be traversed
-        testContext.rootGlanceNode =
-            GlanceMappedNode(
-                MappedNode(
-                    EmittableColumn().apply {
-                        children.add(EmittableText().apply { text = "some text" })
-                        children.add(EmittableSpacer())
-                        children.add(EmittableText().apply {
-                            text = "another text"
-                            modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                        })
-                    }
-                )
-            )
-        // This is the object that in real usage a rule.onNode(matcher) would return.
-        val assertion = GlanceNodeAssertion(
-            matcher = hasTestTag(testTag = "existing-test-tag"),
-            testContext = testContext
+        val assertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                children.add(EmittableText().apply { text = "some text" })
+                children.add(EmittableSpacer())
+                children.add(EmittableText().apply {
+                    text = "another text"
+                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
+                })
+            },
+            onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
         )
 
         val assertionError = assertThrows(AssertionError::class.java) {
@@ -271,7 +210,7 @@ class GlanceNodeAssertionTest {
             .hasMessageThat()
             .startsWith(
                 "Failed to assert condition: " +
-                    "(has text = 'non-existing text' (ignoreCase: 'false'))" +
+                    "(contains text 'non-existing text' (ignoreCase: 'false') as substring)" +
                     "\nGlance Node:"
             )
     }

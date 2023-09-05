@@ -30,4 +30,11 @@ interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
      * @param matcher Matcher used for filtering
      */
     fun onNode(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertion<R, T>
+
+    /**
+     * Finds all Glance nodes that matches the given condition.
+     *
+     * @param matcher Matcher used for filtering
+     */
+    fun onAllNodes(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertionCollection<R, T>
 }

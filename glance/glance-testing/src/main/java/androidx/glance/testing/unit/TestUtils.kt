@@ -19,9 +19,12 @@ package androidx.glance.testing.unit
 import androidx.annotation.RestrictTo
 import androidx.glance.Emittable
 import androidx.glance.testing.GlanceNodeAssertion
+import androidx.glance.testing.GlanceNodeAssertionCollection
 import androidx.glance.testing.GlanceNodeMatcher
 import androidx.glance.testing.TestContext
+import androidx.glance.testing.matcherToSelector
 
+// Equivalent to calling GlanceNodeAssertionsProvider.onNode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun getGlanceNodeAssertionFor(
     emittable: Emittable,
@@ -30,7 +33,21 @@ fun getGlanceNodeAssertionFor(
     val testContext = TestContext<MappedNode, GlanceMappedNode>()
     testContext.rootGlanceNode = GlanceMappedNode(emittable)
     return GlanceNodeAssertion(
-        matcher = onNodeMatcher,
-        testContext = testContext
+        testContext = testContext,
+        selector = onNodeMatcher.matcherToSelector()
+    )
+}
+
+// Equivalent to calling GlanceNodeAssertionsProvider.onAllNodes
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun getGlanceNodeAssertionCollectionFor(
+    emittable: Emittable,
+    onAllNodesMatcher: GlanceNodeMatcher<MappedNode>
+): GlanceNodeAssertionCollection<MappedNode, GlanceMappedNode> {
+    val testContext = TestContext<MappedNode, GlanceMappedNode>()
+    testContext.rootGlanceNode = GlanceMappedNode(emittable)
+    return GlanceNodeAssertionCollection(
+        testContext = testContext,
+        selector = onAllNodesMatcher.matcherToSelector()
     )
 }

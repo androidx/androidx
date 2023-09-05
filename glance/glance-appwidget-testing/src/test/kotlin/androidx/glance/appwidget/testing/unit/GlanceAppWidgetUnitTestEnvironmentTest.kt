@@ -32,9 +32,13 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.ImageProvider
+import androidx.glance.appwidget.lazy.GridCells
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.testing.test.R
 import androidx.glance.currentState
 import androidx.glance.layout.Column
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.semantics.semantics
 import androidx.glance.semantics.testTag
@@ -163,6 +167,58 @@ class GlanceAppWidgetUnitTestEnvironmentTest {
         }
 
         onNode(hasTestTag("mutable-test")).assert(hasText("initial"))
+    }
+
+    @Test
+    fun runTest_onMultipleNodesMatchedAcrossHierarchy() = runGlanceAppWidgetUnitTest {
+        provideComposable {
+            Column {
+                Row {
+                    Text("text-row")
+                }
+                Spacer()
+                Text("text-in-column")
+            }
+        }
+
+        onAllNodes(hasText(text = "text-")).assertCountEquals(2)
+    }
+
+    @Test
+    fun runTest_lazyColumnChildren() = runGlanceAppWidgetUnitTest {
+        provideComposable {
+            LazyColumn(modifier = GlanceModifier.semantics { testTag = "test-list" }) {
+                item { Text("text-1") }
+                item { Text("text-2") }
+            }
+        }
+
+        onNode(hasTestTag("test-list"))
+            .onChildren()
+            .assertCountEquals(2)
+            .filter(hasText("text-1"))
+            .assertCountEquals(1)
+    }
+
+    @Test
+    fun runTest_lazyGridChildren() = runGlanceAppWidgetUnitTest {
+        provideComposable {
+            LazyVerticalGrid(
+                modifier = GlanceModifier.semantics { testTag = "test-list" },
+                gridCells = GridCells.Fixed(2)
+            ) {
+                item { Text("text-1") }
+                item { Text("text-2") }
+                item { Text("text-3") }
+                item { Text("text-4") }
+            }
+        }
+
+        onNode(hasTestTag("test-list"))
+            .onChildren()
+            .assertCountEquals(4)
+            .filter(hasText("text-1"))
+            .assertCountEquals(1)
     }
 }
 

@@ -34,8 +34,10 @@ import androidx.glance.appwidget.LocalAppWidgetOptions
 import androidx.glance.appwidget.RemoteViewsRoot
 import androidx.glance.session.globalSnapshotMonitor
 import androidx.glance.testing.GlanceNodeAssertion
+import androidx.glance.testing.GlanceNodeAssertionCollection
 import androidx.glance.testing.GlanceNodeMatcher
 import androidx.glance.testing.TestContext
+import androidx.glance.testing.matcherToSelector
 import androidx.glance.testing.unit.GlanceMappedNode
 import androidx.glance.testing.unit.MappedNode
 import kotlin.time.Duration
@@ -154,10 +156,17 @@ internal class GlanceAppWidgetUnitTestEnvironment(
     ): GlanceNodeAssertion<MappedNode, GlanceMappedNode> {
         // Always let all the enqueued tasks finish before inspecting the tree.
         testScope.testScheduler.runCurrent()
-        // Calling onNode resets the previously matched nodes and starts a new matching chain.
-        testContext.reset()
         // Delegates matching to the next assertion.
-        return GlanceNodeAssertion(matcher, testContext)
+        return GlanceNodeAssertion(testContext, matcher.matcherToSelector())
+    }
+
+    override fun onAllNodes(
+        matcher: GlanceNodeMatcher<MappedNode>
+    ): GlanceNodeAssertionCollection<MappedNode, GlanceMappedNode> {
+        // Always let all the enqueued tasks finish before inspecting the tree.
+        testScope.testScheduler.runCurrent()
+        // Delegates matching to the next assertion.
+        return GlanceNodeAssertionCollection(testContext, matcher.matcherToSelector())
     }
 
     override fun setAppWidgetSize(size: DpSize) {

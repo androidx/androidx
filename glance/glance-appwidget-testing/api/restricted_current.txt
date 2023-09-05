@@ -42,6 +42,9 @@ package androidx.glance.appwidget.testing.unit {
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartServiceAction(android.content.Intent intent, optional boolean isForegroundService);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartServiceAction(Class<? extends android.app.Service> serviceClass, optional boolean isForegroundService);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isChecked();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isIndeterminateCircularProgressIndicator();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isIndeterminateLinearProgressIndicator();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isLinearProgressIndicator(float progress);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isNotChecked();
   }
 
