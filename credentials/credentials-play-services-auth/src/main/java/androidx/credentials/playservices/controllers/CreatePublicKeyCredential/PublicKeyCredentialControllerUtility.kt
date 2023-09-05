@@ -46,7 +46,6 @@ import com.google.android.gms.fido.fido2.api.common.Attachment
 import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference
 import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse
-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse
 import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria
@@ -150,52 +149,6 @@ internal class PublicKeyCredentialControllerUtility {
       json.put(JSON_KEY_RESPONSE, responseJson)
     }
 
-    private fun convertToProperNamingScheme(
-      authenticatorResponse: AuthenticatorAttestationResponse
-    ): Array<out String> {
-      val transportArray = authenticatorResponse.transports
-      var ix = 0
-      for (transport in transportArray) {
-        if (transport == "cable") {
-          transportArray[ix] = "hybrid"
-        }
-        ix += 1
-      }
-      return transportArray
-    }
-
-    // This can be shared by both get and create flow response parsers
-    internal fun addOptionalAuthenticatorAttachmentAndRequiredExtensions(
-      authenticatorAttachment: String?,
-      hasClientExtensionResults: Boolean,
-      isDiscoverableCredential: Boolean?,
-      json: JSONObject
-    ) {
-
-      if (authenticatorAttachment != null) {
-        json.put(JSON_KEY_AUTH_ATTACHMENT, authenticatorAttachment)
-      }
-
-      val clientExtensionsJson = JSONObject()
-
-      if (hasClientExtensionResults) {
-        try {
-          if (isDiscoverableCredential != null) {
-            val credPropsObject = JSONObject()
-            credPropsObject.put(JSON_KEY_RK, isDiscoverableCredential)
-            clientExtensionsJson.put(JSON_KEY_CRED_PROPS, credPropsObject)
-          }
-        } catch (t: Throwable) {
-          Log.e(
-            TAG,
-            "ClientExtensionResults faced possible implementation " +
-              "inconsistency in uvmEntries - $t"
-          )
-        }
-      }
-      json.put(JSON_KEY_CLIENT_EXTENSION_RESULTS, clientExtensionsJson)
-    }
-
     fun toAssertPasskeyResponse(cred: SignInCredential): String {
       var json = JSONObject()
       val publicKeyCred = cred.publicKeyCredential
@@ -219,41 +172,11 @@ internal class PublicKeyCredentialControllerUtility {
           Log.e(
             TAG,
             "AuthenticatorResponse expected assertion response but " +
-              "got: ${authenticatorResponse.javaClass.name}"
+                "got: ${authenticatorResponse.javaClass.name}"
           )
         }
       }
       return json.toString()
-    }
-
-    internal fun beginSignInAssertionResponse(
-      clientDataJSON: ByteArray,
-      authenticatorData: ByteArray,
-      signature: ByteArray,
-      userHandle: ByteArray?,
-      json: JSONObject,
-      publicKeyCredId: String,
-      publicKeyCredRawId: ByteArray,
-      publicKeyCredType: String,
-      authenticatorAttachment: String?,
-      hasClientExtensionResults: Boolean,
-      isDiscoverableCredential: Boolean?
-    ) {
-      val responseJson = JSONObject()
-      responseJson.put(JSON_KEY_CLIENT_DATA, b64Encode(clientDataJSON))
-      responseJson.put(JSON_KEY_AUTH_DATA, b64Encode(authenticatorData))
-      responseJson.put(JSON_KEY_SIGNATURE, b64Encode(signature))
-      userHandle?.let { responseJson.put(JSON_KEY_USER_HANDLE, b64Encode(userHandle)) }
-      json.put(JSON_KEY_RESPONSE, responseJson)
-      json.put(JSON_KEY_ID, publicKeyCredId)
-      json.put(JSON_KEY_RAW_ID, b64Encode(publicKeyCredRawId))
-      json.put(JSON_KEY_TYPE, publicKeyCredType)
-      addOptionalAuthenticatorAttachmentAndRequiredExtensions(
-        authenticatorAttachment,
-        hasClientExtensionResults,
-        isDiscoverableCredential,
-        json
-      )
     }
 
     /**
