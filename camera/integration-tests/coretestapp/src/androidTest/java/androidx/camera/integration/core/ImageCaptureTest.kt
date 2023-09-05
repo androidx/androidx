@@ -1309,7 +1309,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1341,7 +1348,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val saveLocation = temporaryFolder.newFile("test.jpg")
@@ -1365,7 +1379,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1396,7 +1417,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1498,6 +1526,22 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // Check the output format is correct.
         assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun canCaptureImage_whenOnlyImageCaptureBound_withYuvBufferFormat() {
+        val cameraHwLevel = CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK)
+            ?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        assumeTrue(
+            "TODO(b/298138582): Check if MeteringRepeating will need to be added while" +
+                " choosing resolution for ImageCapture",
+            cameraHwLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
+                cameraHwLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+
+        canTakeImages(ImageCapture.Builder().apply {
+            setBufferFormat(ImageFormat.YUV_420_888)
+        })
     }
 
     private fun getCameraSelectorWithSessionProcessor(
