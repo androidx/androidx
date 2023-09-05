@@ -216,8 +216,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("slider_customColors_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_middle_steps_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -232,8 +232,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_middle_steps_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_middle_steps_enabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -251,8 +251,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_middle_steps_enabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_middle_steps_dark_enabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -270,8 +270,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_enabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_middle_steps_dark_disabled() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -286,8 +286,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_middle_steps_dark_disabled")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_overlapingThumbs() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -301,8 +301,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_overlapingThumbs")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_fullRange() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -316,8 +316,8 @@ class SliderScreenshotTest {
         assertSliderAgainstGolden("rangeSlider_fullRange")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    @ExperimentalMaterial3Api
     fun rangeSliderTest_steps_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
