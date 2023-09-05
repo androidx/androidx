@@ -332,7 +332,7 @@ public class MacrobenchmarkScope(
         // Staging location before we write it again using Outputs.writeFile(...)
         Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
         // Report(
-        val outputPath = Outputs.writeFile(fileName, fileName) {
+        val outputPath = Outputs.writeFile(fileName) {
             Log.d(TAG, "Writing method traces to ${it.absolutePath}")
             stagingFile.copyTo(it, overwrite = true)
             // Cleanup

@@ -60,7 +60,7 @@ object MethodTracing {
         val stagingPath = "${Outputs.dirUsableByAppAndShell}/_$fileName"
         Shell.executeScriptSilent("cp '$sourcePath' '$stagingPath'")
         // Report
-        Outputs.writeFile(fileName, fileName) {
+        Outputs.writeFile(fileName) {
             val staging = File(stagingPath)
             // No need to clean up, here because the clean up happens automatically on subsequent
             // test runs.
