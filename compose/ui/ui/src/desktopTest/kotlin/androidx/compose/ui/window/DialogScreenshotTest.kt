@@ -28,6 +28,7 @@ import androidx.compose.ui.renderComposeScene
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.unit.dp
+import kotlin.test.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +40,7 @@ class DialogScreenshotTest {
     @get:Rule
     val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/window")
 
+    @Ignore("TODO fails on some macOS'es, fix in https://github.com/JetBrains/compose-multiplatform/issues/3599")
     @Test
     fun dialogScrimBlending() {
         val snapshot = renderComposeScene(width = 40, height = 40) {

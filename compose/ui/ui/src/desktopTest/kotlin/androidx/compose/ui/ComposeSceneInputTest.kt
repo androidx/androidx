@@ -412,7 +412,6 @@ class ComposeSceneInputTest {
             background.Content()
         }
 
-        println("Q1")
         scene.sendPointerEvent(
             PointerEventType.Press,
             touch(10f, 20f, pressed = true, id = 1),

@@ -327,8 +327,10 @@ class WindowStateTest {
         assertThat(state.placement).isEqualTo(WindowPlacement.Fullscreen)
     }
 
+    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3557): check this test on Linux CI
     @Test
-    fun maximize() = runApplicationTest(useDelay = isLinux || isMacOs) {
+    fun maximize() = runApplicationTest(useDelay = isMacOs) {
+        assumeTrue(!isLinux)
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         lateinit var window: ComposeWindow
 
@@ -395,11 +397,13 @@ class WindowStateTest {
         assertThat(window.placement).isEqualTo(WindowPlacement.Maximized)
     }
 
+    // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3557): check this test on Linux CI
     @Test
     fun `restore size and position after maximize`() = runApplicationTest(
-        useDelay = isMacOs || isLinux,
+        useDelay = isMacOs,
         delayMillis = 1000
     ) {
+        assumeTrue(!isLinux)
         val size = Dimension(201, 203)
         val position = Point(196, 257)
 
@@ -582,46 +586,43 @@ class WindowStateTest {
             position = WindowPosition(3.dp, 3.dp),
             isMinimized = true,
         )
+        lateinit var lastRecomposedState: WindowState
 
         var index by mutableStateOf(0)
-        val states = mutableListOf<WindowState>()
 
         launchTestApplication {
             val saveableStateHolder = rememberSaveableStateHolder()
             saveableStateHolder.SaveableStateProvider(index) {
                 val state = rememberWindowState()
-
-                LaunchedEffect(Unit) {
-                    state.placement = newState.placement
-                    state.isMinimized = newState.isMinimized
-                    state.size = newState.size
-                    state.position = newState.position
-                    states.add(state)
-                }
+                lastRecomposedState = state
             }
 
             Window(onCloseRequest = {}) {}
         }
 
         awaitIdle()
-        assertThat(states.size == 1)
+        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
+        lastRecomposedState.placement = newState.placement
+        lastRecomposedState.isMinimized = newState.isMinimized
+        lastRecomposedState.size = newState.size
+        lastRecomposedState.position = newState.position
 
         index = 1
         awaitIdle()
-        assertThat(states.size == 2)
+        assertThat(lastRecomposedState.placement).isEqualTo(initialState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(initialState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(initialState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(initialState.position)
 
         index = 0
         awaitIdle()
-        assertThat(states.size == 3)
-
-        assertThat(states[0].placement == initialState.placement)
-        assertThat(states[0].isMinimized == initialState.isMinimized)
-        assertThat(states[0].size == initialState.size)
-        assertThat(states[0].position == initialState.position)
-        assertThat(states[2].placement == newState.placement)
-        assertThat(states[2].isMinimized == newState.isMinimized)
-        assertThat(states[2].size == newState.size)
-        assertThat(states[2].position == newState.position)
+        assertThat(lastRecomposedState.placement).isEqualTo(newState.placement)
+        assertThat(lastRecomposedState.isMinimized).isEqualTo(newState.isMinimized)
+        assertThat(lastRecomposedState.size).isEqualTo(newState.size)
+        assertThat(lastRecomposedState.position).isEqualTo(newState.position)
     }
 
     @Test

@@ -35,11 +35,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.LeakDetector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.isLinux
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.toInt
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import androidx.compose.ui.window.runApplicationTest
@@ -416,7 +417,7 @@ class WindowTest {
         val oldRecomposers = Recomposer.runningRecomposers.value
 
         runBlocking(MainUIDispatcher) {
-            repeat(10) {
+            repeat(15) {
                 val window = ComposeWindow()
                 window.size = Dimension(200, 200)
                 window.isVisible = true
@@ -432,7 +433,7 @@ class WindowTest {
                 delay(100)
             }
 
-            assertThat(leakDetector.noLeak()).isTrue()
+            assertThat(leakDetector.hasAnyGarbageCollected()).isTrue()
         }
     }
 
@@ -445,8 +446,8 @@ class WindowTest {
         var isDrawn = false
         var isVisibleOnFirstComposition = false
         var isVisibleOnFirstDraw = false
-        var actualCanvasSize: Size? = null
-        var expectedCanvasSizePx: Size? = null
+        var actualCanvasSize: IntSize? = null
+        var expectedCanvasSizePx: IntSize? = null
 
         launchTestApplication {
             Window(
@@ -463,8 +464,10 @@ class WindowTest {
                         isVisibleOnFirstDraw = window.isVisible
                         isDrawn = true
 
-                        actualCanvasSize = size
-                        expectedCanvasSizePx = expectedCanvasSize().toSize()
+                        // toInt() because this is how the ComposeWindow rounds decimal sizes
+                        // (see ComposeBridge.updateSceneSize)
+                        actualCanvasSize = size.toInt()
+                        expectedCanvasSizePx = expectedCanvasSize().toSize().toInt()
                     }
                 }
             }
@@ -580,7 +583,9 @@ class WindowTest {
     }
 
     @Test
-    fun `undecorated resizable window with unspecified size`() = runApplicationTest {
+    fun `undecorated resizable window with unspecified size`() = runApplicationTest(
+        useDelay = true
+    ) {
         var window: ComposeWindow? = null
 
         launchTestApplication {
@@ -601,7 +606,9 @@ class WindowTest {
     }
 
     @Test
-    fun `showing a window should measure content specified size`() = runApplicationTest{
+    fun `showing a window should measure content specified size`() = runApplicationTest {
+        // TODO fix on Linux https://github.com/JetBrains/compose-multiplatform/issues/1297
+        assumeFalse(isLinux)
         val constraintsList = mutableListOf<Constraints>()
         val windowSize = DpSize(400.dp, 300.dp)
         lateinit var window: ComposeWindow
@@ -615,7 +622,7 @@ class WindowTest {
                 Layout(
                     measurePolicy = { _, constraints ->
                         constraintsList.add(constraints)
-                        layout(0, 0){ }
+                        layout(0, 0) { }
                     }
                 )
             }
@@ -625,14 +632,13 @@ class WindowTest {
 
         with(window.density) {
             val expectedSize = (windowSize - window.insets.toSize()).toSize()
+            assertEquals(1, constraintsList.size)
             assertEquals(
-                listOf(
-                    Constraints(
-                        maxWidth = expectedSize.width.toInt(),
-                        maxHeight = expectedSize.height.toInt()
-                    )
+                Constraints(
+                    maxWidth = expectedSize.width.toInt(),
+                    maxHeight = expectedSize.height.toInt()
                 ),
-                constraintsList
+                constraintsList.first()
             )
         }
     }

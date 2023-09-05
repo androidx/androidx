@@ -56,6 +56,7 @@ class ExternalDragTest {
         launchTestApplication {
             Window(
                 onCloseRequest = ::exitApplication,
+                undecorated = true,
                 state = rememberWindowState(width = 200.dp, height = 100.dp)
             ) {
                 window = this.window
@@ -83,7 +84,6 @@ class ExternalDragTest {
             onDragInsideWindow(TestWindowDragValue(Offset(70f, 70f)))
         }
         awaitIdle()
-
         assertThat(events.size).isEqualTo(2)
         assertThat(events.last()).isEqualTo(Drag(Offset(70f, 70f)))
     }
@@ -98,6 +98,7 @@ class ExternalDragTest {
         launchTestApplication {
             Window(
                 onCloseRequest = ::exitApplication,
+                undecorated = true,
                 state = rememberWindowState(width = 200.dp, height = 100.dp)
             ) {
                 window = this.window
@@ -113,7 +114,7 @@ class ExternalDragTest {
 
         awaitIdle()
         val componentYOffset = with(window.density) {
-            25.dp.toPx()
+            25.dp.roundToPx()
         }
 
         assertThat(events.size).isEqualTo(0)

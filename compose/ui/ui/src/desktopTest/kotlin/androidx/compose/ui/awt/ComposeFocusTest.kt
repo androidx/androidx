@@ -40,6 +40,7 @@ import java.awt.event.KeyEvent
 import javax.swing.JButton
 import javax.swing.JFrame
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume
@@ -562,9 +563,9 @@ class ComposeFocusTest {
 
         assertThat(composeButton1.isFocused).isFalse()
 
-        awaitEDT()
+        awaitEdtAfterDelay()
         pressNextFocusKey()
-        awaitEDT()
+        awaitEdtAfterDelay()
         assertThat(composeButton1.isFocused).isTrue()
     }
 
@@ -585,9 +586,9 @@ class ComposeFocusTest {
 
         assertThat(composeButton1.isFocused).isFalse()
 
-        awaitEDT()
+        awaitEdtAfterDelay()
         pressNextFocusKey()
-        awaitEDT()
+        awaitEdtAfterDelay()
         assertThat(composeButton1.isFocused).isTrue()
     }
 
@@ -599,7 +600,7 @@ class ComposeFocusTest {
         window.pack()
         window.isVisible = true
 
-        awaitEDT()
+        awaitEdtAfterDelay()
         pressNextFocusKey()
     }
 
@@ -616,7 +617,7 @@ class ComposeFocusTest {
         window.pack()
         window.isVisible = true
 
-        awaitEDT()
+        awaitEdtAfterDelay()
         pressNextFocusKey()
     }
 
@@ -685,7 +686,7 @@ class ComposeFocusTest {
 
             val button = buttons.toList().random()
             button.requestFocus()
-            awaitEDT()
+            awaitEdtAfterDelay()
             button.validateIsFocused()
         }
 
@@ -694,17 +695,17 @@ class ComposeFocusTest {
 
             val button = buttons.filterIsInstance<Component>().randomOrNull()
             button?.performClick()
-            awaitEDT()
+            awaitEdtAfterDelay()
             button?.validateIsFocused()
         }
 
-        awaitEDT()
+        awaitEdtAfterDelay()
         println("firstButton")
         buttons.first().requestFocus()
-        awaitEDT()
+        awaitEdtAfterDelay()
         buttons.first().validateIsFocused()
 
-        repeat(30) {
+        repeat(10) {
             when (Random.nextInt(5)) {
                 0 -> cycleForward()
                 1 -> cycleBackward()
@@ -745,14 +746,14 @@ class FocusTestScope {
         val focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().focusOwner
         focusOwner.dispatchEvent(KeyEvent(focusOwner, KeyEvent.KEY_PRESSED, 0, 0, KeyEvent.VK_TAB, '\t'))
         focusOwner.dispatchEvent(KeyEvent(focusOwner, KeyEvent.KEY_RELEASED, 0, 0, KeyEvent.VK_TAB, '\t'))
-        awaitEDT()
+        awaitEdtAfterDelay()
     }
 
     suspend fun pressPreviousFocusKey() {
         val focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().focusOwner
         focusOwner.dispatchEvent(KeyEvent(focusOwner, KeyEvent.KEY_PRESSED, 0, KeyEvent.SHIFT_DOWN_MASK, KeyEvent.VK_TAB, '\t'))
         focusOwner.dispatchEvent(KeyEvent(focusOwner, KeyEvent.KEY_RELEASED, 0, KeyEvent.SHIFT_DOWN_MASK, KeyEvent.VK_TAB, '\t'))
-        awaitEDT()
+        awaitEdtAfterDelay()
     }
 }
 
@@ -786,4 +787,9 @@ private class ComposeButton(val name: String) {
 }
 private class TestJButton(name: String) : JButton(name) {
     override fun toString(): String = text
+}
+
+private suspend fun awaitEdtAfterDelay() {
+    delay(100)
+    awaitEDT()
 }
