@@ -425,8 +425,8 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = { IconButtonDefaults.iconToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.surface },
-            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -436,8 +436,8 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = true,
             colors = { IconButtonDefaults.iconToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.primary },
-            contentColor = { MaterialTheme.colorScheme.onPrimary },
+            containerColor = { MaterialTheme.colorScheme.primary.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onPrimary.toDisabledColor() },
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -523,11 +523,11 @@ class IconToggleButtonTest {
             colors = {
                 IconButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    checkedContainerColor = overrideColor
+                    disabledCheckedContainerColor = overrideColor
                 )
             },
             containerColor = { overrideColor },
-            contentColor = { MaterialTheme.colorScheme.onPrimary }
+            contentColor = { MaterialTheme.colorScheme.onPrimary.toDisabledColor() }
         )
     }
 
@@ -542,10 +542,10 @@ class IconToggleButtonTest {
             colors = {
                 IconButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    checkedContentColor = overrideColor
+                    disabledCheckedContentColor = overrideColor
                 )
             },
-            containerColor = { MaterialTheme.colorScheme.primary },
+            containerColor = { MaterialTheme.colorScheme.primary.toDisabledColor() },
             contentColor = { overrideColor }
         )
     }
@@ -561,11 +561,11 @@ class IconToggleButtonTest {
             colors = {
                 IconButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    uncheckedContainerColor = overrideColor
+                    disabledUncheckedContainerColor = overrideColor
                 )
             },
             containerColor = { overrideColor },
-            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
     }
 
@@ -580,11 +580,11 @@ class IconToggleButtonTest {
             colors = {
                 IconButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
-                    uncheckedContentColor = overrideColor
+                    disabledUncheckedContentColor = overrideColor
                 )
             },
             contentColor = { overrideColor },
-            containerColor = { MaterialTheme.colorScheme.surface }
+            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() }
         )
     }
 
@@ -618,7 +618,9 @@ class IconToggleButtonTest {
                 onCheckedChange = {},
                 enabled = false,
                 content = { TestImage() },
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .semantics { role = overrideRole }
             )
         }
 
@@ -639,7 +641,6 @@ class IconToggleButtonTest {
         contentColor: @Composable () -> Color,
     ) {
         verifyColors(
-            status = status,
             expectedContainerColor = containerColor,
             expectedContentColor = contentColor,
             content = {
@@ -705,10 +706,8 @@ class IconToggleButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.verifyColors(
-        status: Status,
         expectedContainerColor: @Composable () -> Color,
         expectedContentColor: @Composable () -> Color,
-        applyAlphaForDisabled: Boolean = true,
         content: @Composable () -> Color
     ) {
         val testBackgroundColor = Color.White
@@ -717,17 +716,8 @@ class IconToggleButtonTest {
         var actualContentColor = Color.Transparent
         setContentWithTheme {
             finalExpectedContainerColor =
-                if (status.enabled() || !applyAlphaForDisabled) {
-                    expectedContainerColor()
-                } else {
-                    expectedContainerColor().copy(ContentAlpha.disabled)
-                }.compositeOver(testBackgroundColor)
-            finalExpectedContent =
-                if (status.enabled() || !applyAlphaForDisabled) {
-                    expectedContentColor()
-                } else {
-                    expectedContentColor().copy(ContentAlpha.disabled)
-                }
+                expectedContainerColor().compositeOver(testBackgroundColor)
+            finalExpectedContent = expectedContentColor()
             Box(
                 Modifier
                     .fillMaxSize()
