@@ -461,19 +461,18 @@ class AdvertiserFragment : Fragment() {
             isGattServerOpen = true
 
             bluetoothLe.openGattServer(viewModel.gattServerServices) {
-                connectRequest.collect {
+                connectRequests.collect {
                     launch {
                         it.accept {
                             requests.collect {
                                 when (it) {
-                                    is GattServerRequest.ReadCharacteristicRequest ->
-                                        it.sendResponse(/*success=*/true,
-                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1)
-                                                .array()
+                                    is GattServerRequest.ReadCharacteristic ->
+                                        it.sendResponse(
+                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array()
                                         )
 
-                                    is GattServerRequest.WriteCharacteristicRequest ->
-                                        it.sendResponse(/*success=*/true, null)
+                                    is GattServerRequest.WriteCharacteristic ->
+                                        it.sendResponse(null)
 
                                     else -> throw NotImplementedError("unknown request")
                                 }
