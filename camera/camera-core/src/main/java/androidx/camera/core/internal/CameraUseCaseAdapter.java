@@ -25,7 +25,6 @@ import static androidx.camera.core.streamsharing.StreamSharing.getCaptureTypes;
 import static androidx.camera.core.streamsharing.StreamSharing.isStreamSharing;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -677,6 +676,7 @@ public final class CameraUseCaseAdapter implements Camera {
             SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
                     cameraInfoInternal,
                     sensorRect != null ? rectToSize(sensorRect) : null);
+            boolean isPreviewStabilizationOn = false;
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
@@ -687,6 +687,9 @@ public final class CameraUseCaseAdapter implements Camera {
                 configToSupportedSizesMap.put(combinedUseCaseConfig,
                         supportedOutputSizesSorter.getSortedSupportedOutputSizes(
                                 combinedUseCaseConfig));
+
+                // TODO(kailianc): extract the use case's video stabilization settings  and set
+                //  to isPreviewStabilizationOn
             }
 
             // Get suggested stream specifications and update the use case session configuration
@@ -695,7 +698,8 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                             cameraMode,
                             cameraId, existingSurfaces,
-                            configToSupportedSizesMap);
+                            configToSupportedSizesMap,
+                            isPreviewStabilizationOn);
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
                 suggestedStreamSpecs.put(entry.getValue(),
