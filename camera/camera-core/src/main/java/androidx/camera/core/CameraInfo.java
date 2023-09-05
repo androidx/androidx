@@ -298,6 +298,26 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns if video stabilization is supported on the device.
+     *
+     * @return true if supported, otherwise false.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default boolean isVideoStabilizationSupported() {
+        return false;
+    }
+
+    /**
+     * Returns if preview stabilization is supported on the device.
+     *
+     * @return true if supported, otherwise false.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default boolean isPreviewStabilizationSupported() {
+        return false;
+    }
+
+    /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
      * @return true if supported, otherwise false.
