@@ -54,10 +54,8 @@ public class TerminationInfo {
      * sandbox has been shutdown. If necessary, restart the sandbox at the earliest opportunity in
      * order to reclaim these resources.
      * <p>
-     * Typically, other isolates within the same sandbox may continue to be used, created, and
-     * closed as normal, but beware that not all JavaScript sandbox service implementations
-     * (particularly older ones) handle memory exhaustion equally gracefully, and may instead
-     * crash the entire sandbox, which will instead result in {@link #STATUS_SANDBOX_DEAD}.
+     * Note that memory exhaustion will kill the whole sandbox, so any other isolates within the
+     * same sandbox will be terminated with {@link #STATUS_SANDBOX_DEAD}.
      */
     public static final int STATUS_MEMORY_LIMIT_EXCEEDED =
             IJsSandboxIsolateClient.TERMINATE_MEMORY_LIMIT_EXCEEDED;

@@ -49,9 +49,14 @@ public final class IsolateStartupParameters {
      * <p>
      * Exceeding this limit will usually result in all unfinished and future evaluations failing
      * with {@link MemoryLimitExceededException} and the isolate terminating with a status of
-     * {@link TerminationInfo#STATUS_MEMORY_LIMIT_EXCEEDED}, but beware that not all JavaScript
-     * sandbox service implementations (particularly older ones) handle memory exhaustion equally
-     * gracefully, and may crash the entire sandbox (see {@link SandboxDeadException}).
+     * {@link TerminationInfo#STATUS_MEMORY_LIMIT_EXCEEDED}. Note that exceeding the memory limit
+     * will take down the entire sandbox - not just the responsible isolate - and all other
+     * isolates will receive generic {@link SandboxDeadException} and
+     * {@link TerminationInfo#STATUS_SANDBOX_DEAD} errors.
+     * <p>
+     * Not all JavaScript sandbox service implementations (particularly older ones) handle memory
+     * exhaustion equally, and may crash the sandbox without attributing the failure to memory
+     * exhaustion in a particular isolate.
      *
      * @param size heap size in bytes
      */
