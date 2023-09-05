@@ -22,12 +22,12 @@ import androidx.annotation.RestrictTo.Scope
 /**
  * Represents a Glance node from the tree that can be asserted on.
  *
- * An instance of [GlanceNodeAssertion] can be obtained from {@code onNode} and equivalent methods
- * on a GlanceNodeAssertionProvider
+ * An instance of [GlanceNodeAssertion] can be obtained from `onNode` and equivalent methods
+ * on a [GlanceNodeAssertionsProvider]
  */
 class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP) constructor(
-    private val matcher: GlanceNodeMatcher<R>,
     private val testContext: TestContext<R, T>,
+    private val selector: GlanceNodeSelector<R>,
 ) {
     /**
      * Asserts that the node was found.
@@ -35,7 +35,7 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
      * @throws [AssertionError] if the assert fails.
      */
     fun assertExists(): GlanceNodeAssertion<R, T> {
-        findSingleMatchingNode(finalErrorMessageOnFail = "Failed assertExists")
+        findSingleMatchingNode(errorMessageOnFail = "Failed assertExists")
         return this
     }
 
@@ -45,14 +45,17 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
      * @throws [AssertionError] if the assert fails.
      */
     fun assertDoesNotExist(): GlanceNodeAssertion<R, T> {
-        val matchedNodesCount = findMatchingNodes().size
+        val errorMessageOnFail = "Failed assertDoesNotExist"
+        val matchedNodesCount = testContext.findMatchingNodes(selector, errorMessageOnFail).size
         if (matchedNodesCount != 0) {
             throw AssertionError(
-                buildErrorMessageForCountMismatch(
-                    errorMessage = "Failed assertDoesNotExist",
-                    matcherDescription = matcher.description,
-                    expectedCount = 0,
-                    actualCount = matchedNodesCount
+                buildErrorMessageWithReason(
+                    errorMessageOnFail = errorMessageOnFail,
+                    reason = buildErrorReasonForCountMismatch(
+                        matcherDescription = selector.description,
+                        expectedCount = 0,
+                        actualCount = matchedNodesCount
+                    )
                 )
             )
         }
@@ -93,39 +96,28 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
         return this
     }
 
-    private fun findSingleMatchingNode(finalErrorMessageOnFail: String): GlanceNode<R> {
-        val matchingNodes = findMatchingNodes()
-        val matchedNodesCount = matchingNodes.size
-        if (matchedNodesCount != 1) {
+    /**
+     * Returns [GlanceNodeAssertionCollection] that allows performing assertions on the children of
+     * the node selected by this [GlanceNodeAssertion].
+     */
+    fun onChildren(): GlanceNodeAssertionCollection<R, T> {
+        return GlanceNodeAssertionCollection(testContext, selector.addChildrenSelector())
+    }
+
+    private fun findSingleMatchingNode(errorMessageOnFail: String): GlanceNode<R> {
+        val matchingNodes = testContext.findMatchingNodes(selector, errorMessageOnFail)
+        if (matchingNodes.size != 1) {
             throw AssertionError(
-                buildErrorMessageForCountMismatch(
-                    finalErrorMessageOnFail,
-                    matcher.description,
-                    expectedCount = 1,
-                    actualCount = matchedNodesCount
+                buildErrorMessageWithReason(
+                    errorMessageOnFail = errorMessageOnFail,
+                    reason = buildErrorReasonForCountMismatch(
+                        matcherDescription = selector.description,
+                        expectedCount = 1,
+                        actualCount = matchingNodes.size
+                    )
                 )
             )
         }
         return matchingNodes.single()
-    }
-
-    private fun findMatchingNodes(): List<GlanceNode<R>> {
-        if (testContext.cachedMatchedNodes.isEmpty()) {
-            val rootGlanceNode =
-                checkNotNull(testContext.rootGlanceNode) { "No root GlanceNode found." }
-            testContext.cachedMatchedNodes = findMatchingNodes(rootGlanceNode)
-        }
-        return testContext.cachedMatchedNodes
-    }
-
-    private fun findMatchingNodes(node: GlanceNode<R>): List<GlanceNode<R>> {
-        val matching = mutableListOf<GlanceNode<R>>()
-        if (matcher.matches(node)) {
-            matching.add(node)
-        }
-        for (child in node.children()) {
-            matching.addAll(findMatchingNodes(child))
-        }
-        return matching.toList()
     }
 }

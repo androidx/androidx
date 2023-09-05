@@ -12,9 +12,19 @@ package androidx.glance.testing {
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assert(androidx.glance.testing.GlanceNodeMatcher<R> matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertDoesNotExist();
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertExists();
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> onChildren();
+  }
+
+  public final class GlanceNodeAssertionCollection<R, T extends androidx.glance.testing.GlanceNode<R>> {
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> assertAll(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> assertAny(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> assertCountEquals(int expectedCount);
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> filter(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
+    method public operator androidx.glance.testing.GlanceNodeAssertion<R,T> get(int index);
   }
 
   public interface GlanceNodeAssertionsProvider<R, T extends androidx.glance.testing.GlanceNode<R>> {
+    method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> onAllNodes(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> onNode(androidx.glance.testing.GlanceNodeMatcher<R> matcher);
   }
 
