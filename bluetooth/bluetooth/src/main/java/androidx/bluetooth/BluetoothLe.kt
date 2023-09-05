@@ -35,6 +35,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import java.util.UUID
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
@@ -252,12 +253,6 @@ class BluetoothLe constructor(private val context: Context) {
          * Returns a _cold_ [Flow] that contains the indicated value of the given characteristic.
          */
         fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
-
-        /**
-         * Suspends the current coroutine until the pending operations are handled and the
-         * connection is closed, then it invokes the given [block] before resuming the coroutine.
-         */
-        suspend fun awaitClose(block: () -> Unit)
     }
 
     /**
@@ -269,6 +264,7 @@ class BluetoothLe constructor(private val context: Context) {
      * @param device a [BluetoothDevice] to connect to
      * @param block a block of code that is invoked after the connection is made
      *
+     * @throws CancellationException if connect failed or it's canceled
      * @return a result returned by the given block if the connection was successfully finished
      *         or a failure with the corresponding reason
      *
@@ -277,7 +273,7 @@ class BluetoothLe constructor(private val context: Context) {
     suspend fun <R> connectGatt(
         device: BluetoothDevice,
         block: suspend GattClientScope.() -> R
-    ): Result<R> {
+    ): R {
         return client.connect(device, block)
     }
 
