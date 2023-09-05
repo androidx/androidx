@@ -150,7 +150,7 @@ class TextFieldBuffer internal constructor(
     ) {
         require(start <= end) { "Expected start=$start <= end=$end" }
         require(textStart <= textEnd) { "Expected textStart=$textStart <= textEnd=$textEnd" }
-        onTextWillChange(TextRange(start, end), textEnd - textStart)
+        onTextWillChange(start, end, textEnd - textStart)
         buffer.replace(start, end, text, textStart, textEnd)
     }
 
@@ -168,7 +168,7 @@ class TextFieldBuffer internal constructor(
     // This append overload should be first so it ends up being the target of links to this method.
     override fun append(text: CharSequence?): Appendable = apply {
         if (text != null) {
-            onTextWillChange(TextRange(length), text.length)
+            onTextWillChange(length, length, text.length)
             buffer.replace(buffer.length, buffer.length, text)
         }
     }
@@ -176,30 +176,31 @@ class TextFieldBuffer internal constructor(
     // Doc inherited from Appendable.
     override fun append(text: CharSequence?, start: Int, end: Int): Appendable = apply {
         if (text != null) {
-            onTextWillChange(TextRange(length), end - start)
+            onTextWillChange(length, length, end - start)
             buffer.replace(buffer.length, buffer.length, text.subSequence(start, end))
         }
     }
 
     // Doc inherited from Appendable.
     override fun append(char: Char): Appendable = apply {
-        onTextWillChange(TextRange(length), 1)
+        onTextWillChange(length, length, 1)
         buffer.replace(buffer.length, buffer.length, char.toString())
     }
 
     /**
      * Called just before the text contents are about to change.
      *
-     * @param rangeToBeReplaced The range in the current text that's about to be replaced.
+     * @param replaceStart The first offset to be replaced (inclusive).
+     * @param replaceEnd The last offset to be replaced (exclusive).
      * @param newLength The length of the replacement.
      */
-    private fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {
+    private fun onTextWillChange(replaceStart: Int, replaceEnd: Int, newLength: Int) {
         (changeTracker ?: ChangeTracker().also { changeTracker = it })
-            .trackChange(rangeToBeReplaced, newLength)
+            .trackChange(replaceStart, replaceEnd, newLength)
 
         // Adjust selection.
-        val start = rangeToBeReplaced.min
-        val end = rangeToBeReplaced.max
+        val start = minOf(replaceStart, replaceEnd)
+        val end = maxOf(replaceStart, replaceEnd)
         var selStart = selectionInChars.min
         var selEnd = selectionInChars.max
 
@@ -448,7 +449,7 @@ class TextFieldBuffer internal constructor(
     /**
      * The ordered list of non-overlapping and discontinuous changes performed on a
      * [TextFieldBuffer] during the current [edit][TextFieldState.edit] or
-     * [filter][TextEditFilter.filter] operation. Changes are listed in the order they appear in the
+     * [filter][InputTransformation.transformInput] operation. Changes are listed in the order they appear in the
      * text, not the order in which they were made. Overlapping changes are represented as a single
      * change.
      */
