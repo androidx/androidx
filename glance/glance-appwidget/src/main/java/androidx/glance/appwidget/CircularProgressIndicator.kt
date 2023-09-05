@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
@@ -42,7 +43,8 @@ fun CircularProgressIndicator(
     )
 }
 
-internal class EmittableCircularProgressIndicator : Emittable {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class EmittableCircularProgressIndicator : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
 

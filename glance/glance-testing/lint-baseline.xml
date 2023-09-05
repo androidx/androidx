@@ -55,4 +55,13 @@
             file="src/main/java/androidx/glance/testing/unit/UnitTestFilters.kt"/>
     </issue>
 
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return node.children().any { checkIfSubtreeMatchesRecursive(matcher, it) }"
+        errorLine2="                               ~~~">
+        <location
+            file="src/main/java/androidx/glance/testing/unit/UnitTestFilters.kt"/>
+    </issue>
+
 </issues>

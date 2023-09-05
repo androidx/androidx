@@ -25,6 +25,8 @@ import androidx.glance.EmittableCheckable
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
+import androidx.glance.appwidget.EmittableCircularProgressIndicator
+import androidx.glance.appwidget.EmittableLinearProgressIndicator
 import androidx.glance.appwidget.action.SendBroadcastActionAction
 import androidx.glance.appwidget.action.SendBroadcastClassAction
 import androidx.glance.appwidget.action.SendBroadcastComponentAction
@@ -327,4 +329,53 @@ fun hasSendBroadcastAction(
         }
         false
     }
+}
+
+/**
+ * Returns a matcher that matches if a given node is a linear progress indicator with given progress
+ * value.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param progress the expected value of the current progress
+ */
+fun isLinearProgressIndicator(
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    progress: Float
+): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is a linear progress indicator with progress value: $progress"
+) { node ->
+    val emittable = node.value.emittable
+    emittable is EmittableLinearProgressIndicator &&
+        !emittable.indeterminate &&
+        emittable.progress == progress
+}
+
+/**
+ * Returns a matcher that matches if a given node is an indeterminate progress bar.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ */
+fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is an indeterminate linear progress indicator"
+) { node ->
+    val emittable = node.value.emittable
+    emittable is EmittableLinearProgressIndicator && emittable.indeterminate
+}
+
+/**
+ * Returns a matcher that matches if a given node is an indeterminate circular progress indicator.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ */
+fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
+    description = "is an indeterminate circular progress indicator"
+) { node ->
+    node.value.emittable is EmittableCircularProgressIndicator
 }

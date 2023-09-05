@@ -24,166 +24,7 @@ import androidx.glance.text.EmittableText
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class GlanceMappedNodeFiltersAndMatcherTest {
-    @Test
-    fun matchAny_match_returnsTrue() {
-        val node1 = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node1"
-            }
-        )
-        val node2 = GlanceMappedNode(
-            EmittableColumn().apply {
-                modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                EmittableText().apply { text = "node2" }
-            }
-        )
-
-        val result = hasTestTag("existing-test-tag").matchesAny(listOf(node1, node2))
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun matchAny_noMatch_returnsFalse() {
-        val node1 = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node1"
-            }
-        )
-        val node2 = GlanceMappedNode(
-            EmittableColumn().apply {
-                EmittableText().apply {
-                    text = "node2"
-                    // this won't be inspected, as EmittableColumn node is being run against
-                    // matcher, not its children
-                    modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
-                }
-            }
-        )
-
-        val result = hasTestTag("existing-test-tag").matchesAny(listOf(node1, node2))
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun andBetweenMatchers_match_returnsTrue() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("test-tag") and hasText("node")).matches(node)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun andBetweenMatchers_partialMatch_returnsFalse() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("test-tag") and hasText("non-existing-node"))
-            .matches(node)
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun andBetweenMatchers_noMatch_returnsFalse() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("non-existing") and hasText("non-existing-node"))
-            .matches(node)
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun orBetweenMatchers_bothMatch_returnsTrue() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("test-tag") or hasText("node"))
-            .matches(node)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun orBetweenMatchers_secondMatch_returnsTrue() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("non-existing-tag") or hasText("node"))
-            .matches(node)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun orBetweenMatchers_noneMatch_returnsFalse() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (hasTestTag("non-existing-tag") or hasText("non-existing-node"))
-            .matches(node)
-
-        assertThat(result).isFalse()
-    }
-
-    @Test
-    fun not_match_returnsTrue() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (!hasTestTag("non-existing-test-tag")).matches(node)
-
-        assertThat(result).isTrue()
-    }
-
-    @Test
-    fun not_noMatch_returnsFalse() {
-        val node = GlanceMappedNode(
-            EmittableText().apply {
-                text = "node"
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
-            }
-        )
-
-        val result = (!hasTestTag("test-tag")).matches(node)
-
-        assertThat(result).isFalse()
-    }
-
+class UnitTestFiltersTest {
     @Test
     fun hasTestTag_match_returnsTrue() {
         // a single node that will be matched against matcher returned by the filter under test
@@ -327,6 +168,54 @@ class GlanceMappedNodeFiltersAndMatcherTest {
             text = "non-EXISTING",
             ignoreCase = true
         ).matches(testSingleNode)
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun hasAnyDescendant_match_returnsTrue() {
+        val testNode = GlanceMappedNode(
+            EmittableColumn().apply {
+                children += EmittableText().apply {
+                    text = "node1"
+                }
+                children += EmittableColumn().apply {
+                    children += EmittableText().apply {
+                        text = "node2-a"
+                    }
+                    children += EmittableText().apply {
+                        text = "node2-b"
+                    }
+                }
+            }
+        )
+
+        val result =
+            hasAnyDescendant(hasText("node2-b")).matches(testNode)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun hasAnyDescendant_noMatch_returnsFalse() {
+        val testNode = GlanceMappedNode(
+            EmittableColumn().apply {
+                children += EmittableText().apply {
+                    text = "node1"
+                }
+                children += EmittableColumn().apply {
+                    children += EmittableText().apply {
+                        text = "node2-a"
+                    }
+                    children += EmittableText().apply {
+                        text = "node2-b"
+                    }
+                }
+            }
+        )
+
+        val result =
+            hasAnyDescendant(hasText("node3-a")).matches(testNode)
 
         assertThat(result).isFalse()
     }

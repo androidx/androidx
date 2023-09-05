@@ -70,6 +70,7 @@ package androidx.glance.testing.unit {
   }
 
   public final class UnitTestFiltersKt {
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasAnyDescendant(androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> matcher);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasClickAction();
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value, optional boolean ignoreCase);

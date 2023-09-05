@@ -28,6 +28,7 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.semantics.SemanticsPropertyKey
+import androidx.glance.testing.GlanceNode
 import androidx.glance.testing.GlanceNodeAssertionsProvider
 import androidx.glance.testing.GlanceNodeMatcher
 
@@ -143,7 +144,7 @@ private fun hasContentDescription(
 }
 
 /**
- * Returns a matcher that matches if text on node contains the provided text as it substring.
+ * Returns a matcher that matches if text on node contains the provided text as its substring.
  *
  * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
  * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
@@ -260,6 +261,34 @@ fun <T : Activity> hasStartActivityClickAction(
             }
         }
         false
+    }
+}
+
+/**
+ * Returns a matcher that matches if a given node has a descendant node somewhere in its
+ * sub-hierarchy that the matches the provided matcher.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param matcher a matcher that needs to be satisfied for the descendant node to be matched
+ */
+fun hasAnyDescendant(matcher: GlanceNodeMatcher<MappedNode>): GlanceNodeMatcher<MappedNode> {
+
+    fun checkIfSubtreeMatchesRecursive(
+        matcher: GlanceNodeMatcher<MappedNode>,
+        node: GlanceNode<MappedNode>
+    ): Boolean {
+        if (matcher.matchesAny(node.children())) {
+            return true
+        }
+
+        return node.children().any { checkIfSubtreeMatchesRecursive(matcher, it) }
+    }
+
+    return GlanceNodeMatcher("hasAnyDescendantThat(${matcher.description})") {
+        checkIfSubtreeMatchesRecursive(matcher, it)
     }
 }
 
