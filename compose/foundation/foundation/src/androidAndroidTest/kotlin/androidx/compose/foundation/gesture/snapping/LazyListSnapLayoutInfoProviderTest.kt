@@ -77,11 +77,11 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
 
         rule.runOnIdle {
             assertEquals(
-                with(layoutInfoProvider) { density.calculateApproachOffset(10000f) },
+                layoutInfoProvider.calculateApproachOffset(10000f),
                 calculateTargetOffset(10000f)
             )
             assertEquals(
-                with(layoutInfoProvider) { density.calculateApproachOffset(-10000f) },
+                layoutInfoProvider.calculateApproachOffset(-10000f),
                 calculateTargetOffset(-10000f)
             )
         }
@@ -105,11 +105,11 @@ class LazyListSnapLayoutInfoProviderTest(orientation: Orientation) :
 
         rule.runOnIdle {
             assertEquals(
-                with(layoutInfoProvider) { density.calculateApproachOffset(1000f) },
+                layoutInfoProvider.calculateApproachOffset(1000f),
                 0f
             )
             assertEquals(
-                with(layoutInfoProvider) { density.calculateApproachOffset(-1000f) },
+                layoutInfoProvider.calculateApproachOffset(-1000f),
                 0f
             )
         }

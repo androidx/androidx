@@ -239,21 +239,15 @@ class SnapFlingBehaviorTest {
     @Test
     fun findClosestOffset_noFlingDirection_shouldReturnAbsoluteDistance() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val offset = with(testLayoutInfoProvider) {
-            density.calculateSnappingOffset(0f)
-        }
+        val offset = testLayoutInfoProvider.calculateSnappingOffset(0f)
         assertEquals(offset, MinOffset)
     }
 
     @Test
     fun findClosestOffset_flingDirection_shouldReturnCorrectBound() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val forwardOffset = with(testLayoutInfoProvider) {
-            density.calculateSnappingOffset(1f)
-        }
-        val backwardOffset = with(testLayoutInfoProvider) {
-            density.calculateSnappingOffset(-1f)
-        }
+        val forwardOffset = testLayoutInfoProvider.calculateSnappingOffset(1f)
+        val backwardOffset = testLayoutInfoProvider.calculateSnappingOffset(-1f)
         assertEquals(forwardOffset, MaxOffset)
         assertEquals(backwardOffset, MinOffset)
     }
@@ -533,11 +527,11 @@ private class TestLayoutInfoProvider(
 ) : SnapLayoutInfoProvider {
     var calculateApproachOffsetCount = 0
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         return calculateFinalOffset(currentVelocity, minOffset, maxOffset)
     }
 
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
         calculateApproachOffsetCount++
         return approachOffset
     }
@@ -561,7 +555,7 @@ private fun rememberSnapFlingBehavior(
             lowVelocityAnimationSpec = lowVelocityApproachSpec,
             highVelocityAnimationSpec = highVelocityApproachSpec,
             snapAnimationSpec = snapAnimationSpec,
-            density = density
+            shortSnapVelocityThreshold = with(density) { MinFlingVelocityDp.toPx() }
         )
     }
 }

@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
@@ -53,8 +52,8 @@ fun SnapLayoutInfoProvider(
         get() = lazyListState.layoutInfo
 
     // Decayed page snapping is the default
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
+        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(lazyListState.density)
         val offset =
             decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
 
@@ -71,7 +70,7 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 

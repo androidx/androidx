@@ -17,7 +17,6 @@
 package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.unit.Density
 
 /**
  * Provides information about the layout that is using a SnapFlingBehavior.
@@ -41,7 +40,7 @@ interface SnapLayoutInfoProvider {
      * @param initialVelocity The current fling movement velocity. You can use this tho calculate a
      * velocity based offset.
      */
-    fun Density.calculateApproachOffset(initialVelocity: Float): Float
+    fun calculateApproachOffset(initialVelocity: Float): Float
 
     /**
      * Given a target placement in a layout, the snapping offset is the next snapping position
@@ -52,5 +51,5 @@ interface SnapLayoutInfoProvider {
      * @param currentVelocity The current fling movement velocity. This may change throughout the
      * fling animation.
      */
-    fun Density.calculateSnappingOffset(currentVelocity: Float): Float
+    fun calculateSnappingOffset(currentVelocity: Float): Float
 }

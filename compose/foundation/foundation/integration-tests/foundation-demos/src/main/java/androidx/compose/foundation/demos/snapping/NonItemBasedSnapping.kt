@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
@@ -57,9 +56,9 @@ class NonItemBasedSnappingLayoutInfoProvider(
     private val offsetList = listOf(0, layoutSize / 2 - thumbSize / 2, (layoutSize - thumbSize))
 
     // do not approach, our snapping positions are discrete.
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float = 0f
+    override fun calculateApproachOffset(initialVelocity: Float): Float = 0f
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         val targetOffset = if (currentVelocity == 0.0f) {
             // snap to closest offset
             var closestOffset = 0
