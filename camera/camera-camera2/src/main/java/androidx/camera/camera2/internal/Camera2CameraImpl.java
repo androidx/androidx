@@ -1480,7 +1480,11 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
 
                 Logger.e(TAG, "Unable to configure camera " + Camera2CameraImpl.this, t);
-                resetCaptureSession(/*abortInFlightCaptures=*/false);
+
+                // Reset capture session if the latest capture session fails to open.
+                if (mCaptureSession == captureSession) {
+                    resetCaptureSession(/*abortInFlightCaptures=*/false);
+                }
             }
         }, mExecutor);
     }
