@@ -223,20 +223,20 @@ package androidx.wear.compose.material3 {
   }
 
   public final class IconButtonDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledIconButtonColors(optional long containerColor, optional long contentColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledTonalIconButtonColors(optional long containerColor, optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledTonalIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float getDefaultButtonSize();
     method public float getDefaultIconSize();
     method public float getExtraSmallButtonSize();
     method public float getLargeButtonSize();
     method public float getLargeIconSize();
-    method public androidx.compose.foundation.shape.RoundedCornerShape getShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getSmallButtonSize();
     method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors iconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float iconSizeFor(float size);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors iconToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors outlinedIconButtonColors(optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors outlinedIconButtonColors(optional long contentColor, optional long disabledContentColor);
     property public final float DefaultButtonSize;
     property public final float DefaultIconSize;
     property public final float ExtraSmallButtonSize;
@@ -244,7 +244,7 @@ package androidx.wear.compose.material3 {
     property public final float LargeIconSize;
     property public final float SmallButtonSize;
     property public final float SmallIconSize;
-    property public final androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.IconButtonDefaults INSTANCE;
   }
 
