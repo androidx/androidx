@@ -186,9 +186,12 @@ internal class CredentialProviderCreatePublicKeyCredentialController(private val
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun convertResponseToCredentialManager(response: PublicKeyCredential):
         CreateCredentialResponse {
-        return CreatePublicKeyCredentialResponse(
-            PublicKeyCredentialControllerUtility.toCreatePasskeyResponseJson(response)
-        )
+            try {
+                return CreatePublicKeyCredentialResponse(response.toJson())
+            } catch (t: Throwable) {
+                throw CreateCredentialUnknownException("The PublicKeyCredential response json " +
+                    "had an unexpected exception when parsing: ${t.message}")
+            }
     }
 
     private fun JSONExceptionToPKCError(exception: JSONException):
