@@ -20,6 +20,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -1477,10 +1478,85 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         """
     )
 
+    @Test
+    fun testInferredTransformOfClassesWithDifferentVisibilies() = assertTransform(
+        """
+            internal class InternalFoo
+            private class PrivateFoo
+            class PublicFoo
+        """,
+        """
+            internal class InternalFoo
+            private class PrivateFoo
+            @StabilityInferred(parameters = 0)
+            class PublicFoo {
+              static val %stable: Int = 0
+            }
+        """
+    )
+
+    @Test
+    fun testComposableCallWithInternalClassInSameModule() = verifyComposeIrTransform(
+        extra = """
+            internal class InternalFoo
+        """,
+        source = """
+            import androidx.compose.runtime.Composable
+
+            @Composable 
+            internal fun A(y: InternalFoo) {
+                A(InternalFoo())
+            }
+        """,
+        expectedTransformed = """
+            @Composable
+            internal fun A(y: InternalFoo, %composer: Composer?, %changed: Int) {
+              %composer = %composer.startRestartGroup(<>)
+              sourceInformation(%composer, "C(A)<A(Inte...>:Test.kt")
+              if (%changed and 0b0001 !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                A(InternalFoo(), %composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
+              } else {
+                %composer.skipToGroupEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                A(y, %composer, updateChangedFlags(%changed or 0b0001))
+              }
+            }
+        """
+    )
+
+    @Test
+    fun testInternalClassForIncrementalCompilation() {
+
+        assertStability(
+            classDefSrc = """
+                internal class InternalFoo
+            """,
+            stability = "Stable"
+        )
+
+        assertStability(
+            classDefSrc = """
+                internal class InternalFoo
+            """,
+            transform = {
+                it.origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+            },
+            stability = "Stable"
+        )
+    }
+
     private fun assertStability(
         @Language("kotlin")
         classDefSrc: String,
-        stability: String
+        stability: String,
+        transform: (IrClass) -> Unit = {}
     ) {
         val source = """
             import androidx.compose.runtime.mutableStateOf
@@ -1498,7 +1574,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
 
         val files = listOf(SourceFile("Test.kt", source))
         val irModule = compileToIr(files)
-        val irClass = irModule.files.last().declarations.first() as IrClass
+        val irClass = (irModule.files.last().declarations.first() as IrClass).apply(transform)
         val classStability = stabilityOf(irClass.defaultType as IrType)
 
         assertEquals(
