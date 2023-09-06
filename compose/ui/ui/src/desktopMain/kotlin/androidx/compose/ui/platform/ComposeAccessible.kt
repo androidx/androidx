@@ -47,6 +47,7 @@ import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.FocusListener
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleAction
 import javax.accessibility.AccessibleComponent
@@ -64,6 +65,7 @@ import javax.swing.text.AttributeSet
 import kotlin.math.roundToInt
 import org.jetbrains.skia.BreakIterator
 import javax.swing.text.SimpleAttributeSet
+import org.jetbrains.skiko.nativeInitializeAccessible
 
 private fun <T> SemanticsConfiguration.getFirstOrNull(key: SemanticsPropertyKey<List<T>>): T? {
     return getOrNull(key)?.firstOrNull()
@@ -78,8 +80,17 @@ internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
     val controller: AccessibilityControllerImpl? = null
 ) : Accessible {
+    private val isNativelyInitialized = AtomicBoolean(false)
+
     val accessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
-    override fun getAccessibleContext(): AccessibleContext = accessibleContext
+
+    override fun getAccessibleContext(): AccessibleContext {
+        // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
+        if (isNativelyInitialized.compareAndSet(false, true)) {
+            nativeInitializeAccessible(this)
+        }
+        return accessibleContext
+    }
 
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent, AccessibleAction {
         val textSelectionRange
