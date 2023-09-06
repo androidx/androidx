@@ -41,6 +41,7 @@ import androidx.slice.builders.impl.TemplateBuilderImpl;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public class MessagingSliceBuilder extends TemplateSliceBuilder {
 
     /**

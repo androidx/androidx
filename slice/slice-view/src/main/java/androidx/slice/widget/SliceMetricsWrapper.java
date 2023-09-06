@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = 28)
+@Deprecated
 class SliceMetricsWrapper extends SliceMetrics {
 
     private final android.app.slice.SliceMetrics mSliceMetrics;

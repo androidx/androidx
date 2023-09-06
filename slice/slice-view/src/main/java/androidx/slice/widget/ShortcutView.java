@@ -42,6 +42,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class ShortcutView extends SliceChildView {
 
     private static final String TAG = "ShortcutView";

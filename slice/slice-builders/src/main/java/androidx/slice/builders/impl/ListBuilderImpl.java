@@ -85,6 +85,7 @@ import java.util.Set;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder {
     private List<Slice> mSliceActions;
     private Set<String> mKeywords;
