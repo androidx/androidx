@@ -23,10 +23,13 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.impl.Config;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -55,9 +58,11 @@ final class AndroidRZoomImpl implements ZoomControl.ZoomImpl {
         return mZoomRatioRange.getUpper();
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void addRequestOption(@NonNull Camera2ImplConfig.Builder builder) {
-        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);
+        builder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_ZOOM_RATIO,
+                mCurrentZoomRatio, Config.OptionPriority.REQUIRED);
     }
 
     @Override
