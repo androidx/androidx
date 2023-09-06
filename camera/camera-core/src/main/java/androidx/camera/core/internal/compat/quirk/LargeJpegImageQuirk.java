@@ -28,16 +28,16 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 288828159
+ *     Bug Id: 288828159, 299069235
  *     Description: Quirk required to check whether the captured JPEG image contains redundant
  *                  0's padding data. For example, Samsung A5 (2017) series devices have the
  *                  problem and result in the output JPEG image to be extremely large (about 32 MB).
- *     Device(s): Samsung Galaxy A5 (2017), A52, A70, A72 and S7 series devices
+ *     Device(s): Samsung Galaxy A5 (2017), A52, A70, A72, S7 series devices and Vivo S16 device
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LargeJpegImageQuirk implements Quirk {
 
-    private static final Set<String> DEVICE_MODELS = new HashSet<>(Arrays.asList(
+    private static final Set<String> SAMSUNG_DEVICE_MODELS = new HashSet<>(Arrays.asList(
             // Samsung Galaxy A5 series devices
             "SM-A520F",
             "SM-A520L",
@@ -70,7 +70,22 @@ public final class LargeJpegImageQuirk implements Quirk {
             "SM-S906B"
     ));
 
+    private static final Set<String> VIVO_DEVICE_MODELS = new HashSet<>(Arrays.asList(
+            // Vivo S16
+            "V2244A"
+    ));
+
     static boolean load() {
-        return DEVICE_MODELS.contains(Build.MODEL.toUpperCase(Locale.US));
+        return isSamsungProblematicDevice() || isVivoProblematicDevice();
+    }
+
+    private static boolean isSamsungProblematicDevice() {
+        return "Samsung".equalsIgnoreCase(Build.BRAND) && SAMSUNG_DEVICE_MODELS.contains(
+                Build.MODEL.toUpperCase(Locale.US));
+    }
+
+    private static boolean isVivoProblematicDevice() {
+        return "Vivo".equalsIgnoreCase(Build.BRAND) && VIVO_DEVICE_MODELS.contains(
+                Build.MODEL.toUpperCase(Locale.US));
     }
 }
