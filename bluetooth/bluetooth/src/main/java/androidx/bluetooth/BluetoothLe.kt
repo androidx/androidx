@@ -49,10 +49,20 @@ import kotlinx.coroutines.job
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
  */
-class BluetoothLe constructor(private val context: Context) {
+class BluetoothLe private constructor(private val context: Context) {
 
-    private companion object {
+    companion object {
         private const val TAG = "BluetoothLe"
+        @Volatile
+        @JvmStatic
+        private var instance: BluetoothLe? = null
+
+        @Suppress("VisiblySynchronized")
+        @JvmStatic
+        fun getInstance(context: Context) =
+            instance ?: synchronized(this) {
+                instance ?: BluetoothLe(context.applicationContext).also { instance = it }
+            }
     }
 
     @RequiresApi(34)
