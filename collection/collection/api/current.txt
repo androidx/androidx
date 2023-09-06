@@ -563,6 +563,58 @@ package androidx.collection {
     method @IntRange(from=0L) public int trim();
   }
 
+  public final class MutableObjectList<E> extends androidx.collection.ObjectList<E> {
+    ctor public MutableObjectList(optional int initialCapacity);
+    method public boolean add(E element);
+    method public void add(@IntRange(from=0L) int index, E element);
+    method public boolean addAll(androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean addAll(E![] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(@IntRange(from=0L) int index, E![] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, java.util.Collection<? extends E> elements);
+    method public boolean addAll(Iterable<? extends E> elements);
+    method public boolean addAll(java.util.List<? extends E> elements);
+    method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public java.util.List<E> asList();
+    method public java.util.List<E> asMutableList();
+    method public void clear();
+    method public void ensureCapacity(int capacity);
+    method public inline int getCapacity();
+    method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
+    method public inline operator void minusAssign(E element);
+    method public operator void minusAssign(E![] elements);
+    method public operator void minusAssign(Iterable<? extends E> elements);
+    method public operator void minusAssign(java.util.List<? extends E> elements);
+    method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
+    method public inline operator void plusAssign(E element);
+    method public operator void plusAssign(E![] elements);
+    method public operator void plusAssign(Iterable<? extends E> elements);
+    method public operator void plusAssign(java.util.List<? extends E> elements);
+    method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ObjectList<E> elements);
+    method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean removeAll(E![] elements);
+    method public boolean removeAll(Iterable<? extends E> elements);
+    method public boolean removeAll(java.util.List<? extends E> elements);
+    method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public E removeAt(@IntRange(from=0L) int index);
+    method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
+    method public boolean retainAll(androidx.collection.ObjectList<E> elements);
+    method public boolean retainAll(E![] elements);
+    method public boolean retainAll(Iterable<? extends E> elements);
+    method public boolean retainAll(java.util.Collection<? extends E> elements);
+    method public boolean retainAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator E set(@IntRange(from=0L) int index, E element);
+    method public void trim(optional int minCapacity);
+    property public final inline int capacity;
+  }
+
   public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
     ctor public MutableScatterMap(optional int initialCapacity);
     method public java.util.Map<K,V> asMutableMap();
@@ -617,6 +669,66 @@ package androidx.collection {
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method @IntRange(from=0L) public int trim();
+  }
+
+  public abstract sealed class ObjectList<E> {
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public abstract java.util.List<E> asList();
+    method public final operator boolean contains(E element);
+    method public final boolean containsAll(androidx.collection.ObjectList<E> elements);
+    method public final boolean containsAll(E![] elements);
+    method public final boolean containsAll(Iterable<? extends E> elements);
+    method public final boolean containsAll(java.util.List<? extends E> elements);
+    method public final int count();
+    method public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final E elementAt(@IntRange(from=0L) int index);
+    method public final inline E elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends E> defaultValue);
+    method public final E first();
+    method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E? firstOrNull();
+    method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline <R> R fold(R initial, kotlin.jvm.functions.Function2<? super R,? super E,? extends R> operation);
+    method public final inline <R> R foldIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super R,? super E,? extends R> operation);
+    method public final inline <R> R foldRight(R initial, kotlin.jvm.functions.Function2<? super E,? super R,? extends R> operation);
+    method public final inline <R> R foldRightIndexed(R initial, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super E,? super R,? extends R> operation);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method public final inline void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super E,kotlin.Unit> block);
+    method public final inline void forEachReversed(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method public final inline void forEachReversedIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super E,kotlin.Unit> block);
+    method public final operator E get(@IntRange(from=0L) int index);
+    method public final inline kotlin.ranges.IntRange getIndices();
+    method @IntRange(from=-1L) public final inline int getLastIndex();
+    method @IntRange(from=0L) public final int getSize();
+    method public final int indexOf(E element);
+    method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final E last();
+    method public final inline E last(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final int lastIndexOf(E element);
+    method public final inline E? lastOrNull();
+    method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean none();
+    method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    property public final inline kotlin.ranges.IntRange indices;
+    property @IntRange(from=-1L) public final inline int lastIndex;
+    property @IntRange(from=0L) public final int size;
+  }
+
+  public final class ObjectListKt {
+    method public static <E> androidx.collection.ObjectList<E> emptyObjectList();
+    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf();
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1);
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2);
+    method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2, E element3);
+    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E?... elements);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf();
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E?... elements);
   }
 
   @kotlin.jvm.JvmInline public final value class PairFloatFloat {
