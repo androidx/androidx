@@ -86,7 +86,7 @@ fun Card(
         shape = shape,
         color = colors.containerColor(enabled = true).value,
         contentColor = colors.contentColor(enabled = true).value,
-        tonalElevation = elevation.tonalElevation(enabled = true, interactionSource = null).value,
+        tonalElevation = elevation.tonalElevation(enabled = true),
         shadowElevation = elevation.shadowElevation(enabled = true, interactionSource = null).value,
         border = border,
     ) {
@@ -147,7 +147,7 @@ fun Card(
         shape = shape,
         color = colors.containerColor(enabled).value,
         contentColor = colors.contentColor(enabled).value,
-        tonalElevation = elevation.tonalElevation(enabled, interactionSource).value,
+        tonalElevation = elevation.tonalElevation(enabled),
         shadowElevation = elevation.shadowElevation(enabled, interactionSource).value,
         border = border,
         interactionSource = interactionSource,
@@ -564,8 +564,7 @@ class CardElevation internal constructor(
     private val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a card, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [shadowElevation].
+     * Represents the tonal elevation used in a card, depending on its [enabled].
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -574,22 +573,13 @@ class CardElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the card.
      *
      * @param enabled whether the card is enabled
-     * @param interactionSource the [InteractionSource] for this card
      */
-    @Composable
-    internal fun tonalElevation(
-        enabled: Boolean,
-        interactionSource: InteractionSource?
-    ): State<Dp> {
-        if (interactionSource == null) {
-            return remember { mutableStateOf(defaultElevation) }
-        }
-        return animateElevation(enabled = enabled, interactionSource = interactionSource)
-    }
+    internal fun tonalElevation(enabled: Boolean): Dp =
+        if (enabled) defaultElevation else disabledElevation
 
     /**
      * Represents the shadow elevation used in a card, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [tonalElevation].
+     * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the card to give it higher emphasis.
      *

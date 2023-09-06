@@ -117,7 +117,7 @@ fun Button(
     val containerColor = colors.containerColor(enabled).value
     val contentColor = colors.contentColor(enabled).value
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp
+    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -769,8 +769,7 @@ class ButtonElevation internal constructor(
     private val disabledElevation: Dp,
 ) {
     /**
-     * Represents the tonal elevation used in a button, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [shadowElevation].
+     * Represents the tonal elevation used in a button, depending on its [enabled] state.
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -779,16 +778,14 @@ class ButtonElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the button.
      *
      * @param enabled whether the button is enabled
-     * @param interactionSource the [InteractionSource] for this button
      */
-    @Composable
-    internal fun tonalElevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp> {
-        return animateElevation(enabled = enabled, interactionSource = interactionSource)
+    internal fun tonalElevation(enabled: Boolean): Dp {
+        return if (enabled) defaultElevation else disabledElevation
     }
 
     /**
      * Represents the shadow elevation used in a button, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [tonalElevation].
+     * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the button to give it higher emphasis.
      *
