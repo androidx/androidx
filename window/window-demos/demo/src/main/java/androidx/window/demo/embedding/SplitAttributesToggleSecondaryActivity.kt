@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitAttributesToggleSecondaryActivityBinding
@@ -63,10 +64,8 @@ open class SplitAttributesToggleSecondaryActivity : SplitAttributesToggleActivit
         activityEmbeddingController = ActivityEmbeddingController.getInstance(this)
         val splitAttributesCustomizationEnabled = demoActivityEmbeddingController
             .splitAttributesCustomizationEnabled.get()
-        splitAttributesUpdatesSupported =
-            splitController.isInvalidatingTopVisibleSplitAttributesSupported() &&
-                splitController.isUpdatingSplitAttributesSupported() &&
-                !splitAttributesCustomizationEnabled
+        splitAttributesUpdatesSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3 &&
+            !splitAttributesCustomizationEnabled
 
         fullscreenToggleButton.apply {
             // Disable the toggle fullscreen feature if the device doesn't support runtime
