@@ -29,10 +29,11 @@ import androidx.paging.PagedList;
 import androidx.paging.RxPagedListBuilder;
 import androidx.room.Room;
 
-import java.util.UUID;
-
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+
+import java.util.UUID;
+
 
 /**
  * Sample database-backed view model of Customers
@@ -49,7 +50,7 @@ public class CustomerViewModel extends AndroidViewModel {
     private void createDb() {
         mDatabase = Room.databaseBuilder(this.getApplication(), SampleDatabase.class,
                         "customerDatabase")
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build();
 
         ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {

@@ -103,7 +103,13 @@ open class RoomOpenHelper(
         if (!migrated) {
             val config = this.configuration
             if (config != null && !config.isMigrationRequired(oldVersion, newVersion)) {
-                delegate.dropAllTables(db)
+                if (config.allowDestructiveMigrationForAllTables) {
+                    // Drops all tables (excluding special ones)
+                    dropAllTables(db)
+                } else {
+                    // Drops known tables (Room entity tables)
+                    delegate.dropAllTables(db)
+                }
                 delegate.createAllTables(db)
             } else {
                 throw IllegalStateException(
@@ -205,13 +211,13 @@ open class RoomOpenHelper(
 
         /**
          * Called before migrations execute to perform preliminary work.
-         * @param database The SQLite database.
+         * @param db The SQLite database.
          */
         open fun onPreMigrate(db: SupportSQLiteDatabase) {}
 
         /**
          * Called after migrations execute to perform additional work.
-         * @param database The SQLite database.
+         * @param db The SQLite database.
          */
         open fun onPostMigrate(db: SupportSQLiteDatabase) {}
     }
@@ -238,6 +244,24 @@ open class RoomOpenHelper(
                 "SELECT count(*) FROM sqlite_master WHERE name != 'android_metadata'"
             ).useCursor { cursor ->
                 return cursor.moveToFirst() && cursor.getInt(0) == 0
+            }
+        }
+
+        internal fun dropAllTables(db: SupportSQLiteDatabase) {
+            db.query(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).useCursor { cursor ->
+                buildList {
+                    while (cursor.moveToNext()) {
+                        val name = cursor.getString(0)
+                        if (name.startsWith("sqlite_") || name == "android_metadata") {
+                            continue
+                        }
+                        add(name)
+                    }
+                }
+            }.forEach { table ->
+                db.execSQL("DROP TABLE IF EXISTS $table")
             }
         }
     }
