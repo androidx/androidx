@@ -5,6 +5,7 @@ import androidx.compose.material3.Button as Button3
 import androidx.compose.material3.DropdownMenu as DropdownMenu3
 import androidx.compose.material3.DropdownMenuItem as DropdownMenuItem3
 import androidx.compose.material3.ExposedDropdownMenuBox as ExposedDropdownMenuBox3
+import androidx.compose.material3.ExposedDropdownMenuDefaults as ExposedDropdownMenuDefaults3
 import androidx.compose.material3.TextField as TextField3
 import androidx.compose.material3.Text as Text3
 import androidx.compose.foundation.background
@@ -26,11 +27,14 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.mpp.demo.textfield.android.loremIpsum
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,6 +65,7 @@ fun PopupAndDialog() {
         AlertDialog3Sample()
         DropdownMenuSample()
         DropdownMenu3Sample()
+        ExposedDropdownMenuSample()
         ExposedDropdownMenu3Sample()
     }
 }
@@ -367,6 +372,42 @@ private fun DropdownMenu3Sample() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ExposedDropdownMenuSample() {
+    val options = List(5) { "Item $it" }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        TextField(
+            readOnly = true,
+            value = selectedOptionText,
+            onValueChange = {},
+            label = { Text3("ExposedDropdownMenuBox") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    onClick = {
+                        selectedOptionText = selectionOption
+                        expanded = false
+                    },
+                ) {
+                    Text(selectionOption)
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropdownMenu3Sample() {
@@ -383,8 +424,8 @@ fun ExposedDropdownMenu3Sample() {
             value = selectedOptionText,
             onValueChange = {},
             label = { Text3("ExposedDropdownMenuBox3") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            trailingIcon = { ExposedDropdownMenuDefaults3.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults3.textFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -397,7 +438,7 @@ fun ExposedDropdownMenu3Sample() {
                         selectedOptionText = selectionOption
                         expanded = false
                     },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    contentPadding = ExposedDropdownMenuDefaults3.ItemContentPadding,
                 )
             }
         }
