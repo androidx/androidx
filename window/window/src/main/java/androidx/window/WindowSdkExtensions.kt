@@ -41,6 +41,20 @@ abstract class WindowSdkExtensions internal constructor() {
     @get: IntRange(from = 0)
     open val extensionVersion: Int = ExtensionsUtil.safeVendorApiLevel
 
+    /**
+     * Checks the [extensionVersion] and throws [UnsupportedOperationException] if the minimum
+     * [version] is not satisfied.
+     *
+     * @param version The minimum required extension version of the targeting API.
+     * @throws UnsupportedOperationException if the minimum [version] is not satisfied.
+     */
+    internal fun requireExtensionVersion(@IntRange(from = 1) version: Int) {
+        if (extensionVersion < version) {
+            throw UnsupportedOperationException("This API requires extension version " +
+                "$version, but the device is on $extensionVersion")
+        }
+    }
+
     companion object {
         /** Returns a [WindowSdkExtensions] instance. */
         @JvmStatic
