@@ -141,10 +141,11 @@ class ClassStabilityTransformer(
                     }
                 }
             }
-            stableExpr = if (externalParameters)
+            stableExpr = if (externalParameters) {
                 irConst(UNSTABLE)
-            else
+            } else {
                 stability.irStableExpression { irConst(STABLE) } ?: irConst(UNSTABLE)
+            }
         } else {
             stableExpr = stability.irStableExpression() ?: irConst(UNSTABLE)
         }

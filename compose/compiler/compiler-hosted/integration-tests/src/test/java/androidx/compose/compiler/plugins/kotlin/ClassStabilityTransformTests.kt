@@ -1479,6 +1479,134 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         )
     }
 
+    @Test
+    fun testInferredTransformOfClassesWithDifferentVisibilities() = assertTransform(
+        """
+            internal class InternalFoo
+            private class PrivateFoo
+            class PublicFoo
+        """,
+        """
+            internal class InternalFoo
+            private class PrivateFoo
+            @StabilityInferred(parameters = 0)
+            class PublicFoo {
+              static val %stable: Int = 0
+            }
+        """
+    )
+
+    @Test
+    fun testComposableCallWithInternalClassInSameModule() = verifyComposeIrTransform(
+        extra = """
+            internal class InternalFoo
+        """,
+        source = """
+            import androidx.compose.runtime.Composable
+
+            @Composable 
+            internal fun A(y: InternalFoo) {
+                A(InternalFoo())
+            }
+        """,
+        expectedTransformed = """
+            @Composable
+            internal fun A(y: InternalFoo, %composer: Composer?, %changed: Int) {
+              %composer = %composer.startRestartGroup(<>)
+              sourceInformation(%composer, "C(A)<A(Inte...>:Test.kt")
+              if (%changed and 0b0001 !== 0 || !%composer.skipping) {
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                A(InternalFoo(), %composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
+              } else {
+                %composer.skipToGroupEnd()
+              }
+              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                A(y, %composer, updateChangedFlags(%changed or 0b0001))
+              }
+            }
+        """
+    )
+
+    @Test
+    fun testInternalClassForIncrementalCompilation() {
+
+        assertStability(
+            classDefSrc = """
+                internal class InternalFoo
+            """,
+            stability = "Stable"
+        )
+
+        assertStability(
+            classDefSrc = """
+                internal class InternalFoo
+            """,
+            transform = {
+                it.origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+            },
+            stability = "Stable"
+        )
+    }
+
+    @Test
+    fun testTransformCombinedClassWithUnstableParametrizedClass() {
+        verifyCrossModuleComposeIrTransform(
+            dependencySource = """
+                class SomeFoo(val value: Int)
+                class ParametrizedFoo<K>(var value: K)
+            """,
+            source = """
+                class CombinedStable<T>(val first: T, val second: ParametrizedFoo<SomeFoo>)
+            """,
+            expectedTransformed = """
+                class CombinedStable<T> (val first: T, val second: ParametrizedFoo<SomeFoo>)
+            """
+        )
+    }
+
+    @Test
+    fun testTransformCombinedClassWithStableParametrizedClass() {
+        verifyCrossModuleComposeIrTransform(
+            dependencySource = """
+            class SomeFoo(val value: Int)
+            class ParametrizedFoo<K>(val value: K)
+        """,
+            source = """
+            class CombinedStable<T>(val first: T, val second: ParametrizedFoo<SomeFoo>)
+        """,
+            expectedTransformed = """
+            @StabilityInferred(parameters = 1)
+            class CombinedStable<T> (val first: T, val second: ParametrizedFoo<SomeFoo>) {
+              static val %stable: Int = SomeFoo.%stable or ParametrizedFoo.%stable or 0
+            }
+        """
+        )
+    }
+
+    @Test
+    fun testTransformCombinedClassWithMultiplyTypeParametersClass() {
+        verifyCrossModuleComposeIrTransform(
+            dependencySource = """
+            class SomeFoo(val value: Int)
+            class ParametrizedFoo<K>(val value: K)
+        """,
+            source = """
+            class CombinedStable<T, K>(val first: T, val second: ParametrizedFoo<K>)
+        """,
+            expectedTransformed = """
+            @StabilityInferred(parameters = 3)
+            class CombinedStable<T, K> (val first: T, val second: ParametrizedFoo<K>) {
+              static val %stable: Int = 0 or ParametrizedFoo.%stable or 0
+            }
+        """
+        )
+    }
+
     private fun assertStability(
         @Language("kotlin")
         classDefSrc: String,

@@ -343,11 +343,7 @@ abstract class AbstractComposeLowering(
             }
         }
 
-        is Stability.Certain ->
-            if (stable)
-                irConst(StabilityBits.STABLE.bitsForSlot(0))
-            else
-                null
+        is Stability.Certain -> if (stable) irConst(StabilityBits.STABLE.bitsForSlot(0)) else null
 
         is Stability.Parameter -> resolve(parameter)
         is Stability.Runtime -> {
