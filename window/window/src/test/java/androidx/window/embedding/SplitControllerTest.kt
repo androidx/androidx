@@ -26,7 +26,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
@@ -78,9 +77,6 @@ internal class SplitControllerTest {
     fun test_splitAttributesCalculator_delegates() {
         val mockCalculator = mock<(SplitAttributesCalculatorParams) -> SplitAttributes>()
 
-        whenever(mockBackend.isSplitAttributesCalculatorSupported()).thenReturn(true)
-        assertTrue(splitController.isSplitAttributesCalculatorSupported())
-
         splitController.setSplitAttributesCalculator(mockCalculator)
         verify(mockBackend).setSplitAttributesCalculator(mockCalculator)
 
@@ -90,9 +86,6 @@ internal class SplitControllerTest {
 
     @Test
     fun test_updateSplitAttribute_delegates() {
-        whenever(mockBackend.areSplitAttributesUpdatesSupported()).thenReturn(true)
-        assertTrue(splitController.isUpdatingSplitAttributesSupported())
-
         val mockSplitAttributes = SplitAttributes()
         val mockSplitInfo = SplitInfo(
             ActivityStack(emptyList(), true, mock()),
@@ -106,9 +99,6 @@ internal class SplitControllerTest {
 
     @Test
     fun test_invalidateTopVisibleSplitAttributes_delegates() {
-        whenever(mockBackend.areSplitAttributesUpdatesSupported()).thenReturn(true)
-        assertTrue(splitController.isInvalidatingTopVisibleSplitAttributesSupported())
-
         splitController.invalidateTopVisibleSplitAttributes()
         verify(mockBackend).invalidateTopVisibleSplitAttributes()
     }

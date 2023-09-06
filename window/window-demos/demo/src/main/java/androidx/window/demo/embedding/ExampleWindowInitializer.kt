@@ -18,6 +18,7 @@ package androidx.window.demo.embedding
 
 import android.content.Context
 import androidx.startup.Initializer
+import androidx.window.WindowSdkExtensions
 import androidx.window.demo.R
 import androidx.window.demo.embedding.SplitAttributesToggleMainActivity.Companion.PREFIX_FULLSCREEN_TOGGLE
 import androidx.window.demo.embedding.SplitAttributesToggleMainActivity.Companion.PREFIX_PLACEHOLDER
@@ -55,7 +56,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
 
     override fun create(context: Context): RuleController {
         SplitController.getInstance(context).apply {
-            if (isSplitAttributesCalculatorSupported()) {
+            if (WindowSdkExtensions.getInstance().extensionVersion >= 2) {
                 setSplitAttributesCalculator(::sampleSplitAttributesCalculator)
             }
         }
