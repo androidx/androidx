@@ -530,6 +530,16 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_ALLOW_LIST =
             new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
                     Features.REQUESTED_WITH_HEADER_ALLOW_LIST);
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)} and
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
+     *
+     */
+    public static final ApiFeature.NoFramework USER_AGENT_METADATA =
+            new ApiFeature.NoFramework(WebViewFeature.USER_AGENT_METADATA,
+                    Features.USER_AGENT_METADATA);
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
