@@ -29,6 +29,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
+import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.DoNotInline;
@@ -50,6 +51,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -59,6 +61,7 @@ import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -66,6 +69,7 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -263,6 +267,15 @@ public abstract class CameraController {
     @NonNull
     QualitySelector mVideoCaptureQualitySelector = Recorder.DEFAULT_QUALITY_SELECTOR;
 
+    @MirrorMode.Mirror
+    private int mVideoCaptureMirrorMode = MirrorMode.MIRROR_MODE_OFF;
+
+    @NonNull
+    private DynamicRange mVideoCaptureDynamicRange = DynamicRange.UNSPECIFIED;
+
+    @NonNull
+    private Range<Integer> mVideoCaptureTargetFrameRate = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+
     // The latest bound camera.
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -349,10 +362,6 @@ public abstract class CameraController {
             mImageCapture.setTargetRotation(rotation);
             mVideoCapture.setTargetRotation(rotation);
         };
-    }
-
-    private static Recorder generateVideoCaptureRecorder(@NonNull QualitySelector qualitySelector) {
-        return new Recorder.Builder().setQualitySelector(qualitySelector).build();
     }
 
     /**
@@ -1419,6 +1428,104 @@ public abstract class CameraController {
     }
 
     /**
+     * Sets the mirror mode for video capture.
+     *
+     * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+     * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+     * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     *
+     * @see VideoCapture.Builder#setMirrorMode(int)
+     */
+    @MainThread
+    public void setVideoCaptureMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+        checkMainThread();
+        mVideoCaptureMirrorMode = mirrorMode;
+        unbindVideoAndRecreate();
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the mirror mode for video capture.
+     */
+    @MainThread
+    @MirrorMode.Mirror
+    public int getVideoCaptureMirrorMode() {
+        checkMainThread();
+        return mVideoCaptureMirrorMode;
+    }
+
+    /**
+     * Sets the {@link DynamicRange} for video capture.
+     *
+     * <p>The dynamic range specifies how the range of colors, highlights and shadows that
+     * are captured by the video producer are displayed on a display. Some dynamic ranges will
+     * allow the video to make full use of the extended range of brightness of a display when
+     * the video is played back.
+     *
+     * <p>The supported dynamic ranges for video capture can be queried through the
+     * {@link androidx.camera.video.VideoCapabilities} returned by
+     * {@link Recorder#getVideoCapabilities(CameraInfo)} via
+     * {@link androidx.camera.video.VideoCapabilities#getSupportedDynamicRanges()}.
+     *
+     * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by providing
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.
+     *
+     * <p>If the dynamic range is not provided, the default value is {@link DynamicRange#SDR}.
+     *
+     * @see VideoCapture.Builder#setDynamicRange(DynamicRange)
+     */
+    @MainThread
+    public void setVideoCaptureDynamicRange(@NonNull DynamicRange dynamicRange) {
+        checkMainThread();
+        mVideoCaptureDynamicRange = dynamicRange;
+        unbindVideoAndRecreate();
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the {@link DynamicRange} for video capture.
+     */
+    @MainThread
+    @NonNull
+    public DynamicRange getVideoCaptureDynamicRange() {
+        checkMainThread();
+        return mVideoCaptureDynamicRange;
+    }
+
+    /**
+     * Sets the target frame rate range in frames per second for video capture.
+     *
+     * <p>This target will be used as a part of the heuristics for the algorithm that determines
+     * the final frame rate range and resolution of all concurrently bound use cases.
+     *
+     * <p>It is not guaranteed that this target frame rate will be the final range,
+     * as other use cases as well as frame rate restrictions of the device may affect the
+     * outcome of the algorithm that chooses the actual frame rate.
+     *
+     * <p>By default, the value is {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}. For supported
+     * frame rates, see {@link CameraInfo#getSupportedFrameRateRanges()}.
+     *
+     * @see VideoCapture.Builder#setTargetFrameRate(Range)
+     */
+    @MainThread
+    public void setVideoCaptureTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
+        checkMainThread();
+        mVideoCaptureTargetFrameRate = targetFrameRate;
+        unbindVideoAndRecreate();
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the target frame rate in frames per second for video capture.
+     */
+    @MainThread
+    @NonNull
+    public Range<Integer> getVideoCaptureTargetFrameRate() {
+        checkMainThread();
+        return mVideoCaptureTargetFrameRate;
+    }
+
+    /**
      * Unbinds VideoCapture and recreate with the latest parameters.
      */
     private void unbindVideoAndRecreate() {
@@ -1429,7 +1536,13 @@ public abstract class CameraController {
     }
 
     private VideoCapture<Recorder> createNewVideoCapture() {
-        return VideoCapture.withOutput(generateVideoCaptureRecorder(mVideoCaptureQualitySelector));
+        Recorder videoRecorder = new Recorder.Builder().setQualitySelector(
+                mVideoCaptureQualitySelector).build();
+        return new VideoCapture.Builder<>(videoRecorder)
+                .setTargetFrameRate(mVideoCaptureTargetFrameRate)
+                .setMirrorMode(mVideoCaptureMirrorMode)
+                .setDynamicRange(mVideoCaptureDynamicRange)
+                .build();
     }
 
     // -----------------
