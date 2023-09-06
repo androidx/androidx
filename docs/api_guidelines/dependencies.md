@@ -107,9 +107,16 @@ Platform extension or "sidecar JAR" libraries ship as part of the Android system
 image and are made available to developers through the `<uses-library>` manifest
 tag.
 
-Examples include Wear OS extensions (`com.google.android.wearable`), Camera OEM
-extensions (`androidx.camera.extensions.impl`), and Window OEM extensions
-(`androix.window.extensions`).
+Examples include Camera OEM extensions (`androidx.camera.extensions.impl`) and
+Window OEM extensions (`androidx.window.extensions`).
+
+Extension libraries may be defined in AndroidX library projects (see
+`androidx.window.extensions`) or externally, ex. in AOSP alongside the platform.
+In either case, we recommend that libraries use extensions as pinned, rather
+than project-type, dependencies to facilitate versioning across repositories.
+
+*Do not* ship extension interfaces to Google Maven. Teams may choose to ship
+stub JARs publicly, but that is not covered by AndroidX workflows.
 
 Project dependencies on extension libraries **must** use `compileOnly`:
 
