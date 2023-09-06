@@ -39,6 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -98,9 +99,14 @@ class RobolectricGattClientTest {
 
     @Before
     fun setUp() {
-        bluetoothLe = BluetoothLe(context)
+        bluetoothLe = BluetoothLe.getInstance(context)
         clientAdapter = StubClientFrameworkAdapter(bluetoothLe.client.fwkAdapter)
         bluetoothLe.client.fwkAdapter = clientAdapter
+    }
+
+    @After
+    fun tearDown() {
+        bluetoothLe.client.fwkAdapter = clientAdapter.baseAdapter
     }
 
     @Test
@@ -366,7 +372,7 @@ class RobolectricGattClientTest {
     }
 
     class StubClientFrameworkAdapter(
-        private val baseAdapter: GattClient.FrameworkAdapter
+        internal val baseAdapter: GattClient.FrameworkAdapter
     ) : GattClient.FrameworkAdapter {
         var gattServices: List<FwkService> = listOf()
         var callback: BluetoothGattCallback? = null

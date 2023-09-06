@@ -39,7 +39,7 @@ import org.robolectric.shadows.ShadowBluetoothLeScanner
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricScanTest {
     private val context: Context = RuntimeEnvironment.getApplication()
-    private var bluetoothLe = BluetoothLe(context)
+    private var bluetoothLe = BluetoothLe.getInstance(context)
     private companion object {
         private const val TIMEOUT_MS: Long = 2_000
     }
