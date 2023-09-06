@@ -39,6 +39,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
@@ -77,7 +78,7 @@ class IntegrationTests {
         errorLatch = CountDownLatch(1)
         stateChangeListener = TestStateChangeListener(errorLatch)
         view.addStateChangedListener(stateChangeListener)
-        activity.runOnUiThread(Runnable {
+        activity.runOnUiThread {
             val linearLayout = LinearLayout(context)
             linearLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -86,7 +87,7 @@ class IntegrationTests {
             activity.setContentView(linearLayout)
             view.layoutParams = LinearLayout.LayoutParams(100, 100)
             linearLayout.addView(view)
-        })
+        }
     }
 
     @Ignore // b/271299184
@@ -166,7 +167,7 @@ class IntegrationTests {
         val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
         val coreLibInfo = adapter.toCoreLibInfo(context)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
-        var testSessionClient = TestSandboxedUiAdapter.TestSessionClient()
+        val testSessionClient = TestSandboxedUiAdapter.TestSessionClient()
 
         adapterFromCoreLibInfo.openSession(
             context,
@@ -178,10 +179,9 @@ class IntegrationTests {
             testSessionClient
         )
 
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(openSessionLatch.count == 0.toLong())
-        assertTrue(adapter.isOpenSessionCalled)
-        assertTrue(testSessionClient.isSessionOpened)
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(adapter.isOpenSessionCalled).isTrue()
+        assertThat(testSessionClient.isSessionOpened).isTrue()
     }
 
     @Test
@@ -312,11 +312,12 @@ class IntegrationTests {
         }
 
         class TestSessionClient : SandboxedUiAdapter.SessionClient {
-
-            var isSessionOpened = false
+            private val latch = CountDownLatch(1)
+            val isSessionOpened: Boolean
+                get() = latch.await(TIMEOUT, TimeUnit.MILLISECONDS)
 
             override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
-                isSessionOpened = true
+                latch.countDown()
             }
 
             override fun onSessionError(throwable: Throwable) {
