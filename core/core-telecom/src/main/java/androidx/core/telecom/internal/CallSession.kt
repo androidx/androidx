@@ -21,11 +21,16 @@ import android.os.OutcomeReceiver
 import android.os.ParcelUuid
 import android.telecom.CallException
 import android.telecom.DisconnectCause
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
 import androidx.core.telecom.internal.utils.EndpointUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
@@ -74,8 +79,17 @@ internal class CallSession(
         }
     }
 
-    class CallEventCallbackImpl(private val callChannels: CallChannels) :
+    class CallEventCallbackImpl(
+        private val callChannels: CallChannels,
+        private val coroutineContext: CoroutineContext
+    ) :
         android.telecom.CallEventCallback {
+        private val CALL_EVENT_CALLBACK_TAG = CallEventCallbackImpl::class.simpleName
+        /**
+         * Stubbed supported capabilities for v2 connections.
+         */
+        @ExperimentalAppActions
+        private val supportedCapabilities = mutableListOf(Capability())
         override fun onCallEndpointChanged(
             endpoint: android.telecom.CallEndpoint
         ) {
@@ -100,8 +114,19 @@ internal class CallSession(
             TODO("Implement with the CallStreaming code")
         }
 
+        @ExperimentalAppActions
         override fun onEvent(event: String, extras: Bundle) {
-            TODO("Implement when events are agreed upon by ICS and package")
+            // Call events are sent via Call#sendCallEvent(event, extras). Begin initial capability
+            // exchange procedure once we know that the ICS supports it.
+            if (event == CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE) {
+                Log.i(CALL_EVENT_CALLBACK_TAG, "onEvent: EVENT_JETPACK_CAPABILITY_EXCHANGE: " +
+                        "beginning capability exchange.")
+                // Launch a new coroutine from the context of the current coroutine
+                CoroutineScope(coroutineContext).launch {
+                        CapabilityExchangeUtils.initiateVoipAppCapabilityExchange(
+                            extras, supportedCapabilities, CALL_EVENT_CALLBACK_TAG)
+                }
+            }
         }
     }
 
