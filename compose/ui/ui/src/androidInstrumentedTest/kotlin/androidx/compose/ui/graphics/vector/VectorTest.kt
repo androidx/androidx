@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -173,6 +174,50 @@ class VectorTest {
         takeScreenShot(450).apply {
             assertEquals(getPixel(430, 430), Color.Cyan.toArgb())
         }
+    }
+
+    @Test
+    fun testVectorSkipsRecompositionOnNoChange() {
+        val state = mutableIntStateOf(0)
+        var composeCount = 0
+        var vectorComposeCount = 0
+
+        val composeVector: @Composable @VectorComposable (Float, Float) -> Unit = {
+                viewportWidth, viewportHeight ->
+
+            vectorComposeCount++
+            Path(
+                fill = SolidColor(Color.Blue),
+                pathData = PathData {
+                    lineTo(viewportWidth, 0f)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, viewportHeight)
+                    close()
+                }
+            )
+        }
+
+        rule.setContent {
+            composeCount++
+            // Arbitrary read to force composition here and verify the subcomposition below skips
+            state.value
+            val vectorPainter = rememberVectorPainter(
+                defaultWidth = 10.dp,
+                defaultHeight = 10.dp,
+                autoMirror = false,
+                content = composeVector
+            )
+            Image(
+                vectorPainter,
+                null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        state.value = 1
+        rule.waitForIdle()
+        assertEquals(2, composeCount) // Arbitrary state read should compose twice
+        assertEquals(1, vectorComposeCount) // Vector is identical so should compose once
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1063,6 +1108,7 @@ class VectorTest {
         var vectorInCache = false
         rule.setContent {
             val theme = LocalContext.current.theme
+            val density = LocalDensity.current
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
             Image(
@@ -1070,8 +1116,21 @@ class VectorTest {
                 contentDescription = null
             )
 
-            vectorInCache =
-                imageVectorCache[ImageVectorCache.Key(theme, R.drawable.ic_triangle)] != null
+            val key = ImageVectorCache.Key(theme, R.drawable.ic_triangle, density)
+            vectorInCache = imageVectorCache[key] != null
+        }
+
+        assertTrue(vectorInCache)
+    }
+
+    @Test
+    fun testVectorPainterCacheHit() {
+        var vectorInCache = false
+        rule.setContent {
+            // obtaining the same painter resource should return the same instance
+            val painter1 = painterResource(R.drawable.ic_triangle)
+            val painter2 = painterResource(R.drawable.ic_triangle)
+            vectorInCache = painter1 === painter2
         }
 
         assertTrue(vectorInCache)
@@ -1083,8 +1142,10 @@ class VectorTest {
         var application: Application? = null
         var theme: Resources.Theme? = null
         var vectorCache: ImageVectorCache? = null
+        var density: Density? = null
         rule.setContent {
             application = LocalContext.current.applicationContext as Application
+            density = LocalDensity.current
             theme = LocalContext.current.theme
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
@@ -1093,8 +1154,8 @@ class VectorTest {
                 contentDescription = null
             )
 
-            vectorInCache =
-                imageVectorCache[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] != null
+            val key = ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)
+            vectorInCache = imageVectorCache[key] != null
 
             vectorCache = imageVectorCache
         }
@@ -1102,7 +1163,7 @@ class VectorTest {
         application?.onTrimMemory(0)
 
         val cacheCleared = vectorCache?.let {
-            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] == null
+            it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle, density!!)] == null
         } ?: false
 
         assertTrue("Vector was not inserted in cache after initial creation", vectorInCache)
