@@ -345,6 +345,9 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("LintError")
         }
 
+        // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
+        disable.add("ExpiredTargetSdkVersion")
+
         // Reenable after b/238892319 is resolved
         disable.add("NotificationPermission")
 
