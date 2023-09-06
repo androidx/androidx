@@ -178,6 +178,14 @@ class Camera2CameraInfoTest {
             override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
                 throw NotImplementedError("Not used in testing")
             }
+
+            override fun isPreviewStabilizationSupported(): Boolean {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun isVideoStabilizationSupported(): Boolean {
+                throw NotImplementedError("Not used in testing")
+            }
         }
         Camera2CameraInfo.from(wrongCameraInfo)
     }

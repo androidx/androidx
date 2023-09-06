@@ -298,23 +298,14 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns if video stabilization is supported on the device.
+     * Returns {@link PreviewCapabilities} to query preview stream related device capability.
      *
-     * @return true if supported, otherwise false.
+     * @return {@link PreviewCapabilities}
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default boolean isVideoStabilizationSupported() {
-        return false;
-    }
-
-    /**
-     * Returns if preview stabilization is supported on the device.
-     *
-     * @return true if supported, otherwise false.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    default boolean isPreviewStabilizationSupported() {
-        return false;
+    default PreviewCapabilities getPreviewCapabilities() {
+        return PreviewCapabilities.EMPTY;
     }
 
     /**
