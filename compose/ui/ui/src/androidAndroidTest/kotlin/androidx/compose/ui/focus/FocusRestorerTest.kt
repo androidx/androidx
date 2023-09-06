@@ -177,4 +177,48 @@ class FocusRestorerTest {
             assertThat(grandChildState.isFocused).isFalse()
         }
     }
+
+    @Test
+    fun restorationFailed_fallbackToOnRestoreFailedDestination() {
+        // Arrange.
+        val (parent, child2) = FocusRequester.createRefs()
+        lateinit var child1State: FocusState
+        lateinit var child2State: FocusState
+        rule.setFocusableContent {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .focusRequester(parent)
+                    .focusRestorer { child2 }
+                    .focusGroup()
+            ) {
+                key(1) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            .onFocusChanged { child1State = it }
+                            .focusTarget()
+                    )
+                }
+                key(2) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            .focusRequester(child2)
+                            .onFocusChanged { child2State = it }
+                            .focusTarget()
+                    )
+                }
+            }
+        }
+
+        // Act.
+        rule.runOnIdle { parent.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(child1State.isFocused).isFalse()
+            assertThat(child2State.isFocused).isTrue()
+        }
+    }
 }
