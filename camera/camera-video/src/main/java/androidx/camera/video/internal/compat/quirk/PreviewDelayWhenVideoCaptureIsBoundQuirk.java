@@ -21,22 +21,20 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-
 /**
  * <p>QuirkSummary
  *     Bug Id: b/223643510
  *     Description: Quirk indicates Preview is delayed on some Huawei devices when the Preview uses
- *                  certain resolutions and VideoCapture is bound.
+ *                  certain resolutions and VideoCapture is bound. The quirk applies on all
+ *                  Huawei devices since there is a certain number of unknown devices with this
+ *                  issue.
  *     Device(s): Some Huawei devices.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
 
-    private static final Set<String> HUAWEI_DEVICE_LIST = new HashSet<>(Arrays.asList(
+    /*
+    Known devices:
             "HWELE",  // P30
             "HW-02L", // P30 Pro
             "HWVOG",  // P30 Pro
@@ -44,15 +42,16 @@ public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
             "HWLYA",  // Mate 20 Pro
             "HWCOL",  // Honor 10
             "HWPAR"   // Nova 3
-    ));
 
-    private static final Set<String> HUAWEI_MODEL_LIST = new HashSet<>(Arrays.asList(
+    Known models:
             "ELS-AN00", "ELS-TN00", "ELS-NX9", "ELS-N04"  // P40 Pro
-    ));
+
+    Known others:
+            mate40
+            honor v2
+     */
 
     static boolean load() {
-        return "Huawei".equalsIgnoreCase(Build.MANUFACTURER)
-                && (HUAWEI_DEVICE_LIST.contains(Build.DEVICE.toUpperCase(Locale.US))
-                || HUAWEI_MODEL_LIST.contains(Build.MODEL.toUpperCase(Locale.US)));
+        return "Huawei".equalsIgnoreCase(Build.MANUFACTURER);
     }
 }
