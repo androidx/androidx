@@ -655,12 +655,16 @@ public abstract class CameraController {
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p> The callback will be called only once for every invocation of this method.
+     * <p>The callback will be called only once for every invocation of this method.
      *
-     * <p> By default, the saved image is mirrored to match the output of the preview if front
+     * <p>By default, the saved image is mirrored to match the output of the preview if front
      * camera is used. To override this behavior, the app needs to explicitly set the flag to
      * {@code false} using {@link ImageCapture.Metadata#setReversedHorizontal} and
      * {@link ImageCapture.OutputFileOptions.Builder#setMetadata}.
+     *
+     * <p>The saved image is cropped to match the aspect ratio of the {@link PreviewView}. To
+     * take a picture with the maximum available resolution, make sure that the
+     * {@link PreviewView}'s aspect ratio is 4:3.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
@@ -1773,8 +1777,8 @@ public abstract class CameraController {
      * <p>Valid zoom values range from {@link ZoomState#getMinZoomRatio()} to
      * {@link ZoomState#getMaxZoomRatio()}.
      *
-     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
-     * in this case.
+     * <p>If the value is set before the camera is ready, {@link CameraController} waits for the
+     * camera to be ready and then sets the zoom ratio.
      *
      * @param zoomRatio The requested zoom ratio.
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
@@ -1797,13 +1801,13 @@ public abstract class CameraController {
     /**
      * Sets current zoom by a linear zoom value ranging from 0f to 1.0f.
      *
-     * <p> LinearZoom 0f represents the minimum zoom while linearZoom 1.0f represents the maximum
+     * <p>LinearZoom 0f represents the minimum zoom while linearZoom 1.0f represents the maximum
      * zoom. The advantage of linearZoom is that it ensures the field of view (FOV) varies
      * linearly with the linearZoom value, for use with slider UI elements (while
      * {@link #setZoomRatio(float)} works well for pinch-zoom gestures).
      *
-     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
-     * in this case.
+     * <p>If the value is set before the camera is ready, {@link CameraController} waits for the
+     * camera to be ready and then sets the linear zoom.
      *
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
      * It fails with {@link CameraControl.OperationCanceledException} if there is newer value
@@ -1840,8 +1844,8 @@ public abstract class CameraController {
     /**
      * Enable the torch or disable the torch.
      *
-     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
-     * in this case.
+     * <p>If the value is set before the camera is ready, {@link CameraController} waits for the
+     * camera to be ready and then enables the torch.
      *
      * @param torchEnabled true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
