@@ -792,14 +792,20 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             File(project.buildDir, "../nativeBuildStaging")
     }
 
+    @Suppress("UnstableApiUsage") // finalizeDsl, minCompileSdkExtension
     private fun LibraryExtension.configureAndroidLibraryOptions(
         project: Project,
         androidXExtension: AndroidXExtension
     ) {
-        // Note, this should really match COMPILE_SDK_VERSION, however
-        // this API takes an integer and we are unable to set it to a
-        // pre-release SDK.
-        defaultConfig.aarMetadata.minCompileSdk = project.defaultAndroidConfig.targetSdk
+        // Propagate the compileSdk value into minCompileSdk. Don't propagate compileSdkExtension,
+        // since only one library actually depends on the extension APIs and they can explicitly
+        // declare that in their build.gradle. Note that when we're using a preview SDK, the value
+        // for compileSdk will be null and the resulting AAR metadata won't have a minCompileSdk --
+        // this is okay because AGP automatically embeds forceCompileSdkPreview in the AAR metadata
+        // and uses it instead of minCompileSdk.
+        project.extensions.findByType<LibraryAndroidComponentsExtension>()!!.finalizeDsl {
+            it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
+        }
 
         // The full Guava artifact is very large, so they split off a special artifact containing a
         // standalone version of the commonly-used ListenableFuture interface. However, they also
