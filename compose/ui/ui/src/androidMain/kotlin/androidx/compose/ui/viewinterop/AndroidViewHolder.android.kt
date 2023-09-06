@@ -202,6 +202,10 @@ internal open class AndroidViewHolder(
     override val isValidOwnerScope: Boolean
         get() = isAttachedToWindow
 
+    override fun getAccessibilityClassName(): CharSequence {
+        return javaClass.name
+    }
+
     override fun onReuse() {
         // We reset at the same time we remove the view. So if the view was removed, we can just
         // re-add it and it's ready to go. If it's already attached, we didn't reset it and need
