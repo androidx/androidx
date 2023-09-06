@@ -16,7 +16,9 @@
 package androidx.wear.compose.material
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -25,6 +27,8 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -33,10 +37,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -45,11 +51,13 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.screenshot.AndroidXScreenshotTestRule
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -207,6 +215,25 @@ fun ImageBitmap.printHistogramToLog(expectedColor: Color): ImageBitmap {
     }
 
     return this
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun ComposeContentTestRule.verifyScreenshot(
+    screenshotRule: AndroidXScreenshotTestRule,
+    methodName: String,
+    testTag: String = TEST_TAG,
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    content: @Composable () -> Unit
+) {
+    setContentWithTheme {
+        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            content()
+        }
+    }
+
+    onNodeWithTag(testTag)
+        .captureToImage()
+        .assertAgainstGolden(screenshotRule, methodName)
 }
 
 /**
