@@ -18,12 +18,15 @@ package androidx.window.extensions;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.area.WindowAreaComponent;
+import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.embedding.ActivityStack;
 import androidx.window.extensions.embedding.SplitAttributes;
@@ -75,10 +78,13 @@ public interface WindowExtensions {
      * block.
      * The added APIs for Vendor API level 2 are:
      * <ul>
+     *     <li>{@link WindowAreaComponent#addRearDisplayStatusListener(Consumer)}</li>
+     *     <li>{@link WindowAreaComponent#startRearDisplaySession(Activity, Consumer)}</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitPlaceholderRule.Builder#setFinishPrimaryWithPlaceholder(int)}</li>
      *     <li>{@link androidx.window.extensions.embedding.SplitAttributes}</li>
      *     <li>{@link ActivityEmbeddingComponent#setSplitAttributesCalculator(
      *      androidx.window.extensions.core.util.function.Function)}</li>
+     *     <li>{@link WindowLayoutComponent#addWindowLayoutInfoListener(Context, Consumer)}</li>
      * </ul>
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -99,7 +105,11 @@ public interface WindowExtensions {
      *     <li>{@link ActivityEmbeddingComponent#updateSplitAttributes(IBinder, SplitAttributes)}
      *     </li>
      *     <li>{@link ActivityEmbeddingComponent#finishActivityStacks(Set)}</li>
-     *     <li>{@link androidx.window.extensions.area.WindowAreaComponent} APIs</li>
+     *     <li>{@link WindowAreaComponent#addRearDisplayPresentationStatusListener(Consumer)}</li>
+     *     <li>{@link WindowAreaComponent#startRearDisplayPresentationSession(Activity, Consumer)}
+     *     </li>
+     *     <li>{@link WindowAreaComponent#getRearDisplayMetrics()}</li>
+     *     <li>{@link WindowAreaComponent#getRearDisplayPresentation()}</li>
      * </ul>
      * </p>
      */
