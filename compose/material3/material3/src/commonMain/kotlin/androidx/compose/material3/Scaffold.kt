@@ -197,7 +197,7 @@ private fun ScaffoldLayout(
                         layoutWidth - FabSpacing.roundToPx() - fabWidth
                     }
                 }
-                FabPosition.End -> {
+                FabPosition.End, FabPosition.EndOverlay -> {
                     if (layoutDirection == LayoutDirection.Ltr) {
                         layoutWidth - FabSpacing.roundToPx() - fabWidth
                     } else {
@@ -225,7 +225,7 @@ private fun ScaffoldLayout(
 
         val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
         val fabOffsetFromBottom = fabPlacement?.let {
-            if (bottomBarHeight == null) {
+            if (bottomBarHeight == null || fabPosition == FabPosition.EndOverlay) {
                 it.height + FabSpacing.roundToPx() +
                     contentWindowInsets.getBottom(this@SubcomposeLayout)
             } else {
@@ -329,13 +329,20 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
          * exists)
          */
         val End = FabPosition(2)
+
+        /**
+         * Position FAB at the bottom of the screen at the end, overlaying the [NavigationBar] (if
+         * it exists)
+         */
+        val EndOverlay = FabPosition(3)
     }
 
     override fun toString(): String {
         return when (this) {
             Start -> "FabPosition.Start"
             Center -> "FabPosition.Center"
-            else -> "FabPosition.End"
+            End -> "FabPosition.End"
+            else -> "FabPosition.EndOverlay"
         }
     }
 }

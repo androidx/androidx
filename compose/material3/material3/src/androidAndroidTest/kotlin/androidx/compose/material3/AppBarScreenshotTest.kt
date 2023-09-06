@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomAppBarDefaults.bottomAppBarFabColor
 import androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior
 import androidx.compose.material3.tokens.TopAppBarSmallTokens
 import androidx.compose.testutils.assertAgainstGolden
@@ -361,7 +362,7 @@ class AppBarScreenshotTest {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = { /* do something */ },
-                            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                            containerColor = bottomAppBarFabColor,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                         ) {
                             Icon(Icons.Filled.Add, "Localized description")
@@ -393,7 +394,7 @@ class AppBarScreenshotTest {
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = { /* do something */ },
-                            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                            containerColor = bottomAppBarFabColor,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                         ) {
                             Icon(Icons.Filled.Add, "Localized description")
