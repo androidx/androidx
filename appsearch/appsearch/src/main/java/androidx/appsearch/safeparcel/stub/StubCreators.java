@@ -16,7 +16,9 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.safeparcel.GenericDocumentParcel;
 import androidx.appsearch.app.safeparcel.PropertyConfigParcel;
+import androidx.appsearch.app.safeparcel.PropertyParcel;
 
 /**
  * Stub creators for any classes extending
@@ -33,7 +35,7 @@ public class StubCreators {
     public static class StorageInfoCreator extends AbstractCreator {
     }
 
-    /** Stub creator for {@link androidx.appsearch.app.PropertyParcel}. */
+    /** Stub creator for {@link PropertyParcel}. */
     public static class PropertyParcelCreator extends AbstractCreator {
     }
 
@@ -67,5 +69,9 @@ public class StubCreators {
      * {@link PropertyConfigParcel.DocumentIndexingConfigParcel}.
      */
     public static class DocumentIndexingConfigParcelCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link GenericDocumentParcel}. */
+    public static class GenericDocumentParcelCreator extends AbstractCreator {
     }
 }
