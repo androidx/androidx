@@ -108,7 +108,7 @@ fun FloatingActionButton(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        tonalElevation = elevation.tonalElevation(interactionSource = interactionSource).value,
+        tonalElevation = elevation.tonalElevation(),
         shadowElevation = elevation.shadowElevation(interactionSource = interactionSource).value,
         interactionSource = interactionSource,
     ) {
@@ -496,9 +496,8 @@ object FloatingActionButtonDefaults {
         return animateElevation(interactionSource = interactionSource)
     }
 
-    @Composable
-    internal fun tonalElevation(interactionSource: InteractionSource): State<Dp> {
-        return animateElevation(interactionSource = interactionSource)
+    internal fun tonalElevation(): Dp {
+        return defaultElevation
     }
 
     @Composable
