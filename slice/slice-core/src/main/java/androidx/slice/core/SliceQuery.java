@@ -40,6 +40,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
+@Deprecated
 public class SliceQuery {
 
     /**

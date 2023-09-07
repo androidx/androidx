@@ -681,6 +681,8 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+\$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceViewMetrics\.java:[0-9]+: warning: \[deprecation\] SliceView in androidx\.slice\.widget has been deprecated
+import androidx\.slice\.widget\.SliceView;
 # b/296419682
 \$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] resume\(\) in Thread has been deprecated and marked for removal
 thread\.resume\(\);
@@ -730,3 +732,12 @@ w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
 # > Configure project :internal-testutils-appcompat
 WARNING: The option setting 'android\.experimental\.lint\.reservedMemoryPerTask=[0-9]+g' is experimental\.
+# > Task :slice:slice-builders-ktx:compileDebugKotlin
+w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/main/java/androidx/slice/builders/ListBuilder\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
+# > Task :slice:slice-builders-ktx:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'SliceProvider' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'SliceSpecs' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
+# > Task :slice:slice-benchmark:compileReleaseAndroidTestJavaWithJavac
+\$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java:[0-9]+: warning: \[deprecation\] SliceHints in androidx\.slice\.core has been deprecated
+import androidx\.slice\.core\.SliceHints;

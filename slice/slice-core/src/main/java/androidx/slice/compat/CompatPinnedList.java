@@ -41,6 +41,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class CompatPinnedList {
 
     private static final String LAST_BOOT = "last_boot";

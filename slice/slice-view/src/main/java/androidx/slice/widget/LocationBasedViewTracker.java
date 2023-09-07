@@ -34,6 +34,7 @@ import java.util.ArrayList;
  * Utility class to track view based on relative location to the parent.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated
 public class LocationBasedViewTracker implements Runnable, View.OnLayoutChangeListener {
 
     private static final SelectionLogic INPUT_FOCUS = new SelectionLogic() {

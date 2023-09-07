@@ -37,6 +37,7 @@ import androidx.slice.SliceSpec;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class MessagingBasicImpl extends TemplateBuilderImpl implements
         MessagingBuilder {
     private MessageBuilder mLastMessage;

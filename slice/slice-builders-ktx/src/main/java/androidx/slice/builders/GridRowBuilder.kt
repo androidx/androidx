@@ -20,6 +20,14 @@ package androidx.slice.builders
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class GridRowBuilderDsl : GridRowBuilder()
 
@@ -28,17 +36,41 @@ class GridRowBuilderDsl : GridRowBuilder()
  * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
  * ensuring a type-safe DSL.
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 @SliceMarker
 class CellBuilderDsl : GridRowBuilder.CellBuilder()
 
 /**
  * @see GridRowBuilder.addCell
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun GridRowBuilderDsl.cell(buildCell: CellBuilderDsl.() -> Unit) =
     addCell(CellBuilderDsl().apply { buildCell() })
 
 /**
  * @see GridRowBuilder.setSeeMoreCell
  */
+@Deprecated(
+    """
+        Slice framework has been deprecated, it will not receive any updates moving forward.
+        If you are looking for a framework that handles communication across apps, 
+        consider using AppSearchManager.
+    """,
+    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+@Suppress("DEPRECATION")
 inline fun GridRowBuilderDsl.seeMoreCell(buildCell: CellBuilderDsl.() -> Unit) =
     setSeeMoreCell(CellBuilderDsl().apply { buildCell() })

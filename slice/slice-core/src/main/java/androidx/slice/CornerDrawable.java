@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated
 public class CornerDrawable extends InsetDrawable {
     private float mCornerRadius;
     private final Path mPath = new Path();

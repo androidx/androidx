@@ -86,6 +86,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
+ */
+@Deprecated
 @RequiresApi(19)
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {

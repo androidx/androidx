@@ -31,6 +31,7 @@ import androidx.slice.view.R;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class RowStyle {
     public static final int UNBOUNDED = -1;
 
