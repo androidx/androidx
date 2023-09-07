@@ -107,6 +107,69 @@ function_stop_mpdecision() {
     done
 }
 
+# Given a target frequency and list of available frequencies, selects one closest to the target
+function_find_target_mhz() {
+    targetFreq=$1
+    availFreq=$2
+
+    # Choose a frequency to lock to that's >= $CPU_TARGET_FREQ_PERCENT% of max
+    # (below, 100M = 1K for KHz->MHz * 100 for %)
+    targetFreqMhz=$(( ($targetFreq * $CPU_TARGET_FREQ_PERCENT) / 100000 ))
+    outputFreq=0
+    outputFreqDiff=100000000
+    for freq in ${availFreq}; do
+        freqMhz=$(( ${freq} / 1000 ))
+        if [ ${freqMhz} -ge ${targetFreqMhz} ]; then
+            newOutputFreqDiff=$(( $freq - $targetFreqMhz ))
+            if [ $newOutputFreqDiff -lt $outputFreqDiff ]; then
+                outputFreq=${freq}
+                outputFreqDiff=$(( $outputFreq - $targetFreqMhz ))
+            fi
+        fi
+    done
+
+    echo $outputFreq
+}
+
+# enable a set of CPUs with a given set of frequencies
+function_enable_cpus() {
+    enableCpuIndices=$1
+    enableCpuFreq=$2
+
+    # enable 'big' CPUs
+    for cpu in ${enableCpuIndices}; do
+        freq=${CPU_BASE}/cpu$cpu/cpufreq
+
+        # Try to enable core, so we can find its frequencies.
+        # Note: In cases where the online file is inaccessible, it represents a
+        # core which cannot be turned off, so we simply assume it is enabled if
+        # this command fails.
+        if [ -f "$CPU_BASE/cpu$cpu/online" ]; then
+            echo 1 > ${CPU_BASE}/cpu${cpu}/online || true
+        fi
+
+        # scaling_max_freq must be set before scaling_min_freq
+        echo ${enableCpuFreq} > ${freq}/scaling_max_freq
+        echo ${enableCpuFreq} > ${freq}/scaling_min_freq
+        echo ${enableCpuFreq} > ${freq}/scaling_setspeed
+
+        # Give system a bit of time to propagate the change to scaling_setspeed.
+        sleep 0.1
+
+        # validate setting the freq worked
+        obsCur=`cat ${freq}/scaling_cur_freq`
+        obsMin=`cat ${freq}/scaling_min_freq`
+        obsMax=`cat ${freq}/scaling_max_freq`
+        if [ "$obsCur" -ne "$enableCpuFreq" ] || [ "$obsMin" -ne "$enableCpuFreq" ] || [ "$obsMax" -ne "$enableCpuFreq" ]; then
+            echo "Failed to set CPU$cpu to $enableCpuFreq Hz! Aborting..."
+            echo "${freq}/scaling_cur_freq = $obsCur"
+            echo "${freq}/scaling_min_freq = $obsMin"
+            echo "${freq}/scaling_max_freq = $obsMax"
+            exit -1
+        fi
+    done
+}
+
 # Find the min or max (little vs big) of CPU max frequency, and lock cores of the selected type to
 # an available frequency that's >= $CPU_TARGET_FREQ_PERCENT% of max. Disable other cores.
 function_lock_cpu() {
@@ -116,11 +179,18 @@ function_lock_cpu() {
     # Options to make clock locking on go devices more sticky.
     function_setup_go
 
-    # Find max CPU freq, and associated list of available freqs
-    cpuIdealFreq=$CPU_IDEAL_START_FREQ_KHZ
-    cpuAvailFreqCmpr=0
-    cpuAvailFreq=0
+    # Find max (or min) CPU freq, and associated list of available freqs
     enableIndices=''
+    cpuIdealFreq=$CPU_IDEAL_START_FREQ_KHZ
+    cpuIdealAvailFreqCmpr=0
+    cpuIdealAvailFreq=0
+
+    # While iterating, also capture 2nd best group of cores, to be enabled if needed
+    maybeEnableIndices=''
+    cpuMaybeFreq=$CPU_IDEAL_START_FREQ_KHZ
+    cpuMaybeAvailFreqCmpr=0
+    cpuMaybeAvailFreq=0
+
     disableIndices=''
     cpu=0
 
@@ -131,7 +201,6 @@ function_lock_cpu() {
     # "cpu#" instead of cpu#/online or cpu#/cpufreq directly, since they may
     # not be accessible yet.
     while [ -d ${CPU_BASE}/cpu${cpu} ]; do
-
         # Try to enable core, so we can find its frequencies.
         # Note: In cases where the online file is inaccessible, it represents a
         # core which cannot be turned off, so we simply assume it is enabled if
@@ -148,19 +217,43 @@ function_lock_cpu() {
         availFreqCmpr=${availFreq// /-}
 
         if (function_core_check $maxFreq $cpuIdealFreq); then
-            # new min/max of max freq, look for cpus with same max freq and same avail freq list
-            cpuIdealFreq=${maxFreq}
-            cpuAvailFreq=${availFreq}
-            cpuAvailFreqCmpr=${availFreqCmpr}
-
+            # New ideal freq
+            ### demote maybeEnable to disabled
             if [ -z "$disableIndices" ]; then
-                disableIndices="$enableIndices"
+                disableIndices="$maybeEnableIndices"
             else
-                disableIndices="$disableIndices $enableIndices"
+                disableIndices="$maybeEnableIndices $disableIndices"
             fi
+
+            ### demote enabled to maybeEnabled
+            maybeEnableIndices="$enableIndices"
+            cpuMaybeFreq=${cpuIdealFreq}
+            cpuMaybeAvailFreq=${cpuIdealAvailFreq}
+            cpuMaybeAvailFreqCmpr=${cpuIdealAvailFreqCmpr}
+
+            ### new min/max of max freq, look for cpus with same max freq and same avail freq list
             enableIndices=${cpu}
-        elif [ ${maxFreq} == ${cpuIdealFreq} ] && [ ${availFreqCmpr} == ${cpuAvailFreqCmpr} ]; then
+            cpuIdealFreq=${maxFreq}
+            cpuIdealAvailFreq=${availFreq}
+            cpuIdealAvailFreqCmpr=${availFreqCmpr}
+        elif [ ${maxFreq} == ${cpuIdealFreq} ] && [ ${availFreqCmpr} == ${cpuIdealAvailFreqCmpr} ]; then
             enableIndices="$enableIndices $cpu"
+        elif (function_core_check $maxFreq $cpuMaybeFreq); then
+            # New secondary ideal freq
+            ### demote maybeEnable to disabled
+            if [ -z "$disableIndices" ]; then
+                disableIndices="$maybeEnableIndices"
+            else
+                disableIndices="$disableIndices $maybeEnableIndices"
+            fi
+
+            ### new second best set cpu
+            maybeEnableIndices=${cpu}
+            cpuMaybeFreq=${maxFreq}
+            cpuMaybeAvailFreq=${availFreq}
+            cpuMaybeAvailFreqCmpr=${availFreqCmpr}
+        elif [ ${maxFreq} == ${cpuMaybeFreq} ] && [ ${availFreqCmpr} == ${cpuMaybeAvailFreqCmpr} ]; then
+            maybeEnableIndices="$maybeEnableIndices $cpu"
         else
             if [ -z "$disableIndices" ]; then
                 disableIndices="$cpu"
@@ -172,27 +265,32 @@ function_lock_cpu() {
         cpu=$(($cpu + 1))
     done
 
+    # Clear maybeEnableIndices if they're not needed (already have >1 core enabled)
+    enableCount=0
+    for cpu in ${enableIndices}; do
+        enableCount=$(($enableCount + 1))
+    done
+    if [ "$enableCount" -gt 1 ]; then
+        # more than one core would be enabled without maybe list, demote
+        # maybeEnable to disabled
+        if [ -z "$disableIndices" ]; then
+            disableIndices="$maybeEnableIndices"
+        else
+            disableIndices="$maybeEnableIndices $disableIndices"
+        fi
+        maybeEnableIndices=""
+    fi
+
     # check that some CPUs will be enabled
     if [ -z "$enableIndices" ]; then
         echo "Failed to find any $ARG_CORES cores to enable, aborting."
         exit -1
     fi
 
-    # Chose a frequency to lock to that's >= $CPU_TARGET_FREQ_PERCENT% of max
-    # (below, 100M = 1K for KHz->MHz * 100 for %)
-    TARGET_FREQ_MHZ=$(( ($cpuIdealFreq * $CPU_TARGET_FREQ_PERCENT) / 100000 ))
-    chosenFreq=0
-    chosenFreqDiff=100000000
-    for freq in ${cpuAvailFreq}; do
-        freqMhz=$(( ${freq} / 1000 ))
-        if [ ${freqMhz} -ge ${TARGET_FREQ_MHZ} ]; then
-            newChosenFreqDiff=$(( $freq - $TARGET_FREQ_MHZ ))
-            if [ $newChosenFreqDiff -lt $chosenFreqDiff ]; then
-                chosenFreq=${freq}
-                chosenFreqDiff=$(( $chosenFreq - $TARGET_FREQ_MHZ ))
-            fi
-        fi
-    done
+    chosenIdealFreq=`function_find_target_mhz "$cpuIdealFreq" "$cpuIdealAvailFreq"`
+    if [ -n "$maybeEnableIndices" ]; then
+        chosenMaybeFreq=`function_find_target_mhz "$cpuMaybeFreq" "$cpuMaybeAvailFreq"`
+    fi
 
     # Lock wembley clocks using high-priority op code method.
     # This block depends on the shell utility awk, which is only available on API 27+
@@ -205,7 +303,7 @@ function_lock_cpu() {
                 echo "${line:1:${#line}-2}"
             done`
 
-        # Compute the closest available frequency to the desired frequency, $chosenFreq.
+        # Compute the closest available frequency to the desired frequency, $chosenIdealFreq.
         # This assumes the op codes listen in /proc/cpufreq/MT_CPU_DVFS_LL/cpufreq_oppidx are listed
         # in order and 0-indexed.
         opCode=-1
@@ -214,9 +312,9 @@ function_lock_cpu() {
         for currOpFreq in $AVAIL_OP_FREQS; do
             currOpCode=$((currOpCode + 1))
 
-            prevDiff=$((chosenFreq-opFreq))
+            prevDiff=$((chosenIdealFreq-opFreq))
             prevDiff=`function_abs $prevDiff`
-            currDiff=$((chosenFreq-currOpFreq))
+            currDiff=$((chosenIdealFreq-currOpFreq))
             currDiff=`function_abs $currDiff`
             if [ $currDiff -lt $prevDiff ]; then
                 opCode="$currOpCode"
@@ -227,38 +325,11 @@ function_lock_cpu() {
         echo "$opCode" > /proc/ppm/policy/ut_fix_freq_idx
     fi
 
-    # enable 'big' CPUs
-    for cpu in ${enableIndices}; do
-        freq=${CPU_BASE}/cpu$cpu/cpufreq
+    function_enable_cpus "$enableIndices" "$chosenIdealFreq"
 
-        # Try to enable core, so we can find its frequencies.
-        # Note: In cases where the online file is inaccessible, it represents a
-        # core which cannot be turned off, so we simply assume it is enabled if
-        # this command fails.
-        if [ -f "$CPU_BASE/cpu$cpu/online" ]; then
-            echo 1 > ${CPU_BASE}/cpu${cpu}/online || true
-        fi
-
-        # scaling_max_freq must be set before scaling_min_freq
-        echo ${chosenFreq} > ${freq}/scaling_max_freq
-        echo ${chosenFreq} > ${freq}/scaling_min_freq
-        echo ${chosenFreq} > ${freq}/scaling_setspeed
-
-        # Give system a bit of time to propagate the change to scaling_setspeed.
-        sleep 0.1
-
-        # validate setting the freq worked
-        obsCur=`cat ${freq}/scaling_cur_freq`
-        obsMin=`cat ${freq}/scaling_min_freq`
-        obsMax=`cat ${freq}/scaling_max_freq`
-        if [ "$obsCur" -ne "$chosenFreq" ] || [ "$obsMin" -ne "$chosenFreq" ] || [ "$obsMax" -ne "$chosenFreq" ]; then
-            echo "Failed to set CPU$cpu to $chosenFreq Hz! Aborting..."
-            echo "scaling_cur_freq = $obsCur"
-            echo "scaling_min_freq = $obsMin"
-            echo "scaling_max_freq = $obsMax"
-            exit -1
-        fi
-    done
+    if [ -n "$maybeEnableIndices" ]; then
+        function_enable_cpus "$maybeEnableIndices" "$chosenMaybeFreq"
+    fi
 
     # disable other CPUs (Note: important to enable big cores first!)
     for cpu in ${disableIndices}; do
@@ -266,7 +337,10 @@ function_lock_cpu() {
     done
 
     echo "=================================="
-    echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $cpuIdealFreq KHz"
+    echo "Locked CPUs ${enableIndices// /,} to $chosenIdealFreq / $cpuIdealFreq KHz"
+    if [ -n "$maybeEnableIndices" ]; then
+        echo "Locked CPUs ${maybeEnableIndices// /,} to $chosenMaybeFreq / $cpuMaybeFreq KHz"
+    fi
     echo "Disabled CPUs ${disableIndices// /,}"
     echo "=================================="
 }
