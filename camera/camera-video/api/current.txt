@@ -2,16 +2,21 @@
 package androidx.camera.video {
 
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class AudioStats {
+    method public double getAudioAmplitude();
     method public abstract int getAudioState();
     method public abstract Throwable? getErrorCause();
     method public boolean hasAudio();
     method public boolean hasError();
+    field public static final double AUDIO_AMPLITUDE_NONE = 0.0;
     field public static final int AUDIO_STATE_ACTIVE = 0; // 0x0
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
     field public static final int AUDIO_STATE_MUTED = 5; // 0x5
     field public static final int AUDIO_STATE_SOURCE_ERROR = 4; // 0x4
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAudioApi {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPersistentRecording {
