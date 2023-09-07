@@ -40,8 +40,6 @@ class SwipeBenchmark(
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
-    private lateinit var device: UiDevice
-
     @Before
     fun setUp() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -64,8 +62,8 @@ class SwipeBenchmark(
             val swipeToDismissBox = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             swipeToDismissBox.setGestureMargin(device.displayWidth / 5)
-            repeat(10) {
-                swipeToDismissBox.swipe(Direction.RIGHT, 0.75f)
+            repeat(3) {
+                swipeToDismissBox.swipe(Direction.RIGHT, 0.75f, SWIPE_SPEED)
                 device.waitForIdle()
             }
         }
@@ -80,4 +78,7 @@ class SwipeBenchmark(
         @JvmStatic
         fun parameters() = createCompilationParams()
     }
+
+    private lateinit var device: UiDevice
+    private val SWIPE_SPEED = 500
 }
