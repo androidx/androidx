@@ -28,6 +28,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.RenderParameters.HighlightedElement
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -433,7 +434,8 @@ internal constructor(
 
     private var lastComplicationUpdate = Instant.EPOCH
 
-    private class ComplicationDataHistoryEntry(
+    @VisibleForTesting
+    internal class ComplicationDataHistoryEntry(
         val complicationData: ComplicationData,
         val time: Instant
     )
@@ -442,7 +444,8 @@ internal constructor(
      * There doesn't seem to be a convenient ring buffer in the standard library so implement our
      * own one.
      */
-    private class RingBuffer(val size: Int) : Iterable<ComplicationDataHistoryEntry> {
+    @VisibleForTesting
+    internal class RingBuffer(val size: Int) : Iterable<ComplicationDataHistoryEntry> {
         private val entries = arrayOfNulls<ComplicationDataHistoryEntry>(size)
         private var readIndex = 0
         private var writeIndex = 0
@@ -470,9 +473,11 @@ internal constructor(
 
     /**
      * In userdebug builds maintain a history of the last [MAX_COMPLICATION_HISTORY_ENTRIES]-1
-     * complications, which is logged in dumpsys to help debug complication issues.
+     * complications sent by the system, which is logged in dumpsys to help debug complication
+     * issues.
      */
-    private val complicationHistory =
+    @VisibleForTesting
+    internal val complicationHistory =
         if (Build.TYPE.equals("userdebug")) {
             RingBuffer(MAX_COMPLICATION_HISTORY_ENTRIES)
         } else {
@@ -1014,18 +1019,38 @@ internal constructor(
 
     /**
      * Sets the current [ComplicationData] and if it's a timeline, the correct override for
-     * [instant] is chosen.
+     * [instant] is chosen. Any images associated with the complication are loaded asynchronously
+     * and the complication history is updated.
      */
-    internal fun setComplicationData(
-        complicationData: ComplicationData,
-        loadDrawablesAsynchronous: Boolean,
-        instant: Instant
-    ) {
+    internal fun setComplicationData(complicationData: ComplicationData, instant: Instant) {
         lastComplicationUpdate = instant
         complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         timelineComplicationData = complicationData
         timelineEntries = complicationData.asWireComplicationData().timelineEntries?.toList()
-        selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
+        selectComplicationDataForInstant(
+            instant,
+            loadDrawablesAsynchronous = true,
+            forceUpdate = true
+        )
+    }
+
+    /**
+     * Sets the current [ComplicationData] and if it's a timeline, the correct override for
+     * [instant] is chosen. Any images are loaded synchronously. The complication history is not
+     * updated.
+     */
+    internal fun setComplicationDataForScreenshot(
+        complicationData: ComplicationData,
+        instant: Instant
+    ) {
+        lastComplicationUpdate = instant
+        timelineComplicationData = complicationData
+        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.toList()
+        selectComplicationDataForInstant(
+            instant,
+            loadDrawablesAsynchronous = false,
+            forceUpdate = true
+        )
     }
 
     /**
