@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMapNotNull
 
 /**
@@ -55,6 +56,11 @@ class Posture(
         var result = isTabletop.hashCode()
         result = 31 * result + hingeList.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "Posture(isTabletop=$isTabletop, " +
+            "hinges=[${hingeList.fastJoinToString(", ")}])"
     }
 }
 
@@ -131,6 +137,13 @@ class HingeInfo(
         result = 31 * result + isSeparating.hashCode()
         result = 31 * result + isOccluding.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "HingeInfo(bounds=$bounds, " +
+            "isVertical=$isVertical, " +
+            "isSeparating=$isSeparating, " +
+            "isOccluding=$isOccluding)"
     }
 }
 
