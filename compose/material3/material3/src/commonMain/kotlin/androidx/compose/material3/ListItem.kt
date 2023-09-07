@@ -28,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -94,7 +92,7 @@ fun ListItem(
 ) {
     val decoratedHeadlineContent: @Composable () -> Unit = {
         ProvideTextStyleFromToken(
-            colors.headlineColor(enabled = true).value,
+            colors.headlineColor(enabled = true),
             ListTokens.ListItemLabelTextFont,
             headlineContent
         )
@@ -102,7 +100,7 @@ fun ListItem(
     val decoratedSupportingContent: @Composable (() -> Unit)? = supportingContent?.let {
         {
             ProvideTextStyleFromToken(
-                colors.supportingColor().value,
+                colors.supportingColor(),
                 ListTokens.ListItemSupportingTextFont,
                 it
             )
@@ -111,7 +109,7 @@ fun ListItem(
     val decoratedOverlineContent: @Composable (() -> Unit)? = overlineContent?.let {
         {
             ProvideTextStyleFromToken(
-                colors.overlineColor().value,
+                colors.overlineColor(),
                 ListTokens.ListItemOverlineFont,
                 it
             )
@@ -121,7 +119,7 @@ fun ListItem(
         {
             Box(Modifier.padding(end = LeadingContentEndPadding)) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.leadingIconColor(enabled = true).value,
+                    LocalContentColor provides colors.leadingIconColor(enabled = true),
                     content = it
                 )
             }
@@ -131,7 +129,7 @@ fun ListItem(
         {
             Box(Modifier.padding(start = TrailingContentStartPadding)) {
                 ProvideTextStyleFromToken(
-                    colors.trailingIconColor(enabled = true).value,
+                    colors.trailingIconColor(enabled = true),
                     ListTokens.ListItemTrailingSupportingTextFont,
                     content = it
                 )
@@ -140,10 +138,12 @@ fun ListItem(
     }
 
     Surface(
-        modifier = Modifier.semantics(mergeDescendants = true) {}.then(modifier),
+        modifier = Modifier
+            .semantics(mergeDescendants = true) {}
+            .then(modifier),
         shape = ListItemDefaults.shape,
-        color = colors.containerColor().value,
-        contentColor = colors.headlineColor(enabled = true).value,
+        color = colors.containerColor(),
+        contentColor = colors.headlineColor(enabled = true),
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
     ) {
@@ -191,7 +191,8 @@ private fun ListItemLayout(
         val trailingPlaceable = trailingMeasurable.firstOrNull()?.measure(
             looseConstraints.offset(
                 horizontal = -currentTotalWidth
-            ))
+            )
+        )
         currentTotalWidth += widthOrZero(trailingPlaceable)
 
         var currentTotalHeight = 0
@@ -199,14 +200,16 @@ private fun ListItemLayout(
         val headlinePlaceable = headlineMeasurable.firstOrNull()?.measure(
             looseConstraints.offset(
                 horizontal = -currentTotalWidth
-            ))
+            )
+        )
         currentTotalHeight += heightOrZero(headlinePlaceable)
 
         val supportingPlaceable = supportingMeasurable.firstOrNull()?.measure(
             looseConstraints.offset(
                 horizontal = -currentTotalWidth,
                 vertical = -currentTotalHeight
-            ))
+            )
+        )
         currentTotalHeight += heightOrZero(supportingPlaceable)
         val isSupportingMultiline = supportingPlaceable != null &&
             (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
@@ -215,7 +218,8 @@ private fun ListItemLayout(
             looseConstraints.offset(
                 horizontal = -currentTotalWidth,
                 vertical = -currentTotalHeight
-            ))
+            )
+        )
 
         val listItemType = ListItemType.getListItemType(
             hasOverline = overlinePlaceable != null,
@@ -359,7 +363,9 @@ private fun MeasureScope.place(
         }
 
         val mainContentX = startPadding + widthOrZero(leadingPlaceable)
-        val mainContentY = if (isThreeLine) { topPadding } else {
+        val mainContentY = if (isThreeLine) {
+            topPadding
+        } else {
             val totalHeight = heightOrZero(headlinePlaceable) + heightOrZero(overlinePlaceable) +
                 heightOrZero(supportingPlaceable)
             CenterVertically.align(totalHeight, height)
@@ -475,46 +481,28 @@ class ListItemColors constructor(
     val disabledTrailingIconColor: Color,
 ) {
     /** The container color of this [ListItem] based on enabled state */
-    @Composable
-    internal fun containerColor(): State<Color> {
-        return rememberUpdatedState(containerColor)
+    internal fun containerColor(): Color {
+        return containerColor
     }
 
     /** The color of this [ListItem]'s headline text based on enabled state */
-    @Composable
-    internal fun headlineColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) headlineColor else disabledHeadlineColor
-        )
+    internal fun headlineColor(enabled: Boolean): Color {
+        return if (enabled) headlineColor else disabledHeadlineColor
     }
 
     /** The color of this [ListItem]'s leading content based on enabled state */
-    @Composable
-    internal fun leadingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) leadingIconColor else disabledLeadingIconColor
-        )
-    }
+    internal fun leadingIconColor(enabled: Boolean): Color =
+        if (enabled) leadingIconColor else disabledLeadingIconColor
 
     /** The color of this [ListItem]'s overline text based on enabled state */
-    @Composable
-    internal fun overlineColor(): State<Color> {
-        return rememberUpdatedState(overlineColor)
-    }
+    internal fun overlineColor(): Color = overlineColor
 
     /** The color of this [ListItem]'s supporting text based on enabled state */
-    @Composable
-    internal fun supportingColor(): State<Color> {
-        return rememberUpdatedState(supportingTextColor)
-    }
+    internal fun supportingColor(): Color = supportingTextColor
 
     /** The color of this [ListItem]'s trailing content based on enabled state */
-    @Composable
-    internal fun trailingIconColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) trailingIconColor else disabledTrailingIconColor
-        )
-    }
+    internal fun trailingIconColor(enabled: Boolean): Color =
+        if (enabled) trailingIconColor else disabledTrailingIconColor
 }
 
 @Composable
@@ -566,10 +554,13 @@ private value class ListItemType private constructor(private val lines: Int) :
 // TODO: Make sure these values stay up to date until replaced with tokens.
 @VisibleForTesting
 internal val ListItemVerticalPadding = 8.dp
+
 @VisibleForTesting
 internal val ListItemThreeLineVerticalPadding = 12.dp
+
 @VisibleForTesting
 internal val ListItemStartPadding = 16.dp
+
 @VisibleForTesting
 internal val ListItemEndPadding = 24.dp
 
