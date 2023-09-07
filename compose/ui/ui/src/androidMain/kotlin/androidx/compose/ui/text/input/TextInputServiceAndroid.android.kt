@@ -170,9 +170,9 @@ internal class TextInputServiceAndroid(
                     )
                 }
 
-                override fun onConnectionClosed(ic: RecordingInputConnection) {
+                override fun onConnectionClosed(inputConnection: RecordingInputConnection) {
                     for (i in 0 until ics.size) {
-                        if (ics[i].get() == ic) {
+                        if (ics[i].get() == inputConnection) {
                             ics.removeAt(i)
                             return // No duplicated instances should be in the list.
                         }
