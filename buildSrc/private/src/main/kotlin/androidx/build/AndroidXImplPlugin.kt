@@ -460,6 +460,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 it.artRewritingWorkaround()
             }
         }
+
+        project.buildOnServerDependsOnAssembleRelease()
+        project.buildOnServerDependsOnLint()
     }
 
     private fun configureWithTestPlugin(project: Project, androidXExtension: AndroidXExtension) {
@@ -471,6 +474,30 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureJavaCompilationWarnings(androidXExtension)
 
         project.addToProjectMap(androidXExtension)
+    }
+
+    private fun Project.buildOnServerDependsOnAssembleRelease() {
+        project.addToBuildOnServer("assembleRelease")
+    }
+
+    private fun Project.buildOnServerDependsOnLint() {
+        if (!project.usingMaxDepVersions()) {
+            project.agpVariants.all { variant ->
+                // in AndroidX, release and debug variants are essentially the same,
+                // so we don't run the lintRelease task on the build server
+                if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
+                    val taskName =
+                        "lint${variant.name.replaceFirstChar {
+                        if (it.isLowerCase()) {
+                            it.titlecase(Locale.getDefault())
+                        } else {
+                            it.toString()
+                        }
+                    }}"
+                    project.addToBuildOnServer(taskName)
+                }
+            }
+        }
     }
 
     private fun HasAndroidTest.configureTests() {
@@ -595,6 +622,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         )
 
         project.addToProjectMap(androidXExtension)
+
+        project.buildOnServerDependsOnAssembleRelease()
+        project.buildOnServerDependsOnLint()
     }
 
     private fun configureWithJavaPlugin(project: Project, extension: AndroidXExtension) {
@@ -656,6 +686,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configurations.all { configuration ->
             configuration.resolutionStrategy.preferProjectModules()
         }
+
+        project.addToBuildOnServer("jar")
 
         project.addToProjectMap(extension)
     }
