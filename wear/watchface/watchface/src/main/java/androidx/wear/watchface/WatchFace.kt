@@ -252,8 +252,9 @@ public class WatchFace(
                     }
                     .apply { setContext(context) }
 
-            val engine = watchFaceService.createHeadlessEngine(componentName)
-                as WatchFaceService.EngineWrapper
+            val engine =
+                watchFaceService.createHeadlessEngine(componentName)
+                    as WatchFaceService.EngineWrapper
             val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
             return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
         }
@@ -472,10 +473,7 @@ public class WatchFace(
         }
     }
 
-    /**
-     * The [OverlayStyle]. This feature is unimplemented on any platform, and will be
-     * removed.
-     */
+    /** The [OverlayStyle]. This feature is unimplemented on any platform, and will be removed. */
     @Deprecated("OverlayStyle will be removed in a future release.")
     @Suppress("Deprecation")
     public var overlayStyle: OverlayStyle = OverlayStyle()
@@ -655,8 +653,7 @@ constructor(
     private val tapListener = watchface.tapListener
     internal var complicationDeniedDialogIntent = watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent = watchface.complicationRationaleDialogIntent
-    @Suppress("Deprecation")
-    internal var overlayStyle = watchface.overlayStyle
+    @Suppress("Deprecation") internal var overlayStyle = watchface.overlayStyle
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
@@ -671,27 +668,25 @@ constructor(
 
     init {
         val context = watchFaceHostApi.getContext()
-        val displayManager =
-                context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         displayManager.registerDisplayListener(
-                object : DisplayManager.DisplayListener {
-                    override fun onDisplayAdded(displayId: Int) {}
+            object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(displayId: Int) {}
 
-                    override fun onDisplayChanged(displayId: Int) {
-                        val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
-                        if (display.state == Display.STATE_OFF &&
-                                watchState.isVisible.value == false) {
-                            // We want to avoid a glimpse of a stale time when transitioning from
-                            // hidden to visible, so we render two black frames to clear the buffers
-                            // when the display has been turned off and the watch is not visible.
-                            renderer.renderBlackFrame()
-                            renderer.renderBlackFrame()
-                        }
+                override fun onDisplayChanged(displayId: Int) {
+                    val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
+                    if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
+                        // We want to avoid a glimpse of a stale time when transitioning from
+                        // hidden to visible, so we render two black frames to clear the buffers
+                        // when the display has been turned off and the watch is not visible.
+                        renderer.renderBlackFrame()
+                        renderer.renderBlackFrame()
                     }
+                }
 
-                    override fun onDisplayRemoved(displayId: Int) {}
-                },
-                watchFaceHostApi.getUiThreadHandler()
+                override fun onDisplayRemoved(displayId: Int) {}
+            },
+            watchFaceHostApi.getUiThreadHandler()
         )
     }
 
@@ -893,8 +888,11 @@ constructor(
             get() = watchFaceHostApi.getComplicationRationaleIntent()
 
         override var editorObscuresWatchFace: Boolean
-            get() = InteractiveInstanceManager
-                .getCurrentInteractiveInstance()?.engine?.editorObscuresWatchFace ?: false
+            get() =
+                InteractiveInstanceManager.getCurrentInteractiveInstance()
+                    ?.engine
+                    ?.editorObscuresWatchFace
+                    ?: false
             set(value) {
                 InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
                     it.editorObscuresWatchFace = value
@@ -915,7 +913,7 @@ constructor(
 
                 slotIdToComplicationData?.let {
                     for ((id, complicationData) in it) {
-                        complicationSlotsManager.setComplicationDataUpdateSync(
+                        complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                             id,
                             complicationData,
                             instant
@@ -930,7 +928,7 @@ constructor(
                 slotIdToComplicationData?.let {
                     val now = getNow()
                     for ((id, complicationData) in oldComplicationData) {
-                        complicationSlotsManager.setComplicationDataUpdateSync(
+                        complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                             id,
                             complicationData,
                             now
@@ -994,8 +992,11 @@ constructor(
         // Separate calls are issued to deliver the state of isAmbient and isVisible, so during init
         // we might not yet know the state of both (which is required by the shouldAnimate logic).
         // If the editor is obscuring the watch face, there's no need to schedule a frame.
-        if (!watchState.isAmbient.hasValue() || !watchState.isVisible.hasValue() ||
-            editorObscuresWatchFace) {
+        if (
+            !watchState.isAmbient.hasValue() ||
+                !watchState.isVisible.hasValue() ||
+                editorObscuresWatchFace
+        ) {
             return
         }
 
@@ -1194,7 +1195,7 @@ constructor(
 
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(
+                    complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                         idAndData.id,
                         idAndData.complicationData.toApiComplicationData(),
                         instant
@@ -1218,7 +1219,7 @@ constructor(
                 if (params.idAndComplicationDatumWireFormats != null) {
                     val now = getNow()
                     for ((id, complicationData) in oldComplicationData) {
-                        complicationSlotsManager.setComplicationDataUpdateSync(
+                        complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                             id,
                             complicationData,
                             now
@@ -1272,20 +1273,21 @@ constructor(
 
                 // Compute the bounds of the complication based on the display rather than
                 // the headless renderer (which may be smaller).
-                val bounds = it.computeBounds(
-                    Rect(
-                    0,
-                    0,
-                        Resources.getSystem().displayMetrics.widthPixels,
-                        Resources.getSystem().displayMetrics.heightPixels
+                val bounds =
+                    it.computeBounds(
+                        Rect(
+                            0,
+                            0,
+                            Resources.getSystem().displayMetrics.widthPixels,
+                            Resources.getSystem().displayMetrics.heightPixels
+                        )
                     )
-                )
 
                 var prevData: ComplicationData? = null
                 val screenshotComplicationData = params.complicationData
                 if (screenshotComplicationData != null) {
                     prevData = it.renderer.getData()
-                    complicationSlotsManager.setComplicationDataUpdateSync(
+                    complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                         params.complicationSlotId,
                         screenshotComplicationData.toApiComplicationData(),
                         instant
@@ -1303,12 +1305,13 @@ constructor(
                         params.complicationSlotId
                     )
                     picture.endRecording()
-                    complicationBitmap = Api28CreateBitmapHelper.createBitmap(
-                        picture,
-                        bounds.width(),
-                        bounds.height(),
-                        Bitmap.Config.ARGB_8888
-                    )
+                    complicationBitmap =
+                        Api28CreateBitmapHelper.createBitmap(
+                            picture,
+                            bounds.width(),
+                            bounds.height(),
+                            Bitmap.Config.ARGB_8888
+                        )
                 } else {
                     complicationBitmap =
                         Bitmap.createBitmap(
@@ -1330,7 +1333,7 @@ constructor(
                     // Restore previous ComplicationData & style if required.
                     if (prevData != null) {
                         val now = getNow()
-                        complicationSlotsManager.setComplicationDataUpdateSync(
+                        complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                             params.complicationSlotId,
                             prevData,
                             now
@@ -1421,7 +1424,7 @@ internal object CreateRemoteWatchFaceViewHelper {
 
             params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
-                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateSync(
+                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                         idAndData.id,
                         idAndData.complicationData.toApiComplicationData(),
                         instant
@@ -1443,7 +1446,7 @@ internal object CreateRemoteWatchFaceViewHelper {
             if (params.idAndComplicationDatumWireFormats != null) {
                 val now = watchFaceImpl.getNow()
                 for ((id, complicationData) in oldComplicationData) {
-                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateSync(
+                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateForScreenshot(
                         id,
                         complicationData,
                         now
