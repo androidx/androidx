@@ -322,6 +322,8 @@ internal actual class ComposeWindow : UIViewController {
     override fun viewDidLoad() {
         super.viewDidLoad()
 
+        PlistSanityCheck.performIfNeeded()
+
         configuration.delegate.viewDidLoad()
     }
 
