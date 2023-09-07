@@ -83,6 +83,7 @@ limitations under the License.
             android:label="CameraX Service">
             <intent-filter>
                 <action android:name="androidx.camera.integration.core.intent.action.BIND_USE_CASES" />
+                <action android:name="androidx.camera.integration.core.intent.action.TAKE_PICTURE" />
             </intent-filter>
         </service>
     </application>
