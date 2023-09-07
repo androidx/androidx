@@ -261,7 +261,7 @@
          <trusted-key id="7e22d50a7ebd9d2cd269b2d4056aca74d46000bf" group="io.netty"/>
          <trusted-key id="7f36e793ae3252e5d9e9b98fee9e7dc9d92fc896" group="com.google.errorprone"/>
          <trusted-key id="7faa0f2206de228f0db01ad741321490758aad6f" group="org.codehaus.groovy"/>
-         <trusted-key id="7fe5e98df3a5c0dc34663ab7c1add37ca0069309" group="org.spdx" name="spdx-gradle-plugin" version="0.1.0"/>
+         <trusted-key id="7fe5e98df3a5c0dc34663ab7c1add37ca0069309" group="org.spdx" name="spdx-gradle-plugin" />
          <trusted-key id="808d78b17a5a2d7c3668e31fbffc9b54721244ad" group="org.apache.commons"/>
          <trusted-key id="80f6d6b0d90c6747753344cab5a9e81b565e89e0" group="org.tomlj"/>
          <trusted-key id="8254180bfc943b816e0b5e2e5e2f2b3d474efe6b" group="it.unimi.dsi"/>
