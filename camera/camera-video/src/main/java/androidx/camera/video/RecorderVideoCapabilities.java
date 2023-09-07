@@ -76,6 +76,8 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     private final EncoderProfilesProvider mProfilesProvider;
 
+    private boolean mIsStabilizationSupported = false;
+
     // Mappings of DynamicRange to recording capability information. The mappings are divided
     // into two collections based on the key's (DynamicRange) category, one for specified
     // DynamicRange and one for others. Specified DynamicRange means that its bit depth and
@@ -130,6 +132,9 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
                 mCapabilitiesMapForFullySpecifiedDynamicRange.put(dynamicRange, capabilities);
             }
         }
+
+        // Video stabilization
+        mIsStabilizationSupported = cameraInfoInternal.isVideoStabilizationSupported();
     }
 
     /**
@@ -164,6 +169,11 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
             @NonNull DynamicRange dynamicRange) {
         CapabilitiesByQuality capabilities = getCapabilities(dynamicRange);
         return capabilities != null && capabilities.isQualitySupported(quality);
+    }
+
+    @Override
+    public boolean isStabilizationSupported() {
+        return mIsStabilizationSupported;
     }
 
     @Nullable
