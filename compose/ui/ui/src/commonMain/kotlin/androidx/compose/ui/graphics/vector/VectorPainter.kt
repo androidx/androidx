@@ -184,7 +184,7 @@ fun rememberVectorPainter(image: ImageVector) =
  * This can be represented by either a [ImageVector] or a programmatic
  * composition of a vector
  */
-class VectorPainter internal constructor() : Painter() {
+class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) : Painter() {
 
     internal var size by mutableStateOf(Size.Zero)
 
@@ -211,7 +211,7 @@ class VectorPainter internal constructor() : Painter() {
             vector.name = value
         }
 
-    internal val vector = VectorComponent().apply {
+    internal val vector = VectorComponent(root).apply {
         invalidateCallback = {
             if (drawCount == invalidateCount) {
                 invalidateCount++
@@ -351,7 +351,8 @@ internal fun VectorPainter.configureVectorPainter(
  */
 internal fun createVectorPainterFromImageVector(
     density: Density,
-    imageVector: ImageVector
+    imageVector: ImageVector,
+    root: GroupComponent
 ): VectorPainter {
     val defaultSize = density.obtainSizePx(imageVector.defaultWidth, imageVector.defaultHeight)
     val viewport = obtainViewportSize(
@@ -359,15 +360,13 @@ internal fun createVectorPainterFromImageVector(
         imageVector.viewportWidth,
         imageVector.viewportHeight
     )
-    return VectorPainter().configureVectorPainter(
+    return VectorPainter(root).configureVectorPainter(
         defaultSize = defaultSize,
         viewportSize = viewport,
         name = imageVector.name,
         intrinsicColorFilter = createColorFilter(imageVector.tintColor, imageVector.tintBlendMode),
         autoMirror = imageVector.autoMirror
-    ).apply {
-        this.vector.root.createGroupComponent(imageVector.root)
-    }
+    )
 }
 
 /**

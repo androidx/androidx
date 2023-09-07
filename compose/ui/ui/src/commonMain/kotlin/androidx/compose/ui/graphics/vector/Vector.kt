@@ -94,9 +94,10 @@ sealed class VNode {
     abstract fun DrawScope.draw()
 }
 
-internal class VectorComponent : VNode() {
-    val root = GroupComponent().apply {
-        invalidateListener = {
+internal class VectorComponent(val root: GroupComponent) : VNode() {
+
+    init {
+        root.invalidateListener = {
             doInvalidate()
         }
     }
