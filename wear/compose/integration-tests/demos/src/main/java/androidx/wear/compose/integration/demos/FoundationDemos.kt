@@ -170,6 +170,9 @@ val WearFoundationDemos = DemoCategory(
                 ComposableDemo("Swipe To Reveal - Undo") {
                     SwipeToRevealWithDifferentUndo()
                 },
+                ComposableDemo("S2R + EdgeSwipeToDismiss") { params ->
+                    SwipeToRevealWithEdgeSwipeToDismiss(params.navigateBack)
+                },
                 ComposableDemo("Material S2R Chip") {
                     SwipeToRevealChipSample()
                 },

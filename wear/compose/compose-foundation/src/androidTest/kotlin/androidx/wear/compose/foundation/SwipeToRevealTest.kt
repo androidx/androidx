@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -300,6 +304,64 @@ class SwipeToRevealTest {
         initialRevealValue = RevealValue.Revealed,
         undoActionModifier = Modifier.testTag(TEST_TAG)
     )
+
+    @Test
+    fun onRightSwipe_dispatchEventsToParent() {
+        var onPreScrollDispatch = 0f
+        rule.setContent {
+            val nestedScrollConnection = remember {
+                object : NestedScrollConnection {
+                    override fun onPreScroll(
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
+                        onPreScrollDispatch = available.x
+                        return available
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier.nestedScroll(nestedScrollConnection)
+            ) {
+                swipeToRevealWithDefaults(
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+
+        assert(onPreScrollDispatch > 0)
+    }
+
+    @Test
+    fun onLeftSwipe_dispatchEventsToParent() {
+        var onPreScrollDispatch = 0f
+        rule.setContent {
+            val nestedScrollConnection = remember {
+                object : NestedScrollConnection {
+                    override fun onPreScroll(
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
+                        onPreScrollDispatch = available.x
+                        return available
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier.nestedScroll(nestedScrollConnection)
+            ) {
+                swipeToRevealWithDefaults(
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeLeft() }
+
+        assert(onPreScrollDispatch < 0) // Swiping left means the dispatch will be negative
+    }
 
     private fun verifyLastClickAction(
         expectedClickType: RevealActionType,
