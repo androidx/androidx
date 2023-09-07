@@ -88,7 +88,6 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
 import kotlin.math.max
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -417,10 +416,7 @@ private class ModalBottomSheetWindow(
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     private val displayWidth: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
-        }
+        get() = context.resources.displayMetrics.widthPixels
 
     private val params: WindowManager.LayoutParams =
         WindowManager.LayoutParams().apply {

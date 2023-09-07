@@ -48,7 +48,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -186,9 +185,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
 
         rule.setContent {
             val context = LocalContext.current
-            val density = LocalDensity.current
-            val resScreenWidth = context.resources.configuration.screenWidthDp
-            with(density) { screenWidth = resScreenWidth.dp.roundToPx() }
+            screenWidth = context.resources.displayMetrics.widthPixels
             val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
                 WindowInsets(0) else BottomSheetDefaults.windowInsets
 
