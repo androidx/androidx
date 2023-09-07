@@ -144,6 +144,42 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
     }
 
     @Test
+    fun modalBottomSheet_isDismissedOnSwipeDown() {
+        var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = false, density = rule.density)
+
+        rule.setContent {
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    windowInsets = windowInsets
+                ) {
+                    Box(
+                        Modifier
+                            .size(sheetHeight)
+                            .testTag(sheetTag)
+                    )
+                }
+            }
+        }
+
+        assertThat(sheetState.isVisible).isTrue()
+
+        // Swipe Down
+        rule.onNodeWithTag(sheetTag).performTouchInput {
+            swipeDown()
+        }
+        rule.waitForIdle()
+
+        // Bottom sheet should not exist
+        rule.onNodeWithTag(sheetTag).assertDoesNotExist()
+    }
+
+    @Test
     fun modalBottomSheet_fillsScreenWidth() {
         var boxWidth = 0
         var screenWidth by mutableStateOf(0)
