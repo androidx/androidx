@@ -123,12 +123,7 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      * Returns `true` if the [ObjectList] contains [element] or `false` otherwise.
      */
     public operator fun contains(element: E): Boolean {
-        forEach {
-            if (it == element) {
-                return true
-            }
-        }
-        return false
+        return indexOf(element) >= 0
     }
 
     /**
@@ -396,9 +391,21 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      * Returns the index of [element] in the [ObjectList] or `-1` if [element] is not there.
      */
     public fun indexOf(element: E): Int {
-        forEachIndexed { i, item ->
-            if (element == item) {
-                return i
+        // Comparing with == for each element is slower than comparing with .equals().
+        // We split the iteration for null and for non-null to speed it up.
+        // See ObjectListBenchmarkTest.contains()
+        if (element == null) {
+            forEachIndexed { i, item ->
+                if (item == null) {
+                    return i
+                }
+            }
+        } else {
+            forEachIndexed { i, item ->
+                @Suppress("ReplaceCallWithBinaryOperator")
+                if (element.equals(item)) {
+                    return i
+                }
             }
         }
         return -1
@@ -494,9 +501,21 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      * [element] or `-1` if no elements match.
      */
     public fun lastIndexOf(element: E): Int {
-        forEachReversedIndexed { i, item ->
-            if (element == item) {
-                return i
+        // Comparing with == for each element is slower than comparing with .equals().
+        // We split the iteration for null and for non-null to speed it up.
+        // See ObjectListBenchmarkTest.contains()
+        if (element == null) {
+            forEachReversedIndexed { i, item ->
+                if (item == null) {
+                    return i
+                }
+            }
+        } else {
+            forEachReversedIndexed { i, item ->
+                @Suppress("ReplaceCallWithBinaryOperator")
+                if (element.equals(item)) {
+                    return i
+                }
             }
         }
         return -1
@@ -1111,7 +1130,7 @@ public class MutableObjectList<E>(
         val content = content
         for (i in lastIndex downTo 0) {
             val element = content[i]
-            if (elements.indexOfFirst { it == element } < 0) {
+            if (elements.indexOf(element) < 0) {
                 removeAt(i)
             }
         }
