@@ -18,10 +18,12 @@ package androidx.camera.testing.impl
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.net.Uri
 import android.os.Environment.DIRECTORY_DOCUMENTS
 import android.os.Environment.DIRECTORY_MOVIES
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.video.FileOutputOptions
@@ -32,12 +34,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
-private const val TAG = "E2ETestUtil"
+private const val TAG = "FileUtil"
 private const val EXTENSION_MP4 = "mp4"
 private const val EXTENSION_TEXT = "txt"
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-object E2ETestUtil {
+object FileUtil {
 
     /**
      * Write the given text to the external storage.
@@ -101,7 +103,7 @@ object E2ETestUtil {
     ): FileOutputOptions {
         val fileNameWithExtension = "$fileName.$extension"
         val folder = getExternalStoragePublicDirectory(DIRECTORY_MOVIES)
-        if (!folder.exists() && !folder.mkdirs()) {
+        if (!createFolder(folder)) {
             Logger.e(TAG, "Failed to create directory: $folder")
         }
         return FileOutputOptions.Builder(File(folder, fileNameWithExtension)).build()
@@ -119,14 +121,10 @@ object E2ETestUtil {
     fun generateVideoMediaStoreOptions(
         contentResolver: ContentResolver,
         fileName: String
-    ): MediaStoreOutputOptions {
-        val contentValues = generateVideoContentValues(fileName)
-
-        return MediaStoreOutputOptions.Builder(
-            contentResolver,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues).build()
-    }
+    ): MediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
+        contentResolver,
+        MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+    ).setContentValues(generateVideoContentValues(fileName)).build()
 
     /**
      * Check if the given file name string is valid.
@@ -145,14 +143,79 @@ object E2ETestUtil {
         return !fileName.isNullOrBlank()
     }
 
-    private fun generateVideoContentValues(fileName: String): ContentValues {
-        val res = ContentValues()
-        res.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-        res.put(MediaStore.Video.Media.TITLE, fileName)
-        res.put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
-        res.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
-        res.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis())
+    /**
+     * Creates parent folder for the input file path.
+     *
+     * @param filePath the input file path to create its parent folder.
+     * @return `true` if the parent folder already exists or is created successfully.
+     * `false` if the existing parent folder path is not a folder or failed to create.
+     */
+    @JvmStatic
+    fun createParentFolder(filePath: String): Boolean {
+        return createParentFolder(File(filePath))
+    }
 
-        return res
+    /**
+     * Creates parent folder for the input file.
+     *
+     * @param file the input file to create its parent folder
+     * @return `true` if the parent folder already exists or is created successfully.
+     * `false` if the existing parent folder path is not a folder or failed to create.
+     */
+    @JvmStatic
+    fun createParentFolder(file: File): Boolean = file.parentFile?.let {
+        createFolder(it)
+    } ?: false
+
+    /**
+     * Creates folder for the input file.
+     *
+     * @param file the input file to create folder
+     * @return `true` if the folder already exists or is created successfully.
+     * `false` if the existing folder path is not a folder or failed to create.
+     */
+    @JvmStatic
+    fun createFolder(file: File): Boolean = if (file.exists()) {
+        file.isDirectory
+    } else {
+        file.mkdirs()
+    }
+
+    /**
+     * Gets the absolute path from a Uri.
+     *
+     * @param resolver   the content resolver.
+     * @param contentUri the content uri.
+     * @return the file path of the content uri or null if not found.
+     */
+    @JvmStatic
+    fun getAbsolutePathFromUri(resolver: ContentResolver, contentUri: Uri): String? {
+        // MediaStore.Video.Media.DATA was deprecated in API level 29.
+        val column = MediaStore.Video.Media.DATA
+        try {
+            resolver.query(contentUri, arrayOf(column), null, null, null)!!.use { cursor ->
+                val columnIndex = cursor.getColumnIndexOrThrow(column)
+                cursor.moveToFirst()
+                return cursor.getString(columnIndex)
+            }
+        } catch (e: RuntimeException) {
+            Log.e(
+                TAG,
+                String.format(
+                    "Failed in getting absolute path for Uri %s with Exception %s",
+                    contentUri, e
+                ), e
+            )
+            return null
+        }
+    }
+
+    private fun generateVideoContentValues(fileName: String) = ContentValues().apply {
+        put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+        put(MediaStore.Video.Media.TITLE, fileName)
+        put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+        val currentTimeMs = System.currentTimeMillis()
+        put(MediaStore.Video.Media.DATE_ADDED, currentTimeMs / 1000)
+        put(MediaStore.Video.Media.DATE_TAKEN, currentTimeMs)
     }
 }

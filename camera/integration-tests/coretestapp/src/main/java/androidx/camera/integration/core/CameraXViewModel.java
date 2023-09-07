@@ -107,7 +107,7 @@ public class CameraXViewModel extends AndroidViewModel {
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
     public static boolean isCameraProviderUnInitializedOrSameAsParameter(
-            @NonNull String cameraImplementation) {
+            @Nullable String cameraImplementation) {
 
         if (sConfiguredCameraXCameraImplementation == null) {
             return true;
@@ -116,11 +116,7 @@ public class CameraXViewModel extends AndroidViewModel {
                 sConfiguredCameraXCameraImplementation);
         cameraImplementation = getCameraProviderName(cameraImplementation);
 
-        if (currentCameraProvider.equals(cameraImplementation)) {
-            return true;
-        }
-
-        return false;
+        return currentCameraProvider.equals(cameraImplementation);
     }
 
     /**
@@ -129,7 +125,7 @@ public class CameraXViewModel extends AndroidViewModel {
      */
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
-    private static String getCameraProviderName(String mCameraProvider) {
+    private static String getCameraProviderName(@Nullable String mCameraProvider) {
         if (mCameraProvider == null) {
             mCameraProvider = CAMERA2_IMPLEMENTATION_OPTION;
         }

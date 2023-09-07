@@ -33,7 +33,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.testing.impl.E2ETestUtil;
+import androidx.camera.testing.impl.FileUtil;
 import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
@@ -232,14 +232,14 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
 
         final String videoFileName = generateFileName(VIDEO_FILE_PREFIX, true);
         final PendingRecording pendingRecording;
-        if (E2ETestUtil.canDeviceWriteToMediaStore()) {
+        if (FileUtil.canDeviceWriteToMediaStore()) {
             // Use MediaStoreOutputOptions for public share media storage.
             pendingRecording = mVideoCapture.getOutput().prepareRecording(this,
-                    E2ETestUtil.generateVideoMediaStoreOptions(this.getContentResolver(),
+                    FileUtil.generateVideoMediaStoreOptions(this.getContentResolver(),
                             videoFileName));
         } else {
             pendingRecording = mVideoCapture.getOutput().prepareRecording(this,
-                    E2ETestUtil.generateVideoFileOutputOptions(videoFileName, "mp4"));
+                    FileUtil.generateVideoFileOutputOptions(videoFileName, "mp4"));
         }
         mRecording = pendingRecording
                 .asPersistentRecording() // Perform the recording as a persistent recording.
@@ -274,17 +274,17 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
 
     private void exportTestInformation() {
         String information = KEY_DEVICE_ORIENTATION + ": " + mDeviceOrientation;
-        E2ETestUtil.writeTextToExternalFile(information,
+        FileUtil.writeTextToExternalFile(information,
                 generateFileName(INFO_FILE_PREFIX, false), "txt");
     }
 
     @NonNull
     private String generateFileName(@Nullable String prefix, boolean isUnique) {
-        if (!isUnique && !E2ETestUtil.isFileNameValid(prefix)) {
+        if (!isUnique && !FileUtil.isFileNameValid(prefix)) {
             throw new IllegalArgumentException("Invalid arguments for generating file name.");
         }
         StringBuilder fileName = new StringBuilder();
-        if (E2ETestUtil.isFileNameValid(prefix)) {
+        if (FileUtil.isFileNameValid(prefix)) {
             fileName.append(prefix);
             if (isUnique) {
                 fileName.append("_");
