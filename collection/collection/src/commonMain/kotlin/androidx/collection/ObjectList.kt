@@ -36,6 +36,11 @@ import kotlin.jvm.JvmField
  * **Note** [List] access is available through [asList] when developers need access to the
  * common API.
  *
+ * It is best to use this for all internal implementations where a list of reference types
+ * is needed. Use [List] in public API to take advantage of the commonly-used interface.
+ * It is common to use [ObjectList] internally and use [asList] to get a [List] interface
+ * for interacting with public APIs.
+ *
  * @see MutableObjectList
  * @see FloatList
  * @see IntList
@@ -574,6 +579,11 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
 
  * **Note** [MutableList] access is available through [asMutableList] when developers need
  * access to the common API.
+ *
+ * It is best to use this for all internal implementations where a list of reference types
+ * is needed. Use [MutableList] in public API to take advantage of the commonly-used interface.
+ * It is common to use [MutableObjectList] internally and use [asMutableList] or [asList]
+ * to get a [MutableList] or [List] interface for interacting with public APIs.
  *
  * @see ObjectList
  * @see MutableFloatList
