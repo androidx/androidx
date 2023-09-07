@@ -38,6 +38,16 @@ abstract class EmittableWithChildren(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun EmittableWithChildren.addChild(e: Emittable) {
+    this.children += e
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun EmittableWithChildren.addChildIfNotNull(e: Emittable?) {
+    if (e != null) this.children += e
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
     var alignment: Alignment = Alignment.CenterStart
 }
