@@ -19,16 +19,14 @@ package androidx.camera.video;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import androidx.annotation.RequiresOptIn;
-import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 
 /**
- * Denotes that the methods on retrieving audio amplitude data are experimental and may
+ * Denotes that the annotated element relates to an experimental audio feature and may
  * change in a future release.
  */
 @Retention(CLASS)
 @RequiresOptIn
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public @interface ExperimentalAudioApi {
 }
