@@ -185,6 +185,10 @@ private class BinderAdapterDelegate(
                 }
             }
 
+            override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                session.notifyZOrderChanged(isZOrderOnTop)
+            }
+
             override fun close() {
                 val mHandler = Handler(Looper.getMainLooper())
                 mHandler.post {
