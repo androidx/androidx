@@ -327,14 +327,14 @@ public class ComplicationSlotsManager(
             return
         }
         complication.dataDirty = complication.dataDirty || (complication.renderer.getData() != data)
-        complication.setComplicationData(data, true, instant)
+        complication.setComplicationData(data, instant)
     }
 
     /**
      * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
      */
     @UiThread
-    internal fun setComplicationDataUpdateSync(
+    internal fun setComplicationDataUpdateForScreenshot(
         complicationSlotId: Int,
         data: ComplicationData,
         instant: Instant
@@ -348,7 +348,7 @@ public class ComplicationSlotsManager(
             )
             return
         }
-        complication.setComplicationData(data, false, instant)
+        complication.setComplicationDataForScreenshot(data, instant)
     }
 
     /**
