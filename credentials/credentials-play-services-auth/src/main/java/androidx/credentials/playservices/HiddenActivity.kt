@@ -31,6 +31,7 @@ import androidx.credentials.playservices.controllers.CredentialProviderBaseContr
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_NO_CREDENTIALS
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_UNKNOWN
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SavePasswordRequest
 import com.google.android.gms.common.api.ApiException
@@ -72,6 +73,9 @@ open class HiddenActivity : Activity() {
             }
             CredentialProviderBaseController.CREATE_PUBLIC_KEY_CREDENTIAL_TAG -> {
                 handleCreatePublicKeyCredential()
+            }
+            CredentialProviderBaseController.SIGN_IN_INTENT_TAG -> {
+                handleGetSignInIntent()
             } else -> {
                 Log.w(TAG, "Activity handed an unsupported type")
                 finish()
@@ -142,6 +146,47 @@ open class HiddenActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(KEY_AWAITING_RESULT, mWaitingForActivityResult)
         super.onSaveInstanceState(outState)
+    }
+
+    private fun handleGetSignInIntent() {
+        val params: GetSignInIntentRequest? = intent.getParcelableExtra(
+            CredentialProviderBaseController.REQUEST_TAG)
+        val requestCode: Int = intent.getIntExtra(
+            CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG,
+            DEFAULT_VALUE)
+        params?.let {
+            Identity.getSignInClient(this).getSignInIntent(params).addOnSuccessListener {
+                try {
+                    mWaitingForActivityResult = true
+                    startIntentSenderForResult(
+                        it.intentSender,
+                        requestCode,
+                        null,
+                        0,
+                        0,
+                        0,
+                        null
+                    )
+                } catch (e: IntentSender.SendIntentException) {
+                    setupFailure(resultReceiver!!,
+                        GET_UNKNOWN,
+                        "During get sign-in intent, one tap ui intent sender " +
+                            "failure: ${e.message}")
+                }
+            }.addOnFailureListener { e: Exception ->
+                var errName: String = GET_NO_CREDENTIALS
+                if (e is ApiException && e.statusCode in
+                    CredentialProviderBaseController.retryables) {
+                    errName = GET_INTERRUPTED
+                }
+                setupFailure(resultReceiver!!, errName,
+                    "During get sign-in intent, failure response from one tap: ${e.message}")
+            }
+        } ?: run {
+            Log.i(TAG, "During get sign-in intent, params is null, nothing to launch for " +
+                "get sign-in intent")
+            finish()
+        }
     }
 
     private fun handleBeginSignIn() {
