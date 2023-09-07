@@ -79,28 +79,33 @@ internal fun applyModifiers(
                 }
                 actionModifier = modifier
             }
+
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(context, rv, modifier, viewDef)
             is PaddingModifier -> {
                 paddingModifiers = paddingModifiers?.let { it + modifier } ?: modifier
             }
+
             is VisibilityModifier -> visibility = modifier.visibility
             is CornerRadiusModifier -> cornerRadius = modifier.radius
             is AppWidgetBackgroundModifier -> {
                 // This modifier is handled somewhere else.
             }
+
             is SelectableGroupModifier -> {
                 if (!translationContext.canUseSelectableGroup) {
                     error(
                         "GlanceModifier.selectableGroup() can only be used on Row or Column " +
-                        "composables."
+                            "composables."
                     )
                 }
             }
+
             is AlignmentModifier -> {
                 // This modifier is handled somewhere else.
             }
+
             is ClipToOutlineModifier -> clipToOutline = modifier
             is EnabledModifier -> enabled = modifier
             is SemanticsModifier -> semanticsModifier = modifier
@@ -226,7 +231,8 @@ internal fun applySimpleWidthModifier(
     }
     // Wrap and Expand are done in XML on Android S & Sv2
     if (Build.VERSION.SDK_INT < 33 &&
-        width in listOf(Dimension.Wrap, Dimension.Expand)) return
+        width in listOf(Dimension.Wrap, Dimension.Expand)
+    ) return
     ApplyModifiersApi31Impl.setViewWidth(rv, viewId, width)
 }
 
@@ -256,7 +262,8 @@ internal fun applySimpleHeightModifier(
     }
     // Wrap and Expand are done in XML on Android S & Sv2
     if (Build.VERSION.SDK_INT < 33 &&
-        height in listOf(Dimension.Wrap, Dimension.Expand)) return
+        height in listOf(Dimension.Wrap, Dimension.Expand)
+    ) return
     ApplyModifiersApi31Impl.setViewHeight(rv, viewId, height)
 }
 
@@ -267,8 +274,9 @@ private fun applyBackgroundModifier(
     viewDef: InsertedViewInfo
 ) {
     val viewId = viewDef.mainViewId
-    val imageProvider = modifier.imageProvider
-    if (imageProvider != null) {
+
+    fun applyBackgroundImageModifier(modifier: BackgroundModifier.Image) {
+        val imageProvider = modifier.imageProvider
         if (imageProvider is AndroidResourceImageProvider) {
             rv.setViewBackgroundResource(viewId, imageProvider.resId)
         }
@@ -276,24 +284,41 @@ private fun applyBackgroundModifier(
         // (removing modifiers is not really possible).
         return
     }
-    when (val colorProvider = modifier.colorProvider) {
-        is FixedColorProvider -> rv.setViewBackgroundColor(viewId, colorProvider.color.toArgb())
-        is ResourceColorProvider -> rv.setViewBackgroundColorResource(
-            viewId,
-            colorProvider.resId
-        )
-        is DayNightColorProvider -> {
-            if (Build.VERSION.SDK_INT >= 31) {
-                rv.setViewBackgroundColor(
-                    viewId,
-                    colorProvider.day.toArgb(),
-                    colorProvider.night.toArgb()
-                )
-            } else {
-                rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())
+
+    fun applyBackgroundColorModifier(modifier: BackgroundModifier.Color) {
+        when (val colorProvider = modifier.colorProvider) {
+            is FixedColorProvider -> rv.setViewBackgroundColor(
+                viewId,
+                colorProvider.color.toArgb()
+            )
+
+            is ResourceColorProvider -> rv.setViewBackgroundColorResource(
+                viewId,
+                colorProvider.resId
+            )
+
+            is DayNightColorProvider -> {
+                if (Build.VERSION.SDK_INT >= 31) {
+                    rv.setViewBackgroundColor(
+                        viewId,
+                        colorProvider.day.toArgb(),
+                        colorProvider.night.toArgb()
+                    )
+                } else {
+                    rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())
+                }
             }
+
+            else -> Log.w(
+                GlanceAppWidgetTag,
+                "Unexpected background color modifier: $colorProvider"
+            )
         }
-        else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")
+    }
+
+    when (modifier) {
+        is BackgroundModifier.Image -> applyBackgroundImageModifier(modifier)
+        is BackgroundModifier.Color -> applyBackgroundColorModifier(modifier)
     }
 }
 
@@ -319,6 +344,7 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Wrap -> {
                 rv.setViewLayoutWidth(viewId, WRAP_CONTENT.toFloat(), COMPLEX_UNIT_PX)
             }
+
             is Dimension.Expand -> rv.setViewLayoutWidth(viewId, 0f, COMPLEX_UNIT_PX)
             is Dimension.Dp -> rv.setViewLayoutWidth(viewId, width.dp.value, COMPLEX_UNIT_DIP)
             is Dimension.Resource -> rv.setViewLayoutWidthDimen(viewId, width.res)
@@ -334,6 +360,7 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Wrap -> {
                 rv.setViewLayoutHeight(viewId, WRAP_CONTENT.toFloat(), COMPLEX_UNIT_PX)
             }
+
             is Dimension.Expand -> rv.setViewLayoutHeight(viewId, 0f, COMPLEX_UNIT_PX)
             is Dimension.Dp -> rv.setViewLayoutHeight(viewId, height.dp.value, COMPLEX_UNIT_DIP)
             is Dimension.Resource -> rv.setViewLayoutHeightDimen(viewId, height.res)
@@ -350,9 +377,11 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Dp -> {
                 rv.setViewOutlinePreferredRadius(viewId, radius.dp.value, COMPLEX_UNIT_DIP)
             }
+
             is Dimension.Resource -> {
                 rv.setViewOutlinePreferredRadiusDimen(viewId, radius.res)
             }
+
             else -> error("Rounded corners should not be ${radius.javaClass.canonicalName}")
         }
     }
