@@ -18,38 +18,38 @@ package androidx.compose.foundation.text.modifiers
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.ceilToIntPx
-import androidx.compose.foundation.text.selection.Selectable
-import androidx.compose.foundation.text.selection.Selection
-import androidx.compose.foundation.text.selection.Selection.AnchorInfo
-import androidx.compose.foundation.text.selection.SelectionAdjustment
-import androidx.compose.foundation.text.selection.SelectionLayoutBuilder
-import androidx.compose.foundation.text.selection.SelectionRegistrar
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import org.junit.Assert
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,223 +61,80 @@ class SelectionControllerTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val boxTag = "boxTag"
+    private val tag = "tag"
+
+    private val highlightColor = Color.Blue
+    private val foregroundColor = Color.Black
+    private val backgroundColor = Color.White
+
+    private val highlightArgb get() = highlightColor.toArgb()
+    private val foregroundArgb get() = foregroundColor.toArgb()
+    private val backgroundArgb get() = backgroundColor.toArgb()
+
+    private val density = Density(1f)
+    private val textSelectionColors = TextSelectionColors(highlightColor, highlightColor)
+
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun drawWithClip_doesClip() {
-        val canvasSize = 10.dp
-        val pathSize = 10_000f
-        val path = Path().also {
-            it.addRect(Rect(0f, 0f, pathSize, pathSize))
-        }
-
-        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
-        val subject = SelectionController(
-            selectableId = fixedSelectionFake.nextSelectableId(),
-            selectionRegistrar = fixedSelectionFake,
-            backgroundSelectionColor = Color.White,
-            params = FakeParams(
-                path, true
-            )
-        )
-        var size: Size? = null
-
-        rule.setContent {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .drawBehind { drawRect(Color.Black) }) {
-                Canvas(Modifier.size(canvasSize)) {
-                    size = this.size
-                    subject.draw(this)
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        assertClipped(size!!, true)
+    fun drawWithClip_doesClip() = runDrawWithClipTest(TextOverflow.Clip) { argbSet ->
+        assertThat(argbSet).containsExactly(backgroundArgb)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun drawWithOut_doesNotClip() {
-        val canvasSize = 10.dp
-        val pathSize = 10_000f
-        val path = Path().also {
-            it.addRect(Rect(0f, 0f, pathSize, pathSize))
-        }
-
-        val fixedSelectionFake = FixedSelectionFake(0, 1000, 200)
-        val subject = SelectionController(
-            selectableId = fixedSelectionFake.nextSelectableId(),
-            selectionRegistrar = fixedSelectionFake,
-            backgroundSelectionColor = Color.White,
-            params = FakeParams(
-                path, false
-            )
-        )
-        var size: Size? = null
-
-        rule.setContent {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .drawBehind { drawRect(Color.Black) }) {
-                Canvas(Modifier.size(canvasSize)) {
-                    size = this.size
-                    drawRect(Color.Black)
-                    subject.draw(this)
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        assertClipped(size!!, false)
+    fun drawWithVisible_doesNotClip() = runDrawWithClipTest(TextOverflow.Visible) { argbSet ->
+        // there could be more colors due to anti-aliasing, so check that we have at least the
+        // expected colors, and none of the unexpected colors.
+        assertThat(argbSet).containsAtLeast(highlightArgb, foregroundArgb)
+        assertThat(argbSet).doesNotContain(backgroundArgb)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun assertClipped(size: Size, isClipped: Boolean) {
-        val expectedColor = if (isClipped) { Color.Black } else { Color.White }
-        rule.onRoot().captureToImage().asAndroidBitmap().apply {
-            Assert.assertEquals(
-                expectedColor.toArgb(),
-                getPixel(
-                    size.width.ceilToIntPx() + 5,
-                    size.height.ceilToIntPx() + 5
-                )
-            )
+    private fun runDrawWithClipTest(overflow: TextOverflow, assertBlock: (Set<Int>) -> Unit) {
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalTextSelectionColors provides textSelectionColors,
+                LocalDensity provides density,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawBehind { drawRect(backgroundColor) }
+                        .testTag(boxTag),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    SelectionContainer {
+                        BasicText(
+                            modifier = Modifier
+                                .width(10.dp)
+                                .testTag(tag),
+                            text = "OOOOOOO",
+                            overflow = overflow,
+                            softWrap = false,
+                            style = TextStyle(color = foregroundColor, fontSize = 48.sp),
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(tag).performTouchInput { longClick() }
+        rule.waitForIdle()
+
+        with(density) {
+            val bitmap = rule.onNodeWithTag(boxTag).captureToImage().asAndroidBitmap()
+            val bitmapPositionInRoot =
+                rule.onNodeWithTag(boxTag).getBoundsInRoot().toRect().roundToIntRect().topLeft
+            val centerRightOffset =
+                rule.onNodeWithTag(tag).getBoundsInRoot().toRect().roundToIntRect().centerRight
+
+            val centerRightOffsetInRoot = centerRightOffset - bitmapPositionInRoot
+            val (x, y) = centerRightOffsetInRoot
+
+            // grab a row of pixels in the area that may be clipped.
+            val seenColors = (1..50).map { bitmap.getPixel(x + it, y) }.toSet()
+            assertBlock(seenColors)
         }
     }
 }
-
-/**
- * Fake that always has selection
- */
-private class FixedSelectionFake(
-    val start: Int,
-    val end: Int,
-    val lastVisible: Int
-) : SelectionRegistrar {
-
-    var selectableId = 0L
-    var allSelectables = mutableListOf<Long>()
-
-    override val subselections: Map<Long, Selection>
-        get() = allSelectables.associateWith { selectionId ->
-            Selection(
-                AnchorInfo(ResolvedTextDirection.Ltr, start, selectionId),
-                AnchorInfo(ResolvedTextDirection.Ltr, end, selectionId)
-            )
-        }
-
-    override fun subscribe(selectable: Selectable): Selectable {
-        return FakeSelectableWithLastVisibleOffset(selectable.selectableId, lastVisible)
-    }
-
-    override fun unsubscribe(selectable: Selectable) {
-        // nothing
-    }
-
-    override fun nextSelectableId(): Long {
-        return selectableId++.also {
-            allSelectables.add(it)
-        }
-    }
-
-    override fun notifyPositionChange(selectableId: Long) {
-        FAKE("Not yet implemented")
-    }
-
-    override fun notifySelectionUpdateStart(
-        layoutCoordinates: LayoutCoordinates,
-        startPosition: Offset,
-        adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
-    ) {
-        FAKE("Selection not editable")
-    }
-
-    override fun notifySelectionUpdateSelectAll(selectableId: Long, isInTouchMode: Boolean) {
-        FAKE()
-    }
-
-    override fun notifySelectionUpdate(
-        layoutCoordinates: LayoutCoordinates,
-        newPosition: Offset,
-        previousPosition: Offset,
-        isStartHandle: Boolean,
-        adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
-    ): Boolean {
-        FAKE("Selection not editable")
-    }
-
-    override fun notifySelectionUpdateEnd() {
-        FAKE("Selection not editable")
-    }
-
-    override fun notifySelectableChange(selectableId: Long) {
-        FAKE("Selection not editable")
-    }
-}
-
-private class FakeSelectableWithLastVisibleOffset(
-    override val selectableId: Long,
-    private val lastVisible: Int
-) : Selectable {
-    override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {
-        FAKE()
-    }
-
-    override fun getSelectAllSelection(): Selection? {
-        FAKE()
-    }
-
-    override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset {
-        FAKE()
-    }
-
-    override fun getLayoutCoordinates(): LayoutCoordinates? {
-        FAKE()
-    }
-
-    override fun getText(): AnnotatedString {
-        FAKE()
-    }
-
-    override fun getBoundingBox(offset: Int): Rect {
-        FAKE()
-    }
-
-    override fun getLineLeft(offset: Int): Float {
-        FAKE()
-    }
-
-    override fun getLineRight(offset: Int): Float {
-        FAKE()
-    }
-
-    override fun getCenterYForOffset(offset: Int): Float {
-        FAKE()
-    }
-
-    override fun getRangeOfLineContaining(offset: Int): TextRange {
-        FAKE()
-    }
-
-    override fun getLastVisibleOffset(): Int {
-        return lastVisible
-    }
-}
-
-private class FakeParams(
-    val path: Path,
-    override val shouldClip: Boolean
-) : StaticTextSelectionParams(null, null) {
-
-    override fun getPathForRange(start: Int, end: Int): Path? {
-        return path
-    }
-}
-
-private fun FAKE(reason: String = "Unsupported fake method on fake"): Nothing =
-    throw NotImplementedError("No support in fake: $reason")
