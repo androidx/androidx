@@ -38,27 +38,27 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
 
 /**
- * Contains the default values used by selectable NavigationDrawerItem
+ * Contains the default values used by selectable [NavigationDrawerItem]
  */
 @ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object NavigationDrawerItemDefaults {
     /**
-     * The default Icon size used by NavigationDrawerItem
+     * The default Icon size used by [NavigationDrawerItem]
      */
     val IconSize = 24.dp
 
     /**
-     * The size of the NavigationDrawerItem when the drawer is collapsed
+     * The size of the [NavigationDrawerItem] when the drawer is collapsed
      */
     val CollapsedDrawerItemWidth = 56.dp
 
     /**
-     * The size of the NavigationDrawerItem when the drawer is expanded
+     * The size of the [NavigationDrawerItem] when the drawer is expanded
      */
     val ExpandedDrawerItemWidth = 256.dp
 
     /**
-     * The default content padding [PaddingValues] used by NavigationDrawerItem when the drawer
+     * The default content padding [PaddingValues] used by [NavigationDrawerItem] when the drawer
      * is expanded
      */
 
@@ -66,7 +66,7 @@ object NavigationDrawerItemDefaults {
     val ContainerHeightTwoLine = 64.dp
 
     /**
-     * The default elevation used by NavigationDrawerItem
+     * The default elevation used by [NavigationDrawerItem]
      */
     val NavigationDrawerItemElevation = Elevation.Level0
 
@@ -81,7 +81,7 @@ object NavigationDrawerItemDefaults {
     val ContentAnimationExit = fadeOut() + slideOut { IntOffset(0, 0) }
 
     /**
-     * Default border used by NavigationDrawerItem
+     * Default border used by [NavigationDrawerItem]
      */
     val DefaultBorder
         @ReadOnlyComposable
@@ -93,28 +93,28 @@ object NavigationDrawerItemDefaults {
         )
 
     /**
-     * The default container color used by NavigationDrawerItem's trailing badge
+     * The default container color used by [NavigationDrawerItem]'s trailing badge
      */
     val TrailingBadgeContainerColor
         @ReadOnlyComposable
         @Composable get() = MaterialTheme.colorScheme.tertiary
 
     /**
-     * The default text style used by NavigationDrawerItem's trailing badge
+     * The default text style used by [NavigationDrawerItem]'s trailing badge
      */
     val TrailingBadgeTextStyle
         @ReadOnlyComposable
         @Composable get() = MaterialTheme.typography.labelSmall
 
     /**
-     * The default content color used by NavigationDrawerItem's trailing badge
+     * The default content color used by [NavigationDrawerItem]'s trailing badge
      */
     val TrailingBadgeContentColor
         @ReadOnlyComposable
         @Composable get() = MaterialTheme.colorScheme.onTertiary
 
     /**
-     * Creates a trailing badge for NavigationDrawerItem
+     * Creates a trailing badge for [NavigationDrawerItem]
      */
     @Composable
     fun TrailingBadge(
@@ -138,18 +138,18 @@ object NavigationDrawerItemDefaults {
 
     /**
      * Creates a [NavigationDrawerItemShape] that represents the default container shapes
-     * used in a selectable NavigationDrawerItem
+     * used in a selectable [NavigationDrawerItem]
      *
-     * @param shape the default shape used when the NavigationDrawerItem is enabled
-     * @param focusedShape the shape used when the NavigationDrawerItem is enabled and focused
-     * @param pressedShape the shape used when the NavigationDrawerItem is enabled and pressed
-     * @param selectedShape the shape used when the NavigationDrawerItem is enabled and selected
-     * @param disabledShape the shape used when the NavigationDrawerItem is not enabled
-     * @param focusedSelectedShape the shape used when the NavigationDrawerItem is enabled,
+     * @param shape the default shape used when the [NavigationDrawerItem] is enabled
+     * @param focusedShape the shape used when the [NavigationDrawerItem] is enabled and focused
+     * @param pressedShape the shape used when the [NavigationDrawerItem] is enabled and pressed
+     * @param selectedShape the shape used when the [NavigationDrawerItem] is enabled and selected
+     * @param disabledShape the shape used when the [NavigationDrawerItem] is not enabled
+     * @param focusedSelectedShape the shape used when the [NavigationDrawerItem] is enabled,
      * focused and selected
-     * @param focusedDisabledShape the shape used when the NavigationDrawerItem is not enabled
+     * @param focusedDisabledShape the shape used when the [NavigationDrawerItem] is not enabled
      * and focused
-     * @param pressedSelectedShape the shape used when the NavigationDrawerItem is enabled,
+     * @param pressedSelectedShape the shape used when the [NavigationDrawerItem] is enabled,
      * pressed and selected
      */
     fun shape(
@@ -174,38 +174,38 @@ object NavigationDrawerItemDefaults {
 
     /**
      * Creates a [NavigationDrawerItemColors] that represents the default container &
-     * content colors used in a selectable NavigationDrawerItem
+     * content colors used in a selectable [NavigationDrawerItem]
      *
-     * @param containerColor the default container color used when the NavigationDrawerItem is
+     * @param containerColor the default container color used when the [NavigationDrawerItem] is
      * enabled
-     * @param contentColor the default content color used when the NavigationDrawerItem is enabled
+     * @param contentColor the default content color used when the [NavigationDrawerItem] is enabled
      * @param inactiveContentColor the content color used when none of the navigation items have
      * focus
-     * @param focusedContainerColor the container color used when the NavigationDrawerItem is
+     * @param focusedContainerColor the container color used when the [NavigationDrawerItem] is
      * enabled and focused
-     * @param focusedContentColor the content color used when the NavigationDrawerItem is enabled
+     * @param focusedContentColor the content color used when the [NavigationDrawerItem] is enabled
      * and focused
-     * @param pressedContainerColor the container color used when the NavigationDrawerItem is
+     * @param pressedContainerColor the container color used when the [NavigationDrawerItem] is
      * enabled and pressed
-     * @param pressedContentColor the content color used when the NavigationDrawerItem is enabled
+     * @param pressedContentColor the content color used when the [NavigationDrawerItem] is enabled
      * and pressed
-     * @param selectedContainerColor the container color used when the NavigationDrawerItem is
+     * @param selectedContainerColor the container color used when the [NavigationDrawerItem] is
      * enabled and selected
-     * @param selectedContentColor the content color used when the NavigationDrawerItem is
+     * @param selectedContentColor the content color used when the [NavigationDrawerItem] is
      * enabled and selected
-     * @param disabledContainerColor the container color used when the NavigationDrawerItem is
+     * @param disabledContainerColor the container color used when the [NavigationDrawerItem] is
      * not enabled
-     * @param disabledContentColor the content color used when the NavigationDrawerItem is not
+     * @param disabledContentColor the content color used when the [NavigationDrawerItem] is not
      * enabled
      * @param disabledInactiveContentColor the content color used when none of the navigation items
      * have focus and this item is disabled
      * @param focusedSelectedContainerColor the container color used when the
      * NavigationDrawerItem is enabled, focused and selected
-     * @param focusedSelectedContentColor the content color used when the NavigationDrawerItem
+     * @param focusedSelectedContentColor the content color used when the [NavigationDrawerItem]
      * is enabled, focused and selected
      * @param pressedSelectedContainerColor the container color used when the
-     * NavigationDrawerItem is enabled, pressed and selected
-     * @param pressedSelectedContentColor the content color used when the NavigationDrawerItem is
+     * [NavigationDrawerItem] is enabled, pressed and selected
+     * @param pressedSelectedContentColor the content color used when the [NavigationDrawerItem] is
      * enabled, pressed and selected
      */
     @ReadOnlyComposable
@@ -249,22 +249,22 @@ object NavigationDrawerItemDefaults {
 
     /**
      * Creates a [NavigationDrawerItemScale] that represents the default scales used in a
-     * selectable NavigationDrawerItem
+     * selectable [NavigationDrawerItem]
      *
      * scales are used to modify the size of a composable in different [Interaction] states
      * e.g. `1f` (original) in default state, `1.2f` (scaled up) in focused state, `0.8f` (scaled
      * down) in pressed state, etc.
      *
-     * @param scale the scale used when the NavigationDrawerItem is enabled
-     * @param focusedScale the scale used when the NavigationDrawerItem is enabled and focused
-     * @param pressedScale the scale used when the NavigationDrawerItem is enabled and pressed
-     * @param selectedScale the scale used when the NavigationDrawerItem is enabled and selected
-     * @param disabledScale the scale used when the NavigationDrawerItem is not enabled
-     * @param focusedSelectedScale the scale used when the NavigationDrawerItem is enabled,
+     * @param scale the scale used when the [NavigationDrawerItem] is enabled
+     * @param focusedScale the scale used when the [NavigationDrawerItem] is enabled and focused
+     * @param pressedScale the scale used when the [NavigationDrawerItem] is enabled and pressed
+     * @param selectedScale the scale used when the [NavigationDrawerItem] is enabled and selected
+     * @param disabledScale the scale used when the [NavigationDrawerItem] is not enabled
+     * @param focusedSelectedScale the scale used when the [NavigationDrawerItem] is enabled,
      * focused and selected
-     * @param focusedDisabledScale the scale used when the NavigationDrawerItem is not enabled and
+     * @param focusedDisabledScale the scale used when the [NavigationDrawerItem] is not enabled and
      * focused
-     * @param pressedSelectedScale the scale used when the NavigationDrawerItem is enabled,
+     * @param pressedSelectedScale the scale used when the [NavigationDrawerItem] is enabled,
      * pressed and selected
      */
     fun scale(
@@ -289,19 +289,19 @@ object NavigationDrawerItemDefaults {
 
     /**
      * Creates a [NavigationDrawerItemBorder] that represents the default [Border]s
-     * applied on a selectable NavigationDrawerItem in different [Interaction] states
+     * applied on a selectable [NavigationDrawerItem] in different [Interaction] states
      *
-     * @param border the default [Border] used when the NavigationDrawerItem is enabled
-     * @param focusedBorder the [Border] used when the NavigationDrawerItem is enabled and focused
-     * @param pressedBorder the [Border] used when the NavigationDrawerItem is enabled and pressed
-     * @param selectedBorder the [Border] used when the NavigationDrawerItem is enabled and
+     * @param border the default [Border] used when the [NavigationDrawerItem] is enabled
+     * @param focusedBorder the [Border] used when the [NavigationDrawerItem] is enabled and focused
+     * @param pressedBorder the [Border] used when the [NavigationDrawerItem] is enabled and pressed
+     * @param selectedBorder the [Border] used when the [NavigationDrawerItem] is enabled and
      * selected
-     * @param disabledBorder the [Border] used when the NavigationDrawerItem is not enabled
-     * @param focusedSelectedBorder the [Border] used when the NavigationDrawerItem is enabled,
+     * @param disabledBorder the [Border] used when the [NavigationDrawerItem] is not enabled
+     * @param focusedSelectedBorder the [Border] used when the [NavigationDrawerItem] is enabled,
      * focused and selected
-     * @param focusedDisabledBorder the [Border] used when the NavigationDrawerItem is not
+     * @param focusedDisabledBorder the [Border] used when the [NavigationDrawerItem] is not
      * enabled and focused
-     * @param pressedSelectedBorder the [Border] used when the NavigationDrawerItem is enabled,
+     * @param pressedSelectedBorder the [Border] used when the [NavigationDrawerItem] is enabled,
      * pressed and selected
      */
     @ReadOnlyComposable
@@ -328,16 +328,16 @@ object NavigationDrawerItemDefaults {
 
     /**
      * Creates a [NavigationDrawerItemGlow] that represents the default [Glow]s used in a
-     * selectable NavigationDrawerItem
+     * selectable [NavigationDrawerItem]
      *
-     * @param glow the [Glow] used when the NavigationDrawerItem is enabled, and has no other
+     * @param glow the [Glow] used when the [NavigationDrawerItem] is enabled, and has no other
      * [Interaction]s
-     * @param focusedGlow the [Glow] used when the NavigationDrawerItem is enabled and focused
-     * @param pressedGlow the [Glow] used when the NavigationDrawerItem is enabled and pressed
-     * @param selectedGlow the [Glow] used when the NavigationDrawerItem is enabled and selected
-     * @param focusedSelectedGlow the [Glow] used when the NavigationDrawerItem is enabled,
+     * @param focusedGlow the [Glow] used when the [NavigationDrawerItem] is enabled and focused
+     * @param pressedGlow the [Glow] used when the [NavigationDrawerItem] is enabled and pressed
+     * @param selectedGlow the [Glow] used when the [NavigationDrawerItem] is enabled and selected
+     * @param focusedSelectedGlow the [Glow] used when the [NavigationDrawerItem] is enabled,
      * focused and selected
-     * @param pressedSelectedGlow the [Glow] used when the NavigationDrawerItem is enabled,
+     * @param pressedSelectedGlow the [Glow] used when the [NavigationDrawerItem] is enabled,
      * pressed and selected
      */
     fun glow(
