@@ -18,7 +18,6 @@ package androidx.bluetooth.testing
 
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES
-import android.content.Context
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.ScanFilter
 import java.util.concurrent.atomic.AtomicReference
@@ -38,11 +37,12 @@ import org.robolectric.shadows.ShadowBluetoothLeScanner
 @RunWith(RobolectricTestRunner::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricScanTest {
-    private val context: Context = RuntimeEnvironment.getApplication()
-    private var bluetoothLe = BluetoothLe(context)
+
     private companion object {
         private const val TIMEOUT_MS: Long = 2_000
     }
+
+    private val bluetoothLe = BluetoothLe(RuntimeEnvironment.getApplication())
 
     @Test
     fun scanTest() = runTest {

@@ -30,8 +30,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AdvertiserViewModel @Inject constructor(
@@ -99,18 +101,17 @@ class AdvertiserViewModel @Inject constructor(
     fun startAdvertise() {
         Log.d(TAG, "startAdvertise() called")
 
-        advertiseJob = viewModelScope.launch {
-            Log.d(TAG, "bluetoothLe.advertise() called with: advertiseParams = $advertiseParams")
-            _uiState.update {
-                it.copy(isAdvertising = true)
-            }
+        advertiseJob = bluetoothLe.advertise(advertiseParams)
+            .onEach { advertiseResult ->
+                Log.d(TAG, "bluetoothLe.advertise onEach: $advertiseResult")
 
-            bluetoothLe.advertise(advertiseParams) {
-                Log.d(TAG, "bluetoothLe.advertise result: AdvertiseResult = $it")
-
-                val message = when (it) {
-                    BluetoothLe.ADVERTISE_STARTED ->
+                val message = when (advertiseResult) {
+                    BluetoothLe.ADVERTISE_STARTED -> {
+                        _uiState.update {
+                            it.copy(isAdvertising = true)
+                        }
                         "ADVERTISE_STARTED"
+                    }
 
                     BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE ->
                         "ADVERTISE_FAILED_DATA_TOO_LARGE"
@@ -130,17 +131,16 @@ class AdvertiserViewModel @Inject constructor(
                     state.copy(resultMessage = message)
                 }
             }
-        }
-
-        advertiseJob?.invokeOnCompletion {
-            Log.d(TAG, "bluetoothLe.advertise completed")
-            _uiState.update {
-                it.copy(isAdvertising = false, resultMessage = "ADVERTISE_COMPLETED")
+            .onCompletion {
+                Log.d(TAG, "bluetoothLe.advertise onCompletion")
+                _uiState.update {
+                    it.copy(isAdvertising = false, resultMessage = "ADVERTISE_COMPLETED")
+                }
             }
-        }
+            .launchIn(viewModelScope)
     }
 
-    fun resultMessageShown() {
+    fun clearResultMessage() {
         _uiState.update {
             it.copy(resultMessage = null)
         }

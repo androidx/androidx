@@ -51,7 +51,7 @@ package androidx.bluetooth {
 
   public final class BluetoothLe {
     ctor public BluetoothLe(android.content.Context context);
-    method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public suspend Object? advertise(androidx.bluetooth.AdvertiseParams advertiseParams, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>? block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public kotlinx.coroutines.flow.Flow<java.lang.Integer> advertise(androidx.bluetooth.AdvertiseParams advertiseParams);
     method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public suspend <R> Object? openGattServer(java.util.List<androidx.bluetooth.GattService> services, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattServerConnectScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
