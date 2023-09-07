@@ -243,8 +243,8 @@ public object ComplicationSlotBoundsType {
     public const val ROUND_RECT: Int = 0
 
     /**
-     * For a full screen image complication slot drawn behind the watch face. Note you can only
-     * have a single background complication slot.
+     * For a full screen image complication slot drawn behind the watch face. Note you can only have
+     * a single background complication slot.
      */
     public const val BACKGROUND: Int = 1
 
@@ -342,21 +342,6 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  * expanded by [ComplicationSlotBounds.perComplicationTypeMargins]. Expanded bounds can overlap so
  * the [ComplicationSlot] with the lowest id that intersects the coordinates, if any, is selected.
  *
- * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
- *   content description labels.
- * @param bounds The complication slot's [ComplicationSlotBounds].
- * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot, must be
- *   non-empty. During complication data source selection, each item in this list is compared in
- *   turn with entries from a data source's data source's supported types. The first matching entry
- *   from `supportedTypes` is chosen. If there are no matches then that data source is not eligible
- *   to be selected in this slot.
- * @param defaultPolicy The [DefaultComplicationDataSourcePolicy] which controls the initial
- *   complication data source when the watch face is first installed.
- * @param defaultDataSourceType The default [ComplicationType] for the default complication data
- *   source.
- * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
- *   source chooser activity. This features is intended for OEM watch faces where they have elements
- *   that behave like a complication but are in fact entirely watch face specific.
  * @property id The Watch Face's ID for the complication slot.
  * @property boundsType The [ComplicationSlotBoundsTypeIntDef] of the complication slot.
  * @property canvasComplicationFactory The [CanvasComplicationFactory] used to generate a
@@ -373,6 +358,25 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  *   complication slot.
  */
 public class ComplicationSlot
+/**
+ * Constructs a [ComplicationSlot].
+ *
+ * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
+ *   content description labels.
+ * @param bounds The complication slot's [ComplicationSlotBounds].
+ * @param supportedTypes The list of [ComplicationType]s accepted by this complication slot, must be
+ *   non-empty. During complication data source selection, each item in this list is compared in
+ *   turn with entries from a data source's data source's supported types. The first matching entry
+ *   from `supportedTypes` is chosen. If there are no matches then that data source is not eligible
+ *   to be selected in this slot.
+ * @param defaultPolicy The [DefaultComplicationDataSourcePolicy] which controls the initial
+ *   complication data source when the watch face is first installed.
+ * @param defaultDataSourceType The default [ComplicationType] for the default complication data
+ *   source.
+ * @param configExtras Extras to be merged into the Intent sent when invoking the complication data
+ *   source chooser activity. This features is intended for OEM watch faces where they have elements
+ *   that behave like a complication but are in fact entirely watch face specific.
+ */
 @ComplicationExperimental
 internal constructor(
     public val id: Int,
@@ -391,8 +395,7 @@ internal constructor(
     screenReaderNameResourceId: Int?,
     // TODO(b/230364881): This should really be public but some metalava bug is preventing
     // @ComplicationExperimental from working on the getter so it's currently hidden.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val boundingArc: BoundingArc?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the
@@ -666,8 +669,11 @@ internal constructor(
             )
     }
 
+    /** Builder for constructing [ComplicationSlot]s. */
+    @OptIn(ComplicationExperimental::class)
+    public class Builder
     /**
-     * Builder for constructing [ComplicationSlot]s.
+     * Constructs a [Builder].
      *
      * @param id The watch face's ID for this complication. Can be any integer but should be unique
      *   within the watch face.
@@ -683,8 +689,6 @@ internal constructor(
      * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
      *   complication.
      */
-    @OptIn(ComplicationExperimental::class)
-    public class Builder
     internal constructor(
         private val id: Int,
         private val canvasComplicationFactory: CanvasComplicationFactory,
