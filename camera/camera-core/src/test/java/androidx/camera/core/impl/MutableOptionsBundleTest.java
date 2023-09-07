@@ -108,13 +108,18 @@ public class MutableOptionsBundleTest {
         assertThat(config2.retrieveOptionWithPriority(OPTION_2, OPTIONAL)).isEqualTo(VALUE_1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void insertOption_ALWAYSOVERRIDE_ALWAYSOVERRIDE() {
         MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
 
         mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
-        // should throw an Error
         mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_2);
+
+        assertThat(mutOpts.retrieveOption(OPTION_1)).isEqualTo(VALUE_2);
+        Config.OptionPriority highestPriority = Collections.min(mutOpts.getPriorities(OPTION_1));
+        assertThat(highestPriority).isEqualTo(ALWAYS_OVERRIDE);
+        assertThat(mutOpts.retrieveOptionWithPriority(OPTION_1, highestPriority))
+                .isEqualTo(VALUE_2);
     }
 
     @Test
