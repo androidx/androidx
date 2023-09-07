@@ -32,6 +32,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 class SliceManagerCompat extends SliceManager {
 
     private final Context mContext;
