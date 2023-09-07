@@ -1716,6 +1716,10 @@ class VideoCaptureTest {
                     return videoCapabilitiesMap[dynamicRange]?.isQualitySupported(quality) ?: false
                 }
 
+                override fun isStabilizationSupported(): Boolean {
+                    return false
+                }
+
                 override fun getProfiles(
                     quality: Quality,
                     dynamicRange: DynamicRange

@@ -570,6 +570,10 @@ class VideoCaptureDeviceTest(
                 val profiles = createFakeEncoderProfilesProxy(size.width, size.height)
                 return VideoValidatedEncoderProfilesProxy.from(profiles)
             }
+
+            override fun isStabilizationSupported(): Boolean {
+                return false
+            }
         }
     }
 

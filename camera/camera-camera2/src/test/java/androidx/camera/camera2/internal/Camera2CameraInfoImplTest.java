@@ -687,7 +687,7 @@ public class Camera2CameraInfoImplTest {
         init(/* hasAvailableCapabilities = */ false);
 
         // Camera0
-        CameraInfo cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
+        Camera2CameraInfoImpl cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
                 mCameraManagerCompat);
 
 
@@ -699,14 +699,14 @@ public class Camera2CameraInfoImplTest {
         assertThat(cameraInfo0.isVideoStabilizationSupported()).isTrue();
 
         // Camera1
-        CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
+        Camera2CameraInfoImpl cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
                 mCameraManagerCompat);
 
         assertThat(cameraInfo1.isPreviewStabilizationSupported()).isFalse();
         assertThat(cameraInfo0.isVideoStabilizationSupported()).isTrue();
 
         // Camera2
-        CameraInfo cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
+        Camera2CameraInfoImpl cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
                 mCameraManagerCompat);
         assertThat(cameraInfo2.isPreviewStabilizationSupported()).isFalse();
         assertThat(cameraInfo2.isVideoStabilizationSupported()).isFalse();

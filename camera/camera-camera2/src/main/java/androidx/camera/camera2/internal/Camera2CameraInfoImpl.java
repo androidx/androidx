@@ -55,6 +55,7 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
+import androidx.camera.core.PreviewCapabilities;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -505,6 +506,12 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         } else {
             return Collections.emptySet();
         }
+    }
+
+    @NonNull
+    @Override
+    public PreviewCapabilities getPreviewCapabilities() {
+        return Camera2PreviewCapabilities.from(this);
     }
 
     @Override
