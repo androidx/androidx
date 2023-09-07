@@ -24,7 +24,7 @@ import kotlin.annotation.Retention
  * An advertise result indicates the result of a request to start advertising, whether success
  * or failure.
  */
-class AdvertiseResult {
+object AdvertiseResult {
     @Target(AnnotationTarget.TYPE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
@@ -37,20 +37,18 @@ class AdvertiseResult {
     )
     annotation class ResultType
 
-    companion object {
-        /** Advertise started successfully. */
-        const val ADVERTISE_STARTED: Int = 101
+    /** Advertise started successfully. */
+    const val ADVERTISE_STARTED: Int = 101
 
-        /** Advertise failed to start because the data is too large. */
-        const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 102
+    /** Advertise failed to start because the data is too large. */
+    const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 102
 
-        /** Advertise failed to start because the advertise feature is not supported. */
-        const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 103
+    /** Advertise failed to start because the advertise feature is not supported. */
+    const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 103
 
-        /** Advertise failed to start because of an internal error. */
-        const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 104
+    /** Advertise failed to start because of an internal error. */
+    const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 104
 
-        /** Advertise failed to start because of too many advertisers. */
-        const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 105
-    }
+    /** Advertise failed to start because of too many advertisers. */
+    const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 105
 }
