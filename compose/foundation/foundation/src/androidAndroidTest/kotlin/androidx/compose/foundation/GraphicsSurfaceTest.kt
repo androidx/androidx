@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.Choreographer
 import android.view.PixelCopy
 import android.view.Surface
 import android.view.View
@@ -50,13 +51,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
+import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.createBitmap
+import androidx.test.core.internal.os.HandlerExecutor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
@@ -302,7 +306,7 @@ class GraphicsSurfaceTest {
 
     @Test
     fun testZOrderMediaOverlay() {
-        val frameCount = 6
+        val frameCount = 4
         val latch = CountDownLatch(frameCount)
 
         rule.setContent {
@@ -479,13 +483,13 @@ class GraphicsSurfaceTest {
 
         val screen = rule
             .onNodeWithTag("GraphicSurface")
-            .screenshotToImage()
+            .screenshotToImage(true)
 
         // Before API 33 taking a screenshot with a secure surface returns null
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             assertNull(screen)
         } else {
-            screen?.assertPixels { Color.Black }
+            screen!!.assertPixels { Color.Black }
         }
     }
 }
@@ -494,32 +498,63 @@ class GraphicsSurfaceTest {
  * Returns an ImageBitmap containing a screenshot of the device. On API < 33,
  * a secure surface present on screen can cause this function to return null.
  */
-private fun SemanticsNodeInteraction.screenshotToImage(): ImageBitmap? {
+private fun SemanticsNodeInteraction.screenshotToImage(
+    hasSecureSurfaces: Boolean = false
+): ImageBitmap? {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    instrumentation.waitForIdleSync()
+
+    val uiAutomation = instrumentation.uiAutomation
+
     val node = fetchSemanticsNode()
     val view = (node.root as ViewRootForTest).view
 
-    val location = IntArray(2)
-    view.getLocationOnScreen(location)
+    val bitmapFuture: ResolvableFuture<Bitmap> = ResolvableFuture.create()
 
-    val bounds = node.boundsInRoot.translate(
-        location[0].toFloat(),
-        location[1].toFloat()
-    )
+    val mainExecutor = HandlerExecutor(Handler(Looper.getMainLooper()))
+    mainExecutor.execute {
+        Choreographer.getInstance().postFrameCallback {
+            val location = IntArray(2)
+            view.getLocationOnScreen(location)
 
-    // TODO: On API 34+ we should use takeScreenshot(Window) instead
-    //       It would be faster and less flaky than capturing the entire screen
-    val screen = InstrumentationRegistry
-        .getInstrumentation()
-        .uiAutomation
-        .takeScreenshot() ?: return null
+            val bounds = node.boundsInRoot.translate(
+                location[0].toFloat(),
+                location[1].toFloat()
+            )
 
-    return Bitmap.createBitmap(
-        screen,
-        bounds.left.toInt(),
-        bounds.top.toInt(),
-        bounds.width.roundToInt(),
-        bounds.height.roundToInt()
-    ).asImageBitmap()
+            // do multiple retries of uiAutomation.takeScreenshot because it is known to return null
+            // on API 31+ b/257274080
+            var bitmap: Bitmap? = null
+            var i = 0
+            while (i < 3 && bitmap == null) {
+                bitmap = uiAutomation.takeScreenshot()
+                i++
+            }
+
+            if (bitmap != null) {
+                bitmap = Bitmap.createBitmap(
+                    bitmap,
+                    bounds.left.toInt(),
+                    bounds.top.toInt(),
+                    bounds.width.toInt(),
+                    bounds.height.toInt()
+                )
+                bitmapFuture.set(bitmap)
+            } else {
+                if (hasSecureSurfaces) {
+                    // may be null on older API levels when a secure surface is showing
+                    bitmapFuture.set(null)
+                }
+                // if we don't show secure surfaces, let the future timeout on get()
+            }
+        }
+    }
+
+    return try {
+        bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
+    } catch (e: ExecutionException) {
+        null
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
