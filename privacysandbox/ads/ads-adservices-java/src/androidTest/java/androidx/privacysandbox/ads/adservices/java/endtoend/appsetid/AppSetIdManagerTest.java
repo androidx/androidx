@@ -61,7 +61,7 @@ public class AppSetIdManagerTest {
     @Test
     public void testAppSetId() throws Exception {
         // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.adServicesVersion() >= 4);
 
         AppSetIdManagerFutures appSetIdManager =
                 AppSetIdManagerFutures.from(ApplicationProvider.getApplicationContext());

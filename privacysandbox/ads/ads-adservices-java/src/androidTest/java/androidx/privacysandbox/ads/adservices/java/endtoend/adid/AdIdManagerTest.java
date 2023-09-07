@@ -64,7 +64,7 @@ public class AdIdManagerTest {
     @Test
     public void testAdId() throws Exception {
         // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.adServicesVersion() >= 4);
 
         AdIdManagerFutures adIdManager =
                 AdIdManagerFutures.from(ApplicationProvider.getApplicationContext());
