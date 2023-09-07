@@ -33,10 +33,10 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.E2ETestUtil.canDeviceWriteToMediaStore
-import androidx.camera.testing.impl.E2ETestUtil.generateVideoFileOutputOptions
-import androidx.camera.testing.impl.E2ETestUtil.generateVideoMediaStoreOptions
-import androidx.camera.testing.impl.E2ETestUtil.writeTextToExternalFile
+import androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore
+import androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions
+import androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions
+import androidx.camera.testing.impl.FileUtil.writeTextToExternalFile
 import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
