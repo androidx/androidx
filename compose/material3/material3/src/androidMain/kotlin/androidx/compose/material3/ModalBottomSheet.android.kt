@@ -28,6 +28,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -198,10 +199,12 @@ fun ModalBottomSheet(
                             )
                         }
                     )
-                    .anchoredDraggable(
-                        state = sheetState.anchoredDraggableState,
+                    .draggable(
+                        state = sheetState.anchoredDraggableState.draggableState,
                         orientation = Orientation.Vertical,
-                        enabled = sheetState.isVisible
+                        enabled = sheetState.isVisible,
+                        startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
+                        onDragStopped = { settleToDismiss(it) }
                     )
                     .modalBottomSheetAnchors(
                         sheetState = sheetState,
