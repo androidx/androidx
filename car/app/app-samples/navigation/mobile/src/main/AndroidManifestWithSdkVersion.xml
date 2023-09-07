@@ -39,6 +39,8 @@
 
     <!-- For Microphone Recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
