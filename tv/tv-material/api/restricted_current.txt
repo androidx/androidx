@@ -690,6 +690,10 @@ package androidx.tv.material3 {
     property public final androidx.tv.material3.Glow selectedGlow;
   }
 
+  public final class NavigationDrawerItemKt {
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawerItem(androidx.tv.material3.NavigationDrawerScope, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> leadingContent, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingContent, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingContent, optional float tonalElevation, optional androidx.tv.material3.NavigationDrawerItemShape shape, optional androidx.tv.material3.NavigationDrawerItemColors colors, optional androidx.tv.material3.NavigationDrawerItemScale scale, optional androidx.tv.material3.NavigationDrawerItemBorder border, optional androidx.tv.material3.NavigationDrawerItemGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NavigationDrawerItemScale {
     ctor public NavigationDrawerItemScale(@FloatRange(from=0.0) float scale, @FloatRange(from=0.0) float focusedScale, @FloatRange(from=0.0) float pressedScale, @FloatRange(from=0.0) float selectedScale, @FloatRange(from=0.0) float disabledScale, @FloatRange(from=0.0) float focusedSelectedScale, @FloatRange(from=0.0) float focusedDisabledScale, @FloatRange(from=0.0) float pressedSelectedScale);
     method public float getDisabledScale();
@@ -737,14 +741,14 @@ package androidx.tv.material3 {
   }
 
   public final class NavigationDrawerKt {
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional androidx.compose.ui.graphics.Brush scrimBrush, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional androidx.compose.ui.graphics.Brush scrimBrush, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface NavigationDrawerScope {
-    method public boolean isActivated();
-    property public abstract boolean isActivated;
+    method public boolean getDoesNavigationDrawerHaveFocus();
+    property public abstract boolean doesNavigationDrawerHaveFocus;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceColors {
