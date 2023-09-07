@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.Service
 import android.content.ComponentName
@@ -32,6 +33,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.integration.core.CameraXService.ACTION_BIND_USE_CASES
+import androidx.camera.integration.core.CameraXService.ACTION_TAKE_PICTURE
 import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_ANALYSIS_ENABLED
 import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_CAPTURE_ENABLED
 import androidx.camera.integration.core.CameraXService.EXTRA_VIDEO_CAPTURE_ENABLED
@@ -45,6 +47,7 @@ import androidx.camera.video.VideoCapture
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.LifecycleOwnerUtils
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
@@ -70,6 +73,12 @@ class CameraXServiceTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraXConfig)
     )
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        )
 
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
@@ -105,6 +114,7 @@ class CameraXServiceTest(
     @After
     fun tearDown() {
         if (this::service.isInitialized) {
+            service.deleteSavedMediaFiles()
             context.unbindService(serviceConnection)
             context.stopService(createServiceIntent())
 
@@ -160,6 +170,21 @@ class CameraXServiceTest(
 
         // Act.
         val latch = service.acquireAnalysisFrameCountDownLatch()
+
+        // Assert.
+        assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun canTakePicture() = runBlocking {
+        // Arrange.
+        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
+            putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
+        })
+
+        // Act.
+        val latch = service.acquireTakePictureCountDownLatch()
+        context.startService(createServiceIntent(ACTION_TAKE_PICTURE))
 
         // Assert.
         assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
