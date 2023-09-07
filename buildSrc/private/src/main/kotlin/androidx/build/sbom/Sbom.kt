@@ -239,7 +239,7 @@ fun Project.configureSbomPublishing() {
 
         task.taskExtension.set(
             object : DefaultSpdxSbomTaskExtension() {
-                override fun mapRepoUri(repoUri: URI, artifact: ModuleVersionIdentifier): URI {
+                override fun mapRepoUri(repoUri: URI?, artifact: ModuleVersionIdentifier): URI {
                     val uriString = repoUri.toString()
                     for (repo in repos) {
                         val ourRepoUrl = repo.key
