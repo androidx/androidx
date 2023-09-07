@@ -29,13 +29,21 @@ package androidx.collection
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 
-// This is a copy of ScatterSet, but with Long elements
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+// This is a copy of ScatterSet, but with primitive elements
 
 // Default empty set to avoid allocations
 private val EmptyLongSet = MutableLongSet(0)
 
 // An empty array of longs
-private val EmptyLongArray = LongArray(0)
+internal val EmptyLongArray = LongArray(0)
 
 /**
  * Returns an empty, read-only [LongSet].
@@ -770,7 +778,7 @@ public class MutableLongSet(
  * Returns the hash code of [k]. This follows the [HashSet] default behavior on Android
  * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
  */
-private inline fun hash(k: Long): Int {
+internal inline fun hash(k: Long): Int {
     val hash = k.hashCode()
     return hash xor (hash ushr 16)
 }

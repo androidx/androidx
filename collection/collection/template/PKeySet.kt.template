@@ -40,103 +40,103 @@ import kotlin.jvm.JvmField
 // This is a copy of ScatterSet, but with primitive elements
 
 // Default empty set to avoid allocations
-private val EmptyIntSet = MutableIntSet(0)
+private val EmptyPKeySet = MutablePKeySet(0)
 
-// An empty array of ints
-internal val EmptyIntArray = IntArray(0)
+// An empty array of pKeys
+internal val EmptyPKeyArray = PKeyArray(0)
 
 /**
- * Returns an empty, read-only [IntSet].
+ * Returns an empty, read-only [PKeySet].
  */
-public fun emptyIntSet(): IntSet = EmptyIntSet
+public fun emptyPKeySet(): PKeySet = EmptyPKeySet
 
 /**
  * Returns an empty, read-only [ScatterSet].
  */
 @Suppress("UNCHECKED_CAST")
-public fun intSetOf(): IntSet = EmptyIntSet
+public fun pKeySetOf(): PKeySet = EmptyPKeySet
 
 /**
- * Returns a new read-only [IntSet] with only [element1] in it.
+ * Returns a new read-only [PKeySet] with only [element1] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun intSetOf(element1: Int): IntSet = mutableIntSetOf(element1)
+public fun pKeySetOf(element1: PKey): PKeySet = mutablePKeySetOf(element1)
 
 /**
- * Returns a new read-only [IntSet] with only [element1] and [element2] in it.
+ * Returns a new read-only [PKeySet] with only [element1] and [element2] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun intSetOf(element1: Int, element2: Int): IntSet =
-    mutableIntSetOf(element1, element2)
+public fun pKeySetOf(element1: PKey, element2: PKey): PKeySet =
+    mutablePKeySetOf(element1, element2)
 
 /**
- * Returns a new read-only [IntSet] with only [element1], [element2], and [element3] in it.
+ * Returns a new read-only [PKeySet] with only [element1], [element2], and [element3] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun intSetOf(element1: Int, element2: Int, element3: Int): IntSet =
-    mutableIntSetOf(element1, element2, element3)
+public fun pKeySetOf(element1: PKey, element2: PKey, element3: PKey): PKeySet =
+    mutablePKeySetOf(element1, element2, element3)
 
 /**
- * Returns a new read-only [IntSet] with only [elements] in it.
+ * Returns a new read-only [PKeySet] with only [elements] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun intSetOf(vararg elements: Int): IntSet =
-    MutableIntSet(elements.size).apply { plusAssign(elements) }
+public fun pKeySetOf(vararg elements: PKey): PKeySet =
+    MutablePKeySet(elements.size).apply { plusAssign(elements) }
 
 /**
- * Returns a new [MutableIntSet].
+ * Returns a new [MutablePKeySet].
  */
-public fun mutableIntSetOf(): MutableIntSet = MutableIntSet()
+public fun mutablePKeySetOf(): MutablePKeySet = MutablePKeySet()
 
 /**
- * Returns a new [MutableIntSet] with only [element1] in it.
+ * Returns a new [MutablePKeySet] with only [element1] in it.
  */
-public fun mutableIntSetOf(element1: Int): MutableIntSet =
-    MutableIntSet(1).apply {
+public fun mutablePKeySetOf(element1: PKey): MutablePKeySet =
+    MutablePKeySet(1).apply {
         plusAssign(element1)
     }
 
 /**
- * Returns a new [MutableIntSet] with only [element1] and [element2] in it.
+ * Returns a new [MutablePKeySet] with only [element1] and [element2] in it.
  */
-public fun mutableIntSetOf(element1: Int, element2: Int): MutableIntSet =
-    MutableIntSet(2).apply {
+public fun mutablePKeySetOf(element1: PKey, element2: PKey): MutablePKeySet =
+    MutablePKeySet(2).apply {
         plusAssign(element1)
         plusAssign(element2)
     }
 
 /**
- * Returns a new [MutableIntSet] with only [element1], [element2], and [element3] in it.
+ * Returns a new [MutablePKeySet] with only [element1], [element2], and [element3] in it.
  */
-public fun mutableIntSetOf(element1: Int, element2: Int, element3: Int): MutableIntSet =
-    MutableIntSet(3).apply {
+public fun mutablePKeySetOf(element1: PKey, element2: PKey, element3: PKey): MutablePKeySet =
+    MutablePKeySet(3).apply {
         plusAssign(element1)
         plusAssign(element2)
         plusAssign(element3)
     }
 
 /**
- * Returns a new [MutableIntSet] with the specified elements.
+ * Returns a new [MutablePKeySet] with the specified elements.
  */
-public fun mutableIntSetOf(vararg elements: Int): MutableIntSet =
-    MutableIntSet(elements.size).apply { plusAssign(elements) }
+public fun mutablePKeySetOf(vararg elements: PKey): MutablePKeySet =
+    MutablePKeySet(elements.size).apply { plusAssign(elements) }
 
 /**
- * [IntSet] is a container with a [Set]-like interface designed to avoid
+ * [PKeySet] is a container with a [Set]-like interface designed to avoid
  * allocations, including boxing.
  *
  * This implementation makes no guarantee as to the order of the elements,
  * nor does it make guarantees that the order remains constant over time.
  *
- * Though [IntSet] offers a read-only interface, it is always backed
- * by a [MutableIntSet]. Read operations alone are thread-safe. However,
- * any mutations done through the backing [MutableIntSet] while reading
+ * Though [PKeySet] offers a read-only interface, it is always backed
+ * by a [MutablePKeySet]. Read operations alone are thread-safe. However,
+ * any mutations done through the backing [MutablePKeySet] while reading
  * on another thread are not safe and the developer must protect the set
  * from such changes during read operations.
  *
- * @see [MutableIntSet]
+ * @see [MutablePKeySet]
  */
-public sealed class IntSet {
+public sealed class PKeySet {
     // NOTE: Our arrays are marked internal to implement inlined forEach{}
     // The backing array for the metadata bytes contains
     // `capacity + 1 + ClonedMetadataCount` elements, including when
@@ -147,7 +147,7 @@ public sealed class IntSet {
 
     @PublishedApi
     @JvmField
-    internal var elements: IntArray = EmptyIntArray
+    internal var elements: PKeyArray = EmptyPKeyArray
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the capacity
@@ -198,9 +198,9 @@ public sealed class IntSet {
      * Returns the first element in the collection.
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): Int {
+    public inline fun first(): PKey {
         forEach { return it }
-        throw NoSuchElementException("The IntSet is empty")
+        throw NoSuchElementException("The PKeySet is empty")
     }
 
     /**
@@ -216,7 +216,7 @@ public sealed class IntSet {
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      * collection is empty.
      */
-    public inline fun first(predicate: (element: Int) -> Boolean): Int {
+    public inline fun first(predicate: (element: PKey) -> Boolean): PKey {
         contract { callsInPlace(predicate) }
         forEach { if (predicate(it)) return it }
         throw NoSuchElementException("Could not find a match")
@@ -257,7 +257,7 @@ public sealed class IntSet {
      * the specified [block] lambda.
      * @param block called with each element in the set
      */
-    public inline fun forEach(block: (element: Int) -> Unit) {
+    public inline fun forEach(block: (element: PKey) -> Unit) {
         contract { callsInPlace(block) }
         val k = elements
 
@@ -271,7 +271,7 @@ public sealed class IntSet {
      * @param predicate called for elements in the set to determine if it returns return `true` for
      * all elements.
      */
-    public inline fun all(predicate: (element: Int) -> Boolean): Boolean {
+    public inline fun all(predicate: (element: PKey) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         forEach { element ->
             if (!predicate(element)) return false
@@ -284,7 +284,7 @@ public sealed class IntSet {
      * @param predicate called for elements in the set to determine if it returns `true` for any
      * elements.
      */
-    public inline fun any(predicate: (element: Int) -> Boolean): Boolean {
+    public inline fun any(predicate: (element: PKey) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         forEach { element ->
             if (predicate(element)) return true
@@ -304,7 +304,7 @@ public sealed class IntSet {
      * `true`.
      */
     @androidx.annotation.IntRange(from = 0)
-    public inline fun count(predicate: (element: Int) -> Boolean): Int {
+    public inline fun count(predicate: (element: PKey) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var count = 0
         forEach { element ->
@@ -318,7 +318,7 @@ public sealed class IntSet {
      * otherwise.
      * @param element The element to look for in this set
      */
-    public operator fun contains(element: Int): Boolean = findElementIndex(element) >= 0
+    public operator fun contains(element: PKey): Boolean = findElementIndex(element) >= 0
 
     /**
      * Returns the hash code value for this set. The hash code of a set is defined to be the
@@ -337,7 +337,7 @@ public sealed class IntSet {
     /**
      * Compares the specified object [other] with this set for equality.
      * The two objects are considered equal if [other]:
-     * - Is a [IntSet]
+     * - Is a [PKeySet]
      * - Has the same [size] as this set
      * - Contains elements equal to this set's elements
      */
@@ -346,7 +346,7 @@ public sealed class IntSet {
             return true
         }
 
-        if (other !is IntSet) {
+        if (other !is PKeySet) {
             return false
         }
         if (other._size != _size) {
@@ -388,7 +388,7 @@ public sealed class IntSet {
      * Scans the set to find the index in the backing arrays of the
      * specified [element]. Returns -1 if the element is not present.
      */
-    internal inline fun findElementIndex(element: Int): Int {
+    internal inline fun findElementIndex(element: PKey): Int {
         val hash = hash(element)
         val hash2 = h2(hash)
 
@@ -419,7 +419,7 @@ public sealed class IntSet {
 }
 
 /**
- * [MutableIntSet] is a container with a [MutableSet]-like interface based on a flat
+ * [MutablePKeySet] is a container with a [MutableSet]-like interface based on a flat
  * hash table implementation. The underlying implementation is designed to avoid
  * all allocations on insertion, removal, retrieval, and iteration. Allocations
  * may still happen on insertion when the underlying storage needs to grow to
@@ -433,15 +433,15 @@ public sealed class IntSet {
  * the set (insertion or removal for instance), the calling code must provide
  * the appropriate synchronization. Concurrent reads are however safe.
  *
- * @constructor Creates a new [MutableIntSet]
+ * @constructor Creates a new [MutablePKeySet]
  * @param initialCapacity The initial desired capacity for this container.
  * The container will honor this value by guaranteeing its internal structures
  * can hold that many elements without requiring any allocations. The initial
  * capacity can be set to 0.
  */
-public class MutableIntSet(
+public class MutablePKeySet(
     initialCapacity: Int = DefaultScatterCapacity
-) : IntSet() {
+) : PKeySet() {
     // Number of elements we can add before we need to grow
     private var growthLimit = 0
 
@@ -460,7 +460,7 @@ public class MutableIntSet(
         }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
-        elements = IntArray(newCapacity)
+        elements = PKeyArray(newCapacity)
     }
 
     private fun initializeMetadata(capacity: Int) {
@@ -487,7 +487,7 @@ public class MutableIntSet(
      * @return `true` if the element has been added or `false` if the element is already
      * contained within the set.
      */
-    public fun add(element: Int): Boolean {
+    public fun add(element: PKey): Boolean {
         val oldSize = _size
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
@@ -498,7 +498,7 @@ public class MutableIntSet(
      * Adds the specified element to the set.
      * @param element The element to add to the set.
      */
-    public operator fun plusAssign(element: Int) {
+    public operator fun plusAssign(element: PKey) {
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
     }
@@ -509,7 +509,7 @@ public class MutableIntSet(
      * @return `true` if any of the specified elements were added to the collection,
      * `false` if the collection was not modified.
      */
-    public fun addAll(@Suppress("ArrayReturn") elements: IntArray): Boolean {
+    public fun addAll(@Suppress("ArrayReturn") elements: PKeyArray): Boolean {
         val oldSize = _size
         plusAssign(elements)
         return oldSize != _size
@@ -519,7 +519,7 @@ public class MutableIntSet(
      * Adds all the [elements] into this set.
      * @param elements An array of elements to add to the set.
      */
-    public operator fun plusAssign(@Suppress("ArrayReturn") elements: IntArray) {
+    public operator fun plusAssign(@Suppress("ArrayReturn") elements: PKeyArray) {
         elements.forEach { element ->
             plusAssign(element)
         }
@@ -527,11 +527,11 @@ public class MutableIntSet(
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [IntSet] of elements to add to this set.
+     * @param elements A [PKeySet] of elements to add to this set.
      * @return `true` if any of the specified elements were added to the collection,
      * `false` if the collection was not modified.
      */
-    public fun addAll(elements: IntSet): Boolean {
+    public fun addAll(elements: PKeySet): Boolean {
         val oldSize = _size
         plusAssign(elements)
         return oldSize != _size
@@ -539,9 +539,9 @@ public class MutableIntSet(
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [IntSet] of elements to add to this set.
+     * @param elements A [PKeySet] of elements to add to this set.
      */
-    public operator fun plusAssign(elements: IntSet) {
+    public operator fun plusAssign(elements: PKeySet) {
         elements.forEach { element ->
             plusAssign(element)
         }
@@ -553,7 +553,7 @@ public class MutableIntSet(
      * @return `true` if the [element] was present in the set, or `false` if it wasn't
      * present before removal.
      */
-    public fun remove(element: Int): Boolean {
+    public fun remove(element: PKey): Boolean {
         val index = findElementIndex(element)
         val exists = index >= 0
         if (exists) {
@@ -566,7 +566,7 @@ public class MutableIntSet(
      * Removes the specified [element] from the set if it is present.
      * @param element The element to remove from the set.
      */
-    public operator fun minusAssign(element: Int) {
+    public operator fun minusAssign(element: PKey) {
         val index = findElementIndex(element)
         if (index >= 0) {
             removeElementAt(index)
@@ -578,7 +578,7 @@ public class MutableIntSet(
      * @param elements An array of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public fun removeAll(@Suppress("ArrayReturn") elements: IntArray): Boolean {
+    public fun removeAll(@Suppress("ArrayReturn") elements: PKeyArray): Boolean {
         val oldSize = _size
         minusAssign(elements)
         return oldSize != _size
@@ -588,7 +588,7 @@ public class MutableIntSet(
      * Removes the specified [elements] from the set, if present.
      * @param elements An array of elements to be removed from the set.
      */
-    public operator fun minusAssign(@Suppress("ArrayReturn") elements: IntArray) {
+    public operator fun minusAssign(@Suppress("ArrayReturn") elements: PKeyArray) {
         elements.forEach { element ->
             minusAssign(element)
         }
@@ -596,10 +596,10 @@ public class MutableIntSet(
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [IntSet] of elements to be removed from the set.
+     * @param elements An [PKeySet] of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public fun removeAll(elements: IntSet): Boolean {
+    public fun removeAll(elements: PKeySet): Boolean {
         val oldSize = _size
         minusAssign(elements)
         return oldSize != _size
@@ -607,9 +607,9 @@ public class MutableIntSet(
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [IntSet] of elements to be removed from the set.
+     * @param elements An [PKeySet] of elements to be removed from the set.
      */
-    public operator fun minusAssign(elements: IntSet) {
+    public operator fun minusAssign(elements: PKeySet) {
         elements.forEach { element ->
             minusAssign(element)
         }
@@ -642,7 +642,7 @@ public class MutableIntSet(
      * Calling this function may cause the internal storage to be reallocated
      * if the set is full.
      */
-    private fun findAbsoluteInsertIndex(element: Int): Int {
+    private fun findAbsoluteInsertIndex(element: PKey): Int {
         val hash = hash(element)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -703,7 +703,7 @@ public class MutableIntSet(
     }
 
     /**
-     * Trims this [MutableIntSet]'s storage so it is sized appropriately
+     * Trims this [MutablePKeySet]'s storage so it is sized appropriately
      * to hold the current elements.
      *
      * Returns the number of empty elements removed from this set's storage.
@@ -778,7 +778,7 @@ public class MutableIntSet(
  * Returns the hash code of [k]. This follows the [HashSet] default behavior on Android
  * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
  */
-internal inline fun hash(k: Int): Int {
+internal inline fun hash(k: PKey): Int {
     val hash = k.hashCode()
     return hash xor (hash ushr 16)
 }

@@ -22,6 +22,14 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 /**
  * [LongList] is a [List]-like collection for [Long] values. It allows retrieving
  * the elements without boxing. [LongList] is always backed by a [MutableLongList],
@@ -834,10 +842,6 @@ public class MutableLongList(
         content.sortDescending(fromIndex = 0, toIndex = _size)
     }
 }
-
-// Empty array used when nothing is allocated
-@Suppress("PrivatePropertyName")
-private val EmptyLongArray = LongArray(0)
 
 private val EmptyLongList: LongList = MutableLongList(0)
 
