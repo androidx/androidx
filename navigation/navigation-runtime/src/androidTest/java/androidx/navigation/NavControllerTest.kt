@@ -186,6 +186,9 @@ class NavControllerTest {
         assertThat(navigator.backStack.size)
             .isEqualTo(1)
         assertThat(originalViewModel.isCleared).isTrue()
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -215,6 +218,7 @@ class NavControllerTest {
         val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
         assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
         assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+        assertThat(navController.visibleEntries.value).containsExactly(newBackStackEntry)
     }
 
     @UiThreadTest
@@ -606,6 +610,9 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -2028,6 +2035,7 @@ class NavControllerTest {
             .isFalse()
         assertThat(navController.currentDestination).isNull()
         assertThat(navigator.backStack.size).isEqualTo(0)
+        assertThat(navController.visibleEntries.value).isEmpty()
     }
 
     @UiThreadTest
@@ -2074,6 +2082,9 @@ class NavControllerTest {
             .isTrue()
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -2092,6 +2103,9 @@ class NavControllerTest {
         navigator.popCurrent()
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -2132,6 +2146,9 @@ class NavControllerTest {
         )
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -2172,6 +2189,9 @@ class NavControllerTest {
             .isTrue()
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
@@ -2229,6 +2249,9 @@ class NavControllerTest {
         navController.navigate(R.id.self)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
     }
 
     @UiThreadTest
