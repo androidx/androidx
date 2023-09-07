@@ -1325,7 +1325,7 @@ private fun Chip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled).value,
-        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp,
+        tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp,
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource,
@@ -1373,7 +1373,7 @@ private fun SelectableChip(
         enabled = enabled,
         shape = shape,
         color = colors.containerColor(enabled, selected).value,
-        tonalElevation = elevation?.tonalElevation(enabled, interactionSource)?.value ?: 0.dp,
+        tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp,
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
         interactionSource = interactionSource,
@@ -1454,8 +1454,7 @@ class ChipElevation internal constructor(
     private val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a chip, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [shadowElevation].
+     * Represents the tonal elevation used in a chip, depending on its [enabled] state.
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -1464,19 +1463,14 @@ class ChipElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the chip.
      *
      * @param enabled whether the chip is enabled
-     * @param interactionSource the [InteractionSource] for this chip
      */
-    @Composable
-    internal fun tonalElevation(
-        enabled: Boolean,
-        interactionSource: InteractionSource
-    ): State<Dp> {
-        return animateElevation(enabled = enabled, interactionSource = interactionSource)
+    internal fun tonalElevation(enabled: Boolean): Dp {
+        return if (enabled) elevation else disabledElevation
     }
 
     /**
      * Represents the shadow elevation used in a chip, depending on its [enabled] state and
-     * [interactionSource]. This should typically be the same value as the [tonalElevation].
+     * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the chip to give it higher emphasis.
      *
@@ -1617,8 +1611,7 @@ class SelectableChipElevation internal constructor(
     val disabledElevation: Dp
 ) {
     /**
-     * Represents the tonal elevation used in a chip, depending on [enabled] and
-     * [interactionSource]. This should typically be the same value as the [shadowElevation].
+     * Represents the tonal elevation used in a chip, depending on [enabled].
      *
      * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
      * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
@@ -1627,19 +1620,14 @@ class SelectableChipElevation internal constructor(
      * See [shadowElevation] which controls the elevation of the shadow drawn around the Chip.
      *
      * @param enabled whether the chip is enabled
-     * @param interactionSource the [InteractionSource] for this chip
      */
-    @Composable
-    internal fun tonalElevation(
-        enabled: Boolean,
-        interactionSource: InteractionSource
-    ): State<Dp> {
-        return animateElevation(enabled = enabled, interactionSource = interactionSource)
+    internal fun tonalElevation(enabled: Boolean): Dp {
+        return if (enabled) elevation else disabledElevation
     }
 
     /**
      * Represents the shadow elevation used in a chip, depending on [enabled] and
-     * [interactionSource]. This should typically be the same value as the [tonalElevation].
+     * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the surface to give it higher emphasis.
      *
