@@ -1,0 +1,4 @@
+// Baseline format: 1.0
+
+GetterSetterNames: field NavigationDrawerScope.doesNavigationDrawerHaveFocus:
+    Invalid name for boolean property `doesNavigationDrawerHaveFocus`. Should start with one of `has`, `can`, `should`, `is`.
