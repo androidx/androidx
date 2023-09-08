@@ -258,7 +258,7 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
             "commonMain" to
                 mapOf(
                     "name" to commonMain.name,
-                    "dependencies" to commonMain.dependsOn.map { it.name },
+                    "dependencies" to commonMain.dependsOn.map { it.name }.sorted(),
                     "analysisPlatform" to DokkaAnalysisPlatform.COMMON.jsonName
                 )
         )
@@ -267,13 +267,15 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
                     "name" to it.name,
-                    "dependencies" to it.dependsOn.map { it.name },
+                    "dependencies" to it.dependsOn.map { it.name }.sorted(),
                     "analysisPlatform" to target.docsPlatform().jsonName
                 )
             }
         }
     }
-    val sourceSetMetadata = mutableMapOf("sourceSets" to sourceSetsByName.values)
+    val sourceSetMetadata = mapOf(
+        "sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] }
+    )
     val gson = GsonBuilder().setPrettyPrinting().create()
     return gson.toJson(sourceSetMetadata)
 }
