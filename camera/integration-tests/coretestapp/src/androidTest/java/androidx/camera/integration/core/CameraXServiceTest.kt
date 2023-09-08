@@ -33,6 +33,8 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.integration.core.CameraXService.ACTION_BIND_USE_CASES
+import androidx.camera.integration.core.CameraXService.ACTION_START_RECORDING
+import androidx.camera.integration.core.CameraXService.ACTION_STOP_RECORDING
 import androidx.camera.integration.core.CameraXService.ACTION_TAKE_PICTURE
 import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_ANALYSIS_ENABLED
 import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_CAPTURE_ENABLED
@@ -52,6 +54,7 @@ import androidx.testutils.LifecycleOwnerUtils
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -78,6 +81,7 @@ class CameraXServiceTest(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule
@@ -162,7 +166,7 @@ class CameraXServiceTest(
     }
 
     @Test
-    fun canReceiveAnalysisFrame() = runBlocking {
+    fun canReceiveAnalysisFrame() {
         // Arrange.
         context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
             putExtra(EXTRA_IMAGE_ANALYSIS_ENABLED, true)
@@ -176,7 +180,7 @@ class CameraXServiceTest(
     }
 
     @Test
-    fun canTakePicture() = runBlocking {
+    fun canTakePicture() {
         // Arrange.
         context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
             putExtra(EXTRA_IMAGE_CAPTURE_ENABLED, true)
@@ -185,6 +189,25 @@ class CameraXServiceTest(
         // Act.
         val latch = service.acquireTakePictureCountDownLatch()
         context.startService(createServiceIntent(ACTION_TAKE_PICTURE))
+
+        // Assert.
+        assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun canRecordVideo() = runBlocking {
+        // Arrange.
+        context.startService(createServiceIntent(ACTION_BIND_USE_CASES).apply {
+            putExtra(EXTRA_VIDEO_CAPTURE_ENABLED, true)
+        })
+
+        // Act.
+        val latch = service.acquireRecordVideoCountDownLatch()
+        context.startService(createServiceIntent(ACTION_START_RECORDING))
+
+        delay(3000L)
+
+        context.startService(createServiceIntent(ACTION_STOP_RECORDING))
 
         // Assert.
         assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
