@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -67,8 +68,8 @@ import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -356,7 +357,8 @@ class ScaffoldTest {
         }
         with(rule.density) {
             assertThat(fabPosition.x).isWithin(1f).of(
-                (rule.rootWidth().toPx() - fabSize.width) / 2f)
+                (rule.rootWidth().toPx() - fabSize.width) / 2f
+            )
         }
         val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
@@ -396,7 +398,8 @@ class ScaffoldTest {
         }
         with(rule.density) {
             assertThat(fabPosition.x).isWithin(1f).of(
-                rule.rootWidth().toPx() - fabSize.width - fabSpacing.toPx())
+                rule.rootWidth().toPx() - fabSize.width - fabSpacing.toPx()
+            )
         }
         val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
@@ -415,7 +418,8 @@ class ScaffoldTest {
                 Scaffold(
                     topBar = {
                         Box(
-                            Modifier.requiredSize(10.dp)
+                            Modifier
+                                .requiredSize(10.dp)
                                 .shadow(4.dp)
                                 .zIndex(4f)
                                 .background(color = Color.White)
@@ -423,7 +427,8 @@ class ScaffoldTest {
                     }
                 ) {
                     Box(
-                        Modifier.requiredSize(10.dp)
+                        Modifier
+                            .requiredSize(10.dp)
                             .background(color = Color.White)
                     )
                 }
@@ -491,9 +496,11 @@ class ScaffoldTest {
             val animatedFab = @Composable {
                 AnimatedVisibility(visible = showFab.value) {
                     FloatingActionButton(
-                        modifier = Modifier.onGloballyPositioned { positioned ->
-                            actualFabSize = positioned.size
-                        }.testTag(fabTestTag),
+                        modifier = Modifier
+                            .onGloballyPositioned { positioned ->
+                                actualFabSize = positioned.size
+                            }
+                            .testTag(fabTestTag),
                         onClick = {}
                     ) {
                         Icon(Icons.Filled.Favorite, null)
@@ -768,7 +775,7 @@ class ScaffoldTest {
 
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             onPlaceCount++
-                            Truth.assertWithMessage("Expected onSizeChangedCount to be >= 1")
+                            assertWithMessage("Expected onSizeChangedCount to be >= 1")
                                 .that(onSizeChangedCount).isAtLeast(1)
                             assertThat(size).isNotNull()
                             placeables.forEach { it.place(0, 0) }
@@ -778,7 +785,73 @@ class ScaffoldTest {
             }
         }
 
-        Truth.assertWithMessage("Expected placeCount to be >= 1").that(onPlaceCount).isAtLeast(1)
+        assertWithMessage("Expected placeCount to be >= 1").that(onPlaceCount).isAtLeast(1)
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun scaffold_subcomposeInMeasureFix_enabled_measuresChildrenInMeasurement() {
+        ScaffoldSubcomposeInMeasureFix = true
+        var size: IntSize? = null
+        var measured = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Scaffold(
+                        content = {
+                            Box(Modifier.onSizeChanged { size = it })
+                        }
+                    )
+                }
+            ) { measurables, constraints ->
+                measurables.map { it.measure(constraints) }
+                measured = true
+                layout(0, 0) {
+                    // Empty measurement since we only care about placement
+                }
+            }
+        }
+
+        assertWithMessage("Measure should have been executed")
+            .that(measured).isTrue()
+        assertWithMessage("Expected size to be initialized")
+            .that(size).isNotNull()
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun scaffold_subcomposeInMeasureFix_disabled_measuresChildrenInPlacement() {
+        ScaffoldSubcomposeInMeasureFix = false
+        var size: IntSize? = null
+        var measured = false
+        var placed = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Scaffold(
+                        content = {
+                            Box(Modifier.onSizeChanged { size = it })
+                        }
+                    )
+                }
+            ) { measurables, constraints ->
+                val placeables = measurables.map { it.measure(constraints) }
+                measured = true
+                assertWithMessage("Expected size to not be initialized in placement")
+                    .that(size).isNull()
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeables.forEach { it.place(0, 0) }
+                    placed = true
+                }
+            }
+        }
+
+        assertWithMessage("Measure should have been executed")
+            .that(measured).isTrue()
+        assertWithMessage("Placement should have been executed")
+            .that(placed).isTrue()
+        assertWithMessage("Expected size to be initialized")
+            .that(size).isNotNull()
     }
 
     private fun assertDpIsWithinThreshold(actual: Dp, expected: Dp, threshold: Dp) {
