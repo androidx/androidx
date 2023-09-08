@@ -17,7 +17,7 @@
 package androidx.tv.material3
 
 /**
- * [NavigationDrawerScope] is used to provide the isActivated state to the NavigationDrawerItem
+ * [NavigationDrawerScope] is used to provide the isActivated state to the [NavigationDrawerItem]
  * composable
  */
 @ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
