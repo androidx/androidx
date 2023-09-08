@@ -23,10 +23,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.NavigationSuite
-import androidx.compose.material3.adaptive.NavigationSuiteAlignment
-import androidx.compose.material3.adaptive.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.NavigationSuiteType
 import androidx.compose.material3.adaptive.calculateWindowAdaptiveInfo
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -47,19 +45,17 @@ fun NavigationSuiteScaffoldSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")
     val navSuiteType =
-        NavigationSuiteDefaults.calculateFromAdaptiveInfo(calculateWindowAdaptiveInfo())
+        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(calculateWindowAdaptiveInfo())
 
     NavigationSuiteScaffold(
-        navigationSuite = {
-            NavigationSuite {
-                navItems.forEachIndexed { index, navItem ->
-                    item(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
-                        label = { Text(navItem) },
-                        selected = selectedItem == index,
-                        onClick = { selectedItem = index }
-                    )
-                }
+        navigationSuiteItems = {
+            navItems.forEachIndexed { index, navItem ->
+                item(
+                    icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
+                    label = { Text(navItem) },
+                    selected = selectedItem == index,
+                    onClick = { selectedItem = index }
+                )
             }
         }
     ) {
@@ -79,36 +75,25 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")
     val adaptiveInfo = calculateWindowAdaptiveInfo()
+    // Custom configuration that shows a navigation drawer in large screens.
     val customNavSuiteType = with(adaptiveInfo) {
         if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded) {
             NavigationSuiteType.NavigationDrawer
-        } else if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
-            NavigationSuiteType.NavigationRail
         } else {
-            NavigationSuiteDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
         }
     }
 
-    // Custom configuration that shows nav rail on end of screen in small screens, and navigation
-    // drawer in large screens.
     NavigationSuiteScaffold(
-        navigationSuite = {
-            NavigationSuite(
-                layoutType = customNavSuiteType,
-                modifier = if (customNavSuiteType == NavigationSuiteType.NavigationRail) {
-                    Modifier.alignment(NavigationSuiteAlignment.EndVertical)
-                } else {
-                    Modifier
-                }
-            ) {
-                navItems.forEachIndexed { index, navItem ->
-                    item(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
-                        label = { Text(navItem) },
-                        selected = selectedItem == index,
-                        onClick = { selectedItem = index }
-                    )
-                }
+        layoutType = customNavSuiteType,
+        navigationSuiteItems = {
+            navItems.forEachIndexed { index, navItem ->
+                item(
+                    icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
+                    label = { Text(navItem) },
+                    selected = selectedItem == index,
+                    onClick = { selectedItem = index }
+                )
             }
         }
     ) {
