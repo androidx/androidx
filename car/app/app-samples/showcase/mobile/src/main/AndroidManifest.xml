@@ -31,6 +31,9 @@
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
 
+  <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
