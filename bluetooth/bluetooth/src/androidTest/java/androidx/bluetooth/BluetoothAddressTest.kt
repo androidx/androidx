@@ -18,6 +18,7 @@ package androidx.bluetooth
 
 import junit.framework.TestCase.assertEquals
 import kotlin.test.assertFailsWith
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -66,10 +67,9 @@ class BluetoothAddressTest {
     fun constructorWithInvalidAddressType() {
         val invalidAddressType = -1
 
-        val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_UNKNOWN, invalidAddressType)
+        val result = runCatching { BluetoothAddress(TEST_ADDRESS_UNKNOWN, invalidAddressType) }
 
-        assertEquals(TEST_ADDRESS_UNKNOWN, bluetoothAddress.address)
-        assertEquals(BluetoothAddress.ADDRESS_TYPE_UNKNOWN, bluetoothAddress.addressType)
+        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
     }
 
     @Test
