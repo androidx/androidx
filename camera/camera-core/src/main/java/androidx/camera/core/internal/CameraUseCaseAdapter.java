@@ -61,6 +61,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.RestrictedCameraControl;
 import androidx.camera.core.impl.RestrictedCameraControl.CameraOperation;
 import androidx.camera.core.impl.RestrictedCameraInfo;
@@ -70,6 +71,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
@@ -688,8 +690,11 @@ public final class CameraUseCaseAdapter implements Camera {
                         supportedOutputSizesSorter.getSortedSupportedOutputSizes(
                                 combinedUseCaseConfig));
 
-                // TODO(kailianc): extract the use case's video stabilization settings  and set
-                //  to isPreviewStabilizationOn
+                if (useCase.getCurrentConfig() instanceof PreviewConfig) {
+                    isPreviewStabilizationOn =
+                            ((PreviewConfig) useCase.getCurrentConfig())
+                                    .getPreviewStabilizationMode() == StabilizationMode.ON;
+                }
             }
 
             // Get suggested stream specifications and update the use case session configuration

@@ -35,7 +35,6 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LI
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
-
 import static java.util.Objects.requireNonNull;
 
 import android.Manifest;
@@ -322,6 +321,8 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mZoomIn2XToggle;
     private Button mZoomResetToggle;
     private Toast mEvToast = null;
+    private Toast mPSToast = null;
+    private ToggleButton mPreviewStabilizationToggle;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -330,6 +331,7 @@ public class CameraXActivity extends AppCompatActivity {
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
     private int mVideoMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
+    private boolean mIsPreviewStabilizationOn = false;
 
     SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
@@ -1057,6 +1059,14 @@ public class CameraXActivity extends AppCompatActivity {
         mEvToast.show();
     }
 
+    void showPreviewStabilizationToast(String message) {
+        if (mPSToast != null) {
+            mPSToast.cancel();
+        }
+        mPSToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        mPSToast.show();
+    }
+
     private void updateAppUIForE2ETest(@NonNull String testCase) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
@@ -1114,7 +1124,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("NullAnnotationGroup")
+    @SuppressLint({"NullAnnotationGroup", "RestrictedApiAndroidX"})
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
@@ -1124,6 +1134,8 @@ public class CameraXActivity extends AppCompatActivity {
                 && getCameraInfo().isZslSupported() ? View.VISIBLE : View.GONE);
         mZslToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
+        mPreviewStabilizationToggle.setEnabled(mCamera != null
+                && mCamera.getCameraInfo().getPreviewCapabilities().isStabilizationSupported());
         mTorchButton.setEnabled(isFlashAvailable());
         // Flash button
         mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
@@ -1166,6 +1178,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpTorchButton();
         setUpEVButton();
         setUpZoomButton();
+        setUpPreviewStabilizationButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
         mZslToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
@@ -1261,6 +1274,7 @@ public class CameraXActivity extends AppCompatActivity {
         mPlusEV = findViewById(R.id.plus_ev_toggle);
         mDecEV = findViewById(R.id.dec_ev_toggle);
         mZslToggle = findViewById(R.id.zsl_toggle);
+        mPreviewStabilizationToggle = findViewById(R.id.preview_stabilization);
         mZoomSeekBar = findViewById(R.id.seekBar);
         mZoomRatioLabel = findViewById(R.id.zoomRatio);
         mZoomIn2XToggle = findViewById(R.id.zoom_in_2x_toggle);
@@ -1567,12 +1581,14 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Builds all use cases based on current settings and return as an array.
      */
+    @SuppressLint("RestrictedApiAndroidX")
     private List<UseCase> buildUseCases() {
         List<UseCase> useCases = new ArrayList<>();
         if (mPreviewToggle.isChecked()) {
             Preview preview = new Preview.Builder()
                     .setTargetName("Preview")
                     .setTargetAspectRatio(mTargetAspectRatio)
+                    .setPreviewStabilizationEnabled(mIsPreviewStabilizationOn)
                     .build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
@@ -1861,6 +1877,16 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomIn2XToggle.setOnClickListener(v -> setZoomRatio(2.0f));
 
         mZoomResetToggle.setOnClickListener(v -> setZoomRatio(1.0f));
+    }
+
+    private void setUpPreviewStabilizationButton() {
+        mPreviewStabilizationToggle.setOnClickListener(v -> {
+            mIsPreviewStabilizationOn = !mIsPreviewStabilizationOn;
+            if (mIsPreviewStabilizationOn) {
+                showPreviewStabilizationToast("Preview Stabilization On, FOV changes");
+            }
+            tryBindUseCases();
+        });
     }
 
     void setZoomRatio(float newZoom) {
