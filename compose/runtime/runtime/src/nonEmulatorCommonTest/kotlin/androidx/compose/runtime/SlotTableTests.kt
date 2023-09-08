@@ -4237,70 +4237,6 @@ class SlotTableTests {
     }
 
     @Test
-    fun canAddSourceInformationUsingAReader() {
-        val slots = SlotTable().apply {
-            write { writer ->
-                with(writer) {
-                    insert {
-                        group(100) {
-                            group(200) { }
-                            group(201) { }
-                            group(202) {
-                                group(400) {
-                                    group(500) { }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        slots.verifyWellFormed()
-
-        val initialRootActual = SourceGroup.group(slots)
-        val initialRootExpected = SourceGroup.group(100) {
-            group(200) { }
-            group(201) { }
-            group(202) {
-                group(400) {
-                    group(500) { }
-                }
-            }
-        }
-        assertEquals(initialRootExpected, initialRootActual)
-
-        slots.read { reader ->
-            with(reader) {
-                group(100) {
-                    group(200, "C(200)") { }
-                    group(201, "C(201)") { }
-                    group(202, "C(202)") {
-                        grouplessCall(300, "C(300)") {
-                            group(400, "C(400)") {
-                                group(500, "C(500)") { }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        val updatedRootActual = SourceGroup.group(slots)
-        val updatedRootExpected = SourceGroup.group(100) {
-            group(200, "C(200)") { }
-            group(201, "C(201)") { }
-            group(202, "C(202)") {
-                group(300, "C(300)") {
-                    group(400, "C(400)") {
-                        group(500, "C(500)") { }
-                    }
-                }
-            }
-        }
-        assertEquals(updatedRootExpected, updatedRootActual)
-    }
-
-    @Test
     fun canAddAGrouplessCallToAGroupWithNoSourceInformation() {
         val slots = SlotTable().apply {
             write { writer ->
@@ -4498,24 +4434,6 @@ internal inline fun SlotReader.group(key: Int, block: () -> Unit) {
     startGroup()
     block()
     endGroup()
-}
-
-internal inline fun SlotReader.group(key: Int, sourceInformation: String, block: () -> Unit) {
-    assertEquals(key, groupKey)
-    startGroup()
-    recordGroupSourceInformation(sourceInformation)
-    block()
-    endGroup()
-}
-
-internal inline fun SlotReader.grouplessCall(
-    key: Int,
-    sourceInformation: String,
-    block: () -> Unit
-) {
-    recordGrouplessCallSourceInformationStart(key, sourceInformation)
-    block()
-    recordGrouplessCallSourceInformationEnd()
 }
 
 internal inline fun SlotReader.group(block: () -> Unit) {

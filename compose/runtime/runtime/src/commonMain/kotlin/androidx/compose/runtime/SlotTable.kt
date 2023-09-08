@@ -1206,20 +1206,6 @@ internal class SlotReader(
         }
     }
 
-    fun recordGroupSourceInformation(sourceInformation: String) {
-        val map = sourceInformationMap ?: HashMap()
-        this.sourceInformationMap = map
-        map[anchor(parent)] = GroupSourceInformation(0, sourceInformation)
-    }
-
-    fun recordGrouplessCallSourceInformationStart(key: Int, sourceInformation: String) {
-        sourceInformationMap?.get(tryAnchor(parent))?.startGrouplessCall(key, sourceInformation)
-    }
-
-    fun recordGrouplessCallSourceInformationEnd() {
-        sourceInformationMap?.get(tryAnchor(parent))?.endGrouplessCall()
-    }
-
     /**
      * Extract the keys from this point to the end of the group. The current is left unaffected.
      * Must be called inside a group.
