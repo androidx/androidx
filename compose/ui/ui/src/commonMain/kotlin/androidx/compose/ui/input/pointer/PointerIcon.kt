@@ -17,12 +17,11 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass.Main
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction
 import androidx.compose.ui.node.currentValueOf
@@ -31,6 +30,7 @@ import androidx.compose.ui.node.traverseSubtree
 import androidx.compose.ui.node.traverseSubtreeIf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalPointerIconService
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Represents a pointer icon to use in [Modifier.pointerHoverIcon]
@@ -107,20 +107,20 @@ internal data class PointerHoverIconModifierElement(
 
 /*
  * Changes the pointer hover icon if the node is in bounds and if the node is not overridden
- * by a parent pointer hover icon node. This node delegates to the pointer input node
- * (SuspendingPointerInputModifierNode) to determine if the pointer has entered or exited the
- * bounds of the modifier itself.
- *
- * Note: It will not delegate if a parent has overridden descendants.
+ * by a parent pointer hover icon node. This node implements [PointerInputModifierNode] so it can
+ * listen to pointer input events and determine if the pointer has entered or exited the bounds of
+ * the modifier itself.
  *
  * If the icon or overrideDescendants values are changed, this node will determine if it needs to
  * walk down and/or up the modifier chain to update those pointer hover icon modifier nodes as well.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal class PointerHoverIconModifierNode(
     icon: PointerIcon,
     overrideDescendants: Boolean = false
-) : DelegatingNode(), TraversableNode, CompositionLocalConsumerModifierNode {
+) : Modifier.Node(),
+    TraversableNode,
+    PointerInputModifierNode,
+    CompositionLocalConsumerModifierNode {
     /* Traversal key used with the [TraversableNode] interface to enable all the traversing
      * functions (ancestor, child, subtree, and subtreeIf).
      */
@@ -158,27 +158,30 @@ internal class PointerHoverIconModifierNode(
     private val pointerIconService: PointerIconService?
         get() = currentValueOf(LocalPointerIconService)
 
-    // Pointer Input handler for determining if a Pointer has Entered or Exited this node.
-    private var delegatePointerInputModifierNode = delegate(
-        SuspendingPointerInputModifierNodeImpl {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitPointerEvent(Main)
+    private var cursorInBoundsOfNode = false
 
-                    // Cursor within the surface area of this node's bounds
-                    if (event.type == PointerEventType.Enter) {
-                        cursorInBoundsOfNode = true
-                        displayIconIfDescendantsDoNotHavePriority()
-                    } else if (event.type == PointerEventType.Exit) {
-                        cursorInBoundsOfNode = false
-                        displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
-                    }
-                }
+    // Pointer Input callback for determining if a Pointer has Entered or Exited this node.
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        if (pass == Main) {
+            // Cursor within the surface area of this node's bounds
+            if (pointerEvent.type == PointerEventType.Enter) {
+                cursorInBoundsOfNode = true
+                displayIconIfDescendantsDoNotHavePriority()
+            } else if (pointerEvent.type == PointerEventType.Exit) {
+                cursorInBoundsOfNode = false
+                displayIconFromAncestorNodeWithCursorInBoundsOrDefaultIcon()
             }
         }
-    )
+    }
 
-    private var cursorInBoundsOfNode = false
+    override fun onCancelPointerInput() {
+        // We aren't processing the event (only listening for enter/exit), so we don't need to
+        // do anything.
+    }
 
     override fun onDetach() {
         cursorInBoundsOfNode = false
