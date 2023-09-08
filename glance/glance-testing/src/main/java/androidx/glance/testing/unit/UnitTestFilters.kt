@@ -132,6 +132,7 @@ private fun hasContentDescription(
     substring: Boolean = false,
     ignoreCase: Boolean = false
 ): Boolean {
+    @Suppress("ListIterator")
     val contentDescription =
         semanticsModifier.configuration.getOrNull(SemanticsProperties.ContentDescription)
             ?.joinToString()
@@ -284,6 +285,7 @@ fun hasAnyDescendant(matcher: GlanceNodeMatcher<MappedNode>): GlanceNodeMatcher<
             return true
         }
 
+        @Suppress("ListIterator")
         return node.children().any { checkIfSubtreeMatchesRecursive(matcher, it) }
     }
 

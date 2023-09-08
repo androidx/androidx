@@ -45,6 +45,7 @@ class TestContext<R, T : GlanceNode<R>> {
             }
 
             collectAllNodesRecursive(rootGlanceNode)
+            @Suppress("ListIterator")
             this.allNodes = allNodes.toList()
         }
 
