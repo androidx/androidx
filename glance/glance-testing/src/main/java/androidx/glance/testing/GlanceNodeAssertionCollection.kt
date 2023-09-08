@@ -72,6 +72,7 @@ class GlanceNodeAssertionCollection<R, T : GlanceNode<R>>
         val errorMessageOnFail = "Failed to assertAll(${matcher.description})"
 
         val filteredNodes = testContext.findMatchingNodes(selector, errorMessageOnFail)
+        @Suppress("ListIterator")
         val violations = filteredNodes.filter {
             !matcher.matches(it)
         }

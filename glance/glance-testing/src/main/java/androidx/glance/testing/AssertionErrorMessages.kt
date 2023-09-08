@@ -104,6 +104,7 @@ internal fun <R> buildGeneralErrorMessage(
  * <p>Provide [errorMessage] to explain which operation you were about to perform. This makes it
  * easier for developer to find where the failure happened.
  */
+@Suppress("ListIterator")
 internal fun <R> buildGeneralErrorMessage(
     errorMessage: String,
     nodes: List<GlanceNode<R>>

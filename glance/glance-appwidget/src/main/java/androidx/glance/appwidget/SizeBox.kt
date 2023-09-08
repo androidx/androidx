@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -48,7 +49,7 @@ internal class EmittableSizeBox : EmittableWithChildren() {
     override fun copy(): Emittable = EmittableSizeBox().also {
         it.size = size
         it.sizeMode = sizeMode
-        it.children.addAll(children.map { it.copy() })
+        it.children.addAll(children.fastMap { it.copy() })
     }
 
     override fun toString(): String = "EmittableSizeBox(" +
@@ -106,11 +107,11 @@ internal fun ForEachSize(
         } else {
             val smallestSize = sizeMode.sizes.sortedBySize()[0]
             LocalAppWidgetOptions.current.extractOrientationSizes()
-                .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }
+                .fastMap { findBestSize(it, sizeMode.sizes) ?: smallestSize }
                 .ifEmpty { listOf(smallestSize, smallestSize) }
         }
     }
-    sizes.distinct().map { size ->
+    sizes.distinct().fastMap { size ->
         SizeBox(size, sizeMode, content)
     }
 }
