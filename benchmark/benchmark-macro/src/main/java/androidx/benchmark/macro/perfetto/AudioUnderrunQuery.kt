@@ -22,7 +22,7 @@ import org.intellij.lang.annotations.Language
 internal object AudioUnderrunQuery {
     @Language("sql")
     private fun getFullQuery() = """
-        SELECT track.name, counter.value, counter.ts
+        SELECT counter.value, counter.ts
         FROM track
         JOIN counter ON track.id = counter.track_id
         WHERE track.type = 'process_counter_track' AND track.name LIKE 'nRdy%'
@@ -38,7 +38,6 @@ internal object AudioUnderrunQuery {
     ): SubMetrics {
         val queryResult = session.query(getFullQuery())
 
-        var trackName: String? = null
         var lastTs: Long? = null
         var totalNs: Long = 0
         var zeroNs: Long = 0
@@ -46,15 +45,8 @@ internal object AudioUnderrunQuery {
         queryResult
             .asSequence()
             .forEach { lineVals ->
-
                 if (lineVals.size != EXPECTED_COLUMN_COUNT)
                     throw IllegalStateException("query failed")
-
-                if (trackName == null) {
-                    trackName = lineVals[VAL_NAME] as String?
-                } else if (trackName!! != lineVals[VAL_NAME]) {
-                    throw RuntimeException("There could be only one AudioTrack per measure")
-                }
 
                 if (lastTs == null) {
                     lastTs = lineVals[VAL_TS] as Long
@@ -74,8 +66,7 @@ internal object AudioUnderrunQuery {
         return SubMetrics((totalNs / 1_000_000).toInt(), (zeroNs / 1_000_000).toInt())
     }
 
-    private const val VAL_NAME = "name"
     private const val VAL_VALUE = "value"
     private const val VAL_TS = "ts"
-    private const val EXPECTED_COLUMN_COUNT = 3
+    private const val EXPECTED_COLUMN_COUNT = 2
 }
