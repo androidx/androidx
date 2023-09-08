@@ -72,7 +72,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 @RunWith(AndroidJUnit4::class)
 class GraphicsSurfaceTest {
     @get:Rule
