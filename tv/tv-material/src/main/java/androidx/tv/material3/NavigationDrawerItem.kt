@@ -113,25 +113,25 @@ fun NavigationDrawerScope.NavigationDrawerItem(
                 leadingContent()
             }
         },
-        trailingContent = if (trailingContent == null) null else {
+        trailingContent = trailingContent?.let {
             {
                 AnimatedVisibility(
                     visible = doesNavigationDrawerHaveFocus,
                     enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
                     exit = NavigationDrawerItemDefaults.ContentAnimationExit,
                 ) {
-                    trailingContent()
+                    it()
                 }
             }
         },
-        supportingContent = if (supportingContent == null) null else {
+        supportingContent = supportingContent?.let {
             {
                 AnimatedVisibility(
                     visible = doesNavigationDrawerHaveFocus,
                     enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
                     exit = NavigationDrawerItemDefaults.ContentAnimationExit,
                 ) {
-                    supportingContent()
+                    it()
                 }
             }
         },
