@@ -1303,6 +1303,9 @@ class Recomposer(
     internal override val collectingParameterInformation: Boolean
         get() = false
 
+    internal override val collectingSourceInformation: Boolean
+        get() = false
+
     internal override fun recordInspectionTable(table: MutableSet<CompositionData>) {
         // TODO: The root recomposer might be a better place to set up inspection
         // than the current configuration with an CompositionLocal
