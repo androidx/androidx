@@ -1367,6 +1367,16 @@ constructor(
         )
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
         writer.println("editorObscuresWatchFace=$editorObscuresWatchFace")
+        writer.println("additionalContentDescriptionLabels:")
+        writer.increaseIndent()
+        for (label in renderer.additionalContentDescriptionLabels) {
+            if (Build.TYPE.equals("userdebug")) {
+                writer.println("${label.first}: ${label.second}")
+            } else {
+                writer.println("${label.first}: Redacted")
+            }
+        }
+        writer.decreaseIndent()
         overlayStyle.dump(writer)
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
