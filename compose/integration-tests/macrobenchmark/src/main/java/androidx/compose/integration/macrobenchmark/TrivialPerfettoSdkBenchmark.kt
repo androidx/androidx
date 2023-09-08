@@ -27,6 +27,7 @@ import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,12 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
             setupBlock = {
                 PerfettoCapture().enableAndroidxTracingPerfetto(
                     PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
-                )
+                ).let { (resultCode, _) ->
+                    assertTrue(
+                        "Ensuring Perfetto SDK is enabled",
+                        resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                    )
+                }
             }
         ) {
             startActivityAndWait(Intent(ACTION))
