@@ -36,6 +36,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                api(libs.androidx.annotation)
 
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
@@ -69,7 +70,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.2.0")
+                api(libs.androidx.annotation)
             }
         }
 
