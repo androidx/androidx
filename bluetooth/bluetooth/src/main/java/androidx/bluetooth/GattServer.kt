@@ -20,6 +20,7 @@ import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice as FwkDevice
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGatt.GATT_SUCCESS
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattServer
 import android.bluetooth.BluetoothGattServerCallback
@@ -33,10 +34,13 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Class for handling operations as a GATT server role
@@ -102,6 +106,8 @@ class GattServer(private val context: Context) {
             private val attributeMap = AttributeMap()
             // Should be accessed only from the callback thread
             private val sessions: MutableMap<FwkDevice, Session> = mutableMapOf()
+            private val notifyMutex = Mutex()
+            private var notifyJob: CompletableDeferred<Boolean>? = null
 
             override val connectRequests = callbackFlow {
                     attributeMap.updateWithServices(services)
@@ -174,6 +180,14 @@ class GattServer(private val context: Context) {
                                 )
                             }
                         }
+
+                        override fun onNotificationSent(
+                            device: android.bluetooth.BluetoothDevice?,
+                            status: Int
+                        ) {
+                            notifyJob?.complete(status == GATT_SUCCESS)
+                            notifyJob = null
+                        }
                     }
                     fwkAdapter.openGattServer(context, callback)
                     services.forEach { fwkAdapter.addService(it.fwkService) }
@@ -225,16 +239,22 @@ class GattServer(private val context: Context) {
                             get() = this@Session.device
                         override val requests = requestChannel.receiveAsFlow()
 
-                        override fun notify(
+                        override suspend fun notify(
                             characteristic: GattCharacteristic,
                             value: ByteArray
-                        ) {
-                            fwkAdapter.notifyCharacteristicChanged(
-                                device.fwkDevice,
-                                characteristic.fwkCharacteristic,
-                                false,
-                                value
-                            )
+                        ): Boolean {
+                            notifyMutex.withLock {
+                                CompletableDeferred<Boolean>().also {
+                                    notifyJob = it
+                                    fwkAdapter.notifyCharacteristicChanged(
+                                        device.fwkDevice,
+                                        characteristic.fwkCharacteristic,
+                                        false,
+                                        value
+                                    )
+                                    return it.await()
+                                }
+                            }
                         }
                     }
                     scope.block()
