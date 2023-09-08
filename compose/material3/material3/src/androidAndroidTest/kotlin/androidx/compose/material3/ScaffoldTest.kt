@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -655,6 +656,72 @@ class ScaffoldTest {
         }
 
         assertWithMessage("Expected placeCount to be >= 1").that(onPlaceCount).isAtLeast(1)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun scaffold_subcomposeInMeasureFix_enabled_measuresChildrenInMeasurement() {
+        ScaffoldSubcomposeInMeasureFix = true
+        var size: IntSize? = null
+        var measured = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Scaffold(
+                        content = {
+                            Box(Modifier.onSizeChanged { size = it })
+                        }
+                    )
+                }
+            ) { measurables, constraints ->
+                measurables.map { it.measure(constraints) }
+                measured = true
+                layout(0, 0) {
+                    // Empty measurement since we only care about placement
+                }
+            }
+        }
+
+        assertWithMessage("Measure should have been executed")
+            .that(measured).isTrue()
+        assertWithMessage("Expected size to be initialized")
+            .that(size).isNotNull()
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun scaffold_subcomposeInMeasureFix_disabled_measuresChildrenInPlacement() {
+        ScaffoldSubcomposeInMeasureFix = false
+        var size: IntSize? = null
+        var measured = false
+        var placed = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Scaffold(
+                        content = {
+                            Box(Modifier.onSizeChanged { size = it })
+                        }
+                    )
+                }
+            ) { measurables, constraints ->
+                val placeables = measurables.map { it.measure(constraints) }
+                measured = true
+                assertWithMessage("Expected size to not be initialized in placement")
+                    .that(size).isNull()
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeables.forEach { it.place(0, 0) }
+                    placed = true
+                }
+            }
+        }
+
+        assertWithMessage("Measure should have been executed")
+            .that(measured).isTrue()
+        assertWithMessage("Placement should have been executed")
+            .that(placed).isTrue()
+        assertWithMessage("Expected size to be initialized")
+            .that(size).isNotNull()
     }
 
     private fun assertDpIsWithinThreshold(actual: Dp, expected: Dp, threshold: Dp) {
