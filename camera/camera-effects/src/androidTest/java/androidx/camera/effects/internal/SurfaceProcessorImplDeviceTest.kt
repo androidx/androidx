@@ -29,6 +29,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.effects.Frame
+import androidx.camera.effects.OverlayEffect
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.core.util.Consumer
@@ -37,6 +38,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -137,7 +139,7 @@ class SurfaceProcessorImplDeviceTest {
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(frameReceived!!.size).isEqualTo(size)
         assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
-        assertThat(frameReceived!!.getMirroring()).isEqualTo(transformationInfo.mirroring)
+        assertThat(frameReceived!!.mirroring).isEqualTo(transformationInfo.mirroring)
         assertThat(frameReceived!!.sensorToBufferTransform)
             .isEqualTo(transformationInfo.sensorToBufferTransform)
         assertThat(frameReceived!!.rotationDegrees).isEqualTo(ROTATION_DEGREES)
@@ -215,6 +217,99 @@ class SurfaceProcessorImplDeviceTest {
         drawSurface(inputSurface)
         drawSurface(inputSurface)
         assertThat(countDownLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun drawCachedFrame_frameDrawnToOutput() = runBlocking {
+        // Arrange: draw the input and get the cached frame.
+        val latch = fillFramesAndWaitForOutput(1, 1)
+        val cachedFrame = processor.buffer.frames.single()
+
+        // Act: draw the cached frame.
+        val drawFuture = processor.drawFrame(cachedFrame.timestampNs)
+
+        // Assert: the future completes with RESULT_SUCCESS and the output receives the frame.
+        assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_SUCCESS)
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun drawMissingFrame_futureCompletesWithNotFound() = runBlocking {
+        // Arrange: draw the input and get the cached frame.
+        val latch = fillFramesAndWaitForOutput(1, 1)
+        val frame = processor.buffer.frames.single()
+
+        // Act: draw the frame with a wrong timestamp.
+        val drawFuture = processor.drawFrame(frame.timestampNs - 1)
+
+        // Assert: the future completes with RESULT_FRAME_NOT_FOUND and the output does not receive
+        // the frame.
+        assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_FRAME_NOT_FOUND)
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun drawFrameAndCancel_futureCompletesWithCanceled() = runBlocking {
+        // Arrange: draw the input and drop the incoming frames.
+        val latch = fillFramesAndWaitForOutput(1, 1) {
+            it.setOnDrawListener {
+                false
+            }
+        }
+        val frame = processor.buffer.frames.single()
+
+        // Act: draw the frame.
+        val drawFuture = processor.drawFrame(frame.timestampNs)
+
+        // Assert: the future completes with RESULT_CANCELLED_BY_CALLER and the output does not
+        // receive the frame.
+        assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_CANCELLED_BY_CALLER)
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun drawFrameAfterReplacingOutput_futureCompletesWithInvalidSurface() = runBlocking {
+        // Arrange: setup processor with buffer depth == 1 and fill it full.
+        processor = SurfaceProcessorImpl(1)
+        withContext(processor.glExecutor.asCoroutineDispatcher()) {
+            processor.onInputSurface(surfaceRequest)
+            processor.onOutputSurface(surfaceOutput)
+        }
+        val inputSurface = surfaceRequest.deferrableSurface.surface.get()
+        drawSurface(inputSurface)
+        val frame = processor.buffer.frames.single()
+
+        // Arrange: replace the output Surface so the buffered frame is associated with an invalid
+        // surface.
+        val latch = getTextureUpdateLatch(outputTexture2)
+        withContext(processor.glExecutor.asCoroutineDispatcher()) {
+            processor.onOutputSurface(surfaceOutput2)
+        }
+
+        // Act: draw the buffered frame.
+        val drawFuture = processor.drawFrame(frame.timestampNs)
+
+        // Assert: the future completes with RESULT_INVALID_SURFACE and the output does not
+        // receive the frame.
+        assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_INVALID_SURFACE)
+        assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun drawFrameAfterRelease_futureCompletesWithException(): Unit = runBlocking {
+        // Arrange: draw the input and get the cached frame.
+        fillFramesAndWaitForOutput(1, 1)
+        processor.release()
+
+        // Act: release the processor and draw a frame.
+        val drawFuture = processor.drawFrame(0)
+
+        // Assert: the future completes with an exception.
+        try {
+            drawFuture.get()
+        } catch (e: ExecutionException) {
+            assertThat(e.cause).isInstanceOf(IllegalStateException::class.java)
+        }
     }
 
     /**
