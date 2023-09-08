@@ -126,9 +126,27 @@ package androidx.collection {
   public final class FloatFloatMapKt {
     method public static androidx.collection.FloatFloatMap emptyFloatFloatMap();
     method public static androidx.collection.FloatFloatMap floatFloatMapOf();
-    method public static androidx.collection.FloatFloatMap floatFloatMapOf(kotlin.Pair<java.lang.Float,java.lang.Float>... pairs);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4);
+    method public static androidx.collection.FloatFloatMap floatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4, float key5, float value5);
     method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf();
-    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(kotlin.Pair<java.lang.Float,java.lang.Float>... pairs);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4);
+    method public static androidx.collection.MutableFloatFloatMap mutableFloatFloatMapOf(float key1, float value1, float key2, float value2, float key3, float value3, float key4, float value4, float key5, float value5);
+  }
+
+  @kotlin.jvm.JvmInline public final value class FloatFloatPair {
+    ctor public FloatFloatPair(float first, float second);
+    method public inline operator float component1();
+    method public inline operator float component2();
+    method public inline float getFirst();
+    method public inline float getSecond();
+    property public final inline float first;
+    property public final inline float second;
   }
 
   public abstract sealed class FloatIntMap {
@@ -163,9 +181,17 @@ package androidx.collection {
   public final class FloatIntMapKt {
     method public static androidx.collection.FloatIntMap emptyFloatIntMap();
     method public static androidx.collection.FloatIntMap floatIntMapOf();
-    method public static androidx.collection.FloatIntMap floatIntMapOf(kotlin.Pair<java.lang.Float,java.lang.Integer>... pairs);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4);
+    method public static androidx.collection.FloatIntMap floatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4, float key5, int value5);
     method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf();
-    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(kotlin.Pair<java.lang.Float,java.lang.Integer>... pairs);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4);
+    method public static androidx.collection.MutableFloatIntMap mutableFloatIntMapOf(float key1, int value1, float key2, int value2, float key3, int value3, float key4, int value4, float key5, int value5);
   }
 
   public abstract sealed class FloatList {
@@ -254,9 +280,17 @@ package androidx.collection {
   public final class FloatLongMapKt {
     method public static androidx.collection.FloatLongMap emptyFloatLongMap();
     method public static androidx.collection.FloatLongMap floatLongMapOf();
-    method public static androidx.collection.FloatLongMap floatLongMapOf(kotlin.Pair<java.lang.Float,java.lang.Long>... pairs);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4);
+    method public static androidx.collection.FloatLongMap floatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4, float key5, long value5);
     method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf();
-    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(kotlin.Pair<java.lang.Float,java.lang.Long>... pairs);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4);
+    method public static androidx.collection.MutableFloatLongMap mutableFloatLongMapOf(float key1, long value1, float key2, long value2, float key3, long value3, float key4, long value4, float key5, long value5);
   }
 
   public abstract sealed class FloatObjectMap<V> {
@@ -290,9 +324,17 @@ package androidx.collection {
   public final class FloatObjectMapKt {
     method public static <V> androidx.collection.FloatObjectMap<V> emptyFloatObjectMap();
     method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf();
-    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(kotlin.Pair<java.lang.Float,? extends V>... pairs);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4);
+    method public static <V> androidx.collection.FloatObjectMap<V> floatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4, float key5, V value5);
     method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf();
-    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(kotlin.Pair<java.lang.Float,? extends V>... pairs);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4);
+    method public static <V> androidx.collection.MutableFloatObjectMap<V> mutableFloatObjectMapOf(float key1, V value1, float key2, V value2, float key3, V value3, float key4, V value4, float key5, V value5);
   }
 
   public abstract sealed class FloatSet {
@@ -363,9 +405,17 @@ package androidx.collection {
   public final class IntFloatMapKt {
     method public static androidx.collection.IntFloatMap emptyIntFloatMap();
     method public static androidx.collection.IntFloatMap intFloatMapOf();
-    method public static androidx.collection.IntFloatMap intFloatMapOf(kotlin.Pair<java.lang.Integer,java.lang.Float>... pairs);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4);
+    method public static androidx.collection.IntFloatMap intFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4, int key5, float value5);
     method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf();
-    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(kotlin.Pair<java.lang.Integer,java.lang.Float>... pairs);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4);
+    method public static androidx.collection.MutableIntFloatMap mutableIntFloatMapOf(int key1, float value1, int key2, float value2, int key3, float value3, int key4, float value4, int key5, float value5);
   }
 
   public abstract sealed class IntIntMap {
@@ -400,9 +450,27 @@ package androidx.collection {
   public final class IntIntMapKt {
     method public static androidx.collection.IntIntMap emptyIntIntMap();
     method public static androidx.collection.IntIntMap intIntMapOf();
-    method public static androidx.collection.IntIntMap intIntMapOf(kotlin.Pair<java.lang.Integer,java.lang.Integer>... pairs);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4);
+    method public static androidx.collection.IntIntMap intIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4, int key5, int value5);
     method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf();
-    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(kotlin.Pair<java.lang.Integer,java.lang.Integer>... pairs);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4);
+    method public static androidx.collection.MutableIntIntMap mutableIntIntMapOf(int key1, int value1, int key2, int value2, int key3, int value3, int key4, int value4, int key5, int value5);
+  }
+
+  @kotlin.jvm.JvmInline public final value class IntIntPair {
+    ctor public IntIntPair(int first, int second);
+    method public inline operator int component1();
+    method public inline operator int component2();
+    method public int getFirst();
+    method public int getSecond();
+    property public final int first;
+    property public final int second;
   }
 
   public abstract sealed class IntList {
@@ -491,9 +559,17 @@ package androidx.collection {
   public final class IntLongMapKt {
     method public static androidx.collection.IntLongMap emptyIntLongMap();
     method public static androidx.collection.IntLongMap intLongMapOf();
-    method public static androidx.collection.IntLongMap intLongMapOf(kotlin.Pair<java.lang.Integer,java.lang.Long>... pairs);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4);
+    method public static androidx.collection.IntLongMap intLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4, int key5, long value5);
     method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf();
-    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(kotlin.Pair<java.lang.Integer,java.lang.Long>... pairs);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4);
+    method public static androidx.collection.MutableIntLongMap mutableIntLongMapOf(int key1, long value1, int key2, long value2, int key3, long value3, int key4, long value4, int key5, long value5);
   }
 
   public abstract sealed class IntObjectMap<V> {
@@ -527,9 +603,17 @@ package androidx.collection {
   public final class IntObjectMapKt {
     method public static <V> androidx.collection.IntObjectMap<V> emptyIntObjectMap();
     method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf();
-    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(kotlin.Pair<java.lang.Integer,? extends V>... pairs);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4);
+    method public static <V> androidx.collection.IntObjectMap<V> intObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4, int key5, V value5);
     method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf();
-    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(kotlin.Pair<java.lang.Integer,? extends V>... pairs);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4);
+    method public static <V> androidx.collection.MutableIntObjectMap<V> mutableIntObjectMapOf(int key1, V value1, int key2, V value2, int key3, V value3, int key4, V value4, int key5, V value5);
   }
 
   public abstract sealed class IntSet {
@@ -600,9 +684,17 @@ package androidx.collection {
   public final class LongFloatMapKt {
     method public static androidx.collection.LongFloatMap emptyLongFloatMap();
     method public static androidx.collection.LongFloatMap longFloatMapOf();
-    method public static androidx.collection.LongFloatMap longFloatMapOf(kotlin.Pair<java.lang.Long,java.lang.Float>... pairs);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4);
+    method public static androidx.collection.LongFloatMap longFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4, long key5, float value5);
     method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf();
-    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(kotlin.Pair<java.lang.Long,java.lang.Float>... pairs);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4);
+    method public static androidx.collection.MutableLongFloatMap mutableLongFloatMapOf(long key1, float value1, long key2, float value2, long key3, float value3, long key4, float value4, long key5, float value5);
   }
 
   public abstract sealed class LongIntMap {
@@ -637,9 +729,17 @@ package androidx.collection {
   public final class LongIntMapKt {
     method public static androidx.collection.LongIntMap emptyLongIntMap();
     method public static androidx.collection.LongIntMap longIntMapOf();
-    method public static androidx.collection.LongIntMap longIntMapOf(kotlin.Pair<java.lang.Long,java.lang.Integer>... pairs);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4);
+    method public static androidx.collection.LongIntMap longIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4, long key5, int value5);
     method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf();
-    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(kotlin.Pair<java.lang.Long,java.lang.Integer>... pairs);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4);
+    method public static androidx.collection.MutableLongIntMap mutableLongIntMapOf(long key1, int value1, long key2, int value2, long key3, int value3, long key4, int value4, long key5, int value5);
   }
 
   public abstract sealed class LongList {
@@ -728,9 +828,27 @@ package androidx.collection {
   public final class LongLongMapKt {
     method public static androidx.collection.LongLongMap emptyLongLongMap();
     method public static androidx.collection.LongLongMap longLongMapOf();
-    method public static androidx.collection.LongLongMap longLongMapOf(kotlin.Pair<java.lang.Long,java.lang.Long>... pairs);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4);
+    method public static androidx.collection.LongLongMap longLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4, long key5, long value5);
     method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf();
-    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(kotlin.Pair<java.lang.Long,java.lang.Long>... pairs);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4);
+    method public static androidx.collection.MutableLongLongMap mutableLongLongMapOf(long key1, long value1, long key2, long value2, long key3, long value3, long key4, long value4, long key5, long value5);
+  }
+
+  public final class LongLongPair {
+    ctor public LongLongPair(long first, long second);
+    method public inline operator long component1();
+    method public inline operator long component2();
+    method public long getFirst();
+    method public long getSecond();
+    property public final long first;
+    property public final long second;
   }
 
   public abstract sealed class LongObjectMap<V> {
@@ -764,9 +882,17 @@ package androidx.collection {
   public final class LongObjectMapKt {
     method public static <V> androidx.collection.LongObjectMap<V> emptyLongObjectMap();
     method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf();
-    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(kotlin.Pair<java.lang.Long,? extends V>... pairs);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4);
+    method public static <V> androidx.collection.LongObjectMap<V> longObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4, long key5, V value5);
     method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf();
-    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(kotlin.Pair<java.lang.Long,? extends V>... pairs);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4);
+    method public static <V> androidx.collection.MutableLongObjectMap<V> mutableLongObjectMapOf(long key1, V value1, long key2, V value2, long key3, V value3, long key4, V value4, long key5, V value5);
   }
 
   public abstract sealed class LongSet {
@@ -881,11 +1007,8 @@ package androidx.collection {
     method public inline operator void minusAssign(float key);
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatFloatMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Float> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Float>![] pairs);
     method public void put(float key, float value);
     method public void putAll(androidx.collection.FloatFloatMap from);
-    method public void putAll(kotlin.Pair<java.lang.Float,java.lang.Float>![] pairs);
     method public void remove(float key);
     method public boolean remove(float key, float value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
@@ -902,11 +1025,8 @@ package androidx.collection {
     method public inline operator void minusAssign(float key);
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatIntMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Integer> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Integer>![] pairs);
     method public void put(float key, int value);
     method public void putAll(androidx.collection.FloatIntMap from);
-    method public void putAll(kotlin.Pair<java.lang.Float,java.lang.Integer>![] pairs);
     method public void remove(float key);
     method public boolean remove(float key, int value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
@@ -954,11 +1074,8 @@ package androidx.collection {
     method public inline operator void minusAssign(float key);
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatLongMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Long> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,java.lang.Long>![] pairs);
     method public void put(float key, long value);
     method public void putAll(androidx.collection.FloatLongMap from);
-    method public void putAll(kotlin.Pair<java.lang.Float,java.lang.Long>![] pairs);
     method public void remove(float key);
     method public boolean remove(float key, long value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
@@ -975,11 +1092,8 @@ package androidx.collection {
     method public inline operator void minusAssign(float key);
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatObjectMap<V> from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,? extends V> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Float,? extends V>![] pairs);
     method public V? put(float key, V value);
     method public void putAll(androidx.collection.FloatObjectMap<V> from);
-    method public void putAll(kotlin.Pair<java.lang.Float,? extends V>![] pairs);
     method public V? remove(float key);
     method public boolean remove(float key, V value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
@@ -1014,11 +1128,8 @@ package androidx.collection {
     method public inline operator void minusAssign(int key);
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntFloatMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Float> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Float>![] pairs);
     method public void put(int key, float value);
     method public void putAll(androidx.collection.IntFloatMap from);
-    method public void putAll(kotlin.Pair<java.lang.Integer,java.lang.Float>![] pairs);
     method public void remove(int key);
     method public boolean remove(int key, float value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
@@ -1035,11 +1146,8 @@ package androidx.collection {
     method public inline operator void minusAssign(int key);
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntIntMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Integer> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Integer>![] pairs);
     method public void put(int key, int value);
     method public void putAll(androidx.collection.IntIntMap from);
-    method public void putAll(kotlin.Pair<java.lang.Integer,java.lang.Integer>![] pairs);
     method public void remove(int key);
     method public boolean remove(int key, int value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
@@ -1087,11 +1195,8 @@ package androidx.collection {
     method public inline operator void minusAssign(int key);
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntLongMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Long> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,java.lang.Long>![] pairs);
     method public void put(int key, long value);
     method public void putAll(androidx.collection.IntLongMap from);
-    method public void putAll(kotlin.Pair<java.lang.Integer,java.lang.Long>![] pairs);
     method public void remove(int key);
     method public boolean remove(int key, long value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
@@ -1108,11 +1213,8 @@ package androidx.collection {
     method public inline operator void minusAssign(int key);
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntObjectMap<V> from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,? extends V> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Integer,? extends V>![] pairs);
     method public V? put(int key, V value);
     method public void putAll(androidx.collection.IntObjectMap<V> from);
-    method public void putAll(kotlin.Pair<java.lang.Integer,? extends V>![] pairs);
     method public V? remove(int key);
     method public boolean remove(int key, V value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
@@ -1147,11 +1249,8 @@ package androidx.collection {
     method public inline operator void minusAssign(long key);
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongFloatMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Float> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Float>![] pairs);
     method public void put(long key, float value);
     method public void putAll(androidx.collection.LongFloatMap from);
-    method public void putAll(kotlin.Pair<java.lang.Long,java.lang.Float>![] pairs);
     method public void remove(long key);
     method public boolean remove(long key, float value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
@@ -1168,11 +1267,8 @@ package androidx.collection {
     method public inline operator void minusAssign(long key);
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongIntMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Integer> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Integer>![] pairs);
     method public void put(long key, int value);
     method public void putAll(androidx.collection.LongIntMap from);
-    method public void putAll(kotlin.Pair<java.lang.Long,java.lang.Integer>![] pairs);
     method public void remove(long key);
     method public boolean remove(long key, int value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
@@ -1220,11 +1316,8 @@ package androidx.collection {
     method public inline operator void minusAssign(long key);
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongLongMap from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Long> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,java.lang.Long>![] pairs);
     method public void put(long key, long value);
     method public void putAll(androidx.collection.LongLongMap from);
-    method public void putAll(kotlin.Pair<java.lang.Long,java.lang.Long>![] pairs);
     method public void remove(long key);
     method public boolean remove(long key, long value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
@@ -1241,11 +1334,8 @@ package androidx.collection {
     method public inline operator void minusAssign(long key);
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongObjectMap<V> from);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,? extends V> pair);
-    method public inline operator void plusAssign(kotlin.Pair<java.lang.Long,? extends V>![] pairs);
     method public V? put(long key, V value);
     method public void putAll(androidx.collection.LongObjectMap<V> from);
-    method public void putAll(kotlin.Pair<java.lang.Long,? extends V>![] pairs);
     method public V? remove(long key);
     method public boolean remove(long key, V value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
@@ -1281,11 +1371,8 @@ package androidx.collection {
     method public inline operator void minusAssign(K![] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectFloatMap<K> from);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Float> pair);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Float>![] pairs);
     method public void put(K key, float value);
     method public void putAll(androidx.collection.ObjectFloatMap<K> from);
-    method public void putAll(kotlin.Pair<? extends K,java.lang.Float>![] pairs);
     method public void remove(K key);
     method public boolean remove(K key, float value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
@@ -1303,11 +1390,8 @@ package androidx.collection {
     method public inline operator void minusAssign(K![] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectIntMap<K> from);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Integer> pair);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Integer>![] pairs);
     method public void put(K key, int value);
     method public void putAll(androidx.collection.ObjectIntMap<K> from);
-    method public void putAll(kotlin.Pair<? extends K,java.lang.Integer>![] pairs);
     method public void remove(K key);
     method public boolean remove(K key, int value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
@@ -1377,11 +1461,8 @@ package androidx.collection {
     method public inline operator void minusAssign(K![] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectLongMap<K> from);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Long> pair);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,java.lang.Long>![] pairs);
     method public void put(K key, long value);
     method public void putAll(androidx.collection.ObjectLongMap<K> from);
-    method public void putAll(kotlin.Pair<? extends K,java.lang.Long>![] pairs);
     method public void remove(K key);
     method public boolean remove(K key, long value);
     method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
@@ -1478,9 +1559,17 @@ package androidx.collection {
   public final class ObjectFloatMapKt {
     method public static <K> androidx.collection.ObjectFloatMap<K> emptyObjectFloatMap();
     method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf();
-    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(kotlin.Pair<? extends K,java.lang.Float>... pairs);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4);
+    method public static <K> androidx.collection.MutableObjectFloatMap<K> mutableObjectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4, K key5, float value5);
     method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMap();
-    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(kotlin.Pair<? extends K,java.lang.Float>... pairs);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4);
+    method public static <K> androidx.collection.ObjectFloatMap<K> objectFloatMapOf(K key1, float value1, K key2, float value2, K key3, float value3, K key4, float value4, K key5, float value5);
   }
 
   public abstract sealed class ObjectIntMap<K> {
@@ -1515,9 +1604,17 @@ package androidx.collection {
   public final class ObjectIntMapKt {
     method public static <K> androidx.collection.ObjectIntMap<K> emptyObjectIntMap();
     method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf();
-    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(kotlin.Pair<? extends K,java.lang.Integer>... pairs);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4);
+    method public static <K> androidx.collection.MutableObjectIntMap<K> mutableObjectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4, K key5, int value5);
     method public static <K> androidx.collection.ObjectIntMap<K> objectIntMap();
-    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(kotlin.Pair<? extends K,java.lang.Integer>... pairs);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4);
+    method public static <K> androidx.collection.ObjectIntMap<K> objectIntMapOf(K key1, int value1, K key2, int value2, K key3, int value3, K key4, int value4, K key5, int value5);
   }
 
   public abstract sealed class ObjectList<E> {
@@ -1614,39 +1711,17 @@ package androidx.collection {
   public final class ObjectLongMapKt {
     method public static <K> androidx.collection.ObjectLongMap<K> emptyObjectLongMap();
     method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf();
-    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(kotlin.Pair<? extends K,java.lang.Long>... pairs);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4);
+    method public static <K> androidx.collection.MutableObjectLongMap<K> mutableObjectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4, K key5, long value5);
     method public static <K> androidx.collection.ObjectLongMap<K> objectLongMap();
-    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(kotlin.Pair<? extends K,java.lang.Long>... pairs);
-  }
-
-  @kotlin.jvm.JvmInline public final value class PairFloatFloat {
-    ctor public PairFloatFloat(float first, float second);
-    method public inline operator float component1();
-    method public inline operator float component2();
-    method public inline float getFirst();
-    method public inline float getSecond();
-    property public final inline float first;
-    property public final inline float second;
-  }
-
-  @kotlin.jvm.JvmInline public final value class PairIntInt {
-    ctor public PairIntInt(int first, int second);
-    method public inline operator int component1();
-    method public inline operator int component2();
-    method public int getFirst();
-    method public int getSecond();
-    property public final int first;
-    property public final int second;
-  }
-
-  public final class PairLongLong {
-    ctor public PairLongLong(long first, long second);
-    method public inline operator long component1();
-    method public inline operator long component2();
-    method public long getFirst();
-    method public long getSecond();
-    property public final long first;
-    property public final long second;
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4);
+    method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4, K key5, long value5);
   }
 
   public abstract sealed class ScatterMap<K, V> {

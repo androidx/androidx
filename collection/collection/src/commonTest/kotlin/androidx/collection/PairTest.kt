@@ -24,18 +24,18 @@ class PairTest {
 
     @Test
     fun intCreation() {
-        val pair = PairIntInt(3, 5)
+        val pair = IntIntPair(3, 5)
         assertEquals(3, pair.first)
         assertEquals(5, pair.second)
     }
 
     @Test
     fun intEquality() {
-        val pair = PairIntInt(3, 5)
-        val pairEqual = PairIntInt(3, 5)
-        val pairUnequal1 = PairIntInt(4, 5)
-        val pairUnequal2 = PairIntInt(3, 6)
-        val pairUnequal3 = PairIntInt(4, 6)
+        val pair = IntIntPair(3, 5)
+        val pairEqual = IntIntPair(3, 5)
+        val pairUnequal1 = IntIntPair(4, 5)
+        val pairUnequal2 = IntIntPair(3, 6)
+        val pairUnequal3 = IntIntPair(4, 6)
 
         assertEquals(pair, pairEqual)
         assertNotEquals(pair, pairUnequal1)
@@ -45,7 +45,7 @@ class PairTest {
 
     @Test
     fun intDestructing() {
-        val pair = PairIntInt(3, 5)
+        val pair = IntIntPair(3, 5)
         val (first, second) = pair
         assertEquals(3, first)
         assertEquals(5, second)
@@ -53,18 +53,18 @@ class PairTest {
 
     @Test
     fun floatCreation() {
-        val pair = PairFloatFloat(3f, 5f)
+        val pair = FloatFloatPair(3f, 5f)
         assertEquals(3f, pair.first)
         assertEquals(5f, pair.second)
     }
 
     @Test
     fun floatEquality() {
-        val pair = PairFloatFloat(3f, 5f)
-        val pairEqual = PairFloatFloat(3f, 5f)
-        val pairUnequal1 = PairFloatFloat(4f, 5f)
-        val pairUnequal2 = PairFloatFloat(3f, 6f)
-        val pairUnequal3 = PairFloatFloat(4f, 6f)
+        val pair = FloatFloatPair(3f, 5f)
+        val pairEqual = FloatFloatPair(3f, 5f)
+        val pairUnequal1 = FloatFloatPair(4f, 5f)
+        val pairUnequal2 = FloatFloatPair(3f, 6f)
+        val pairUnequal3 = FloatFloatPair(4f, 6f)
 
         assertEquals(pair, pairEqual)
         assertNotEquals(pair, pairUnequal1)
@@ -74,7 +74,7 @@ class PairTest {
 
     @Test
     fun floatDestructing() {
-        val pair = PairFloatFloat(3f, 5f)
+        val pair = FloatFloatPair(3f, 5f)
         val (first, second) = pair
         assertEquals(3f, first)
         assertEquals(5f, second)
@@ -82,18 +82,18 @@ class PairTest {
 
     @Test
     fun longCreation() {
-        val pair = PairLongLong(3, 5)
+        val pair = LongLongPair(3, 5)
         assertEquals(3, pair.first)
         assertEquals(5, pair.second)
     }
 
     @Test
     fun longEquality() {
-        val pair = PairLongLong(3, 5)
-        val pairEqual = PairLongLong(3, 5)
-        val pairUnequal1 = PairLongLong(4, 5)
-        val pairUnequal2 = PairLongLong(3, 6)
-        val pairUnequal3 = PairLongLong(4, 6)
+        val pair = LongLongPair(3, 5)
+        val pairEqual = LongLongPair(3, 5)
+        val pairUnequal1 = LongLongPair(4, 5)
+        val pairUnequal2 = LongLongPair(3, 6)
+        val pairUnequal3 = LongLongPair(4, 6)
 
         assertEquals(pair, pairEqual)
         assertNotEquals(pair, pairUnequal1)
@@ -103,7 +103,7 @@ class PairTest {
 
     @Test
     fun longDestructing() {
-        val pair = PairLongLong(3, 5)
+        val pair = LongLongPair(3, 5)
         val (first, second) = pair
         assertEquals(3L, first)
         assertEquals(5L, second)

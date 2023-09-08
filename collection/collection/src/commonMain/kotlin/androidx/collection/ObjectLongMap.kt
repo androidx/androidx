@@ -54,38 +54,186 @@ public fun <K> objectLongMap(): ObjectLongMap<K> =
     EmptyObjectLongMap as ObjectLongMap<K>
 
 /**
- * Returns a new [MutableObjectLongMap].
+ * Returns a new [ObjectLongMap] with only [key1] associated with [value1].
+ */
+public fun <K> objectLongMapOf(
+    key1: K,
+    value1: Long
+): ObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [ObjectLongMap] with only [key1] and [key2] associated with
+ * [value1] and [value2], respectively.
+ */
+public fun <K> objectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+): ObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [ObjectLongMap] with only [key1], [key2], and [key3] associated with
+ * [value1], [value2], and [value3], respectively.
+ */
+public fun <K> objectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+): ObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [ObjectLongMap] with only [key1], [key2], [key3], and [key4] associated with
+ * [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <K> objectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+    key4: K,
+    value4: Long,
+): ObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [ObjectLongMap] with only [key1], [key2], [key3], [key4], and [key5] associated
+ * with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <K> objectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+    key4: K,
+    value4: Long,
+    key5: K,
+    value5: Long,
+): ObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
+    }
+
+/**
+ * Returns a new empty [MutableObjectLongMap].
  */
 public fun <K> mutableObjectLongMapOf(): MutableObjectLongMap<K> = MutableObjectLongMap()
 
 /**
- * Returns a new [MutableObjectLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Long] value is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutableObjectLongMap] with only [key1] associated with [value1].
  */
-public fun <K> objectLongMapOf(vararg pairs: Pair<K, Long>): ObjectLongMap<K> =
-    MutableObjectLongMap<K>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <K> mutableObjectLongMapOf(
+    key1: K,
+    value1: Long,
+): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
     }
 
 /**
- * Returns a new [MutableObjectLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Long] value is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutableObjectLongMap] with only [key1] and [key2] associated with
+ * [value1] and [value2], respectively.
  */
-public fun <K> mutableObjectLongMapOf(vararg pairs: Pair<K, Long>): MutableObjectLongMap<K> =
-    MutableObjectLongMap<K>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <K> mutableObjectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableObjectLongMap] with only [key1], [key2], and [key3] associated with
+ * [value1], [value2], and [value3], respectively.
+ */
+public fun <K> mutableObjectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableObjectLongMap] with only [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <K> mutableObjectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+    key4: K,
+    value4: Long,
+): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableObjectLongMap] with only [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <K> mutableObjectLongMapOf(
+    key1: K,
+    value1: Long,
+    key2: K,
+    value2: Long,
+    key3: K,
+    value3: Long,
+    key4: K,
+    value4: Long,
+    key5: K,
+    value5: Long,
+): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -560,20 +708,6 @@ public class MutableObjectLongMap<K>(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Long] value is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, Long>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: ObjectLongMap<K>) {
@@ -581,29 +715,6 @@ public class MutableObjectLongMap<K>(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that the [Pair] is allocated and the [Long] value is boxed.
-     * Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<K, Long>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Long] value is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<out Pair<K, Long>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

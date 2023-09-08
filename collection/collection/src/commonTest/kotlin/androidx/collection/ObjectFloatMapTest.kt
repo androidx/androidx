@@ -79,14 +79,113 @@ class ObjectFloatTest {
     }
 
     @Test
-    fun objectFloatMapPairsFunction() {
-        val map = mutableObjectFloatMapOf(
-            "Hello" to 1f,
-            "Bonjour" to 2f
+    fun objectFloatMapInitFunction() {
+        val map1 = objectFloatMapOf(
+            "Hello", 1f,
         )
-        assertEquals(2, map.size)
-        assertEquals(1f, map["Hello"])
-        assertEquals(2f, map["Bonjour"])
+        assertEquals(1, map1.size)
+        assertEquals(1f, map1["Hello"])
+
+        val map2 = objectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1f, map2["Hello"])
+        assertEquals(2f, map2["Bonjour"])
+
+        val map3 = objectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1f, map3["Hello"])
+        assertEquals(2f, map3["Bonjour"])
+        assertEquals(3f, map3["Hallo"])
+
+        val map4 = objectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+            "Konnichiwa", 4f,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1f, map4["Hello"])
+        assertEquals(2f, map4["Bonjour"])
+        assertEquals(3f, map4["Hallo"])
+        assertEquals(4f, map4["Konnichiwa"])
+
+        val map5 = objectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+            "Konnichiwa", 4f,
+            "Ciao", 5f,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1f, map5["Hello"])
+        assertEquals(2f, map5["Bonjour"])
+        assertEquals(3f, map5["Hallo"])
+        assertEquals(4f, map5["Konnichiwa"])
+        assertEquals(5f, map5["Ciao"])
+    }
+
+    @Test
+    fun mutableObjectFloatMapInitFunction() {
+        val map1 = mutableObjectFloatMapOf(
+            "Hello", 1f,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1f, map1["Hello"])
+
+        val map2 = mutableObjectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1f, map2["Hello"])
+        assertEquals(2f, map2["Bonjour"])
+
+        val map3 = mutableObjectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1f, map3["Hello"])
+        assertEquals(2f, map3["Bonjour"])
+        assertEquals(3f, map3["Hallo"])
+
+        val map4 = mutableObjectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+            "Konnichiwa", 4f,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1f, map4["Hello"])
+        assertEquals(2f, map4["Bonjour"])
+        assertEquals(3f, map4["Hallo"])
+        assertEquals(4f, map4["Konnichiwa"])
+
+        val map5 = mutableObjectFloatMapOf(
+            "Hello", 1f,
+            "Bonjour", 2f,
+            "Hallo", 3f,
+            "Konnichiwa", 4f,
+            "Ciao", 5f,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1f, map5["Hello"])
+        assertEquals(2f, map5["Bonjour"])
+        assertEquals(3f, map5["Hallo"])
+        assertEquals(4f, map5["Konnichiwa"])
+        assertEquals(5f, map5["Ciao"])
     }
 
     @Test
@@ -144,39 +243,6 @@ class ObjectFloatTest {
         assertEquals(1f, map["Hello"])
         map.put("Hello", 2f)
         assertEquals(2f, map["Hello"])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutableObjectFloatMap<String?>()
-        map["Hello"] = 1f
-        map[null] = 2f
-        map["Bonjour"] = 2f
-
-        map.putAll(arrayOf("Hallo" to 3f, "Hola" to 7f))
-
-        assertEquals(5, map.size)
-        assertEquals(3f, map["Hallo"])
-        assertEquals(7f, map["Hola"])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutableObjectFloatMap<String>()
-        map += "Hello" to 1f
-
-        assertEquals(1, map.size)
-        assertEquals(1f, map["Hello"])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableObjectFloatMap<String>()
-        map += arrayOf("Hallo" to 3f, "Hola" to 7f)
-
-        assertEquals(2, map.size)
-        assertEquals(3f, map["Hallo"])
-        assertEquals(7f, map["Hola"])
     }
 
     @Test

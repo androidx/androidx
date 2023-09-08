@@ -79,14 +79,113 @@ class ObjectLongTest {
     }
 
     @Test
-    fun objectLongMapPairsFunction() {
-        val map = mutableObjectLongMapOf(
-            "Hello" to 1L,
-            "Bonjour" to 2L
+    fun objectLongMapInitFunction() {
+        val map1 = objectLongMapOf(
+            "Hello", 1L,
         )
-        assertEquals(2, map.size)
-        assertEquals(1L, map["Hello"])
-        assertEquals(2L, map["Bonjour"])
+        assertEquals(1, map1.size)
+        assertEquals(1L, map1["Hello"])
+
+        val map2 = objectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1L, map2["Hello"])
+        assertEquals(2L, map2["Bonjour"])
+
+        val map3 = objectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1L, map3["Hello"])
+        assertEquals(2L, map3["Bonjour"])
+        assertEquals(3L, map3["Hallo"])
+
+        val map4 = objectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+            "Konnichiwa", 4L,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1L, map4["Hello"])
+        assertEquals(2L, map4["Bonjour"])
+        assertEquals(3L, map4["Hallo"])
+        assertEquals(4L, map4["Konnichiwa"])
+
+        val map5 = objectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+            "Konnichiwa", 4L,
+            "Ciao", 5L,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1L, map5["Hello"])
+        assertEquals(2L, map5["Bonjour"])
+        assertEquals(3L, map5["Hallo"])
+        assertEquals(4L, map5["Konnichiwa"])
+        assertEquals(5L, map5["Ciao"])
+    }
+
+    @Test
+    fun mutableObjectLongMapInitFunction() {
+        val map1 = mutableObjectLongMapOf(
+            "Hello", 1L,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1L, map1["Hello"])
+
+        val map2 = mutableObjectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1L, map2["Hello"])
+        assertEquals(2L, map2["Bonjour"])
+
+        val map3 = mutableObjectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1L, map3["Hello"])
+        assertEquals(2L, map3["Bonjour"])
+        assertEquals(3L, map3["Hallo"])
+
+        val map4 = mutableObjectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+            "Konnichiwa", 4L,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1L, map4["Hello"])
+        assertEquals(2L, map4["Bonjour"])
+        assertEquals(3L, map4["Hallo"])
+        assertEquals(4L, map4["Konnichiwa"])
+
+        val map5 = mutableObjectLongMapOf(
+            "Hello", 1L,
+            "Bonjour", 2L,
+            "Hallo", 3L,
+            "Konnichiwa", 4L,
+            "Ciao", 5L,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1L, map5["Hello"])
+        assertEquals(2L, map5["Bonjour"])
+        assertEquals(3L, map5["Hallo"])
+        assertEquals(4L, map5["Konnichiwa"])
+        assertEquals(5L, map5["Ciao"])
     }
 
     @Test
@@ -144,39 +243,6 @@ class ObjectLongTest {
         assertEquals(1L, map["Hello"])
         map.put("Hello", 2L)
         assertEquals(2L, map["Hello"])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutableObjectLongMap<String?>()
-        map["Hello"] = 1L
-        map[null] = 2L
-        map["Bonjour"] = 2L
-
-        map.putAll(arrayOf("Hallo" to 3L, "Hola" to 7L))
-
-        assertEquals(5, map.size)
-        assertEquals(3L, map["Hallo"])
-        assertEquals(7L, map["Hola"])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutableObjectLongMap<String>()
-        map += "Hello" to 1L
-
-        assertEquals(1, map.size)
-        assertEquals(1L, map["Hello"])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableObjectLongMap<String>()
-        map += arrayOf("Hallo" to 3L, "Hola" to 7L)
-
-        assertEquals(2, map.size)
-        assertEquals(3L, map["Hallo"])
-        assertEquals(7L, map["Hola"])
     }
 
     @Test
