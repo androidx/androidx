@@ -531,7 +531,7 @@ class PointerIconTest {
      *  Parent Box (output icon = [PointerIcon.Crosshair])
      *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
      */
-    @Ignore("b/267170292 - not yet implemented")
+    @Ignore("b/299482894 - not yet implemented")
     @Test
     fun parentChildPartialOverlap_parentModifierDynamicallyAddedWithMoveEvents() {
         val isVisible = mutableStateOf(false)
