@@ -17,7 +17,6 @@ package androidx.camera.effects.internal;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
-
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
@@ -40,8 +39,12 @@ import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.effects.Frame;
+import androidx.camera.effects.OverlayEffect;
 import androidx.camera.effects.opengl.GlRenderer;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Pair;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -235,6 +238,33 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         runOnGlThread(() -> mOnDrawListener = onDrawListener);
     }
 
+    /**
+     * Draws the buffered frame with the given timestamp.
+     *
+     * <p>The {@link ListenableFuture} completes with a {@link OverlayEffect.DrawFrameResult}
+     * value. If this is called after the processor is released, the future completes with an
+     * exception.
+     */
+    @NonNull
+    public ListenableFuture<Integer> drawFrame(long timestampNs) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            runOnGlThread(() -> {
+                if (mIsReleased) {
+                    completer.setException(new IllegalStateException("Effect is released"));
+                    return;
+                }
+                TextureFrame frame = requireNonNull(mBuffer).getFrameToRender(timestampNs);
+                if (frame != null) {
+                    completer.set(drawFrameAndMarkEmpty(frame));
+                } else {
+                    // No frame with the given timestamp. Return false to the app.
+                    completer.set(OverlayEffect.RESULT_FRAME_NOT_FOUND);
+                }
+            });
+            return "drawFrameFuture";
+        });
+    }
+
     // *** Private methods ***
 
     private void runOnGlThread(@NonNull Runnable runnable) {
@@ -265,10 +295,19 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         mGlRenderer.uploadOverlay(mOverlayBitmap);
     }
 
-    private void drawFrameAndMarkEmpty(@NonNull TextureFrame frame) {
+    /**
+     * Renders a buffered frame to the output surface.
+     *
+     * @return the draw result.
+     */
+    @OverlayEffect.DrawFrameResult
+    private int drawFrameAndMarkEmpty(@NonNull TextureFrame frame) {
         checkGlThread();
         checkArgument(!frame.isEmpty());
-        if (mOutputSurfacePair != null && mOutputSurfacePair.second == frame.getSurface()) {
+        try {
+            if (mOutputSurfacePair == null || mOutputSurfacePair.second != frame.getSurface()) {
+                return OverlayEffect.RESULT_INVALID_SURFACE;
+            }
             // Only draw if frame is associated with the current output surface.
             if (drawOverlay(frame.getTimestampNs())) {
                 mGlRenderer.renderQueueTextureToSurface(
@@ -276,9 +315,12 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
                         frame.getTimestampNs(),
                         frame.getTransform(),
                         frame.getSurface());
+                return OverlayEffect.RESULT_SUCCESS;
             }
+            return OverlayEffect.RESULT_CANCELLED_BY_CALLER;
+        } finally {
+            frame.markEmpty();
         }
-        frame.markEmpty();
     }
 
     /**
@@ -318,7 +360,14 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     }
 
     @VisibleForTesting
+    @NonNull
     GlRenderer getGlRendererForTesting() {
         return mGlRenderer;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    TextureFrameBuffer getBuffer() {
+        return requireNonNull(mBuffer);
     }
 }
