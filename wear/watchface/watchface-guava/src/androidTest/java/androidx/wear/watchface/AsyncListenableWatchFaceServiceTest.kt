@@ -102,6 +102,7 @@ private class TestAsyncListenableWatchFaceRuntimeService(
     private var surfaceHolderOverride: SurfaceHolder,
 ) : ListenableWatchFaceRuntimeService() {
     lateinit var lastResourceOnlyWatchFacePackageName: String
+    val lastResourceOnlyWatchFacePackageNameLatch = CountDownLatch(1)
 
     init {
         attachBaseContext(testContext)
@@ -117,6 +118,7 @@ private class TestAsyncListenableWatchFaceRuntimeService(
         resourceOnlyWatchFacePackageName: String
     ): ListenableFuture<WatchFace> {
         lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
+        lastResourceOnlyWatchFacePackageNameLatch.countDown()
 
         val future = SettableFuture.create<WatchFace>()
         // Post a task to resolve the future.
@@ -210,9 +212,12 @@ public class AsyncListenableWatchFaceRuntimeServiceTest : WatchFaceControlClient
 
         val client = awaitWithTimeout(deferredClient)
 
-        // To avoid a race condition, we need to wait for the watchface to be fully created, which
-        // this does.
-        client.complicationSlotsState
+        Assert.assertTrue(
+            service.lastResourceOnlyWatchFacePackageNameLatch.await(
+                TIME_OUT_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+        )
 
         assertThat(service.lastResourceOnlyWatchFacePackageName).isEqualTo("com.example.wf")
 
