@@ -203,6 +203,44 @@ class IntegrationTests {
         assertTrue(configChangedLatch.count == 0.toLong())
     }
 
+    /**
+     * Tests that the provider receives Z-order change updates.
+     */
+    @Test
+    fun testZOrderChanged() {
+        val openSessionLatch = CountDownLatch(1)
+        val adapter = TestSandboxedUiAdapter(
+            openSessionLatch,
+            null,
+            /* hasFailingTestSession=*/false
+        )
+        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        view.setAdapter(adapterFromCoreLibInfo)
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        view.setZOrderOnTopAndEnableUserInteraction(!adapter.initialZOrderOnTop)
+        assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    /**
+     * Tests that the provider does not receive Z-order updates if the Z-order is unchanged.
+     */
+    @Test
+    fun testZOrderUnchanged() {
+        val openSessionLatch = CountDownLatch(1)
+        val adapter = TestSandboxedUiAdapter(
+            openSessionLatch,
+            null,
+            /* hasFailingTestSession=*/false
+        )
+        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        view.setAdapter(adapterFromCoreLibInfo)
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        view.setZOrderOnTopAndEnableUserInteraction(adapter.initialZOrderOnTop)
+        assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
     @Test
     fun testSessionError() {
         val adapter = TestSandboxedUiAdapter(
@@ -240,6 +278,8 @@ class IntegrationTests {
     ) : SandboxedUiAdapter {
 
         var isOpenSessionCalled = false
+        var initialZOrderOnTop = false
+        var zOrderLatch = CountDownLatch(1)
         lateinit var session: SandboxedUiAdapter.Session
         lateinit var internalClient: SandboxedUiAdapter.SessionClient
 
@@ -254,6 +294,7 @@ class IntegrationTests {
         ) {
             internalClient = client
             isOpenSessionCalled = true
+            initialZOrderOnTop = isZOrderOnTop
             session = if (hasFailingTestSession) {
                 FailingTestSession(context)
             } else {
@@ -301,6 +342,7 @@ class IntegrationTests {
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                zOrderLatch.countDown()
             }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
