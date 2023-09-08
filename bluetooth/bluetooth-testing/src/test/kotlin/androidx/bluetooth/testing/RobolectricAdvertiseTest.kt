@@ -34,7 +34,7 @@ import org.robolectric.RuntimeEnvironment
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricAdvertiseTest {
     private val context: Context = RuntimeEnvironment.getApplication()
-    private var bluetoothLe = BluetoothLe.getInstance(context)
+    private var bluetoothLe = BluetoothLe(context)
 
     @Test
     fun advertiseSuccess() = runTest {

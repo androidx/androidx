@@ -59,7 +59,7 @@ class BluetoothLeTest {
         context = ApplicationProvider.getApplicationContext()
         bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
-        bluetoothLe = BluetoothLe.getInstance(context)
+        bluetoothLe = BluetoothLe(context)
 
         Assume.assumeNotNull(bluetoothAdapter)
         Assume.assumeTrue(bluetoothAdapter.isEnabled)
