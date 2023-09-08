@@ -31,6 +31,7 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.darwin.*
 import kotlin.math.roundToInt
 import platform.Foundation.NSThread
+import platform.Foundation.NSTimeInterval
 
 private class DisplayLinkConditions(
     val setPausedCallback: (Boolean) -> Unit
@@ -116,30 +117,39 @@ private class ApplicationStateListener(
     }
 }
 
-private enum class DrawReason {
-    DISPLAY_LINK_CALLBACK, SYNCHRONOUS_DRAW_REQUEST
+internal interface MetalRedrawerCallbacks {
+    /**
+     * Draw into a surface.
+     *
+     * @param surface The surface to be drawn.
+     * @param targetTimestamp Timestamp indicating the expected draw result presentation time. Implementation should forward its internal time clock to this targetTimestamp to achieve smooth visual change cadence.
+     */
+    fun draw(surface: Surface, targetTimestamp: NSTimeInterval)
+
+    /**
+     * Retrieve a list of pending actions which need to be synchronized with Metal rendering using CATransaction mechanism.
+     */
+    fun retrieveCATransactionCommands(): List<() -> Unit>
 }
 
 internal class MetalRedrawer(
     private val metalLayer: CAMetalLayer,
-    private val drawCallback: (Surface) -> Unit,
-    private val retrieveCATransactionCommands: () -> List<() -> Unit>,
-
-    // Used for tests, access to NSRunLoop crashes in test environment
-    addDisplayLinkToRunLoop: ((CADisplayLink) -> Unit)? = null,
-    private val disposeCallback: (MetalRedrawer) -> Unit = { }
+    private val callbacks: MetalRedrawerCallbacks,
 ) {
     // Workaround for KN compiler bug
     // Type mismatch: inferred type is objcnames.protocols.MTLDeviceProtocol but platform.Metal.MTLDeviceProtocol was expected
     @Suppress("USELESS_CAST")
     private val device = metalLayer.device as platform.Metal.MTLDeviceProtocol?
         ?: throw IllegalStateException("CAMetalLayer.device can not be null")
-    private val queue = device.newCommandQueue() ?: throw IllegalStateException("Couldn't create Metal command queue")
+    private val queue = device.newCommandQueue()
+        ?: throw IllegalStateException("Couldn't create Metal command queue")
     private val context = DirectContext.makeMetal(device.objcPtr(), queue.objcPtr())
     private val inflightCommandBuffers = mutableListOf<MTLCommandBufferProtocol>()
+    private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
 
     // Semaphore for preventing command buffers count more than swapchain size to be scheduled/executed at the same time
-    private val inflightSemaphore = dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
+    private val inflightSemaphore =
+        dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
 
     var isForcedToPresentWithTransactionEveryFrame = false
 
@@ -159,6 +169,9 @@ internal class MetalRedrawer(
             displayLinkConditions.needsToBeProactive = value
         }
 
+    /**
+     * null after [dispose] call
+     */
     private var caDisplayLink: CADisplayLink? = CADisplayLink.displayLinkWithTarget(
         target = DisplayLinkProxy {
             this.handleDisplayLinkTick()
@@ -184,24 +197,20 @@ internal class MetalRedrawer(
     }
 
     init {
-        val caDisplayLink = caDisplayLink ?: throw IllegalStateException("caDisplayLink is null during redrawer init")
+        val caDisplayLink = caDisplayLink
+            ?: throw IllegalStateException("caDisplayLink is null during redrawer init")
 
         // UIApplication can be in UIApplicationStateInactive state (during app launch before it gives control back to run loop)
         // and won't receive UIApplicationWillEnterForegroundNotification
         // so we compare the state with UIApplicationStateBackground instead of UIApplicationStateActive
-        displayLinkConditions.isApplicationActive = UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
+        displayLinkConditions.isApplicationActive =
+            UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
 
-        if (addDisplayLinkToRunLoop == null) {
-            caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
-        } else {
-            addDisplayLinkToRunLoop.invoke(caDisplayLink)
-        }
+        caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
     }
 
     fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
-
-        disposeCallback(this)
 
         applicationStateListener.dispose()
 
@@ -224,7 +233,9 @@ internal class MetalRedrawer(
         if (displayLinkConditions.needsRedrawOnNextVsync) {
             displayLinkConditions.needsRedrawOnNextVsync = false
 
-            draw(DrawReason.DISPLAY_LINK_CALLBACK)
+            val targetTimestamp = caDisplayLink?.targetTimestamp ?: return
+
+            draw(waitUntilCompletion = false, targetTimestamp)
         }
     }
 
@@ -232,17 +243,17 @@ internal class MetalRedrawer(
      * Immediately dispatch draw and block the thread until it's finished and presented on the screen.
      */
     fun drawSynchronously() {
-        draw(DrawReason.SYNCHRONOUS_DRAW_REQUEST)
-    }
-
-    private fun draw(reason: DrawReason) {
-        check(NSThread.isMainThread)
-
         if (caDisplayLink == null) {
-            // TODO: anomaly, log
-            // Logger.warn { "caDisplayLink callback called after it was invalidated " }
             return
         }
+
+        draw(waitUntilCompletion = true, CACurrentMediaTime())
+    }
+
+    private fun draw(waitUntilCompletion: Boolean, targetTimestamp: NSTimeInterval) {
+        check(NSThread.isMainThread)
+
+        lastRenderTimestamp = maxOf(targetTimestamp, lastRenderTimestamp)
 
         autoreleasepool {
             val (width, height) = metalLayer.drawableSize.useContents {
@@ -264,7 +275,8 @@ internal class MetalRedrawer(
                 return@autoreleasepool
             }
 
-            val renderTarget = BackendRenderTarget.makeMetal(width, height, metalDrawable.texture.objcPtr())
+            val renderTarget =
+                BackendRenderTarget.makeMetal(width, height, metalDrawable.texture.objcPtr())
 
             val surface = Surface.makeFromBackendRenderTarget(
                 context,
@@ -285,11 +297,12 @@ internal class MetalRedrawer(
             }
 
             surface.canvas.clear(Color.WHITE)
-            drawCallback(surface)
+            callbacks.draw(surface, lastRenderTimestamp)
             surface.flushAndSubmit()
 
-            val caTransactionCommands = retrieveCATransactionCommands()
-            val presentsWithTransaction = isForcedToPresentWithTransactionEveryFrame || caTransactionCommands.isNotEmpty()
+            val caTransactionCommands = callbacks.retrieveCATransactionCommands()
+            val presentsWithTransaction =
+                isForcedToPresentWithTransactionEveryFrame || caTransactionCommands.isNotEmpty()
 
             metalLayer.presentsWithTransaction = presentsWithTransaction
 
@@ -327,7 +340,7 @@ internal class MetalRedrawer(
 
             inflightCommandBuffers.add(commandBuffer)
 
-            if (reason == DrawReason.SYNCHRONOUS_DRAW_REQUEST) {
+            if (waitUntilCompletion) {
                 commandBuffer.waitUntilCompleted()
             }
         }

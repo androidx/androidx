@@ -51,7 +51,7 @@ internal interface SkikoUIViewDelegate {
 
     fun retrieveCATransactionCommands(): List<() -> Unit>
 
-    fun draw(surface: Surface)
+    fun draw(surface: Surface, targetTimestamp: NSTimeInterval)
 }
 
 @Suppress("CONFLICTING_OVERLOADS")
@@ -78,11 +78,13 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
     private var _currentTextMenuActions: TextActions? = null
     private val _redrawer: MetalRedrawer = MetalRedrawer(
         _metalLayer,
-        drawCallback = { surface: Surface ->
-            delegate?.draw(surface)
-        },
-        retrieveCATransactionCommands = {
-            delegate?.retrieveCATransactionCommands() ?: listOf()
+        callbacks = object : MetalRedrawerCallbacks {
+            override fun draw(surface: Surface, targetTimestamp: NSTimeInterval) {
+                delegate?.draw(surface, targetTimestamp)
+            }
+
+            override fun retrieveCATransactionCommands(): List<() -> Unit> =
+                delegate?.retrieveCATransactionCommands() ?: listOf()
         }
     )
 

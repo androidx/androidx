@@ -38,7 +38,9 @@ import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.*
+import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
@@ -47,7 +49,6 @@ import kotlinx.cinterop.useContents
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoPointerEvent
-import org.jetbrains.skiko.currentNanoTime
 import platform.CoreGraphics.CGAffineTransformIdentity
 import platform.CoreGraphics.CGAffineTransformInvert
 import platform.CoreGraphics.CGPoint
@@ -639,8 +640,16 @@ internal actual class ComposeWindow : UIViewController {
             override fun retrieveCATransactionCommands(): List<() -> Unit> =
                 interopContext.getActionsAndClear()
 
-            override fun draw(surface: Surface) {
-                scene.render(surface.canvas, currentNanoTime())
+            override fun draw(surface: Surface, targetTimestamp: NSTimeInterval) {
+                // The calculation is split in two instead of
+                // `(targetTimestamp * 1e9).toLong()`
+                // to avoid losing precision for fractional part
+                val integral = floor(targetTimestamp)
+                val fractional = targetTimestamp - integral
+                val secondsToNanos = 1_000_000_000L
+                val nanos = integral.roundToLong() * secondsToNanos + (fractional * 1e9).roundToLong()
+
+                scene.render(surface.canvas, nanos)
             }
         }
 
