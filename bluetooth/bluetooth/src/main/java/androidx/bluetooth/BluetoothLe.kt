@@ -42,6 +42,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.job
 
@@ -216,9 +217,20 @@ class BluetoothLe constructor(private val context: Context) {
     interface GattClientScope {
 
         /**
-         * Gets the services discovered from the remote device.
+         * A flow of GATT services discovered from the remote device.
+         *
+         * If the services of the remote device has changed, the new services will be
+         * discovered and emitted automatically.
          */
-        fun getServices(): List<GattService>
+        val servicesFlow: StateFlow<List<GattService>>
+
+        /**
+         * GATT services recently discovered from the remote device.
+         *
+         * Note that this can be changed, subscribe to [servicesFlow] to get notified
+         * of services changes.
+         */
+        val services: List<GattService> get() = servicesFlow.value
 
         /**
          * Gets the service of the remote device by UUID.

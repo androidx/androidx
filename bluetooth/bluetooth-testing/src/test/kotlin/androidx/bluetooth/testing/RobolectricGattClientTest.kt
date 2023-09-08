@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.os.Build
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattClient
@@ -37,6 +38,8 @@ import junit.framework.TestCase.fail
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -111,9 +114,9 @@ class RobolectricGattClientTest {
         acceptConnect()
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
+            Assert.assertEquals(sampleServices.size, services.size)
             sampleServices.forEachIndexed { index, service ->
-                Assert.assertEquals(service.uuid, getServices()[index].uuid)
+                Assert.assertEquals(service.uuid, services[index].uuid)
             }
             closed.complete(Unit)
         }
@@ -150,10 +153,10 @@ class RobolectricGattClientTest {
         }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
+            Assert.assertEquals(sampleServices.size, services.size)
             Assert.assertEquals(testValue,
                 readCharacteristic(
-                    getServices()[0].getCharacteristic(readCharUuid)!!
+                    services[0].getCharacteristic(readCharUuid)!!
                 ).getOrNull()?.toInt())
             closed.complete(Unit)
         }
@@ -172,10 +175,10 @@ class RobolectricGattClientTest {
             }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
+            Assert.assertEquals(sampleServices.size, services.size)
             assertTrue(
                 readCharacteristic(
-                    getServices()[0].getCharacteristic(noPropertyCharUuid)!!
+                    services[0].getCharacteristic(noPropertyCharUuid)!!
                 ).exceptionOrNull()
                 is IllegalArgumentException)
         }
@@ -217,8 +220,8 @@ class RobolectricGattClientTest {
         }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
-            val characteristic = getServices()[0].getCharacteristic(writeCharUuid)!!
+            Assert.assertEquals(sampleServices.size, services.size)
+            val characteristic = services[0].getCharacteristic(writeCharUuid)!!
 
             Assert.assertEquals(initialValue,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
@@ -243,10 +246,10 @@ class RobolectricGattClientTest {
             }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
+            Assert.assertEquals(sampleServices.size, services.size)
             assertTrue(
                 writeCharacteristic(
-                    getServices()[0].getCharacteristic(readCharUuid)!!,
+                    services[0].getCharacteristic(readCharUuid)!!,
                     48.toByteArray()
                 ).exceptionOrNull()
                 is IllegalArgumentException)
@@ -291,8 +294,8 @@ class RobolectricGattClientTest {
         }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
-            val characteristic = getServices()[0].getCharacteristic(notifyCharUuid)!!
+            Assert.assertEquals(sampleServices.size, services.size)
+            val characteristic = services[0].getCharacteristic(notifyCharUuid)!!
 
             Assert.assertEquals(initialValue,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
@@ -318,13 +321,48 @@ class RobolectricGattClientTest {
             }
 
         bluetoothLe.connectGatt(device) {
-            Assert.assertEquals(sampleServices.size, getServices().size)
+            Assert.assertEquals(sampleServices.size, services.size)
             subscribeToCharacteristic(
-                getServices()[0].getCharacteristic(readCharUuid)!!,
+                services[0].getCharacteristic(readCharUuid)!!,
             ).collect {
                 // Should not be notified
                 fail()
             }
+        }
+    }
+
+    @Test
+    fun servicesFlow_emittedWhenServicesChange() = runTest {
+        val device = createDevice("00:11:22:33:44:55")
+
+        val newServiceUuid = UUID.randomUUID()
+        val newService = FwkService(newServiceUuid, FwkService.SERVICE_TYPE_PRIMARY)
+        val newServices = sampleServices + newService
+
+        acceptConnect()
+
+        clientAdapter.onDiscoverServicesListener =
+            StubClientFrameworkAdapter.OnDiscoverServicesListener {
+                if (clientAdapter.gattServices.isEmpty()) {
+                    clientAdapter.gattServices = sampleServices
+                }
+                clientAdapter.callback?.onServicesDiscovered(
+                    clientAdapter.bluetoothGatt,
+                    BluetoothGatt.GATT_SUCCESS
+                )
+            }
+
+        bluetoothLe.connectGatt(device) {
+            launch {
+                clientAdapter.gattServices = newServices
+                if (Build.VERSION.SDK_INT >= 31) {
+                    clientAdapter.callback?.onServiceChanged(clientAdapter.bluetoothGatt!!)
+                }
+            }
+            val servicesEmitted = servicesFlow.take(2).toList()
+            Assert.assertEquals(sampleServices.size, servicesEmitted[0].size)
+            Assert.assertEquals(sampleServices.size + 1, servicesEmitted[1].size)
+            Assert.assertEquals(newServiceUuid, servicesEmitted[1][sampleServices.size].uuid)
         }
     }
 
