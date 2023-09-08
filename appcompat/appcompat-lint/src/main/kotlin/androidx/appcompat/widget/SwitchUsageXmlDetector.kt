@@ -31,7 +31,7 @@ class SwitchUsageXmlDetector : LayoutDetector() {
         internal val USING_CORE_SWITCH_XML: Issue = Issue.create(
             "UseSwitchCompatOrMaterialXml",
             "Replace usage of `Switch` widget",
-            "Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library",
+            "Use `SwitchCompat` from AppCompat or `MaterialSwitch` from Material library",
             Category.CORRECTNESS,
             5,
             Severity.WARNING,
@@ -46,7 +46,7 @@ class SwitchUsageXmlDetector : LayoutDetector() {
             USING_CORE_SWITCH_XML,
             element,
             context.getLocation(element),
-            "Use `SwitchCompat` from AppCompat or `SwitchMaterial` from Material library"
+            "Use `SwitchCompat` from AppCompat or `MaterialSwitch` from Material library"
         )
     }
 }
