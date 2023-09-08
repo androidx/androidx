@@ -114,14 +114,14 @@ fun ModalNavigationDrawer(
             content = drawerContent
         )
 
+        Box(Modifier.padding(start = closedDrawerWidth.value ?: ClosedDrawerWidth.dp)) {
+            content()
+        }
         if (drawerState.currentValue == DrawerValue.Open) {
             // Scrim
             Canvas(Modifier.fillMaxSize()) {
                 drawRect(scrimBrush)
             }
-        }
-        Box(Modifier.padding(start = closedDrawerWidth.value ?: ClosedDrawerWidth.dp)) {
-            content()
         }
     }
 }

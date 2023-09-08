@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -75,7 +76,13 @@ fun ModalNavigationDrawer() {
         Row(Modifier.fillMaxSize()) {
             Box(modifier = Modifier.height(400.dp)) {
                 androidx.tv.material3.ModalNavigationDrawer(
-                    drawerContent = { Sidebar(direction = direction) }
+                    drawerContent = { Sidebar(direction = direction) },
+                    scrimBrush = Brush.verticalGradient(
+                        listOf(
+                            Color.DarkGray,
+                            Color.LightGray
+                        )
+                    )
                 ) {
                     CommonBackground()
                 }
