@@ -36,7 +36,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 400.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -47,7 +47,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -58,7 +58,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 1000.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -69,7 +69,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 400.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -80,7 +80,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 800.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -91,7 +91,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(800.dp, 1000.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -102,7 +102,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 400.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -113,7 +113,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 800.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
@@ -124,7 +124,7 @@ class NavigationSuiteScaffoldTest {
                 windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 1000.dp))
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
@@ -136,7 +136,7 @@ class NavigationSuiteScaffoldTest {
                 isTableTop = true
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
@@ -148,7 +148,7 @@ class NavigationSuiteScaffoldTest {
                 isTableTop = true
             )
 
-        assertThat(NavigationSuiteDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
+        assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
             .isEqualTo(NavigationSuiteType.NavigationBar)
     }
 
