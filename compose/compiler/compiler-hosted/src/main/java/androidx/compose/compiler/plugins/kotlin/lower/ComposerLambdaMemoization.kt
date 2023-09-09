@@ -1022,7 +1022,7 @@ class ComposerLambdaMemoization(
         return this
     }
 
-    private fun IrExpression?.isNullOrStable() = this == null || stabilityOf(this).knownStable()
+    private fun IrExpression?.isNullOrStable() = this == null || !stabilityOf(this).knownUnstable()
 }
 
 // This must match the highest value of FunctionXX which is current Function22
