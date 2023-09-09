@@ -50,14 +50,12 @@ androidXMultiplatform {
             dependsOn(jvmMain)
         }
 
-        androidUnitTest {
+        commonTest {
             dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation((libs.kotlinCoroutinesAndroid))
-                implementation(project(":internal-testutils-paging"))
                 implementation(libs.kotlinTest)
-                implementation(libs.truth)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":internal-testutils-paging"))
+                implementation(project(":kruth:kruth"))
             }
         }
 
