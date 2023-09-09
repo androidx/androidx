@@ -16,7 +16,7 @@
         errorLine1="                Thread.sleep(sleepTime)"
         errorLine2="                       ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
     </issue>
 
     <issue

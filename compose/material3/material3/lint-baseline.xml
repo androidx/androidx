@@ -7,7 +7,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -133,7 +133,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -142,7 +142,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -151,7 +151,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -160,7 +160,7 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
     </issue>
 
     <issue
@@ -169,7 +169,7 @@
         errorLine1="            Thread.sleep(300)"
         errorLine2="                   ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
     </issue>
 
     <issue
