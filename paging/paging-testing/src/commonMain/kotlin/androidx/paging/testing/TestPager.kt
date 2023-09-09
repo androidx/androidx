@@ -28,7 +28,8 @@ import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.PagingState
-import java.util.concurrent.atomic.AtomicBoolean
+import androidx.paging.testing.internal.AtomicBoolean
+import kotlin.jvm.JvmSuppressWildcards
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
