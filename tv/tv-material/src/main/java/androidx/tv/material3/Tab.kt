@@ -82,7 +82,7 @@ fun TabRowScope.Tab(
                 this.role = Role.Tab
             },
         colors = colors.toToggleableSurfaceColors(
-            isActivated = isActivated,
+            doesTabRowHaveFocus = hasFocus,
             enabled = enabled,
         ),
         enabled = enabled,
@@ -227,16 +227,16 @@ object TabDefaults {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun TabColors.toToggleableSurfaceColors(
-    isActivated: Boolean,
+    doesTabRowHaveFocus: Boolean,
     enabled: Boolean,
 ) =
     ToggleableSurfaceDefaults.colors(
-        contentColor = if (isActivated) contentColor else inactiveContentColor,
+        contentColor = if (doesTabRowHaveFocus) contentColor else inactiveContentColor,
         selectedContentColor = if (enabled) selectedContentColor else disabledSelectedContentColor,
         focusedContentColor = focusedContentColor,
         focusedSelectedContentColor = focusedSelectedContentColor,
         disabledContentColor =
-        if (isActivated) disabledContentColor else disabledInactiveContentColor,
+        if (doesTabRowHaveFocus) disabledContentColor else disabledInactiveContentColor,
         containerColor = Color.Transparent,
         focusedContainerColor = Color.Transparent,
         pressedContainerColor = Color.Transparent,

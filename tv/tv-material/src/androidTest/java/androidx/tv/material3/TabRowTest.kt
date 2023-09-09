@@ -169,11 +169,11 @@ class TabRowTest {
                     buildTabPanel = @Composable { index, _ ->
                         BasicText(text = "Panel ${index + 1}")
                     },
-                    indicator = @Composable { tabPositions, isActivated ->
+                    indicator = @Composable { tabPositions, doesTabRowHaveFocus ->
                         // FocusedTab's indicator
                         TabRowDefaults.PillIndicator(
                             currentTabPosition = tabPositions[focusedTabIndex],
-                            isActivated = isActivated,
+                            doesTabRowHaveFocus = doesTabRowHaveFocus,
                             activeColor = Color.Blue.copy(alpha = 0.4f),
                             inactiveColor = Color.Transparent,
                         )
@@ -181,7 +181,7 @@ class TabRowTest {
                         // SelectedTab's indicator
                         TabRowDefaults.PillIndicator(
                             currentTabPosition = tabPositions[activeTabIndex],
-                            isActivated = isActivated,
+                            doesTabRowHaveFocus = doesTabRowHaveFocus,
                         )
                     }
                 )
