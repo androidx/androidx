@@ -22,7 +22,7 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
-\$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/runtime/runtime\-saveable/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
@@ -658,7 +658,7 @@ WARN: Unable to find what is referred to by "@param supportedTypes" in DClass Bu
 WARN: Unable to find what is referred to by "@param supportedTypes" in DClass Builder\. Did you make a typo\? Are you trying to refer to something not visible to users\? in declaration of Builder in file .*\/androidx\/wear\/watchface\/ComplicationSlot\.kt at line 686\.
 WARN: Use @androidx\.annotation\.Nullable, not @org\.checkerframework\.checker\.nullness\.qual\/Nullable\/\/\/PointingToDeclaration\/
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/ui/ui\-tooling/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
 For more on this\, please refer to https\:\/\/docs\.gradle\.org\/.*\/userguide\/command_line_interface\.html\#sec\:command_line_warnings in the Gradle documentation\.
@@ -716,18 +716,18 @@ xcframework successfully .*
 # > Task :core:core:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/core/core/src/androidTest/java/androidx/core/util/TypedValueCompatTest\.kt:[0-9]+:[0-9]+ 'scaledDensity: Float' is deprecated\. Deprecated in Java
 # > Task :compose:foundation:foundation:processDebugAndroidTestManifest
-\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :graphics:graphics-core:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlCompatTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
 w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlWrapperTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
 # > Task :compose:foundation:foundation:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/AbstractSelectionMagnifierTests\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/AbstractSelectionMagnifierTests\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
 # > Task :compose:ui:ui:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/ui/ui/src/androidInstrumentedTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
 # > Configure project :internal-testutils-appcompat
