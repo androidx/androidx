@@ -7,7 +7,7 @@
         errorLine1="                    sleep(1)"
         errorLine2="                    ~~~~~">
         <location
-            file="src/androidAndroidTest/kotlin/androidx/compose/runtime/AndroidSnapshotTests.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/runtime/AndroidSnapshotTests.kt"/>
     </issue>
 
 </issues>
