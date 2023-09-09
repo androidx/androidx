@@ -20,6 +20,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -881,7 +882,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
               }
               static val %stable: Int = 0
             }
-            @StabilityInferred(parameters = 0)
             class UnstableDelegate {
               var value: Int = 0
               fun setValue(thisObj: Any?, property: KProperty<*>, value: Int) {
@@ -890,12 +890,9 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
               fun getValue(thisObj: Any?, property: KProperty<*>): Int {
                 return 10
               }
-              static val %stable: Int = 8
             }
-            @StabilityInferred(parameters = 0)
             class Unstable {
               var value: Int = 0
-              static val %stable: Int = 8
             }
             @StabilityInferred(parameters = 0)
             class EmptyClass {
@@ -919,10 +916,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
               val p3: Int = p2.hashCode()
               static val %stable: Int = 0
             }
-            @StabilityInferred(parameters = 0)
-            class X<T> (val p1: List<T>) {
-              static val %stable: Int = 8
-            }
+            class X<T> (val p1: List<T>)
             @StabilityInferred(parameters = 0)
             class NonBackingFieldUnstableProp {
               val p1: Unstable
@@ -952,7 +946,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 }
               static val %stable: Int = 0
             }
-            @StabilityInferred(parameters = 0)
             class UnstableDelegateProp {
               var p1: UnstableDelegate = UnstableDelegate()
                 get() {
@@ -961,7 +954,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 set(value) {
                   <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
                 }
-              static val %stable: Int = 8
             }
         """
     )
@@ -1067,19 +1059,19 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 A(SingleStableValInt(123), %composer, SingleStableValInt.%stable, 0)
                 A(SingleStableVal(StableClass()), %composer, SingleStableVal.%stable, 0)
                 A(SingleParamProp(StableClass()), %composer, SingleParamProp.%stable or StableClass.%stable, 0)
-                A(SingleParamProp(UnstableClass()), %composer, SingleParamProp.%stable or UnstableClass.%stable, 0)
+                A(SingleParamProp(UnstableClass()), %composer, 0b1000, 0)
                 A(SingleParamNonProp(StableClass()), %composer, SingleParamNonProp.%stable, 0)
                 A(SingleParamNonProp(UnstableClass()), %composer, SingleParamNonProp.%stable, 0)
                 A(DoubleParamSingleProp(StableClass(), StableClass()), %composer, DoubleParamSingleProp.%stable or StableClass.%stable, 0)
-                A(DoubleParamSingleProp(UnstableClass(), StableClass()), %composer, DoubleParamSingleProp.%stable or UnstableClass.%stable, 0)
+                A(DoubleParamSingleProp(UnstableClass(), StableClass()), %composer, 0b1000, 0)
                 A(DoubleParamSingleProp(StableClass(), UnstableClass()), %composer, DoubleParamSingleProp.%stable or StableClass.%stable, 0)
-                A(DoubleParamSingleProp(UnstableClass(), UnstableClass()), %composer, DoubleParamSingleProp.%stable or UnstableClass.%stable, 0)
-                A(X(listOf(StableClass())), %composer, X.%stable, 0)
-                A(X(listOf(StableClass())), %composer, X.%stable, 0)
+                A(DoubleParamSingleProp(UnstableClass(), UnstableClass()), %composer, 0b1000, 0)
+                A(X(listOf(StableClass())), %composer, 0b1000, 0)
+                A(X(listOf(StableClass())), %composer, 0b1000, 0)
                 A(NonBackingFieldUnstableVal(), %composer, NonBackingFieldUnstableVal.%stable, 0)
                 A(NonBackingFieldUnstableVar(), %composer, NonBackingFieldUnstableVar.%stable, 0)
                 A(StableDelegateProp(), %composer, StableDelegateProp.%stable, 0)
-                A(UnstableDelegateProp(), %composer, UnstableDelegateProp.%stable, 0)
+                A(UnstableDelegateProp(), %composer, 0b1000, 0)
                 if (isTraceInProgress()) {
                   traceEventEnd()
                 }
@@ -1158,10 +1150,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             }
         """,
         """
-            @StabilityInferred(parameters = 0)
-            class X<T> (val p1: List<T>) {
-              static val %stable: Int = 8
-            }
+            class X<T> (val p1: List<T>)
             @StabilityInferred(parameters = 0)
             class StableDelegateProp {
               var p1: StableDelegate = StableDelegate()
@@ -1173,7 +1162,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 }
               static val %stable: Int = 0
             }
-            @StabilityInferred(parameters = 0)
             class UnstableDelegateProp {
               var p1: UnstableDelegate = UnstableDelegate()
                 get() {
@@ -1182,7 +1170,6 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 set(value) {
                   <this>.p1%delegate.setValue(<this>, ::p1, <set-?>)
                 }
-              static val %stable: Int = UnstableDelegate.%stable
             }
             @Composable
             fun A(y: Any, %composer: Composer?, %changed: Int) {
@@ -1194,7 +1181,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
               used(y)
               A(X(listOf(StableClass())), %composer, 0b1000)
               A(StableDelegateProp(), %composer, 0)
-              A(UnstableDelegateProp(), %composer, UnstableDelegate.%stable)
+              A(UnstableDelegateProp(), %composer, 0b1000)
               if (isTraceInProgress()) {
                 traceEventEnd()
               }
@@ -1364,10 +1351,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             class Stable(val bar: Int) {
               static val %stable: Int = 0
             }
-            @StabilityInferred(parameters = 0)
-            class Unstable(var bar: Int) {
-              static val %stable: Int = 8
-            }
+            class Unstable(var bar: Int)
         """
     )
 
@@ -1439,10 +1423,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             }
         """,
         """
-            @StabilityInferred(parameters = 0)
-            class Foo(var bar: Int = 0) {
-              static val %stable: Int = 8
-            }
+            class Foo(var bar: Int = 0)
             @Composable
             fun A(y: Int, x: Foo, %composer: Composer?, %changed: Int) {
               %composer = %composer.startRestartGroup(<>)
@@ -1477,10 +1458,32 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         """
     )
 
+    @Test
+    fun testUnstableClassWasUnstableForIncrementalCompilation() {
+
+        assertStability(
+            classDefSrc = """
+                class UnstableFoo(var bar: Int)
+            """,
+            stability = "Unstable"
+        )
+
+        assertStability(
+            classDefSrc = """
+                class UnstableFoo(var bar: Int)
+            """,
+            transform = {
+                it.origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+            },
+            stability = "Unstable"
+        )
+    }
+
     private fun assertStability(
         @Language("kotlin")
         classDefSrc: String,
-        stability: String
+        stability: String,
+        transform: (IrClass) -> Unit = {}
     ) {
         val source = """
             import androidx.compose.runtime.mutableStateOf
@@ -1498,7 +1501,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
 
         val files = listOf(SourceFile("Test.kt", source))
         val irModule = compileToIr(files)
-        val irClass = irModule.files.last().declarations.first() as IrClass
+        val irClass = (irModule.files.last().declarations.first() as IrClass).apply(transform)
         val classStability = stabilityOf(irClass.defaultType as IrType)
 
         assertEquals(

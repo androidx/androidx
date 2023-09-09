@@ -21,6 +21,7 @@ import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
 import androidx.compose.compiler.plugins.kotlin.analysis.forEach
 import androidx.compose.compiler.plugins.kotlin.analysis.hasStableMarker
+import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
 import androidx.compose.compiler.plugins.kotlin.analysis.normalize
 import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import org.jetbrains.kotlin.backend.common.ClassLoweringPass
@@ -110,6 +111,9 @@ class ClassStabilityTransformer(
         }
 
         val stability = stabilityOf(declaration.defaultType).normalize()
+
+        // If it is really unstable we do not need to add @StabilityInferred
+        if (stability.knownUnstable()) return cls
 
         // remove type parameters
 
