@@ -902,7 +902,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         sourceSets
             .findByName("androidTest")!!
             .manifest
-            .srcFile("src/androidAndroidTest/AndroidManifest.xml")
+            .srcFile("src/androidInstrumentedTest/AndroidManifest.xml")
     }
 
     /** Sets the konan distribution url to the prebuilts directory. */
@@ -1260,9 +1260,9 @@ internal fun Project.hasAndroidTestSourceCode(): Boolean {
         ?.findByName("androidTest")
         ?.let { if (it.kotlin.files.isNotEmpty()) return true }
 
-    // check kotlin-multiplatform androidAndroidTest source set
+    // check kotlin-multiplatform androidInstrumentedTest source set
     multiplatformExtension?.apply {
-        sourceSets.findByName("androidAndroidTest")?.let {
+        sourceSets.findByName("androidInstrumentedTest")?.let {
             if (it.kotlin.files.isNotEmpty()) return true
         }
     }

@@ -86,12 +86,21 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependsOn(androidMain)
             dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation(project(":window:window-testing"))
+                implementation(libs.junit)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)

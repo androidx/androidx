@@ -178,6 +178,8 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     if (name.startsWith("androidTest")) return false
     if (name.startsWith("androidAndroidTest")) return false
     if (name.startsWith("androidCommonTest")) return false
+    if (name.startsWith("androidInstrumentedTest")) return false
+    if (name.startsWith("androidUnitTest")) return false
     if (name.startsWith("debug")) return false
     if (name.startsWith("androidDebug")) return false
     if (name.startsWith("release")) return false

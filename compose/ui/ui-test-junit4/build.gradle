@@ -92,7 +92,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:animation:animation"))
@@ -112,7 +112,7 @@ androidXMultiplatform {
         //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
         //  level dependencies block instead:
         //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:animation:animation-core"))
@@ -147,7 +147,7 @@ android {
 }
 
 dependencies {
-    // Can't declare this in kotlin { sourceSets { androidTest.dependencies { .. } } } as that
+    // Can't declare this in kotlin { sourceSets { androidUnitTest.dependencies { .. } } } as that
     // leaks into instrumented tests (b/214407011)
     testImplementation(libs.robolectric)
 }

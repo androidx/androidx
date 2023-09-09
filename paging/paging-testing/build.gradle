@@ -39,7 +39,7 @@ androidXMultiplatform {
                 implementation(project(":paging:paging-common"))
             }
         }
-        androidTest {
+        androidUnitTest {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)

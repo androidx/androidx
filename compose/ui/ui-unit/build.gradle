@@ -51,6 +51,7 @@ androidXMultiplatform {
         }
 
         jvmMain {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
             }
@@ -79,13 +80,14 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.testExtJunit)
                 implementation(libs.espressoCore)
+                implementation(libs.truth)
                 implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
@@ -94,7 +96,7 @@ androidXMultiplatform {
         //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
         //  level dependencies block instead:
         //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
