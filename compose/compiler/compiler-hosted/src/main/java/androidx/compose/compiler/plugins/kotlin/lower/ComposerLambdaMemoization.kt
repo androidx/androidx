@@ -19,7 +19,7 @@ package androidx.compose.compiler.plugins.kotlin.lower
 import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
-import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
+import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
 import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -854,7 +854,7 @@ class ComposerLambdaMemoization(
         // or inlined lambdas.
         if (
             captures.any {
-                it.isVar() || !it.isStable() || it.isInlinedLambda()
+                it.isVar() || it.isUnstable() || it.isInlinedLambda()
             }
         ) {
             metrics.recordLambda(
@@ -946,8 +946,8 @@ class ComposerLambdaMemoization(
     private fun IrValueDeclaration.isVar(): Boolean =
         (this as? IrVariable)?.isVar == true
 
-    private fun IrValueDeclaration.isStable(): Boolean =
-        stabilityOf(type).knownStable()
+    private fun IrValueDeclaration.isUnstable(): Boolean =
+        stabilityOf(type).knownUnstable()
 
     private fun IrValueDeclaration.isInlinedLambda(): Boolean =
         type.isFunctionOrKFunction() &&

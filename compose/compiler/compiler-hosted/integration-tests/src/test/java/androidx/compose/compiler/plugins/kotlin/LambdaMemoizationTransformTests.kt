@@ -1211,7 +1211,6 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
             """
         )
 
-
     @Test
     fun testFunctionReferenceNonComposableWithUnstableDispatchReceiverMemoization() =
         verifyComposeIrTransform(
@@ -1417,6 +1416,120 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
             }
         """
         )
+
+    @Test
+    fun testLambdaCapturedUnstableClassMemoization() = verifyComposeIrTransform(
+        extra = """
+        class Unstable {
+            var value: Int = 0
+        }
+    """,
+        source = """
+        import androidx.compose.runtime.Composable
+        import androidx.compose.runtime.NonRestartableComposable
+        import androidx.compose.runtime.remember
+
+        @NonRestartableComposable            
+        @Composable 
+        fun Example(clazz: Unstable) {
+            val x = { println(clazz) }
+        }
+    """,
+        expectedTransformed = """
+        @NonRestartableComposable
+        @Composable
+        fun Example(clazz: Unstable, %composer: Composer?, %changed: Int) {
+          %composer.startReplaceableGroup(<>)
+          sourceInformation(%composer, "C(Example):Test.kt")
+          if (isTraceInProgress()) {
+            traceEventStart(<>, %changed, -1, <>)
+          }
+          val x = {
+            println(clazz)
+          }
+          if (isTraceInProgress()) {
+            traceEventEnd()
+          }
+          %composer.endReplaceableGroup()
+        }
+    """
+    )
+
+    @Test
+    fun testLambdaCapturedStableClassMemoization() = verifyComposeIrTransform(
+        extra = """
+        class Stable
+    """,
+        source = """
+        import androidx.compose.runtime.Composable
+        import androidx.compose.runtime.NonRestartableComposable
+        import androidx.compose.runtime.remember
+
+        @NonRestartableComposable            
+        @Composable 
+        fun Example(clazz: Stable) {
+            val x = { println(clazz) }
+        }
+    """,
+        expectedTransformed = """
+        @NonRestartableComposable
+        @Composable
+        fun Example(clazz: Stable, %composer: Composer?, %changed: Int) {
+          %composer.startReplaceableGroup(<>)
+          sourceInformation(%composer, "C(Example)<{>:Test.kt")
+          if (isTraceInProgress()) {
+            traceEventStart(<>, %changed, -1, <>)
+          }
+          val x = remember(clazz, {
+            {
+              println(clazz)
+            }
+          }, %composer, 0b1110 and %changed)
+          if (isTraceInProgress()) {
+            traceEventEnd()
+          }
+          %composer.endReplaceableGroup()
+        }
+    """
+    )
+
+    @Test
+    fun testLambdaCapturedRuntimeStableClassMemoization() = verifyComposeIrTransform(
+        extra = """
+        class RuntimeStable<T>(val value: T)
+    """,
+        source = """
+        import androidx.compose.runtime.Composable
+        import androidx.compose.runtime.NonRestartableComposable
+        import androidx.compose.runtime.remember
+
+        @NonRestartableComposable            
+        @Composable 
+        fun <T> Example(clazz: RuntimeStable<T>) {
+            val x = { println(clazz) }
+        }
+    """,
+        expectedTransformed = """
+        @NonRestartableComposable
+        @Composable
+        fun <T> Example(clazz: RuntimeStable<T>, %composer: Composer?, %changed: Int) {
+          %composer.startReplaceableGroup(<>)
+          sourceInformation(%composer, "C(Example)<{>:Test.kt")
+          if (isTraceInProgress()) {
+            traceEventStart(<>, %changed, -1, <>)
+          }
+          val x = remember(clazz, {
+            {
+              println(clazz)
+            }
+          }, %composer, 0b1110 and %changed)
+          if (isTraceInProgress()) {
+            traceEventEnd()
+          }
+          %composer.endReplaceableGroup()
+        }
+    """
+    )
 
     @Test // Regression validating b/246399235
     fun testB246399235() {
