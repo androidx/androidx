@@ -914,9 +914,9 @@ package androidx.tv.material3 {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabRowDefaults {
-    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean isActivated, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean doesTabRowHaveFocus, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
     method @androidx.compose.runtime.Composable public void TabSeparator();
-    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean isActivated, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, boolean doesTabRowHaveFocus, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
     method @androidx.compose.runtime.Composable public long contentColor();
     method public long getContainerColor();
     property public final long ContainerColor;
@@ -928,8 +928,8 @@ package androidx.tv.material3 {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface TabRowScope {
-    method public boolean isActivated();
-    property public abstract boolean isActivated;
+    method public boolean getHasFocus();
+    property public abstract boolean hasFocus;
   }
 
   public final class TextKt {
