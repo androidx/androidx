@@ -505,7 +505,7 @@ class ComposerLambdaMemoization(
                         captures
                     )
                 }
-            } else if (dispatchReceiver == null) {
+            } else if (dispatchReceiver == null && extensionReceiver.isNullOrStable()) {
                 return rememberExpression(functionContext, result, emptyList())
             }
         }

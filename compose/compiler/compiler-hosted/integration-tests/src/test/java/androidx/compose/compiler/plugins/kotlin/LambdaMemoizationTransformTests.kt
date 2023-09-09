@@ -1167,6 +1167,178 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
         )
     }
 
+    @Test
+    fun testFunctionReferenceNonComposableWithStableDispatchReceiverMemoization() =
+        verifyComposeIrTransform(
+            extra = """
+                class Stable {
+                    fun foo() {}
+                }
+            """,
+            source = """
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.NonRestartableComposable
+                import androidx.compose.runtime.remember
+    
+                @NonRestartableComposable            
+                @Composable 
+                fun Example() {
+                    val x = remember { Stable() }
+                    val shouldMemoize = x::foo
+                }
+            """,
+            expectedTransformed = """
+                @NonRestartableComposable
+                @Composable
+                fun Example(%composer: Composer?, %changed: Int) {
+                  %composer.startReplaceableGroup(<>)
+                  ${if (useFir) "sourceInformation(%composer, \"C(Example)<rememb...>,<foo>:Test.kt\")" else "sourceInformation(%composer, \"C(Example)<rememb...>,<x::foo>:Test.kt\")"}
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
+                  val x = remember({
+                    Stable()
+                  }, %composer, 0)
+                  val shouldMemoize = val tmp0 = x
+                  remember(tmp0, {
+                    tmp0::foo
+                  }, %composer, 0b0110)
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
+                  %composer.endReplaceableGroup()
+                }
+            """
+        )
+
+
+    @Test
+    fun testFunctionReferenceNonComposableWithUnstableDispatchReceiverMemoization() =
+        verifyComposeIrTransform(
+            extra = """
+                class Unstable {
+                    var value: Int = 0
+                    fun foo() {}
+                }
+            """,
+            source = """
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.NonRestartableComposable
+                import androidx.compose.runtime.remember
+    
+                @NonRestartableComposable            
+                @Composable 
+                fun Example() {
+                    val x = remember { Unstable() }
+                    val shouldNotMemoize = x::foo
+                }
+            """,
+            expectedTransformed = """
+                @NonRestartableComposable
+                @Composable
+                fun Example(%composer: Composer?, %changed: Int) {
+                  %composer.startReplaceableGroup(<>)
+                  sourceInformation(%composer, "C(Example)<rememb...>:Test.kt")
+                  if (isTraceInProgress()) {
+                    traceEventStart(<>, %changed, -1, <>)
+                  }
+                  val x = remember({
+                    Unstable()
+                  }, %composer, 0)
+                  val shouldNotMemoize = x::foo
+                  if (isTraceInProgress()) {
+                    traceEventEnd()
+                  }
+                  %composer.endReplaceableGroup()
+                }
+            """
+        )
+
+    @Test
+    fun testFunctionReferenceNonComposableWithStableExtensionReceiverMemoization() =
+        verifyComposeIrTransform(
+            extra = """
+            class Stable
+            fun Stable.foo() {}
+        """,
+            source = """
+            import androidx.compose.runtime.Composable
+            import androidx.compose.runtime.NonRestartableComposable
+            import androidx.compose.runtime.remember
+
+            @NonRestartableComposable            
+            @Composable 
+            fun Example() {
+                val x = remember { Stable() }
+                val shouldMemoize = x::foo
+            }
+        """,
+            expectedTransformed = """
+            @NonRestartableComposable
+            @Composable
+            fun Example(%composer: Composer?, %changed: Int) {
+              %composer.startReplaceableGroup(<>)
+              ${if (useFir) "sourceInformation(%composer, \"C(Example)<rememb...>,<foo>:Test.kt\")" else "sourceInformation(%composer, \"C(Example)<rememb...>,<x::foo>:Test.kt\")"}
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
+              val x = remember({
+                Stable()
+              }, %composer, 0)
+              val shouldMemoize = val tmp0 = x
+              remember(tmp0, {
+                tmp0::foo
+              }, %composer, 0b0110)
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
+              %composer.endReplaceableGroup()
+            }
+        """
+        )
+
+    @Test
+    fun testFunctionReferenceNonComposableWithUnstableExtensionReceiverMemoization() =
+        verifyComposeIrTransform(
+            extra = """
+            class Unstable {
+                var value: Int = 0
+            }
+            fun Unstable.foo() = {}
+        """,
+            source = """
+            import androidx.compose.runtime.Composable
+            import androidx.compose.runtime.NonRestartableComposable
+            import androidx.compose.runtime.remember
+
+            @NonRestartableComposable            
+            @Composable 
+            fun Example() {
+                val x = remember { Unstable() }
+                val shouldNotMemoize = x::foo
+            }
+        """,
+            expectedTransformed = """
+            @NonRestartableComposable
+            @Composable
+            fun Example(%composer: Composer?, %changed: Int) {
+              %composer.startReplaceableGroup(<>)
+              sourceInformation(%composer, "C(Example)<rememb...>:Test.kt")
+              if (isTraceInProgress()) {
+                traceEventStart(<>, %changed, -1, <>)
+              }
+              val x = remember({
+                Unstable()
+              }, %composer, 0)
+              val shouldNotMemoize = x::foo
+              if (isTraceInProgress()) {
+                traceEventEnd()
+              }
+              %composer.endReplaceableGroup()
+            }
+        """
+        )
+
     @Test // Regression validating b/246399235
     fun testB246399235() {
         testCompile(
