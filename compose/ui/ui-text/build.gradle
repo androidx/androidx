@@ -96,7 +96,7 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -117,7 +117,7 @@ androidXMultiplatform {
         //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
         //  level dependencies block instead:
         //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(project(":internal-testutils-fonts"))
@@ -150,7 +150,7 @@ androidXMultiplatform {
 }
 
 dependencies {
-    // Can't declare this in kotlin { sourceSets { androidTest.dependencies { .. } } } as that
+    // Can't declare this in kotlin { sourceSets { androidUnitTest.dependencies { .. } } } as that
     // leaks into instrumented tests (b/214407011)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)

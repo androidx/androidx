@@ -76,13 +76,13 @@ androidXMultiplatform {
             }
         }
 
-        androidAndroidTest {
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
             }
         }
 
-        androidTest {
+        androidUnitTest {
             dependsOn(jvmTest)
         }
 
