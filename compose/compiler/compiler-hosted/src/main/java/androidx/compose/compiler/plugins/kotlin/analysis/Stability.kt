@@ -20,6 +20,7 @@ import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
 import androidx.compose.compiler.plugins.kotlin.lower.isSyntheticComposableFunction
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
@@ -180,7 +181,7 @@ fun Stability.normalize(): Stability {
             }
 
             is Stability.Parameter -> {
-                if (parameters.contains(stability.parameter.symbol)) {
+                if (stability.parameter.symbol !in parameters) {
                     parameters.add(stability.parameter.symbol)
                     parts.add(stability)
                 }
@@ -306,7 +307,8 @@ private fun stabilityOf(
 private fun canInferStability(declaration: IrClass): Boolean {
     val fqName = declaration.fqNameWhenAvailable?.toString() ?: ""
     return KnownStableConstructs.stableTypes.contains(fqName) ||
-        declaration.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+        (declaration.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB &&
+            declaration.visibility == DescriptorVisibilities.PUBLIC)
 }
 
 private fun stabilityOf(
