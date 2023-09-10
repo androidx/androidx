@@ -227,15 +227,15 @@ class PreviewProcessorTest {
 
     private class FakePreviewImageProcessorImpl : PreviewImageProcessorImpl {
         private var imageWriter: ImageWriter? = null
-        override fun process(image: Image?, result: TotalCaptureResult?) {
+        override fun process(image: Image, result: TotalCaptureResult) {
             val emptyImage = imageWriter!!.dequeueInputImage()
             imageWriter!!.queueInputImage(emptyImage)
         }
 
         override fun process(
-            image: Image?,
-            result: TotalCaptureResult?,
-            resultCallback: ProcessResultImpl?,
+            image: Image,
+            result: TotalCaptureResult,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             val blankImage = imageWriter!!.dequeueInputImage()

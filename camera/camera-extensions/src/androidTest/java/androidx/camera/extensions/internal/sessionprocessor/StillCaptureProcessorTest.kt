@@ -416,7 +416,7 @@ class StillCaptureProcessorTest {
             throwExceptionDuringProcess = true
         }
         override fun process(
-            results: MutableMap<Int, android.util.Pair<Image, TotalCaptureResult>>?
+            results: MutableMap<Int, android.util.Pair<Image, TotalCaptureResult>>
         ) {
             if (throwExceptionDuringProcess) {
                 throw RuntimeException("Process failed")
@@ -426,8 +426,8 @@ class StillCaptureProcessorTest {
         }
 
         override fun process(
-            results: MutableMap<Int, android.util.Pair<Image, TotalCaptureResult>>?,
-            resultCallback: ProcessResultImpl?,
+            results: MutableMap<Int, android.util.Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
             executor: Executor?
         ) {
             process(results)
@@ -441,6 +441,20 @@ class StillCaptureProcessorTest {
         }
 
         override fun onImageFormatUpdate(imageFormat: Int) {
+        }
+
+        override fun onPostviewOutputSurface(surface: Surface) {
+        }
+
+        override fun onResolutionUpdate(size: Size, postviewSize: Size) {
+        }
+
+        override fun processWithPostview(
+            results: MutableMap<Int, android.util.Pair<Image, TotalCaptureResult>>,
+            resultCallback: ProcessResultImpl,
+            executor: Executor?
+        ) {
+            process(results, resultCallback, executor)
         }
 
         fun close() {
