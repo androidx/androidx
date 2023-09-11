@@ -126,13 +126,20 @@ package androidx.bluetooth {
     property public final androidx.bluetooth.GattCharacteristic characteristic;
   }
 
-  public static final class GattServerRequest.WriteCharacteristic extends androidx.bluetooth.GattServerRequest {
-    method public androidx.bluetooth.GattCharacteristic getCharacteristic();
-    method public byte[]? getValue();
+  public static final class GattServerRequest.WriteCharacteristics extends androidx.bluetooth.GattServerRequest {
+    method public java.util.List<androidx.bluetooth.GattServerRequest.WriteCharacteristics.Part> getParts();
     method public void sendFailure();
-    method public void sendResponse(byte[]? value);
+    method public void sendResponse();
+    property public final java.util.List<androidx.bluetooth.GattServerRequest.WriteCharacteristics.Part> parts;
+  }
+
+  public static final class GattServerRequest.WriteCharacteristics.Part {
+    method public androidx.bluetooth.GattCharacteristic getCharacteristic();
+    method public int getOffset();
+    method public byte[] getValue();
     property public final androidx.bluetooth.GattCharacteristic characteristic;
-    property public final byte[]? value;
+    property public final int offset;
+    property public final byte[] value;
   }
 
   public final class GattService {
