@@ -25,7 +25,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
@@ -57,10 +56,7 @@ import java.util.concurrent.Executor;
 public class SurfaceProcessorImpl implements SurfaceProcessor,
         SurfaceTexture.OnFrameAvailableListener {
 
-    private static final String GL_THREAD_NAME = "OverlayGlThread";
-
     // GL thread and handler.
-    private final HandlerThread mGlThread;
     private final Handler mGlHandler;
     private final Executor mGlExecutor;
 
@@ -90,10 +86,8 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
 
     private boolean mIsReleased = false;
 
-    public SurfaceProcessorImpl(int queueDepth) {
-        mGlThread = new HandlerThread(GL_THREAD_NAME);
-        mGlThread.start();
-        mGlHandler = new Handler(mGlThread.getLooper());
+    public SurfaceProcessorImpl(int queueDepth, @NonNull Handler glHandler) {
+        mGlHandler = glHandler;
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mQueueDepth = queueDepth;
         runOnGlThread(mGlRenderer::init);
@@ -206,7 +200,6 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
                     mOutputSurfacePair = null;
                 }
                 mGlRenderer.release();
-                mGlThread.quitSafely();
                 mBuffer = null;
                 mOverlayBitmap = null;
                 mOverlayCanvas = null;
@@ -356,7 +349,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     }
 
     private boolean isGlThread() {
-        return Thread.currentThread() == mGlThread;
+        return Thread.currentThread() == mGlHandler.getLooper().getThread();
     }
 
     @VisibleForTesting
