@@ -229,6 +229,11 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
+    @Override
     public boolean isSeekingSupported(@NonNull Object transition) {
         boolean supported = ((Transition) transition).isSeekingSupported();
         if (!supported) {
