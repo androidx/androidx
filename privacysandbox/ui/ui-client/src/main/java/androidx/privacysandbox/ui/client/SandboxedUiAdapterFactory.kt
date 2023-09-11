@@ -150,8 +150,9 @@ object SandboxedUiAdapterFactory {
                         origClient.onResizeRequested(width, height)
                     }
                     "toString" -> origClient.toString()
+                    "equals" -> proxy === args?.get(0)
+                    "hashCode" -> hashCode()
                     else -> {
-                        // TODO(b/282918647): Implement other methods required
                         throw UnsupportedOperationException(
                             "Unexpected method call object:$proxy, method: $method, args: $args"
                         )
