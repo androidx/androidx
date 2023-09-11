@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
@@ -45,10 +46,12 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -57,6 +60,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +68,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class BasicSecureTextFieldTest {
+internal class BasicSecureTextFieldTest {
 
     // Keyboard shortcut tests for BasicSecureTextField are in TextFieldKeyEventTest
 
@@ -74,9 +78,18 @@ class BasicSecureTextFieldTest {
     }
 
     @get:Rule
+    val immRule = ComposeInputMethodManagerTestRule()
+
+    @get:Rule
     val inputMethodInterceptor = InputMethodInterceptorRule(rule)
 
     private val Tag = "BasicSecureTextField"
+    private val imm = FakeInputMethodManager()
+
+    @Before
+    fun setUp() {
+        immRule.setFactory { imm }
+    }
 
     @Test
     fun passwordSemanticsAreSet() {
@@ -662,6 +675,32 @@ class BasicSecureTextFieldTest {
             assertWithMessage(
                 "After setting composing region to 1, 4, TextFieldState's composition is:"
             ).that(text.composition).isEqualTo(TextRange(1, 4))
+        }
+    }
+
+    @Test
+    fun inputMethod_doesNotRestart_inResponseToKeyEvents() {
+        val state = TextFieldState("hello", initialSelectionInChars = TextRange(5))
+        rule.setContent {
+            BasicSecureTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            requestFocus()
+            imm.resetCalls()
+
+            performKeyInput { pressKey(Key.Backspace) }
+            performTextInputSelection(TextRange.Zero)
+            performKeyInput { pressKey(Key.Delete) }
+        }
+
+        rule.runOnIdle {
+            imm.expectCall("updateSelection(4, 4, -1, -1)")
+            imm.expectCall("updateSelection(0, 0, -1, -1)")
+            imm.expectNoMoreCalls()
         }
     }
 
