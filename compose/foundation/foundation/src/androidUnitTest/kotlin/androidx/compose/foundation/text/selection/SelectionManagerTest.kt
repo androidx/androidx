@@ -17,10 +17,8 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.text.AnnotatedString
@@ -31,8 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -49,9 +45,7 @@ class SelectionManagerTest {
     private val selectionManager = SelectionManager(selectionRegistrar)
     private var onSelectionChangeCalledTimes = 0
 
-    private val containerLayoutCoordinates = mock<LayoutCoordinates> {
-        on { isAttached } doReturn true
-    }
+    private val containerLayoutCoordinates = MockCoordinates()
 
     private val startSelectableId = 2L
     private val startSelectable = mock<Selectable> {
@@ -249,7 +243,7 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('e')
         val endOffset = text.indexOf('m')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -262,6 +256,8 @@ class SelectionManagerTest {
             ),
             handlesCrossed = false
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
 
         assertThat(selectionManager.isNonEmptySelection()).isTrue()
     }
@@ -272,7 +268,7 @@ class SelectionManagerTest {
         val annotatedString = AnnotatedString(text)
         val startOffset = text.indexOf('e')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -285,6 +281,8 @@ class SelectionManagerTest {
             ),
             handlesCrossed = false
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
 
         assertThat(selectionManager.isNonEmptySelection()).isFalse()
     }
@@ -316,6 +314,48 @@ class SelectionManagerTest {
                 selectableId = endSelectableId
             ),
             handlesCrossed = true
+        )
+
+        selectionRegistrar.subselections = mapOf(
+            endSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = endSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = endOffset,
+                    selectableId = endSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            middleSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = middleSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            startSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = startOffset,
+                    selectableId = startSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = startSelectableId
+                ),
+                handlesCrossed = true
+            ),
         )
 
         assertThat(selectionManager.isNonEmptySelection()).isTrue()
@@ -350,6 +390,48 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
 
+        selectionRegistrar.subselections = mapOf(
+            startSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = startSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = startSelectableId
+                ),
+                handlesCrossed = false
+            ),
+            middleSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                handlesCrossed = false
+            ),
+            endSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = endSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = endSelectableId
+                ),
+                handlesCrossed = false
+            ),
+        )
+
         assertThat(selectionManager.isNonEmptySelection()).isFalse()
     }
 
@@ -382,12 +464,55 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
+        selectionRegistrar.subselections = mapOf(
+            startSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = startSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = startSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            middleSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            endSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = endSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = endSelectableId
+                ),
+                handlesCrossed = true
+            ),
+        )
+
         assertThat(selectionManager.isNonEmptySelection()).isFalse()
     }
 
     @Test
     fun getSelectedText_selection_null_return_null() {
         selectionManager.selection = null
+        selectionRegistrar.subselections = emptyMap()
 
         assertThat(selectionManager.getSelectedText()).isNull()
         assertThat(selectable.getTextCalledTimes).isEqualTo(0)
@@ -400,7 +525,7 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('e')
         val endOffset = text.indexOf('m')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -413,6 +538,8 @@ class SelectionManagerTest {
             ),
             handlesCrossed = false
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
 
         assertThat(selectionManager.getSelectedText())
             .isEqualTo(annotatedString.subSequence(startOffset, endOffset))
@@ -426,7 +553,7 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('m')
         val endOffset = text.indexOf('x')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -439,6 +566,8 @@ class SelectionManagerTest {
             ),
             handlesCrossed = true
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
 
         assertThat(selectionManager.getSelectedText())
             .isEqualTo(annotatedString.subSequence(endOffset, startOffset))
@@ -472,6 +601,48 @@ class SelectionManagerTest {
                 selectableId = endSelectableId
             ),
             handlesCrossed = false
+        )
+
+        selectionRegistrar.subselections = mapOf(
+            startSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = startOffset,
+                    selectableId = startSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = startSelectableId
+                ),
+                handlesCrossed = false
+            ),
+            middleSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = middleSelectableId
+                ),
+                handlesCrossed = false
+            ),
+            endSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = endSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = endOffset,
+                    selectableId = endSelectableId
+                ),
+                handlesCrossed = false
+            ),
         )
 
         val result = annotatedString.subSequence(startOffset, annotatedString.length) +
@@ -513,6 +684,48 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
+        selectionRegistrar.subselections = mapOf(
+            endSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = endSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = endOffset,
+                    selectableId = endSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            middleSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = annotatedString.length,
+                    selectableId = middleSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = middleSelectableId
+                ),
+                handlesCrossed = true
+            ),
+            startSelectableId to Selection(
+                start = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = startOffset,
+                    selectableId = startSelectableId
+                ),
+                end = Selection.AnchorInfo(
+                    direction = ResolvedTextDirection.Ltr,
+                    offset = 0,
+                    selectableId = startSelectableId
+                ),
+                handlesCrossed = true
+            ),
+        )
+
         val result = annotatedString.subSequence(endOffset, annotatedString.length) +
             annotatedString + annotatedString.subSequence(0, startOffset)
         assertThat(selectionManager.getSelectedText()).isEqualTo(result)
@@ -526,6 +739,7 @@ class SelectionManagerTest {
     @Test
     fun copy_selection_null_not_trigger_clipboardManager() {
         selectionManager.selection = null
+        selectionRegistrar.subselections = emptyMap()
 
         selectionManager.copy()
 
@@ -539,7 +753,7 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('m')
         val endOffset = text.indexOf('x')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -552,6 +766,8 @@ class SelectionManagerTest {
             ),
             handlesCrossed = true
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
 
         selectionManager.copy()
 
@@ -570,7 +786,8 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('m')
         val endOffset = text.indexOf('x')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        selectable.layoutCoordinatesToReturn = containerLayoutCoordinates
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -583,12 +800,14 @@ class SelectionManagerTest {
             ),
             handlesCrossed = true
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
         selectionManager.hasFocus = true
 
         selectionManager.showToolbar = true
 
         verify(textToolbar, times(1)).showMenu(
-            eq(Rect.Zero),
+            any(),
             any(),
             isNull(),
             isNull(),
@@ -603,7 +822,7 @@ class SelectionManagerTest {
         val startOffset = text.indexOf('m')
         val endOffset = text.indexOf('x')
         selectable.textToReturn = annotatedString
-        selectionManager.selection = Selection(
+        val selection = Selection(
             start = Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
@@ -616,12 +835,14 @@ class SelectionManagerTest {
             ),
             handlesCrossed = true
         )
+        selectionManager.selection = selection
+        selectionRegistrar.subselections = mapOf(selectableId to selection)
         selectionManager.hasFocus = false
 
         selectionManager.showToolbar = true
 
         verify(textToolbar, never()).showMenu(
-            eq(Rect.Zero),
+            any(),
             any(),
             isNull(),
             isNull(),

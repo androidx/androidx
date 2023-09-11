@@ -115,6 +115,7 @@ internal class SelectionController(
 
     fun updateGlobalPosition(coordinates: LayoutCoordinates) {
         params = params.copy(layoutCoordinates = coordinates)
+        selectionRegistrar.notifyPositionChange(selectableId)
     }
 
     fun draw(drawScope: DrawScope) {
