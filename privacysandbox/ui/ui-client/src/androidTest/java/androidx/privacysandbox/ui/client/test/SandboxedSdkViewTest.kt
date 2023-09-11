@@ -288,13 +288,13 @@ class SandboxedSdkViewTest {
         assertThat(adapter.isZOrderOnTop).isTrue()
 
         // When state changes to false, the provider should be notified.
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(adapter.isZOrderOnTop).isFalse()
 
         // When state changes back to true, the provider should be notified.
         session.zOrderChangedLatch = CountDownLatch(1)
-        view.setZOrderOnTopAndEnableUserInteraction(true)
+        view.orderProviderUiAboveClientUi(true)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(adapter.isZOrderOnTop).isTrue()
     }
@@ -311,14 +311,14 @@ class SandboxedSdkViewTest {
 
         // When Z-order state is unchanged, the provider should not be notified.
         session.zOrderChangedLatch = CountDownLatch(1)
-        view.setZOrderOnTopAndEnableUserInteraction(true)
+        view.orderProviderUiAboveClientUi(true)
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
         assertThat(adapter.isZOrderOnTop).isTrue()
     }
 
     @Test
     fun setZOrderNotOnTopBeforeOpeningSession() {
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         val session = testSandboxedUiAdapter.testSession!!
@@ -333,7 +333,7 @@ class SandboxedSdkViewTest {
         testSandboxedUiAdapter.delayOpenSessionCallback = true
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        view.setZOrderOnTopAndEnableUserInteraction(false)
+        view.orderProviderUiAboveClientUi(false)
         val session = testSandboxedUiAdapter.testSession!!
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
         activity.runOnUiThread {

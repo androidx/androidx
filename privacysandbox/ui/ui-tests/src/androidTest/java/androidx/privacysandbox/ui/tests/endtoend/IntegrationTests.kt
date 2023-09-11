@@ -218,7 +218,7 @@ class IntegrationTests {
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterFromCoreLibInfo)
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        view.setZOrderOnTopAndEnableUserInteraction(!adapter.initialZOrderOnTop)
+        view.orderProviderUiAboveClientUi(!adapter.initialZOrderOnTop)
         assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
     }
 
@@ -237,7 +237,7 @@ class IntegrationTests {
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterFromCoreLibInfo)
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        view.setZOrderOnTopAndEnableUserInteraction(adapter.initialZOrderOnTop)
+        view.orderProviderUiAboveClientUi(adapter.initialZOrderOnTop)
         assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
