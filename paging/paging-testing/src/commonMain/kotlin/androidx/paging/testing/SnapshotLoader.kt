@@ -25,8 +25,9 @@ import androidx.paging.PagingData
 import androidx.paging.PagingDataDiffer
 import androidx.paging.PagingSource
 import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
+import androidx.paging.testing.internal.AtomicInt
+import androidx.paging.testing.internal.AtomicRef
+import kotlin.jvm.JvmSuppressWildcards
 import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -451,12 +452,12 @@ internal data class Generation(
      * Temporarily stores the latest [DifferCallback] to track prepends to the beginning of list.
      * Value is reset to null once read.
      */
-    val callbackState: AtomicReference<LoaderCallback?> = AtomicReference(null),
+    val callbackState: AtomicRef<LoaderCallback?> = AtomicRef(null),
 
     /**
      * Tracks the last accessed(peeked) index on the differ for this generation
       */
-    var lastAccessedIndex: AtomicInteger = AtomicInteger()
+    var lastAccessedIndex: AtomicInt = AtomicInt(0)
 )
 
 internal data class LoaderCallback(

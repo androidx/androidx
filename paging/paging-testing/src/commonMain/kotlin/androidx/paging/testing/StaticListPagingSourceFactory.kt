@@ -22,6 +22,7 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.Pager
 import androidx.paging.PagingSource
 import androidx.paging.PagingSourceFactory
+import kotlin.jvm.JvmSuppressWildcards
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
