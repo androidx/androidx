@@ -16,10 +16,11 @@
 
 package androidx.paging.testing
 
+import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSourceFactory
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -31,12 +32,8 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class StaticListPagingSourceFactoryTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
