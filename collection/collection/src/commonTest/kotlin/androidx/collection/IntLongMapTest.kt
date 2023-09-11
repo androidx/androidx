@@ -78,14 +78,113 @@ class IntLongMapTest {
     }
 
     @Test
-    fun intLongMapPairsFunction() {
-        val map = mutableIntLongMapOf(
-            1 to 1L,
-            2 to 2L
+    fun intLongMapInitFunction() {
+        val map1 = intLongMapOf(
+            1, 1L,
         )
-        assertEquals(2, map.size)
-        assertEquals(1L, map[1])
-        assertEquals(2L, map[2])
+        assertEquals(1, map1.size)
+        assertEquals(1L, map1[1])
+
+        val map2 = intLongMapOf(
+            1, 1L,
+            2, 2L,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1L, map2[1])
+        assertEquals(2L, map2[2])
+
+        val map3 = intLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1L, map3[1])
+        assertEquals(2L, map3[2])
+        assertEquals(3L, map3[3])
+
+        val map4 = intLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+            4, 4L,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1L, map4[1])
+        assertEquals(2L, map4[2])
+        assertEquals(3L, map4[3])
+        assertEquals(4L, map4[4])
+
+        val map5 = intLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+            4, 4L,
+            5, 5L,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1L, map5[1])
+        assertEquals(2L, map5[2])
+        assertEquals(3L, map5[3])
+        assertEquals(4L, map5[4])
+        assertEquals(5L, map5[5])
+    }
+
+    @Test
+    fun mutableIntLongMapInitFunction() {
+        val map1 = mutableIntLongMapOf(
+            1, 1L,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1L, map1[1])
+
+        val map2 = mutableIntLongMapOf(
+            1, 1L,
+            2, 2L,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1L, map2[1])
+        assertEquals(2L, map2[2])
+
+        val map3 = mutableIntLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1L, map3[1])
+        assertEquals(2L, map3[2])
+        assertEquals(3L, map3[3])
+
+        val map4 = mutableIntLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+            4, 4L,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1L, map4[1])
+        assertEquals(2L, map4[2])
+        assertEquals(3L, map4[3])
+        assertEquals(4L, map4[4])
+
+        val map5 = mutableIntLongMapOf(
+            1, 1L,
+            2, 2L,
+            3, 3L,
+            4, 4L,
+            5, 5L,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1L, map5[1])
+        assertEquals(2L, map5[2])
+        assertEquals(3L, map5[3])
+        assertEquals(4L, map5[4])
+        assertEquals(5L, map5[5])
     }
 
     @Test
@@ -143,38 +242,6 @@ class IntLongMapTest {
         assertEquals(1L, map[1])
         map.put(1, 2L)
         assertEquals(2L, map[1])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutableIntLongMap()
-        map[1] = 1L
-        map[2] = 2L
-
-        map.putAll(arrayOf(3 to 3L, 7 to 7L))
-
-        assertEquals(4, map.size)
-        assertEquals(3L, map[3])
-        assertEquals(7L, map[7])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutableIntLongMap()
-        map += 1 to 1L
-
-        assertEquals(1, map.size)
-        assertEquals(1L, map[1])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableIntLongMap()
-        map += arrayOf(3 to 3L, 7 to 7L)
-
-        assertEquals(2, map.size)
-        assertEquals(3L, map[3])
-        assertEquals(7L, map[7])
     }
 
     @Test

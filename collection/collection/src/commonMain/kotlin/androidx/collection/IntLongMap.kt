@@ -41,7 +41,6 @@ private val EmptyIntLongMap = MutableIntLongMap(0)
 /**
  * Returns an empty, read-only [IntLongMap].
  */
-@Suppress("UNCHECKED_CAST")
 public fun emptyIntLongMap(): IntLongMap = EmptyIntLongMap
 
 /**
@@ -50,18 +49,87 @@ public fun emptyIntLongMap(): IntLongMap = EmptyIntLongMap
 public fun intLongMapOf(): IntLongMap = EmptyIntLongMap
 
 /**
- * Returns a new [IntLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Int] key and [Long] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [IntLongMap] with [key1] associated with [value1].
  */
-public fun intLongMapOf(vararg pairs: Pair<Int, Long>): IntLongMap =
-    MutableIntLongMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun intLongMapOf(
+    key1: Int,
+    value1: Long
+): IntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [IntLongMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun intLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+): IntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [IntLongMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun intLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+): IntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [IntLongMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun intLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+    key4: Int,
+    value4: Long,
+): IntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [IntLongMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun intLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+    key4: Int,
+    value4: Long,
+    key5: Int,
+    value5: Long,
+): IntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -70,18 +138,87 @@ public fun intLongMapOf(vararg pairs: Pair<Int, Long>): IntLongMap =
 public fun mutableIntLongMapOf(): MutableIntLongMap = MutableIntLongMap()
 
 /**
- * Returns a new [MutableIntLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Int] key and [Long] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [MutableIntLongMap] with [key1] associated with [value1].
  */
-public fun mutableIntLongMapOf(vararg pairs: Pair<Int, Long>): MutableIntLongMap =
-    MutableIntLongMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun mutableIntLongMapOf(
+    key1: Int,
+    value1: Long
+): MutableIntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [MutableIntLongMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun mutableIntLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+): MutableIntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableIntLongMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun mutableIntLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+): MutableIntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableIntLongMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun mutableIntLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+    key4: Int,
+    value4: Long,
+): MutableIntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableIntLongMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun mutableIntLongMapOf(
+    key1: Int,
+    value1: Long,
+    key2: Int,
+    value2: Long,
+    key3: Int,
+    value3: Long,
+    key4: Int,
+    value4: Long,
+    key5: Int,
+    value5: Long,
+): MutableIntLongMap = MutableIntLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -554,20 +691,6 @@ public class MutableIntLongMap(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Int] key and [Long] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<Pair<Int, Long>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: IntLongMap) {
@@ -575,29 +698,6 @@ public class MutableIntLongMap(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that [pair] allocated and both the [Int] key and [Long] value are
-     * boxed. Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<Int, Long>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Int] key and [Long] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<Pair<Int, Long>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

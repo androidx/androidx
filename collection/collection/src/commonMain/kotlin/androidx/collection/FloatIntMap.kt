@@ -41,7 +41,6 @@ private val EmptyFloatIntMap = MutableFloatIntMap(0)
 /**
  * Returns an empty, read-only [FloatIntMap].
  */
-@Suppress("UNCHECKED_CAST")
 public fun emptyFloatIntMap(): FloatIntMap = EmptyFloatIntMap
 
 /**
@@ -50,18 +49,87 @@ public fun emptyFloatIntMap(): FloatIntMap = EmptyFloatIntMap
 public fun floatIntMapOf(): FloatIntMap = EmptyFloatIntMap
 
 /**
- * Returns a new [FloatIntMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Float] key and [Int] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [FloatIntMap] with [key1] associated with [value1].
  */
-public fun floatIntMapOf(vararg pairs: Pair<Float, Int>): FloatIntMap =
-    MutableFloatIntMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun floatIntMapOf(
+    key1: Float,
+    value1: Int
+): FloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [FloatIntMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun floatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+): FloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [FloatIntMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun floatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+): FloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [FloatIntMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun floatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+    key4: Float,
+    value4: Int,
+): FloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [FloatIntMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun floatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+    key4: Float,
+    value4: Int,
+    key5: Float,
+    value5: Int,
+): FloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -70,18 +138,87 @@ public fun floatIntMapOf(vararg pairs: Pair<Float, Int>): FloatIntMap =
 public fun mutableFloatIntMapOf(): MutableFloatIntMap = MutableFloatIntMap()
 
 /**
- * Returns a new [MutableFloatIntMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Float] key and [Int] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [MutableFloatIntMap] with [key1] associated with [value1].
  */
-public fun mutableFloatIntMapOf(vararg pairs: Pair<Float, Int>): MutableFloatIntMap =
-    MutableFloatIntMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun mutableFloatIntMapOf(
+    key1: Float,
+    value1: Int
+): MutableFloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [MutableFloatIntMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun mutableFloatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+): MutableFloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableFloatIntMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun mutableFloatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+): MutableFloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableFloatIntMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun mutableFloatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+    key4: Float,
+    value4: Int,
+): MutableFloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableFloatIntMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun mutableFloatIntMapOf(
+    key1: Float,
+    value1: Int,
+    key2: Float,
+    value2: Int,
+    key3: Float,
+    value3: Int,
+    key4: Float,
+    value4: Int,
+    key5: Float,
+    value5: Int,
+): MutableFloatIntMap = MutableFloatIntMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -554,20 +691,6 @@ public class MutableFloatIntMap(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Float] key and [Int] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<Pair<Float, Int>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: FloatIntMap) {
@@ -575,29 +698,6 @@ public class MutableFloatIntMap(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that [pair] allocated and both the [Float] key and [Int] value are
-     * boxed. Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<Float, Int>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Float] key and [Int] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<Pair<Float, Int>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

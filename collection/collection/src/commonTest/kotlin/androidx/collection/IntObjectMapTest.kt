@@ -78,14 +78,113 @@ class IntObjectMapTest {
     }
 
     @Test
-    fun intObjectMapPairsFunction() {
-        val map = mutableIntObjectMapOf(
-            1 to "World",
-            2 to "Monde"
+    fun intObjectMapInitFunction() {
+        val map1 = intObjectMapOf(
+            1, "World",
         )
-        assertEquals(2, map.size)
-        assertEquals("World", map[1])
-        assertEquals("Monde", map[2])
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1])
+
+        val map2 = intObjectMapOf(
+            1, "World",
+            2, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1])
+        assertEquals("Monde", map2[2])
+
+        val map3 = intObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1])
+        assertEquals("Monde", map3[2])
+        assertEquals("Welt", map3[3])
+
+        val map4 = intObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+            4, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1])
+        assertEquals("Monde", map4[2])
+        assertEquals("Welt", map4[3])
+        assertEquals("Sekai", map4[4])
+
+        val map5 = intObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+            4, "Sekai",
+            5, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1])
+        assertEquals("Monde", map5[2])
+        assertEquals("Welt", map5[3])
+        assertEquals("Sekai", map5[4])
+        assertEquals("Mondo", map5[5])
+    }
+
+    @Test
+    fun mutableIntObjectMapInitFunction() {
+        val map1 = mutableIntObjectMapOf(
+            1, "World",
+        )
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1])
+
+        val map2 = mutableIntObjectMapOf(
+            1, "World",
+            2, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1])
+        assertEquals("Monde", map2[2])
+
+        val map3 = mutableIntObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1])
+        assertEquals("Monde", map3[2])
+        assertEquals("Welt", map3[3])
+
+        val map4 = mutableIntObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+            4, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1])
+        assertEquals("Monde", map4[2])
+        assertEquals("Welt", map4[3])
+        assertEquals("Sekai", map4[4])
+
+        val map5 = mutableIntObjectMapOf(
+            1, "World",
+            2, "Monde",
+            3, "Welt",
+            4, "Sekai",
+            5, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1])
+        assertEquals("Monde", map5[2])
+        assertEquals("Welt", map5[3])
+        assertEquals("Sekai", map5[4])
+        assertEquals("Mondo", map5[5])
     }
 
     @Test
@@ -153,25 +252,12 @@ class IntObjectMapTest {
     }
 
     @Test
-    fun putAllArray() {
-        val map = MutableIntObjectMap<String?>()
-        map[1] = "World"
-        map[2] = null
-
-        map.putAll(arrayOf(3 to "Welt", 7 to "Mundo"))
-
-        assertEquals(4, map.size)
-        assertEquals("Welt", map[3])
-        assertEquals("Mundo", map[7])
-    }
-
-    @Test
     fun putAllMap() {
         val map = MutableIntObjectMap<String?>()
         map[1] = "World"
         map[2] = null
 
-        map.putAll(mutableIntObjectMapOf(3 to "Welt", 7 to "Mundo"))
+        map.putAll(mutableIntObjectMapOf(3, "Welt", 7, "Mundo"))
 
         assertEquals(4, map.size)
         assertEquals("Welt", map[3])
@@ -179,28 +265,9 @@ class IntObjectMapTest {
     }
 
     @Test
-    fun plus() {
-        val map = MutableIntObjectMap<String>()
-        map += 1 to "World"
-
-        assertEquals(1, map.size)
-        assertEquals("World", map[1])
-    }
-
-    @Test
     fun plusMap() {
         val map = MutableIntObjectMap<String>()
-        map += intObjectMapOf(3 to "Welt", 7 to "Mundo")
-
-        assertEquals(2, map.size)
-        assertEquals("Welt", map[3])
-        assertEquals("Mundo", map[7])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableIntObjectMap<String>()
-        map += arrayOf(3 to "Welt", 7 to "Mundo")
+        map += intObjectMapOf(3, "Welt", 7, "Mundo")
 
         assertEquals(2, map.size)
         assertEquals("Welt", map[3])
@@ -626,7 +693,7 @@ class IntObjectMapTest {
         map[5] = "Mondo"
         map[6] = "Sesang"
 
-        assertTrue(map.all { key, value -> key < 7 && value.length > 0 })
+        assertTrue(map.all { key, value -> key < 7 && value.isNotEmpty() })
         assertFalse(map.all { key, _ -> key < 6 })
     }
 }

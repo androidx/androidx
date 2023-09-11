@@ -78,14 +78,113 @@ class FloatIntMapTest {
     }
 
     @Test
-    fun floatIntMapPairsFunction() {
-        val map = mutableFloatIntMapOf(
-            1f to 1,
-            2f to 2
+    fun floatIntMapInitFunction() {
+        val map1 = floatIntMapOf(
+            1f, 1,
         )
-        assertEquals(2, map.size)
-        assertEquals(1, map[1f])
-        assertEquals(2, map[2f])
+        assertEquals(1, map1.size)
+        assertEquals(1, map1[1f])
+
+        val map2 = floatIntMapOf(
+            1f, 1,
+            2f, 2,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1, map2[1f])
+        assertEquals(2, map2[2f])
+
+        val map3 = floatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1, map3[1f])
+        assertEquals(2, map3[2f])
+        assertEquals(3, map3[3f])
+
+        val map4 = floatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+            4f, 4,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1, map4[1f])
+        assertEquals(2, map4[2f])
+        assertEquals(3, map4[3f])
+        assertEquals(4, map4[4f])
+
+        val map5 = floatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+            4f, 4,
+            5f, 5,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1, map5[1f])
+        assertEquals(2, map5[2f])
+        assertEquals(3, map5[3f])
+        assertEquals(4, map5[4f])
+        assertEquals(5, map5[5f])
+    }
+
+    @Test
+    fun mutableFloatIntMapInitFunction() {
+        val map1 = mutableFloatIntMapOf(
+            1f, 1,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1, map1[1f])
+
+        val map2 = mutableFloatIntMapOf(
+            1f, 1,
+            2f, 2,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1, map2[1f])
+        assertEquals(2, map2[2f])
+
+        val map3 = mutableFloatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1, map3[1f])
+        assertEquals(2, map3[2f])
+        assertEquals(3, map3[3f])
+
+        val map4 = mutableFloatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+            4f, 4,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1, map4[1f])
+        assertEquals(2, map4[2f])
+        assertEquals(3, map4[3f])
+        assertEquals(4, map4[4f])
+
+        val map5 = mutableFloatIntMapOf(
+            1f, 1,
+            2f, 2,
+            3f, 3,
+            4f, 4,
+            5f, 5,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1, map5[1f])
+        assertEquals(2, map5[2f])
+        assertEquals(3, map5[3f])
+        assertEquals(4, map5[4f])
+        assertEquals(5, map5[5f])
     }
 
     @Test
@@ -143,38 +242,6 @@ class FloatIntMapTest {
         assertEquals(1, map[1f])
         map.put(1f, 2)
         assertEquals(2, map[1f])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutableFloatIntMap()
-        map[1f] = 1
-        map[2f] = 2
-
-        map.putAll(arrayOf(3f to 3, 7f to 7))
-
-        assertEquals(4, map.size)
-        assertEquals(3, map[3f])
-        assertEquals(7, map[7f])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutableFloatIntMap()
-        map += 1f to 1
-
-        assertEquals(1, map.size)
-        assertEquals(1, map[1f])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableFloatIntMap()
-        map += arrayOf(3f to 3, 7f to 7)
-
-        assertEquals(2, map.size)
-        assertEquals(3, map[3f])
-        assertEquals(7, map[7f])
     }
 
     @Test

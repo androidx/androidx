@@ -78,14 +78,113 @@ class LongObjectMapTest {
     }
 
     @Test
-    fun longObjectMapPairsFunction() {
-        val map = mutableLongObjectMapOf(
-            1L to "World",
-            2L to "Monde"
+    fun longObjectMapInitFunction() {
+        val map1 = longObjectMapOf(
+            1L, "World",
         )
-        assertEquals(2, map.size)
-        assertEquals("World", map[1L])
-        assertEquals("Monde", map[2L])
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1L])
+
+        val map2 = longObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1L])
+        assertEquals("Monde", map2[2L])
+
+        val map3 = longObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1L])
+        assertEquals("Monde", map3[2L])
+        assertEquals("Welt", map3[3L])
+
+        val map4 = longObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+            4L, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1L])
+        assertEquals("Monde", map4[2L])
+        assertEquals("Welt", map4[3L])
+        assertEquals("Sekai", map4[4L])
+
+        val map5 = longObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+            4L, "Sekai",
+            5L, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1L])
+        assertEquals("Monde", map5[2L])
+        assertEquals("Welt", map5[3L])
+        assertEquals("Sekai", map5[4L])
+        assertEquals("Mondo", map5[5L])
+    }
+
+    @Test
+    fun mutableLongObjectMapInitFunction() {
+        val map1 = mutableLongObjectMapOf(
+            1L, "World",
+        )
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1L])
+
+        val map2 = mutableLongObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1L])
+        assertEquals("Monde", map2[2L])
+
+        val map3 = mutableLongObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1L])
+        assertEquals("Monde", map3[2L])
+        assertEquals("Welt", map3[3L])
+
+        val map4 = mutableLongObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+            4L, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1L])
+        assertEquals("Monde", map4[2L])
+        assertEquals("Welt", map4[3L])
+        assertEquals("Sekai", map4[4L])
+
+        val map5 = mutableLongObjectMapOf(
+            1L, "World",
+            2L, "Monde",
+            3L, "Welt",
+            4L, "Sekai",
+            5L, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1L])
+        assertEquals("Monde", map5[2L])
+        assertEquals("Welt", map5[3L])
+        assertEquals("Sekai", map5[4L])
+        assertEquals("Mondo", map5[5L])
     }
 
     @Test
@@ -153,25 +252,12 @@ class LongObjectMapTest {
     }
 
     @Test
-    fun putAllArray() {
-        val map = MutableLongObjectMap<String?>()
-        map[1L] = "World"
-        map[2L] = null
-
-        map.putAll(arrayOf(3L to "Welt", 7L to "Mundo"))
-
-        assertEquals(4, map.size)
-        assertEquals("Welt", map[3L])
-        assertEquals("Mundo", map[7L])
-    }
-
-    @Test
     fun putAllMap() {
         val map = MutableLongObjectMap<String?>()
         map[1L] = "World"
         map[2L] = null
 
-        map.putAll(mutableLongObjectMapOf(3L to "Welt", 7L to "Mundo"))
+        map.putAll(mutableLongObjectMapOf(3L, "Welt", 7L, "Mundo"))
 
         assertEquals(4, map.size)
         assertEquals("Welt", map[3L])
@@ -179,28 +265,9 @@ class LongObjectMapTest {
     }
 
     @Test
-    fun plus() {
-        val map = MutableLongObjectMap<String>()
-        map += 1L to "World"
-
-        assertEquals(1, map.size)
-        assertEquals("World", map[1L])
-    }
-
-    @Test
     fun plusMap() {
         val map = MutableLongObjectMap<String>()
-        map += longObjectMapOf(3L to "Welt", 7L to "Mundo")
-
-        assertEquals(2, map.size)
-        assertEquals("Welt", map[3L])
-        assertEquals("Mundo", map[7L])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableLongObjectMap<String>()
-        map += arrayOf(3L to "Welt", 7L to "Mundo")
+        map += longObjectMapOf(3L, "Welt", 7L, "Mundo")
 
         assertEquals(2, map.size)
         assertEquals("Welt", map[3L])
@@ -626,7 +693,7 @@ class LongObjectMapTest {
         map[5L] = "Mondo"
         map[6L] = "Sesang"
 
-        assertTrue(map.all { key, value -> key < 7L && value.length > 0 })
+        assertTrue(map.all { key, value -> key < 7L && value.isNotEmpty() })
         assertFalse(map.all { key, _ -> key < 6L })
     }
 }
