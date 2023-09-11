@@ -665,27 +665,30 @@ constructor(
     internal var nextDrawTimeMillis: Long = 0
 
     internal val componentName = watchFaceHostApi.getComponentName()
+    private val displayManager: DisplayManager
+    private val displayListener: DisplayManager.DisplayListener
 
     init {
         val context = watchFaceHostApi.getContext()
-        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        displayManager.registerDisplayListener(
-            object : DisplayManager.DisplayListener {
-                override fun onDisplayAdded(displayId: Int) {}
+         displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+         displayListener = object : DisplayManager.DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
 
-                override fun onDisplayChanged(displayId: Int) {
-                    val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
-                    if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
-                        // We want to avoid a glimpse of a stale time when transitioning from
-                        // hidden to visible, so we render two black frames to clear the buffers
-                        // when the display has been turned off and the watch is not visible.
-                        renderer.renderBlackFrame()
-                        renderer.renderBlackFrame()
-                    }
+            override fun onDisplayChanged(displayId: Int) {
+                val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
+                if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
+                    // We want to avoid a glimpse of a stale time when transitioning from
+                    // hidden to visible, so we render two black frames to clear the buffers
+                    // when the display has been turned off and the watch is not visible.
+                    renderer.renderBlackFrame()
+                    renderer.renderBlackFrame()
                 }
+            }
 
-                override fun onDisplayRemoved(displayId: Int) {}
-            },
+            override fun onDisplayRemoved(displayId: Int) {}
+        }
+        displayManager.registerDisplayListener(
+            displayListener,
             watchFaceHostApi.getUiThreadHandler()
         )
     }
@@ -963,6 +966,7 @@ constructor(
             WatchFace.unregisterEditorDelegate(componentName)
         }
         unregisterReceivers()
+        displayManager.unregisterDisplayListener(displayListener)
     }
 
     @UiThread
