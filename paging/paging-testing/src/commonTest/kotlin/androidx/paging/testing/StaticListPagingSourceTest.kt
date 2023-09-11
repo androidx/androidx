@@ -16,16 +16,13 @@
 
 package androidx.paging.testing
 
+import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class StaticListPagingSourceTest {
 
     private val DATA = List(100) { it }

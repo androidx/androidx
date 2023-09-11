@@ -16,24 +16,21 @@
 
 package androidx.paging.testing
 
+import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import androidx.paging.TestPagingSource
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class TestPagerTest {
 
     @Test
@@ -101,7 +98,7 @@ class TestPagerTest {
             // simulate a PagingSource that returns LoadResult.Invalid when it's invalidated
             source.nextLoadResult = LoadResult.Invalid()
 
-            assertThat(pager.refresh()).isInstanceOf(LoadResult.Invalid::class.java)
+            assertThat(pager.refresh()).isInstanceOf<LoadResult.Invalid<Int, Int>>()
         }
     }
 
@@ -361,7 +358,7 @@ class TestPagerTest {
             source.nextLoadResult = LoadResult.Invalid()
             append()
         }
-        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<Int, Int>>()
     }
 
     @Test
@@ -377,7 +374,7 @@ class TestPagerTest {
             source.nextLoadResult = LoadResult.Invalid()
             prepend()
         }
-        assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<Int, Int>>()
     }
 
     @Test
@@ -642,7 +639,7 @@ class TestPagerTest {
                 append()
                 getPagingState(-1)
             }
-        }.localizedMessage
+        }.message
         assertThat(msg).isEqualTo(
             "anchorPosition -1 is out of bounds between [0..${ITEM_COUNT - 1}]. Please " +
                 "provide a valid anchorPosition."
@@ -650,7 +647,7 @@ class TestPagerTest {
 
         val msg2 = assertFailsWith<IllegalStateException> {
             pager.getPagingState(ITEM_COUNT)
-        }.localizedMessage
+        }.message
         assertThat(msg2).isEqualTo(
             "anchorPosition $ITEM_COUNT is out of bounds between [0..${ITEM_COUNT - 1}]. " +
                 "Please provide a valid anchorPosition."
@@ -675,7 +672,7 @@ class TestPagerTest {
                 append()
                 getPagingState(-1)
             }
-        }.localizedMessage
+        }.message
         assertThat(msg).isEqualTo(
             "anchorPosition -1 is out of bounds between [0..7]. Please " +
                 "provide a valid anchorPosition."
@@ -684,7 +681,7 @@ class TestPagerTest {
         // total loaded items = 8, anchorPos with index 8 should be out of bounds
         val msg2 = assertFailsWith<IllegalStateException> {
             pager.getPagingState(8)
-        }.localizedMessage
+        }.message
         assertThat(msg2).isEqualTo(
             "anchorPosition 8 is out of bounds between [0..7]. Please " +
         "provide a valid anchorPosition."
