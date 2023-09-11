@@ -49,7 +49,7 @@ import kotlin.math.tan
 internal val EmptyArray = FloatArray(0)
 
 class PathParser {
-    private val nodes = mutableListOf<PathNode>()
+    private val nodes = ArrayList<PathNode>()
 
     private val floatResult = FloatResult()
     private var nodeData = FloatArray(64)
@@ -139,7 +139,7 @@ class PathParser {
         return this
     }
 
-    fun toNodes() = nodes
+    fun toNodes(): List<PathNode> = nodes
 
     fun toPath(target: Path = Path()) = nodes.toPath(target)
 
