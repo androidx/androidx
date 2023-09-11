@@ -1322,6 +1322,8 @@ package androidx.collection {
     method public java.util.Map<K,V> asMutableMap();
     method public void clear();
     method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
+    method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
     method public inline operator void minusAssign(K![] keys);
@@ -1348,23 +1350,27 @@ package androidx.collection {
   public final class MutableScatterSet<E> extends androidx.collection.ScatterSet<E> {
     ctor public MutableScatterSet(optional int initialCapacity);
     method public boolean add(E element);
+    method public boolean addAll(androidx.collection.ObjectList<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
     method public boolean addAll(E![] elements);
     method public boolean addAll(Iterable<? extends E> elements);
     method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
     method public java.util.Set<E> asMutableSet();
     method public void clear();
+    method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void minusAssign(E element);
     method public operator void minusAssign(E![] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void plusAssign(E element);
     method public operator void plusAssign(E![] elements);
     method public operator void plusAssign(Iterable<? extends E> elements);
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ObjectList<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
     method public boolean removeAll(E![] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
