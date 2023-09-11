@@ -329,7 +329,7 @@ class BluetoothLe constructor(private val context: Context) {
          * A _hot_ [Flow] of incoming requests from the client.
          *
          * A request is either [GattServerRequest.ReadCharacteristic] or
-         * [GattServerRequest.WriteCharacteristic]
+         * [GattServerRequest.WriteCharacteristics]
          */
         val requests: Flow<GattServerRequest>
 

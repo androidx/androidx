@@ -341,9 +341,9 @@ class RobolectricGattServerTest {
                 connectRequests.collect {
                     it.accept {
                         when (val request = requests.first()) {
-                            is GattServerRequest.WriteCharacteristic -> {
-                                Assert.assertEquals(valueToWrite, request.value?.toInt())
-                                request.sendResponse(request.value)
+                            is GattServerRequest.WriteCharacteristics -> {
+                                Assert.assertEquals(valueToWrite, request.parts[0].value.toInt())
+                                request.sendResponse()
                             }
 
                             else -> fail("unexpected request")
@@ -356,8 +356,6 @@ class RobolectricGattServerTest {
         }.join()
 
         assertTrue(closed.isCompleted)
-        Assert.assertEquals(1, serverAdapter.shadowGattServer.responses.size)
-        Assert.assertEquals(valueToWrite, serverAdapter.shadowGattServer.responses[0].toInt())
     }
 
     @Test
@@ -365,7 +363,7 @@ class RobolectricGattServerTest {
         val services = listOf(service1, service2)
         val device = createDevice("00:11:22:33:44:55")
         val closed = CompletableDeferred<Unit>()
-        val responsed = CompletableDeferred<Unit>()
+        val responded = CompletableDeferred<Unit>()
         val valueToWrite = 42
 
         runAfterServicesAreAdded(services.size) {
@@ -386,7 +384,7 @@ class RobolectricGattServerTest {
                 Assert.assertEquals(1, requestId)
                 Assert.assertNotEquals(GATT_SUCCESS, status)
                 Assert.assertNull(value)
-                responsed.complete(Unit)
+                responded.complete(Unit)
             }
 
         launch {
@@ -394,8 +392,8 @@ class RobolectricGattServerTest {
                 connectRequests.collect {
                     it.accept {
                         when (val request = requests.first()) {
-                            is GattServerRequest.WriteCharacteristic -> {
-                                Assert.assertEquals(valueToWrite, request.value?.toInt())
+                            is GattServerRequest.WriteCharacteristics -> {
+                                Assert.assertEquals(valueToWrite, request.parts[0].value.toInt())
                                 request.sendFailure()
                             }
 
@@ -477,6 +475,57 @@ class RobolectricGattServerTest {
 
         assertTrue(opened.isCompleted)
         assertTrue(closed.isCompleted)
+    }
+
+    @Test
+    fun writeLongCharacteristic() = runTest {
+        val services = listOf(service1, service2)
+        val device = createDevice("00:11:22:33:44:55")
+        val closed = CompletableDeferred<Unit>()
+        val values = listOf(byteArrayOf(0, 1), byteArrayOf(2, 3))
+
+        runAfterServicesAreAdded(services.size) {
+            connectDevice(device) {
+                var offset = 0
+                values.forEachIndexed { index, value ->
+                    serverAdapter.callback.onCharacteristicWriteRequest(
+                        device, /*requestId=*/index + 1, writeCharacteristic.fwkCharacteristic,
+                        /*preparedWrite=*/true, /*responseNeeded=*/false,
+                        offset, value
+                    )
+                    offset += value.size
+                }
+                serverAdapter.callback.onExecuteWrite(device, /*requestId=*/values.size + 1, true)
+            }
+        }
+        serverAdapter.onCloseGattServerListener =
+            StubServerFrameworkAdapter.OnCloseGattServerListener {
+                closed.complete(Unit)
+            }
+
+        launch {
+            bluetoothLe.openGattServer(services) {
+                connectRequests.collect {
+                    it.accept {
+                        when (val request = requests.first()) {
+                            is GattServerRequest.WriteCharacteristics -> {
+                                Assert.assertEquals(values.size, request.parts.size)
+                                values.forEachIndexed { index, value ->
+                                    Assert.assertEquals(value, request.parts[index].value)
+                                }
+                                request.sendResponse()
+                            }
+
+                            else -> fail("unexpected request")
+                        }
+                        // Close the server
+                        this@launch.cancel()
+                    }
+                }
+            }
+        }.join()
+
+        Assert.assertTrue(closed.isCompleted)
     }
 
     private fun<R> runAfterServicesAreAdded(countServices: Int, block: suspend () -> R) {

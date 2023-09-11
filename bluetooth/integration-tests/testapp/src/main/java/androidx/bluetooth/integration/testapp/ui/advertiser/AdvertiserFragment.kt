@@ -465,14 +465,15 @@ class AdvertiserFragment : Fragment() {
                     launch {
                         it.accept {
                             requests.collect {
+                                // TODO(b/269390098): handle request correctly
                                 when (it) {
                                     is GattServerRequest.ReadCharacteristic ->
                                         it.sendResponse(
                                             ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array()
                                         )
 
-                                    is GattServerRequest.WriteCharacteristic ->
-                                        it.sendResponse(null)
+                                    is GattServerRequest.WriteCharacteristics ->
+                                        it.sendResponse()
 
                                     else -> throw NotImplementedError("unknown request")
                                 }
