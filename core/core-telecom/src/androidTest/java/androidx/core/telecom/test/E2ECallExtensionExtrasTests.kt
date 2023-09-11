@@ -159,18 +159,21 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         runBlocking {
             assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
-                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                    Assert.assertNotNull("The returned Call object is <NULL>", call!!)
+                    try {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
+                        Assert.assertNotNull("The returned Call object is <NULL>", call!!)
 
-                    // Enforce waiting logic to ensure that the call details extras are populated.
-                    if (waitForCallDetailExtras) {
-                        TestUtils.waitOnCallExtras(call)
+                        // Enforce waiting logic to ensure that the call details extras are populated.
+                        if (waitForCallDetailExtras) {
+                            TestUtils.waitOnCallExtras(call)
+                        }
+
+                        // Assert the call extra or call property from the details
+                        assertCallExtraOrProperty(call)
+                    } finally {
+                        // Always send disconnect signal if possible.
+                        assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                     }
-
-                    // Assert the call extra or call property from the details
-                    assertCallExtraOrProperty(call)
-                    // Always send disconnect signal if possible.
-                    assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }
