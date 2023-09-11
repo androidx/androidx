@@ -26,12 +26,15 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.GroupComponent
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.vector.createGroupComponent
+import androidx.compose.ui.graphics.vector.createVectorPainterFromImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalImageVectorCache
+import androidx.compose.ui.res.ImageVectorCache.ImageVectorEntry
 
 /**
  * Create a [Painter] from an Android resource id. This can load either an instance of
@@ -62,8 +65,7 @@ fun painterResource(@DrawableRes id: Int): Painter {
     val path = value.string
     // Assume .xml suffix implies loading a VectorDrawable resource
     return if (path?.endsWith(".xml") == true) {
-        val imageVector = loadVectorResource(context.theme, res, id, value.changingConfigurations)
-        rememberVectorPainter(imageVector)
+        obtainVectorPainter(context.theme, res, id, value.changingConfigurations)
     } else {
         // Otherwise load the bitmap resource
         val imageBitmap = remember(path, id, context.theme) {
@@ -74,29 +76,42 @@ fun painterResource(@DrawableRes id: Int): Painter {
 }
 
 /**
- * Helper method to validate that the xml resource is a vector drawable then load
- * the ImageVector. Because this throws exceptions we cannot have this implementation as part of
- * the composable implementation it is invoked in.
+ * Helper method to load the previously cached VectorPainter instance if it exists, otherwise
+ * this parses the xml into an ImageVector and creates a new VectorPainter inserting it into the
+ * cache for reuse
  */
 @Composable
-private fun loadVectorResource(
+private fun obtainVectorPainter(
     theme: Resources.Theme,
     res: Resources,
     id: Int,
     changingConfigurations: Int
-): ImageVector {
+): VectorPainter {
     val imageVectorCache = LocalImageVectorCache.current
-    val key = ImageVectorCache.Key(theme, id)
-    var imageVectorEntry = imageVectorCache[key]
-    if (imageVectorEntry == null) {
+    val density = LocalDensity.current
+    val key = remember(theme, id, density) {
+        ImageVectorCache.Key(theme, id, density)
+    }
+    val imageVectorEntry = imageVectorCache[key]
+    var imageVector = imageVectorEntry?.imageVector
+    if (imageVector == null) {
         @Suppress("ResourceType") val parser = res.getXml(id)
         if (parser.seekToStartTag().name != "vector") {
             throw IllegalArgumentException(errorMessage)
         }
-        imageVectorEntry = loadVectorResourceInner(theme, res, parser, changingConfigurations)
-        imageVectorCache[key] = imageVectorEntry
+        imageVector = loadVectorResourceInner(theme, res, parser)
     }
-    return imageVectorEntry.imageVector
+
+    var rootGroup = imageVectorEntry?.rootGroup
+    if (rootGroup == null) {
+        rootGroup = GroupComponent().apply {
+            createGroupComponent(imageVector.root)
+        }
+        imageVectorCache[key] = ImageVectorEntry(imageVector, changingConfigurations, rootGroup)
+    }
+    return remember(key) {
+        createVectorPainterFromImageVector(density, imageVector, rootGroup)
+    }
 }
 
 /**
