@@ -119,6 +119,27 @@ internal class TransformedTextFieldState(
         }
     }
 
+    /**
+     * Replaces the text in given [range] with [newText]. Like all other methods in this class,
+     * [range] is considered to be in transformed space.
+     */
+    fun replaceText(
+        newText: CharSequence,
+        range: TextRange,
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible
+    ) {
+        textFieldState.editAsUser(inputTransformation, undoBehavior = undoBehavior) {
+            val selection = mapFromTransformed(range)
+            replace(
+                selection.min,
+                selection.max,
+                newText
+            )
+            val cursor = selection.min + newText.length
+            setSelection(cursor, cursor)
+        }
+    }
+
     fun replaceSelectedText(
         newText: CharSequence,
         clearComposition: Boolean = false,
