@@ -16,13 +16,42 @@
 
 package androidx.wear.tiles.tooling.preview
 
+import android.content.Context
 import androidx.annotation.FloatRange
 import androidx.wear.tooling.preview.devices.WearDevice
 import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
- * The annotation that marks Tile preview components (functions that return [TilePreviewData]) that
- * should have a visual preview in the Android Studio preview panel.
+ * The annotation that marks Tile preview components that should have a visual preview in the
+ * Android Studio preview panel. Tile preview components are methods that take an optional [Context]
+ * parameter and return a [TilePreviewData]. Methods annotated with [TilePreview] must be top level
+ * declarations or in a top level class with a default constructor.
+ *
+ * For example:
+ * ```kotlin
+ * @TilePreview
+ * fun myTilePreview(): TilePreviewData {
+ *     return TilePreviewData { request -> myTile(request) }
+ * }
+ * ```
+ * or:
+ * ```kotlin
+ * @TilePreview
+ * fun myTilePreview(context: Context): TilePreviewData {
+ *     return TilePreviewData { request -> myTile(request, context) }
+ * }
+ * ```
+ *
+ * Because of the way previews are rendered within Android Studio, they are lightweight and don't
+ * require the whole Android framework to render them. However, this comes with the following
+ * limitations:
+ * * No network access
+ * * No file access
+ * * Some [Context] APIs may not be fully available, such as launching activities or retrieving
+ * services
+ *
+ * For more information, see
+ * https://developer.android.com/jetpack/compose/tooling/previews#preview-limitations
  *
  * The annotation contains a number of parameters that allow to define the way the Tile will be
  * rendered within the preview. The passed parameters are only read by Studio when rendering the

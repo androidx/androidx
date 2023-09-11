@@ -19,11 +19,12 @@ package androidx.wear.tiles.tooling.preview {
   }
 
   public final class TilePreviewData {
-    ctor public TilePreviewData(optional kotlin.jvm.functions.Function2<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,? super android.content.Context,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, kotlin.jvm.functions.Function2<? super androidx.wear.tiles.RequestBuilders.TileRequest,? super android.content.Context,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
-    method public kotlin.jvm.functions.Function2<androidx.wear.tiles.RequestBuilders.TileRequest,android.content.Context,androidx.wear.tiles.TileBuilders.Tile> getOnTileRequest();
-    method public kotlin.jvm.functions.Function2<androidx.wear.tiles.RequestBuilders.ResourcesRequest,android.content.Context,androidx.wear.protolayout.ResourceBuilders.Resources> getOnTileResourceRequest();
-    property public final kotlin.jvm.functions.Function2<androidx.wear.tiles.RequestBuilders.TileRequest,android.content.Context,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
-    property public final kotlin.jvm.functions.Function2<androidx.wear.tiles.RequestBuilders.ResourcesRequest,android.content.Context,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
+    ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
+    ctor public TilePreviewData(kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
+    method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> getOnTileRequest();
+    method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> getOnTileResourceRequest();
+    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
+    property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
   }
 
   public final class TilePreviewHelper {
