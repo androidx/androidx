@@ -988,6 +988,24 @@ public class MutableScatterMap<K, V>(
         }
     }
 
+    /**
+     * Removes the specified [keys] and their associated value from the map.
+     */
+    public inline operator fun minusAssign(keys: ScatterSet<K>) {
+        keys.forEach { key ->
+            remove(key)
+        }
+    }
+
+    /**
+     * Removes the specified [keys] and their associated value from the map.
+     */
+    public inline operator fun minusAssign(keys: ObjectList<K>) {
+        keys.forEach { key ->
+            remove(key)
+        }
+    }
+
     private fun removeValueAt(index: Int): V? {
         _size -= 1
 

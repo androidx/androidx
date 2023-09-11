@@ -454,6 +454,34 @@ class ScatterMapTest {
     }
 
     @Test
+    fun minusScatterSet() {
+        val map = MutableScatterMap<String, String>()
+        map["Hello"] = "World"
+        map["Bonjour"] = "Monde"
+        map["Hallo"] = "Welt"
+
+        map -= scatterSetOf("Hallo", "Bonjour")
+
+        assertEquals(1, map.size)
+        assertNull(map["Hallo"])
+        assertNull(map["Bonjour"])
+    }
+
+    @Test
+    fun minusObjectList() {
+        val map = MutableScatterMap<String, String>()
+        map["Hello"] = "World"
+        map["Bonjour"] = "Monde"
+        map["Hallo"] = "Welt"
+
+        map -= objectListOf("Hallo", "Bonjour")
+
+        assertEquals(1, map.size)
+        assertNull(map["Hallo"])
+        assertNull(map["Bonjour"])
+    }
+
+    @Test
     fun conditionalRemove() {
         val map = MutableScatterMap<String?, String?>()
         assertFalse(map.remove("Hello", "World"))

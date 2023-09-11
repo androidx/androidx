@@ -613,6 +613,18 @@ public class MutableScatterSet<E>(
     }
 
     /**
+     * Adds all the elements in the [elements] set into this set.
+     * @param elements An [ObjectList] whose elements are to be added to the set
+     * @return `true` if any of the specified elements were added to the collection,
+     * `false` if the collection was not modified.
+     */
+    public fun addAll(elements: ObjectList<E>): Boolean {
+        val oldSize = size
+        plusAssign(elements)
+        return oldSize != size
+    }
+
+    /**
      * Adds all the [elements] into this set.
      * @param elements An array of elements to add to the set.
      */
@@ -647,6 +659,16 @@ public class MutableScatterSet<E>(
      * @param elements A [ScatterSet] whose elements are to be added to the set
      */
     public operator fun plusAssign(elements: ScatterSet<E>) {
+        elements.forEach { element ->
+            plusAssign(element)
+        }
+    }
+
+    /**
+     * Adds all the elements in the [elements] set into this set.
+     * @param elements An [ObjectList] whose elements are to be added to the set
+     */
+    public operator fun plusAssign(elements: ObjectList<E>) {
         elements.forEach { element ->
             plusAssign(element)
         }
@@ -724,6 +746,17 @@ public class MutableScatterSet<E>(
 
     /**
      * Removes the specified [elements] from the set, if present.
+     * @param elements An [ObjectList] whose elements should be removed from the set.
+     * @return `true` if the set was changed or `false` if none of the elements were present.
+     */
+    public fun removeAll(elements: ObjectList<E>): Boolean {
+        val oldSize = size
+        minusAssign(elements)
+        return oldSize != size
+    }
+
+    /**
+     * Removes the specified [elements] from the set, if present.
      * @param elements An array of elements to be removed from the set.
      */
     public operator fun minusAssign(@Suppress("ArrayReturn") elements: Array<out E>) {
@@ -757,6 +790,16 @@ public class MutableScatterSet<E>(
      * @param elements A [ScatterSet] whose elements should be removed from the set.
      */
     public operator fun minusAssign(elements: ScatterSet<E>) {
+        elements.forEach { element ->
+            minusAssign(element)
+        }
+    }
+
+    /**
+     * Removes the specified [elements] from the set, if present.
+     * @param elements An [ObjectList] whose elements should be removed from the set.
+     */
+    public operator fun minusAssign(elements: ObjectList<E>) {
         elements.forEach { element ->
             minusAssign(element)
         }
