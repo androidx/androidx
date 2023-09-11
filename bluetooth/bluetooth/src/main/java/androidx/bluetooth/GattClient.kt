@@ -81,6 +81,8 @@ class GattClient(private val context: Context) {
         fun writeDescriptor(descriptor: FwkDescriptor, value: ByteArray)
 
         fun setCharacteristicNotification(characteristic: FwkCharacteristic, enable: Boolean)
+
+        fun closeGatt()
     }
 
     @VisibleForTesting
@@ -373,6 +375,9 @@ class GattClient(private val context: Context) {
                 }
             }
         }
+        coroutineContext.job.invokeOnCompletion {
+            fwkAdapter.closeGatt()
+        }
         gattScope.block()
     }
 
@@ -443,6 +448,12 @@ class GattClient(private val context: Context) {
             enable: Boolean
         ) {
             bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun closeGatt() {
+            bluetoothGatt?.close()
+            bluetoothGatt?.disconnect()
         }
     }
 
