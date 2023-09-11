@@ -78,14 +78,113 @@ class PKeyPValueMapTest {
     }
 
     @Test
-    fun pKeyPValueMapPairsFunction() {
-        val map = mutablePKeyPValueMapOf(
-            1KeySuffix to 1ValueSuffix,
-            2KeySuffix to 2ValueSuffix
+    fun pKeyPValueMapInitFunction() {
+        val map1 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
         )
-        assertEquals(2, map.size)
-        assertEquals(1ValueSuffix, map[1KeySuffix])
-        assertEquals(2ValueSuffix, map[2KeySuffix])
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1[1KeySuffix])
+
+        val map2 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2[1KeySuffix])
+        assertEquals(2ValueSuffix, map2[2KeySuffix])
+
+        val map3 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3[1KeySuffix])
+        assertEquals(2ValueSuffix, map3[2KeySuffix])
+        assertEquals(3ValueSuffix, map3[3KeySuffix])
+
+        val map4 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4[1KeySuffix])
+        assertEquals(2ValueSuffix, map4[2KeySuffix])
+        assertEquals(3ValueSuffix, map4[3KeySuffix])
+        assertEquals(4ValueSuffix, map4[4KeySuffix])
+
+        val map5 = pKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+            5KeySuffix, 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5[1KeySuffix])
+        assertEquals(2ValueSuffix, map5[2KeySuffix])
+        assertEquals(3ValueSuffix, map5[3KeySuffix])
+        assertEquals(4ValueSuffix, map5[4KeySuffix])
+        assertEquals(5ValueSuffix, map5[5KeySuffix])
+    }
+
+    @Test
+    fun mutablePKeyPValueMapInitFunction() {
+        val map1 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1[1KeySuffix])
+
+        val map2 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2[1KeySuffix])
+        assertEquals(2ValueSuffix, map2[2KeySuffix])
+
+        val map3 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3[1KeySuffix])
+        assertEquals(2ValueSuffix, map3[2KeySuffix])
+        assertEquals(3ValueSuffix, map3[3KeySuffix])
+
+        val map4 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4[1KeySuffix])
+        assertEquals(2ValueSuffix, map4[2KeySuffix])
+        assertEquals(3ValueSuffix, map4[3KeySuffix])
+        assertEquals(4ValueSuffix, map4[4KeySuffix])
+
+        val map5 = mutablePKeyPValueMapOf(
+            1KeySuffix, 1ValueSuffix,
+            2KeySuffix, 2ValueSuffix,
+            3KeySuffix, 3ValueSuffix,
+            4KeySuffix, 4ValueSuffix,
+            5KeySuffix, 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5[1KeySuffix])
+        assertEquals(2ValueSuffix, map5[2KeySuffix])
+        assertEquals(3ValueSuffix, map5[3KeySuffix])
+        assertEquals(4ValueSuffix, map5[4KeySuffix])
+        assertEquals(5ValueSuffix, map5[5KeySuffix])
     }
 
     @Test
@@ -143,38 +242,6 @@ class PKeyPValueMapTest {
         assertEquals(1ValueSuffix, map[1KeySuffix])
         map.put(1KeySuffix, 2ValueSuffix)
         assertEquals(2ValueSuffix, map[1KeySuffix])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutablePKeyPValueMap()
-        map[1KeySuffix] = 1ValueSuffix
-        map[2KeySuffix] = 2ValueSuffix
-
-        map.putAll(arrayOf(3KeySuffix to 3ValueSuffix, 7KeySuffix to 7ValueSuffix))
-
-        assertEquals(4, map.size)
-        assertEquals(3ValueSuffix, map[3KeySuffix])
-        assertEquals(7ValueSuffix, map[7KeySuffix])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutablePKeyPValueMap()
-        map += 1KeySuffix to 1ValueSuffix
-
-        assertEquals(1, map.size)
-        assertEquals(1ValueSuffix, map[1KeySuffix])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutablePKeyPValueMap()
-        map += arrayOf(3KeySuffix to 3ValueSuffix, 7KeySuffix to 7ValueSuffix)
-
-        assertEquals(2, map.size)
-        assertEquals(3ValueSuffix, map[3KeySuffix])
-        assertEquals(7ValueSuffix, map[7KeySuffix])
     }
 
     @Test

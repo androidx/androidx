@@ -54,38 +54,186 @@ public fun <K> objectFloatMap(): ObjectFloatMap<K> =
     EmptyObjectFloatMap as ObjectFloatMap<K>
 
 /**
- * Returns a new [MutableObjectFloatMap].
+ * Returns a new [ObjectFloatMap] with only [key1] associated with [value1].
+ */
+public fun <K> objectFloatMapOf(
+    key1: K,
+    value1: Float
+): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [ObjectFloatMap] with only [key1] and [key2] associated with
+ * [value1] and [value2], respectively.
+ */
+public fun <K> objectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [ObjectFloatMap] with only [key1], [key2], and [key3] associated with
+ * [value1], [value2], and [value3], respectively.
+ */
+public fun <K> objectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [ObjectFloatMap] with only [key1], [key2], [key3], and [key4] associated with
+ * [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <K> objectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+    key4: K,
+    value4: Float,
+): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [ObjectFloatMap] with only [key1], [key2], [key3], [key4], and [key5] associated
+ * with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <K> objectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+    key4: K,
+    value4: Float,
+    key5: K,
+    value5: Float,
+): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
+    }
+
+/**
+ * Returns a new empty [MutableObjectFloatMap].
  */
 public fun <K> mutableObjectFloatMapOf(): MutableObjectFloatMap<K> = MutableObjectFloatMap()
 
 /**
- * Returns a new [MutableObjectFloatMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Float] value is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutableObjectFloatMap] with only [key1] associated with [value1].
  */
-public fun <K> objectFloatMapOf(vararg pairs: Pair<K, Float>): ObjectFloatMap<K> =
-    MutableObjectFloatMap<K>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <K> mutableObjectFloatMapOf(
+    key1: K,
+    value1: Float,
+): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
     }
 
 /**
- * Returns a new [MutableObjectFloatMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Float] value is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutableObjectFloatMap] with only [key1] and [key2] associated with
+ * [value1] and [value2], respectively.
  */
-public fun <K> mutableObjectFloatMapOf(vararg pairs: Pair<K, Float>): MutableObjectFloatMap<K> =
-    MutableObjectFloatMap<K>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <K> mutableObjectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableObjectFloatMap] with only [key1], [key2], and [key3] associated with
+ * [value1], [value2], and [value3], respectively.
+ */
+public fun <K> mutableObjectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableObjectFloatMap] with only [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <K> mutableObjectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+    key4: K,
+    value4: Float,
+): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableObjectFloatMap] with only [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <K> mutableObjectFloatMapOf(
+    key1: K,
+    value1: Float,
+    key2: K,
+    value2: Float,
+    key3: K,
+    value3: Float,
+    key4: K,
+    value4: Float,
+    key5: K,
+    value5: Float,
+): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -560,20 +708,6 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Float] value is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, Float>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: ObjectFloatMap<K>) {
@@ -581,29 +715,6 @@ public class MutableObjectFloatMap<K>(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that the [Pair] is allocated and the [Float] value is boxed.
-     * Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<K, Float>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Float] value is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<out Pair<K, Float>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

@@ -41,7 +41,6 @@ private val EmptyFloatLongMap = MutableFloatLongMap(0)
 /**
  * Returns an empty, read-only [FloatLongMap].
  */
-@Suppress("UNCHECKED_CAST")
 public fun emptyFloatLongMap(): FloatLongMap = EmptyFloatLongMap
 
 /**
@@ -50,18 +49,87 @@ public fun emptyFloatLongMap(): FloatLongMap = EmptyFloatLongMap
 public fun floatLongMapOf(): FloatLongMap = EmptyFloatLongMap
 
 /**
- * Returns a new [FloatLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Float] key and [Long] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [FloatLongMap] with [key1] associated with [value1].
  */
-public fun floatLongMapOf(vararg pairs: Pair<Float, Long>): FloatLongMap =
-    MutableFloatLongMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun floatLongMapOf(
+    key1: Float,
+    value1: Long
+): FloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [FloatLongMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun floatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+): FloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [FloatLongMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun floatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+): FloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [FloatLongMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun floatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+    key4: Float,
+    value4: Long,
+): FloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [FloatLongMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun floatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+    key4: Float,
+    value4: Long,
+    key5: Float,
+    value5: Long,
+): FloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -70,18 +138,87 @@ public fun floatLongMapOf(vararg pairs: Pair<Float, Long>): FloatLongMap =
 public fun mutableFloatLongMapOf(): MutableFloatLongMap = MutableFloatLongMap()
 
 /**
- * Returns a new [MutableFloatLongMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * both the [Float] key and [Long] value are boxed. Use [set] for each
- * entry instead when it is important to reduce allocations.
+ * Returns a new [MutableFloatLongMap] with [key1] associated with [value1].
  */
-public fun mutableFloatLongMapOf(vararg pairs: Pair<Float, Long>): MutableFloatLongMap =
-    MutableFloatLongMap(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun mutableFloatLongMapOf(
+    key1: Float,
+    value1: Long
+): MutableFloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [MutableFloatLongMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun mutableFloatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+): MutableFloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableFloatLongMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun mutableFloatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+): MutableFloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableFloatLongMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun mutableFloatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+    key4: Float,
+    value4: Long,
+): MutableFloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableFloatLongMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun mutableFloatLongMapOf(
+    key1: Float,
+    value1: Long,
+    key2: Float,
+    value2: Long,
+    key3: Float,
+    value3: Long,
+    key4: Float,
+    value4: Long,
+    key5: Float,
+    value5: Long,
+): MutableFloatLongMap = MutableFloatLongMap().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -554,20 +691,6 @@ public class MutableFloatLongMap(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Float] key and [Long] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<Pair<Float, Long>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: FloatLongMap) {
@@ -575,29 +698,6 @@ public class MutableFloatLongMap(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that [pair] allocated and both the [Float] key and [Long] value are
-     * boxed. Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<Float, Long>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * both the [Float] key and [Long] value are boxed. Use [set] for each
-     * entry instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<Pair<Float, Long>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

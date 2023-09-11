@@ -52,18 +52,87 @@ public fun <V> emptyIntObjectMap(): IntObjectMap<V> = EmptyIntObjectMap as IntOb
 public fun <V> intObjectMapOf(): IntObjectMap<V> = EmptyIntObjectMap as IntObjectMap<V>
 
 /**
- * Returns a new [IntObjectMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Int] key is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [IntObjectMap] with [key1] associated with [value1].
  */
-public fun <V> intObjectMapOf(vararg pairs: Pair<Int, V>): IntObjectMap<V> =
-    MutableIntObjectMap<V>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V
+): IntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [IntObjectMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+): IntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [IntObjectMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+): IntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [IntObjectMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+    key4: Int,
+    value4: V,
+): IntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [IntObjectMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <V> intObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+    key4: Int,
+    value4: V,
+    key5: Int,
+    value5: V,
+): IntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -72,18 +141,87 @@ public fun <V> intObjectMapOf(vararg pairs: Pair<Int, V>): IntObjectMap<V> =
 public fun <V> mutableIntObjectMapOf(): MutableIntObjectMap<V> = MutableIntObjectMap()
 
 /**
- * Returns a new [MutableIntObjectMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [Int] key is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutableIntObjectMap] with [key1] associated with [value1].
  */
-public fun <V> mutableIntObjectMapOf(vararg pairs: Pair<Int, V>): MutableIntObjectMap<V> =
-    MutableIntObjectMap<V>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V
+): MutableIntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [MutableIntObjectMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+): MutableIntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutableIntObjectMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+): MutableIntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutableIntObjectMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+    key4: Int,
+    value4: V,
+): MutableIntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutableIntObjectMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <V> mutableIntObjectMapOf(
+    key1: Int,
+    value1: V,
+    key2: Int,
+    value2: V,
+    key3: Int,
+    value3: V,
+    key4: Int,
+    value4: V,
+    key5: Int,
+    value5: V,
+): MutableIntObjectMap<V> = MutableIntObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -554,20 +692,6 @@ public class MutableIntObjectMap<V>(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Int] key is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<Int, V>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: IntObjectMap<V>) {
@@ -575,29 +699,6 @@ public class MutableIntObjectMap<V>(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that the [Pair] is allocated and the [Int] key is boxed.
-     * Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<Int, V>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [Int] key is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<out Pair<Int, V>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

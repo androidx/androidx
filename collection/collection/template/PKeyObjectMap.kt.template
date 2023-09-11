@@ -52,18 +52,87 @@ public fun <V> emptyPKeyObjectMap(): PKeyObjectMap<V> = EmptyPKeyObjectMap as PK
 public fun <V> pKeyObjectMapOf(): PKeyObjectMap<V> = EmptyPKeyObjectMap as PKeyObjectMap<V>
 
 /**
- * Returns a new [PKeyObjectMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [PKey] key is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [PKeyObjectMap] with [key1] associated with [value1].
  */
-public fun <V> pKeyObjectMapOf(vararg pairs: Pair<PKey, V>): PKeyObjectMap<V> =
-    MutablePKeyObjectMap<V>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <V> pKeyObjectMapOf(
+    key1: PKey,
+    value1: V
+): PKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [PKeyObjectMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun <V> pKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+): PKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [PKeyObjectMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun <V> pKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+): PKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [PKeyObjectMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <V> pKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+    key4: PKey,
+    value4: V,
+): PKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [PKeyObjectMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <V> pKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+    key4: PKey,
+    value4: V,
+    key5: PKey,
+    value5: V,
+): PKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -72,18 +141,87 @@ public fun <V> pKeyObjectMapOf(vararg pairs: Pair<PKey, V>): PKeyObjectMap<V> =
 public fun <V> mutablePKeyObjectMapOf(): MutablePKeyObjectMap<V> = MutablePKeyObjectMap()
 
 /**
- * Returns a new [MutablePKeyObjectMap] with the specified contents, given as
- * a list of pairs where the first component is the key and the second
- * is the value. If multiple pairs have the same key, the resulting map
- * will contain the value from the last of those pairs.
- *
- * Note that [pairs] is an allocated array, and each [Pair] is allocated and
- * the [PKey] key is boxed. Use [set] for each entry instead when it is
- * important to reduce allocations.
+ * Returns a new [MutablePKeyObjectMap] with [key1] associated with [value1].
  */
-public fun <V> mutablePKeyObjectMapOf(vararg pairs: Pair<PKey, V>): MutablePKeyObjectMap<V> =
-    MutablePKeyObjectMap<V>(pairs.size).also { map ->
-        pairs.forEach { (key, value) -> map[key] = value }
+public fun <V> mutablePKeyObjectMapOf(
+    key1: PKey,
+    value1: V
+): MutablePKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+    }
+
+/**
+ * Returns a new [MutablePKeyObjectMap] with [key1], and [key2]
+ * associated with [value1], and [value2], respectively.
+ */
+public fun <V> mutablePKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+): MutablePKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+    }
+
+/**
+ * Returns a new [MutablePKeyObjectMap] with [key1], [key2], and [key3]
+ * associated with [value1], [value2], and [value3], respectively.
+ */
+public fun <V> mutablePKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+): MutablePKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+    }
+
+/**
+ * Returns a new [MutablePKeyObjectMap] with [key1], [key2], [key3], and [key4]
+ * associated with [value1], [value2], [value3], and [value4], respectively.
+ */
+public fun <V> mutablePKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+    key4: PKey,
+    value4: V,
+): MutablePKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+    }
+
+/**
+ * Returns a new [MutablePKeyObjectMap] with [key1], [key2], [key3], [key4], and [key5]
+ * associated with [value1], [value2], [value3], [value4], and [value5], respectively.
+ */
+public fun <V> mutablePKeyObjectMapOf(
+    key1: PKey,
+    value1: V,
+    key2: PKey,
+    value2: V,
+    key3: PKey,
+    value3: V,
+    key4: PKey,
+    value4: V,
+    key5: PKey,
+    value5: V,
+): MutablePKeyObjectMap<V> = MutablePKeyObjectMap<V>().also { map ->
+        map[key1] = value1
+        map[key2] = value2
+        map[key3] = value3
+        map[key4] = value4
+        map[key5] = value5
     }
 
 /**
@@ -554,20 +692,6 @@ public class MutablePKeyObjectMap<V>(
     }
 
     /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [PKey] key is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<PKey, V>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
-
-    /**
      * Puts all the key/value mappings in the [from] map into this map.
      */
     public fun putAll(from: PKeyObjectMap<V>) {
@@ -575,29 +699,6 @@ public class MutablePKeyObjectMap<V>(
             this[key] = value
         }
     }
-
-    /**
-     * Puts the key/value mapping from the [pair] in this map, using the first
-     * element as the key, and the second element as the value.
-     *
-     * Note that the [Pair] is allocated and the [PKey] key is boxed.
-     * Use [set] instead when it is important to reduce allocations.
-     */
-    public inline operator fun plusAssign(pair: Pair<PKey, V>) {
-        this[pair.first] = pair.second
-    }
-
-    /**
-     * Puts all the [pairs] into this map, using the first component of the pair
-     * as the key, and the second component as the value.
-     *
-     * Note that [pairs] is an allocated array, and each [Pair] is allocated and
-     * the [PKey] key is boxed. Use [set] for each entry instead when it is
-     * important to reduce allocations.
-     */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<out Pair<PKey, V>>
-    ): Unit = putAll(pairs)
 
     /**
      * Puts all the key/value mappings in the [from] map into this map.

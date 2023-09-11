@@ -23,7 +23,7 @@ package androidx.collection
  * @param first the first value in the pair
  * @param second the second value in the pair
  */
-public class PairLongLong public constructor(public val first: Long, public val second: Long) {
+public class LongLongPair public constructor(public val first: Long, public val second: Long) {
     /**
      * Returns the [first] component of the pair. For instance, the first component
      * of `PairLongLong(3, 4)` is `3`.
@@ -51,11 +51,11 @@ public class PairLongLong public constructor(public val first: Long, public val 
     /**
      * Checks the two values for equality.
      *
-     * @param other the [PairLongLong] to which this one is to be checked for equality
-     * @return true if the underlying values of the [PairLongLong] are both considered equal
+     * @param other the [LongLongPair] to which this one is to be checked for equality
+     * @return true if the underlying values of the [LongLongPair] are both considered equal
      */
     override fun equals(other: Any?): Boolean {
-        if (!(other is PairLongLong)) {
+        if (!(other is LongLongPair)) {
             return false
         }
         return other.first == first && other.second == second
@@ -64,7 +64,7 @@ public class PairLongLong public constructor(public val first: Long, public val 
     /**
      * Compute a hash code using the hash codes of the underlying values
      *
-     * @return a hashcode of the [PairLongLong]
+     * @return a hashcode of the [LongLongPair]
      */
     override fun hashCode(): Int {
         return first.hashCode() xor second.hashCode()

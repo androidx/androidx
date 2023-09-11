@@ -79,14 +79,113 @@ class ObjectPValueTest {
     }
 
     @Test
-    fun objectPValueMapPairsFunction() {
-        val map = mutableObjectPValueMapOf(
-            "Hello" to 1ValueSuffix,
-            "Bonjour" to 2ValueSuffix
+    fun objectPValueMapInitFunction() {
+        val map1 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
         )
-        assertEquals(2, map.size)
-        assertEquals(1ValueSuffix, map["Hello"])
-        assertEquals(2ValueSuffix, map["Bonjour"])
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1["Hello"])
+
+        val map2 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2["Hello"])
+        assertEquals(2ValueSuffix, map2["Bonjour"])
+
+        val map3 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3["Hello"])
+        assertEquals(2ValueSuffix, map3["Bonjour"])
+        assertEquals(3ValueSuffix, map3["Hallo"])
+
+        val map4 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4["Hello"])
+        assertEquals(2ValueSuffix, map4["Bonjour"])
+        assertEquals(3ValueSuffix, map4["Hallo"])
+        assertEquals(4ValueSuffix, map4["Konnichiwa"])
+
+        val map5 = objectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+            "Ciao", 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5["Hello"])
+        assertEquals(2ValueSuffix, map5["Bonjour"])
+        assertEquals(3ValueSuffix, map5["Hallo"])
+        assertEquals(4ValueSuffix, map5["Konnichiwa"])
+        assertEquals(5ValueSuffix, map5["Ciao"])
+    }
+
+    @Test
+    fun mutableObjectPValueMapInitFunction() {
+        val map1 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+        )
+        assertEquals(1, map1.size)
+        assertEquals(1ValueSuffix, map1["Hello"])
+
+        val map2 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+        )
+        assertEquals(2, map2.size)
+        assertEquals(1ValueSuffix, map2["Hello"])
+        assertEquals(2ValueSuffix, map2["Bonjour"])
+
+        val map3 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+        )
+        assertEquals(3, map3.size)
+        assertEquals(1ValueSuffix, map3["Hello"])
+        assertEquals(2ValueSuffix, map3["Bonjour"])
+        assertEquals(3ValueSuffix, map3["Hallo"])
+
+        val map4 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals(1ValueSuffix, map4["Hello"])
+        assertEquals(2ValueSuffix, map4["Bonjour"])
+        assertEquals(3ValueSuffix, map4["Hallo"])
+        assertEquals(4ValueSuffix, map4["Konnichiwa"])
+
+        val map5 = mutableObjectPValueMapOf(
+            "Hello", 1ValueSuffix,
+            "Bonjour", 2ValueSuffix,
+            "Hallo", 3ValueSuffix,
+            "Konnichiwa", 4ValueSuffix,
+            "Ciao", 5ValueSuffix,
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals(1ValueSuffix, map5["Hello"])
+        assertEquals(2ValueSuffix, map5["Bonjour"])
+        assertEquals(3ValueSuffix, map5["Hallo"])
+        assertEquals(4ValueSuffix, map5["Konnichiwa"])
+        assertEquals(5ValueSuffix, map5["Ciao"])
     }
 
     @Test
@@ -144,39 +243,6 @@ class ObjectPValueTest {
         assertEquals(1ValueSuffix, map["Hello"])
         map.put("Hello", 2ValueSuffix)
         assertEquals(2ValueSuffix, map["Hello"])
-    }
-
-    @Test
-    fun putAllArray() {
-        val map = MutableObjectPValueMap<String?>()
-        map["Hello"] = 1ValueSuffix
-        map[null] = 2ValueSuffix
-        map["Bonjour"] = 2ValueSuffix
-
-        map.putAll(arrayOf("Hallo" to 3ValueSuffix, "Hola" to 7ValueSuffix))
-
-        assertEquals(5, map.size)
-        assertEquals(3ValueSuffix, map["Hallo"])
-        assertEquals(7ValueSuffix, map["Hola"])
-    }
-
-    @Test
-    fun plus() {
-        val map = MutableObjectPValueMap<String>()
-        map += "Hello" to 1ValueSuffix
-
-        assertEquals(1, map.size)
-        assertEquals(1ValueSuffix, map["Hello"])
-    }
-
-    @Test
-    fun plusArray() {
-        val map = MutableObjectPValueMap<String>()
-        map += arrayOf("Hallo" to 3ValueSuffix, "Hola" to 7ValueSuffix)
-
-        assertEquals(2, map.size)
-        assertEquals(3ValueSuffix, map["Hallo"])
-        assertEquals(7ValueSuffix, map["Hola"])
     }
 
     @Test
