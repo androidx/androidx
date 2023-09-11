@@ -347,6 +347,35 @@ class FloatSetTest {
     }
 
     @Test
+    fun joinToString() {
+        val set = floatSetOf(1f, 2f, 3f, 4f, 5f)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}, " +
+            "${order[3].toFloat()}, ${order[4].toFloat()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toFloat()}-${order[1].toFloat()}-${order[2].toFloat()}-" +
+            "${order[3].toFloat()}-${order[4].toFloat()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val set = MutableFloatSet()
         set += 1f

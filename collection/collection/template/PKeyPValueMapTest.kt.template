@@ -468,6 +468,43 @@ class PKeyPValueMapTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutablePKeyPValueMap()
+        repeat(5) {
+            map[it.toPKey()] = it.toPValue()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toPKey()}=${order[0].toPValue()}, ${order[1].toPKey()}=" +
+            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}," +
+            " ${order[3].toPKey()}=${order[3].toPValue()}, ${order[4].toPKey()}=" +
+            "${order[4].toPValue()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toPKey()}=${order[0].toPValue()}, ${order[1].toPKey()}=" +
+            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toPKey()}=${order[0].toPValue()}-${order[1].toPKey()}=" +
+            "${order[1].toPValue()}-${order[2].toPKey()}=${order[2].toPValue()}-" +
+            "${order[3].toPKey()}=${order[3].toPValue()}-${order[4].toPKey()}=" +
+            "${order[4].toPValue()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutablePKeyPValueMap()
         map[1KeySuffix] = 1ValueSuffix

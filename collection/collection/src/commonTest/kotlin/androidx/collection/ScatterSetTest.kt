@@ -461,6 +461,33 @@ class ScatterSetTest {
     }
 
     @Test
+    fun joinToString() {
+        val set = scatterSetOf(1, 2, 3, 4, 5)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element
+        }
+        assertEquals(
+            "${order[0]}, ${order[1]}, ${order[2]}, ${order[3]}, ${order[4]}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0]}, ${order[1]}, ${order[2]}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0]}-${order[1]}-${order[2]}-${order[3]}-${order[4]}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it] }
+        )
+    }
+
+    @Test
     fun hashCodeAddValues() {
         val set = mutableScatterSetOf<String?>()
         assertEquals(0, set.hashCode())

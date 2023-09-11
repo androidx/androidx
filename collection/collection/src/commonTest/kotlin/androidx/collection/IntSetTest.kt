@@ -347,6 +347,35 @@ class IntSetTest {
     }
 
     @Test
+    fun joinToString() {
+        val set = intSetOf(1, 2, 3, 4, 5)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}, " +
+            "${order[3].toInt()}, ${order[4].toInt()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toInt()}-${order[1].toInt()}-${order[2].toInt()}-" +
+            "${order[3].toInt()}-${order[4].toInt()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val set = MutableIntSet()
         set += 1

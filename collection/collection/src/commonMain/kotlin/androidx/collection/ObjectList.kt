@@ -21,6 +21,7 @@ package androidx.collection
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 /**
  * [ObjectList] is a [List]-like collection for reference types. It is optimized for fast
@@ -498,6 +499,43 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
     }
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     *
+     * [transform] may be supplied to convert each element to a custom String.
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        transform: ((E) -> CharSequence)? = null
+    ): String = buildString {
+        append(prefix)
+        this@ObjectList.forEachIndexed { index, element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            if (transform == null) {
+                append(element)
+            } else {
+                append(transform(element))
+            }
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns a [List] view into the [ObjectList]. All access to the collection will be
      * less efficient and abides by the allocation requirements of the [List]. For example,
      * [List.forEach] will allocate an iterator. All access will go through the more expensive
@@ -539,21 +577,11 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      * Returns a String representation of the list, surrounded by "[]" and each element
      * separated by ", ".
      */
-    override fun toString(): String {
-        if (isEmpty()) {
-            return "[]"
-        }
-        val last = lastIndex
-        return buildString {
-            append('[')
-            val content = content
-            for (i in 0 until last) {
-                append(content[i])
-                append(',')
-                append(' ')
-            }
-            append(content[last])
-            append(']')
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]") { element ->
+        if (element === this) {
+            "(this)"
+        } else {
+            element.toString()
         }
     }
 }

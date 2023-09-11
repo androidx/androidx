@@ -468,6 +468,43 @@ class FloatLongMapTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutableFloatLongMap()
+        repeat(5) {
+            map[it.toFloat()] = it.toLong()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toFloat()}=${order[0].toLong()}, ${order[1].toFloat()}=" +
+            "${order[1].toLong()}, ${order[2].toFloat()}=${order[2].toLong()}," +
+            " ${order[3].toFloat()}=${order[3].toLong()}, ${order[4].toFloat()}=" +
+            "${order[4].toLong()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toFloat()}=${order[0].toLong()}, ${order[1].toFloat()}=" +
+            "${order[1].toLong()}, ${order[2].toFloat()}=${order[2].toLong()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toFloat()}=${order[0].toLong()}-${order[1].toFloat()}=" +
+            "${order[1].toLong()}-${order[2].toFloat()}=${order[2].toLong()}-" +
+            "${order[3].toFloat()}=${order[3].toLong()}-${order[4].toFloat()}=" +
+            "${order[4].toLong()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutableFloatLongMap()
         map[1f] = 1L

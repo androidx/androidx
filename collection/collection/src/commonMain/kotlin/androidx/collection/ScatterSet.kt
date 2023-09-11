@@ -29,6 +29,7 @@ package androidx.collection
 import androidx.collection.internal.EMPTY_OBJECTS
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 // This is a copy of ScatterMap, but without values
 
@@ -328,6 +329,45 @@ public sealed class ScatterSet<E> {
     public operator fun contains(element: E): Boolean = findElementIndex(element) >= 0
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     *
+     * [transform] may be supplied to convert each element to a custom String.
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        transform: ((E) -> CharSequence)? = null
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@ScatterSet.forEach { element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            if (transform == null) {
+                append(element)
+            } else {
+                append(transform(element))
+            }
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns the hash code value for this set. The hash code of a set is defined to
      * be the sum of the hash codes of the elements in the set, where the hash code
      * of a null element is defined to be zero
@@ -377,22 +417,12 @@ public sealed class ScatterSet<E> {
      * Returns a string representation of this set. The set is denoted in the
      * string by the `[]`. Each element is separated by `, `.
      */
-    public override fun toString(): String {
-        if (isEmpty()) {
-            return "[]"
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]") { element ->
+        if (element === this) {
+            "(this)"
+        } else {
+            element.toString()
         }
-
-        val s = StringBuilder().append('[')
-        val last = _size - 1
-        var index = 0
-        forEach { element ->
-            s.append(if (element === this) "(this)" else element)
-            if (index++ < last) {
-                s.append(',').append(' ')
-            }
-        }
-
-        return s.append(']').toString()
     }
 
     /**
