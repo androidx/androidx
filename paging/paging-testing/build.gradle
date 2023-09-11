@@ -59,6 +59,20 @@ androidXMultiplatform {
             }
         }
 
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRunner)
+            }
+        }
+
         if (macEnabled || linuxEnabled) {
             nativeMain {
                 dependsOn(commonMain)
