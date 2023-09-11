@@ -28,6 +28,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onPlaced
@@ -69,37 +72,48 @@ import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.rememberCarouselState
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun FeaturedCarouselContent() {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         items(3) { SampleLazyRow() }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Column(
+                    modifier = Modifier.focusRestorer().focusGroup(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                     repeat(3) {
-                        Box(
-                            modifier = Modifier
-                                .background(Color.Magenta.copy(alpha = 0.3f))
-                                .width(50.dp)
-                                .height(50.dp)
-                                .drawBorderOnFocus()
-                                .focusable()
-                        )
+                        key(it) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.Magenta.copy(alpha = 0.3f))
+                                    .width(50.dp)
+                                    .height(50.dp)
+                                    .drawBorderOnFocus()
+                                    .focusable()
+                            )
+                        }
                     }
                 }
 
                 FeaturedCarousel(Modifier.weight(1f))
 
-                Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Column(
+                    modifier = Modifier.focusRestorer().focusGroup(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                     repeat(3) {
-                        Box(
-                            modifier = Modifier
-                                .background(Color.Magenta.copy(alpha = 0.3f))
-                                .width(50.dp)
-                                .height(50.dp)
-                                .drawBorderOnFocus()
-                                .focusable()
-                        )
+                        key(it) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.Magenta.copy(alpha = 0.3f))
+                                    .width(50.dp)
+                                    .height(50.dp)
+                                    .drawBorderOnFocus()
+                                    .focusable()
+                            )
+                        }
                     }
                 }
             }
