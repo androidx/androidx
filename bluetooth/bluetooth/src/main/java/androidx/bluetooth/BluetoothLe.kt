@@ -338,8 +338,10 @@ class BluetoothLe constructor(private val context: Context) {
          *
          * @param characteristic the updated characteristic
          * @param value the new value of the characteristic
+         *
+         * @return `true` if the notification sent successfully
          */
-        fun notify(characteristic: GattCharacteristic, value: ByteArray)
+        suspend fun notify(characteristic: GattCharacteristic, value: ByteArray): Boolean
     }
 
     /**

@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,8 +115,8 @@ class RobolectricGattServerTest {
             connectRequests.first().accept {}
         }
 
-        Assert.assertTrue(opened.isCompleted)
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(opened.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test
@@ -149,7 +150,7 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
         Assert.assertEquals(0, serverAdapter.shadowGattServer.responses.size)
     }
 
@@ -182,7 +183,7 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
         Assert.assertEquals(0, serverAdapter.shadowGattServer.responses.size)
     }
 
@@ -222,7 +223,7 @@ class RobolectricGattServerTest {
         }.join()
 
         // Ensure if the server is closed
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
         Assert.assertEquals(1, serverAdapter.shadowGattServer.responses.size)
         Assert.assertEquals(valueToRead, serverAdapter.shadowGattServer.responses[0].toInt())
     }
@@ -270,8 +271,8 @@ class RobolectricGattServerTest {
         }.join()
 
         // Ensure if the server is closed
-        Assert.assertTrue(closed.isCompleted)
-        Assert.assertTrue(responsed.isCompleted)
+        assertTrue(closed.isCompleted)
+        assertTrue(responsed.isCompleted)
     }
 
     @Test
@@ -313,7 +314,7 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
     @Test
     fun writeCharacteristic() = runTest {
@@ -354,7 +355,7 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
         Assert.assertEquals(1, serverAdapter.shadowGattServer.responses.size)
         Assert.assertEquals(valueToWrite, serverAdapter.shadowGattServer.responses[0].toInt())
     }
@@ -407,7 +408,7 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     @Test
@@ -426,8 +427,9 @@ class RobolectricGattServerTest {
         }
         serverAdapter.onNotifyCharacteristicChangedListener =
             StubServerFrameworkAdapter.OnNotifyCharacteristicChangedListener {
-                    _, _, _, value ->
+                    fwkDevice, _, _, value ->
                 notified.complete(value.toInt())
+                serverAdapter.callback.onNotificationSent(fwkDevice, GATT_SUCCESS)
             }
         serverAdapter.onCloseGattServerListener =
             StubServerFrameworkAdapter.OnCloseGattServerListener {
@@ -438,7 +440,7 @@ class RobolectricGattServerTest {
             bluetoothLe.openGattServer(services) {
                 connectRequests.collect {
                     it.accept {
-                        notify(notifyCharacteristic, valueToNotify.toByteArray())
+                        assertTrue(notify(notifyCharacteristic, valueToNotify.toByteArray()))
                         // Close the server
                         this@launch.cancel()
                     }
@@ -447,7 +449,7 @@ class RobolectricGattServerTest {
         }.join()
 
         // Ensure if the server is closed
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(closed.isCompleted)
         Assert.assertEquals(valueToNotify, notified.await())
     }
 
@@ -473,8 +475,8 @@ class RobolectricGattServerTest {
             }
         }.join()
 
-        Assert.assertTrue(opened.isCompleted)
-        Assert.assertTrue(closed.isCompleted)
+        assertTrue(opened.isCompleted)
+        assertTrue(closed.isCompleted)
     }
 
     private fun<R> runAfterServicesAreAdded(countServices: Int, block: suspend () -> R) {
