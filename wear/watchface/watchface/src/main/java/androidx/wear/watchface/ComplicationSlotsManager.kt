@@ -331,24 +331,36 @@ public class ComplicationSlotsManager(
     }
 
     /**
-     * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
+     * Sets complication data, returning a restoration function.
+     *
+     * As this is used for screen shots, dirty bit (used for content description) is not set.
      */
     @UiThread
-    internal fun setComplicationDataUpdateForScreenshot(
-        complicationSlotId: Int,
-        data: ComplicationData,
-        instant: Instant
-    ) {
-        val complication = complicationSlots[complicationSlotId]
-        if (complication == null) {
-            Log.e(
-                TAG,
-                "setComplicationDataUpdateSync failed due to invalid complicationSlotId=" +
-                    "$complicationSlotId with data=$data"
-            )
-            return
+    internal fun setComplicationDataForScreenshot(
+        slotIdToData: Map<Int, ComplicationData>,
+        instant: Instant,
+    ): AutoCloseable {
+        val restores = mutableListOf<AutoCloseable>()
+        val restore = AutoCloseable { restores.forEach(AutoCloseable::close) }
+        try {
+            for ((id, data) in slotIdToData) {
+                val slot = complicationSlots[id]
+                if (slot == null) {
+                    Log.e(
+                        TAG,
+                        "setComplicationDataForScreenshot failed due to invalid " +
+                            "complicationSlotId=$id with data=$data"
+                    )
+                    continue
+                }
+                restores.add(slot.setComplicationDataForScreenshot(data, instant))
+            }
+        } catch (e: Throwable) {
+            // Cleanup changes on failure.
+            restore.close()
+            throw e
         }
-        complication.setComplicationDataForScreenshot(data, instant)
+        return restore
     }
 
     /**
