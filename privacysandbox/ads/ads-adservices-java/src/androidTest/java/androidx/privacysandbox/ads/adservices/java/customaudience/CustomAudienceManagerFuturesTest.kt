@@ -20,8 +20,6 @@ import android.adservices.customaudience.CustomAudienceManager
 import android.content.Context
 import android.net.Uri
 import android.os.OutcomeReceiver
-import android.os.ext.SdkExtensions
-import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
@@ -29,13 +27,17 @@ import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData
+import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil
 import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures.Companion.from
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import com.android.dx.mockito.inline.extended.ExtendedMockito
+import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
 import java.time.Instant
+import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +50,7 @@ import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.quality.Strictness
 
 @SmallTest
 @SuppressWarnings("NewApi")
@@ -55,27 +58,47 @@ import org.mockito.invocation.InvocationOnMock
 @SdkSuppress(minSdkVersion = 30)
 class CustomAudienceManagerFuturesTest {
 
+    private var mSession: StaticMockitoSession? = null
+    private val mValidAdExtServicesSdkExtVersion = VersionCompatUtil.isSWithMinExtServicesVersion(9)
+
     @Before
     fun setUp() {
         mContext = spy(ApplicationProvider.getApplicationContext<Context>())
+
+        if (mValidAdExtServicesSdkExtVersion) {
+            // setup a mockitoSession to return the mocked manager
+            // when the static method .get() is called
+            mSession = ExtendedMockito.mockitoSession()
+                .mockStatic(android.adservices.customaudience.CustomAudienceManager::class.java)
+                .strictness(Strictness.LENIENT)
+                .startMocking()
+        }
+    }
+
+    @After
+    fun tearDown() {
+        mSession?.finishMocking()
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testOlderVersions() {
-        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
-
-        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
+        Assume.assumeFalse("maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion=*/ 4,
+                /* minExtServicesVersion=*/ 9))
         Truth.assertThat(from(mContext)).isEqualTo(null)
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testJoinCustomAudience() {
-        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion= */ 4,
+                /* minExtServicesVersion=*/ 9))
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
-        val customAudienceManager = mockCustomAudienceManager(mContext)
+        val customAudienceManager =
+            mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupResponse(customAudienceManager)
         val managerCompat = from(mContext)
 
@@ -100,12 +123,14 @@ class CustomAudienceManagerFuturesTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testLeaveCustomAudience() {
-        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion= */ 4,
+                /* minExtServicesVersion=*/ 9))
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
-        val customAudienceManager = mockCustomAudienceManager(mContext)
+        val customAudienceManager =
+            mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupResponse(customAudienceManager)
         val managerCompat = from(mContext)
 
@@ -124,7 +149,6 @@ class CustomAudienceManagerFuturesTest {
     }
 
     @SdkSuppress(minSdkVersion = 30)
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context
         private val uri: Uri = Uri.parse("abc.com")
@@ -138,10 +162,18 @@ class CustomAudienceManagerFuturesTest {
         private const val metadata = "metadata"
         private val ads: List<AdData> = listOf(AdData(uri, metadata))
 
-        private fun mockCustomAudienceManager(spyContext: Context): CustomAudienceManager {
+        private fun mockCustomAudienceManager(
+            spyContext: Context,
+            isExtServices: Boolean
+        ): CustomAudienceManager {
             val customAudienceManager = mock(CustomAudienceManager::class.java)
-            `when`(spyContext.getSystemService(CustomAudienceManager::class.java))
-                .thenReturn(customAudienceManager)
+            // mock the .get() method if using extServices version, otherwise mock getSystemService
+            if (isExtServices) {
+                `when`(CustomAudienceManager.get(any())).thenReturn(customAudienceManager)
+            } else {
+                `when`(spyContext.getSystemService(CustomAudienceManager::class.java))
+                    .thenReturn(customAudienceManager)
+            }
             return customAudienceManager
         }
 
