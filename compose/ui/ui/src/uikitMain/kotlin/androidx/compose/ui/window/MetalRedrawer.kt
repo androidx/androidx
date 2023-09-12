@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.uikit.PlistSanityCheck
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.*
 import org.jetbrains.skia.*
 import platform.Foundation.NSNotificationCenter
@@ -30,6 +32,13 @@ import platform.UIKit.UIApplicationState
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.darwin.*
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
+import org.jetbrains.skiko.available
+import platform.Foundation.NSBundle
+import platform.Foundation.NSNumber
 import platform.Foundation.NSThread
 import platform.Foundation.NSTimeInterval
 
@@ -207,6 +216,8 @@ internal class MetalRedrawer(
             UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
 
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
+
+        configureMetalHUDIfNeeded()
     }
 
     fun dispose() {
@@ -342,6 +353,21 @@ internal class MetalRedrawer(
 
             if (waitUntilCompletion) {
                 commandBuffer.waitUntilCompleted()
+            }
+        }
+    }
+
+    private fun configureMetalHUDIfNeeded() {
+        if (available(OS.Ios to OSVersion(16))) {
+            val entry = NSBundle
+                .mainBundle
+                .objectForInfoDictionaryKey("MetalHudEnabled") as? NSNumber
+
+            if (entry?.boolValue == true) {
+                metalLayer.developerHUDProperties = mapOf(
+                    "mode" to "default",
+                    "logging" to "default"
+                )
             }
         }
     }

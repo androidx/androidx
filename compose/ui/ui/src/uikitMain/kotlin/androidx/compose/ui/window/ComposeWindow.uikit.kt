@@ -47,8 +47,11 @@ import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import org.jetbrains.skia.Surface
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoPointerEvent
+import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGAffineTransformIdentity
 import platform.CoreGraphics.CGAffineTransformInvert
 import platform.CoreGraphics.CGPoint
@@ -167,15 +170,9 @@ internal actual class ComposeWindow : UIViewController {
      */
     private val currentInterfaceOrientation: InterfaceOrientation?
         get() {
-            // Flag for checking which API to use
             // Modern: https://developer.apple.com/documentation/uikit/uiwindowscene/3198088-interfaceorientation?language=objc
             // Deprecated: https://developer.apple.com/documentation/uikit/uiapplication/1623026-statusbarorientation?language=objc
-            val supportsWindowSceneApi =
-                NSProcessInfo.processInfo.operatingSystemVersion.useContents {
-                    majorVersion >= 13
-                }
-
-            return if (supportsWindowSceneApi) {
+            return if (available(OS.Ios to OSVersion(13))) {
                 view.window?.windowScene?.interfaceOrientation?.let {
                     InterfaceOrientation.getByRawValue(it)
                 }
