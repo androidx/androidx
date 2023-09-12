@@ -96,7 +96,6 @@ internal class SessionManagerImpl(
     }
 
     override suspend fun isSessionRunning(context: Context, key: String) =
-        @Suppress("ListIterator")
         (WorkManager.getInstance(context).getWorkInfosForUniqueWork(key).await()
             .any { it.state == WorkInfo.State.RUNNING } && synchronized(sessions) {
             sessions.containsKey(key)

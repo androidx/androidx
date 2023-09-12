@@ -52,7 +52,6 @@ class MappedNode internal constructor(
  * An implementation of [GlanceNode] node that uses [MappedNode] to perform assertions during
  * testing.
  */
-@Suppress("ListIterator")
 class GlanceMappedNode(private val mappedNode: MappedNode) : GlanceNode<MappedNode>(mappedNode) {
 
     @RestrictTo(Scope.LIBRARY_GROUP)

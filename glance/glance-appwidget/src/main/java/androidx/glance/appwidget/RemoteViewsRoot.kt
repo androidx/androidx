@@ -18,7 +18,6 @@ package androidx.glance.appwidget
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -32,7 +31,7 @@ import androidx.glance.GlanceModifier
     override var modifier: GlanceModifier = GlanceModifier
     override fun copy(): Emittable = RemoteViewsRoot(maxDepth).also {
         it.modifier = modifier
-        it.children.addAll(children.fastMap { it.copy() })
+        it.children.addAll(children.map { it.copy() })
     }
 
     override fun toString(): String = "RemoteViewsRoot(" +

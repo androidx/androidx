@@ -20,6 +20,87 @@
     </issue>
 
     <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Box.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Column.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        children.joinToString(&quot;,\n&quot;).prependIndent(&quot;  &quot;)"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/Emittables.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            events.forEach { addAction(it) }"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/session/IdleEventBroadcastReceiver.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    fold(0.dp) { acc, res ->"
+        errorLine2="    ~~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/layout/Row.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .any { it.state == WorkInfo.State.RUNNING } &amp;&amp; synchronized(sessions) {"
+        errorLine2="             ~~~">
+        <location
+            file="src/main/java/androidx/glance/session/SessionManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val mask = decorations.fold(0) { acc, decoration ->"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextDecoration.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return &quot;TextDecoration[${values.joinToString(separator = &quot;, &quot;)}]&quot;"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/text/TextDecoration.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor InteractiveFrameClock has parameter &apos;nanoTime&apos; with type Function0&lt;Long>."
         errorLine1="    private val nanoTime: () -> Long = { System.nanoTime() }"
