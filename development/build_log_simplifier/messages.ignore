@@ -741,3 +741,11 @@ w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/sli
 # > Task :slice:slice-benchmark:compileReleaseAndroidTestJavaWithJavac
 \$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java:[0-9]+: warning: \[deprecation\] SliceHints in androidx\.slice\.core has been deprecated
 import androidx\.slice\.core\.SliceHints;
+# b/300090636
+Could not load custom lint check jar file \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/[0-9a-f]{32}/transformed/material\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar
+java\.lang\.ClassCastException: class java\.util\.HashMap\$Node cannot be cast to class java\.util\.HashMap\$TreeNode \(java\.util\.HashMap\$Node and java\.util\.HashMap\$TreeNode are in module java\.base of loader 'bootstrap'\)
+at com\.android\.tools\.lint\.client\.api\.JarFileIssueRegistry\$Factory\.get\(JarFileIssueRegistry\.kt:[0-9]+\)
+at com\.android\.tools\.lint\.client\.api\.JarFileIssueRegistry\$Factory\.get\$default\(JarFileIssueRegistry\.kt:[0-9]+\)
+at com\.android\.tools\.lint\.client\.api\.LintDriver\.registerCustomDetectors\(LintDriver\.kt:[0-9]+\)
+at com\.android\.tools\.lint\.client\.api\.LintDriver\.initializeExtraRegistries\(LintDriver\.kt:[0-9]+\)
+at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
