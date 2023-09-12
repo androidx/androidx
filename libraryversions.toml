@@ -202,7 +202,6 @@ CORE = { group = "androidx.core" }
 CORE_HAPTICS = { group = "androidx.core.haptics", atomicGroupVersion = "versions.CORE_HAPTICS" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
 CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
-CREDENTIALS_FIDO = { group = "androidx.credentials.credentials-fido", atomicGroupVersion = "versions.CREDENTIALS_FIDO_QUARANTINE" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }
 CUSTOMVIEW = { group = "androidx.customview" }
 DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE" }
