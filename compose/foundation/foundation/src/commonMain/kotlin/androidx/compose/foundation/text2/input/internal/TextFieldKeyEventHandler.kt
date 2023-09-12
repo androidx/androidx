@@ -217,20 +217,16 @@ internal abstract class TextFieldKeyEventHandler {
                 KeyCommand.SELECT_END -> moveCursorToEnd().selectMovement()
                 KeyCommand.DESELECT -> deselect()
                 KeyCommand.UNDO -> {
-                    // undoManager?.makeSnapshot(value)
-                    // undoManager?.undo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.undo()
                 }
-
                 KeyCommand.REDO -> {
-                    // undoManager?.redo()?.let { this@TextFieldKeyInput.onValueChange(it) }
+                    textFieldState.redo()
                 }
-
                 KeyCommand.CHARACTER_PALETTE -> {
                     showCharacterPalette()
                 }
             }
         }
-        // undoManager?.forceNextSnapshot()
         return consumed
     }
 

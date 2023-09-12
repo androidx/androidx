@@ -21,6 +21,7 @@ import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.foundation.text2.input.toVisualText
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -108,7 +109,10 @@ internal class TransformedTextFieldState(
     }
 
     fun deleteSelectedText() {
-        textFieldState.editAsUser(inputTransformation) {
+        textFieldState.editAsUser(
+            inputTransformation,
+            undoBehavior = TextFieldEditUndoBehavior.NeverMerge
+        ) {
             // `selection` is read from the buffer, so we don't need to transform it.
             delete(selection.min, selection.max)
             setSelection(selection.min, selection.min)
@@ -117,9 +121,10 @@ internal class TransformedTextFieldState(
 
     fun replaceSelectedText(
         newText: CharSequence,
-        clearComposition: Boolean = false
+        clearComposition: Boolean = false,
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible
     ) {
-        textFieldState.editAsUser(inputTransformation) {
+        textFieldState.editAsUser(inputTransformation, undoBehavior = undoBehavior) {
             if (clearComposition) {
                 commitComposition()
             }
@@ -148,6 +153,14 @@ internal class TransformedTextFieldState(
             // `selection` is read from the buffer, so we don't need to transform it.
             setSelection(selection.end, selection.end)
         }
+    }
+
+    fun undo() {
+        textFieldState.undoState.undo()
+    }
+
+    fun redo() {
+        textFieldState.undoState.redo()
     }
 
     /**

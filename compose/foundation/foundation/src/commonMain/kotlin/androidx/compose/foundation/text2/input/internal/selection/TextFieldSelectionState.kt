@@ -35,6 +35,7 @@ import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
+import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -933,7 +934,6 @@ internal class TextFieldSelectionState(
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
 
         textFieldState.deleteSelectedText()
-        // TODO(halilibo): undoManager force snapshot
     }
 
     /**
@@ -969,8 +969,10 @@ internal class TextFieldSelectionState(
     fun paste() {
         val clipboardText = clipboardManager?.getText()?.text ?: return
 
-        textFieldState.replaceSelectedText(clipboardText)
-        // TODO(halilibo): undoManager force snapshot
+        textFieldState.replaceSelectedText(
+            clipboardText,
+            undoBehavior = TextFieldEditUndoBehavior.NeverMerge
+        )
     }
 
     /**
