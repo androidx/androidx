@@ -88,8 +88,9 @@ internal class TextFieldPreparedSelection(
     private val text: String = initialValue.toString()
 
     /**
-     * If there is a non-collapsed selection, delete its contents. If the selection is collapsed,
-     * execute the given [or] block.
+     * If there is a non-collapsed selection, delete its contents.
+     *
+     * @return Whether a selected region is deleted.
      */
     fun EditingBuffer.deleteIfSelected(): Boolean {
         if (selection.collapsed) return false

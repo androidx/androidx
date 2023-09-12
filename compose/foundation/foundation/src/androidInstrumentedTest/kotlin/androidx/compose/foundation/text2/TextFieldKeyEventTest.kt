@@ -629,6 +629,36 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Test
+    fun textField_simpleUndo() {
+        keysSequenceTest("hello") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.Spacebar)
+            pressKey(Key.A)
+            pressKey(Key.B)
+            pressKey(Key.C)
+            expectedText("hello abc")
+            press(Key.CtrlLeft + Key.Z)
+            expectedText("hello")
+        }
+    }
+
+    @Test
+    fun textField_simpleRedo() {
+        keysSequenceTest("hello") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.Spacebar)
+            pressKey(Key.A)
+            pressKey(Key.B)
+            pressKey(Key.C)
+            expectedText("hello abc")
+            press(Key.CtrlLeft + Key.Z)
+            expectedText("hello")
+            press(Key.CtrlLeft + Key.ShiftLeft + Key.Z)
+            expectedText("hello abc")
+        }
+    }
+
     private inner class SequenceScope(
         val state: TextFieldState,
         val clipboardManager: ClipboardManager,
