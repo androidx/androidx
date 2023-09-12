@@ -21,10 +21,12 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
@@ -815,6 +817,32 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.runOnIdle {
             assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(-0.25f)
+        }
+    }
+
+    @Test
+    fun onScroll_shouldNotGenerateExtraMeasurements() {
+        // Arrange
+        var layoutCount = 0
+        createPager(initialPage = 5, modifier = Modifier.layout { measurable, constraints ->
+            layoutCount++
+            val placeables = measurable.measure(constraints)
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeables.place(0, 0)
+            }
+        })
+
+        // Act: Scroll.
+        val previousMeasurementCount = layoutCount
+        val previousOffsetFraction = pagerState.currentPageOffsetFraction
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollBy((pageSize * 0.2f) * scrollForwardSign)
+            }
+        }
+        rule.runOnIdle {
+            assertThat(pagerState.currentPageOffsetFraction).isNotEqualTo(previousOffsetFraction)
+            assertThat(layoutCount).isEqualTo(previousMeasurementCount + 1)
         }
     }
 

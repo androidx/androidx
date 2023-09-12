@@ -52,15 +52,14 @@ internal fun rememberPagerMeasurePolicy(
     verticalAlignment: Alignment.Vertical?,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
-    contentPadding,
-    pageSpacing,
-    pageSize,
     state,
     contentPadding,
     reverseLayout,
     orientation,
     horizontalAlignment,
     verticalAlignment,
+    pageSpacing,
+    pageSize,
     pageCount,
 ) {
     { containerConstraints ->
