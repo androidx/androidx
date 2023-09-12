@@ -16,10 +16,12 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
-import static java.util.Objects.requireNonNull;
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.squareup.javapoet.ClassName;
 
 import java.util.Arrays;
 
@@ -43,22 +45,23 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     public static MetadataPropertyAnnotation tryParse(@NonNull AnnotationMirror annotation) {
         String qualifiedClassName = annotation.getAnnotationType().toString();
         return Arrays.stream(values())
-                .filter(val -> val.getQualifiedClassName().equals(qualifiedClassName))
+                .filter(val -> val.getClassName().canonicalName().equals(qualifiedClassName))
                 .findFirst()
                 .orElse(null);
     }
 
     @NonNull
-    private final String mSimpleClassName;
+    @SuppressWarnings("ImmutableEnumChecker") // ClassName is an immutable third-party type
+    private final ClassName mClassName;
 
     MetadataPropertyAnnotation(@NonNull String simpleClassName) {
-        mSimpleClassName = requireNonNull(simpleClassName);
+        mClassName = DOCUMENT_ANNOTATION_CLASS.nestedClass(simpleClassName);
     }
 
     @Override
     @NonNull
-    public String getSimpleClassName() {
-        return mSimpleClassName;
+    public ClassName getClassName() {
+        return mClassName;
     }
 
     @Override

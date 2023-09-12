@@ -20,7 +20,6 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
-
 import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
@@ -177,7 +176,7 @@ class DocumentModel {
             boolean isAnnotated = false;
             for (AnnotationMirror annotation : child.getAnnotationMirrors()) {
                 if (annotation.getAnnotationType().toString().equals(
-                        IntrospectionHelper.BUILDER_PRODUCER_CLASS)) {
+                        IntrospectionHelper.BUILDER_PRODUCER_CLASS.canonicalName())) {
                     isAnnotated = true;
                     break;
                 }
@@ -256,7 +255,8 @@ class DocumentModel {
             if (gettersAndFields.size() > 1) {
                 // Can show the error on any of the duplicates. Just pick the first first.
                 throw new ProcessingException(
-                        "Duplicate member annotated with @" + annotation.getSimpleClassName(),
+                        "Duplicate member annotated with @"
+                                + annotation.getClassName().simpleName(),
                         gettersAndFields.get(0).getElement());
             }
         }
@@ -511,85 +511,85 @@ class DocumentModel {
         // no annotation mirrors -> non-indexable field
         for (AnnotationMirror annotation : childElement.getAnnotationMirrors()) {
             String annotationFq = annotation.getAnnotationType().toString();
-            if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS) || annotationFq.equals(
-                    BUILDER_PRODUCER_CLASS)) {
+            if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS.canonicalName())
+                    || annotationFq.equals(BUILDER_PRODUCER_CLASS.canonicalName())) {
                 continue;
             }
             if (childElement.getKind() == ElementKind.CLASS) {
                 continue;
             }
 
-            switch (annotationFq) {
-                case IntrospectionHelper.ID_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.ID)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Id",
-                                childElement);
-                    }
-                    mSpecialFieldNames.put(SpecialField.ID, fieldName);
-                    break;
-                case IntrospectionHelper.NAMESPACE_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.NAMESPACE)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Namespace",
-                                childElement);
-                    }
-                    mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
-                    break;
-                case IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.CREATION_TIMESTAMP_MILLIS)) {
-                        throw new ProcessingException("Class hierarchy contains multiple fields "
-                                + "annotated @CreationTimestampMillis", childElement);
-                    }
-                    mSpecialFieldNames.put(
-                            SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
-                    break;
-                case IntrospectionHelper.TTL_MILLIS_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.TTL_MILLIS)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @TtlMillis",
-                                childElement);
-                    }
-                    mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
-                    break;
-                case IntrospectionHelper.SCORE_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.SCORE)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Score",
-                                childElement);
-                    }
-                    mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
-                    break;
-                default:
-                    PropertyClass propertyClass = getPropertyClass(annotationFq);
-                    if (propertyClass != null) {
-                        // A property must either:
-                        //   1. be unique
-                        //   2. override a property from the Java parent while maintaining the same
-                        //      AppSearch property name
-                        checkFieldTypeForPropertyAnnotation(childElement, propertyClass);
-                        // It's assumed that parent types, in the context of Java's type system,
-                        // are always visited before child types, so existingProperty must come
-                        // from the parent type. To make this assumption valid, the result
-                        // returned by generateClassHierarchy must put parent types before child
-                        // types.
-                        Element existingProperty = mPropertyElements.get(fieldName);
-                        if (existingProperty != null) {
-                            if (!mTypeUtil.isSameType(
-                                    existingProperty.asType(), childElement.asType())) {
-                                throw new ProcessingException(
-                                        "Cannot override a property with a different type",
-                                        childElement);
-                            }
-                            if (!getPropertyName(existingProperty).equals(getPropertyName(
-                                    childElement))) {
-                                throw new ProcessingException(
-                                        "Cannot override a property with a different name",
-                                        childElement);
-                            }
+            if (annotationFq.equals(MetadataPropertyAnnotation.ID.getClassName().canonicalName())) {
+                if (mSpecialFieldNames.containsKey(SpecialField.ID)) {
+                    throw new ProcessingException(
+                            "Class hierarchy contains multiple fields annotated @Id",
+                            childElement);
+                }
+                mSpecialFieldNames.put(SpecialField.ID, fieldName);
+            } else if (annotationFq.equals(
+                    MetadataPropertyAnnotation.NAMESPACE.getClassName().canonicalName())) {
+                if (mSpecialFieldNames.containsKey(SpecialField.NAMESPACE)) {
+                    throw new ProcessingException(
+                            "Class hierarchy contains multiple fields annotated @Namespace",
+                            childElement);
+                }
+                mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
+            } else if (annotationFq.equals(
+                    MetadataPropertyAnnotation.CREATION_TIMESTAMP_MILLIS
+                            .getClassName()
+                            .canonicalName())) {
+                if (mSpecialFieldNames.containsKey(SpecialField.CREATION_TIMESTAMP_MILLIS)) {
+                    throw new ProcessingException("Class hierarchy contains multiple fields "
+                            + "annotated @CreationTimestampMillis", childElement);
+                }
+                mSpecialFieldNames.put(
+                        SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
+            } else if (annotationFq.equals(
+                    MetadataPropertyAnnotation.TTL_MILLIS.getClassName().canonicalName())) {
+                if (mSpecialFieldNames.containsKey(SpecialField.TTL_MILLIS)) {
+                    throw new ProcessingException(
+                            "Class hierarchy contains multiple fields annotated @TtlMillis",
+                            childElement);
+                }
+                mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
+            } else if (annotationFq.equals(
+                    MetadataPropertyAnnotation.SCORE.getClassName().canonicalName())) {
+                if (mSpecialFieldNames.containsKey(SpecialField.SCORE)) {
+                    throw new ProcessingException(
+                            "Class hierarchy contains multiple fields annotated @Score",
+                            childElement);
+                }
+                mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
+            } else {
+                PropertyClass propertyClass = getPropertyClass(annotationFq);
+                if (propertyClass != null) {
+                    // A property must either:
+                    //   1. be unique
+                    //   2. override a property from the Java parent while maintaining the same
+                    //      AppSearch property name
+                    checkFieldTypeForPropertyAnnotation(childElement, propertyClass);
+                    // It's assumed that parent types, in the context of Java's type system,
+                    // are always visited before child types, so existingProperty must come
+                    // from the parent type. To make this assumption valid, the result
+                    // returned by generateClassHierarchy must put parent types before child
+                    // types.
+                    Element existingProperty = mPropertyElements.get(fieldName);
+                    if (existingProperty != null) {
+                        if (!mTypeUtil.isSameType(
+                                existingProperty.asType(), childElement.asType())) {
+                            throw new ProcessingException(
+                                    "Cannot override a property with a different type",
+                                    childElement);
                         }
-                        mPropertyElements.put(fieldName, childElement);
+                        if (!getPropertyName(existingProperty).equals(getPropertyName(
+                                childElement))) {
+                            throw new ProcessingException(
+                                    "Cannot override a property with a different name",
+                                    childElement);
+                        }
                     }
+                    mPropertyElements.put(fieldName, childElement);
+                }
             }
 
             mAllAppSearchElements.put(fieldName, childElement);
@@ -1280,13 +1280,12 @@ class DocumentModel {
                 throws ProcessingException {
             PropertyAnnotation existingAnnotation = existingGetterOrField.getAnnotation();
             PropertyAnnotation overriddenAnnotation = overriddenGetterOfField.getAnnotation();
-            if (!existingAnnotation.getQualifiedClassName().equals(
-                    overriddenAnnotation.getQualifiedClassName())) {
+            if (!existingAnnotation.getClassName().equals(overriddenAnnotation.getClassName())) {
                 throw new ProcessingException(
                         ("Property type must stay consistent when overriding annotated members "
                                 + "but changed from @%s -> @%s").formatted(
-                                existingAnnotation.getSimpleClassName(),
-                                overriddenAnnotation.getSimpleClassName()),
+                                existingAnnotation.getClassName().simpleName(),
+                                overriddenAnnotation.getClassName().simpleName()),
                         overriddenGetterOfField.getElement());
             }
         }

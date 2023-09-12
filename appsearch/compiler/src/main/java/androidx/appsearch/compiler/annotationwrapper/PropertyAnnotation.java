@@ -16,9 +16,9 @@
 
 package androidx.appsearch.compiler.annotationwrapper;
 
-import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
-
 import androidx.annotation.NonNull;
+
+import com.squareup.javapoet.ClassName;
 
 /**
  * An instance of an AppSearch property annotation.
@@ -35,23 +35,13 @@ public interface PropertyAnnotation {
     }
 
     /**
-     * The annotation class' simple name.
+     * The annotation class' name.
      *
-     * <p>For example, {@code StringProperty} for a {@link StringPropertyAnnotation}.
-     */
-    @NonNull
-    String getSimpleClassName();
-
-    /**
-     * The annotation class' qualified name
-     *
-     * <p>{@code androidx.appsearch.annotation.Document.StringProperty} for a
+     * <p>For example, {@code androidx.appsearch.annotation.Document.StringProperty} for a
      * {@link StringPropertyAnnotation}.
      */
     @NonNull
-    default String getQualifiedClassName() {
-        return DOCUMENT_ANNOTATION_CLASS + "." + getSimpleClassName();
-    }
+    ClassName getClassName();
 
     /**
      * The {@link Kind} of {@link PropertyAnnotation}.
