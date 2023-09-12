@@ -48,20 +48,20 @@ class ComparableSubjectTest {
     }
 
     @Test
-    fun isInRange() {
+    fun isIn() {
         val oneToFive = 1..5
-        assertThat(4).isInRange(oneToFive)
+        assertThat(4).isIn(oneToFive)
         assertFailsWith<AssertionError> {
-            assertThat(6).isInRange(oneToFive)
+            assertThat(6).isIn(oneToFive)
         }
     }
 
     @Test
-    fun isNotInRange() {
+    fun isNotIn() {
         val oneToFive = 1..5
-        assertThat(6).isNotInRange(oneToFive)
+        assertThat(6).isNotIn(oneToFive)
         assertFailsWith<AssertionError> {
-            assertThat(4).isNotInRange(oneToFive)
+            assertThat(4).isNotIn(oneToFive)
         }
     }
 
@@ -135,8 +135,8 @@ class ComparableSubjectTest {
         assertThat(4L).isAtLeast(3L)
 
         val range = 2L..4L
-        assertThat(3L).isInRange(range)
-        assertThat(5L).isNotInRange(range);
+        assertThat(3L).isIn(range)
+        assertThat(5L).isNotIn(range);
     }
 
     @Test
@@ -147,10 +147,6 @@ class ComparableSubjectTest {
         assertThat("gak").isAtMost("kak")
         assertThat("kak").isAtLeast("kak")
         assertThat("kak").isAtLeast("gak")
-
-        val range = "a".."c"
-        assertThat("b").isInRange(range)
-        assertThat("d").isNotInRange(range);
     }
 
     @Test

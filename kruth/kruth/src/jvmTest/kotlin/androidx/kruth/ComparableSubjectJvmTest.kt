@@ -23,7 +23,14 @@ import kotlin.test.assertFailsWith
 class ComparableSubjectJvmTest {
 
     @Test
-    fun isInRange_int() {
+    fun strings() {
+        val range = Range.closed("a", "c")
+        assertThat("b").isIn(range)
+        assertThat("d").isNotIn(range)
+    }
+
+    @Test
+    fun isIn_int() {
         val oneToFive = Range.closed(1, 5)
         assertThat(4).isIn(oneToFive)
         assertFailsWith<AssertionError> {
@@ -32,7 +39,7 @@ class ComparableSubjectJvmTest {
     }
 
     @Test
-    fun isNotInRange_int() {
+    fun isNotIn_int() {
         val oneToFive = Range.closed(1, 5)
         assertThat(6).isNotIn(oneToFive)
         assertFailsWith<AssertionError> {
@@ -41,7 +48,7 @@ class ComparableSubjectJvmTest {
     }
 
     @Test
-    fun isInRange_long() {
+    fun isIn_long() {
         val oneToFive = Range.closed(1L, 5L)
         assertThat(4L).isIn(oneToFive)
         assertFailsWith<AssertionError> {
@@ -50,7 +57,7 @@ class ComparableSubjectJvmTest {
     }
 
     @Test
-    fun isNotInRange_long() {
+    fun isNotIn_long() {
         val oneToFive = Range.closed(1L, 5L)
         assertThat(6L).isNotIn(oneToFive)
         assertFailsWith<AssertionError> {
@@ -59,7 +66,7 @@ class ComparableSubjectJvmTest {
     }
 
     @Test
-    fun isInRange_string() {
+    fun isIn_string() {
         val oneToFive = Range.closed("a", "c")
         assertThat("b").isIn(oneToFive)
         assertFailsWith<AssertionError> {
@@ -68,7 +75,7 @@ class ComparableSubjectJvmTest {
     }
 
     @Test
-    fun isNotInRange_string() {
+    fun isNotIn_string() {
         val oneToFive = Range.closed("a", "c")
         assertThat("d").isNotIn(oneToFive)
         assertFailsWith<AssertionError> {
