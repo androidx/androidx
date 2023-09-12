@@ -194,44 +194,42 @@ class CallsManager constructor(context: Context) {
      * priority will prevent the [android.app.ActivityManager] from killing your application when
      * it is placed the background. Foreground execution priority is removed from your app when all
      * of your app's calls terminate or your app no longer posts a valid notification.
-     *
-     * Note: For outgoing calls, your application should either immediately post a
-     * [android.app.Notification.CallStyle] notification or delay adding the call via this
-     * addCall method until the remote side is ready.
+     * - Other things that should be noted:
+     *     - For outgoing calls, your application should either immediately post a
+     *       [android.app.Notification.CallStyle] notification or delay adding the call via this
+     *       addCall method until the remote side is ready.
+     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
+     *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout
+     *       will result in a failed transaction.
      *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
-     * @param block              DSL interface block that will run when the call is ready
-     * @param onAnswer           Telecom is informing your VoIP application to answer an incoming
-     *                           call and  set it to active. Telecom is requesting this on behalf
-     *                           of an system service (e.g. Automotive service) or a device (e.g.
-     *                           Wearable).
+     * @param onAnswer           where callType is the audio/video state the call should be
+     *                           answered as.  Telecom is informing your VoIP application to answer
+     *                           an incoming call and  set it to active. Telecom is requesting this
+     *                           on behalf of an system service (e.g. Automotive service) or a
+     *                           device (e.g. Wearable).  Return true to indicate your VoIP
+     *                           application can answer the call with the given
+     *                           [CallAttributesCompat.Companion.CallType]. Otherwise, return false
+     *                           to indicate your application is unable to process the request and
+     *                           telecom will cancel the external request.
      *
-     *                           @param callType that call is requesting to be answered as.
-     *
-     *                           @return true to indicate your VoIP application can answer the
-     *                           call with the given [CallAttributesCompat.Companion.CallType].
+     * @param onDisconnect       where disconnectCause represents the cause for disconnecting the
+     *                           call. Telecom is informing your VoIP application to disconnect the
+     *                           incoming call. Telecom is requesting this on behalf of an system
+     *                           service (e.g. Automotive service) or a device (e.g. Wearable).
+     *                           Return true when your VoIP  application has disconnected the call.
      *                           Otherwise, return false to indicate your application is unable to
-     *                           process the request and telecom will cancel the external request.
-     *
-     * @param onDisconnect       Telecom is informing your VoIP application to disconnect the
-     *                           incoming  call and set it to active. Telecom is requesting this on
-     *                           behalf of an system service (e.g. Automotive service) or a device
-     *                           (e.g. Wearable).
-     *
-     *                           @param disconnectCause represents the cause for disconnecting the
+     *                           process the request. However, Telecom will still disconnect the
+     *                           call from the platform and other services will no longer see the
      *                           call.
      *
-     *                           @return true when your VoIP application has disconnected the call.
-     *                           Otherwise, return false to indicate your application is unable to
-     *                           process the request. However, telecom will still
      * @param onSetActive        Telecom is informing your VoIP application to set the call active.
      *                           Telecom is requesting this on behalf of an system service (e.g.
-     *                           Automotive service) or a device (e.g. Wearable).
-     *
-     *                           @return true to indicate your VoIP application can set the call
-     *                           (that corresponds to this lambda function) to active.
-     *                           Otherwise, return false to indicate your application is unable to
-     *                           process the request and telecom will cancel the external request.
+     *                           Automotive service) or a device (e.g. Wearable). Return true to
+     *                           indicate your VoIP application can set the call (that corresponds
+     *                           to this lambda function) to active. Otherwise, return false to
+     *                           indicate your application is unable to process the request and
+     *                           telecom will cancel the external request.
      *
      * @param onSetInactive      Telecom is informing your VoIP application to set the call
      *                           inactive. This is the same as holding a call for two endpoints but
@@ -239,18 +237,15 @@ class CallsManager constructor(context: Context) {
      *                           requesting this on behalf of an system service (e.g. Automotive
      *                           service) or a device (e.g.Wearable). Note: Your app must stop
      *                           using the microphone and playing incoming media when returning.
+     *                           Return true to indicate your application can set the call (that
+     *                           corresponds to this lambda function) to inactive. Otherwise, return
+     *                           false to indicate your application is unable to process the request
+     *                           and telecom will cancel the external request.
      *
-     *                           @return true to indicate your VoIP application can set the call
-     *                           (that corresponds to this lambda function) to inactive.
-     *                           Otherwise, return false to indicate your application is unable to
-     *                           process the request and telecom will cancel the external request.
+     * @param block              DSL interface block that will run when the call is ready
      *
-     * Note: Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
-     * timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout will
-     * result in a failed transaction.
-     *
-     * @Throws UnsupportedOperationException if the device is on an invalid build
-     * @Throws CancellationException if the call failed to be added within 5000 milliseconds
+     * @throws UnsupportedOperationException if the device is on an invalid build
+     * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
