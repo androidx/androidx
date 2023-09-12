@@ -6,8 +6,8 @@ import androidx.compose.material3.DropdownMenu as DropdownMenu3
 import androidx.compose.material3.DropdownMenuItem as DropdownMenuItem3
 import androidx.compose.material3.ExposedDropdownMenuBox as ExposedDropdownMenuBox3
 import androidx.compose.material3.ExposedDropdownMenuDefaults as ExposedDropdownMenuDefaults3
-import androidx.compose.material3.TextField as TextField3
 import androidx.compose.material3.Text as Text3
+import androidx.compose.material3.TextField as TextField3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -35,11 +36,16 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.mpp.demo.textfield.android.loremIpsum
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +56,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import kotlinx.coroutines.launch
 
 @Composable
 fun PopupAndDialog() {
@@ -63,6 +70,7 @@ fun PopupAndDialog() {
         DialogSamples()
         AlertDialogSample()
         AlertDialog3Sample()
+        ModalBottomSheet3Sample()
         DropdownMenuSample()
         DropdownMenu3Sample()
         ExposedDropdownMenuSample()
@@ -301,6 +309,37 @@ private fun DialogSample(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ModalBottomSheet3Sample() {
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState()
+    Button3(onClick = { openBottomSheet = true }) {
+        Text3(text = "ModalBottomSheet3")
+    }
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState
+        ) {
+            Button3(onClick = {
+                scope.launch {
+                    bottomSheetState.hide()
+                    openBottomSheet = false
+                }
+            }) {
+                Text3("Hide")
+            }
+            LazyColumn {
+                items(30) {
+                    ListItem({ Text("Item $it") })
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun DropdownMenuSample() {
     val horizontalScrollState = rememberScrollState()
@@ -374,7 +413,7 @@ private fun DropdownMenu3Sample() {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ExposedDropdownMenuSample() {
+private fun ExposedDropdownMenuSample() {
     val options = List(5) { "Item $it" }
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
@@ -410,7 +449,7 @@ fun ExposedDropdownMenuSample() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExposedDropdownMenu3Sample() {
+private fun ExposedDropdownMenu3Sample() {
     val options = List(5) { "Item $it" }
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
