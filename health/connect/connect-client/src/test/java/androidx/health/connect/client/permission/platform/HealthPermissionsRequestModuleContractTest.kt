@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class HealthDataRequestPermissionsUpsideDownCakeTest {
+class HealthPermissionsRequestModuleContractTest {
 
     private lateinit var context: Context
 
@@ -41,7 +41,7 @@ class HealthDataRequestPermissionsUpsideDownCakeTest {
 
     @Test
     fun createIntent() {
-        val requestPermissionContract = HealthDataRequestPermissionsUpsideDownCake()
+        val requestPermissionContract = HealthPermissionsRequestModuleContract()
         val intent =
             requestPermissionContract.createIntent(
                 context,
@@ -56,7 +56,7 @@ class HealthDataRequestPermissionsUpsideDownCakeTest {
 
     @Test
     fun parseIntent() {
-        val requestPermissionContract = HealthDataRequestPermissionsUpsideDownCake()
+        val requestPermissionContract = HealthPermissionsRequestModuleContract()
 
         val intent = Intent()
         intent.putExtra(

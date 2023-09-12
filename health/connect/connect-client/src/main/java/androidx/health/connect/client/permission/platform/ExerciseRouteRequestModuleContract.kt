@@ -29,13 +29,14 @@ import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.platform.client.impl.logger.Logger
 
 /**
- * An [ActivityResultContract] to request a route associated with an {@code ExerciseSessionRecord}.
+ * An [ActivityResultContract] to request a route associated with an {@code ExerciseSessionRecord}
+ * from HealthConnect in the Android Platform.
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class RequestExerciseRouteUpsideDownCake :
+internal class ExerciseRouteRequestModuleContract :
     ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
         return Intent(HealthConnectManager.ACTION_REQUEST_EXERCISE_ROUTE).apply {

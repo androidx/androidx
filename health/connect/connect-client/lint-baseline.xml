@@ -1663,7 +1663,7 @@
         errorLine1="                        PermissionProto.Permission.newBuilder().setPermission(it).build()"
         errorLine2="                                                                                  ~~~~~">
         <location
-            file="src/main/java/androidx/health/connect/client/permission/HealthDataRequestPermissionsInternal.kt"/>
+            file="src/main/java/androidx/health/connect/client/permission/HealthPermissionsRequestAppContract.kt"/>
     </issue>
 
     <issue
@@ -1672,7 +1672,7 @@
         errorLine1="                        PermissionProto.Permission.newBuilder().setPermission(it).build()"
         errorLine2="                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/connect/client/permission/HealthDataRequestPermissionsInternal.kt"/>
+            file="src/main/java/androidx/health/connect/client/permission/HealthPermissionsRequestAppContract.kt"/>
     </issue>
 
     <issue
@@ -1681,7 +1681,7 @@
         errorLine1="                        PermissionProto.Permission.newBuilder().setPermission(it).build()"
         errorLine2="                                                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/connect/client/permission/HealthDataRequestPermissionsInternal.kt"/>
+            file="src/main/java/androidx/health/connect/client/permission/HealthPermissionsRequestAppContract.kt"/>
     </issue>
 
     <issue
@@ -1690,7 +1690,7 @@
         errorLine1="                ?.map { it.proto.permission }"
         errorLine2="                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/connect/client/permission/HealthDataRequestPermissionsInternal.kt"/>
+            file="src/main/java/androidx/health/connect/client/permission/HealthPermissionsRequestAppContract.kt"/>
     </issue>
 
     <issue
@@ -1699,7 +1699,7 @@
         errorLine1="                ?.map { it.proto.permission }"
         errorLine2="                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/connect/client/permission/HealthDataRequestPermissionsInternal.kt"/>
+            file="src/main/java/androidx/health/connect/client/permission/HealthPermissionsRequestAppContract.kt"/>
     </issue>
 
     <issue

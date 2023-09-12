@@ -29,14 +29,14 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GR
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
 
 /**
- * An [ActivityResultContract] to request Health Connect permissions.
+ * An [ActivityResultContract] to request Health Connect permissions from the HealthConnect APK.
  *
  * @param providerPackageName Optional provider package name for the backing implementation of
  *   choice.
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class HealthDataRequestPermissionsInternal(
+internal class HealthPermissionsRequestAppContract(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
 ) : ActivityResultContract<Set<String>, Set<String>>() {
 

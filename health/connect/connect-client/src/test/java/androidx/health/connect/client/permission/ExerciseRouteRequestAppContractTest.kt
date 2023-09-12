@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class RequestExerciseRouteInternalTest {
+class ExerciseRouteRequestAppContractTest {
 
     private lateinit var context: Context
 
@@ -41,7 +41,7 @@ class RequestExerciseRouteInternalTest {
 
     @Test
     fun createIntentTest() {
-        val requestRouteContract = RequestExerciseRouteInternal()
+        val requestRouteContract = ExerciseRouteRequestAppContract()
         val intent = requestRouteContract.createIntent(context, "someUid")
         assertThat(intent.action).isEqualTo("androidx.health.action.REQUEST_EXERCISE_ROUTE")
         assertThat(intent.getStringExtra(HealthDataServiceConstants.EXTRA_SESSION_ID))
@@ -50,21 +50,21 @@ class RequestExerciseRouteInternalTest {
 
     @Test
     fun parseIntent_null() {
-        val requestRouteContract = RequestExerciseRouteInternal()
+        val requestRouteContract = ExerciseRouteRequestAppContract()
         val result = requestRouteContract.parseResult(0, null)
         assertThat(result).isNull()
     }
 
     @Test
     fun parseIntent_emptyIntent() {
-        val requestRouteContract = RequestExerciseRouteInternal()
+        val requestRouteContract = ExerciseRouteRequestAppContract()
         val result = requestRouteContract.parseResult(0, Intent())
         assertThat(result).isNull()
     }
 
     @Test
     fun parseIntent_emptyRoute() {
-        val requestRouteContract = RequestExerciseRouteInternal()
+        val requestRouteContract = ExerciseRouteRequestAppContract()
         val intent = Intent()
         intent.putExtra(
             HealthDataServiceConstants.EXTRA_EXERCISE_ROUTE,
@@ -78,7 +78,7 @@ class RequestExerciseRouteInternalTest {
 
     @Test
     fun parseIntent() {
-        val requestRouteContract = RequestExerciseRouteInternal()
+        val requestRouteContract = ExerciseRouteRequestAppContract()
         val intent = Intent()
         val protoLocation1 =
             DataProto.SubTypeDataValue.newBuilder()
