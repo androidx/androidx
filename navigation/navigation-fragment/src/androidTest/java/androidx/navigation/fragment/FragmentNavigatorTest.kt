@@ -1618,10 +1618,23 @@ class FragmentNavigatorTest {
             emptyActivity.onBackPressed()
         }
 
+        val countDownLatch3 = CountDownLatch(1)
+        activityRule.runOnUiThread {
+            entry1.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        // wait for animator to finish
+                        countDownLatch3.countDown()
+                    }
+                }
+            })
+        }
+        assertThat(countDownLatch3.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         // assert exit from entry2 and enter entry1
         assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
-        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     @LargeTest
