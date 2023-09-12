@@ -163,6 +163,17 @@ class EditingBufferTest {
     }
 
     @Test
+    fun replace_reversedRegion() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        eb.replace(3, 1, "FGHI")
+
+        assertThat(eb).hasChars("AFGHIDE")
+        assertThat(eb.cursor).isEqualTo(5)
+        assertThat(eb.selectionStart).isEqualTo(5)
+        assertThat(eb.selectionEnd).isEqualTo(5)
+    }
+
+    @Test
     fun setComposition_and_cancelComposition() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
