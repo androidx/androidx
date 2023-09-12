@@ -23,6 +23,7 @@ import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
+import androidx.health.connect.client.readRecord
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -41,8 +42,7 @@ suspend fun ReadStepsRange(
 ) {
     val response =
         healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                StepsRecord::class,
+            ReadRecordsRequest<StepsRecord>(
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
             )
         )
@@ -59,8 +59,7 @@ suspend fun ReadExerciseSessions(
 ) {
     val response =
         healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                ExerciseSessionRecord::class,
+            ReadRecordsRequest<ExerciseSessionRecord>(
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
             )
         )
@@ -70,8 +69,7 @@ suspend fun ReadExerciseSessions(
         val heartRateRecords =
             healthConnectClient
                 .readRecords(
-                    ReadRecordsRequest(
-                        HeartRateRecord::class,
+                    ReadRecordsRequest<HeartRateRecord>(
                         timeRangeFilter =
                             TimeRangeFilter.between(
                                 exerciseRecord.startTime,
@@ -104,7 +102,7 @@ suspend fun ReadExerciseRoute(
 
     // Show exercise route, based on user action
     val exerciseSessionRecord =
-        healthConnectClient.readRecord(ExerciseSessionRecord::class, recordId).record
+        healthConnectClient.readRecord<ExerciseSessionRecord>(recordId).record
 
     when (val exerciseRouteResult = exerciseSessionRecord.exerciseRouteResult) {
         is ExerciseRouteResult.Data -> displayExerciseRoute(exerciseRouteResult.exerciseRoute)
@@ -122,8 +120,7 @@ suspend fun ReadSleepSessions(
 ) {
     val response =
         healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                SleepSessionRecord::class,
+            ReadRecordsRequest<SleepSessionRecord>(
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
             )
         )
@@ -147,8 +144,7 @@ suspend fun ReadRecordsInBackground(
 
     val response =
         healthConnectClient.readRecords(
-            ReadRecordsRequest(
-                recordType = StepsRecord::class,
+            ReadRecordsRequest<StepsRecord>(
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
             )
         )
