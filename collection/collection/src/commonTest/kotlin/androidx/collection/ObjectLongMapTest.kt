@@ -553,6 +553,41 @@ class ObjectLongTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutableObjectLongMap<String?>()
+        repeat(5) {
+            map[it.toString()] = it.toLong()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { _, value ->
+            order[index++] = value.toInt()
+        }
+        assertEquals(
+            "${order[0]}=${order[0].toLong()}, ${order[1]}=${order[1].toLong()}, " +
+            "${order[2]}=${order[2].toLong()}, ${order[3]}=${order[3].toLong()}, " +
+            "${order[4]}=${order[4].toLong()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0]}=${order[0].toLong()}, ${order[1]}=${order[1].toLong()}, " +
+            "${order[2]}=${order[2].toLong()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0]}=${order[0].toLong()}-${order[1]}=${order[1].toLong()}-" +
+            "${order[2]}=${order[2].toLong()}-${order[3]}=${order[3].toLong()}-" +
+            "${order[4]}=${order[4].toLong()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { _, value -> names[value.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutableObjectLongMap<String?>()
         map["Hello"] = 1L

@@ -22,6 +22,7 @@
 package androidx.collection
 
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // DO NOT MAKE CHANGES to the kotlin source file.
@@ -470,6 +471,73 @@ public sealed class FloatIntMap {
             if (value == v) return true
         }
         return false
+    }
+
+    /**
+     * Creates a String from the entries, separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@FloatIntMap.forEach { key, value ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(key)
+            append('=')
+            append(value)
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
+     * Creates a String from the entries, separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied. Each entry is created with [transform].
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public inline fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        crossinline transform: (key: Float, value: Int) -> CharSequence
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@FloatIntMap.forEach { key, value ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(transform(key, value))
+            index++
+        }
+        append(postfix)
     }
 
     /**

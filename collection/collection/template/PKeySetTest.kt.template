@@ -347,6 +347,35 @@ class PKeySetTest {
     }
 
     @Test
+    fun joinToString() {
+        val set = pKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toPKey()}, ${order[1].toPKey()}, ${order[2].toPKey()}, " +
+            "${order[3].toPKey()}, ${order[4].toPKey()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toPKey()}, ${order[1].toPKey()}, ${order[2].toPKey()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toPKey()}-${order[1].toPKey()}-${order[2].toPKey()}-" +
+            "${order[3].toPKey()}-${order[4].toPKey()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val set = MutablePKeySet()
         set += 1KeySuffix

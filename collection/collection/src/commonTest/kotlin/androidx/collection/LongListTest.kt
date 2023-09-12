@@ -93,6 +93,27 @@ class LongListTest {
     }
 
     @Test
+    fun joinToString() {
+        assertEquals("${1L}, ${2L}, ${3L}, ${4L}, ${5L}", list.joinToString())
+        assertEquals(
+            "x${1L}, ${2L}, ${3L}...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${1L}-${2L}-${3L}-${4L}-${5L}<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it.toInt()) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
+    }
+
+    @Test
     fun size() {
         assertEquals(5, list.size)
         assertEquals(5, list.count())
