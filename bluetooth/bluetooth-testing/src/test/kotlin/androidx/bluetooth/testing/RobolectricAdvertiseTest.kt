@@ -18,7 +18,6 @@ package androidx.bluetooth.testing
 
 import android.content.Context
 import androidx.bluetooth.AdvertiseParams
-import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
 import java.util.UUID
 import kotlinx.coroutines.cancel
@@ -41,7 +40,7 @@ class RobolectricAdvertiseTest {
         val params = AdvertiseParams()
         launch {
             bluetoothLe.advertise(params) { result ->
-                Assert.assertEquals(AdvertiseResult.ADVERTISE_STARTED, result)
+                Assert.assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
                 cancel()
             }
         }
@@ -62,7 +61,7 @@ class RobolectricAdvertiseTest {
 
         launch {
             bluetoothLe.advertise(advertiseParams) { result ->
-                Assert.assertEquals(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE, result)
+                Assert.assertEquals(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE, result)
             }
         }
     }

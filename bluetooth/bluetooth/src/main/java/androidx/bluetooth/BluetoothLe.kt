@@ -29,6 +29,7 @@ import android.os.Build
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.DoNotInline
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
@@ -52,9 +53,36 @@ import kotlinx.coroutines.job
  */
 class BluetoothLe constructor(private val context: Context) {
 
-    private companion object {
+    companion object {
         private const val TAG = "BluetoothLe"
+
+        /** Advertise started successfully. */
+        const val ADVERTISE_STARTED: Int = 101
+
+        /** Advertise failed to start because the data is too large. */
+        const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 102
+
+        /** Advertise failed to start because the advertise feature is not supported. */
+        const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 103
+
+        /** Advertise failed to start because of an internal error. */
+        const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 104
+
+        /** Advertise failed to start because of too many advertisers. */
+        const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 105
     }
+
+    @Target(AnnotationTarget.TYPE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        ADVERTISE_STARTED,
+        ADVERTISE_FAILED_DATA_TOO_LARGE,
+        ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
+        ADVERTISE_FAILED_INTERNAL_ERROR,
+        ADVERTISE_FAILED_TOO_MANY_ADVERTISERS
+    )
+    annotation class AdvertiseResult
 
     @RequiresApi(34)
     private object BluetoothLeApi34Impl {
@@ -103,7 +131,7 @@ class BluetoothLe constructor(private val context: Context) {
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     suspend fun advertise(
         advertiseParams: AdvertiseParams,
-        block: (suspend (@AdvertiseResult.ResultType Int) -> Unit)? = null
+        block: (suspend (@AdvertiseResult Int) -> Unit)? = null
     ) {
         val result = CompletableDeferred<Int>()
 
@@ -113,21 +141,21 @@ class BluetoothLe constructor(private val context: Context) {
 
                 when (errorCode) {
                     ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        result.complete(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
+                        result.complete(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE)
 
                     ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        result.complete(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
+                        result.complete(BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
 
                     ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        result.complete(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+                        result.complete(BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR)
 
                     ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        result.complete(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
+                        result.complete(BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                 }
             }
 
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
-                result.complete(AdvertiseResult.ADVERTISE_STARTED)
+                result.complete(ADVERTISE_STARTED)
             }
         }
 
@@ -167,7 +195,7 @@ class BluetoothLe constructor(private val context: Context) {
         }
         result.await().let {
             block?.invoke(it)
-            if (it == AdvertiseResult.ADVERTISE_STARTED) {
+            if (it == ADVERTISE_STARTED) {
                 if (advertiseParams.durationMillis > 0) {
                     delay(advertiseParams.durationMillis.toLong())
                 } else {
