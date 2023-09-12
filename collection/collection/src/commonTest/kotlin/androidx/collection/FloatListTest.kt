@@ -93,6 +93,27 @@ class FloatListTest {
     }
 
     @Test
+    fun joinToString() {
+        assertEquals("${1f}, ${2f}, ${3f}, ${4f}, ${5f}", list.joinToString())
+        assertEquals(
+            "x${1f}, ${2f}, ${3f}...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${1f}-${2f}-${3f}-${4f}-${5f}<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it.toInt()) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
+    }
+
+    @Test
     fun size() {
         assertEquals(5, list.size)
         assertEquals(5, list.count())

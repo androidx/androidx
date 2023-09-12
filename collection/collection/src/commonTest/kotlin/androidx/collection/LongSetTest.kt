@@ -347,6 +347,35 @@ class LongSetTest {
     }
 
     @Test
+    fun joinToString() {
+        val set = longSetOf(1L, 2L, 3L, 4L, 5L)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toLong()}, ${order[1].toLong()}, ${order[2].toLong()}, " +
+            "${order[3].toLong()}, ${order[4].toLong()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toLong()}, ${order[1].toLong()}, ${order[2].toLong()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toLong()}-${order[1].toLong()}-${order[2].toLong()}-" +
+            "${order[3].toLong()}-${order[4].toLong()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val set = MutableLongSet()
         set += 1L

@@ -587,6 +587,41 @@ class FloatObjectMapTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutableFloatObjectMap<String>()
+        repeat(5) {
+            map[it.toFloat()] = it.toString()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toFloat()}=${order[0]}, ${order[1].toFloat()}=${order[1]}, " +
+            "${order[2].toFloat()}=${order[2]}, ${order[3].toFloat()}=${order[3]}, " +
+            "${order[4].toFloat()}=${order[4]}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toFloat()}=${order[0]}, ${order[1].toFloat()}=${order[1]}, " +
+            "${order[2].toFloat()}=${order[2]}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toFloat()}=${order[0]}-${order[1].toFloat()}=${order[1]}-" +
+            "${order[2].toFloat()}=${order[2]}-${order[3].toFloat()}=${order[3]}-" +
+            "${order[4].toFloat()}=${order[4]}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutableFloatObjectMap<String?>()
         map[1f] = "World"

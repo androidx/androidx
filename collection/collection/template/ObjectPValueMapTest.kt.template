@@ -553,6 +553,41 @@ class ObjectPValueTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutableObjectPValueMap<String?>()
+        repeat(5) {
+            map[it.toString()] = it.toPValue()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { _, value ->
+            order[index++] = value.toInt()
+        }
+        assertEquals(
+            "${order[0]}=${order[0].toPValue()}, ${order[1]}=${order[1].toPValue()}, " +
+            "${order[2]}=${order[2].toPValue()}, ${order[3]}=${order[3].toPValue()}, " +
+            "${order[4]}=${order[4].toPValue()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0]}=${order[0].toPValue()}, ${order[1]}=${order[1].toPValue()}, " +
+            "${order[2]}=${order[2].toPValue()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0]}=${order[0].toPValue()}-${order[1]}=${order[1].toPValue()}-" +
+            "${order[2]}=${order[2].toPValue()}-${order[3]}=${order[3].toPValue()}-" +
+            "${order[4]}=${order[4].toPValue()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { _, value -> names[value.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutableObjectPValueMap<String?>()
         map["Hello"] = 1ValueSuffix

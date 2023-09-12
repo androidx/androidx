@@ -28,6 +28,7 @@ package androidx.collection
 
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // DO NOT MAKE CHANGES to the kotlin source file.
@@ -321,6 +322,71 @@ public sealed class PKeySet {
     public operator fun contains(element: PKey): Boolean = findElementIndex(element) >= 0
 
     /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@PKeySet.forEach { element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(element)
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
+     * Creates a String from the elements separated by [separator] and using [prefix] before
+     * and [postfix] after, if supplied. [transform] dictates how each element will be represented.
+     *
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
+     * to generate the string. If the collection holds more than [limit] items, the string
+     * is terminated with [truncated].
+     */
+    @JvmOverloads
+    public inline fun joinToString(
+        separator: CharSequence = ", ",
+        prefix: CharSequence = "",
+        postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
+        limit: Int = -1,
+        truncated: CharSequence = "...",
+        crossinline transform: (PKey) -> CharSequence
+    ): String = buildString {
+        append(prefix)
+        var index = 0
+        this@PKeySet.forEach { element ->
+            if (index == limit) {
+                append(truncated)
+                return@buildString
+            }
+            if (index != 0) {
+                append(separator)
+            }
+            append(transform(element))
+            index++
+        }
+        append(postfix)
+    }
+
+    /**
      * Returns the hash code value for this set. The hash code of a set is defined to be the
      * sum of the hash codes of the elements in the set.
      */
@@ -366,23 +432,7 @@ public sealed class PKeySet {
      * Returns a string representation of this set. The set is denoted in the
      * string by the `{}`. Each element is separated by `, `.
      */
-    public override fun toString(): String {
-        if (isEmpty()) {
-            return "[]"
-        }
-
-        val s = StringBuilder().append('[')
-        val last = _size - 1
-        var index = 0
-        forEach { element ->
-            s.append(element)
-            if (index++ < last) {
-                s.append(',').append(' ')
-            }
-        }
-
-        return s.append(']').toString()
-    }
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 
     /**
      * Scans the set to find the index in the backing arrays of the

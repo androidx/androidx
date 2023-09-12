@@ -83,6 +83,30 @@ class ObjectListTest {
     fun string() {
         assertEquals("[1, 2, 3, 4, 5]", list.toString())
         assertEquals("[]", mutableObjectListOf<Int>().toString())
+        val weirdList = MutableObjectList<Any>()
+        weirdList.add(weirdList)
+        assertEquals("[(this)]", weirdList.toString())
+    }
+
+    @Test
+    fun joinToString() {
+        assertEquals("1, 2, 3, 4, 5", list.joinToString())
+        assertEquals(
+            "x1, 2, 3...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">1-2-3-4-5<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
     }
 
     @Test

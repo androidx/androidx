@@ -535,6 +535,43 @@ class LongIntMapTest {
     }
 
     @Test
+    fun joinToString() {
+        val map = MutableLongIntMap()
+        repeat(5) {
+            map[it.toLong()] = it.toInt()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toLong()}=${order[0].toInt()}, ${order[1].toLong()}=" +
+            "${order[1].toInt()}, ${order[2].toLong()}=${order[2].toInt()}," +
+            " ${order[3].toLong()}=${order[3].toInt()}, ${order[4].toLong()}=" +
+            "${order[4].toInt()}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toLong()}=${order[0].toInt()}, ${order[1].toLong()}=" +
+            "${order[1].toInt()}, ${order[2].toLong()}=${order[2].toInt()}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toLong()}=${order[0].toInt()}-${order[1].toLong()}=" +
+            "${order[1].toInt()}-${order[2].toLong()}=${order[2].toInt()}-" +
+            "${order[3].toLong()}=${order[3].toInt()}-${order[4].toLong()}=" +
+            "${order[4].toInt()}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
     fun equals() {
         val map = MutableLongIntMap()
         map[1L] = 1

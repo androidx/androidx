@@ -93,6 +93,27 @@ class IntListTest {
     }
 
     @Test
+    fun joinToString() {
+        assertEquals("${1}, ${2}, ${3}, ${4}, ${5}", list.joinToString())
+        assertEquals(
+            "x${1}, ${2}, ${3}...",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${1}-${2}-${3}-${4}-${5}<",
+            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        assertEquals("one, two, three...", list.joinToString(limit = 3) {
+            when (it.toInt()) {
+                1 -> "one"
+                2 -> "two"
+                3 -> "three"
+                else -> "whoops"
+            }
+        })
+    }
+
+    @Test
     fun size() {
         assertEquals(5, list.size)
         assertEquals(5, list.count())
