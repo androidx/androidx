@@ -61,9 +61,9 @@ interface HealthConnectClient {
      *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * For example, to insert basic data like step counts:
@@ -93,10 +93,10 @@ interface HealthConnectClient {
      * [records] is executed in a transaction - if one fails, none is inserted.
      *
      * @param records List of records to update
-     * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
-     *   will result in IPC failure.
+     * @throws android.os.RemoteException For any IPC transportation failures. Update with invalid
+     * identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
     suspend fun updateRecords(records: List<Record>)
@@ -109,11 +109,11 @@ interface HealthConnectClient {
      * @param recordIdsList List of [androidx.health.connect.client.records.metadata.Metadata.id] of
      *   [Record] to delete
      * @param clientRecordIdsList List of client record IDs of [Record] to delete
-     * @throws RemoteException For any IPC transportation failures. Deleting by invalid identifiers
-     *   such as a non-existing identifier or deleting the same record multiple times will result in
-     *   IPC failure.
+     * @throws android.os.RemoteException For any IPC transportation failures. Deleting by invalid
+     * identifiers such as a non-existing identifier or deleting the same record multiple times will
+     * result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example usage to delete written steps data by its unique identifier:
@@ -133,9 +133,9 @@ interface HealthConnectClient {
      *
      * @param recordType Which type of [Record] to delete, such as `Steps::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example usage to delete written steps data in a time range:
@@ -151,10 +151,10 @@ interface HealthConnectClient {
      * @param recordId [androidx.health.connect.client.records.metadata.Metadata.id] of [Record] to
      *   read
      * @return The [Record] data point.
-     * @throws RemoteException For any IPC transportation failures. Update with invalid identifiers
-     *   will result in IPC failure.
+     * @throws android.os.RemoteException For any IPC transportation failures. Update with invalid
+     * identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      */
     suspend fun <T : Record> readRecord(
@@ -168,9 +168,9 @@ interface HealthConnectClient {
      * @param T the type of [Record]
      * @param request [ReadRecordsRequest] object specifying time range and other filters
      * @return a response containing a collection of [Record]s.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example code to read basic data like step counts:
@@ -186,9 +186,9 @@ interface HealthConnectClient {
      * @param request [AggregateRequest] object specifying [AggregateMetric]s to aggregate and other
      *   filters.
      * @return the [AggregationResult] that contains aggregated values.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example code to aggregate cumulative data like distance:
@@ -216,9 +216,9 @@ interface HealthConnectClient {
      *   aggregate and other filters.
      * @return a list of [AggregationResultGroupedByDuration]s, each contains aggregated values and
      *   start/end time of the row. The list is sorted by time in ascending order.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example code to retrieve cumulative step count for each minute within provided time range:
@@ -244,9 +244,9 @@ interface HealthConnectClient {
      *   aggregate and other filters.
      * @return a list of [AggregationResultGroupedByPeriod]s, each contains aggregated values and
      *   start/end time of the row. The list is sorted by time in ascending order.
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IOException For any disk I/O issues.
+     * @throws java.io.IOException For any disk I/O issues.
      * @throws IllegalStateException If service is not available.
      *
      * Example code to retrieve cumulative step count for each month within provided time range:
@@ -270,7 +270,7 @@ interface HealthConnectClient {
      *
      * @param request Includes interested types of record to observe changes and optional filters.
      * @return a changes-token
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
      * @see getChanges
@@ -301,7 +301,7 @@ interface HealthConnectClient {
      * @param changesToken A Changes-Token that represents a specific point in time in Android
      *   Health Platform.
      * @return a [ChangesResponse] with changes since provided [changesToken].
-     * @throws RemoteException For any IPC transportation failures.
+     * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws IllegalStateException If service is not available.
      * @see getChangesToken
