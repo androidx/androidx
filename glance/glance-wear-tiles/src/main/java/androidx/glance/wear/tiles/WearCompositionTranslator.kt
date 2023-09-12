@@ -23,8 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastJoinToString
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
 import androidx.glance.BitmapImageProvider
@@ -150,7 +148,7 @@ private fun BorderModifier.toProto(context: Context): androidx.wear.tiles.Modifi
 private fun SemanticsModifier.toProto(): androidx.wear.tiles.ModifiersBuilders.Semantics? =
     this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
         androidx.wear.tiles.ModifiersBuilders.Semantics.Builder()
-            .setContentDescription(it.fastJoinToString())
+            .setContentDescription(it.joinToString())
             .build()
     }
 
@@ -158,7 +156,7 @@ private fun SemanticsModifier.toProto(): androidx.wear.tiles.ModifiersBuilders.S
 private fun SemanticsCurvedModifier.toProto(): androidx.wear.tiles.ModifiersBuilders.Semantics? =
     this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
         androidx.wear.tiles.ModifiersBuilders.Semantics.Builder()
-            .setContentDescription(it.fastJoinToString())
+            .setContentDescription(it.joinToString())
             .build()
     }
 
@@ -333,7 +331,7 @@ private fun translateEmittableBox(
         .setWidth(element.modifier.getWidth(context).toContainerDimension())
         .setHeight(element.modifier.getHeight(context).toContainerDimension())
         .also { box ->
-            element.children.fastForEach {
+            element.children.forEach {
                 box.addContent(translateComposition(context, resourceBuilder, it))
             }
         }
@@ -353,7 +351,7 @@ private fun translateEmittableRow(
             .setHeight(height.toContainerDimension())
             .setVerticalAlignment(element.verticalAlignment.toProto())
             .also { row ->
-                element.children.fastForEach {
+                element.children.forEach {
                     row.addContent(translateComposition(context, resourceBuilder, it))
                 }
             }
@@ -393,7 +391,7 @@ private fun translateEmittableColumn(
             .setWidth(width.toContainerDimension())
             .setHorizontalAlignment(element.horizontalAlignment.toProto())
             .also { column ->
-                element.children.fastForEach {
+                element.children.forEach {
                     column.addContent(translateComposition(context, resourceBuilder, it))
                 }
             }
@@ -639,9 +637,9 @@ private fun translateEmittableCurvedRow(
             .setVerticalAlign(element.radialAlignment.toProto())
 
     // Add all the children first...
-    element.children.fastForEach { curvedChild ->
+    element.children.forEach { curvedChild ->
         if (curvedChild is EmittableCurvedChild) {
-            curvedChild.children.fastForEach {
+            curvedChild.children.forEach {
                 arcBuilder.addContent(
                     translateEmittableElementInArc(
                         context,

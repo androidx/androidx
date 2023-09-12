@@ -114,7 +114,6 @@ private fun TemplateHeader(headerIcon: TemplateImageWithDescription?) {
     }
 }
 
-@Suppress("ListIterator")
 @Composable
 private fun TextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return

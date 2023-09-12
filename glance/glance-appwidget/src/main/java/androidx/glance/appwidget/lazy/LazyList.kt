@@ -19,8 +19,6 @@ package androidx.glance.appwidget.lazy
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 import androidx.glance.Emittable
 import androidx.glance.EmittableLazyItemWithChildren
 import androidx.glance.EmittableWithChildren
@@ -123,7 +121,7 @@ private fun applyListScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.fastForEachIndexed { index, (itemId, composable) ->
+        itemList.forEachIndexed { index, (itemId, composable) ->
             val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId }
                 ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
@@ -299,7 +297,7 @@ internal class EmittableLazyListItem : EmittableLazyItemWithChildren() {
     override fun copy(): Emittable = EmittableLazyListItem().also {
         it.itemId = itemId
         it.alignment = alignment
-        it.children.addAll(children.fastMap { it.copy() })
+        it.children.addAll(children.map { it.copy() })
     }
 
     override fun toString() =
@@ -312,6 +310,6 @@ internal class EmittableLazyColumn : EmittableLazyList() {
         it.modifier = modifier
         it.horizontalAlignment = horizontalAlignment
         it.activityOptions = activityOptions
-        it.children.addAll(children.fastMap { it.copy() })
+        it.children.addAll(children.map { it.copy() })
     }
 }
