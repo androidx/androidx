@@ -26,8 +26,6 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
 
-    implementation(project(":annotation:annotation-experimental"))
-
     implementation("androidx.annotation:annotation:1.6.0")
 
     androidTestImplementation(libs.testExtJunit)
