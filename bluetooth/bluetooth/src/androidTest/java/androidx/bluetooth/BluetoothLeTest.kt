@@ -71,7 +71,7 @@ class BluetoothLeTest {
         val advertiseParams = AdvertiseParams()
 
         bluetoothLe.advertise(advertiseParams) {
-            assertEquals(AdvertiseResult.ADVERTISE_STARTED, it)
+            assertEquals(BluetoothLe.ADVERTISE_STARTED, it)
         }
     }
 
@@ -85,7 +85,7 @@ class BluetoothLeTest {
         )
 
         bluetoothLe.advertise(advertiseParams) {
-            assertEquals(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE, it)
+            assertEquals(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE, it)
         }
     }
 }

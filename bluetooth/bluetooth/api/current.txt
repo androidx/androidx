@@ -21,15 +21,6 @@ package androidx.bluetooth {
     property public final boolean shouldIncludeDeviceName;
   }
 
-  public final class AdvertiseResult {
-    field public static final int ADVERTISE_FAILED_DATA_TOO_LARGE = 102; // 0x66
-    field public static final int ADVERTISE_FAILED_FEATURE_UNSUPPORTED = 103; // 0x67
-    field public static final int ADVERTISE_FAILED_INTERNAL_ERROR = 104; // 0x68
-    field public static final int ADVERTISE_FAILED_TOO_MANY_ADVERTISERS = 105; // 0x69
-    field public static final int ADVERTISE_STARTED = 101; // 0x65
-    field public static final androidx.bluetooth.AdvertiseResult INSTANCE;
-  }
-
   public final class BluetoothAddress {
     ctor public BluetoothAddress(String address, int addressType);
     method public String getAddress();
@@ -62,6 +53,15 @@ package androidx.bluetooth {
     method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public suspend <R> Object? openGattServer(java.util.List<androidx.bluetooth.GattService> services, kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattServerConnectScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
+    field public static final int ADVERTISE_FAILED_DATA_TOO_LARGE = 102; // 0x66
+    field public static final int ADVERTISE_FAILED_FEATURE_UNSUPPORTED = 103; // 0x67
+    field public static final int ADVERTISE_FAILED_INTERNAL_ERROR = 104; // 0x68
+    field public static final int ADVERTISE_FAILED_TOO_MANY_ADVERTISERS = 105; // 0x69
+    field public static final int ADVERTISE_STARTED = 101; // 0x65
+    field public static final androidx.bluetooth.BluetoothLe.Companion Companion;
+  }
+
+  public static final class BluetoothLe.Companion {
   }
 
   public static interface BluetoothLe.GattClientScope {

@@ -30,7 +30,6 @@ import android.widget.CheckBox
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.bluetooth.AdvertiseResult
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.GattServerRequest
@@ -327,26 +326,26 @@ class AdvertiserFragment : Fragment() {
 
             bluetoothLe.advertise(viewModel.advertiseParams) {
                 when (it) {
-                    AdvertiseResult.ADVERTISE_STARTED -> {
+                    BluetoothLe.ADVERTISE_STARTED -> {
                         toast("ADVERTISE_STARTED").show()
                     }
 
-                    AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
+                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
                         isAdvertising = false
                         toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
                     }
 
-                    AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
+                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
                         isAdvertising = false
                         toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
                     }
 
-                    AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> {
+                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR -> {
                         isAdvertising = false
                         toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
                     }
 
-                    AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
+                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
                         isAdvertising = false
                         toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
                     }
