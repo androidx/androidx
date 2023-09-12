@@ -92,6 +92,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -1260,10 +1261,16 @@ internal fun Project.hasAndroidTestSourceCode(): Boolean {
         ?.findByName("androidTest")
         ?.let { if (it.kotlin.files.isNotEmpty()) return true }
 
-    // check kotlin-multiplatform androidInstrumentedTest source set
-    multiplatformExtension?.apply {
-        sourceSets.findByName("androidInstrumentedTest")?.let {
-            if (it.kotlin.files.isNotEmpty()) return true
+    // check kotlin-multiplatform androidInstrumentedTest target source sets
+    multiplatformExtension?.let { extension ->
+        val instrumentedTestSourceSets = extension
+            .targets
+            .filterIsInstance<KotlinAndroidTarget>()
+            .mapNotNull {
+                target -> target.compilations.findByName("debugAndroidTest")
+            }.flatMap { compilation -> compilation.allKotlinSourceSets }
+        if (instrumentedTestSourceSets.any { it.kotlin.files.isNotEmpty() }) {
+            return true
         }
     }
 
