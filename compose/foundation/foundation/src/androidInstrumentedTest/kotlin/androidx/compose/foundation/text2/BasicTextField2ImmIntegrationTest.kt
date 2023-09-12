@@ -16,11 +16,12 @@
 
 package androidx.compose.foundation.text2
 
-import android.view.KeyEvent
-import android.view.inputmethod.ExtractedText
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.InputTransformation
+import androidx.compose.foundation.text2.input.TextFieldBuffer
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
 import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -331,52 +333,64 @@ internal class BasicTextField2ImmIntegrationTest {
         }
     }
 
-    private fun requestFocus(tag: String) =
-        rule.onNodeWithTag(tag).requestFocus()
-
-    private class FakeInputMethodManager : ComposeInputMethodManager {
-        private val calls = mutableListOf<String>()
-
-        fun expectCall(description: String) {
-            assertThat(calls.removeFirst()).isEqualTo(description)
+    @Test
+    fun immNotRestarted_whenKeyboardIsConfiguredAsPassword() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
         }
+        requestFocus(Tag)
+        rule.runOnIdle { imm.resetCalls() }
 
-        fun expectNoMoreCalls() {
-            assertThat(calls).isEmpty()
-        }
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Backspace) }
 
-        fun resetCalls() {
-            calls.clear()
-        }
-
-        override fun restartInput() {
-            calls += "restartInput"
-        }
-
-        override fun showSoftInput() {
-            calls += "showSoftInput"
-        }
-
-        override fun hideSoftInput() {
-            calls += "hideSoftInput"
-        }
-
-        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {
-            calls += "updateExtractedText"
-        }
-
-        override fun updateSelection(
-            selectionStart: Int,
-            selectionEnd: Int,
-            compositionStart: Int,
-            compositionEnd: Int
-        ) {
-            calls += "updateSelection($selectionStart, $selectionEnd, " +
-                "$compositionStart, $compositionEnd)"
-        }
-
-        override fun sendKeyEvent(event: KeyEvent) {
-            calls += "sendKeyEvent"
+        rule.runOnIdle {
+            imm.expectCall("updateSelection(1, 1, -1, -1)")
+            imm.expectCall("updateSelection(0, 0, -1, -1)")
+            imm.expectNoMoreCalls()
         }
     }
+
+    @Test
+    fun immNotRestarted_whenKeyboardIsConfiguredAsPassword_fromTransformation() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = object : InputTransformation {
+                    override val keyboardOptions: KeyboardOptions =
+                        KeyboardOptions(keyboardType = KeyboardType.Password)
+
+                    override fun transformInput(
+                        originalValue: TextFieldCharSequence,
+                        valueWithChanges: TextFieldBuffer
+                    ) {
+                        valueWithChanges.append('A')
+                    }
+                }
+            )
+        }
+        requestFocus(Tag)
+        rule.runOnIdle { imm.resetCalls() }
+
+        // "" -key-> "A" -filter> "AA"
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
+        // "AA" -key-> "A" -filter> "AA"
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Backspace) }
+
+        rule.runOnIdle {
+            imm.expectCall("updateSelection(2, 2, -1, -1)")
+            imm.expectCall("updateSelection(2, 2, -1, -1)")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    private fun requestFocus(tag: String) =
+        rule.onNodeWithTag(tag).requestFocus()
 }

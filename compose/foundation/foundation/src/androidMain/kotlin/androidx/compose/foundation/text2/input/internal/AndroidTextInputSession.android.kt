@@ -90,7 +90,9 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                     )
                 }
 
-                if (!old.contentEquals(new)) {
+                // No need to restart the IME if keyboard type is configured as Password. IME
+                // should not keep an internal input state if the content needs to be secured.
+                if (!old.contentEquals(new) && imeOptions.keyboardType != KeyboardType.Password) {
                     composeImm.restartInput()
                 }
             }
