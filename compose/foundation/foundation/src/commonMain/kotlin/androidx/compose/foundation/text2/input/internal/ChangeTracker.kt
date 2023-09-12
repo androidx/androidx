@@ -74,7 +74,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
 
         var i = 0
         var recordedNewChange = false
-        val postDelta = postLength - (preMax - preStart)
+        val postDelta = postLength - (preMax - preMin)
 
         var mergedOverlappingChange: Change? = null
         while (i < _changes.size) {
