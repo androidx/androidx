@@ -35,7 +35,8 @@ import androidx.bluetooth.GattClient
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import junit.framework.TestCase.fail
-import kotlinx.coroutines.CompletableDeferred
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
@@ -43,6 +44,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -109,32 +111,49 @@ class RobolectricGattClientTest {
     @Test
     fun connectGatt() = runTest {
         val device = createDevice("00:11:22:33:44:55")
-        val closed = CompletableDeferred<Unit>()
 
         acceptConnect()
 
         bluetoothLe.connectGatt(device) {
+            assertTrue(clientAdapter.shadowBluetoothGatt.isConnected)
+
             Assert.assertEquals(sampleServices.size, services.size)
             sampleServices.forEachIndexed { index, service ->
                 Assert.assertEquals(service.uuid, services[index].uuid)
             }
-            closed.complete(Unit)
         }
 
-        assertTrue(closed.isCompleted)
+        assertTrue(clientAdapter.shadowBluetoothGatt.isClosed)
+        assertFalse(clientAdapter.shadowBluetoothGatt.isConnected)
+    }
+
+    @Test
+    fun connectGatt_throwException_closeGatt() = runTest {
+        val device = createDevice("00:11:22:33:44:55")
+
+        acceptConnect()
+
+        assertFailsWith<RuntimeException> {
+            bluetoothLe.connectGatt(device) {
+                assertTrue(clientAdapter.shadowBluetoothGatt.isConnected)
+                throw RuntimeException()
+            }
+        }
+
+        assertTrue(clientAdapter.shadowBluetoothGatt.isClosed)
+        assertFalse(clientAdapter.shadowBluetoothGatt.isConnected)
     }
 
     @Test
     fun connectFail() = runTest {
         val device = createDevice("00:11:22:33:44:55")
         rejectConnect()
-        assertTrue(runCatching { bluetoothLe.connectGatt(device) { } }.isFailure)
+        assertFailsWith<CancellationException> { bluetoothLe.connectGatt(device) { } }
     }
 
     @Test
     fun readCharacteristic() = runTest {
         val testValue = 48
-        val closed = CompletableDeferred<Unit>()
         val device = createDevice("00:11:22:33:44:55")
         acceptConnect()
 
@@ -158,9 +177,9 @@ class RobolectricGattClientTest {
                 readCharacteristic(
                     services[0].getCharacteristic(readCharUuid)!!
                 ).getOrNull()?.toInt())
-            closed.complete(Unit)
         }
-        assertTrue(closed.isCompleted)
+        assertTrue(clientAdapter.shadowBluetoothGatt.isClosed)
+        assertFalse(clientAdapter.shadowBluetoothGatt.isConnected)
     }
 
     @Test
@@ -188,7 +207,6 @@ class RobolectricGattClientTest {
     fun writeCharacteristic() = runTest {
         val initialValue = 48
         val valueToWrite = 96
-        val closed = CompletableDeferred<Unit>()
         val device = createDevice("00:11:22:33:44:55")
         val currentValue = AtomicInteger(initialValue)
 
@@ -229,9 +247,9 @@ class RobolectricGattClientTest {
                 valueToWrite.toByteArray())
             Assert.assertEquals(valueToWrite,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
-            closed.complete(Unit)
         }
-        assertTrue(closed.isCompleted)
+        assertTrue(clientAdapter.shadowBluetoothGatt.isClosed)
+        assertFalse(clientAdapter.shadowBluetoothGatt.isConnected)
     }
 
     @Test
@@ -260,7 +278,6 @@ class RobolectricGattClientTest {
     fun subscribeToCharacteristic() = runTest {
         val initialValue = 48
         val valueToNotify = 96
-        val closed = CompletableDeferred<Unit>()
         val device = createDevice("00:11:22:33:44:55")
         val currentValue = AtomicInteger(initialValue)
 
@@ -304,9 +321,9 @@ class RobolectricGattClientTest {
                 subscribeToCharacteristic(characteristic).first().toInt())
             Assert.assertEquals(valueToNotify,
                 readCharacteristic(characteristic).getOrNull()?.toInt())
-            closed.complete(Unit)
         }
-        assertTrue(closed.isCompleted)
+        assertTrue(clientAdapter.shadowBluetoothGatt.isClosed)
+        assertFalse(clientAdapter.shadowBluetoothGatt.isConnected)
     }
 
     @Test
@@ -369,33 +386,31 @@ class RobolectricGattClientTest {
     private fun acceptConnect() {
         clientAdapter.onConnectListener =
             StubClientFrameworkAdapter.OnConnectListener { device, _ ->
-            shadowOf(device).simulateGattConnectionChange(
-                BluetoothGatt.GATT_SUCCESS, BluetoothGatt.STATE_CONNECTED
-            )
-            true
-        }
+                clientAdapter.shadowBluetoothGatt.notifyConnection(device.address)
+                true
+            }
 
         clientAdapter.onRequestMtuListener =
             StubClientFrameworkAdapter.OnRequestMtuListener { mtu ->
-            clientAdapter.callback?.onMtuChanged(clientAdapter.bluetoothGatt, mtu,
-                BluetoothGatt.GATT_SUCCESS)
-        }
+                clientAdapter.callback?.onMtuChanged(clientAdapter.bluetoothGatt, mtu,
+                    BluetoothGatt.GATT_SUCCESS)
+            }
 
         clientAdapter.onDiscoverServicesListener =
             StubClientFrameworkAdapter.OnDiscoverServicesListener {
-            clientAdapter.gattServices = sampleServices
-            clientAdapter.callback?.onServicesDiscovered(clientAdapter.bluetoothGatt,
-                BluetoothGatt.GATT_SUCCESS)
-        }
+                clientAdapter.gattServices = sampleServices
+                clientAdapter.callback?.onServicesDiscovered(clientAdapter.bluetoothGatt,
+                    BluetoothGatt.GATT_SUCCESS)
+            }
     }
 
     private fun rejectConnect() {
         clientAdapter.onConnectListener =
             StubClientFrameworkAdapter.OnConnectListener { device, _ ->
-            shadowOf(device).simulateGattConnectionChange(
-                BluetoothGatt.GATT_FAILURE, BluetoothGatt.STATE_DISCONNECTED
-            )
-            false
+                shadowOf(device).simulateGattConnectionChange(
+                    BluetoothGatt.GATT_FAILURE, BluetoothGatt.STATE_DISCONNECTED
+                )
+                false
         }
     }
 
@@ -476,6 +491,10 @@ class RobolectricGattClientTest {
             baseAdapter.setCharacteristicNotification(characteristic, enable)
             onSetCharacteristicNotifiationListener
                 ?.onSetCharacteristicNotification(characteristic, enable)
+        }
+
+        override fun closeGatt() {
+            baseAdapter.closeGatt()
         }
 
         fun interface OnConnectListener {
