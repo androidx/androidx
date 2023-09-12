@@ -1367,6 +1367,7 @@ package androidx.compose.ui.graphics.vector {
     method public androidx.compose.ui.graphics.vector.PathBuilder reflectiveQuadToRelative(float dx1, float dy1);
     method public androidx.compose.ui.graphics.vector.PathBuilder verticalLineTo(float y);
     method public androidx.compose.ui.graphics.vector.PathBuilder verticalLineToRelative(float dy);
+    property public final java.util.List<androidx.compose.ui.graphics.vector.PathNode> nodes;
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed class PathNode {

@@ -147,7 +147,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
  * If the key is unknown then [IllegalArgumentException] is thrown
  * @throws IllegalArgumentException
  */
-internal fun Char.addPathNodes(nodes: MutableList<PathNode>, args: FloatArray, count: Int) {
+internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, count: Int) {
     when (this) {
         RelativeCloseKey, CloseKey -> nodes.add(PathNode.Close)
 
