@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.Manifest
+import android.os.Build
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -162,10 +163,13 @@ class BenchmarkStateTest {
         val report = state.getReport()
 
         // '50' assumes we're not running in a special mode
-        // that affects repeat count (dry run, profiling)
+        // that affects repeat count (dry run)
         val expectedRepeatCount = 50 +
-            if (!simplifiedTimingOnlyMode) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
-        val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
+            if (simplifiedTimingOnlyMode) 0 else BenchmarkState.REPEAT_COUNT_ALLOCATION
+        val expectedCount = report.warmupIterations +
+            report.repeatIterations * expectedRepeatCount +
+            // method tracing phase by default only when API > 21, and simplified timing off
+            if (simplifiedTimingOnlyMode || Build.VERSION.SDK_INT <= 21) 0 else 1
         assertEquals(expectedCount, total)
 
         if (Arguments.iterations != null) {

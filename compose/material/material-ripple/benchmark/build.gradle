@@ -40,10 +40,6 @@ dependencies {
 
 android {
     namespace "androidx.compose.material.ripple.benchmark"
-    defaultConfig {
-        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
-        testInstrumentationRunnerArguments["androidx.benchmark.profiling.mode"]= 'None'
-    }
 }
 
 androidx {
