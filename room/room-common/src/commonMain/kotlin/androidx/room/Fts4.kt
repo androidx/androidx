@@ -17,8 +17,6 @@
 package androidx.room
 
 import androidx.annotation.RequiresApi
-import androidx.room.FtsOptions.MatchInfo
-import androidx.room.FtsOptions.Order
 import androidx.room.FtsOptions.TOKENIZER_SIMPLE
 import kotlin.reflect.KClass
 
@@ -144,7 +142,7 @@ public annotation class Fts4(
      *
      * @return The match info version, either [MatchInfo.FTS4] or [MatchInfo.FTS3].
      */
-    val matchInfo: MatchInfo = MatchInfo.FTS4,
+    val matchInfo: FtsOptions.MatchInfo = FtsOptions.MatchInfo.FTS4,
 
     /**
      * The list of column names on the FTS table that won't be indexed.
@@ -176,5 +174,5 @@ public annotation class Fts4(
      *
      * @return The preferred order, either [Order.ASC] or [Order.DESC].
      */
-    val order: Order = Order.ASC
+    val order: FtsOptions.Order = FtsOptions.Order.ASC
 )
