@@ -92,6 +92,18 @@ class ChangeTrackerTest {
     }
 
     @Test
+    fun replaceWithReversedIndices() {
+        val buffer = SimpleBuffer("abcd")
+
+        buffer.replace(2, 0, "e")
+
+        assertThat(buffer.toString()).isEqualTo("ecd")
+        assertThat(buffer.changes.changeCount).isEqualTo(1)
+        assertThat(buffer.changes.getRange(0)).isEqualTo(TextRange(0, 1))
+        assertThat(buffer.changes.getOriginalRange(0)).isEqualTo(TextRange(0, 2))
+    }
+
+    @Test
     fun multipleAdjacentReplaces_whenPerformedInOrder_replacementsShorter() {
         val buffer = SimpleBuffer("abcd")
 
@@ -201,6 +213,11 @@ class ChangeTrackerTest {
                 changes.trackChange(start, end, text.length)
                 builder.replace(start, end, text)
             }
+        }
+
+        fun replace(start: Int, end: Int, text: String) {
+            changes.trackChange(start, end, text.length)
+            builder.replace(minOf(start, end), maxOf(start, end), text)
         }
 
         override fun toString(): String = builder.toString()
