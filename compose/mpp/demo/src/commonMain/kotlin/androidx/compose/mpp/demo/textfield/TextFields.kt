@@ -53,7 +53,12 @@ val TextFields = Screen.Selection(
         ClearFocusBox {
             EmojiExample()
         }
-    }
+    },
+    Screen.Example("FastDelete") {
+        ClearFocusBox {
+            FastDelete()
+        }
+    },
 )
 
 @Composable

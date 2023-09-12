@@ -330,6 +330,75 @@ internal class UIKitTextInputService(
             return resultPosition.toLong()
         }
 
+        /**
+         * Return the range for the text enclosing a text position in a text unit of a given granularity in a given direction.
+         * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614464-rangeenclosingposition?language=objc
+         * @param position
+         * A text-position object that represents a location in a document.
+         * @param granularity
+         * A constant that indicates a certain granularity of text unit.
+         * @param direction
+         * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+         * @return
+         * A text-range representing a text unit of the given granularity in the given direction, or nil if there is no such enclosing unit.
+         * Whether a boundary position is enclosed depends on the given direction, using the same rule as the isPosition:withinTextUnit:inDirection: method.
+         */
+        override fun rangeEnclosingPosition(
+            position: Int,
+            withGranularity: UITextGranularity,
+            inDirection: UITextDirection
+        ): IntRange? {
+            val text = getState()?.text ?: return null
+            assert(position >= 0) { "rangeEnclosingPosition position >= 0" }
+
+            fun String.isMeaningless(): Boolean {
+                return when (withGranularity) {
+                    UITextGranularity.UITextGranularityWord -> {
+                        this.all { it in arrayOf(' ', ',') }
+                    }
+
+                    else -> false
+                }
+            }
+
+            val iterator: BreakIterator =
+                when (withGranularity) {
+                    UITextGranularity.UITextGranularitySentence -> BreakIterator.makeSentenceInstance()
+                    UITextGranularity.UITextGranularityLine -> BreakIterator.makeLineInstance()
+                    UITextGranularity.UITextGranularityWord -> BreakIterator.makeWordInstance()
+                    UITextGranularity.UITextGranularityCharacter -> BreakIterator.makeCharacterInstance()
+                    UITextGranularity.UITextGranularityParagraph -> TODO("UITextGranularityParagraph iterator")
+                    UITextGranularity.UITextGranularityDocument -> TODO("UITextGranularityDocument iterator")
+                    else -> error("Unknown granularity")
+                }
+            iterator.setText(text)
+
+            if (inDirection == UITextStorageDirectionForward) {
+                return null
+            } else if (inDirection == UITextStorageDirectionBackward) {
+                var current: Int = position
+
+                fun currentRange() = IntRange(current, position)
+                fun nextAddition() = IntRange(iterator.preceding(current).coerceAtLeast(0), current)
+                fun IntRange.text() = text.substring(start, endInclusive)
+
+                while (
+                    current == position
+                    || currentRange().text().isMeaningless()
+                    || nextAddition().text().isMeaningless()
+                ) {
+                    current = iterator.preceding(current)
+                    if (current <= 0) {
+                        current = 0
+                        break
+                    }
+                }
+
+                return IntRange(current, position)
+            } else {
+                error("Unknown inDirection: $inDirection")
+            }
+        }
     }
 
     val skikoUITextInputTraits = object : SkikoUITextInputTraits {

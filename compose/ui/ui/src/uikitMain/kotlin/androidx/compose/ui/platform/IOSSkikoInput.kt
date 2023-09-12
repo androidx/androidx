@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.platform
 
+import platform.UIKit.UITextDirection
+import platform.UIKit.UITextGranularity
+
 internal interface IOSSkikoInput {
 
     /**
@@ -107,6 +110,21 @@ internal interface IOSSkikoInput {
      */
     fun positionFromPosition(position: Long, offset: Long): Long
 
+    /**
+     * Return the range for the text enclosing a text position in a text unit of a given granularity in a given direction.
+     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614464-rangeenclosingposition?language=objc
+     * @param position
+     * A text-position object that represents a location in a document.
+     * @param granularity
+     * A constant that indicates a certain granularity of text unit.
+     * @param direction
+     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+     * @return
+     * A text-range representing a text unit of the given granularity in the given direction, or nil if there is no such enclosing unit.
+     * Whether a boundary position is enclosed depends on the given direction, using the same rule as the isPosition:withinTextUnit:inDirection: method.
+     */
+    fun rangeEnclosingPosition(position: Int, withGranularity: UITextGranularity, inDirection: UITextDirection): IntRange?
+
     object Empty : IOSSkikoInput {
         override fun hasText(): Boolean = false
         override fun insertText(text: String) = Unit
@@ -121,5 +139,10 @@ internal interface IOSSkikoInput {
         override fun markedTextRange(): IntRange? = null
         override fun unmarkText() = Unit
         override fun positionFromPosition(position: Long, offset: Long): Long = 0
+        override fun rangeEnclosingPosition(
+            position: Int,
+            withGranularity: UITextGranularity,
+            inDirection: UITextDirection
+        ): IntRange? = null
     }
 }
