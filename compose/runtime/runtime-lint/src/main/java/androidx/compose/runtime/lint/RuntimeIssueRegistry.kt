@@ -31,8 +31,7 @@ class RuntimeIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         AutoboxingStateValuePropertyDetector.AutoboxingStateValueProperty,
-        // Disabled due to b/298019499.
-        // AutoboxingStateCreationDetector.AutoboxingStateCreation,
+        AutoboxingStateCreationDetector.AutoboxingStateCreation,
         ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
         ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition,
         ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
