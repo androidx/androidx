@@ -48,6 +48,8 @@ fun collect(
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
     val startTime = System.nanoTime()
+    // Ensure the device is awake
+    scope.device.wakeUp()
     val killProcessBlock = scope.killProcessBlock()
     // always kill the process at beginning of a collection.
     killProcessBlock.invoke()
