@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -80,8 +79,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
@@ -289,7 +290,7 @@ fun SearchBar(
         }
     }
 
-    BackHandler(enabled = active) {
+    SearchBarCloseHandler(enabled = active) {
         onActiveChange(false)
     }
 }
@@ -388,7 +389,7 @@ fun DockedSearchBar(
                 enter = DockedEnterTransition,
                 exit = DockedExitTransition,
             ) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val screenHeight = getScreenHeight()
                 val maxHeight = remember(screenHeight) {
                     screenHeight * DockedActiveTableMaxHeightScreenRatio
                 }
@@ -413,10 +414,16 @@ fun DockedSearchBar(
         }
     }
 
-    BackHandler(enabled = active) {
+    SearchBarCloseHandler(enabled = active) {
         onActiveChange(false)
     }
 }
+
+@Composable
+internal expect fun getScreenHeight(): Dp
+
+@Composable
+internal expect fun SearchBarCloseHandler(enabled: Boolean = true, onBack: () -> Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -449,6 +456,14 @@ private fun SearchBarInputField(
             .fillMaxWidth()
             .focusRequester(focusRequester)
             .onFocusChanged { if (it.isFocused) onActiveChange(true) }
+            .onKeyEvent {
+                if (it.key == Key.Escape) {
+                    onActiveChange(false)
+                    true
+                } else {
+                    false
+                }
+            }
             .semantics {
                 contentDescription = searchSemantics
                 if (active) {
@@ -647,7 +662,7 @@ class SearchBarColors internal constructor(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null || this::class != other::class) return false
 
         other as SearchBarColors
 
