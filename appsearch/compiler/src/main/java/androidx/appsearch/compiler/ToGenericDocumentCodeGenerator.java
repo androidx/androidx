@@ -16,6 +16,7 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_EXCEPTION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 
@@ -77,7 +78,7 @@ class ToGenericDocumentCodeGenerator {
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
                 .addAnnotation(Override.class)
                 .addParameter(classType, "document")
-                .addException(mHelper.getAppSearchExceptionClass());
+                .addException(APPSEARCH_EXCEPTION_CLASS);
 
         // Construct a new GenericDocument.Builder with the namespace, id, and schema type
         methodBuilder.addStatement("$T builder =\nnew $T<>($L, $L, SCHEMA_NAME)",

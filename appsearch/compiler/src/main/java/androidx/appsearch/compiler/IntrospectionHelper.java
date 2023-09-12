@@ -60,18 +60,28 @@ import javax.lang.model.util.Types;
 public class IntrospectionHelper {
     static final String GEN_CLASS_PREFIX = "$$__AppSearch__";
     static final String APPSEARCH_PKG = "androidx.appsearch.app";
+
+    public static final ClassName APPSEARCH_SCHEMA_CLASS =
+            ClassName.get(APPSEARCH_PKG, "AppSearchSchema");
+
+    static final ClassName PROPERTY_CONFIG_CLASS =
+            APPSEARCH_SCHEMA_CLASS.nestedClass("PropertyConfig");
+
     static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
-    static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
-    public static final String DOCUMENT_ANNOTATION_CLASS = "androidx.appsearch.annotation.Document";
-    static final String ID_CLASS = "androidx.appsearch.annotation.Document.Id";
-    static final String NAMESPACE_CLASS = "androidx.appsearch.annotation.Document.Namespace";
-    static final String CREATION_TIMESTAMP_MILLIS_CLASS =
-            "androidx.appsearch.annotation.Document.CreationTimestampMillis";
-    static final String TTL_MILLIS_CLASS = "androidx.appsearch.annotation.Document"
-            + ".TtlMillis";
-    static final String SCORE_CLASS = "androidx.appsearch.annotation.Document.Score";
-    static final String BUILDER_PRODUCER_CLASS =
-            "androidx.appsearch.annotation.Document.BuilderProducer";
+
+    static final ClassName APPSEARCH_EXCEPTION_CLASS =
+            ClassName.get(APPSEARCH_EXCEPTION_PKG, "AppSearchException");
+
+    public static final String APPSEARCH_ANNOTATION_PKG = "androidx.appsearch.annotation";
+
+    public static final String DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME = "Document";
+
+    public static final ClassName DOCUMENT_ANNOTATION_CLASS =
+            ClassName.get(APPSEARCH_ANNOTATION_PKG, DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME);
+
+    public static final ClassName BUILDER_PRODUCER_CLASS =
+            DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
+
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
     final TypeMirror mStringType;
@@ -125,7 +135,8 @@ public class IntrospectionHelper {
         Objects.requireNonNull(element);
         for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
             String annotationFq = annotation.getAnnotationType().toString();
-            if (IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.equals(annotationFq)) {
+            if (IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName().equals(
+                    annotationFq)) {
                 return annotation;
             }
         }
@@ -210,7 +221,9 @@ public class IntrospectionHelper {
      * Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
      * for inner class Foo.Bar.
      */
-    public ClassName getDocumentClassFactoryForClass(String pkg, String className) {
+    @NonNull
+    public static ClassName getDocumentClassFactoryForClass(
+            @NonNull String pkg, @NonNull String className) {
         String genClassName = GEN_CLASS_PREFIX + className.replace(".", "$$__");
         return ClassName.get(pkg, genClassName);
     }
@@ -219,17 +232,14 @@ public class IntrospectionHelper {
      * Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
      * for inner class Foo.Bar.
      */
-    public ClassName getDocumentClassFactoryForClass(ClassName clazz) {
+    @NonNull
+    public static ClassName getDocumentClassFactoryForClass(@NonNull ClassName clazz) {
         String className = clazz.canonicalName().substring(clazz.packageName().length() + 1);
         return getDocumentClassFactoryForClass(clazz.packageName(), className);
     }
 
     public ClassName getAppSearchClass(String clazz, String... nested) {
         return ClassName.get(APPSEARCH_PKG, clazz, nested);
-    }
-
-    public ClassName getAppSearchExceptionClass() {
-        return ClassName.get(APPSEARCH_EXCEPTION_PKG, APPSEARCH_EXCEPTION_SIMPLE_NAME);
     }
 
     /**

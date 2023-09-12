@@ -16,6 +16,7 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_EXCEPTION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 
@@ -81,7 +82,7 @@ class FromGenericDocumentCodeGenerator {
                 .returns(classType)
                 .addAnnotation(Override.class)
                 .addParameter(mHelper.getAppSearchClass("GenericDocument"), "genericDoc")
-                .addException(mHelper.getAppSearchExceptionClass());
+                .addException(APPSEARCH_EXCEPTION_CLASS);
 
         unpackSpecialFields(methodBuilder);
 
