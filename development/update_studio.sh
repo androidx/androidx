@@ -5,10 +5,12 @@ function echoAndDo() {
   eval "$@"
 }
 
-# Get versions
+# Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-8.2.0-beta01}
-STUDIO_VERSION_STRING=${2:-"Android Studio Hedgehog | 2023.1.1 Beta 1"}
+AGP_VERSION=${1:-8.3.0-alpha02}
+STUDIO_VERSION_STRING=${2:-"Android Studio Iguana | 2023.2.1 Canary 2"}
+
+# Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
 echo iframe link $STUDIO_IFRAME_LINK
 STUDIO_IFRAME_REDIRECT=`curl -s $STUDIO_IFRAME_LINK | grep href | sed 's/.*href="\([^"]*\)".*/\1/g'`
