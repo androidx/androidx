@@ -168,7 +168,6 @@ class ParagraphLayoutCacheTest {
         assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun TextLayoutResult_reLayout_withDifferentHeight() {
         val textDelegate = ParagraphLayoutCache(
