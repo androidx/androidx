@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class HealthDataRequestPermissionsUpsideDownCake :
+internal class HealthPermissionsRequestModuleContract :
     ActivityResultContract<Set<String>, Set<String>>() {
 
     private val requestPermissions = RequestMultiplePermissions()

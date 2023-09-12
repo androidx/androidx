@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 private const val TEST_PACKAGE = "com.test.app"
 
 @RunWith(AndroidJUnit4::class)
-class HealthDataRequestPermissionsInternalTest {
+class HealthPermissionsRequestAppContractTest {
 
     private lateinit var context: Context
 
@@ -43,7 +43,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun createIntentTest() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal(TEST_PACKAGE)
+        val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val intent =
             requestPermissionContract.createIntent(
                 context,
@@ -78,7 +78,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun createIntent_defaultPackage() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal()
+        val requestPermissionContract = HealthPermissionsRequestAppContract()
         val intent =
             requestPermissionContract.createIntent(context, setOf(HealthPermission.READ_STEPS))
 
@@ -89,7 +89,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun parseIntent_null_fallback() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal(TEST_PACKAGE)
+        val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, null)
 
         Truth.assertThat(result).isEmpty()
@@ -97,7 +97,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun parseIntent_emptyIntent() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal(TEST_PACKAGE)
+        val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, Intent())
 
         Truth.assertThat(result).isEmpty()
@@ -105,7 +105,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun parseIntent() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal(TEST_PACKAGE)
+        val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val intent = Intent()
         intent.putParcelableArrayListExtra(
             HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING,
@@ -130,7 +130,7 @@ class HealthDataRequestPermissionsInternalTest {
 
     @Test
     fun synchronousResult_null() {
-        val requestPermissionContract = HealthDataRequestPermissionsInternal(TEST_PACKAGE)
+        val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val result =
             requestPermissionContract.getSynchronousResult(
                 context,

@@ -24,7 +24,7 @@ import android.os.Build
 import androidx.health.connect.client.impl.platform.records.PlatformExerciseRoute
 import androidx.health.connect.client.impl.platform.records.PlatformExerciseRouteLocationBuilder
 import androidx.health.connect.client.impl.platform.records.PlatformLength
-import androidx.health.connect.client.permission.platform.RequestExerciseRouteUpsideDownCake
+import androidx.health.connect.client.permission.platform.ExerciseRouteRequestModuleContract
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.units.Length
 import androidx.test.core.app.ApplicationProvider
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 // Comment the SDK suppress to run on emulators lower than U.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-class RequestExerciseRouteUpsideDownCakeTest {
+class ExerciseRouteRequestModuleContractTest {
 
     private lateinit var context: Context
 
@@ -53,7 +53,7 @@ class RequestExerciseRouteUpsideDownCakeTest {
 
     @Test
     fun createIntentTest() {
-        val requestRouteContract = RequestExerciseRouteUpsideDownCake()
+        val requestRouteContract = ExerciseRouteRequestModuleContract()
         val intent = requestRouteContract.createIntent(context, "someUid")
         assertThat(intent.action).isEqualTo("android.health.connect.action.REQUEST_EXERCISE_ROUTE")
         assertThat(intent.getStringExtra("android.health.connect.extra.SESSION_ID"))
@@ -62,21 +62,21 @@ class RequestExerciseRouteUpsideDownCakeTest {
 
     @Test
     fun parseIntent_null() {
-        val requestRouteContract = RequestExerciseRouteUpsideDownCake()
+        val requestRouteContract = ExerciseRouteRequestModuleContract()
         val result = requestRouteContract.parseResult(0, null)
         assertThat(result).isNull()
     }
 
     @Test
     fun parseIntent_emptyIntent() {
-        val requestRouteContract = RequestExerciseRouteUpsideDownCake()
+        val requestRouteContract = ExerciseRouteRequestModuleContract()
         val result = requestRouteContract.parseResult(0, Intent())
         assertThat(result).isNull()
     }
 
     @Test
     fun parseIntent_emptyRoute() {
-        val requestRouteContract = RequestExerciseRouteUpsideDownCake()
+        val requestRouteContract = ExerciseRouteRequestModuleContract()
         val intent = Intent()
         intent.putExtra(HealthConnectManager.EXTRA_EXERCISE_ROUTE, PlatformExerciseRoute(listOf()))
         val result = requestRouteContract.parseResult(0, intent)
@@ -85,7 +85,7 @@ class RequestExerciseRouteUpsideDownCakeTest {
 
     @Test
     fun parseIntent() {
-        val requestRouteContract = RequestExerciseRouteUpsideDownCake()
+        val requestRouteContract = ExerciseRouteRequestModuleContract()
         val intent = Intent()
         val location1 =
             PlatformExerciseRouteLocationBuilder(Instant.ofEpochMilli(1234L), 23.4, -23.4)
