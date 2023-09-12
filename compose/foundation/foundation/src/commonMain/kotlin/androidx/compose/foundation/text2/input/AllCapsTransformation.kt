@@ -21,23 +21,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.text.toUpperCase
 
 /**
  * Returns a [InputTransformation] that forces all text to be uppercase.
  *
- * This filter automatically configures the keyboard to capitalize all characters.
+ * This transformation automatically configures the keyboard to capitalize all characters.
  *
  * @param locale The [Locale] in which to perform the case conversion.
  */
 @ExperimentalFoundationApi
 @Stable
 fun InputTransformation.Companion.allCaps(locale: Locale): InputTransformation =
-    AllCapsFilter(locale)
+    AllCapsTransformation(locale)
 
 // This is a very naive implementation for now, not intended to be production-ready.
 @OptIn(ExperimentalFoundationApi::class)
-private data class AllCapsFilter(private val locale: Locale) : InputTransformation {
+private data class AllCapsTransformation(private val locale: Locale) : InputTransformation {
     override val keyboardOptions = KeyboardOptions(
         capitalization = KeyboardCapitalization.Characters
     )
@@ -46,13 +47,16 @@ private data class AllCapsFilter(private val locale: Locale) : InputTransformati
         originalValue: TextFieldCharSequence,
         valueWithChanges: TextFieldBuffer
     ) {
-        val selection = valueWithChanges.selectionInCodepoints
-        valueWithChanges.replace(
-            0,
-            valueWithChanges.length,
-            valueWithChanges.toString().toUpperCase(locale)
-        )
-        valueWithChanges.selectCodepointsIn(selection)
+        // only update inserted content
+        valueWithChanges.changes.forEachChange { range, _ ->
+            if (!range.collapsed) {
+                valueWithChanges.replace(
+                    range.min,
+                    range.max,
+                    valueWithChanges.asCharSequence().substring(range).toUpperCase(locale)
+                )
+            }
+        }
     }
 
     override fun toString(): String = "InputTransformation.allCaps(locale=$locale)"
