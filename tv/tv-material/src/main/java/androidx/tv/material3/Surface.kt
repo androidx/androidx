@@ -72,7 +72,8 @@ import kotlinx.coroutines.launch
  * @param colors Defines the background & content color to be used in this Surface.
  * See [NonInteractiveSurfaceDefaults.colors].
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param content defines the [Composable] content inside the surface
  */
 @ExperimentalTvMaterial3Api
@@ -122,7 +123,8 @@ fun Surface(
  * interaction states. See [ClickableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
@@ -226,7 +228,8 @@ fun Surface(
  * interaction states. See [ToggleableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
- * @param glow Diffused shadow to be shown behind the Surface.
+ * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
+ * levels below 28 as it is not supported by the underlying OS
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
@@ -357,23 +360,25 @@ private fun SurfaceImpl(
             elevation = LocalAbsoluteTonalElevation.current
         )
 
+        val glowIndicationModifier = Modifier.indication(
+            interactionSource = interactionSource,
+            indication = rememberGlowIndication(
+                color = surfaceColorAtElevation(
+                    color = glow.elevationColor,
+                    elevation = glow.elevation
+                ),
+                shape = shape,
+                glowBlurRadius = glow.elevation
+            )
+        )
+
         Box(
             modifier = modifier
                 .indication(
                     interactionSource = interactionSource,
                     indication = remember(scale) { ScaleIndication(scale = scale) }
                 )
-                .indication(
-                    interactionSource = interactionSource,
-                    indication = rememberGlowIndication(
-                        color = surfaceColorAtElevation(
-                            color = glow.elevationColor,
-                            elevation = glow.elevation
-                        ),
-                        shape = shape,
-                        glowBlurRadius = glow.elevation
-                    )
-                )
+                .ifElse(API_28_OR_ABOVE, glowIndicationModifier)
                 // Increasing the zIndex of this Surface when it is in the focused state to
                 // avoid the glowIndication from being overlapped by subsequent items if
                 // this Surface is inside a list composable (like a Row/Column).
