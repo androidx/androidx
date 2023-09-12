@@ -110,21 +110,8 @@ tasks.register("publishComposeJbExtendedIconsToMavenLocal", ComposePublishingTas
     iconsPublications()
 }
 
-tasks.register("testDesktop") {
-    dependsOn(":compose:desktop:desktop:jvmTest")
-    dependsOn(":compose:animation:animation:desktopTest")
-    dependsOn(":compose:animation:animation-core:desktopTest")
-    dependsOn(":compose:ui:ui:desktopTest")
-    dependsOn(":compose:ui:ui-graphics:desktopTest")
-    dependsOn(":compose:ui:ui-text:desktopTest")
-    dependsOn(":compose:ui:ui-test-junit4:desktopTest")
-    dependsOn(":compose:foundation:foundation:desktopTest")
-    dependsOn(":compose:foundation:foundation-layout:desktopTest")
-    dependsOn(":compose:material:material:desktopTest")
-    dependsOn(":compose:material:material-ripple:desktopTest")
-    dependsOn(":compose:runtime:runtime:desktopTest")
-    dependsOn(":compose:runtime:runtime-saveable:desktopTest")
-    dependsOn(":compose:material3:material3:desktopTest")
+tasks.register("checkDesktop") {
+    dependsOn(allTasksWith(name = "desktopTest"))
 }
 
 tasks.register("testWeb") {
@@ -235,3 +222,6 @@ fun readComposeModules(
                 localDir = repoRoot.get().asFile.resolve("$group/$artifact/$version")
             )
         }
+
+fun allTasksWith(name: String) =
+    rootProject.subprojects.flatMap { it.tasks.filter { it.name == name } }

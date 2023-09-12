@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value=":mpp:testDesktop" />
+          <option value="desktopTest" />
         </list>
       </option>
       <option name="vmOptions" />
