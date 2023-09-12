@@ -221,16 +221,17 @@ class MacrobenchmarkScopeTest {
         // Launch first activity, and validate it is displayed
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         assertTrue(device.hasObject(By.text("InitialText")))
-        scope.stopMethodTracing()
+        scope.stopMethodTracing("TEST_UNIQUE_NAME")
         val outputs = Outputs.outputDirectory.walk().filter {
             it.isFile
         }.toSet()
         val testOutputs = outputs - files
         val trace = testOutputs.singleOrNull { file ->
-            file.absolutePath.endsWith("method.trace")
+            file.name.endsWith(".trace") && file.name.contains("_method_")
         }
         // One method trace should have been created
         assertNotNull(trace)
+        assertTrue(trace.name.startsWith("TEST_UNIQUE_NAME_method_"))
     }
 
     private fun validateLaunchAndFrameStats(pressHome: Boolean) {
