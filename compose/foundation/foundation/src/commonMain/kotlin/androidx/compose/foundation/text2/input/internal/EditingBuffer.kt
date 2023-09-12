@@ -144,7 +144,6 @@ internal class EditingBuffer(
      * This function cancels selection if there is any.
      *
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
-     * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
     fun replace(start: Int, end: Int, text: CharSequence) {
         checkRange(start, end)
@@ -160,8 +159,8 @@ internal class EditingBuffer(
         // the end offset of the editing area for desktop like application. In case of Android,
         // implementation will call setSelection immediately after replace function to update this
         // tentative cursor location.
-        selectionStart = start + text.length
-        selectionEnd = start + text.length
+        selectionStart = min + text.length
+        selectionEnd = min + text.length
 
         // Similarly, if text modification happens, cancel ongoing composition. If caller wants to
         // change the composition text, it is caller's responsibility to call setComposition again
