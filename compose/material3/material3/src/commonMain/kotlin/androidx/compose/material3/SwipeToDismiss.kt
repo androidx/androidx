@@ -84,32 +84,6 @@ enum class DismissValue {
  * State of the [SwipeToDismiss] composable.
  *
  * @param initialValue The initial value of the state.
- * @param density The density that this state can use to convert values to and from dp.
- * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- * @param positionalThreshold The positional threshold to be used when calculating the target state
- * while a swipe is in progress and when settling after the swipe ends. This is the distance from
- * the start of a transition. It will be, depending on the direction of the interaction, added or
- * subtracted from/to the origin offset. It should always be a positive value.
- */
-@ExperimentalMaterial3Api
-@Suppress("Deprecation", "PrimitiveInLambda")
-fun DismissState(
-    initialValue: DismissValue,
-    density: Density,
-    confirmValueChange: (DismissValue) -> Boolean = { true },
-    positionalThreshold: (totalDistance: Float) -> Float
-) = DismissState(
-    initialValue = initialValue,
-    confirmValueChange = confirmValueChange,
-    positionalThreshold = positionalThreshold
-).also {
-    it.density = density
-}
-
-/**
- * State of the [SwipeToDismiss] composable.
- *
- * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param positionalThreshold The positional threshold to be used when calculating the target state
  * while a swipe is in progress and when settling after the swipe ends. This is the distance from
@@ -130,6 +104,29 @@ class DismissState @Deprecated(
     confirmValueChange: (DismissValue) -> Boolean = { true },
     positionalThreshold: (totalDistance: Float) -> Float
 ) {
+
+    /**
+     * State of the [SwipeToDismiss] composable.
+     *
+     * @param initialValue The initial value of the state.
+     * @param density The density that this state can use to convert values to and from dp.
+     * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+     * @param positionalThreshold The positional threshold to be used when calculating the target state
+     * while a swipe is in progress and when settling after the swipe ends. This is the distance from
+     * the start of a transition. It will be, depending on the direction of the interaction, added or
+     * subtracted from/to the origin offset. It should always be a positive value.
+     */
+    @ExperimentalMaterial3Api
+    @Suppress("Deprecation", "PrimitiveInLambda")
+    constructor(
+        initialValue: DismissValue,
+        density: Density,
+        confirmValueChange: (DismissValue) -> Boolean = { true },
+        positionalThreshold: (totalDistance: Float) -> Float
+    ) : this(initialValue, confirmValueChange, positionalThreshold) {
+        this.density = density
+    }
+
     internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
         animationSpec = AnchoredDraggableDefaults.AnimationSpec,
