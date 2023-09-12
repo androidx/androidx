@@ -513,6 +513,6 @@ class TextFieldStateInternalBufferTest {
     ) = TextFieldState(value.toString(), value.selectionInChars)
 
     private fun TextFieldState.editAsUser(block: EditingBuffer.() -> Unit) {
-        editAsUser(null, false, block)
+        editAsUser(inputTransformation = null, notifyImeOfChanges = false, block = block)
     }
 }
