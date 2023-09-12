@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -268,6 +269,7 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
                 val downEvent =
                     awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                 var upEventOrCancellation: PointerInputChange? = null
+                state.upDownDifference = Offset.Zero // Reset
                 while (upEventOrCancellation == null) {
                     val event = awaitPointerEvent(pass = PointerEventPass.Initial)
                     if (event.changes.fastAll { it.changedToUp() }) {
