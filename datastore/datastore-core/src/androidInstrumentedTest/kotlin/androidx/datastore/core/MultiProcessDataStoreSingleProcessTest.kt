@@ -56,6 +56,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -822,7 +823,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
     }
 
     @Test
-    fun testCancelInflightWrite() = runBlocking<Unit> {
+    fun testCancelInflightWrite() = doBlockingWithTimeout(1000) {
         val myScope =
             CoroutineScope(Job() + Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
@@ -838,7 +839,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
     }
 
     @Test
-    fun testWrite_afterCanceledWrite_succeeds() = runBlocking<Unit> {
+    fun testWrite_afterCanceledWrite_succeeds() = doBlockingWithTimeout(1000) {
         val myScope =
             CoroutineScope(Job() + Executors.newSingleThreadExecutor().asCoroutineDispatcher())
 
@@ -858,8 +859,8 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
     }
 
     @Test
-    fun testWrite_fromOtherScope_doesntGetCancelledFromDifferentScope() = runBlocking<Unit> {
-
+    fun testWrite_fromOtherScope_doesntGetCancelledFromDifferentScope() =
+    doBlockingWithTimeout(1000) {
         val otherScope = CoroutineScope(Job())
 
         val callerScope = CoroutineScope(Job())
@@ -980,4 +981,8 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             throw IOException("Handler thrown exception.")
         }
     }
+}
+
+fun doBlockingWithTimeout(ms: Long, block: suspend () -> Unit): Unit = runBlocking<Unit> {
+    withTimeout(ms) { block() }
 }

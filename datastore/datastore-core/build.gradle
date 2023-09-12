@@ -19,6 +19,7 @@ import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import com.google.protobuf.gradle.ProtobufExtract
 
 plugins {
     id("AndroidXPlugin")
@@ -55,6 +56,11 @@ protobuf {
             }
         }
     }
+}
+
+def protoDir = project.layout.projectDirectory.dir("src/androidInstrumentedTest/proto")
+tasks.named("extractAndroidTestProto").configure {
+    it.inputFiles.from(project.files(protoDir))
 }
 
 androidXMultiplatform {
@@ -111,6 +117,13 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.protobufLite)
+            }
+        }
+
+        androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.protobufLite)
