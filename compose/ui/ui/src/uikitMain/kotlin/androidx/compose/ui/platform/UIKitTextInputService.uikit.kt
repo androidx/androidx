@@ -19,7 +19,10 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.text.input.*
+import kotlin.math.absoluteValue
 import kotlin.math.min
+import kotlin.test.assertContains
+import org.jetbrains.skia.BreakIterator
 import org.jetbrains.skiko.SkikoKey
 import org.jetbrains.skiko.SkikoKeyboardEventKind
 import platform.UIKit.*
@@ -181,8 +184,10 @@ internal class UIKitTextInputService(
          * https://developer.apple.com/documentation/uikit/uikeyinput/1614572-deletebackward
          */
         override fun deleteBackward() {
+            // Before this function calls, iOS changes selection in setSelectedTextRange.
+            // All needed characters should be allready selected, and we can just remove them.
             sendEditCommand(
-                BackspaceCommand()
+                CommitTextCommand("", 0)
             )
         }
 
@@ -296,6 +301,33 @@ internal class UIKitTextInputService(
          */
         override fun unmarkText() {
             sendEditCommand(FinishComposingTextCommand())
+        }
+
+        /**
+         * Returns the text position at a specified offset from another text position.
+         */
+        override fun positionFromPosition(position: Long, offset: Long): Long {
+            val text = getState()?.text ?: return 0
+
+            if (position + offset >= text.lastIndex + 1) {
+                return (text.lastIndex + 1).toLong()
+            }
+            if (position + offset <= 0) {
+                return 0
+            }
+            var resultPosition = position.toInt()
+            val iterator = BreakIterator.makeCharacterInstance()
+            iterator.setText(text)
+
+            repeat(offset.absoluteValue.toInt()) {
+                resultPosition = if (offset > 0) {
+                    iterator.following(resultPosition)
+                } else {
+                    iterator.preceding(resultPosition)
+                }
+            }
+
+            return resultPosition.toLong()
         }
 
     }

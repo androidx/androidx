@@ -102,6 +102,11 @@ internal interface IOSSkikoInput {
      */
     fun unmarkText()
 
+    /**
+     * Returns the text position at a specified offset from another text position.
+     */
+    fun positionFromPosition(position: Long, offset: Long): Long
+
     object Empty : IOSSkikoInput {
         override fun hasText(): Boolean = false
         override fun insertText(text: String) = Unit
@@ -115,5 +120,6 @@ internal interface IOSSkikoInput {
         override fun setMarkedText(markedText: String?, selectedRange: IntRange) = Unit
         override fun markedTextRange(): IntRange? = null
         override fun unmarkText() = Unit
+        override fun positionFromPosition(position: Long, offset: Long): Long = 0
     }
 }
