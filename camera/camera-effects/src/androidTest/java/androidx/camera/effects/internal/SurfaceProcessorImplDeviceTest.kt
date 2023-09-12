@@ -20,6 +20,8 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect.PREVIEW
@@ -67,6 +69,7 @@ class SurfaceProcessorImplDeviceTest {
 
         // The timeout is set to 200ms to qualify for @SmallTest.
         private const val TIMEOUT_MILLIS = 200L
+        private const val THREAD_NAME = "GL_THREAD"
     }
 
     private val size = Size(640, 480)
@@ -80,9 +83,15 @@ class SurfaceProcessorImplDeviceTest {
     private lateinit var surfaceOutput2: SurfaceOutput
     private lateinit var processor: SurfaceProcessorImpl
     private lateinit var transformationInfo: TransformationInfo
+    private lateinit var glThread: HandlerThread
+    private lateinit var glHandler: Handler
 
     @Before
     fun setUp() {
+        glThread = HandlerThread(THREAD_NAME)
+        glThread.start()
+        glHandler = Handler(glThread.looper)
+
         transformationInfo = TransformationInfo.of(
             cropRect,
             ROTATION_DEGREES,
@@ -112,6 +121,7 @@ class SurfaceProcessorImplDeviceTest {
         if (::processor.isInitialized) {
             processor.release()
         }
+        glThread.quitSafely()
     }
 
     @Test
@@ -197,7 +207,7 @@ class SurfaceProcessorImplDeviceTest {
     @Test
     fun replaceOutputSurface_noFrameFromPreviousCycle() = runBlocking {
         // Arrange: setup processor with buffer depth == 1 and fill it full.
-        processor = SurfaceProcessorImpl(1)
+        processor = SurfaceProcessorImpl(1, glHandler)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             processor.onInputSurface(surfaceRequest)
             processor.onOutputSurface(surfaceOutput)
@@ -270,7 +280,7 @@ class SurfaceProcessorImplDeviceTest {
     @Test
     fun drawFrameAfterReplacingOutput_futureCompletesWithInvalidSurface() = runBlocking {
         // Arrange: setup processor with buffer depth == 1 and fill it full.
-        processor = SurfaceProcessorImpl(1)
+        processor = SurfaceProcessorImpl(1, glHandler)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             processor.onInputSurface(surfaceRequest)
             processor.onOutputSurface(surfaceOutput)
@@ -344,7 +354,7 @@ class SurfaceProcessorImplDeviceTest {
         configureProcessor: (SurfaceProcessorImpl) -> Unit = {},
     ): CountDownLatch {
         // Arrange: Create a processor.
-        processor = SurfaceProcessorImpl(queueDepth)
+        processor = SurfaceProcessorImpl(queueDepth, glHandler)
         configureProcessor(processor)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
             processor.onInputSurface(surfaceRequest)
