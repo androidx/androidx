@@ -26,7 +26,6 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
@@ -363,7 +362,7 @@ private fun RemoteViews.selectChild(
         ?: throw IllegalStateException("No child for position $pos and size $width x $height")
     children.values
         .filter { it != stubId }
-        .fastForEach {
+        .forEach {
             inflateViewStub(
                 translationContext, it, R.layout.glance_deleted_view, R.id.deletedViewId)
         }
