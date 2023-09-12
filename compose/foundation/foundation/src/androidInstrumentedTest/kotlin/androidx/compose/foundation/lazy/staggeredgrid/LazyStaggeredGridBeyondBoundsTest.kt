@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.list.PlacementComparator
 import androidx.compose.foundation.lazy.list.TrackPlacedElement
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
@@ -71,9 +73,11 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
     private val beyondBoundsLayoutDirection = param.beyondBoundsLayoutDirection
     private val reverseLayout = param.reverseLayout
     private val layoutDirection = param.layoutDirection
-    private val placedItems = mutableSetOf<Int>()
+    private val placedItems = sortedMapOf<Int, Rect>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
     private lateinit var lazyStaggeredGridState: LazyStaggeredGridState
+    private val placementComparator =
+        PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
 
     companion object {
         @JvmStatic
@@ -104,7 +108,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0)
+            assertThat(placedItems.keys).containsExactly(0)
             assertThat(visibleItems).containsExactly(0)
         }
     }
@@ -124,7 +128,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1)
+            assertThat(placedItems.keys).containsExactly(0, 1)
             assertThat(visibleItems).containsExactly(0, 1)
         }
     }
@@ -144,7 +148,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1, 2)
+            assertThat(placedItems.keys).containsExactly(0, 1, 2)
             assertThat(visibleItems).containsExactly(0, 1, 2)
         }
     }
@@ -217,12 +221,14 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that the beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsExactly(4, 5, 6, 7)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                 } else {
-                    assertThat(placedItems).containsExactly(5, 6, 7, 8)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
                 }
+                assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                assertThat(placedItems.values).isInOrder(placementComparator)
+
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -231,7 +237,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -275,12 +281,14 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that the beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsExactly(9, 10, 11, 12, 13, 14, 15)
-                    assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
+                    assertThat(placedItems.keys).containsExactly(9, 10, 11, 12, 13, 14, 15)
                 } else {
-                    assertThat(placedItems).containsExactly(10, 11, 12, 13, 14, 15, 16)
-                    assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
+                    assertThat(placedItems.keys).containsExactly(10, 11, 12, 13, 14, 15, 16)
                 }
+                assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
+
+                assertThat(placedItems.values).isInOrder(placementComparator)
+
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -289,7 +297,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(10, 11, 12, 13, 14, 15)
+            assertThat(placedItems.keys).containsExactly(10, 11, 12, 13, 14, 15)
             assertThat(visibleItems).containsExactly(10, 11, 12, 13, 14, 15)
         }
     }
@@ -341,10 +349,10 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that the beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(3, 4, 5, 6, 7)
                     assertThat(visibleItems).containsExactly(4, 5, 6, 7)
                 } else {
-                    assertThat(placedItems).containsExactly(4, 5, 6, 7, 8)
+                    assertThat(placedItems.keys).containsExactly(4, 5, 6, 7, 8)
                     assertThat(visibleItems).containsExactly(4, 5, 6, 7)
                 }
                 // Just return true so that we stop as soon as we run this once.
@@ -355,7 +363,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(4, 5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
             assertThat(visibleItems).containsExactly(4, 5, 6, 7)
         }
     }
@@ -400,12 +408,14 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(3, 4, 5, 6, 7)
                     } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9)
                     }
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                    assertThat(placedItems.values).isInOrder(placementComparator)
+
                     // Return true to stop the search.
                     true
                 }
@@ -414,7 +424,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -458,12 +468,15 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
                     } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9, 10)
                     }
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                    // Verify if the placed item offsets are in order.
+                    assertThat(placedItems.toSortedMap().values).isInOrder(placementComparator)
+
                     // Return true to end the search.
                     true
                 }
@@ -472,7 +485,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
         }
     }
 
@@ -507,7 +520,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
             }
         }
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
 
@@ -517,15 +530,15 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
                 beyondBoundsLayoutCount++
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Above, Below -> {
-                        assertThat(placedItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
                     Before, After -> {
                         if (expectedExtraItemsBeforeVisibleBounds()) {
-                            assertThat(placedItems).containsExactly(4, 5, 6, 7)
+                            assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                             assertThat(visibleItems).containsExactly(5, 6, 7)
                         } else {
-                            assertThat(placedItems).containsExactly(5, 6, 7, 8)
+                            assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
                             assertThat(visibleItems).containsExactly(5, 6, 7)
                         }
                     }
@@ -545,7 +558,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
                     assertThat(beyondBoundsLayoutCount).isEqualTo(1)
 
                     // Assert that the beyond bounds items are removed.
-                    assertThat(placedItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
                 else -> error("Unsupported BeyondBoundsLayoutDirection")
@@ -596,7 +609,7 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -684,5 +697,5 @@ class LazyStaggeredGridBeyondBoundsTest(param: Param) {
     )
 
     private fun Modifier.trackPlaced(index: Int): Modifier =
-        this then TrackPlacedElement(placedItems, index)
+        this then TrackPlacedElement(index, placedItems)
 }

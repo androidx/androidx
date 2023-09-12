@@ -30,6 +30,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -473,7 +474,7 @@ private fun createItemsBeforeList(
         list.add(measuredItemProvider.getAndMeasure(i))
     }
 
-    pinnedItems.fastForEach { index ->
+    pinnedItems.fastForEachReversed { index ->
         if (index < start) {
             if (list == null) list = mutableListOf()
             list?.add(measuredItemProvider.getAndMeasure(index))

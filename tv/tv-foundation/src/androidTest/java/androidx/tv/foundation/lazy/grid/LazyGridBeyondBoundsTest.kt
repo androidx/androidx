@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.grid
+package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.list.PlacementComparator
-import androidx.compose.foundation.lazy.list.TrackPlacedElement
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +42,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import androidx.test.filters.MediumTest
+import androidx.tv.foundation.lazy.list.PlacementComparator
+import androidx.tv.foundation.lazy.list.TrackPlacedElement
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -75,7 +75,7 @@ class LazyGridBeyondBoundsTest(param: Param) {
     private val layoutDirection = param.layoutDirection
     private val placedItems = sortedMapOf<Int, Rect>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
-    private lateinit var lazyGridState: LazyGridState
+    private lateinit var lazyGridState: TvLazyGridState
     private val placementComparator =
         PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
 
@@ -551,23 +551,23 @@ class LazyGridBeyondBoundsTest(param: Param) {
         size: Dp,
         firstVisibleItem: Int,
         cells: Int = 1,
-        content: LazyGridScope.() -> Unit
+        content: TvLazyGridScope.() -> Unit
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                lazyGridState = rememberLazyGridState(firstVisibleItem)
+                lazyGridState = rememberTvLazyGridState(firstVisibleItem)
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Before, After ->
-                        LazyHorizontalGrid(
-                            rows = GridCells.Fixed(cells),
+                        TvLazyHorizontalGrid(
+                            rows = TvGridCells.Fixed(cells),
                             modifier = Modifier.size(size),
                             state = lazyGridState,
                             reverseLayout = reverseLayout,
                             content = content
                         )
                     Above, Below ->
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(cells),
+                        TvLazyVerticalGrid(
+                            columns = TvGridCells.Fixed(cells),
                             modifier = Modifier.size(size),
                             state = lazyGridState,
                             reverseLayout = reverseLayout,
@@ -582,23 +582,23 @@ class LazyGridBeyondBoundsTest(param: Param) {
     private fun ComposeContentTestRule.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyGridScope.() -> Unit
+        content: TvLazyGridScope.() -> Unit
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                lazyGridState = rememberLazyGridState(firstVisibleItem)
+                lazyGridState = rememberTvLazyGridState(firstVisibleItem)
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Before, After ->
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(1),
+                        TvLazyVerticalGrid(
+                            columns = TvGridCells.Fixed(1),
                             modifier = Modifier.size(size),
                             state = lazyGridState,
                             reverseLayout = reverseLayout,
                             content = content
                         )
                     Above, Below ->
-                        LazyHorizontalGrid(
-                            rows = GridCells.Fixed(1),
+                        TvLazyHorizontalGrid(
+                            rows = TvGridCells.Fixed(1),
                             modifier = Modifier.size(size),
                             state = lazyGridState,
                             reverseLayout = reverseLayout,
