@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 
-internal val DEFAULT_TIMEOUT = 10.seconds
+internal val DEFAULT_TIMEOUT = 1.seconds
 
 /**
  * An implementation of [GlanceAppWidgetUnitTest] that provides APIs to run composition for
@@ -156,6 +156,10 @@ internal class GlanceAppWidgetUnitTestEnvironment(
     ): GlanceNodeAssertion<MappedNode, GlanceMappedNode> {
         // Always let all the enqueued tasks finish before inspecting the tree.
         testScope.testScheduler.runCurrent()
+        check(testContext.hasNodes()) {
+            "No nodes found to perform the assertions. Provide the composable to be tested " +
+                "using `provideComposable` function before performing assertions."
+        }
         // Delegates matching to the next assertion.
         return GlanceNodeAssertion(testContext, matcher.matcherToSelector())
     }

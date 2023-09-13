@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestContext<R, T : GlanceNode<R>> {
+    // e.g. RemoteViewsRoot
     var rootGlanceNode: T? = null
     private var allNodes: List<GlanceNode<R>> = emptyList()
 
@@ -73,5 +74,15 @@ class TestContext<R, T : GlanceNode<R>> {
         }
 
         return selectionResult.selectedNodes
+    }
+
+    /**
+     * Returns true if root has glance nodes after composition to be able to perform assertions on.
+     *
+     * Can be false if either composable function produced no glance elements or composable function
+     * was not provided..
+     */
+    fun hasNodes(): Boolean {
+        return rootGlanceNode?.children()?.isNotEmpty() ?: false
     }
 }
