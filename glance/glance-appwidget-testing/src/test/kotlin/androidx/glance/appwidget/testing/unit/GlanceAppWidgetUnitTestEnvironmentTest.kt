@@ -45,7 +45,9 @@ import androidx.glance.semantics.testTag
 import androidx.glance.testing.unit.hasTestTag
 import androidx.glance.testing.unit.hasText
 import androidx.glance.text.Text
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.delay
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 // In this test we aren't specifically testing anything bound to SDK, so we can run it without
@@ -99,6 +101,32 @@ class GlanceAppWidgetUnitTestEnvironmentTest {
                 modifier = GlanceModifier.semantics { testTag = "img" }
             )
         }
+    }
+
+    @Test
+    fun runTest_emptyComposable_throwsError() = runGlanceAppWidgetUnitTest {
+        provideComposable {}
+
+        val exception = assertThrows(IllegalStateException::class.java) {
+            onNode(hasText("abc")).assertExists()
+        }
+
+        assertThat(exception).hasMessageThat().isEqualTo(
+            "No nodes found to perform the assertions. Provide the composable to be " +
+                "tested using `provideComposable` function before performing assertions."
+        )
+    }
+
+    @Test
+    fun runTest_composableNotProvided_throwsError() = runGlanceAppWidgetUnitTest {
+        val exception = assertThrows(IllegalStateException::class.java) {
+            onNode(hasText("abc")).assertExists()
+        }
+
+        assertThat(exception).hasMessageThat().isEqualTo(
+            "No nodes found to perform the assertions. Provide the composable to be " +
+                "tested using `provideComposable` function before performing assertions."
+        )
     }
 
     @Test
