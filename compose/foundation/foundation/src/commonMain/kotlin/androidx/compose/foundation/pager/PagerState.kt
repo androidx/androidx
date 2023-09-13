@@ -722,7 +722,8 @@ private val UnitDensity = object : Density {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal val SnapAlignmentStartToStart = SnapPositionInLayout { _, _, _ -> 0 }
+internal val SnapAlignmentStartToStart =
+    SnapPositionInLayout { _, _, _, _, _ -> 0 }
 
 private const val DEBUG = false
 private inline fun debugLog(generateMsg: () -> String) {
