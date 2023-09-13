@@ -22,6 +22,7 @@ import android.os.ParcelUuid
 import android.telecom.CallException
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
@@ -38,10 +39,10 @@ import kotlinx.coroutines.launch
 @Suppress("ClassVerificationFailure")
 internal class CallSession(
     coroutineContext: CoroutineContext,
-    val onAnswerCallback: suspend (callType: Int) -> Boolean,
-    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Boolean,
-    val onSetActiveCallback: suspend () -> Boolean,
-    val onSetInactiveCallback: suspend () -> Boolean,
+    val onAnswerCallback: suspend (callType: Int) -> Unit,
+    val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
+    val onSetActiveCallback: suspend () -> Unit,
+    val onSetInactiveCallback: suspend () -> Unit,
     private val blockingSessionExecution: CompletableDeferred<Unit>
 ) {
     private val mCoroutineContext = coroutineContext
@@ -115,16 +116,17 @@ internal class CallSession(
     /**
      * Custom OutcomeReceiver that handles the Platform responses to a CallControl API call
      */
-    inner class CallControlReceiver(deferred: CompletableDeferred<Boolean>) :
+    inner class CallControlReceiver(deferred: CompletableDeferred<CallControlResult>) :
         OutcomeReceiver<Void, CallException> {
-        private val mResultDeferred: CompletableDeferred<Boolean> = deferred
+        private val mResultDeferred: CompletableDeferred<CallControlResult> = deferred
 
         override fun onResult(r: Void?) {
-            mResultDeferred.complete(true)
+            mResultDeferred.complete(CallControlResult.Success())
         }
 
         override fun onError(error: CallException) {
-            mResultDeferred.complete(false)
+            mResultDeferred.complete(CallControlResult.Error(
+                androidx.core.telecom.CallException.fromTelecomCode(error.code)))
         }
     }
 
@@ -132,29 +134,29 @@ internal class CallSession(
         return mPlatformInterface!!.callId
     }
 
-    suspend fun setActive(): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun setActive(): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setActive(Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun setInactive(): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun setInactive(): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.setInactive(Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun answer(videoState: Int): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun answer(videoState: Int): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.answer(videoState, Runnable::run, CallControlReceiver(result))
         result.await()
         return result.getCompleted()
     }
 
-    suspend fun requestEndpointChange(endpoint: android.telecom.CallEndpoint): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun requestEndpointChange(endpoint: android.telecom.CallEndpoint): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.requestCallEndpointChange(
             endpoint,
             Runnable::run, CallControlReceiver(result)
@@ -163,8 +165,8 @@ internal class CallSession(
         return result.getCompleted()
     }
 
-    suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
-        val result: CompletableDeferred<Boolean> = CompletableDeferred()
+    suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
+        val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
         mPlatformInterface?.disconnect(
             disconnectCause,
             Runnable::run,
@@ -179,31 +181,55 @@ internal class CallSession(
      */
     fun onSetActive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = onSetActiveCallback()
-            wasCompleted.accept(clientResponse)
+            try {
+                onSetActiveCallback()
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onSetInactive(wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = onSetInactiveCallback()
-            wasCompleted.accept(clientResponse)
+            try {
+                onSetInactiveCallback()
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onAnswer(videoState: Int, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = onAnswerCallback(videoState)
-            wasCompleted.accept(clientResponse)
+            try {
+                onAnswerCallback(videoState)
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                handleCallbackFailure(wasCompleted, e)
+            }
         }
     }
 
     fun onDisconnect(cause: DisconnectCause, wasCompleted: Consumer<Boolean>) {
         CoroutineScope(mCoroutineContext).launch {
-            val clientResponse: Boolean = onDisconnectCallback(cause)
-            wasCompleted.accept(clientResponse)
-            blockingSessionExecution.complete(Unit)
+            try {
+                onDisconnectCallback(cause)
+                wasCompleted.accept(true)
+            } catch (e: Exception) {
+                wasCompleted.accept(false)
+                throw e
+            } finally {
+                blockingSessionExecution.complete(Unit)
+            }
         }
+    }
+
+    private fun handleCallbackFailure(wasCompleted: Consumer<Boolean>, e: Exception) {
+        wasCompleted.accept(false)
+        blockingSessionExecution.complete(Unit)
+        throw e
     }
 
     /**
@@ -225,26 +251,26 @@ internal class CallSession(
             return session.getCallId()
         }
 
-        override suspend fun setActive(): Boolean {
+        override suspend fun setActive(): CallControlResult {
             return session.setActive()
         }
 
-        override suspend fun setInactive(): Boolean {
+        override suspend fun setInactive(): CallControlResult {
             return session.setInactive()
         }
 
-        override suspend fun answer(callType: Int): Boolean {
+        override suspend fun answer(callType: Int): CallControlResult {
             return session.answer(callType)
         }
 
-        override suspend fun disconnect(disconnectCause: DisconnectCause): Boolean {
+        override suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
             val response = session.disconnect(disconnectCause)
             blockingSessionExecution.complete(Unit)
             return response
         }
 
         override suspend fun requestEndpointChange(endpoint: CallEndpointCompat):
-            Boolean {
+            CallControlResult {
             return session.requestEndpointChange(
                 EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint)
             )

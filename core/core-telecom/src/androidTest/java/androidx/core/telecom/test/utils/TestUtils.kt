@@ -61,7 +61,7 @@ object TestUtils {
     val VERIFICATION_TIMEOUT_MSG =
         "Timed out before asserting all values. This most likely means the platform failed to" +
             " add the call or hung on a CallControl operation."
-
+    val CALLBACK_FAILED_EXCEPTION_MSG = "callback failed to be completed in the lambda function"
     // non-primitive constants
     val TEST_PHONE_NUMBER_9001 = Uri.parse("tel:6506959001")
     val TEST_PHONE_NUMBER_8985 = Uri.parse("tel:6506958985")
@@ -133,28 +133,37 @@ object TestUtils {
         }
     }
 
-    val mOnSetActiveLambda: suspend () -> Boolean = {
+    val mOnSetActiveLambda: suspend () -> Unit = {
         Log.i(LOG_TAG, "onSetActive: completing")
         mOnSetActiveCallbackCalled = true
-        mCompleteOnSetActive
+        if (!mCompleteOnSetActive) {
+            throw Exception(CALLBACK_FAILED_EXCEPTION_MSG)
+        }
     }
 
-    val mOnSetInActiveLambda: suspend () -> Boolean = {
+    val mOnSetInActiveLambda: suspend () -> Unit = {
         Log.i(LOG_TAG, "onSetInactive: completing")
         mOnSetInactiveCallbackCalled = true
-        mCompleteOnSetInactive
+        if (!mCompleteOnSetInactive) {
+            throw Exception(CALLBACK_FAILED_EXCEPTION_MSG)
+        }
     }
 
-    val mOnAnswerLambda: suspend (type: Int) -> Boolean = {
+    val mOnAnswerLambda: suspend (type: Int) -> Unit = {
         Log.i(LOG_TAG, "onAnswer: callType=[$it]")
         mOnAnswerCallbackCalled = true
-        mCompleteOnAnswer
+        if (!mCompleteOnAnswer) {
+            throw Exception(CALLBACK_FAILED_EXCEPTION_MSG)
+        }
     }
 
-    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Boolean = {
+    val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Unit = {
         Log.i(LOG_TAG, "onDisconnect: disconnectCause=[$it]")
         mOnDisconnectCallbackCalled = true
         mCompleteOnDisconnect
+        if (!mCompleteOnDisconnect) {
+            throw Exception(CALLBACK_FAILED_EXCEPTION_MSG)
+        }
     }
 
     // Flags for determining whether the given callback was invoked or not

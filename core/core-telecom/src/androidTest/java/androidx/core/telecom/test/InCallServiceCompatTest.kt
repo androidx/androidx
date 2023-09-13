@@ -23,6 +23,7 @@ import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
@@ -216,7 +217,9 @@ class InCallServiceCompatTest : BaseTelecomTest() {
                     // Assert call extension type.
                     assertEquals(expectedType, inCallServiceCompat.resolveCallExtensionsType(call))
                     // Always send disconnect signal if possible.
-                    Assert.assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }
