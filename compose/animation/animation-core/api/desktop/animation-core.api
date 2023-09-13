@@ -1,0 +1,812 @@
+public final class androidx/compose/animation/core/Animatable {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;)V
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun animateDecay (Ljava/lang/Object;Landroidx/compose/animation/core/DecayAnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateDecay$default (Landroidx/compose/animation/core/Animatable;Ljava/lang/Object;Landroidx/compose/animation/core/DecayAnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun animateTo (Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateTo$default (Landroidx/compose/animation/core/Animatable;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun asState ()Landroidx/compose/runtime/State;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getLowerBound ()Ljava/lang/Object;
+	public final fun getTargetValue ()Ljava/lang/Object;
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public final fun getUpperBound ()Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
+	public final fun getVelocity ()Ljava/lang/Object;
+	public final fun getVelocityVector ()Landroidx/compose/animation/core/AnimationVector;
+	public final fun isRunning ()Z
+	public final fun snapTo (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun stop (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun updateBounds (Ljava/lang/Object;Ljava/lang/Object;)V
+	public static synthetic fun updateBounds$default (Landroidx/compose/animation/core/Animatable;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)V
+}
+
+public final class androidx/compose/animation/core/AnimatableKt {
+	public static final fun Animatable (FF)Landroidx/compose/animation/core/Animatable;
+	public static synthetic fun Animatable$default (FFILjava/lang/Object;)Landroidx/compose/animation/core/Animatable;
+}
+
+public final class androidx/compose/animation/core/AnimateAsStateKt {
+	public static final fun animateDpAsState-AjpBEmI (FLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateDpAsState-Kz89ssw (FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateFloatAsState (FLandroidx/compose/animation/core/AnimationSpec;FLjava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateFloatAsState (FLandroidx/compose/animation/core/AnimationSpec;FLkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateIntAsState (ILandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateIntAsState (ILandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateIntOffsetAsState-8f6pmRE (JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateIntOffsetAsState-HyPO7BM (JLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateIntSizeAsState-4goxYXU (JLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateIntSizeAsState-zTRF_AQ (JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateOffsetAsState-7362WCg (JLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateOffsetAsState-N6fFfp4 (JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateRectAsState (Landroidx/compose/ui/geometry/Rect;Landroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateRectAsState (Landroidx/compose/ui/geometry/Rect;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateSizeAsState-LjSzlW0 (JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateSizeAsState-YLp_XPw (JLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateValueAsState (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Landroidx/compose/animation/core/AnimationSpec;Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateValueAsState (Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Landroidx/compose/animation/core/AnimationSpec;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+}
+
+public abstract interface class androidx/compose/animation/core/Animation {
+	public abstract fun getDurationNanos ()J
+	public abstract fun getTargetValue ()Ljava/lang/Object;
+	public abstract fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public abstract fun getValueFromNanos (J)Ljava/lang/Object;
+	public abstract fun getVelocityVectorFromNanos (J)Landroidx/compose/animation/core/AnimationVector;
+	public fun isFinishedFromNanos (J)Z
+	public abstract fun isInfinite ()Z
+}
+
+public final class androidx/compose/animation/core/Animation$DefaultImpls {
+	public static fun isFinishedFromNanos (Landroidx/compose/animation/core/Animation;J)Z
+}
+
+public final class androidx/compose/animation/core/AnimationConstants {
+	public static final field $stable I
+	public static final field DefaultDurationMillis I
+	public static final field INSTANCE Landroidx/compose/animation/core/AnimationConstants;
+	public static final field UnspecifiedTime J
+}
+
+public final class androidx/compose/animation/core/AnimationEndReason : java/lang/Enum {
+	public static final field BoundReached Landroidx/compose/animation/core/AnimationEndReason;
+	public static final field Finished Landroidx/compose/animation/core/AnimationEndReason;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/core/AnimationEndReason;
+	public static fun values ()[Landroidx/compose/animation/core/AnimationEndReason;
+}
+
+public final class androidx/compose/animation/core/AnimationKt {
+	public static final fun DecayAnimation (Landroidx/compose/animation/core/FloatDecayAnimationSpec;FF)Landroidx/compose/animation/core/DecayAnimation;
+	public static synthetic fun DecayAnimation$default (Landroidx/compose/animation/core/FloatDecayAnimationSpec;FFILjava/lang/Object;)Landroidx/compose/animation/core/DecayAnimation;
+	public static final fun TargetBasedAnimation (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Landroidx/compose/animation/core/TargetBasedAnimation;
+	public static final fun createAnimation (Landroidx/compose/animation/core/VectorizedAnimationSpec;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/TargetBasedAnimation;
+	public static final fun getVelocityFromNanos (Landroidx/compose/animation/core/Animation;J)Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/AnimationResult {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/AnimationState;Landroidx/compose/animation/core/AnimationEndReason;)V
+	public final fun getEndReason ()Landroidx/compose/animation/core/AnimationEndReason;
+	public final fun getEndState ()Landroidx/compose/animation/core/AnimationState;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationScope {
+	public static final field $stable I
+	public final fun cancelAnimation ()V
+	public final fun getFinishedTimeNanos ()J
+	public final fun getLastFrameTimeNanos ()J
+	public final fun getStartTimeNanos ()J
+	public final fun getTargetValue ()Ljava/lang/Object;
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public final fun getValue ()Ljava/lang/Object;
+	public final fun getVelocity ()Ljava/lang/Object;
+	public final fun getVelocityVector ()Landroidx/compose/animation/core/AnimationVector;
+	public final fun isRunning ()Z
+	public final fun toAnimationState ()Landroidx/compose/animation/core/AnimationState;
+}
+
+public abstract interface class androidx/compose/animation/core/AnimationSpec {
+	public abstract fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/AnimationSpecKt {
+	public static final synthetic fun infiniteRepeatable (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
+	public static synthetic fun infiniteRepeatable$default (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILjava/lang/Object;)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
+	public static final fun infiniteRepeatable-9IiC70o (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;J)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
+	public static synthetic fun infiniteRepeatable-9IiC70o$default (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILjava/lang/Object;)Landroidx/compose/animation/core/InfiniteRepeatableSpec;
+	public static final fun keyframes (Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/core/KeyframesSpec;
+	public static final synthetic fun repeatable (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)Landroidx/compose/animation/core/RepeatableSpec;
+	public static synthetic fun repeatable$default (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILjava/lang/Object;)Landroidx/compose/animation/core/RepeatableSpec;
+	public static final fun repeatable-91I0pcU (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;J)Landroidx/compose/animation/core/RepeatableSpec;
+	public static synthetic fun repeatable-91I0pcU$default (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILjava/lang/Object;)Landroidx/compose/animation/core/RepeatableSpec;
+	public static final fun snap (I)Landroidx/compose/animation/core/SnapSpec;
+	public static synthetic fun snap$default (IILjava/lang/Object;)Landroidx/compose/animation/core/SnapSpec;
+	public static final fun spring (FFLjava/lang/Object;)Landroidx/compose/animation/core/SpringSpec;
+	public static synthetic fun spring$default (FFLjava/lang/Object;ILjava/lang/Object;)Landroidx/compose/animation/core/SpringSpec;
+	public static final fun tween (IILandroidx/compose/animation/core/Easing;)Landroidx/compose/animation/core/TweenSpec;
+	public static synthetic fun tween$default (IILandroidx/compose/animation/core/Easing;ILjava/lang/Object;)Landroidx/compose/animation/core/TweenSpec;
+}
+
+public final class androidx/compose/animation/core/AnimationState : androidx/compose/runtime/State {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;JJZ)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;JJZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getFinishedTimeNanos ()J
+	public final fun getLastFrameTimeNanos ()J
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public fun getValue ()Ljava/lang/Object;
+	public final fun getVelocity ()Ljava/lang/Object;
+	public final fun getVelocityVector ()Landroidx/compose/animation/core/AnimationVector;
+	public final fun isRunning ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationStateKt {
+	public static final fun AnimationState (FFJJZ)Landroidx/compose/animation/core/AnimationState;
+	public static final fun AnimationState (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;JJZ)Landroidx/compose/animation/core/AnimationState;
+	public static synthetic fun AnimationState$default (FFJJZILjava/lang/Object;)Landroidx/compose/animation/core/AnimationState;
+	public static synthetic fun AnimationState$default (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;JJZILjava/lang/Object;)Landroidx/compose/animation/core/AnimationState;
+	public static final fun copy (Landroidx/compose/animation/core/AnimationState;FFJJZ)Landroidx/compose/animation/core/AnimationState;
+	public static final fun copy (Landroidx/compose/animation/core/AnimationState;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;JJZ)Landroidx/compose/animation/core/AnimationState;
+	public static synthetic fun copy$default (Landroidx/compose/animation/core/AnimationState;FFJJZILjava/lang/Object;)Landroidx/compose/animation/core/AnimationState;
+	public static synthetic fun copy$default (Landroidx/compose/animation/core/AnimationState;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;JJZILjava/lang/Object;)Landroidx/compose/animation/core/AnimationState;
+	public static final fun createZeroVectorFrom (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;)Landroidx/compose/animation/core/AnimationVector;
+	public static final fun isFinished (Landroidx/compose/animation/core/AnimationState;)Z
+}
+
+public abstract class androidx/compose/animation/core/AnimationVector {
+	public static final field $stable I
+}
+
+public final class androidx/compose/animation/core/AnimationVector1D : androidx/compose/animation/core/AnimationVector {
+	public static final field $stable I
+	public fun <init> (F)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()F
+	public fun hashCode ()I
+	public synthetic fun newVector$animation_core ()Landroidx/compose/animation/core/AnimationVector;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationVector2D : androidx/compose/animation/core/AnimationVector {
+	public static final field $stable I
+	public fun <init> (FF)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getV1 ()F
+	public final fun getV2 ()F
+	public fun hashCode ()I
+	public synthetic fun newVector$animation_core ()Landroidx/compose/animation/core/AnimationVector;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationVector3D : androidx/compose/animation/core/AnimationVector {
+	public static final field $stable I
+	public fun <init> (FFF)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getV1 ()F
+	public final fun getV2 ()F
+	public final fun getV3 ()F
+	public fun hashCode ()I
+	public synthetic fun newVector$animation_core ()Landroidx/compose/animation/core/AnimationVector;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationVector4D : androidx/compose/animation/core/AnimationVector {
+	public static final field $stable I
+	public fun <init> (FFFF)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getV1 ()F
+	public final fun getV2 ()F
+	public final fun getV3 ()F
+	public final fun getV4 ()F
+	public fun hashCode ()I
+	public synthetic fun newVector$animation_core ()Landroidx/compose/animation/core/AnimationVector;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/AnimationVectorsKt {
+	public static final fun AnimationVector (F)Landroidx/compose/animation/core/AnimationVector1D;
+	public static final fun AnimationVector (FF)Landroidx/compose/animation/core/AnimationVector2D;
+	public static final fun AnimationVector (FFF)Landroidx/compose/animation/core/AnimationVector3D;
+	public static final fun AnimationVector (FFFF)Landroidx/compose/animation/core/AnimationVector4D;
+}
+
+public final class androidx/compose/animation/core/CubicBezierEasing : androidx/compose/animation/core/Easing {
+	public static final field $stable I
+	public fun <init> (FFFF)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun transform (F)F
+}
+
+public final class androidx/compose/animation/core/DecayAnimation : androidx/compose/animation/core/Animation {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/DecayAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;)V
+	public fun <init> (Landroidx/compose/animation/core/DecayAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun <init> (Landroidx/compose/animation/core/VectorizedDecayAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;)V
+	public fun getDurationNanos ()J
+	public final fun getInitialValue ()Ljava/lang/Object;
+	public final fun getInitialVelocityVector ()Landroidx/compose/animation/core/AnimationVector;
+	public fun getTargetValue ()Ljava/lang/Object;
+	public fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public fun getValueFromNanos (J)Ljava/lang/Object;
+	public fun getVelocityVectorFromNanos (J)Landroidx/compose/animation/core/AnimationVector;
+	public fun isInfinite ()Z
+}
+
+public abstract interface class androidx/compose/animation/core/DecayAnimationSpec {
+	public abstract fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDecayAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/DecayAnimationSpecKt {
+	public static final fun calculateTargetValue (Landroidx/compose/animation/core/DecayAnimationSpec;FF)F
+	public static final fun calculateTargetValue (Landroidx/compose/animation/core/DecayAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public static final fun exponentialDecay (FF)Landroidx/compose/animation/core/DecayAnimationSpec;
+	public static synthetic fun exponentialDecay$default (FFILjava/lang/Object;)Landroidx/compose/animation/core/DecayAnimationSpec;
+	public static final fun generateDecayAnimationSpec (Landroidx/compose/animation/core/FloatDecayAnimationSpec;)Landroidx/compose/animation/core/DecayAnimationSpec;
+}
+
+public abstract interface class androidx/compose/animation/core/DurationBasedAnimationSpec : androidx/compose/animation/core/FiniteAnimationSpec {
+	public abstract fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
+}
+
+public abstract interface class androidx/compose/animation/core/Easing {
+	public abstract fun transform (F)F
+}
+
+public final class androidx/compose/animation/core/EasingFunctionsKt {
+	public static final fun getEase ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseIn ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInBack ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInBounce ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInCirc ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInCubic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInElastic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInExpo ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOut ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutBack ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutBounce ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutCirc ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutCubic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutElastic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutExpo ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutQuad ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutQuart ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutQuint ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInOutSine ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInQuad ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInQuart ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInQuint ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseInSine ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOut ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutBack ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutBounce ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutCirc ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutCubic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutElastic ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutExpo ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutQuad ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutQuart ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutQuint ()Landroidx/compose/animation/core/Easing;
+	public static final fun getEaseOutSine ()Landroidx/compose/animation/core/Easing;
+}
+
+public final class androidx/compose/animation/core/EasingKt {
+	public static final fun getFastOutLinearInEasing ()Landroidx/compose/animation/core/Easing;
+	public static final fun getFastOutSlowInEasing ()Landroidx/compose/animation/core/Easing;
+	public static final fun getLinearEasing ()Landroidx/compose/animation/core/Easing;
+	public static final fun getLinearOutSlowInEasing ()Landroidx/compose/animation/core/Easing;
+}
+
+public abstract interface annotation class androidx/compose/animation/core/ExperimentalTransitionApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface class androidx/compose/animation/core/FiniteAnimationSpec : androidx/compose/animation/core/AnimationSpec {
+	public abstract fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+}
+
+public abstract interface class androidx/compose/animation/core/FloatAnimationSpec : androidx/compose/animation/core/AnimationSpec {
+	public abstract fun getDurationNanos (FFF)J
+	public fun getEndVelocity (FFF)F
+	public abstract fun getValueFromNanos (JFFF)F
+	public abstract fun getVelocityFromNanos (JFFF)F
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFloatAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/FloatAnimationSpec$DefaultImpls {
+	public static fun getEndVelocity (Landroidx/compose/animation/core/FloatAnimationSpec;FFF)F
+	public static fun vectorize (Landroidx/compose/animation/core/FloatAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFloatAnimationSpec;
+}
+
+public abstract interface class androidx/compose/animation/core/FloatDecayAnimationSpec {
+	public abstract fun getAbsVelocityThreshold ()F
+	public abstract fun getDurationNanos (FF)J
+	public abstract fun getTargetValue (FF)F
+	public abstract fun getValueFromNanos (JFF)F
+	public abstract fun getVelocityFromNanos (JFF)F
+}
+
+public final class androidx/compose/animation/core/FloatExponentialDecaySpec : androidx/compose/animation/core/FloatDecayAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (FF)V
+	public synthetic fun <init> (FFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbsVelocityThreshold ()F
+	public fun getDurationNanos (FF)J
+	public fun getTargetValue (FF)F
+	public fun getValueFromNanos (JFF)F
+	public fun getVelocityFromNanos (JFF)F
+}
+
+public final class androidx/compose/animation/core/FloatSpringSpec : androidx/compose/animation/core/FloatAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (FFF)V
+	public synthetic fun <init> (FFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDampingRatio ()F
+	public fun getDurationNanos (FFF)J
+	public fun getEndVelocity (FFF)F
+	public final fun getStiffness ()F
+	public fun getValueFromNanos (JFFF)F
+	public fun getVelocityFromNanos (JFFF)F
+}
+
+public final class androidx/compose/animation/core/FloatTweenSpec : androidx/compose/animation/core/FloatAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (IILandroidx/compose/animation/core/Easing;)V
+	public synthetic fun <init> (IILandroidx/compose/animation/core/Easing;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDelay ()I
+	public final fun getDuration ()I
+	public fun getDurationNanos (FFF)J
+	public fun getValueFromNanos (JFFF)F
+	public fun getVelocityFromNanos (JFFF)F
+}
+
+public final class androidx/compose/animation/core/InfiniteAnimationPolicyKt {
+	public static final fun withInfiniteAnimationFrameMillis (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withInfiniteAnimationFrameNanos (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/InfiniteRepeatableSpec : androidx/compose/animation/core/AnimationSpec {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnimation ()Landroidx/compose/animation/core/DurationBasedAnimationSpec;
+	public final fun getInitialStartOffset-Rmkjzm4 ()J
+	public final fun getRepeatMode ()Landroidx/compose/animation/core/RepeatMode;
+	public fun hashCode ()I
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/InfiniteTransition {
+	public static final field $stable I
+	public final fun getAnimations ()Ljava/util/List;
+	public final fun getLabel ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/InfiniteTransition$TransitionAnimationState : androidx/compose/runtime/State {
+	public final fun getAnimation ()Landroidx/compose/animation/core/TargetBasedAnimation;
+	public final fun getAnimationSpec ()Landroidx/compose/animation/core/AnimationSpec;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public fun getValue ()Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/InfiniteTransitionKt {
+	public static final synthetic fun animateFloat (Landroidx/compose/animation/core/InfiniteTransition;FFLandroidx/compose/animation/core/InfiniteRepeatableSpec;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun animateFloat (Landroidx/compose/animation/core/InfiniteTransition;FFLandroidx/compose/animation/core/InfiniteRepeatableSpec;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateValue (Landroidx/compose/animation/core/InfiniteTransition;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Landroidx/compose/animation/core/InfiniteRepeatableSpec;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun animateValue (Landroidx/compose/animation/core/InfiniteTransition;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/TwoWayConverter;Landroidx/compose/animation/core/InfiniteRepeatableSpec;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun rememberInfiniteTransition (Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/InfiniteTransition;
+	public static final fun rememberInfiniteTransition (Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/InfiniteTransition;
+}
+
+public abstract interface annotation class androidx/compose/animation/core/InternalAnimationApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/animation/core/KeyframesSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConfig ()Landroidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig;
+	public fun hashCode ()I
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedKeyframesSpec;
+}
+
+public final class androidx/compose/animation/core/KeyframesSpec$KeyframeEntity {
+	public static final field $stable I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+}
+
+public final class androidx/compose/animation/core/KeyframesSpec$KeyframesSpecConfig {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun at (Ljava/lang/Object;I)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
+	public final fun atFraction (Ljava/lang/Object;F)Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelayMillis ()I
+	public final fun getDurationMillis ()I
+	public fun hashCode ()I
+	public final fun setDelayMillis (I)V
+	public final fun setDurationMillis (I)V
+	public final fun with (Landroidx/compose/animation/core/KeyframesSpec$KeyframeEntity;Landroidx/compose/animation/core/Easing;)V
+}
+
+public final class androidx/compose/animation/core/MutableTransitionState {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun getCurrentState ()Ljava/lang/Object;
+	public final fun getTargetState ()Ljava/lang/Object;
+	public final fun isIdle ()Z
+	public final fun setTargetState (Ljava/lang/Object;)V
+}
+
+public final class androidx/compose/animation/core/RepeatMode : java/lang/Enum {
+	public static final field Restart Landroidx/compose/animation/core/RepeatMode;
+	public static final field Reverse Landroidx/compose/animation/core/RepeatMode;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/core/RepeatMode;
+	public static fun values ()[Landroidx/compose/animation/core/RepeatMode;
+}
+
+public final class androidx/compose/animation/core/RepeatableSpec : androidx/compose/animation/core/FiniteAnimationSpec {
+	public static final field $stable I
+	public synthetic fun <init> (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/DurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnimation ()Landroidx/compose/animation/core/DurationBasedAnimationSpec;
+	public final fun getInitialStartOffset-Rmkjzm4 ()J
+	public final fun getIterations ()I
+	public final fun getRepeatMode ()Landroidx/compose/animation/core/RepeatMode;
+	public fun hashCode ()I
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/SnapSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelay ()I
+	public fun hashCode ()I
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+}
+
+public final class androidx/compose/animation/core/Spring {
+	public static final field $stable I
+	public static final field DampingRatioHighBouncy F
+	public static final field DampingRatioLowBouncy F
+	public static final field DampingRatioMediumBouncy F
+	public static final field DampingRatioNoBouncy F
+	public static final field DefaultDisplacementThreshold F
+	public static final field INSTANCE Landroidx/compose/animation/core/Spring;
+	public static final field StiffnessHigh F
+	public static final field StiffnessLow F
+	public static final field StiffnessMedium F
+	public static final field StiffnessMediumLow F
+	public static final field StiffnessVeryLow F
+}
+
+public final class androidx/compose/animation/core/SpringEstimationKt {
+	public static final fun estimateAnimationDurationMillis (DDDDD)J
+	public static final fun estimateAnimationDurationMillis (DDDDDD)J
+	public static final fun estimateAnimationDurationMillis (FFFFF)J
+}
+
+public final class androidx/compose/animation/core/SpringSpec : androidx/compose/animation/core/FiniteAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (FFLjava/lang/Object;)V
+	public synthetic fun <init> (FFLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDampingRatio ()F
+	public final fun getStiffness ()F
+	public final fun getVisibilityThreshold ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedSpringSpec;
+}
+
+public final class androidx/compose/animation/core/StartOffset {
+	public static final synthetic fun box-impl (J)Landroidx/compose/animation/core/StartOffset;
+	public static fun constructor-impl (II)J
+	public static synthetic fun constructor-impl$default (IIILkotlin/jvm/internal/DefaultConstructorMarker;)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getOffsetMillis-impl (J)I
+	public static final fun getOffsetType-Eo1U57Q (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/animation/core/StartOffsetType {
+	public static final field Companion Landroidx/compose/animation/core/StartOffsetType$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/animation/core/StartOffsetType;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/animation/core/StartOffsetType$Companion {
+	public final fun getDelay-Eo1U57Q ()I
+	public final fun getFastForward-Eo1U57Q ()I
+}
+
+public final class androidx/compose/animation/core/SuspendAnimationKt {
+	public static final fun animate (FFFLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animate (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animate$default (FFFLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun animate$default (Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun animateDecay (FFLandroidx/compose/animation/core/FloatDecayAnimationSpec;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animateDecay (Landroidx/compose/animation/core/AnimationState;Landroidx/compose/animation/core/DecayAnimationSpec;ZLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateDecay$default (Landroidx/compose/animation/core/AnimationState;Landroidx/compose/animation/core/DecayAnimationSpec;ZLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun animateTo (Landroidx/compose/animation/core/AnimationState;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;ZLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateTo$default (Landroidx/compose/animation/core/AnimationState;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationSpec;ZLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/TargetBasedAnimation : androidx/compose/animation/core/Animation {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/AnimationVector;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDurationNanos ()J
+	public final fun getInitialValue ()Ljava/lang/Object;
+	public fun getTargetValue ()Ljava/lang/Object;
+	public fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public fun getValueFromNanos (J)Ljava/lang/Object;
+	public fun getVelocityVectorFromNanos (J)Landroidx/compose/animation/core/AnimationVector;
+	public fun isInfinite ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/core/Transition {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAnimations ()Ljava/util/List;
+	public final fun getCurrentState ()Ljava/lang/Object;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getPlayTimeNanos ()J
+	public final fun getSegment ()Landroidx/compose/animation/core/Transition$Segment;
+	public final fun getTargetState ()Ljava/lang/Object;
+	public final fun getTotalDurationNanos ()J
+	public final fun getTransitions ()Ljava/util/List;
+	public final fun isRunning ()Z
+	public final fun isSeeking ()Z
+	public final fun seek (Ljava/lang/Object;Ljava/lang/Object;J)V
+	public final fun setPlayTimeNanos (J)V
+}
+
+public final class androidx/compose/animation/core/Transition$DeferredAnimation {
+	public final fun animate (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/runtime/State;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+}
+
+public abstract interface class androidx/compose/animation/core/Transition$Segment {
+	public abstract fun getInitialState ()Ljava/lang/Object;
+	public abstract fun getTargetState ()Ljava/lang/Object;
+	public fun isTransitioningTo (Ljava/lang/Object;Ljava/lang/Object;)Z
+}
+
+public final class androidx/compose/animation/core/Transition$Segment$DefaultImpls {
+	public static fun isTransitioningTo (Landroidx/compose/animation/core/Transition$Segment;Ljava/lang/Object;Ljava/lang/Object;)Z
+}
+
+public final class androidx/compose/animation/core/Transition$TransitionAnimationState : androidx/compose/runtime/State {
+	public final fun getAnimation ()Landroidx/compose/animation/core/TargetBasedAnimation;
+	public final fun getAnimationSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getTypeConverter ()Landroidx/compose/animation/core/TwoWayConverter;
+	public fun getValue ()Ljava/lang/Object;
+}
+
+public final class androidx/compose/animation/core/TransitionKt {
+	public static final fun animateDp (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateFloat (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateInt (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateIntOffset (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateIntSize (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateOffset (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateRect (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateSize (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateValue (Landroidx/compose/animation/core/Transition;Landroidx/compose/animation/core/TwoWayConverter;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun createChildTransition (Landroidx/compose/animation/core/Transition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
+	public static final fun createChildTransitionInternal (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/Transition;
+	public static final fun createDeferredAnimation (Landroidx/compose/animation/core/Transition;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition$DeferredAnimation;
+	public static final fun createTransitionAnimation (Landroidx/compose/animation/core/Transition;Ljava/lang/Object;Ljava/lang/Object;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/TwoWayConverter;Ljava/lang/String;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun updateTransition (Landroidx/compose/animation/core/MutableTransitionState;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
+	public static final fun updateTransition (Ljava/lang/Object;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/core/Transition;
+}
+
+public final class androidx/compose/animation/core/TweenSpec : androidx/compose/animation/core/DurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (IILandroidx/compose/animation/core/Easing;)V
+	public synthetic fun <init> (IILandroidx/compose/animation/core/Easing;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelay ()I
+	public final fun getDurationMillis ()I
+	public final fun getEasing ()Landroidx/compose/animation/core/Easing;
+	public fun hashCode ()I
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;
+	public synthetic fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;
+	public fun vectorize (Landroidx/compose/animation/core/TwoWayConverter;)Landroidx/compose/animation/core/VectorizedTweenSpec;
+}
+
+public abstract interface class androidx/compose/animation/core/TwoWayConverter {
+	public abstract fun getConvertFromVector ()Lkotlin/jvm/functions/Function1;
+	public abstract fun getConvertToVector ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class androidx/compose/animation/core/VectorConvertersKt {
+	public static final fun TwoWayConverter (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/geometry/Offset$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/geometry/Rect$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/geometry/Size$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/unit/Dp$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/unit/DpOffset$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/unit/IntOffset$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Landroidx/compose/ui/unit/IntSize$Companion;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Lkotlin/jvm/internal/FloatCompanionObject;)Landroidx/compose/animation/core/TwoWayConverter;
+	public static final fun getVectorConverter (Lkotlin/jvm/internal/IntCompanionObject;)Landroidx/compose/animation/core/TwoWayConverter;
+}
+
+public abstract interface class androidx/compose/animation/core/VectorizedAnimationSpec {
+	public abstract fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public fun getEndVelocity (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public abstract fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public abstract fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public abstract fun isInfinite ()Z
+}
+
+public final class androidx/compose/animation/core/VectorizedAnimationSpec$DefaultImpls {
+	public static fun getEndVelocity (Landroidx/compose/animation/core/VectorizedAnimationSpec;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public abstract interface class androidx/compose/animation/core/VectorizedDecayAnimationSpec {
+	public abstract fun getAbsVelocityThreshold ()F
+	public abstract fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public abstract fun getTargetValue (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public abstract fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public abstract fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public abstract interface class androidx/compose/animation/core/VectorizedDurationBasedAnimationSpec : androidx/compose/animation/core/VectorizedFiniteAnimationSpec {
+	public abstract fun getDelayMillis ()I
+	public abstract fun getDurationMillis ()I
+	public fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+}
+
+public final class androidx/compose/animation/core/VectorizedDurationBasedAnimationSpec$DefaultImpls {
+	public static fun getDurationNanos (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public static fun getEndVelocity (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public static fun isInfinite (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;)Z
+}
+
+public abstract interface class androidx/compose/animation/core/VectorizedFiniteAnimationSpec : androidx/compose/animation/core/VectorizedAnimationSpec {
+	public fun isInfinite ()Z
+}
+
+public final class androidx/compose/animation/core/VectorizedFiniteAnimationSpec$DefaultImpls {
+	public static fun getEndVelocity (Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public static fun isInfinite (Landroidx/compose/animation/core/VectorizedFiniteAnimationSpec;)Z
+}
+
+public final class androidx/compose/animation/core/VectorizedFloatAnimationSpec : androidx/compose/animation/core/VectorizedFiniteAnimationSpec {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/core/FloatAnimationSpec;)V
+	public fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public fun getEndVelocity (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public final class androidx/compose/animation/core/VectorizedInfiniteRepeatableSpec : androidx/compose/animation/core/VectorizedAnimationSpec {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun isInfinite ()Z
+}
+
+public final class androidx/compose/animation/core/VectorizedKeyframesSpec : androidx/compose/animation/core/VectorizedDurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> (Ljava/util/Map;II)V
+	public synthetic fun <init> (Ljava/util/Map;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDelayMillis ()I
+	public fun getDurationMillis ()I
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public final class androidx/compose/animation/core/VectorizedRepeatableSpec : androidx/compose/animation/core/VectorizedFiniteAnimationSpec {
+	public static final field $stable I
+	public synthetic fun <init> (ILandroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILandroidx/compose/animation/core/VectorizedDurationBasedAnimationSpec;Landroidx/compose/animation/core/RepeatMode;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public final class androidx/compose/animation/core/VectorizedSnapSpec : androidx/compose/animation/core/VectorizedDurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDelayMillis ()I
+	public fun getDurationMillis ()I
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public final class androidx/compose/animation/core/VectorizedSpringSpec : androidx/compose/animation/core/VectorizedFiniteAnimationSpec {
+	public static final field $stable I
+	public fun <init> (FFLandroidx/compose/animation/core/AnimationVector;)V
+	public synthetic fun <init> (FFLandroidx/compose/animation/core/AnimationVector;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDampingRatio ()F
+	public fun getDurationNanos (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)J
+	public fun getEndVelocity (Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public final fun getStiffness ()F
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun isInfinite ()Z
+}
+
+public final class androidx/compose/animation/core/VectorizedTweenSpec : androidx/compose/animation/core/VectorizedDurationBasedAnimationSpec {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (IILandroidx/compose/animation/core/Easing;)V
+	public synthetic fun <init> (IILandroidx/compose/animation/core/Easing;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDelayMillis ()I
+	public fun getDurationMillis ()I
+	public final fun getEasing ()Landroidx/compose/animation/core/Easing;
+	public fun getValueFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+	public fun getVelocityFromNanos (JLandroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;Landroidx/compose/animation/core/AnimationVector;)Landroidx/compose/animation/core/AnimationVector;
+}
+
+public final class androidx/compose/animation/core/VisibilityThresholdsKt {
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/geometry/Offset$Companion;)J
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/geometry/Rect$Companion;)Landroidx/compose/ui/geometry/Rect;
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/geometry/Size$Companion;)J
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/unit/Dp$Companion;)F
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/unit/DpOffset$Companion;)J
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/unit/IntOffset$Companion;)J
+	public static final fun getVisibilityThreshold (Landroidx/compose/ui/unit/IntSize$Companion;)J
+	public static final fun getVisibilityThreshold (Lkotlin/jvm/internal/IntCompanionObject;)I
+}
+

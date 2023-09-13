@@ -1,0 +1,353 @@
+public final class androidx/compose/foundation/layout/AlignmentLineKt {
+	public static final fun paddingFrom-4j6BHR0 (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/AlignmentLine;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun paddingFrom-4j6BHR0$default (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/AlignmentLine;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun paddingFrom-Y_r0B1c (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/AlignmentLine;JJ)Landroidx/compose/ui/Modifier;
+	public static synthetic fun paddingFrom-Y_r0B1c$default (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/AlignmentLine;JJILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun paddingFromBaseline-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun paddingFromBaseline-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun paddingFromBaseline-wCyjxdI (Landroidx/compose/ui/Modifier;JJ)Landroidx/compose/ui/Modifier;
+	public static synthetic fun paddingFromBaseline-wCyjxdI$default (Landroidx/compose/ui/Modifier;JJILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/Arrangement {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/Arrangement;
+	public final fun aligned (Landroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun aligned (Landroidx/compose/ui/Alignment$Vertical;)Landroidx/compose/foundation/layout/Arrangement$Vertical;
+	public final fun getBottom ()Landroidx/compose/foundation/layout/Arrangement$Vertical;
+	public final fun getCenter ()Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun getEnd ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getSpaceAround ()Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun getSpaceBetween ()Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun getSpaceEvenly ()Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun getStart ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getTop ()Landroidx/compose/foundation/layout/Arrangement$Vertical;
+	public final fun spacedBy-0680j_4 (F)Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun spacedBy-D5KLDUw (FLandroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun spacedBy-D5KLDUw (FLandroidx/compose/ui/Alignment$Vertical;)Landroidx/compose/foundation/layout/Arrangement$Vertical;
+}
+
+public final class androidx/compose/foundation/layout/Arrangement$Absolute {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/Arrangement$Absolute;
+	public final fun aligned (Landroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getCenter ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getLeft ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getRight ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getSpaceAround ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getSpaceBetween ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun getSpaceEvenly ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun spacedBy-0680j_4 (F)Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;
+	public final fun spacedBy-D5KLDUw (FLandroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun spacedBy-D5KLDUw (FLandroidx/compose/ui/Alignment$Vertical;)Landroidx/compose/foundation/layout/Arrangement$Vertical;
+}
+
+public abstract interface class androidx/compose/foundation/layout/Arrangement$Horizontal {
+	public abstract fun arrange (Landroidx/compose/ui/unit/Density;I[ILandroidx/compose/ui/unit/LayoutDirection;[I)V
+	public fun getSpacing-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/Arrangement$Horizontal$DefaultImpls {
+	public static fun getSpacing-D9Ej5fM (Landroidx/compose/foundation/layout/Arrangement$Horizontal;)F
+}
+
+public abstract interface class androidx/compose/foundation/layout/Arrangement$HorizontalOrVertical : androidx/compose/foundation/layout/Arrangement$Horizontal, androidx/compose/foundation/layout/Arrangement$Vertical {
+	public fun getSpacing-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/Arrangement$HorizontalOrVertical$DefaultImpls {
+	public static fun getSpacing-D9Ej5fM (Landroidx/compose/foundation/layout/Arrangement$HorizontalOrVertical;)F
+}
+
+public abstract interface class androidx/compose/foundation/layout/Arrangement$Vertical {
+	public abstract fun arrange (Landroidx/compose/ui/unit/Density;I[I[I)V
+	public fun getSpacing-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/Arrangement$Vertical$DefaultImpls {
+	public static fun getSpacing-D9Ej5fM (Landroidx/compose/foundation/layout/Arrangement$Vertical;)F
+}
+
+public final class androidx/compose/foundation/layout/AspectRatioKt {
+	public static final fun aspectRatio (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
+	public static synthetic fun aspectRatio$default (Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/BoxKt {
+	public static final fun Box (Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;I)V
+	public static final fun Box (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun rememberBoxMeasurePolicy (Landroidx/compose/ui/Alignment;ZLandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+}
+
+public abstract interface class androidx/compose/foundation/layout/BoxScope {
+	public abstract fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public abstract fun matchParentSize (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/BoxWithConstraintsKt {
+	public static final fun BoxWithConstraints (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public abstract interface class androidx/compose/foundation/layout/BoxWithConstraintsScope : androidx/compose/foundation/layout/BoxScope {
+	public abstract fun getConstraints-msEJaDk ()J
+	public abstract fun getMaxHeight-D9Ej5fM ()F
+	public abstract fun getMaxWidth-D9Ej5fM ()F
+	public abstract fun getMinHeight-D9Ej5fM ()F
+	public abstract fun getMinWidth-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/ColumnKt {
+	public static final fun Column (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/ui/Alignment$Horizontal;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun columnMeasurePolicy (Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/ui/Alignment$Horizontal;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+	public static final fun getDefaultColumnMeasurePolicy ()Landroidx/compose/ui/layout/MeasurePolicy;
+}
+
+public abstract interface class androidx/compose/foundation/layout/ColumnScope {
+	public abstract fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Horizontal;)Landroidx/compose/ui/Modifier;
+	public abstract fun alignBy (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/VerticalAlignmentLine;)Landroidx/compose/ui/Modifier;
+	public abstract fun alignBy (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public abstract fun weight (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
+	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/ColumnScope$DefaultImpls {
+	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalLayoutApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlowColumnScope : androidx/compose/foundation/layout/ColumnScope {
+}
+
+public final class androidx/compose/foundation/layout/FlowLayoutKt {
+	public static final fun FlowColumn (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;ILkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun FlowRow (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;ILkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun columnMeasurementHelper (Landroidx/compose/foundation/layout/Arrangement$Vertical;Landroidx/compose/foundation/layout/Arrangement$Horizontal;ILandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+	public static final fun rowMeasurementHelper (Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/Arrangement$Vertical;ILandroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlowRowScope : androidx/compose/foundation/layout/RowScope {
+}
+
+public final class androidx/compose/foundation/layout/IntrinsicKt {
+	public static final fun height (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/IntrinsicSize;)Landroidx/compose/ui/Modifier;
+	public static final fun requiredHeight (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/IntrinsicSize;)Landroidx/compose/ui/Modifier;
+	public static final fun requiredWidth (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/IntrinsicSize;)Landroidx/compose/ui/Modifier;
+	public static final fun width (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/IntrinsicSize;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/IntrinsicSize : java/lang/Enum {
+	public static final field Max Landroidx/compose/foundation/layout/IntrinsicSize;
+	public static final field Min Landroidx/compose/foundation/layout/IntrinsicSize;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/foundation/layout/IntrinsicSize;
+	public static fun values ()[Landroidx/compose/foundation/layout/IntrinsicSize;
+}
+
+public abstract interface annotation class androidx/compose/foundation/layout/LayoutScopeMarker : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/foundation/layout/MutableWindowInsets : androidx/compose/foundation/layout/WindowInsets {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (Landroidx/compose/foundation/layout/WindowInsets;)V
+	public synthetic fun <init> (Landroidx/compose/foundation/layout/WindowInsets;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getBottom (Landroidx/compose/ui/unit/Density;)I
+	public final fun getInsets ()Landroidx/compose/foundation/layout/WindowInsets;
+	public fun getLeft (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;)I
+	public fun getRight (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;)I
+	public fun getTop (Landroidx/compose/ui/unit/Density;)I
+	public final fun setInsets (Landroidx/compose/foundation/layout/WindowInsets;)V
+}
+
+public final class androidx/compose/foundation/layout/OffsetKt {
+	public static final fun absoluteOffset (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public static final fun absoluteOffset-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun absoluteOffset-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun offset (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public static final fun offset-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun offset-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/PaddingKt {
+	public static final fun PaddingValues-0680j_4 (F)Landroidx/compose/foundation/layout/PaddingValues;
+	public static final fun PaddingValues-YgX7TsA (FF)Landroidx/compose/foundation/layout/PaddingValues;
+	public static synthetic fun PaddingValues-YgX7TsA$default (FFILjava/lang/Object;)Landroidx/compose/foundation/layout/PaddingValues;
+	public static final fun PaddingValues-a9UjIt4 (FFFF)Landroidx/compose/foundation/layout/PaddingValues;
+	public static synthetic fun PaddingValues-a9UjIt4$default (FFFFILjava/lang/Object;)Landroidx/compose/foundation/layout/PaddingValues;
+	public static final fun absolutePadding-qDBjuR0 (Landroidx/compose/ui/Modifier;FFFF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun absolutePadding-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun calculateEndPadding (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/ui/unit/LayoutDirection;)F
+	public static final fun calculateStartPadding (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/ui/unit/LayoutDirection;)F
+	public static final fun padding (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
+	public static final fun padding-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun padding-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun padding-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun padding-qDBjuR0 (Landroidx/compose/ui/Modifier;FFFF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun padding-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/foundation/layout/PaddingValues {
+	public abstract fun calculateBottomPadding-D9Ej5fM ()F
+	public abstract fun calculateLeftPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
+	public abstract fun calculateRightPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
+	public abstract fun calculateTopPadding-D9Ej5fM ()F
+}
+
+public final class androidx/compose/foundation/layout/PaddingValues$Absolute : androidx/compose/foundation/layout/PaddingValues {
+	public static final field $stable I
+	public synthetic fun <init> (FFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun calculateBottomPadding-D9Ej5fM ()F
+	public fun calculateLeftPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
+	public fun calculateRightPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
+	public fun calculateTopPadding-D9Ej5fM ()F
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/foundation/layout/RowKt {
+	public static final fun Row (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/ui/Alignment$Vertical;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun getDefaultRowMeasurePolicy ()Landroidx/compose/ui/layout/MeasurePolicy;
+	public static final fun rowMeasurePolicy (Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/ui/Alignment$Vertical;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+}
+
+public abstract interface class androidx/compose/foundation/layout/RowScope {
+	public abstract fun align (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Vertical;)Landroidx/compose/ui/Modifier;
+	public abstract fun alignBy (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/layout/HorizontalAlignmentLine;)Landroidx/compose/ui/Modifier;
+	public abstract fun alignBy (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public abstract fun alignByBaseline (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public abstract fun weight (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
+	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/RowScope$DefaultImpls {
+	public static synthetic fun weight$default (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/ui/Modifier;FZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/SizeKt {
+	public static final fun defaultMinSize-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun defaultMinSize-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun fillMaxHeight (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static synthetic fun fillMaxHeight$default (Landroidx/compose/ui/Modifier;FILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun fillMaxSize (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static synthetic fun fillMaxSize$default (Landroidx/compose/ui/Modifier;FILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun fillMaxWidth (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static synthetic fun fillMaxWidth$default (Landroidx/compose/ui/Modifier;FILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun height-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun heightIn-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun heightIn-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun requiredHeight-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun requiredHeightIn-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun requiredHeightIn-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun requiredSize-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun requiredSize-6HolHcs (Landroidx/compose/ui/Modifier;J)Landroidx/compose/ui/Modifier;
+	public static final fun requiredSize-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static final fun requiredSizeIn-qDBjuR0 (Landroidx/compose/ui/Modifier;FFFF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun requiredSizeIn-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun requiredWidth-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun requiredWidthIn-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun requiredWidthIn-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun size-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun size-6HolHcs (Landroidx/compose/ui/Modifier;J)Landroidx/compose/ui/Modifier;
+	public static final fun size-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static final fun sizeIn-qDBjuR0 (Landroidx/compose/ui/Modifier;FFFF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun sizeIn-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun width-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public static final fun widthIn-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
+	public static synthetic fun widthIn-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun wrapContentHeight (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Vertical;Z)Landroidx/compose/ui/Modifier;
+	public static synthetic fun wrapContentHeight$default (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Vertical;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun wrapContentSize (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Z)Landroidx/compose/ui/Modifier;
+	public static synthetic fun wrapContentSize$default (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun wrapContentWidth (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Horizontal;Z)Landroidx/compose/ui/Modifier;
+	public static synthetic fun wrapContentWidth$default (Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment$Horizontal;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/SpacerKt {
+	public static final fun Spacer (Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;I)V
+}
+
+public abstract interface class androidx/compose/foundation/layout/WindowInsets {
+	public static final field Companion Landroidx/compose/foundation/layout/WindowInsets$Companion;
+	public abstract fun getBottom (Landroidx/compose/ui/unit/Density;)I
+	public abstract fun getLeft (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;)I
+	public abstract fun getRight (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;)I
+	public abstract fun getTop (Landroidx/compose/ui/unit/Density;)I
+}
+
+public final class androidx/compose/foundation/layout/WindowInsets$Companion {
+}
+
+public final class androidx/compose/foundation/layout/WindowInsetsKt {
+	public static final fun WindowInsets (IIII)Landroidx/compose/foundation/layout/WindowInsets;
+	public static synthetic fun WindowInsets$default (IIIIILjava/lang/Object;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun WindowInsets-a9UjIt4 (FFFF)Landroidx/compose/foundation/layout/WindowInsets;
+	public static synthetic fun WindowInsets-a9UjIt4$default (FFFFILjava/lang/Object;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun add (Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun asPaddingValues (Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/PaddingValues;
+	public static final fun asPaddingValues (Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/ui/unit/Density;)Landroidx/compose/foundation/layout/PaddingValues;
+	public static final fun exclude (Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun only-bOOhFvg (Landroidx/compose/foundation/layout/WindowInsets;I)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun union (Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/foundation/layout/WindowInsets;
+}
+
+public final class androidx/compose/foundation/layout/WindowInsetsPaddingKt {
+	public static final fun consumeWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
+	public static final fun consumeWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun consumedWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
+	public static final fun consumedWindowInsets (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun onConsumedWindowInsetsChanged (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+	public static final fun windowInsetsPadding (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun withConsumedWindowInsets (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/WindowInsetsSides {
+	public static final field Companion Landroidx/compose/foundation/layout/WindowInsetsSides$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/WindowInsetsSides;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public static final fun plus-gK_yJZ4 (II)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/WindowInsetsSides$Companion {
+	public final fun getBottom-JoeWqyM ()I
+	public final fun getEnd-JoeWqyM ()I
+	public final fun getHorizontal-JoeWqyM ()I
+	public final fun getLeft-JoeWqyM ()I
+	public final fun getRight-JoeWqyM ()I
+	public final fun getStart-JoeWqyM ()I
+	public final fun getTop-JoeWqyM ()I
+	public final fun getVertical-JoeWqyM ()I
+}
+
+public final class androidx/compose/foundation/layout/WindowInsetsSizeKt {
+	public static final fun windowInsetsBottomHeight (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun windowInsetsEndWidth (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun windowInsetsStartWidth (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+	public static final fun windowInsetsTopHeight (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/WindowInsets;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/WindowInsets_notMobileKt {
+	public static final fun getCaptionBar (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getDisplayCutout (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getIme (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getMandatorySystemGestures (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getNavigationBars (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getSafeContent (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getSafeDrawing (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getSafeGestures (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getStatusBars (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getSystemBars (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getSystemGestures (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getTappableElement (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getWaterfall (Landroidx/compose/foundation/layout/WindowInsets$Companion;)Landroidx/compose/foundation/layout/WindowInsets;
+}
+

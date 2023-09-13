@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -305,6 +305,9 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     "multiplatformExtension is null (multiplatform plugin not enabled?)"
             }
 
+            val androidXExtension = project.extensions.findByType(AndroidXExtension::class.java)
+                ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
+
             /*
             The following configures source sets - note:
 
@@ -335,6 +338,10 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 }
                 if (multiplatformExtension.targets.findByName("desktop") != null) {
                     tasks.named("desktopTestClasses").also(::addToBuildOnServer)
+                }
+
+                if (androidXExtension.type == LibraryType.PUBLISHED_LIBRARY) {
+                    project.apply(plugin = "org.jetbrains.kotlinx.binary-compatibility-validator")
                 }
             }
         }

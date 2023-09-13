@@ -1,0 +1,1646 @@
+public final class androidx/compose/ui/text/AnnotatedString : java/lang/CharSequence {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun charAt (I)C
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get (I)C
+	public fun getLength ()I
+	public final fun getParagraphStyles ()Ljava/util/List;
+	public final fun getSpanStyles ()Ljava/util/List;
+	public final fun getStringAnnotations (II)Ljava/util/List;
+	public final fun getStringAnnotations (Ljava/lang/String;II)Ljava/util/List;
+	public final fun getText ()Ljava/lang/String;
+	public final fun getTtsAnnotations (II)Ljava/util/List;
+	public final fun getUrlAnnotations (II)Ljava/util/List;
+	public final fun hasStringAnnotations (Ljava/lang/String;II)Z
+	public fun hashCode ()I
+	public final fun length ()I
+	public final fun plus (Landroidx/compose/ui/text/AnnotatedString;)Landroidx/compose/ui/text/AnnotatedString;
+	public fun subSequence (II)Landroidx/compose/ui/text/AnnotatedString;
+	public synthetic fun subSequence (II)Ljava/lang/CharSequence;
+	public final fun subSequence-5zc-tL8 (J)Landroidx/compose/ui/text/AnnotatedString;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/AnnotatedString$Builder : java/lang/Appendable {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (I)V
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;)V
+	public fun <init> (Ljava/lang/String;)V
+	public final fun addStringAnnotation (Ljava/lang/String;Ljava/lang/String;II)V
+	public final fun addStyle (Landroidx/compose/ui/text/ParagraphStyle;II)V
+	public final fun addStyle (Landroidx/compose/ui/text/SpanStyle;II)V
+	public final fun addTtsAnnotation (Landroidx/compose/ui/text/TtsAnnotation;II)V
+	public final fun addUrlAnnotation (Landroidx/compose/ui/text/UrlAnnotation;II)V
+	public fun append (C)Landroidx/compose/ui/text/AnnotatedString$Builder;
+	public synthetic fun append (C)Ljava/lang/Appendable;
+	public final synthetic fun append (C)V
+	public final fun append (Landroidx/compose/ui/text/AnnotatedString;)V
+	public final fun append (Landroidx/compose/ui/text/AnnotatedString;II)V
+	public fun append (Ljava/lang/CharSequence;)Landroidx/compose/ui/text/AnnotatedString$Builder;
+	public synthetic fun append (Ljava/lang/CharSequence;)Ljava/lang/Appendable;
+	public fun append (Ljava/lang/CharSequence;II)Landroidx/compose/ui/text/AnnotatedString$Builder;
+	public synthetic fun append (Ljava/lang/CharSequence;II)Ljava/lang/Appendable;
+	public final fun append (Ljava/lang/String;)V
+	public final fun getLength ()I
+	public final fun pop ()V
+	public final fun pop (I)V
+	public final fun pushStringAnnotation (Ljava/lang/String;Ljava/lang/String;)I
+	public final fun pushStyle (Landroidx/compose/ui/text/ParagraphStyle;)I
+	public final fun pushStyle (Landroidx/compose/ui/text/SpanStyle;)I
+	public final fun pushTtsAnnotation (Landroidx/compose/ui/text/TtsAnnotation;)I
+	public final fun pushUrlAnnotation (Landroidx/compose/ui/text/UrlAnnotation;)I
+	public final fun toAnnotatedString ()Landroidx/compose/ui/text/AnnotatedString;
+}
+
+public final class androidx/compose/ui/text/AnnotatedString$Range {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;II)V
+	public fun <init> (Ljava/lang/Object;IILjava/lang/String;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Object;IILjava/lang/String;)Landroidx/compose/ui/text/AnnotatedString$Range;
+	public static synthetic fun copy$default (Landroidx/compose/ui/text/AnnotatedString$Range;Ljava/lang/Object;IILjava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString$Range;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnd ()I
+	public final fun getItem ()Ljava/lang/Object;
+	public final fun getStart ()I
+	public final fun getTag ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/AnnotatedStringKt {
+	public static final fun AnnotatedString (Ljava/lang/String;Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun AnnotatedString (Ljava/lang/String;Landroidx/compose/ui/text/SpanStyle;Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/AnnotatedString;
+	public static synthetic fun AnnotatedString$default (Ljava/lang/String;Landroidx/compose/ui/text/SpanStyle;Landroidx/compose/ui/text/ParagraphStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun buildAnnotatedString (Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun capitalize (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;)Landroidx/compose/ui/text/AnnotatedString;
+	public static synthetic fun capitalize$default (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun decapitalize (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;)Landroidx/compose/ui/text/AnnotatedString;
+	public static synthetic fun decapitalize$default (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun toLowerCase (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;)Landroidx/compose/ui/text/AnnotatedString;
+	public static synthetic fun toLowerCase$default (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun toUpperCase (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;)Landroidx/compose/ui/text/AnnotatedString;
+	public static synthetic fun toUpperCase$default (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/intl/LocaleList;ILjava/lang/Object;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun withAnnotation (Landroidx/compose/ui/text/AnnotatedString$Builder;Landroidx/compose/ui/text/TtsAnnotation;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun withAnnotation (Landroidx/compose/ui/text/AnnotatedString$Builder;Landroidx/compose/ui/text/UrlAnnotation;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun withAnnotation (Landroidx/compose/ui/text/AnnotatedString$Builder;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun withStyle (Landroidx/compose/ui/text/AnnotatedString$Builder;Landroidx/compose/ui/text/ParagraphStyle;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun withStyle (Landroidx/compose/ui/text/AnnotatedString$Builder;Landroidx/compose/ui/text/SpanStyle;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/ui/text/DesktopTextStyle_skikoKt {
+	public static final fun lerp (Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/PlatformParagraphStyle;F)Landroidx/compose/ui/text/PlatformParagraphStyle;
+	public static final fun lerp (Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/text/PlatformSpanStyle;F)Landroidx/compose/ui/text/PlatformSpanStyle;
+}
+
+public abstract interface annotation class androidx/compose/ui/text/ExperimentalTextApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/text/InternalTextApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/ui/text/MultiParagraph {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;FLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;IZ)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;FLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;JLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;JLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;IZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZFLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZFLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Landroidx/compose/ui/text/MultiParagraphIntrinsics;IZF)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/MultiParagraphIntrinsics;IZFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/MultiParagraphIntrinsics;JIZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/MultiParagraphIntrinsics;JIZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBidiRunDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public final fun getBoundingBox (I)Landroidx/compose/ui/geometry/Rect;
+	public final fun getCursorRect (I)Landroidx/compose/ui/geometry/Rect;
+	public final fun getDidExceedMaxLines ()Z
+	public final fun getFirstBaseline ()F
+	public final fun getHeight ()F
+	public final fun getHorizontalPosition (IZ)F
+	public final fun getIntrinsics ()Landroidx/compose/ui/text/MultiParagraphIntrinsics;
+	public final fun getLastBaseline ()F
+	public final fun getLineBottom (I)F
+	public final fun getLineCount ()I
+	public final fun getLineEnd (IZ)I
+	public static synthetic fun getLineEnd$default (Landroidx/compose/ui/text/MultiParagraph;IZILjava/lang/Object;)I
+	public final fun getLineForOffset (I)I
+	public final fun getLineForVerticalPosition (F)I
+	public final fun getLineHeight (I)F
+	public final fun getLineLeft (I)F
+	public final fun getLineRight (I)F
+	public final fun getLineStart (I)I
+	public final fun getLineTop (I)F
+	public final fun getLineWidth (I)F
+	public final fun getMaxIntrinsicWidth ()F
+	public final fun getMaxLines ()I
+	public final fun getMinIntrinsicWidth ()F
+	public final fun getOffsetForPosition-k-4lQ0M (J)I
+	public final fun getParagraphDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public final fun getPathForRange (II)Landroidx/compose/ui/graphics/Path;
+	public final fun getPlaceholderRects ()Ljava/util/List;
+	public final fun getWidth ()F
+	public final fun getWordBoundary--jx7JFs (I)J
+	public final fun isLineEllipsized (I)Z
+	public final fun paint-LG529CI (Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun paint-LG529CI$default (Landroidx/compose/ui/text/MultiParagraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+	public final synthetic fun paint-RPmYEkk (Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;)V
+	public static synthetic fun paint-RPmYEkk$default (Landroidx/compose/ui/text/MultiParagraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;ILjava/lang/Object;)V
+	public final fun paint-hn5TExg (Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun paint-hn5TExg$default (Landroidx/compose/ui/text/MultiParagraph;Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/text/MultiParagraphIntrinsics : androidx/compose/ui/text/ParagraphIntrinsics {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;)V
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;)V
+	public final fun getAnnotatedString ()Landroidx/compose/ui/text/AnnotatedString;
+	public fun getHasStaleResolvedFonts ()Z
+	public fun getMaxIntrinsicWidth ()F
+	public fun getMinIntrinsicWidth ()F
+	public final fun getPlaceholders ()Ljava/util/List;
+}
+
+public abstract interface class androidx/compose/ui/text/Paragraph {
+	public abstract fun getBidiRunDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public abstract fun getBoundingBox (I)Landroidx/compose/ui/geometry/Rect;
+	public abstract fun getCursorRect (I)Landroidx/compose/ui/geometry/Rect;
+	public abstract fun getDidExceedMaxLines ()Z
+	public abstract fun getFirstBaseline ()F
+	public abstract fun getHeight ()F
+	public abstract fun getHorizontalPosition (IZ)F
+	public abstract fun getLastBaseline ()F
+	public abstract fun getLineBottom (I)F
+	public abstract fun getLineCount ()I
+	public abstract fun getLineEnd (IZ)I
+	public static synthetic fun getLineEnd$default (Landroidx/compose/ui/text/Paragraph;IZILjava/lang/Object;)I
+	public abstract fun getLineForOffset (I)I
+	public abstract fun getLineForVerticalPosition (F)I
+	public abstract fun getLineHeight (I)F
+	public abstract fun getLineLeft (I)F
+	public abstract fun getLineRight (I)F
+	public abstract fun getLineStart (I)I
+	public abstract fun getLineTop (I)F
+	public abstract fun getLineWidth (I)F
+	public abstract fun getMaxIntrinsicWidth ()F
+	public abstract fun getMinIntrinsicWidth ()F
+	public abstract fun getOffsetForPosition-k-4lQ0M (J)I
+	public abstract fun getParagraphDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public abstract fun getPathForRange (II)Landroidx/compose/ui/graphics/Path;
+	public abstract fun getPlaceholderRects ()Ljava/util/List;
+	public abstract fun getWidth ()F
+	public abstract fun getWordBoundary--jx7JFs (I)J
+	public abstract fun isLineEllipsized (I)Z
+	public abstract fun paint-LG529CI (Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun paint-LG529CI$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+	public abstract fun paint-RPmYEkk (Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;)V
+	public static synthetic fun paint-RPmYEkk$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;ILjava/lang/Object;)V
+	public abstract fun paint-hn5TExg (Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun paint-hn5TExg$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+}
+
+public abstract interface class androidx/compose/ui/text/ParagraphIntrinsics {
+	public fun getHasStaleResolvedFonts ()Z
+	public abstract fun getMaxIntrinsicWidth ()F
+	public abstract fun getMinIntrinsicWidth ()F
+}
+
+public final class androidx/compose/ui/text/ParagraphIntrinsicsKt {
+	public static final fun ParagraphIntrinsics (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;)Landroidx/compose/ui/text/ParagraphIntrinsics;
+	public static final fun ParagraphIntrinsics (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;)Landroidx/compose/ui/text/ParagraphIntrinsics;
+	public static synthetic fun ParagraphIntrinsics$default (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphIntrinsics;
+	public static synthetic fun ParagraphIntrinsics$default (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphIntrinsics;
+}
+
+public final class androidx/compose/ui/text/ParagraphKt {
+	public static final fun Paragraph (Landroidx/compose/ui/text/ParagraphIntrinsics;IZF)Landroidx/compose/ui/text/Paragraph;
+	public static final fun Paragraph (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;FLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;Ljava/util/List;IZ)Landroidx/compose/ui/text/Paragraph;
+	public static final fun Paragraph (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;IZFLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;)Landroidx/compose/ui/text/Paragraph;
+	public static synthetic fun Paragraph$default (Landroidx/compose/ui/text/ParagraphIntrinsics;IZFILjava/lang/Object;)Landroidx/compose/ui/text/Paragraph;
+	public static synthetic fun Paragraph$default (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;FLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;Ljava/util/List;IZILjava/lang/Object;)Landroidx/compose/ui/text/Paragraph;
+	public static synthetic fun Paragraph$default (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;Ljava/util/List;IZFLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/Font$ResourceLoader;ILjava/lang/Object;)Landroidx/compose/ui/text/Paragraph;
+	public static final fun Paragraph-UdtVg6A (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;JLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;Ljava/util/List;IZ)Landroidx/compose/ui/text/Paragraph;
+	public static synthetic fun Paragraph-UdtVg6A$default (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;JLandroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Ljava/util/List;Ljava/util/List;IZILjava/lang/Object;)Landroidx/compose/ui/text/Paragraph;
+	public static final fun Paragraph-_EkL_-Y (Landroidx/compose/ui/text/ParagraphIntrinsics;JIZ)Landroidx/compose/ui/text/Paragraph;
+	public static synthetic fun Paragraph-_EkL_-Y$default (Landroidx/compose/ui/text/ParagraphIntrinsics;JIZILjava/lang/Object;)Landroidx/compose/ui/text/Paragraph;
+}
+
+public final class androidx/compose/ui/text/ParagraphStyle {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun copy-Elsmlbk (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;)Landroidx/compose/ui/text/ParagraphStyle;
+	public static synthetic fun copy-Elsmlbk$default (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
+	public final fun copy-NH1kkwU (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;)Landroidx/compose/ui/text/ParagraphStyle;
+	public static synthetic fun copy-NH1kkwU$default (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
+	public final synthetic fun copy-ciSxzs0 (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;)Landroidx/compose/ui/text/ParagraphStyle;
+	public static synthetic fun copy-ciSxzs0$default (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
+	public final synthetic fun copy-xPh5V4g (Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;)Landroidx/compose/ui/text/ParagraphStyle;
+	public static synthetic fun copy-xPh5V4g$default (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformParagraphStyle;Landroidx/compose/ui/text/style/LineHeightStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHyphens-EaSxIns ()Landroidx/compose/ui/text/style/Hyphens;
+	public final fun getLineBreak-LgCVezo ()Landroidx/compose/ui/text/style/LineBreak;
+	public final fun getLineHeight-XSAIIZE ()J
+	public final fun getLineHeightStyle ()Landroidx/compose/ui/text/style/LineHeightStyle;
+	public final fun getPlatformStyle ()Landroidx/compose/ui/text/PlatformParagraphStyle;
+	public final fun getTextAlign-buA522U ()Landroidx/compose/ui/text/style/TextAlign;
+	public final fun getTextDirection-mmuk1to ()Landroidx/compose/ui/text/style/TextDirection;
+	public final fun getTextIndent ()Landroidx/compose/ui/text/style/TextIndent;
+	public final fun getTextMotion ()Landroidx/compose/ui/text/style/TextMotion;
+	public fun hashCode ()I
+	public final fun merge (Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/ParagraphStyle;
+	public static synthetic fun merge$default (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/ParagraphStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/ParagraphStyle;
+	public final fun plus (Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/ParagraphStyle;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/ParagraphStyleKt {
+	public static final fun lerp (Landroidx/compose/ui/text/ParagraphStyle;Landroidx/compose/ui/text/ParagraphStyle;F)Landroidx/compose/ui/text/ParagraphStyle;
+}
+
+public final class androidx/compose/ui/text/Placeholder {
+	public static final field $stable I
+	public synthetic fun <init> (JJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-K8Q-__8 (JJI)Landroidx/compose/ui/text/Placeholder;
+	public static synthetic fun copy-K8Q-__8$default (Landroidx/compose/ui/text/Placeholder;JJIILjava/lang/Object;)Landroidx/compose/ui/text/Placeholder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeight-XSAIIZE ()J
+	public final fun getPlaceholderVerticalAlign-J6kI3mc ()I
+	public final fun getWidth-XSAIIZE ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/PlaceholderVerticalAlign {
+	public static final field Companion Landroidx/compose/ui/text/PlaceholderVerticalAlign$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/PlaceholderVerticalAlign;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/PlaceholderVerticalAlign$Companion {
+	public final fun getAboveBaseline-J6kI3mc ()I
+	public final fun getBottom-J6kI3mc ()I
+	public final fun getCenter-J6kI3mc ()I
+	public final fun getTextBottom-J6kI3mc ()I
+	public final fun getTextCenter-J6kI3mc ()I
+	public final fun getTextTop-J6kI3mc ()I
+	public final fun getTop-J6kI3mc ()I
+}
+
+public final class androidx/compose/ui/text/PlatformParagraphStyle {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/PlatformParagraphStyle$Companion;
+	public fun <init> ()V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun merge (Landroidx/compose/ui/text/PlatformParagraphStyle;)Landroidx/compose/ui/text/PlatformParagraphStyle;
+}
+
+public final class androidx/compose/ui/text/PlatformParagraphStyle$Companion {
+	public final fun getDefault ()Landroidx/compose/ui/text/PlatformParagraphStyle;
+}
+
+public final class androidx/compose/ui/text/PlatformSpanStyle {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/PlatformSpanStyle$Companion;
+	public fun <init> ()V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun merge (Landroidx/compose/ui/text/PlatformSpanStyle;)Landroidx/compose/ui/text/PlatformSpanStyle;
+}
+
+public final class androidx/compose/ui/text/PlatformSpanStyle$Companion {
+	public final fun getDefault ()Landroidx/compose/ui/text/PlatformSpanStyle;
+}
+
+public final class androidx/compose/ui/text/PlatformTextStyle {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/text/PlatformParagraphStyle;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getParagraphStyle ()Landroidx/compose/ui/text/PlatformParagraphStyle;
+	public final fun getSpanStyle ()Landroidx/compose/ui/text/PlatformSpanStyle;
+	public fun hashCode ()I
+}
+
+public final class androidx/compose/ui/text/SpanStyle {
+	public static final field $stable I
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/style/TextForegroundStyle;JLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun copy-2BkPm_w (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;)Landroidx/compose/ui/text/SpanStyle;
+	public static synthetic fun copy-2BkPm_w$default (Landroidx/compose/ui/text/SpanStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/SpanStyle;
+	public final fun copy-GSF8kmg (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;)Landroidx/compose/ui/text/SpanStyle;
+	public static synthetic fun copy-GSF8kmg$default (Landroidx/compose/ui/text/SpanStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/SpanStyle;
+	public final synthetic fun copy-IuqyXdg (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;)Landroidx/compose/ui/text/SpanStyle;
+	public static synthetic fun copy-IuqyXdg$default (Landroidx/compose/ui/text/SpanStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;ILjava/lang/Object;)Landroidx/compose/ui/text/SpanStyle;
+	public final fun copy-NcG25M8 (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;)Landroidx/compose/ui/text/SpanStyle;
+	public static synthetic fun copy-NcG25M8$default (Landroidx/compose/ui/text/SpanStyle;Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/PlatformSpanStyle;Landroidx/compose/ui/graphics/drawscope/DrawStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/SpanStyle;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlpha ()F
+	public final fun getBackground-0d7_KjU ()J
+	public final fun getBaselineShift-5SSeXJ0 ()Landroidx/compose/ui/text/style/BaselineShift;
+	public final fun getBrush ()Landroidx/compose/ui/graphics/Brush;
+	public final fun getColor-0d7_KjU ()J
+	public final fun getDrawStyle ()Landroidx/compose/ui/graphics/drawscope/DrawStyle;
+	public final fun getFontFamily ()Landroidx/compose/ui/text/font/FontFamily;
+	public final fun getFontFeatureSettings ()Ljava/lang/String;
+	public final fun getFontSize-XSAIIZE ()J
+	public final fun getFontStyle-4Lr2A7w ()Landroidx/compose/ui/text/font/FontStyle;
+	public final fun getFontSynthesis-ZQGJjVo ()Landroidx/compose/ui/text/font/FontSynthesis;
+	public final fun getFontWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getLetterSpacing-XSAIIZE ()J
+	public final fun getLocaleList ()Landroidx/compose/ui/text/intl/LocaleList;
+	public final fun getPlatformStyle ()Landroidx/compose/ui/text/PlatformSpanStyle;
+	public final fun getShadow ()Landroidx/compose/ui/graphics/Shadow;
+	public final fun getTextDecoration ()Landroidx/compose/ui/text/style/TextDecoration;
+	public final fun getTextGeometricTransform ()Landroidx/compose/ui/text/style/TextGeometricTransform;
+	public fun hashCode ()I
+	public final fun merge (Landroidx/compose/ui/text/SpanStyle;)Landroidx/compose/ui/text/SpanStyle;
+	public static synthetic fun merge$default (Landroidx/compose/ui/text/SpanStyle;Landroidx/compose/ui/text/SpanStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/SpanStyle;
+	public final fun plus (Landroidx/compose/ui/text/SpanStyle;)Landroidx/compose/ui/text/SpanStyle;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/SpanStyleKt {
+	public static final fun lerp (Landroidx/compose/ui/text/SpanStyle;Landroidx/compose/ui/text/SpanStyle;F)Landroidx/compose/ui/text/SpanStyle;
+}
+
+public final class androidx/compose/ui/text/StringKt {
+	public static final fun capitalize (Ljava/lang/String;Landroidx/compose/ui/text/intl/Locale;)Ljava/lang/String;
+	public static final fun capitalize (Ljava/lang/String;Landroidx/compose/ui/text/intl/LocaleList;)Ljava/lang/String;
+	public static final fun decapitalize (Ljava/lang/String;Landroidx/compose/ui/text/intl/Locale;)Ljava/lang/String;
+	public static final fun decapitalize (Ljava/lang/String;Landroidx/compose/ui/text/intl/LocaleList;)Ljava/lang/String;
+	public static final fun toLowerCase (Ljava/lang/String;Landroidx/compose/ui/text/intl/Locale;)Ljava/lang/String;
+	public static final fun toLowerCase (Ljava/lang/String;Landroidx/compose/ui/text/intl/LocaleList;)Ljava/lang/String;
+	public static final fun toUpperCase (Ljava/lang/String;Landroidx/compose/ui/text/intl/Locale;)Ljava/lang/String;
+	public static final fun toUpperCase (Ljava/lang/String;Landroidx/compose/ui/text/intl/LocaleList;)Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/SynchronizationKt {
+	public static final fun synchronized (Landroidx/compose/ui/text/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/ui/text/TextLayoutInput {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZILandroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/text/font/Font$ResourceLoader;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZILandroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/text/font/FontFamily$Resolver;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-hu-1Yfo (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZILandroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/text/font/Font$ResourceLoader;J)Landroidx/compose/ui/text/TextLayoutInput;
+	public static synthetic fun copy-hu-1Yfo$default (Landroidx/compose/ui/text/TextLayoutInput;Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;Ljava/util/List;IZILandroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/text/font/Font$ResourceLoader;JILjava/lang/Object;)Landroidx/compose/ui/text/TextLayoutInput;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConstraints-msEJaDk ()J
+	public final fun getDensity ()Landroidx/compose/ui/unit/Density;
+	public final fun getFontFamilyResolver ()Landroidx/compose/ui/text/font/FontFamily$Resolver;
+	public final fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
+	public final fun getMaxLines ()I
+	public final fun getOverflow-gIe3tQ8 ()I
+	public final fun getPlaceholders ()Ljava/util/List;
+	public final fun getResourceLoader ()Landroidx/compose/ui/text/font/Font$ResourceLoader;
+	public final fun getSoftWrap ()Z
+	public final fun getStyle ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getText ()Landroidx/compose/ui/text/AnnotatedString;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/TextLayoutResult {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/ui/text/TextLayoutInput;Landroidx/compose/ui/text/MultiParagraph;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-O0kMr_c (Landroidx/compose/ui/text/TextLayoutInput;J)Landroidx/compose/ui/text/TextLayoutResult;
+	public static synthetic fun copy-O0kMr_c$default (Landroidx/compose/ui/text/TextLayoutResult;Landroidx/compose/ui/text/TextLayoutInput;JILjava/lang/Object;)Landroidx/compose/ui/text/TextLayoutResult;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBidiRunDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public final fun getBoundingBox (I)Landroidx/compose/ui/geometry/Rect;
+	public final fun getCursorRect (I)Landroidx/compose/ui/geometry/Rect;
+	public final fun getDidOverflowHeight ()Z
+	public final fun getDidOverflowWidth ()Z
+	public final fun getFirstBaseline ()F
+	public final fun getHasVisualOverflow ()Z
+	public final fun getHorizontalPosition (IZ)F
+	public final fun getLastBaseline ()F
+	public final fun getLayoutInput ()Landroidx/compose/ui/text/TextLayoutInput;
+	public final fun getLineBottom (I)F
+	public final fun getLineCount ()I
+	public final fun getLineEnd (IZ)I
+	public static synthetic fun getLineEnd$default (Landroidx/compose/ui/text/TextLayoutResult;IZILjava/lang/Object;)I
+	public final fun getLineForOffset (I)I
+	public final fun getLineForVerticalPosition (F)I
+	public final fun getLineLeft (I)F
+	public final fun getLineRight (I)F
+	public final fun getLineStart (I)I
+	public final fun getLineTop (I)F
+	public final fun getMultiParagraph ()Landroidx/compose/ui/text/MultiParagraph;
+	public final fun getOffsetForPosition-k-4lQ0M (J)I
+	public final fun getParagraphDirection (I)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public final fun getPathForRange (II)Landroidx/compose/ui/graphics/Path;
+	public final fun getPlaceholderRects ()Ljava/util/List;
+	public final fun getSize-YbymL2g ()J
+	public final fun getWordBoundary--jx7JFs (I)J
+	public fun hashCode ()I
+	public final fun isLineEllipsized (I)Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/TextMeasurer {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/font/FontFamily$Resolver;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;I)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/font/FontFamily$Resolver;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun measure-wNUYSr0 (Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;IZIJLandroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Z)Landroidx/compose/ui/text/TextLayoutResult;
+	public static synthetic fun measure-wNUYSr0$default (Landroidx/compose/ui/text/TextMeasurer;Ljava/lang/String;Landroidx/compose/ui/text/TextStyle;IZIJLandroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;ZILjava/lang/Object;)Landroidx/compose/ui/text/TextLayoutResult;
+	public final fun measure-xDpz5zY (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;IZILjava/util/List;JLandroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;Z)Landroidx/compose/ui/text/TextLayoutResult;
+	public static synthetic fun measure-xDpz5zY$default (Landroidx/compose/ui/text/TextMeasurer;Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/TextStyle;IZILjava/util/List;JLandroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/text/font/FontFamily$Resolver;ZILjava/lang/Object;)Landroidx/compose/ui/text/TextLayoutResult;
+}
+
+public final class androidx/compose/ui/text/TextPainter {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/ui/text/TextPainter;
+	public final fun paint (Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/text/TextLayoutResult;)V
+}
+
+public final class androidx/compose/ui/text/TextPainterKt {
+	public static final fun drawText-JFhB2K4 (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextMeasurer;Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextStyle;IZILjava/util/List;JI)V
+	public static synthetic fun drawText-JFhB2K4$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextMeasurer;Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextStyle;IZILjava/util/List;JIILjava/lang/Object;)V
+	public static final fun drawText-LVfH_YU (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextLayoutResult;Landroidx/compose/ui/graphics/Brush;JFLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun drawText-LVfH_YU$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextLayoutResult;Landroidx/compose/ui/graphics/Brush;JFLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+	public static final fun drawText-TPWCCtM (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextMeasurer;Ljava/lang/String;JLandroidx/compose/ui/text/TextStyle;IZIJI)V
+	public static synthetic fun drawText-TPWCCtM$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextMeasurer;Ljava/lang/String;JLandroidx/compose/ui/text/TextStyle;IZIJIILjava/lang/Object;)V
+	public static final fun drawText-d8-rzKo (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextLayoutResult;JJFLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;I)V
+	public static synthetic fun drawText-d8-rzKo$default (Landroidx/compose/ui/graphics/drawscope/DrawScope;Landroidx/compose/ui/text/TextLayoutResult;JJFLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/text/TextRange {
+	public static final field Companion Landroidx/compose/ui/text/TextRange$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/text/TextRange;
+	public static final fun contains-5zc-tL8 (JJ)Z
+	public static final fun contains-impl (JI)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getCollapsed-impl (J)Z
+	public static final fun getEnd-impl (J)I
+	public static final fun getLength-impl (J)I
+	public static final fun getMax-impl (J)I
+	public static final fun getMin-impl (J)I
+	public static final fun getReversed-impl (J)Z
+	public static final fun getStart-impl (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun intersects-5zc-tL8 (JJ)Z
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/text/TextRange$Companion {
+	public final fun getZero-d9O1mEE ()J
+}
+
+public final class androidx/compose/ui/text/TextRangeKt {
+	public static final fun TextRange (I)J
+	public static final fun TextRange (II)J
+	public static final fun coerceIn-8ffj60Q (JII)J
+	public static final fun substring-FDrldGo (Ljava/lang/CharSequence;J)Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/TextStyle {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/TextStyle$Companion;
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun copy-CXVQc50 (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun copy-CXVQc50$default (Landroidx/compose/ui/text/TextStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final synthetic fun copy-HL5avdY (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun copy-HL5avdY$default (Landroidx/compose/ui/text/TextStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final synthetic fun copy-NOaFTUo (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun copy-NOaFTUo$default (Landroidx/compose/ui/text/TextStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final fun copy-aIRg9q4 (Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun copy-aIRg9q4$default (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/graphics/Brush;FJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final fun copy-v2rsoow (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun copy-v2rsoow$default (Landroidx/compose/ui/text/TextStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/style/TextMotion;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlpha ()F
+	public final fun getBackground-0d7_KjU ()J
+	public final fun getBaselineShift-5SSeXJ0 ()Landroidx/compose/ui/text/style/BaselineShift;
+	public final fun getBrush ()Landroidx/compose/ui/graphics/Brush;
+	public final fun getColor-0d7_KjU ()J
+	public final fun getDrawStyle ()Landroidx/compose/ui/graphics/drawscope/DrawStyle;
+	public final fun getFontFamily ()Landroidx/compose/ui/text/font/FontFamily;
+	public final fun getFontFeatureSettings ()Ljava/lang/String;
+	public final fun getFontSize-XSAIIZE ()J
+	public final fun getFontStyle-4Lr2A7w ()Landroidx/compose/ui/text/font/FontStyle;
+	public final fun getFontSynthesis-ZQGJjVo ()Landroidx/compose/ui/text/font/FontSynthesis;
+	public final fun getFontWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getHyphens-EaSxIns ()Landroidx/compose/ui/text/style/Hyphens;
+	public final fun getLetterSpacing-XSAIIZE ()J
+	public final fun getLineBreak-LgCVezo ()Landroidx/compose/ui/text/style/LineBreak;
+	public final fun getLineHeight-XSAIIZE ()J
+	public final fun getLineHeightStyle ()Landroidx/compose/ui/text/style/LineHeightStyle;
+	public final fun getLocaleList ()Landroidx/compose/ui/text/intl/LocaleList;
+	public final fun getPlatformStyle ()Landroidx/compose/ui/text/PlatformTextStyle;
+	public final fun getShadow ()Landroidx/compose/ui/graphics/Shadow;
+	public final fun getTextAlign-buA522U ()Landroidx/compose/ui/text/style/TextAlign;
+	public final fun getTextDecoration ()Landroidx/compose/ui/text/style/TextDecoration;
+	public final fun getTextDirection-mmuk1to ()Landroidx/compose/ui/text/style/TextDirection;
+	public final fun getTextGeometricTransform ()Landroidx/compose/ui/text/style/TextGeometricTransform;
+	public final fun getTextIndent ()Landroidx/compose/ui/text/style/TextIndent;
+	public final fun getTextMotion ()Landroidx/compose/ui/text/style/TextMotion;
+	public final fun hasSameDrawAffectingAttributes (Landroidx/compose/ui/text/TextStyle;)Z
+	public final fun hasSameLayoutAffectingAttributes (Landroidx/compose/ui/text/TextStyle;)Z
+	public fun hashCode ()I
+	public final fun merge (Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/TextStyle;
+	public final fun merge (Landroidx/compose/ui/text/SpanStyle;)Landroidx/compose/ui/text/TextStyle;
+	public final fun merge (Landroidx/compose/ui/text/TextStyle;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun merge$default (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final fun merge-Z1GrekI (JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/TextMotion;)Landroidx/compose/ui/text/TextStyle;
+	public static synthetic fun merge-Z1GrekI$default (Landroidx/compose/ui/text/TextStyle;JJLandroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontStyle;Landroidx/compose/ui/text/font/FontSynthesis;Landroidx/compose/ui/text/font/FontFamily;Ljava/lang/String;JLandroidx/compose/ui/text/style/BaselineShift;Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/intl/LocaleList;JLandroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/text/style/TextAlign;Landroidx/compose/ui/text/style/TextDirection;JLandroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/style/LineHeightStyle;Landroidx/compose/ui/text/style/LineBreak;Landroidx/compose/ui/text/style/Hyphens;Landroidx/compose/ui/text/PlatformTextStyle;Landroidx/compose/ui/text/style/TextMotion;ILjava/lang/Object;)Landroidx/compose/ui/text/TextStyle;
+	public final fun plus (Landroidx/compose/ui/text/ParagraphStyle;)Landroidx/compose/ui/text/TextStyle;
+	public final fun plus (Landroidx/compose/ui/text/SpanStyle;)Landroidx/compose/ui/text/TextStyle;
+	public final fun plus (Landroidx/compose/ui/text/TextStyle;)Landroidx/compose/ui/text/TextStyle;
+	public final fun toParagraphStyle ()Landroidx/compose/ui/text/ParagraphStyle;
+	public final fun toSpanStyle ()Landroidx/compose/ui/text/SpanStyle;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/TextStyle$Companion {
+	public final fun getDefault ()Landroidx/compose/ui/text/TextStyle;
+}
+
+public final class androidx/compose/ui/text/TextStyleKt {
+	public static final fun lerp (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;F)Landroidx/compose/ui/text/TextStyle;
+	public static final fun resolveDefaults (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/text/TextStyle;
+}
+
+public abstract class androidx/compose/ui/text/TtsAnnotation {
+	public static final field $stable I
+}
+
+public final class androidx/compose/ui/text/UrlAnnotation {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/VerbatimTtsAnnotation : androidx/compose/ui/text/TtsAnnotation {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getVerbatim ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class androidx/compose/ui/text/font/FileBasedFontFamily : androidx/compose/ui/text/font/FontFamily {
+	public static final field $stable I
+}
+
+public abstract interface class androidx/compose/ui/text/font/Font {
+	public static final field Companion Landroidx/compose/ui/text/font/Font$Companion;
+	public static final field MaximumAsyncTimeoutMillis J
+	public fun getLoadingStrategy-PKNRLFQ ()I
+	public abstract fun getStyle-_-LCdwA ()I
+	public abstract fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+}
+
+public final class androidx/compose/ui/text/font/Font$Companion {
+	public static final field MaximumAsyncTimeoutMillis J
+}
+
+public abstract interface class androidx/compose/ui/text/font/Font$ResourceLoader {
+	public abstract fun load (Landroidx/compose/ui/text/font/Font;)Ljava/lang/Object;
+}
+
+public abstract class androidx/compose/ui/text/font/FontFamily {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/font/FontFamily$Companion;
+	public synthetic fun <init> (ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCanLoadSynchronously ()Z
+}
+
+public final class androidx/compose/ui/text/font/FontFamily$Companion {
+	public final fun getCursive ()Landroidx/compose/ui/text/font/GenericFontFamily;
+	public final fun getDefault ()Landroidx/compose/ui/text/font/SystemFontFamily;
+	public final fun getMonospace ()Landroidx/compose/ui/text/font/GenericFontFamily;
+	public final fun getSansSerif ()Landroidx/compose/ui/text/font/GenericFontFamily;
+	public final fun getSerif ()Landroidx/compose/ui/text/font/GenericFontFamily;
+}
+
+public abstract interface class androidx/compose/ui/text/font/FontFamily$Resolver {
+	public abstract fun preload (Landroidx/compose/ui/text/font/FontFamily;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun resolve-DPcqOEQ (Landroidx/compose/ui/text/font/FontFamily;Landroidx/compose/ui/text/font/FontWeight;II)Landroidx/compose/runtime/State;
+	public static synthetic fun resolve-DPcqOEQ$default (Landroidx/compose/ui/text/font/FontFamily$Resolver;Landroidx/compose/ui/text/font/FontFamily;Landroidx/compose/ui/text/font/FontWeight;IIILjava/lang/Object;)Landroidx/compose/runtime/State;
+}
+
+public final class androidx/compose/ui/text/font/FontFamilyKt {
+	public static final fun FontFamily (Landroidx/compose/ui/text/font/Typeface;)Landroidx/compose/ui/text/font/FontFamily;
+	public static final fun FontFamily (Ljava/util/List;)Landroidx/compose/ui/text/font/FontFamily;
+	public static final fun FontFamily ([Landroidx/compose/ui/text/font/Font;)Landroidx/compose/ui/text/font/FontFamily;
+}
+
+public final class androidx/compose/ui/text/font/FontFamilyResolver_sikioKt {
+	public static final fun createFontFamilyResolver ()Landroidx/compose/ui/text/font/FontFamily$Resolver;
+	public static final fun createFontFamilyResolver (Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/ui/text/font/FontFamily$Resolver;
+}
+
+public final class androidx/compose/ui/text/font/FontKt {
+	public static final fun Font-F3nL8kk (ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-F3nL8kk$default (ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;ILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+	public static final synthetic fun Font-RetOiIg (ILandroidx/compose/ui/text/font/FontWeight;I)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-RetOiIg$default (ILandroidx/compose/ui/text/font/FontWeight;IILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+	public static final fun Font-YpTlLL0 (ILandroidx/compose/ui/text/font/FontWeight;II)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-YpTlLL0$default (ILandroidx/compose/ui/text/font/FontWeight;IIILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+	public static final fun toFontFamily (Landroidx/compose/ui/text/font/Font;)Landroidx/compose/ui/text/font/FontFamily;
+}
+
+public final class androidx/compose/ui/text/font/FontListFontFamily : androidx/compose/ui/text/font/FileBasedFontFamily, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field $stable I
+	public fun add (ILandroidx/compose/ui/text/font/Font;)V
+	public synthetic fun add (ILjava/lang/Object;)V
+	public fun add (Landroidx/compose/ui/text/font/Font;)Z
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun addAll (ILjava/util/Collection;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public fun contains (Landroidx/compose/ui/text/font/Font;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get (I)Landroidx/compose/ui/text/font/Font;
+	public synthetic fun get (I)Ljava/lang/Object;
+	public final fun getFonts ()Ljava/util/List;
+	public fun getSize ()I
+	public fun hashCode ()I
+	public fun indexOf (Landroidx/compose/ui/text/font/Font;)I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun lastIndexOf (Landroidx/compose/ui/text/font/Font;)I
+	public final fun lastIndexOf (Ljava/lang/Object;)I
+	public fun listIterator ()Ljava/util/ListIterator;
+	public fun listIterator (I)Ljava/util/ListIterator;
+	public fun remove (I)Landroidx/compose/ui/text/font/Font;
+	public synthetic fun remove (I)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun replaceAll (Ljava/util/function/UnaryOperator;)V
+	public fun retainAll (Ljava/util/Collection;)Z
+	public fun set (ILandroidx/compose/ui/text/font/Font;)Landroidx/compose/ui/text/font/Font;
+	public synthetic fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun size ()I
+	public fun sort (Ljava/util/Comparator;)V
+	public fun subList (II)Ljava/util/List;
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/font/FontLoadingStrategy {
+	public static final field Companion Landroidx/compose/ui/text/font/FontLoadingStrategy$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/font/FontLoadingStrategy;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public final fun getValue ()I
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/font/FontLoadingStrategy$Companion {
+	public final fun getAsync-PKNRLFQ ()I
+	public final fun getBlocking-PKNRLFQ ()I
+	public final fun getOptionalLocal-PKNRLFQ ()I
+}
+
+public final class androidx/compose/ui/text/font/FontStyle {
+	public static final field Companion Landroidx/compose/ui/text/font/FontStyle$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/font/FontStyle;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public final fun getValue ()I
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/font/FontStyle$Companion {
+	public final fun getItalic-_-LCdwA ()I
+	public final fun getNormal-_-LCdwA ()I
+	public final fun values ()Ljava/util/List;
+}
+
+public final class androidx/compose/ui/text/font/FontSynthesis {
+	public static final field Companion Landroidx/compose/ui/text/font/FontSynthesis$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/font/FontSynthesis;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/font/FontSynthesis$Companion {
+	public final fun getAll-GVVA2EU ()I
+	public final fun getNone-GVVA2EU ()I
+	public final fun getStyle-GVVA2EU ()I
+	public final fun getWeight-GVVA2EU ()I
+}
+
+public final class androidx/compose/ui/text/font/FontVariation {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/ui/text/font/FontVariation;
+	public final fun Setting (Ljava/lang/String;F)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun Settings-6EWAqTQ (Landroidx/compose/ui/text/font/FontWeight;I[Landroidx/compose/ui/text/font/FontVariation$Setting;)Landroidx/compose/ui/text/font/FontVariation$Settings;
+	public final fun grade (I)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun italic (F)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun opticalSizing--R2X_6o (J)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun slant (F)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun weight (I)Landroidx/compose/ui/text/font/FontVariation$Setting;
+	public final fun width (F)Landroidx/compose/ui/text/font/FontVariation$Setting;
+}
+
+public abstract interface class androidx/compose/ui/text/font/FontVariation$Setting {
+	public abstract fun getAxisName ()Ljava/lang/String;
+	public abstract fun getNeedsDensity ()Z
+	public abstract fun toVariationValue (Landroidx/compose/ui/unit/Density;)F
+}
+
+public final class androidx/compose/ui/text/font/FontVariation$Settings {
+	public static final field $stable I
+	public fun <init> ([Landroidx/compose/ui/text/font/FontVariation$Setting;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSettings ()Ljava/util/List;
+	public fun hashCode ()I
+}
+
+public final class androidx/compose/ui/text/font/FontWeight : java/lang/Comparable {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/font/FontWeight$Companion;
+	public fun <init> (I)V
+	public fun compareTo (Landroidx/compose/ui/text/font/FontWeight;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getWeight ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/font/FontWeight$Companion {
+	public final fun getBlack ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getBold ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getExtraBold ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getExtraLight ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getLight ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getMedium ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getNormal ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getSemiBold ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getThin ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW100 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW200 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW300 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW400 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW500 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW600 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW700 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW800 ()Landroidx/compose/ui/text/font/FontWeight;
+	public final fun getW900 ()Landroidx/compose/ui/text/font/FontWeight;
+}
+
+public final class androidx/compose/ui/text/font/FontWeightKt {
+	public static final fun lerp (Landroidx/compose/ui/text/font/FontWeight;Landroidx/compose/ui/text/font/FontWeight;F)Landroidx/compose/ui/text/font/FontWeight;
+}
+
+public final class androidx/compose/ui/text/font/GenericFontFamily : androidx/compose/ui/text/font/SystemFontFamily {
+	public static final field $stable I
+	public final fun getName ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/font/LoadedFontFamily : androidx/compose/ui/text/font/FontFamily {
+	public static final field $stable I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTypeface ()Landroidx/compose/ui/text/font/Typeface;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/font/ResourceFont : androidx/compose/ui/text/font/Font {
+	public static final field $stable I
+	public synthetic fun <init> (ILandroidx/compose/ui/text/font/FontWeight;ILandroidx/compose/ui/text/font/FontVariation$Settings;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-F3nL8kk (ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;)Landroidx/compose/ui/text/font/ResourceFont;
+	public static synthetic fun copy-F3nL8kk$default (Landroidx/compose/ui/text/font/ResourceFont;ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;ILjava/lang/Object;)Landroidx/compose/ui/text/font/ResourceFont;
+	public final fun copy-RetOiIg (ILandroidx/compose/ui/text/font/FontWeight;I)Landroidx/compose/ui/text/font/ResourceFont;
+	public static synthetic fun copy-RetOiIg$default (Landroidx/compose/ui/text/font/ResourceFont;ILandroidx/compose/ui/text/font/FontWeight;IILjava/lang/Object;)Landroidx/compose/ui/text/font/ResourceFont;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLoadingStrategy-PKNRLFQ ()I
+	public final fun getResId ()I
+	public fun getStyle-_-LCdwA ()I
+	public final fun getVariationSettings ()Landroidx/compose/ui/text/font/FontVariation$Settings;
+	public fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class androidx/compose/ui/text/font/SystemFontFamily : androidx/compose/ui/text/font/FontFamily {
+	public static final field $stable I
+}
+
+public abstract interface class androidx/compose/ui/text/font/Typeface {
+	public abstract fun getFontFamily ()Landroidx/compose/ui/text/font/FontFamily;
+}
+
+public final class androidx/compose/ui/text/input/BackspaceCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/CommitTextCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;I)V
+	public fun <init> (Ljava/lang/String;I)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnnotatedString ()Landroidx/compose/ui/text/AnnotatedString;
+	public final fun getNewCursorPosition ()I
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/DeleteAllCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/DeleteSurroundingTextCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (II)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLengthAfterCursor ()I
+	public final fun getLengthBeforeCursor ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/DeleteSurroundingTextInCodePointsCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (II)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLengthAfterCursor ()I
+	public final fun getLengthBeforeCursor ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class androidx/compose/ui/text/input/EditCommand {
+	public abstract fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+}
+
+public final class androidx/compose/ui/text/input/EditProcessor {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun apply (Ljava/util/List;)Landroidx/compose/ui/text/input/TextFieldValue;
+	public final fun reset (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/input/TextInputSession;)V
+	public final fun toTextFieldValue ()Landroidx/compose/ui/text/input/TextFieldValue;
+}
+
+public final class androidx/compose/ui/text/input/EditingBuffer {
+	public static final field $stable I
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/FinishComposingTextCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/ImeAction {
+	public static final field Companion Landroidx/compose/ui/text/input/ImeAction$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/input/ImeAction;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/input/ImeAction$Companion {
+	public final fun getDefault-eUduSuo ()I
+	public final fun getDone-eUduSuo ()I
+	public final fun getGo-eUduSuo ()I
+	public final fun getNext-eUduSuo ()I
+	public final fun getNone-eUduSuo ()I
+	public final fun getPrevious-eUduSuo ()I
+	public final fun getSearch-eUduSuo ()I
+	public final fun getSend-eUduSuo ()I
+}
+
+public final class androidx/compose/ui/text/input/ImeOptions {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/input/ImeOptions$Companion;
+	public synthetic fun <init> (ZIZIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZIZIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-uxg59PA (ZIZII)Landroidx/compose/ui/text/input/ImeOptions;
+	public static synthetic fun copy-uxg59PA$default (Landroidx/compose/ui/text/input/ImeOptions;ZIZIIILjava/lang/Object;)Landroidx/compose/ui/text/input/ImeOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAutoCorrect ()Z
+	public final fun getCapitalization-IUNYP9k ()I
+	public final fun getImeAction-eUduSuo ()I
+	public final fun getKeyboardType-PjHm6EE ()I
+	public final fun getSingleLine ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/ImeOptions$Companion {
+	public final fun getDefault ()Landroidx/compose/ui/text/input/ImeOptions;
+}
+
+public abstract interface class androidx/compose/ui/text/input/InputEventCallback {
+	public abstract fun onEditCommands (Ljava/util/List;)V
+	public abstract fun onImeAction-KlQnJC8 (I)V
+}
+
+public final class androidx/compose/ui/text/input/KeyboardCapitalization {
+	public static final field Companion Landroidx/compose/ui/text/input/KeyboardCapitalization$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/input/KeyboardCapitalization;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/input/KeyboardCapitalization$Companion {
+	public final fun getCharacters-IUNYP9k ()I
+	public final fun getNone-IUNYP9k ()I
+	public final fun getSentences-IUNYP9k ()I
+	public final fun getWords-IUNYP9k ()I
+}
+
+public final class androidx/compose/ui/text/input/KeyboardType {
+	public static final field Companion Landroidx/compose/ui/text/input/KeyboardType$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/input/KeyboardType;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/input/KeyboardType$Companion {
+	public final fun getAscii-PjHm6EE ()I
+	public final fun getDecimal-PjHm6EE ()I
+	public final fun getEmail-PjHm6EE ()I
+	public final fun getNumber-PjHm6EE ()I
+	public final fun getNumberPassword-PjHm6EE ()I
+	public final fun getPassword-PjHm6EE ()I
+	public final fun getPhone-PjHm6EE ()I
+	public final fun getText-PjHm6EE ()I
+	public final fun getUri-PjHm6EE ()I
+}
+
+public final class androidx/compose/ui/text/input/MoveCursorCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (I)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmount ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class androidx/compose/ui/text/input/OffsetMapping {
+	public static final field Companion Landroidx/compose/ui/text/input/OffsetMapping$Companion;
+	public abstract fun originalToTransformed (I)I
+	public abstract fun transformedToOriginal (I)I
+}
+
+public final class androidx/compose/ui/text/input/OffsetMapping$Companion {
+	public final fun getIdentity ()Landroidx/compose/ui/text/input/OffsetMapping;
+}
+
+public final class androidx/compose/ui/text/input/PartialGapBuffer {
+	public static final field $stable I
+	public static final field BUF_SIZE I
+	public static final field NOWHERE I
+	public static final field SURROUNDING_SIZE I
+	public fun <init> (Ljava/lang/String;)V
+	public final fun get (I)C
+	public final fun getLength ()I
+	public final fun getText ()Ljava/lang/String;
+	public final fun replace (IILjava/lang/String;)V
+	public final fun setText (Ljava/lang/String;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/PasswordVisualTransformation : androidx/compose/ui/text/input/VisualTransformation {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (C)V
+	public synthetic fun <init> (CILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun filter (Landroidx/compose/ui/text/AnnotatedString;)Landroidx/compose/ui/text/input/TransformedText;
+	public final fun getMask ()C
+	public fun hashCode ()I
+}
+
+public abstract interface class androidx/compose/ui/text/input/PlatformTextInput {
+	public abstract fun releaseInputFocus ()V
+	public abstract fun requestInputFocus ()V
+}
+
+public abstract interface class androidx/compose/ui/text/input/PlatformTextInputAdapter {
+}
+
+public abstract interface class androidx/compose/ui/text/input/PlatformTextInputPlugin {
+}
+
+public abstract interface class androidx/compose/ui/text/input/PlatformTextInputPluginRegistry {
+	public abstract fun rememberAdapter (Landroidx/compose/ui/text/input/PlatformTextInputPlugin;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/text/input/PlatformTextInputAdapter;
+}
+
+public final class androidx/compose/ui/text/input/PlatformTextInputPluginRegistryImpl : androidx/compose/ui/text/input/PlatformTextInputPluginRegistry {
+	public static final field $stable I
+	public fun <init> (Lkotlin/jvm/functions/Function2;)V
+	public final fun getFocusedAdapter ()Landroidx/compose/ui/text/input/PlatformTextInputAdapter;
+	public final fun getOrCreateAdapter (Landroidx/compose/ui/text/input/PlatformTextInputPlugin;)Landroidx/compose/ui/text/input/PlatformTextInputPluginRegistryImpl$AdapterHandle;
+	public fun rememberAdapter (Landroidx/compose/ui/text/input/PlatformTextInputPlugin;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/text/input/PlatformTextInputAdapter;
+}
+
+public final class androidx/compose/ui/text/input/PlatformTextInputPluginRegistryImpl$AdapterHandle {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/input/PlatformTextInputAdapter;Lkotlin/jvm/functions/Function0;)V
+	public final fun dispose ()Z
+	public final fun getAdapter ()Landroidx/compose/ui/text/input/PlatformTextInputAdapter;
+}
+
+public abstract interface class androidx/compose/ui/text/input/PlatformTextInputService {
+	public abstract fun hideSoftwareKeyboard ()V
+	public fun notifyFocusedRect (Landroidx/compose/ui/geometry/Rect;)V
+	public abstract fun showSoftwareKeyboard ()V
+	public abstract fun startInput (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/input/ImeOptions;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun stopInput ()V
+	public abstract fun updateState (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/input/TextFieldValue;)V
+}
+
+public final class androidx/compose/ui/text/input/SetComposingRegionCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (II)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnd ()I
+	public final fun getStart ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/SetComposingTextCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;I)V
+	public fun <init> (Ljava/lang/String;I)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnnotatedString ()Landroidx/compose/ui/text/AnnotatedString;
+	public final fun getNewCursorPosition ()I
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/SetSelectionCommand : androidx/compose/ui/text/input/EditCommand {
+	public static final field $stable I
+	public fun <init> (II)V
+	public fun applyTo (Landroidx/compose/ui/text/input/EditingBuffer;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnd ()I
+	public final fun getStart ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/TextFieldValue {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/input/TextFieldValue$Companion;
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextRange;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextRange;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;JLandroidx/compose/ui/text/TextRange;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;JLandroidx/compose/ui/text/TextRange;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-3r_uNRQ (Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextRange;)Landroidx/compose/ui/text/input/TextFieldValue;
+	public final fun copy-3r_uNRQ (Ljava/lang/String;JLandroidx/compose/ui/text/TextRange;)Landroidx/compose/ui/text/input/TextFieldValue;
+	public static synthetic fun copy-3r_uNRQ$default (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/AnnotatedString;JLandroidx/compose/ui/text/TextRange;ILjava/lang/Object;)Landroidx/compose/ui/text/input/TextFieldValue;
+	public static synthetic fun copy-3r_uNRQ$default (Landroidx/compose/ui/text/input/TextFieldValue;Ljava/lang/String;JLandroidx/compose/ui/text/TextRange;ILjava/lang/Object;)Landroidx/compose/ui/text/input/TextFieldValue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnnotatedString ()Landroidx/compose/ui/text/AnnotatedString;
+	public final fun getComposition-MzsxiRA ()Landroidx/compose/ui/text/TextRange;
+	public final fun getSelection-d9O1mEE ()J
+	public final fun getText ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/input/TextFieldValue$Companion {
+	public final fun getSaver ()Landroidx/compose/runtime/saveable/Saver;
+}
+
+public final class androidx/compose/ui/text/input/TextFieldValueKt {
+	public static final fun getSelectedText (Landroidx/compose/ui/text/input/TextFieldValue;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun getTextAfterSelection (Landroidx/compose/ui/text/input/TextFieldValue;I)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun getTextBeforeSelection (Landroidx/compose/ui/text/input/TextFieldValue;I)Landroidx/compose/ui/text/AnnotatedString;
+}
+
+public class androidx/compose/ui/text/input/TextInputService {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/input/PlatformTextInputService;)V
+	public final fun hideSoftwareKeyboard ()V
+	public final fun showSoftwareKeyboard ()V
+	public fun startInput (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/input/ImeOptions;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/text/input/TextInputSession;
+	public fun stopInput (Landroidx/compose/ui/text/input/TextInputSession;)V
+}
+
+public final class androidx/compose/ui/text/input/TextInputSession {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/input/TextInputService;Landroidx/compose/ui/text/input/PlatformTextInputService;)V
+	public final fun dispose ()V
+	public final fun hideSoftwareKeyboard ()Z
+	public final fun isOpen ()Z
+	public final fun notifyFocusedRect (Landroidx/compose/ui/geometry/Rect;)Z
+	public final fun showSoftwareKeyboard ()Z
+	public final fun updateState (Landroidx/compose/ui/text/input/TextFieldValue;Landroidx/compose/ui/text/input/TextFieldValue;)Z
+}
+
+public final class androidx/compose/ui/text/input/TransformedText {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/text/AnnotatedString;Landroidx/compose/ui/text/input/OffsetMapping;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOffsetMapping ()Landroidx/compose/ui/text/input/OffsetMapping;
+	public final fun getText ()Landroidx/compose/ui/text/AnnotatedString;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class androidx/compose/ui/text/input/VisualTransformation {
+	public static final field Companion Landroidx/compose/ui/text/input/VisualTransformation$Companion;
+	public abstract fun filter (Landroidx/compose/ui/text/AnnotatedString;)Landroidx/compose/ui/text/input/TransformedText;
+}
+
+public final class androidx/compose/ui/text/input/VisualTransformation$Companion {
+	public final fun getNone ()Landroidx/compose/ui/text/input/VisualTransformation;
+}
+
+public final class androidx/compose/ui/text/intl/Locale {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/intl/Locale$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLanguage ()Ljava/lang/String;
+	public final fun getRegion ()Ljava/lang/String;
+	public final fun getScript ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun toLanguageTag ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/intl/Locale$Companion {
+	public final fun getCurrent ()Landroidx/compose/ui/text/intl/Locale;
+}
+
+public final class androidx/compose/ui/text/intl/LocaleList : java/util/Collection, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/intl/LocaleList$Companion;
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/util/List;)V
+	public fun <init> ([Landroidx/compose/ui/text/intl/Locale;)V
+	public fun add (Landroidx/compose/ui/text/intl/Locale;)Z
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public fun contains (Landroidx/compose/ui/text/intl/Locale;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get (I)Landroidx/compose/ui/text/intl/Locale;
+	public final fun getLocaleList ()Ljava/util/List;
+	public fun getSize ()I
+	public fun hashCode ()I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun removeIf (Ljava/util/function/Predicate;)Z
+	public fun retainAll (Ljava/util/Collection;)Z
+	public final fun size ()I
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/intl/LocaleList$Companion {
+	public final fun getCurrent ()Landroidx/compose/ui/text/intl/LocaleList;
+}
+
+public final class androidx/compose/ui/text/platform/DesktopFont_desktopKt {
+	public static final fun Font-RetOiIg (Ljava/io/File;Landroidx/compose/ui/text/font/FontWeight;I)Landroidx/compose/ui/text/font/Font;
+	public static final fun Font-RetOiIg (Ljava/lang/String;Landroidx/compose/ui/text/font/FontWeight;I)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-RetOiIg$default (Ljava/io/File;Landroidx/compose/ui/text/font/FontWeight;IILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-RetOiIg$default (Ljava/lang/String;Landroidx/compose/ui/text/font/FontWeight;IILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+}
+
+public final class androidx/compose/ui/text/platform/FileFont : androidx/compose/ui/text/platform/PlatformFont {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/io/File;Landroidx/compose/ui/text/font/FontWeight;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFile ()Ljava/io/File;
+	public fun getIdentity ()Ljava/lang/String;
+	public fun getLoadingStrategy-PKNRLFQ ()I
+	public fun getStyle-_-LCdwA ()I
+	public fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/platform/FontLoadResult {
+	public static final field $stable I
+	public fun <init> (Lorg/jetbrains/skia/Typeface;Ljava/util/List;)V
+	public final fun getAliases ()Ljava/util/List;
+	public final fun getTypeface ()Lorg/jetbrains/skia/Typeface;
+}
+
+public final class androidx/compose/ui/text/platform/FontLoader : androidx/compose/ui/text/font/Font$ResourceLoader {
+	public static final field $stable I
+	public fun <init> ()V
+	public synthetic fun load (Landroidx/compose/ui/text/font/Font;)Ljava/lang/Object;
+	public fun load (Landroidx/compose/ui/text/font/Font;)Lorg/jetbrains/skia/Typeface;
+}
+
+public final class androidx/compose/ui/text/platform/LoadedFont : androidx/compose/ui/text/platform/PlatformFont {
+	public static final field $stable I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getData ()[B
+	public fun getIdentity ()Ljava/lang/String;
+	public fun getLoadingStrategy-PKNRLFQ ()I
+	public fun getStyle-_-LCdwA ()I
+	public fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class androidx/compose/ui/text/platform/PlatformFont : androidx/compose/ui/text/font/Font {
+	public static final field $stable I
+	public abstract fun getIdentity ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/platform/PlatformFont_skikoKt {
+	public static final fun Font-wCLgNak (Ljava/lang/String;[BLandroidx/compose/ui/text/font/FontWeight;I)Landroidx/compose/ui/text/font/Font;
+	public static synthetic fun Font-wCLgNak$default (Ljava/lang/String;[BLandroidx/compose/ui/text/font/FontWeight;IILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
+	public static final fun Typeface (Lorg/jetbrains/skia/Typeface;Ljava/lang/String;)Landroidx/compose/ui/text/font/Typeface;
+	public static synthetic fun Typeface$default (Lorg/jetbrains/skia/Typeface;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/text/font/Typeface;
+}
+
+public final class androidx/compose/ui/text/platform/ResourceFont : androidx/compose/ui/text/platform/PlatformFont {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/ui/text/font/FontWeight;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getIdentity ()Ljava/lang/String;
+	public fun getLoadingStrategy-PKNRLFQ ()I
+	public final fun getName ()Ljava/lang/String;
+	public fun getStyle-_-LCdwA ()I
+	public fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/platform/SkiaParagraph_skikoKt {
+	public static final fun toSkDecorationStyle-4WTKRHQ (Landroidx/compose/ui/text/style/TextDecoration;J)Lorg/jetbrains/skia/paragraph/DecorationStyle;
+	public static final fun toSkFontStyle-nzbMABs (I)Lorg/jetbrains/skia/FontStyle;
+	public static final fun toSkPlaceholderAlignment-do9X-Gg (I)Lorg/jetbrains/skia/paragraph/PlaceholderAlignment;
+}
+
+public final class androidx/compose/ui/text/style/BaselineShift {
+	public static final field Companion Landroidx/compose/ui/text/style/BaselineShift$Companion;
+	public static final synthetic fun box-impl (F)Landroidx/compose/ui/text/style/BaselineShift;
+	public static fun constructor-impl (F)F
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (FLjava/lang/Object;)Z
+	public static final fun equals-impl0 (FF)Z
+	public final fun getMultiplier ()F
+	public fun hashCode ()I
+	public static fun hashCode-impl (F)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (F)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()F
+}
+
+public final class androidx/compose/ui/text/style/BaselineShift$Companion {
+	public final fun getNone-y9eOQZs ()F
+	public final fun getSubscript-y9eOQZs ()F
+	public final fun getSuperscript-y9eOQZs ()F
+}
+
+public final class androidx/compose/ui/text/style/BaselineShiftKt {
+	public static final fun lerp-jWV1Mfo (FFF)F
+}
+
+public final class androidx/compose/ui/text/style/Hyphens {
+	public static final field Companion Landroidx/compose/ui/text/style/Hyphens$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/Hyphens;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/Hyphens$Companion {
+	public final fun getAuto-vmbZdU8 ()I
+	public final fun getNone-vmbZdU8 ()I
+}
+
+public final class androidx/compose/ui/text/style/LineBreak {
+	public static final field Companion Landroidx/compose/ui/text/style/LineBreak$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/LineBreak;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/LineBreak$Companion {
+	public final fun getHeading-rAG3T2k ()I
+	public final fun getParagraph-rAG3T2k ()I
+	public final fun getSimple-rAG3T2k ()I
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/style/LineHeightStyle$Companion;
+	public synthetic fun <init> (FILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlignment-PIaL0Z0 ()F
+	public final fun getTrim-EVpEnUU ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle$Alignment {
+	public static final field Companion Landroidx/compose/ui/text/style/LineHeightStyle$Alignment$Companion;
+	public static final synthetic fun box-impl (F)Landroidx/compose/ui/text/style/LineHeightStyle$Alignment;
+	public static fun constructor-impl (F)F
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (FLjava/lang/Object;)Z
+	public static final fun equals-impl0 (FF)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (F)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (F)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()F
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle$Alignment$Companion {
+	public final fun getBottom-PIaL0Z0 ()F
+	public final fun getCenter-PIaL0Z0 ()F
+	public final fun getProportional-PIaL0Z0 ()F
+	public final fun getTop-PIaL0Z0 ()F
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle$Companion {
+	public final fun getDefault ()Landroidx/compose/ui/text/style/LineHeightStyle;
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle$Trim {
+	public static final field Companion Landroidx/compose/ui/text/style/LineHeightStyle$Trim$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/LineHeightStyle$Trim;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/LineHeightStyle$Trim$Companion {
+	public final fun getBoth-EVpEnUU ()I
+	public final fun getFirstLineTop-EVpEnUU ()I
+	public final fun getLastLineBottom-EVpEnUU ()I
+	public final fun getNone-EVpEnUU ()I
+}
+
+public final class androidx/compose/ui/text/style/ResolvedTextDirection : java/lang/Enum {
+	public static final field Ltr Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public static final field Rtl Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public static fun values ()[Landroidx/compose/ui/text/style/ResolvedTextDirection;
+}
+
+public final class androidx/compose/ui/text/style/TextAlign {
+	public static final field Companion Landroidx/compose/ui/text/style/TextAlign$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/TextAlign;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/TextAlign$Companion {
+	public final fun getCenter-e0LSkKk ()I
+	public final fun getEnd-e0LSkKk ()I
+	public final fun getJustify-e0LSkKk ()I
+	public final fun getLeft-e0LSkKk ()I
+	public final fun getRight-e0LSkKk ()I
+	public final fun getStart-e0LSkKk ()I
+	public final fun values ()Ljava/util/List;
+}
+
+public final class androidx/compose/ui/text/style/TextDecoration {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/style/TextDecoration$Companion;
+	public final fun contains (Landroidx/compose/ui/text/style/TextDecoration;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMask ()I
+	public fun hashCode ()I
+	public final fun plus (Landroidx/compose/ui/text/style/TextDecoration;)Landroidx/compose/ui/text/style/TextDecoration;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/style/TextDecoration$Companion {
+	public final fun combine (Ljava/util/List;)Landroidx/compose/ui/text/style/TextDecoration;
+	public final fun getLineThrough ()Landroidx/compose/ui/text/style/TextDecoration;
+	public final fun getNone ()Landroidx/compose/ui/text/style/TextDecoration;
+	public final fun getUnderline ()Landroidx/compose/ui/text/style/TextDecoration;
+}
+
+public final class androidx/compose/ui/text/style/TextDirection {
+	public static final field Companion Landroidx/compose/ui/text/style/TextDirection$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/TextDirection;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/TextDirection$Companion {
+	public final fun getContent-s_7X-co ()I
+	public final fun getContentOrLtr-s_7X-co ()I
+	public final fun getContentOrRtl-s_7X-co ()I
+	public final fun getLtr-s_7X-co ()I
+	public final fun getRtl-s_7X-co ()I
+}
+
+public final class androidx/compose/ui/text/style/TextGeometricTransform {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/style/TextGeometricTransform$Companion;
+	public fun <init> ()V
+	public fun <init> (FF)V
+	public synthetic fun <init> (FFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy (FF)Landroidx/compose/ui/text/style/TextGeometricTransform;
+	public static synthetic fun copy$default (Landroidx/compose/ui/text/style/TextGeometricTransform;FFILjava/lang/Object;)Landroidx/compose/ui/text/style/TextGeometricTransform;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScaleX ()F
+	public final fun getSkewX ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/style/TextGeometricTransform$Companion {
+}
+
+public final class androidx/compose/ui/text/style/TextGeometricTransformKt {
+	public static final fun lerp (Landroidx/compose/ui/text/style/TextGeometricTransform;Landroidx/compose/ui/text/style/TextGeometricTransform;F)Landroidx/compose/ui/text/style/TextGeometricTransform;
+}
+
+public final class androidx/compose/ui/text/style/TextIndent {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/style/TextIndent$Companion;
+	public synthetic fun <init> (JJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-NB67dxo (JJ)Landroidx/compose/ui/text/style/TextIndent;
+	public static synthetic fun copy-NB67dxo$default (Landroidx/compose/ui/text/style/TextIndent;JJILjava/lang/Object;)Landroidx/compose/ui/text/style/TextIndent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFirstLine-XSAIIZE ()J
+	public final fun getRestLine-XSAIIZE ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/text/style/TextIndent$Companion {
+	public final fun getNone ()Landroidx/compose/ui/text/style/TextIndent;
+}
+
+public final class androidx/compose/ui/text/style/TextIndentKt {
+	public static final fun lerp (Landroidx/compose/ui/text/style/TextIndent;Landroidx/compose/ui/text/style/TextIndent;F)Landroidx/compose/ui/text/style/TextIndent;
+}
+
+public final class androidx/compose/ui/text/style/TextMotion {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/text/style/TextMotion$Companion;
+}
+
+public final class androidx/compose/ui/text/style/TextMotion$Companion {
+	public final fun getAnimated ()Landroidx/compose/ui/text/style/TextMotion;
+	public final fun getStatic ()Landroidx/compose/ui/text/style/TextMotion;
+}
+
+public final class androidx/compose/ui/text/style/TextOverflow {
+	public static final field Companion Landroidx/compose/ui/text/style/TextOverflow$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/text/style/TextOverflow;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/text/style/TextOverflow$Companion {
+	public final fun getClip-gIe3tQ8 ()I
+	public final fun getEllipsis-gIe3tQ8 ()I
+	public final fun getVisible-gIe3tQ8 ()I
+}
+

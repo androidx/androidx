@@ -26,6 +26,38 @@ Run tests for UIKit:
 ./gradlew :mpp:testUIKit
 ```
 
+### API checks
+Compose Multiplatform stores all public API in *.api files. If any API is added/changed, `./gradlew checkDesktop` will fail with an error that API is changed (it runs on CI). Example:
+
+```
+Execution failed for task ':compose:material3:material3:desktopApiCheck'.
+> API check failed for project material3.
+  --- D:\Work\compose-multiplatform-core\compose\material3\material3\api\desktop\material3.api
+  +++ D:\Work\compose-multiplatform-core\out\androidx\compose\material3\material3\build\api\desktop\material3.api
+  @@ -552,6 +552,11 @@
+   public abstract interface annotation class androidx/compose/material3/ExperimentalMaterial3Api : java/lang/annotation/Annotation {
+   }
+
+  +public final class androidx/compose/material3/FF {
+  +     public static final field $stable I
+  +     public fun <init> ()V
+  +}
+  +
+   public final class androidx/compose/material3/FabPosition {
+        public static final field Companion Landroidx/compose/material3/FabPosition$Companion;
+        public static final synthetic fun box-impl (I)Landroidx/compose/material3/FabPosition;
+
+   You can run :material3:apiDump task to overwrite API declarations
+```
+
+To fix this error:
+1. Run `./gradlew desktopApiDump`
+2. See what has changed in *.api files.
+3. If there are only additions - there is no binary incompatible change.
+4. If there are some removals - most probably there is a binary incompatible change and it needs to be fixed before merging it to the main branch.
+
+Note that only desktop has API checks at the moment, but in the future it will be added for all targets.
+
 ### Publishing
 Compose Multiplatform core libraries can be published to local Maven with the following steps:
 1. Set `COMPOSE_CUSTOM_VERSION` environment variable

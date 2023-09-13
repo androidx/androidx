@@ -1,0 +1,201 @@
+public final class androidx/compose/animation/AnimatedContentKt {
+	public static final fun AnimatedContent (Landroidx/compose/animation/core/Transition;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedContent (Ljava/lang/Object;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Alignment;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;II)V
+	public static final fun SizeTransform (ZLkotlin/jvm/functions/Function2;)Landroidx/compose/animation/SizeTransform;
+	public static synthetic fun SizeTransform$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/animation/SizeTransform;
+	public static final fun togetherWith (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;)Landroidx/compose/animation/ContentTransform;
+	public static final fun with (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;)Landroidx/compose/animation/ContentTransform;
+}
+
+public abstract interface class androidx/compose/animation/AnimatedContentScope : androidx/compose/animation/AnimatedVisibilityScope {
+}
+
+public abstract interface class androidx/compose/animation/AnimatedContentTransitionScope : androidx/compose/animation/core/Transition$Segment {
+	public abstract fun slideIntoContainer-mOhB8PU (ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun slideIntoContainer-mOhB8PU$default (Landroidx/compose/animation/AnimatedContentTransitionScope;ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public abstract fun slideOutOfContainer-mOhB8PU (ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun slideOutOfContainer-mOhB8PU$default (Landroidx/compose/animation/AnimatedContentTransitionScope;ILandroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public abstract fun using (Landroidx/compose/animation/ContentTransform;Landroidx/compose/animation/SizeTransform;)Landroidx/compose/animation/ContentTransform;
+}
+
+public final class androidx/compose/animation/AnimatedContentTransitionScope$SlideDirection {
+	public static final field Companion Landroidx/compose/animation/AnimatedContentTransitionScope$SlideDirection$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/animation/AnimatedContentTransitionScope$SlideDirection;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/animation/AnimatedContentTransitionScope$SlideDirection$Companion {
+	public final fun getDown-DKzdypw ()I
+	public final fun getEnd-DKzdypw ()I
+	public final fun getLeft-DKzdypw ()I
+	public final fun getRight-DKzdypw ()I
+	public final fun getStart-DKzdypw ()I
+	public final fun getUp-DKzdypw ()I
+}
+
+public final class androidx/compose/animation/AnimatedVisibilityKt {
+	public static final fun AnimatedVisibility (Landroidx/compose/animation/core/MutableTransitionState;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/ColumnScope;Landroidx/compose/animation/core/MutableTransitionState;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/ColumnScope;ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;Landroidx/compose/animation/core/MutableTransitionState;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (Landroidx/compose/foundation/layout/RowScope;ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AnimatedVisibility (ZLandroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
+public abstract interface class androidx/compose/animation/AnimatedVisibilityScope {
+	public fun animateEnterExit (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun animateEnterExit$default (Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun getTransition ()Landroidx/compose/animation/core/Transition;
+}
+
+public final class androidx/compose/animation/AnimatedVisibilityScope$DefaultImpls {
+	public static fun animateEnterExit (Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun animateEnterExit$default (Landroidx/compose/animation/AnimatedVisibilityScope;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/animation/AnimationModifierKt {
+	public static final fun animateContentSize (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun animateContentSize$default (Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/animation/ColorVectorConverterKt {
+	public static final fun getVectorConverter (Landroidx/compose/ui/graphics/Color$Companion;)Lkotlin/jvm/functions/Function1;
+}
+
+public final class androidx/compose/animation/ContentTransform {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;FLandroidx/compose/animation/SizeTransform;)V
+	public synthetic fun <init> (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;FLandroidx/compose/animation/SizeTransform;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getInitialContentExit ()Landroidx/compose/animation/ExitTransition;
+	public final fun getSizeTransform ()Landroidx/compose/animation/SizeTransform;
+	public final fun getTargetContentEnter ()Landroidx/compose/animation/EnterTransition;
+	public final fun getTargetContentZIndex ()F
+	public final fun setTargetContentZIndex (F)V
+}
+
+public final class androidx/compose/animation/CrossfadeKt {
+	public static final fun Crossfade (Landroidx/compose/animation/core/Transition;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun Crossfade (Ljava/lang/Object;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun Crossfade (Ljava/lang/Object;Landroidx/compose/ui/Modifier;Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/animation/DesktopActualDefaultDecayAnimationSpec_desktopKt {
+	public static final fun defaultDecayAnimationSpec (Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/DecayAnimationSpec;
+}
+
+public final class androidx/compose/animation/EnterExitState : java/lang/Enum {
+	public static final field PostExit Landroidx/compose/animation/EnterExitState;
+	public static final field PreEnter Landroidx/compose/animation/EnterExitState;
+	public static final field Visible Landroidx/compose/animation/EnterExitState;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/EnterExitState;
+	public static fun values ()[Landroidx/compose/animation/EnterExitState;
+}
+
+public final class androidx/compose/animation/EnterExitTransitionKt {
+	public static final fun expandHorizontally (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Horizontal;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun expandHorizontally$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Horizontal;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun expandIn (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun expandIn$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun expandVertically (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Vertical;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun expandVertically$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Vertical;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun fadeIn (Landroidx/compose/animation/core/FiniteAnimationSpec;F)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun fadeIn$default (Landroidx/compose/animation/core/FiniteAnimationSpec;FILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun fadeOut (Landroidx/compose/animation/core/FiniteAnimationSpec;F)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun fadeOut$default (Landroidx/compose/animation/core/FiniteAnimationSpec;FILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun scaleIn-L8ZKh-E (Landroidx/compose/animation/core/FiniteAnimationSpec;FJ)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun scaleIn-L8ZKh-E$default (Landroidx/compose/animation/core/FiniteAnimationSpec;FJILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun scaleOut-L8ZKh-E (Landroidx/compose/animation/core/FiniteAnimationSpec;FJ)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun scaleOut-L8ZKh-E$default (Landroidx/compose/animation/core/FiniteAnimationSpec;FJILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun shrinkHorizontally (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Horizontal;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun shrinkHorizontally$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Horizontal;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun shrinkOut (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun shrinkOut$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun shrinkVertically (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Vertical;ZLkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun shrinkVertically$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/ui/Alignment$Vertical;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun slideIn (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun slideIn$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun slideInHorizontally (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun slideInHorizontally$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun slideInVertically (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/EnterTransition;
+	public static synthetic fun slideInVertically$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/EnterTransition;
+	public static final fun slideOut (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun slideOut$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun slideOutHorizontally (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun slideOutHorizontally$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+	public static final fun slideOutVertically (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;)Landroidx/compose/animation/ExitTransition;
+	public static synthetic fun slideOutVertically$default (Landroidx/compose/animation/core/FiniteAnimationSpec;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/animation/ExitTransition;
+}
+
+public abstract class androidx/compose/animation/EnterTransition {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/animation/EnterTransition$Companion;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun plus (Landroidx/compose/animation/EnterTransition;)Landroidx/compose/animation/EnterTransition;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/EnterTransition$Companion {
+	public final fun getNone ()Landroidx/compose/animation/EnterTransition;
+}
+
+public abstract class androidx/compose/animation/ExitTransition {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/animation/ExitTransition$Companion;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun plus (Landroidx/compose/animation/ExitTransition;)Landroidx/compose/animation/ExitTransition;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/animation/ExitTransition$Companion {
+	public final fun getNone ()Landroidx/compose/animation/ExitTransition;
+}
+
+public abstract interface annotation class androidx/compose/animation/ExperimentalAnimationApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/animation/SingleValueAnimationKt {
+	public static final fun Animatable-8_81llA (J)Landroidx/compose/animation/core/Animatable;
+	public static final synthetic fun animateColorAsState-KTwxG1Y (JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateColorAsState-euL9pac (JLandroidx/compose/animation/core/AnimationSpec;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+}
+
+public abstract interface class androidx/compose/animation/SizeTransform {
+	public abstract fun createAnimationSpec-TemP2vQ (JJ)Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun getClip ()Z
+}
+
+public final class androidx/compose/animation/SplineBasedDecayAnimationSpec_desktopKt {
+	public static final fun rememberSplineBasedDecay (Landroidx/compose/runtime/Composer;I)Landroidx/compose/animation/core/DecayAnimationSpec;
+}
+
+public final class androidx/compose/animation/SplineBasedDecayKt {
+	public static final fun splineBasedDecay (Landroidx/compose/ui/unit/Density;)Landroidx/compose/animation/core/DecayAnimationSpec;
+}
+
+public final class androidx/compose/animation/SplineBasedFloatDecayAnimationSpec : androidx/compose/animation/core/FloatDecayAnimationSpec {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/unit/Density;)V
+	public fun getAbsVelocityThreshold ()F
+	public fun getDurationNanos (FF)J
+	public fun getTargetValue (FF)F
+	public fun getValueFromNanos (JFF)F
+	public fun getVelocityFromNanos (JFF)F
+}
+
+public final class androidx/compose/animation/TransitionKt {
+	public static final fun animateColor (Landroidx/compose/animation/core/Transition;Lkotlin/jvm/functions/Function3;Ljava/lang/String;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun animateColor-DTcfvLk (Landroidx/compose/animation/core/InfiniteTransition;JJLandroidx/compose/animation/core/InfiniteRepeatableSpec;Ljava/lang/String;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final synthetic fun animateColor-RIQooxk (Landroidx/compose/animation/core/InfiniteTransition;JJLandroidx/compose/animation/core/InfiniteRepeatableSpec;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+}
+

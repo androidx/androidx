@@ -39,6 +39,7 @@ incap = "0.2"
 jcodec = "0.2.5"
 kotlin = "1.8.21"
 kotlinBenchmark = "0.4.7"
+kotlinBinaryCompatibilityValidator = "0.13.2"
 kotlinNative = "1.8.21"
 kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.6.4"
@@ -161,6 +162,7 @@ gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "inc
 gradleIncapHelperProcessor = { module = "net.ltgt.gradle.incap:incap-processor", version.ref = "incap" }
 kotlinAnnotationProcessingEmbeddable = { module = "org.jetbrains.kotlin:kotlin-annotation-processing-embeddable", version.ref = "kotlin" }
 kotlinBenchmarkRuntime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinBenchmark" }
+kotlinBinaryCompatibilityValidatorGradlePlugin = { module = "org.jetbrains.kotlinx.binary-compatibility-validator:org.jetbrains.kotlinx.binary-compatibility-validator.gradle.plugin", version.ref = "kotlinBinaryCompatibilityValidator" }
 kotlinBom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
 kotlinCompiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlinCompilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }

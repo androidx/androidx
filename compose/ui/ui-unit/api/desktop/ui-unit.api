@@ -1,0 +1,466 @@
+public final class androidx/compose/ui/unit/Constraints {
+	public static final field Companion Landroidx/compose/ui/unit/Constraints$Companion;
+	public static final field Infinity I
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/Constraints;
+	public static fun constructor-impl (J)J
+	public static final fun copy-Zbe2FdA (JIIII)J
+	public static synthetic fun copy-Zbe2FdA$default (JIIIIILjava/lang/Object;)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getHasBoundedHeight-impl (J)Z
+	public static final fun getHasBoundedWidth-impl (J)Z
+	public static final fun getHasFixedHeight-impl (J)Z
+	public static final fun getHasFixedWidth-impl (J)Z
+	public static final fun getMaxHeight-impl (J)I
+	public static final fun getMaxWidth-impl (J)I
+	public static final fun getMinHeight-impl (J)I
+	public static final fun getMinWidth-impl (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun isZero-impl (J)Z
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/Constraints$Companion {
+	public final fun fixed-JhjzzOo (II)J
+	public final fun fixedHeight-OenEA2s (I)J
+	public final fun fixedWidth-OenEA2s (I)J
+}
+
+public final class androidx/compose/ui/unit/ConstraintsKt {
+	public static final fun Constraints (IIII)J
+	public static synthetic fun Constraints$default (IIIIILjava/lang/Object;)J
+	public static final fun constrain-4WqzIAM (JJ)J
+	public static final fun constrain-N9IONVI (JJ)J
+	public static final fun constrainHeight-K40F9xA (JI)I
+	public static final fun constrainWidth-K40F9xA (JI)I
+	public static final fun isSatisfiedBy-4WqzIAM (JJ)Z
+	public static final fun offset-NN6Ew-U (JII)J
+	public static synthetic fun offset-NN6Ew-U$default (JIIILjava/lang/Object;)J
+}
+
+public abstract interface class androidx/compose/ui/unit/Density {
+	public abstract fun getDensity ()F
+	public abstract fun getFontScale ()F
+	public fun roundToPx--R2X_6o (J)I
+	public fun roundToPx-0680j_4 (F)I
+	public fun toDp-GaN1DYA (J)F
+	public fun toDp-u2uoSUM (F)F
+	public fun toDp-u2uoSUM (I)F
+	public fun toDpSize-k-rfVVM (J)J
+	public fun toPx--R2X_6o (J)F
+	public fun toPx-0680j_4 (F)F
+	public fun toRect (Landroidx/compose/ui/unit/DpRect;)Landroidx/compose/ui/geometry/Rect;
+	public fun toSize-XkaWNTQ (J)J
+	public fun toSp-0xMU5do (F)J
+	public fun toSp-kPz2Gy4 (F)J
+	public fun toSp-kPz2Gy4 (I)J
+}
+
+public final class androidx/compose/ui/unit/Density$DefaultImpls {
+	public static fun roundToPx--R2X_6o (Landroidx/compose/ui/unit/Density;J)I
+	public static fun roundToPx-0680j_4 (Landroidx/compose/ui/unit/Density;F)I
+	public static fun toDp-GaN1DYA (Landroidx/compose/ui/unit/Density;J)F
+	public static fun toDp-u2uoSUM (Landroidx/compose/ui/unit/Density;F)F
+	public static fun toDp-u2uoSUM (Landroidx/compose/ui/unit/Density;I)F
+	public static fun toDpSize-k-rfVVM (Landroidx/compose/ui/unit/Density;J)J
+	public static fun toPx--R2X_6o (Landroidx/compose/ui/unit/Density;J)F
+	public static fun toPx-0680j_4 (Landroidx/compose/ui/unit/Density;F)F
+	public static fun toRect (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/DpRect;)Landroidx/compose/ui/geometry/Rect;
+	public static fun toSize-XkaWNTQ (Landroidx/compose/ui/unit/Density;J)J
+	public static fun toSp-0xMU5do (Landroidx/compose/ui/unit/Density;F)J
+	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/unit/Density;F)J
+	public static fun toSp-kPz2Gy4 (Landroidx/compose/ui/unit/Density;I)J
+}
+
+public final class androidx/compose/ui/unit/DensityKt {
+	public static final fun Density (FF)Landroidx/compose/ui/unit/Density;
+	public static synthetic fun Density$default (FFILjava/lang/Object;)Landroidx/compose/ui/unit/Density;
+}
+
+public final class androidx/compose/ui/unit/Dp : java/lang/Comparable {
+	public static final field Companion Landroidx/compose/ui/unit/Dp$Companion;
+	public static final synthetic fun box-impl (F)Landroidx/compose/ui/unit/Dp;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo-0680j_4 (F)I
+	public static fun compareTo-0680j_4 (FF)I
+	public static fun constructor-impl (F)F
+	public static final fun div-0680j_4 (FF)F
+	public static final fun div-u2uoSUM (FF)F
+	public static final fun div-u2uoSUM (FI)F
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (FLjava/lang/Object;)Z
+	public static final fun equals-impl0 (FF)Z
+	public final fun getValue ()F
+	public fun hashCode ()I
+	public static fun hashCode-impl (F)I
+	public static final fun minus-5rwHm24 (FF)F
+	public static final fun plus-5rwHm24 (FF)F
+	public static final fun times-u2uoSUM (FF)F
+	public static final fun times-u2uoSUM (FI)F
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (F)Ljava/lang/String;
+	public static final fun unaryMinus-D9Ej5fM (F)F
+	public final synthetic fun unbox-impl ()F
+}
+
+public final class androidx/compose/ui/unit/Dp$Companion {
+	public final fun getHairline-D9Ej5fM ()F
+	public final fun getInfinity-D9Ej5fM ()F
+	public final fun getUnspecified-D9Ej5fM ()F
+}
+
+public final class androidx/compose/ui/unit/DpKt {
+	public static final fun DpOffset-YgX7TsA (FF)J
+	public static final fun DpSize-YgX7TsA (FF)J
+	public static final fun coerceAtLeast-YgX7TsA (FF)F
+	public static final fun coerceAtMost-YgX7TsA (FF)F
+	public static final fun coerceIn-2z7ARbQ (FFF)F
+	public static final fun getCenter-EaSLcWc (J)J
+	public static final fun getDp (D)F
+	public static final fun getDp (F)F
+	public static final fun getDp (I)F
+	public static final fun getHeight (Landroidx/compose/ui/unit/DpRect;)F
+	public static final fun getSize (Landroidx/compose/ui/unit/DpRect;)J
+	public static final fun getWidth (Landroidx/compose/ui/unit/DpRect;)F
+	public static final fun isFinite-0680j_4 (F)Z
+	public static final fun isSpecified-0680j_4 (F)Z
+	public static final fun isSpecified-EaSLcWc (J)Z
+	public static final fun isSpecified-jo-Fl9I (J)Z
+	public static final fun isUnspecified-0680j_4 (F)Z
+	public static final fun isUnspecified-EaSLcWc (J)Z
+	public static final fun isUnspecified-jo-Fl9I (J)Z
+	public static final fun lerp-IDex15A (JJF)J
+	public static final fun lerp-Md-fbLM (FFF)F
+	public static final fun lerp-xhh869w (JJF)J
+	public static final fun max-YgX7TsA (FF)F
+	public static final fun min-YgX7TsA (FF)F
+	public static final fun takeOrElse-D5KLDUw (FLkotlin/jvm/functions/Function0;)F
+	public static final fun takeOrElse-gVKV90s (JLkotlin/jvm/functions/Function0;)J
+	public static final fun takeOrElse-itqla9I (JLkotlin/jvm/functions/Function0;)J
+	public static final fun times-3ABfNKs (DF)F
+	public static final fun times-3ABfNKs (FF)F
+	public static final fun times-3ABfNKs (IF)F
+	public static final fun times-6HolHcs (FJ)J
+	public static final fun times-6HolHcs (IJ)J
+}
+
+public final class androidx/compose/ui/unit/DpOffset {
+	public static final field Companion Landroidx/compose/ui/unit/DpOffset$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/DpOffset;
+	public static final fun copy-tPigGR8 (JFF)J
+	public static synthetic fun copy-tPigGR8$default (JFFILjava/lang/Object;)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getX-D9Ej5fM (J)F
+	public static final fun getY-D9Ej5fM (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun minus-CB-Mgk4 (JJ)J
+	public static final fun plus-CB-Mgk4 (JJ)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/DpOffset$Companion {
+	public final fun getUnspecified-RKDOV3M ()J
+	public final fun getZero-RKDOV3M ()J
+}
+
+public final class androidx/compose/ui/unit/DpRect {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/unit/DpRect$Companion;
+	public synthetic fun <init> (FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-D9Ej5fM ()F
+	public final fun component2-D9Ej5fM ()F
+	public final fun component3-D9Ej5fM ()F
+	public final fun component4-D9Ej5fM ()F
+	public final fun copy-a9UjIt4 (FFFF)Landroidx/compose/ui/unit/DpRect;
+	public static synthetic fun copy-a9UjIt4$default (Landroidx/compose/ui/unit/DpRect;FFFFILjava/lang/Object;)Landroidx/compose/ui/unit/DpRect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom-D9Ej5fM ()F
+	public final fun getLeft-D9Ej5fM ()F
+	public final fun getRight-D9Ej5fM ()F
+	public final fun getTop-D9Ej5fM ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/unit/DpRect$Companion {
+}
+
+public final class androidx/compose/ui/unit/DpSize {
+	public static final field Companion Landroidx/compose/ui/unit/DpSize$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/DpSize;
+	public static final fun component1-D9Ej5fM (J)F
+	public static final fun component2-D9Ej5fM (J)F
+	public static final fun copy-DwJknco (JFF)J
+	public static synthetic fun copy-DwJknco$default (JFFILjava/lang/Object;)J
+	public static final fun div-Gh9hcWk (JF)J
+	public static final fun div-Gh9hcWk (JI)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getHeight-D9Ej5fM (J)F
+	public static final fun getWidth-D9Ej5fM (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun minus-e_xh8Ic (JJ)J
+	public static final fun plus-e_xh8Ic (JJ)J
+	public static final fun times-Gh9hcWk (JF)J
+	public static final fun times-Gh9hcWk (JI)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/DpSize$Companion {
+	public final fun getUnspecified-MYxV2XQ ()J
+	public final fun getZero-MYxV2XQ ()J
+}
+
+public abstract interface annotation class androidx/compose/ui/unit/ExperimentalUnitApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/ui/unit/IntOffset {
+	public static final field Companion Landroidx/compose/ui/unit/IntOffset$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/IntOffset;
+	public static final fun component1-impl (J)I
+	public static final fun component2-impl (J)I
+	public static final fun copy-iSbpLlY (JII)J
+	public static synthetic fun copy-iSbpLlY$default (JIIILjava/lang/Object;)J
+	public static final fun div-Bjo55l4 (JF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getX-impl (J)I
+	public static final fun getY-impl (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun minus-qkQi6aY (JJ)J
+	public static final fun plus-qkQi6aY (JJ)J
+	public static final fun rem-Bjo55l4 (JI)J
+	public static final fun times-Bjo55l4 (JF)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public static final fun unaryMinus-nOcc-ac (J)J
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/IntOffset$Companion {
+	public final fun getZero-nOcc-ac ()J
+}
+
+public final class androidx/compose/ui/unit/IntOffsetKt {
+	public static final fun IntOffset (II)J
+	public static final fun lerp-81ZRxRo (JJF)J
+	public static final fun minus-Nv-tHpc (JJ)J
+	public static final fun minus-oCl6YwE (JJ)J
+	public static final fun plus-Nv-tHpc (JJ)J
+	public static final fun plus-oCl6YwE (JJ)J
+	public static final fun round-k-4lQ0M (J)J
+	public static final fun toOffset--gyyYBs (J)J
+}
+
+public final class androidx/compose/ui/unit/IntRect {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/unit/IntRect$Companion;
+	public fun <init> (IIII)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun contains--gyyYBs (J)Z
+	public final fun copy (IIII)Landroidx/compose/ui/unit/IntRect;
+	public static synthetic fun copy$default (Landroidx/compose/ui/unit/IntRect;IIIIILjava/lang/Object;)Landroidx/compose/ui/unit/IntRect;
+	public final fun deflate (I)Landroidx/compose/ui/unit/IntRect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()I
+	public final fun getBottomCenter-nOcc-ac ()J
+	public final fun getBottomLeft-nOcc-ac ()J
+	public final fun getBottomRight-nOcc-ac ()J
+	public final fun getCenter-nOcc-ac ()J
+	public final fun getCenterLeft-nOcc-ac ()J
+	public final fun getCenterRight-nOcc-ac ()J
+	public final fun getHeight ()I
+	public final fun getLeft ()I
+	public final fun getMaxDimension ()I
+	public final fun getMinDimension ()I
+	public final fun getRight ()I
+	public final fun getSize-YbymL2g ()J
+	public final fun getTop ()I
+	public final fun getTopCenter-nOcc-ac ()J
+	public final fun getTopLeft-nOcc-ac ()J
+	public final fun getTopRight-nOcc-ac ()J
+	public final fun getWidth ()I
+	public fun hashCode ()I
+	public final fun inflate (I)Landroidx/compose/ui/unit/IntRect;
+	public final fun intersect (Landroidx/compose/ui/unit/IntRect;)Landroidx/compose/ui/unit/IntRect;
+	public final fun isEmpty ()Z
+	public final fun overlaps (Landroidx/compose/ui/unit/IntRect;)Z
+	public fun toString ()Ljava/lang/String;
+	public final fun translate (II)Landroidx/compose/ui/unit/IntRect;
+	public final fun translate--gyyYBs (J)Landroidx/compose/ui/unit/IntRect;
+}
+
+public final class androidx/compose/ui/unit/IntRect$Companion {
+	public final fun getZero ()Landroidx/compose/ui/unit/IntRect;
+}
+
+public final class androidx/compose/ui/unit/IntRectKt {
+	public static final fun IntRect-E1MhUcY (JJ)Landroidx/compose/ui/unit/IntRect;
+	public static final fun IntRect-VbeCjmY (JJ)Landroidx/compose/ui/unit/IntRect;
+	public static final fun IntRect-ar5cAso (JI)Landroidx/compose/ui/unit/IntRect;
+	public static final fun lerp (Landroidx/compose/ui/unit/IntRect;Landroidx/compose/ui/unit/IntRect;F)Landroidx/compose/ui/unit/IntRect;
+	public static final fun roundToIntRect (Landroidx/compose/ui/geometry/Rect;)Landroidx/compose/ui/unit/IntRect;
+	public static final fun toRect (Landroidx/compose/ui/unit/IntRect;)Landroidx/compose/ui/geometry/Rect;
+}
+
+public final class androidx/compose/ui/unit/IntSize {
+	public static final field Companion Landroidx/compose/ui/unit/IntSize$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/IntSize;
+	public static final fun component1-impl (J)I
+	public static final fun component2-impl (J)I
+	public static final fun div-YEO4UFw (JI)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getHeight-impl (J)I
+	public static final fun getWidth-impl (J)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun times-YEO4UFw (JI)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/IntSize$Companion {
+	public final fun getZero-YbymL2g ()J
+}
+
+public final class androidx/compose/ui/unit/IntSizeKt {
+	public static final fun IntSize (II)J
+	public static final fun getCenter-ozmzZPI (J)J
+	public static final fun times-O0kMr_c (IJ)J
+	public static final fun toIntRect-ozmzZPI (J)Landroidx/compose/ui/unit/IntRect;
+	public static final fun toSize-ozmzZPI (J)J
+}
+
+public final class androidx/compose/ui/unit/LayoutDirection : java/lang/Enum {
+	public static final field Ltr Landroidx/compose/ui/unit/LayoutDirection;
+	public static final field Rtl Landroidx/compose/ui/unit/LayoutDirection;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/unit/LayoutDirection;
+	public static fun values ()[Landroidx/compose/ui/unit/LayoutDirection;
+}
+
+public final class androidx/compose/ui/unit/TextUnit {
+	public static final field Companion Landroidx/compose/ui/unit/TextUnit$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/TextUnit;
+	public static final fun compareTo--R2X_6o (JJ)I
+	public static final fun div-kPz2Gy4 (JD)J
+	public static final fun div-kPz2Gy4 (JF)J
+	public static final fun div-kPz2Gy4 (JI)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getRawType-impl (J)J
+	public static final fun getType-UIouoOA (J)J
+	public static final fun getValue-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun isEm-impl (J)Z
+	public static final fun isSp-impl (J)Z
+	public static final fun times-kPz2Gy4 (JD)J
+	public static final fun times-kPz2Gy4 (JF)J
+	public static final fun times-kPz2Gy4 (JI)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public static final fun unaryMinus-XSAIIZE (J)J
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/TextUnit$Companion {
+	public final fun getUnspecified-XSAIIZE ()J
+}
+
+public final class androidx/compose/ui/unit/TextUnitKt {
+	public static final fun TextUnit-anM5pPY (FJ)J
+	public static final fun checkArithmetic--R2X_6o (J)V
+	public static final fun checkArithmetic-NB67dxo (JJ)V
+	public static final fun checkArithmetic-vU-0ePk (JJJ)V
+	public static final fun getEm (D)J
+	public static final fun getEm (F)J
+	public static final fun getEm (I)J
+	public static final fun getSp (D)J
+	public static final fun getSp (F)J
+	public static final fun getSp (I)J
+	public static final fun isSpecified--R2X_6o (J)Z
+	public static final fun isUnspecified--R2X_6o (J)Z
+	public static final fun lerp-C3pnCVY (JJF)J
+	public static final fun pack (JF)J
+	public static final fun takeOrElse-eAf_CNQ (JLkotlin/jvm/functions/Function0;)J
+	public static final fun times-mpE4wyQ (DJ)J
+	public static final fun times-mpE4wyQ (FJ)J
+	public static final fun times-mpE4wyQ (IJ)J
+}
+
+public final class androidx/compose/ui/unit/TextUnitType {
+	public static final field Companion Landroidx/compose/ui/unit/TextUnitType$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/TextUnitType;
+	public static fun constructor-impl (J)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/TextUnitType$Companion {
+	public final fun getEm-UIouoOA ()J
+	public final fun getSp-UIouoOA ()J
+	public final fun getUnspecified-UIouoOA ()J
+}
+
+public final class androidx/compose/ui/unit/Velocity {
+	public static final field Companion Landroidx/compose/ui/unit/Velocity$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/unit/Velocity;
+	public static final fun component1-impl (J)F
+	public static final fun component2-impl (J)F
+	public static final fun copy-OhffZ5M (JFF)J
+	public static synthetic fun copy-OhffZ5M$default (JFFILjava/lang/Object;)J
+	public static final fun div-adjELrA (JF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getX-impl (J)F
+	public static final fun getY-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun minus-AH228Gc (JJ)J
+	public static final fun plus-AH228Gc (JJ)J
+	public static final fun rem-adjELrA (JF)J
+	public static final fun times-adjELrA (JF)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public static final fun unaryMinus-9UxMQ8M (J)J
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/unit/Velocity$Companion {
+	public final fun getZero-9UxMQ8M ()J
+}
+
+public final class androidx/compose/ui/unit/VelocityKt {
+	public static final fun Velocity (FF)J
+}
+

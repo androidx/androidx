@@ -1,0 +1,1018 @@
+public final class androidx/compose/material/icons/Icons {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons;
+	public final fun getDefault ()Landroidx/compose/material/icons/Icons$Filled;
+}
+
+public final class androidx/compose/material/icons/Icons$Filled {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$Filled;
+}
+
+public final class androidx/compose/material/icons/Icons$Outlined {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$Outlined;
+}
+
+public final class androidx/compose/material/icons/Icons$Rounded {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$Rounded;
+}
+
+public final class androidx/compose/material/icons/Icons$Sharp {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$Sharp;
+}
+
+public final class androidx/compose/material/icons/Icons$TwoTone {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material/icons/Icons$TwoTone;
+}
+
+public final class androidx/compose/material/icons/IconsKt {
+	public static final field MaterialIconDimension F
+	public static final fun materialIcon (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector;
+	public static final fun materialPath-YwgOQQI (Landroidx/compose/ui/graphics/vector/ImageVector$Builder;FFILkotlin/jvm/functions/Function1;)Landroidx/compose/ui/graphics/vector/ImageVector$Builder;
+	public static synthetic fun materialPath-YwgOQQI$default (Landroidx/compose/ui/graphics/vector/ImageVector$Builder;FFILkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/graphics/vector/ImageVector$Builder;
+}
+
+public final class androidx/compose/material/icons/filled/AccountBoxKt {
+	public static final fun getAccountBox (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/AccountCircleKt {
+	public static final fun getAccountCircle (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/AddCircleKt {
+	public static final fun getAddCircle (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/AddKt {
+	public static final fun getAdd (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ArrowDropDownKt {
+	public static final fun getArrowDropDown (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/BuildKt {
+	public static final fun getBuild (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/CallKt {
+	public static final fun getCall (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/CheckCircleKt {
+	public static final fun getCheckCircle (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/CheckKt {
+	public static final fun getCheck (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ClearKt {
+	public static final fun getClear (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/CloseKt {
+	public static final fun getClose (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/CreateKt {
+	public static final fun getCreate (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/DateRangeKt {
+	public static final fun getDateRange (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/DeleteKt {
+	public static final fun getDelete (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/DoneKt {
+	public static final fun getDone (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/EditKt {
+	public static final fun getEdit (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/EmailKt {
+	public static final fun getEmail (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/FaceKt {
+	public static final fun getFace (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/FavoriteBorderKt {
+	public static final fun getFavoriteBorder (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/FavoriteKt {
+	public static final fun getFavorite (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/HomeKt {
+	public static final fun getHome (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/InfoKt {
+	public static final fun getInfo (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/KeyboardArrowDownKt {
+	public static final fun getKeyboardArrowDown (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/KeyboardArrowUpKt {
+	public static final fun getKeyboardArrowUp (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/LocationOnKt {
+	public static final fun getLocationOn (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/LockKt {
+	public static final fun getLock (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/MailOutlineKt {
+	public static final fun getMailOutline (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/MenuKt {
+	public static final fun getMenu (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/MoreVertKt {
+	public static final fun getMoreVert (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/NotificationsKt {
+	public static final fun getNotifications (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/PersonKt {
+	public static final fun getPerson (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/PhoneKt {
+	public static final fun getPhone (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/PlaceKt {
+	public static final fun getPlace (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/PlayArrowKt {
+	public static final fun getPlayArrow (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/RefreshKt {
+	public static final fun getRefresh (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/SearchKt {
+	public static final fun getSearch (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/SettingsKt {
+	public static final fun getSettings (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ShareKt {
+	public static final fun getShare (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ShoppingCartKt {
+	public static final fun getShoppingCart (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/StarKt {
+	public static final fun getStar (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/ThumbUpKt {
+	public static final fun getThumbUp (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/filled/WarningKt {
+	public static final fun getWarning (Landroidx/compose/material/icons/Icons$Filled;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/AccountBoxKt {
+	public static final fun getAccountBox (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/AccountCircleKt {
+	public static final fun getAccountCircle (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/AddCircleKt {
+	public static final fun getAddCircle (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/AddKt {
+	public static final fun getAdd (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ArrowDropDownKt {
+	public static final fun getArrowDropDown (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/BuildKt {
+	public static final fun getBuild (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/CallKt {
+	public static final fun getCall (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/CheckCircleKt {
+	public static final fun getCheckCircle (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/CheckKt {
+	public static final fun getCheck (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ClearKt {
+	public static final fun getClear (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/CloseKt {
+	public static final fun getClose (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/CreateKt {
+	public static final fun getCreate (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/DateRangeKt {
+	public static final fun getDateRange (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/DeleteKt {
+	public static final fun getDelete (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/DoneKt {
+	public static final fun getDone (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/EditKt {
+	public static final fun getEdit (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/EmailKt {
+	public static final fun getEmail (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/FaceKt {
+	public static final fun getFace (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/FavoriteBorderKt {
+	public static final fun getFavoriteBorder (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/FavoriteKt {
+	public static final fun getFavorite (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/HomeKt {
+	public static final fun getHome (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/InfoKt {
+	public static final fun getInfo (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/KeyboardArrowDownKt {
+	public static final fun getKeyboardArrowDown (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/KeyboardArrowUpKt {
+	public static final fun getKeyboardArrowUp (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/LocationOnKt {
+	public static final fun getLocationOn (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/LockKt {
+	public static final fun getLock (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/MailOutlineKt {
+	public static final fun getMailOutline (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/MenuKt {
+	public static final fun getMenu (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/MoreVertKt {
+	public static final fun getMoreVert (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/NotificationsKt {
+	public static final fun getNotifications (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/PersonKt {
+	public static final fun getPerson (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/PhoneKt {
+	public static final fun getPhone (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/PlaceKt {
+	public static final fun getPlace (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/PlayArrowKt {
+	public static final fun getPlayArrow (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/RefreshKt {
+	public static final fun getRefresh (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/SearchKt {
+	public static final fun getSearch (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/SettingsKt {
+	public static final fun getSettings (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ShareKt {
+	public static final fun getShare (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ShoppingCartKt {
+	public static final fun getShoppingCart (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/StarKt {
+	public static final fun getStar (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/ThumbUpKt {
+	public static final fun getThumbUp (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/outlined/WarningKt {
+	public static final fun getWarning (Landroidx/compose/material/icons/Icons$Outlined;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/AccountBoxKt {
+	public static final fun getAccountBox (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/AccountCircleKt {
+	public static final fun getAccountCircle (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/AddCircleKt {
+	public static final fun getAddCircle (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/AddKt {
+	public static final fun getAdd (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ArrowDropDownKt {
+	public static final fun getArrowDropDown (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/BuildKt {
+	public static final fun getBuild (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/CallKt {
+	public static final fun getCall (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/CheckCircleKt {
+	public static final fun getCheckCircle (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/CheckKt {
+	public static final fun getCheck (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ClearKt {
+	public static final fun getClear (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/CloseKt {
+	public static final fun getClose (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/CreateKt {
+	public static final fun getCreate (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/DateRangeKt {
+	public static final fun getDateRange (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/DeleteKt {
+	public static final fun getDelete (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/DoneKt {
+	public static final fun getDone (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/EditKt {
+	public static final fun getEdit (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/EmailKt {
+	public static final fun getEmail (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/FaceKt {
+	public static final fun getFace (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/FavoriteBorderKt {
+	public static final fun getFavoriteBorder (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/FavoriteKt {
+	public static final fun getFavorite (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/HomeKt {
+	public static final fun getHome (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/InfoKt {
+	public static final fun getInfo (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/KeyboardArrowDownKt {
+	public static final fun getKeyboardArrowDown (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/KeyboardArrowUpKt {
+	public static final fun getKeyboardArrowUp (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/LocationOnKt {
+	public static final fun getLocationOn (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/LockKt {
+	public static final fun getLock (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/MailOutlineKt {
+	public static final fun getMailOutline (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/MenuKt {
+	public static final fun getMenu (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/MoreVertKt {
+	public static final fun getMoreVert (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/NotificationsKt {
+	public static final fun getNotifications (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/PersonKt {
+	public static final fun getPerson (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/PhoneKt {
+	public static final fun getPhone (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/PlaceKt {
+	public static final fun getPlace (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/PlayArrowKt {
+	public static final fun getPlayArrow (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/RefreshKt {
+	public static final fun getRefresh (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/SearchKt {
+	public static final fun getSearch (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/SettingsKt {
+	public static final fun getSettings (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ShareKt {
+	public static final fun getShare (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ShoppingCartKt {
+	public static final fun getShoppingCart (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/StarKt {
+	public static final fun getStar (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/ThumbUpKt {
+	public static final fun getThumbUp (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/rounded/WarningKt {
+	public static final fun getWarning (Landroidx/compose/material/icons/Icons$Rounded;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/AccountBoxKt {
+	public static final fun getAccountBox (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/AccountCircleKt {
+	public static final fun getAccountCircle (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/AddCircleKt {
+	public static final fun getAddCircle (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/AddKt {
+	public static final fun getAdd (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ArrowDropDownKt {
+	public static final fun getArrowDropDown (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/BuildKt {
+	public static final fun getBuild (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/CallKt {
+	public static final fun getCall (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/CheckCircleKt {
+	public static final fun getCheckCircle (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/CheckKt {
+	public static final fun getCheck (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ClearKt {
+	public static final fun getClear (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/CloseKt {
+	public static final fun getClose (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/CreateKt {
+	public static final fun getCreate (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/DateRangeKt {
+	public static final fun getDateRange (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/DeleteKt {
+	public static final fun getDelete (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/DoneKt {
+	public static final fun getDone (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/EditKt {
+	public static final fun getEdit (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/EmailKt {
+	public static final fun getEmail (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/FaceKt {
+	public static final fun getFace (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/FavoriteBorderKt {
+	public static final fun getFavoriteBorder (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/FavoriteKt {
+	public static final fun getFavorite (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/HomeKt {
+	public static final fun getHome (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/InfoKt {
+	public static final fun getInfo (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/KeyboardArrowDownKt {
+	public static final fun getKeyboardArrowDown (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/KeyboardArrowUpKt {
+	public static final fun getKeyboardArrowUp (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/LocationOnKt {
+	public static final fun getLocationOn (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/LockKt {
+	public static final fun getLock (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/MailOutlineKt {
+	public static final fun getMailOutline (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/MenuKt {
+	public static final fun getMenu (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/MoreVertKt {
+	public static final fun getMoreVert (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/NotificationsKt {
+	public static final fun getNotifications (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/PersonKt {
+	public static final fun getPerson (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/PhoneKt {
+	public static final fun getPhone (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/PlaceKt {
+	public static final fun getPlace (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/PlayArrowKt {
+	public static final fun getPlayArrow (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/RefreshKt {
+	public static final fun getRefresh (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/SearchKt {
+	public static final fun getSearch (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/SettingsKt {
+	public static final fun getSettings (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ShareKt {
+	public static final fun getShare (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ShoppingCartKt {
+	public static final fun getShoppingCart (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/StarKt {
+	public static final fun getStar (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/ThumbUpKt {
+	public static final fun getThumbUp (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/sharp/WarningKt {
+	public static final fun getWarning (Landroidx/compose/material/icons/Icons$Sharp;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/AccountBoxKt {
+	public static final fun getAccountBox (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/AccountCircleKt {
+	public static final fun getAccountCircle (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/AddCircleKt {
+	public static final fun getAddCircle (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/AddKt {
+	public static final fun getAdd (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ArrowBackKt {
+	public static final fun getArrowBack (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ArrowDropDownKt {
+	public static final fun getArrowDropDown (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ArrowForwardKt {
+	public static final fun getArrowForward (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/BuildKt {
+	public static final fun getBuild (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/CallKt {
+	public static final fun getCall (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/CheckCircleKt {
+	public static final fun getCheckCircle (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/CheckKt {
+	public static final fun getCheck (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ClearKt {
+	public static final fun getClear (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/CloseKt {
+	public static final fun getClose (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/CreateKt {
+	public static final fun getCreate (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/DateRangeKt {
+	public static final fun getDateRange (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/DeleteKt {
+	public static final fun getDelete (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/DoneKt {
+	public static final fun getDone (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/EditKt {
+	public static final fun getEdit (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/EmailKt {
+	public static final fun getEmail (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ExitToAppKt {
+	public static final fun getExitToApp (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/FaceKt {
+	public static final fun getFace (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/FavoriteBorderKt {
+	public static final fun getFavoriteBorder (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/FavoriteKt {
+	public static final fun getFavorite (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/HomeKt {
+	public static final fun getHome (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/InfoKt {
+	public static final fun getInfo (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/KeyboardArrowDownKt {
+	public static final fun getKeyboardArrowDown (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/KeyboardArrowLeftKt {
+	public static final fun getKeyboardArrowLeft (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/KeyboardArrowRightKt {
+	public static final fun getKeyboardArrowRight (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/KeyboardArrowUpKt {
+	public static final fun getKeyboardArrowUp (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ListKt {
+	public static final fun getList (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/LocationOnKt {
+	public static final fun getLocationOn (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/LockKt {
+	public static final fun getLock (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/MailOutlineKt {
+	public static final fun getMailOutline (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/MenuKt {
+	public static final fun getMenu (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/MoreVertKt {
+	public static final fun getMoreVert (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/NotificationsKt {
+	public static final fun getNotifications (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/PersonKt {
+	public static final fun getPerson (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/PhoneKt {
+	public static final fun getPhone (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/PlaceKt {
+	public static final fun getPlace (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/PlayArrowKt {
+	public static final fun getPlayArrow (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/RefreshKt {
+	public static final fun getRefresh (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/SearchKt {
+	public static final fun getSearch (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/SendKt {
+	public static final fun getSend (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/SettingsKt {
+	public static final fun getSettings (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ShareKt {
+	public static final fun getShare (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ShoppingCartKt {
+	public static final fun getShoppingCart (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/StarKt {
+	public static final fun getStar (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/ThumbUpKt {
+	public static final fun getThumbUp (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+
+public final class androidx/compose/material/icons/twotone/WarningKt {
+	public static final fun getWarning (Landroidx/compose/material/icons/Icons$TwoTone;)Landroidx/compose/ui/graphics/vector/ImageVector;
+}
+

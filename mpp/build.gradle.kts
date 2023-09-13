@@ -112,6 +112,7 @@ tasks.register("publishComposeJbExtendedIconsToMavenLocal", ComposePublishingTas
 
 tasks.register("checkDesktop") {
     dependsOn(allTasksWith(name = "desktopTest"))
+    dependsOn(allTasksWith(name = "desktopApiCheck"))
 }
 
 tasks.register("testWeb") {
