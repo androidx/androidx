@@ -32,7 +32,7 @@ export ANDROID_HOME="$CHECKOUT_ROOT/prebuilts/fullsdk-linux/"
 
 function buildMetalava() {
   METALAVA_BUILD_LOG="$OUT_DIR/metalava.log"
-  if $gw -p $METALAVA_DIR createArchive --stacktrace --no-daemon > "$METALAVA_BUILD_LOG" 2>&1; then
+  if $gw -p $METALAVA_DIR publish --stacktrace --no-daemon > "$METALAVA_BUILD_LOG" 2>&1; then
     echo built metalava successfully
   else
     cat "$METALAVA_BUILD_LOG" >&2
