@@ -1246,6 +1246,11 @@ void addReferences(String projectPath, Set<String> included) {
     if (projectPath in included) return
     included.add(projectPath)
     for (reference in projectReferences[projectPath]) {
+        if (!allProjects.containsKey(reference) || allProjects[reference] == "") {
+            throw new GradleException("Project $reference does not exist.\n" +
+                    "Please check the build.gradle file for your $projectPath project " +
+                    "and update the project dependencies.")
+        }
         addReferences(reference, included)
     }
 }
