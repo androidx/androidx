@@ -22,6 +22,8 @@ import android.content.res.Configuration
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
@@ -242,6 +244,22 @@ class IntegrationTests {
     }
 
     @Test
+    fun testHostCanSetZOrderAboveBeforeOpeningSession() {
+        val adapter = openSessionAndWaitToBeActive(true)
+        injectInputEventOnView()
+        // the injected touch should be handled by the provider in Z-above mode
+        assertThat(adapter.touchedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
+    @Test
+    fun testHostCanSetZOrderBelowBeforeOpeningSession() {
+        val adapter = openSessionAndWaitToBeActive(false)
+        injectInputEventOnView()
+        // the injected touch should not reach the provider in Z-below mode
+        assertThat(adapter.touchedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
     fun testSessionError() {
         val adapter = TestSandboxedUiAdapter(
             null, null, true
@@ -255,6 +273,38 @@ class IntegrationTests {
         val errorMessage = (stateChangeListener.currentState as
             SandboxedSdkUiSessionState.Error).throwable.message
         assertTrue(errorMessage == "Test Session Exception")
+    }
+
+    private fun openSessionAndWaitToBeActive(initialZOrder: Boolean): TestSandboxedUiAdapter {
+        val adapter = TestSandboxedUiAdapter(
+            null,
+            null,
+            /* hasFailingTestSession=*/false
+        )
+        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        view.orderProviderUiAboveClientUi(initialZOrder)
+        view.setAdapter(adapterFromCoreLibInfo)
+        val activeLatch = CountDownLatch(1)
+        view.addStateChangedListener { state ->
+            if (state is SandboxedSdkUiSessionState.Active) {
+                activeLatch.countDown()
+            }
+        }
+        assertThat(activeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        return adapter
+    }
+
+    private fun injectInputEventOnView() {
+        activity.runOnUiThread {
+            val location = IntArray(2)
+            view.getLocationOnScreen(location)
+            InstrumentationRegistry.getInstrumentation().uiAutomation.injectInputEvent(
+                MotionEvent.obtain(
+                    SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN,
+                    (location[0] + 1).toFloat(),
+                    (location[1] + 1).toFloat(), 0), false)
+        }
     }
 
     class TestStateChangeListener(private val errorLatch: CountDownLatch) :
@@ -280,6 +330,7 @@ class IntegrationTests {
         var isOpenSessionCalled = false
         var initialZOrderOnTop = false
         var zOrderLatch = CountDownLatch(1)
+        var touchedLatch = CountDownLatch(1)
         lateinit var session: SandboxedUiAdapter.Session
         lateinit var internalClient: SandboxedUiAdapter.SessionClient
 
@@ -331,7 +382,12 @@ class IntegrationTests {
         ) : SandboxedUiAdapter.Session {
             override val view: View
                 get() {
-                    return View(context)
+                    return View(context).also {
+                        it.setOnTouchListener { _, _ ->
+                            touchedLatch.countDown()
+                            true
+                        }
+                    }
                 }
 
             init {
