@@ -80,8 +80,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -457,7 +459,7 @@ private fun SearchBarInputField(
             .focusRequester(focusRequester)
             .onFocusChanged { if (it.isFocused) onActiveChange(true) }
             .onKeyEvent {
-                if (it.key == Key.Escape) {
+                if (it.key == Key.Escape && it.type == KeyEventType.KeyDown) {
                     onActiveChange(false)
                     true
                 } else {
