@@ -35,9 +35,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -47,6 +49,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -1181,6 +1184,52 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         rule.waitForIdle()
         assertThat(sheetState.isVisible).isFalse()
         assertThat(callCount).isEqualTo(expectedCallCount)
+    }
+
+    @Test
+    fun modalBottomSheet_screenWidthConfigurationChange_matchWidthSize() {
+        var boxWidth = 0
+        var screenWidth by mutableStateOf(0)
+        lateinit var configuration: MutableState<Configuration>
+        val initialScreenWidth = 100
+        val finalScreenWidth = 500
+
+        rule.setContent {
+            val localConfig = LocalConfiguration.current
+            configuration = remember { mutableStateOf(Configuration(localConfig)) }
+
+            configuration.value.screenWidthDp = initialScreenWidth
+
+            val windowInsets = if (edgeToEdgeWrapper.edgeToEdgeEnabled)
+                WindowInsets(0) else BottomSheetDefaults.windowInsets
+
+            CompositionLocalProvider(
+                LocalConfiguration provides configuration.value
+            ) {
+                val context = LocalContext.current
+                screenWidth = context.resources.displayMetrics.widthPixels
+                ModalBottomSheet(
+                    onDismissRequest = {},
+                    windowInsets = windowInsets
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(sheetHeight)
+                            .onSizeChanged { boxWidth = it.width }
+                    )
+                }
+            }
+        }
+
+        // Make sure that the BottomSheet's width is the same as the configuration's screen width
+        assertThat(boxWidth).isEqualTo(screenWidth)
+
+        // Change the screen width
+        configuration.value.screenWidthDp = finalScreenWidth
+
+        // Make sure that BottomSheet is updating and resizing to the new screen width
+        assertThat(boxWidth).isEqualTo(screenWidth)
     }
 
     @Test
