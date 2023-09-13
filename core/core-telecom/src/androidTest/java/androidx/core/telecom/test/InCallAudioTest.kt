@@ -21,6 +21,7 @@ import android.os.Build
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
@@ -130,7 +131,8 @@ class InCallAudioTest : BaseTelecomTest() {
                         yield() // mechanism to stop the while loop if the coroutine is dead
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }
-                    Assert.assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    Assert.assertEquals(CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
                 }
             }
         }

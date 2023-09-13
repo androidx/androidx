@@ -22,6 +22,7 @@ import android.telecom.Call
 import android.telecom.DisconnectCause
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
@@ -172,7 +173,10 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                         assertCallExtraOrProperty(call)
                     } finally {
                         // Always send disconnect signal if possible.
-                        assertTrue(disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                        assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
                     }
                 }
             }
