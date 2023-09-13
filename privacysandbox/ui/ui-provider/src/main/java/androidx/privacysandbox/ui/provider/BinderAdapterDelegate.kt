@@ -97,7 +97,8 @@ private class BinderAdapterDelegate(
                     mDisplayManager.getDisplay(displayId), windowInputToken
                 )
                 val sessionClient = SessionClientProxy(
-                    surfaceControlViewHost, initialWidth, initialHeight, remoteSessionClient
+                    surfaceControlViewHost, initialWidth, initialHeight, isZOrderOnTop,
+                    remoteSessionClient
                 )
                 openSession(
                     windowContext, windowInputToken, initialWidth, initialHeight, isZOrderOnTop,
@@ -113,6 +114,7 @@ private class BinderAdapterDelegate(
         private val surfaceControlViewHost: SurfaceControlViewHost,
         private val initialWidth: Int,
         private val initialHeight: Int,
+        private val isZOrderOnTop: Boolean,
         private val remoteSessionClient: IRemoteSessionClient
     ) : SandboxedUiAdapter.SessionClient {
 
@@ -162,7 +164,7 @@ private class BinderAdapterDelegate(
                 RemoteSessionController(surfaceControlViewHost, session)
             remoteSessionClient.onRemoteSessionOpened(
                 surfacePackage, remoteSessionController,
-                /* isZOrderOnTop= */ true
+                isZOrderOnTop
             )
         }
 
