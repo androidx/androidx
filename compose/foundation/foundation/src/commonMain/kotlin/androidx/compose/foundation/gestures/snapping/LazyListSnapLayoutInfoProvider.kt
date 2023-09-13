@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
@@ -97,7 +98,11 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-        return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
+        return calculateFinalOffset(
+            with(lazyListState.density) { calculateFinalSnappingItem(currentVelocity) },
+            lowerBoundOffset,
+            upperBoundOffset
+        )
     }
 
     fun averageItemSize(): Float = with(layoutInfo) {
@@ -125,3 +130,25 @@ fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
 
 internal val LazyListLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
+
+@kotlin.jvm.JvmInline
+internal value class FinalSnappingItem internal constructor(
+    @Suppress("unused") private val value: Int
+) {
+    companion object {
+
+        val ClosestItem: FinalSnappingItem = FinalSnappingItem(0)
+
+        val NextItem: FinalSnappingItem = FinalSnappingItem(1)
+
+        val PreviousItem: FinalSnappingItem = FinalSnappingItem(2)
+    }
+}
+
+internal fun Density.calculateFinalSnappingItem(velocity: Float): FinalSnappingItem {
+    return if (velocity.absoluteValue < MinFlingVelocityDp.toPx()) {
+        FinalSnappingItem.ClosestItem
+    } else {
+        if (velocity > 0) FinalSnappingItem.NextItem else FinalSnappingItem.PreviousItem
+    }
+}
