@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -79,12 +80,12 @@ fun ModalNavigationDrawer() {
                     drawerContent = { Sidebar(direction = direction) },
                     scrimBrush = Brush.verticalGradient(
                         listOf(
-                            Color.DarkGray,
-                            Color.LightGray
+                            Color.DarkGray.copy(alpha = 0.2f),
+                            Color.LightGray.copy(alpha = 0.2f)
                         )
                     )
                 ) {
-                    CommonBackground()
+                    CommonBackground(startPadding = 90.dp)
                 }
             }
         }
@@ -92,9 +93,13 @@ fun ModalNavigationDrawer() {
 }
 
 @Composable
-private fun CommonBackground() {
-    Row(modifier = Modifier.padding(start = 10.dp)) {
-        Card(backgroundColor = Color.Red)
+private fun CommonBackground(startPadding: Dp = 10.dp) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Blue.copy(alpha = 0.3f))) {
+        Row(modifier = Modifier.padding(start = startPadding)) {
+            Card(backgroundColor = Color.Red)
+        }
     }
 }
 
@@ -113,7 +118,7 @@ private fun NavigationDrawerScope.Sidebar(direction: MutableState<LayoutDirectio
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .background(pageColor)
+            .background(pageColor.copy(alpha = 0.5f))
             .padding(12.dp)
             .selectableGroup(),
         horizontalAlignment = Alignment.Start,

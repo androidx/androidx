@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -45,7 +44,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
 /**
@@ -74,7 +72,9 @@ import androidx.compose.ui.zIndex
  * @param modifier the [Modifier] to be applied to this drawer
  * @param drawerState state of the drawer
  * @param scrimBrush brush to paint the scrim that obscures content when the drawer is open
- * @param content content of the rest of the UI
+ * @param content content of the rest of the UI. The content extends to the edge of the container
+ * under the modal navigation drawer. Focusable content that is not part of the background must have
+ * start-padding sufficient to prevent it from being drawn under the drawer in the Closed state.
  */
 @ExperimentalTvMaterial3Api
 @Composable
@@ -114,9 +114,8 @@ fun ModalNavigationDrawer(
             content = drawerContent
         )
 
-        Box(Modifier.padding(start = closedDrawerWidth.value ?: ClosedDrawerWidth.dp)) {
-            content()
-        }
+        content()
+
         if (drawerState.currentValue == DrawerValue.Open) {
             // Scrim
             Canvas(Modifier.fillMaxSize()) {
@@ -230,7 +229,6 @@ fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
     }
 }
 
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DrawerSheet(
@@ -275,5 +273,3 @@ private fun DrawerSheet(
         }
     }
 }
-
-private const val ClosedDrawerWidth = 80

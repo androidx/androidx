@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
@@ -53,6 +54,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -149,7 +151,7 @@ class ModalNavigationDrawerTest {
                             text = if (it == DrawerValue.Open) "Opened" else "Closed"
                         )
                     }) {
-                    Box(modifier = Modifier.focusable()) {
+                    Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
                         BasicText("Button")
                     }
                 }
@@ -160,6 +162,7 @@ class ModalNavigationDrawerTest {
         }
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
         rule.onRoot().performKeyInput { pressKey(Key.DirectionRight) }
+
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
     }
 
@@ -188,6 +191,7 @@ class ModalNavigationDrawerTest {
                     }) {
                     Box(
                         modifier = Modifier
+                            .padding(start = 100.dp)
                             .focusRequester(buttonFocusRequester)
                             .focusable()
                     ) {
@@ -380,6 +384,59 @@ class ModalNavigationDrawerTest {
         // the image should show only scrim color and no background content color
         rule.onRoot().captureToImage().assertContainsColor(scrimColor)
         rule.onRoot().captureToImage().assertDoesNotContainColor(backgroundContentColor)
+    }
+
+    @Test
+    fun modalNavigationDrawer_drawerOpen_backgroundContentShouldStartWithoutPadding() {
+        val backgroundContentColor = Color.Blue
+        rule.setContent {
+            ModalNavigationDrawer(
+                drawerState = remember { DrawerState(DrawerValue.Open) },
+                drawerContent = {
+                    BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundContentColor)
+                        .testTag("background")
+                ) {
+                    Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
+                        BasicText("Button")
+                    }
+                }
+            }
+        }
+
+        // the image should show only scrim color and no background content color
+        rule.onNodeWithTag("background").assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    fun modalNavigationDrawer_drawerClosed_backgroundContentShouldStartWithoutPadding() {
+        val backgroundContentColor = Color.Blue
+        rule.setContent {
+            ModalNavigationDrawer(
+                drawerState = remember { DrawerState(DrawerValue.Closed) },
+                drawerContent = {
+                    BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundContentColor)
+                        .testTag("background")
+                ) {
+                    Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
+                        BasicText("Button")
+                    }
+                }
+            }
+        }
+
+        // the image should show only scrim color and no background content color
+        rule.onNodeWithTag("background").assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     private fun SemanticsNodeInteractionCollection.assertAnyAreDisplayed() {
