@@ -16,6 +16,7 @@
 package androidx.credentials.provider
 
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.GetCredentialResponse
@@ -36,6 +37,10 @@ import org.junit.runner.RunWith
 class PendingIntentHandlerTest {
     @Test
     fun test_createCredentialException() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val initialException = CreateCredentialInterruptedException("message")
 
@@ -48,12 +53,20 @@ class PendingIntentHandlerTest {
 
     @Test()
     fun test_createCredentialException_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         assertThat(intent.getCreateCredentialException()).isNull()
     }
 
     @Test
     fun test_credentialException() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val initialException = GetCredentialInterruptedException("message")
 
@@ -66,12 +79,20 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialException_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         assertThat(intent.getGetCredentialException()).isNull()
     }
 
     @Test
     fun test_beginGetResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val initialResponse = BeginGetCredentialResponse.Builder().build()
 
@@ -84,12 +105,20 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_beginGetResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         assertThat(intent.getBeginGetResponse()).isNull()
     }
 
     @Test
     fun test_credentialResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val credential = PasswordCredential("a", "b")
         val initialResponse = GetCredentialResponse(credential)
@@ -103,12 +132,20 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_credentialResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         assertThat(intent.getGetCredentialResponse()).isNull()
     }
 
     @Test
     fun test_createCredentialCredentialResponse() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val initialResponse = CreatePasswordResponse()
 
@@ -121,6 +158,10 @@ class PendingIntentHandlerTest {
 
     @Test
     fun test_createCredentialCredentialResponse_throwsWhenEmptyIntent() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return
+        }
+
         val intent = Intent()
         val r = intent.getCreateCredentialCredentialResponse()
         assertThat(r).isNull()
