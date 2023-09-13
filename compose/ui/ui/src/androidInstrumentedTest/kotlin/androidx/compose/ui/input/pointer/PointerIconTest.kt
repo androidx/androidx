@@ -108,6 +108,53 @@ class PointerIconTest {
      *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
      *
      *  Expected Output:
+     *  Because we don't move the cursor, the icon will be the default [PointerIcon.Default]. We
+     *  also want to check that when using a .pointerHoverIcon modifier with a composable,
+     *  composition only happens once (per composable).
+     */
+    @Test
+    fun parentChildFullOverlap_noOverrideDescendants_checkNumberOfCompositions() {
+
+        var numberOfCompositions = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false)
+                ) {
+
+                    numberOfCompositions++
+
+                    Box(
+                        Modifier
+                            .requiredSize(200.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                    ) {
+                        numberOfCompositions++
+                    }
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+            assertThat(numberOfCompositions).isEqualTo(2)
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for this test is setup as:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
      *  Child Box’s [PointerIcon.Text] wins for the entire Box area because it’s lower in
      *  the hierarchy than Parent Box. If the Parent Box's overrideDescendants = false, the Child
      *  Box takes priority.
