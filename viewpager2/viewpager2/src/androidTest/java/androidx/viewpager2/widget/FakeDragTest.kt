@@ -424,7 +424,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     ) {
         val initialPage = test.viewPager.currentItem
 
-        tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
+        tryNTimes(7, resetBlock = { test.resetViewPagerTo(initialPage) }) {
             val recorder = test.viewPager.addNewRecordingCallback()
 
             // start smooth scroll
