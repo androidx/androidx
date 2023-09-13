@@ -107,6 +107,8 @@ fun SampleModalNavigationDrawerWithSolidScrim() {
         "Favourites" to Icons.Default.Favorite,
     )
 
+    val closeDrawerWidth = 80.dp
+    val backgroundContentPadding = 10.dp
     ModalNavigationDrawer(
         drawerContent = {
             Column(
@@ -137,7 +139,13 @@ fun SampleModalNavigationDrawerWithSolidScrim() {
             }
         }
     ) {
-        Button(modifier = Modifier.height(100.dp).fillMaxWidth(), onClick = {}) {
+        Button(
+            modifier = Modifier
+                .padding(closeDrawerWidth + backgroundContentPadding)
+                .height(100.dp)
+                .fillMaxWidth(),
+            onClick = {}
+        ) {
             Text("BUTTON")
         }
     }
@@ -154,6 +162,9 @@ fun SampleModalNavigationDrawerWithGradientScrim() {
         "Settings" to Icons.Default.Settings,
         "Favourites" to Icons.Default.Favorite,
     )
+
+    val closeDrawerWidth = 80.dp
+    val backgroundContentPadding = 10.dp
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -186,7 +197,13 @@ fun SampleModalNavigationDrawerWithGradientScrim() {
         },
         scrimBrush = Brush.horizontalGradient(listOf(Color.DarkGray, Color.Transparent))
     ) {
-        Button(modifier = Modifier.height(100.dp).fillMaxWidth(), onClick = {}) {
+        Button(
+            modifier = Modifier
+                .padding(closeDrawerWidth + backgroundContentPadding)
+                .height(100.dp)
+                .fillMaxWidth(),
+            onClick = {}
+        ) {
             Text("BUTTON")
         }
     }
