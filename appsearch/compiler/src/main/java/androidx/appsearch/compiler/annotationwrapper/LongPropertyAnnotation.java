@@ -38,7 +38,7 @@ public abstract class LongPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("LongPropertyConfig");
 
     public LongPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyLong");
     }
 
     /**

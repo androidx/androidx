@@ -51,9 +51,16 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     @NonNull
     private final ClassName mConfigClassName;
 
-    DataPropertyAnnotation(@NonNull ClassName className, @NonNull ClassName configClassName) {
+    @NonNull
+    private final String mGenericDocSetterName;
+
+    DataPropertyAnnotation(
+            @NonNull ClassName className,
+            @NonNull ClassName configClassName,
+            @NonNull String genericDocSetterName) {
         mClassName = className;
         mConfigClassName = configClassName;
+        mGenericDocSetterName = genericDocSetterName;
     }
 
     /**
@@ -112,6 +119,12 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     @NonNull
     public final ClassName getConfigClassName() {
         return mConfigClassName;
+    }
+
+    @NonNull
+    @Override
+    public final String getGenericDocSetterName() {
+        return mGenericDocSetterName;
     }
 
     @NonNull

@@ -48,4 +48,12 @@ public interface PropertyAnnotation {
      */
     @NonNull
     Kind getPropertyKind();
+
+    /**
+     * The corresponding setter within {@link androidx.appsearch.app.GenericDocument.Builder}.
+     *
+     * <p>For example, {@code setPropertyString} for a {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    String getGenericDocSetterName();
 }

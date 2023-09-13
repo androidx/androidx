@@ -541,15 +541,6 @@ public class AppSearchCompilerTest {
                         + "    String mString;\n"
                         + "}\n");
 
-        checkResultContains(/*className=*/"Gift.java",
-                /*content=*/"builder.setCreationTimestampMillis((document.mCreationTimestampMillis "
-                        + "!= null) ? document.mCreationTimestampMillis.longValue() : 0L)");
-        checkResultContains(/*className=*/"Gift.java",
-                /*content=*/"builder.setTtlMillis((document.getTtlMillis() != null) ? document"
-                        + ".getTtlMillis().longValue() : 0L)");
-        checkResultContains(/*className=*/"Gift.java",
-                /*content=*/"builder.setScore((document.mScore != null) ? document.mScore.intValue"
-                        + "() : 0)");
         checkEqualsGolden("Gift.java");
     }
 
@@ -564,8 +555,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"price\"");
+                "Field 'price' cannot be read: it is private and has no suitable getters "
+                        + "[public] int price() OR [public] int getPrice()");
     }
 
     @Test
@@ -580,8 +571,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"price\"");
+                "Field 'price' cannot be read: it is private and has no suitable getters "
+                        + "[public] int price() OR [public] int getPrice()");
         assertThat(compilation).hadWarningContaining("Getter cannot be used: private visibility");
     }
 
@@ -597,8 +588,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"price\"");
+                "Field 'price' cannot be read: it is private and has no suitable getters "
+                        + "[public] int price() OR [public] int getPrice()");
         assertThat(compilation).hadWarningContaining(
                 "Getter cannot be used: should take no parameters");
     }
@@ -616,8 +607,25 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"price\"");
+                "Field 'price' cannot be read: it is private and has no suitable getters "
+                        + "[public] int price() OR [public] int getPrice()");
+    }
+
+    @Test
+    public void testCantRead_noSuitableBooleanGetter() {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.BooleanProperty private boolean wrapped;\n"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining(
+                "Field 'wrapped' cannot be read: it is private and has no suitable getters "
+                        + "[public] boolean isWrapped() "
+                        + "OR [public] boolean getWrapped() "
+                        + "OR [public] boolean wrapped()");
     }
 
     @Test
