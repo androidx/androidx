@@ -27,11 +27,11 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.platform.Platform
 import androidx.compose.ui.unit.Density
-import kotlinx.coroutines.CoroutineDispatcher
 import org.jetbrains.skia.Canvas
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.toDpRect
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Point
 import org.jetbrains.skiko.*
 
@@ -113,7 +113,7 @@ internal class ComposeLayer(
     }
 
     private val scene = ComposeScene(
-        coroutineContext = getMainDispatcher(),
+        coroutineContext = Dispatchers.Main,
         platform = platform,
         density = density,
         invalidate = layer::needRedraw,
@@ -178,8 +178,6 @@ internal class ComposeLayer(
         // }
     }
 }
-
-internal expect fun getMainDispatcher(): CoroutineDispatcher
 
 private fun currentMillis() = (currentNanoTime() / 1E6).toLong()
 

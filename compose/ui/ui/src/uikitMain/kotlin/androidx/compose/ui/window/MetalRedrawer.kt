@@ -47,16 +47,6 @@ private class DisplayLinkConditions(
         }
 
     /**
-     * Indicates that scene is invalidated and next display link callback will draw
-     */
-    var needsRedrawOnNextVsync: Boolean = false
-        set(value) {
-            field = value
-
-            update()
-        }
-
-    /**
      * Indicates that application is running foreground now
      */
     var isApplicationActive: Boolean = false
@@ -66,9 +56,46 @@ private class DisplayLinkConditions(
             update()
         }
 
+    /**
+     * Number of subsequent vsync that will issue a draw
+     */
+    private var scheduledRedrawsCount = 0
+        set(value) {
+            field = value
+
+            update()
+        }
+
+    /**
+     * Handle display link callback by updating internal state and dispatching the draw, if needed.
+     */
+    inline fun onDisplayLinkTick(draw: () -> Unit) {
+        if (scheduledRedrawsCount > 0) {
+            scheduledRedrawsCount -= 1
+            draw()
+        }
+    }
+
+    /**
+     * Mark next [FRAMES_COUNT_TO_SCHEDULE_ON_NEED_REDRAW] frames to issue a draw dispatch and unpause displayLink if needed.
+     */
+    fun needRedraw() {
+        scheduledRedrawsCount = FRAMES_COUNT_TO_SCHEDULE_ON_NEED_REDRAW
+    }
+
     private fun update() {
-        val isUnpaused = isApplicationActive && (needsToBeProactive || needsRedrawOnNextVsync)
+        val isUnpaused = isApplicationActive && (needsToBeProactive || scheduledRedrawsCount > 0)
         setPausedCallback(!isUnpaused)
+    }
+
+    companion object {
+        /**
+         * Right now `needRedraw` doesn't reentry from within `draw` callback during animation which leads to a situation where CADisplayLink is first paused
+         * and then asynchronously unpaused. This effectively makes Pro Motion display lose a frame before running on highest possible frequency again.
+         * To avoid this, we need to render at least two frames (instead of just one) after each `needRedraw` assuming that invalidation comes inbetween them and
+         * displayLink is not paused by the end of RuntimeLoop tick.
+         */
+        const val FRAMES_COUNT_TO_SCHEDULE_ON_NEED_REDRAW = 2
     }
 }
 
@@ -174,13 +201,20 @@ internal class MetalRedrawer(
      */
     private var caDisplayLink: CADisplayLink? = CADisplayLink.displayLinkWithTarget(
         target = DisplayLinkProxy {
-            this.handleDisplayLinkTick()
+            val targetTimestamp = currentTargetTimestamp ?: return@DisplayLinkProxy
+
+            displayLinkConditions.onDisplayLinkTick {
+                draw(waitUntilCompletion = false, targetTimestamp)
+            }
         },
         selector = NSSelectorFromString(DisplayLinkProxy::handleDisplayLinkTick.name)
     )
 
+    private val currentTargetTimestamp: NSTimeInterval?
+        get() = caDisplayLink?.targetTimestamp
+
     private val displayLinkConditions = DisplayLinkConditions { paused ->
-        caDisplayLink?.setPaused(paused)
+        caDisplayLink?.paused = paused
     }
 
     private val applicationStateListener = ApplicationStateListener { isApplicationActive ->
@@ -225,19 +259,7 @@ internal class MetalRedrawer(
      * Marks current state as dirty and unpauses display link if needed and enables draw dispatch operation on
      * next vsync
      */
-    fun needRedraw() {
-        displayLinkConditions.needsRedrawOnNextVsync = true
-    }
-
-    private fun handleDisplayLinkTick() {
-        if (displayLinkConditions.needsRedrawOnNextVsync) {
-            displayLinkConditions.needsRedrawOnNextVsync = false
-
-            val targetTimestamp = caDisplayLink?.targetTimestamp ?: return
-
-            draw(waitUntilCompletion = false, targetTimestamp)
-        }
-    }
+    fun needRedraw() = displayLinkConditions.needRedraw()
 
     /**
      * Immediately dispatch draw and block the thread until it's finished and presented on the screen.

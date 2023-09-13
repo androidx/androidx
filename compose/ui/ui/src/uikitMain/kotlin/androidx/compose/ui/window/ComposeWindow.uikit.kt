@@ -33,7 +33,6 @@ import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.interop.UIKitInteropContext
-import androidx.compose.ui.native.getMainDispatcher
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
@@ -46,6 +45,7 @@ import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
@@ -586,7 +586,7 @@ internal actual class ComposeWindow : UIViewController {
         }
 
         val scene = ComposeScene(
-            coroutineContext = getMainDispatcher(),
+            coroutineContext = Dispatchers.Main,
             platform = platform,
             density = density,
             invalidate = skikoUIView::needRedraw,
