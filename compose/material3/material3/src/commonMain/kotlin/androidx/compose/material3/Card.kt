@@ -38,7 +38,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -84,8 +83,8 @@ fun Card(
     Surface(
         modifier = modifier,
         shape = shape,
-        color = colors.containerColor(enabled = true).value,
-        contentColor = colors.contentColor(enabled = true).value,
+        color = colors.containerColor(enabled = true),
+        contentColor = colors.contentColor(enabled = true),
         tonalElevation = elevation.tonalElevation(enabled = true),
         shadowElevation = elevation.shadowElevation(enabled = true, interactionSource = null).value,
         border = border,
@@ -145,8 +144,8 @@ fun Card(
         modifier = modifier,
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled).value,
-        contentColor = colors.contentColor(enabled).value,
+        color = colors.containerColor(enabled),
+        contentColor = colors.contentColor(enabled),
         tonalElevation = elevation.tonalElevation(enabled),
         shadowElevation = elevation.shadowElevation(enabled, interactionSource).value,
         border = border,
@@ -611,30 +610,39 @@ class CardElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
+
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
+
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
+
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
+
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
+
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
+
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
+
                     is DragInteraction.Start -> {
                         interactions.add(interaction)
                     }
+
                     is DragInteraction.Stop -> {
                         interactions.remove(interaction.start)
                     }
+
                     is DragInteraction.Cancel -> {
                         interactions.remove(interaction.start)
                     }
@@ -733,9 +741,8 @@ class CardColors constructor(
      * @param enabled whether the card is enabled
      */
     @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
-    }
+    internal fun containerColor(enabled: Boolean): Color =
+        if (enabled) containerColor else disabledContainerColor
 
     /**
      * Represents the content color for this card, depending on [enabled].
@@ -743,9 +750,8 @@ class CardColors constructor(
      * @param enabled whether the card is enabled
      */
     @Composable
-    internal fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
-    }
+    internal fun contentColor(enabled: Boolean) =
+        if (enabled) contentColor else disabledContentColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

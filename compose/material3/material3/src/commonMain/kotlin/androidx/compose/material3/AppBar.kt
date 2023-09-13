@@ -56,7 +56,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -1656,7 +1655,7 @@ private fun TwoRowsTopAppBar(
     // This will potentially animate or interpolate a transition between the container color and the
     // container's scrolled color according to the app bar's scroll state.
     val colorTransitionFraction = scrollBehavior?.state?.collapsedFraction ?: 0f
-    val appBarContainerColor by rememberUpdatedState(colors.containerColor(colorTransitionFraction))
+    val appBarContainerColor = colors.containerColor(colorTransitionFraction)
 
     // Wrap the given actions in a Row.
     val actionsRow = @Composable {
