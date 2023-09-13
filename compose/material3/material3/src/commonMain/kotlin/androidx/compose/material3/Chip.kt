@@ -122,7 +122,7 @@ fun AssistChip(
     enabled = enabled,
     label = label,
     labelTextStyle = MaterialTheme.typography.fromToken(AssistChipTokens.LabelTextFont),
-    labelColor = colors.labelColor(enabled).value,
+    labelColor = colors.labelColor(enabled),
     leadingIcon = leadingIcon,
     trailingIcon = trailingIcon,
     shape = shape,
@@ -193,7 +193,7 @@ fun ElevatedAssistChip(
     enabled = enabled,
     label = label,
     labelTextStyle = MaterialTheme.typography.fromToken(AssistChipTokens.LabelTextFont),
-    labelColor = colors.labelColor(enabled).value,
+    labelColor = colors.labelColor(enabled),
     leadingIcon = leadingIcon,
     trailingIcon = trailingIcon,
     elevation = elevation,
@@ -535,7 +535,7 @@ fun SuggestionChip(
     enabled = enabled,
     label = label,
     labelTextStyle = MaterialTheme.typography.fromToken(SuggestionChipTokens.LabelTextFont),
-    labelColor = colors.labelColor(enabled).value,
+    labelColor = colors.labelColor(enabled),
     leadingIcon = icon,
     trailingIcon = null,
     shape = shape,
@@ -603,7 +603,7 @@ fun ElevatedSuggestionChip(
     enabled = enabled,
     label = label,
     labelTextStyle = MaterialTheme.typography.fromToken(SuggestionChipTokens.LabelTextFont),
-    labelColor = colors.labelColor(enabled).value,
+    labelColor = colors.labelColor(enabled),
     leadingIcon = icon,
     trailingIcon = null,
     elevation = elevation,
@@ -1324,7 +1324,7 @@ private fun Chip(
         modifier = modifier.semantics { role = Role.Button },
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled).value,
+        color = colors.containerColor(enabled),
         tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp,
         shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
         border = border,
@@ -1337,8 +1337,8 @@ private fun Chip(
             leadingIcon = leadingIcon,
             avatar = null,
             trailingIcon = trailingIcon,
-            leadingIconColor = colors.leadingIconContentColor(enabled).value,
-            trailingIconColor = colors.trailingIconContentColor(enabled).value,
+            leadingIconColor = colors.leadingIconContentColor(enabled),
+            trailingIconColor = colors.trailingIconContentColor(enabled),
             minHeight = minHeight,
             paddingValues = paddingValues
         )
@@ -1383,10 +1383,10 @@ private fun SelectableChip(
             labelTextStyle = labelTextStyle,
             leadingIcon = leadingIcon,
             avatar = avatar,
-            labelColor = colors.labelColor(enabled, selected).value,
+            labelColor = colors.labelColor(enabled, selected),
             trailingIcon = trailingIcon,
-            leadingIconColor = colors.leadingIconContentColor(enabled, selected).value,
-            trailingIconColor = colors.trailingIconContentColor(enabled, selected).value,
+            leadingIconColor = colors.leadingIconContentColor(enabled, selected),
+            trailingIconColor = colors.trailingIconContentColor(enabled, selected),
             minHeight = minHeight,
             paddingValues = paddingValues
         )
@@ -1500,30 +1500,39 @@ class ChipElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
+
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
+
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
+
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
+
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
+
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
+
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
+
                     is DragInteraction.Start -> {
                         interactions.add(interaction)
                     }
+
                     is DragInteraction.Stop -> {
                         interactions.remove(interaction.start)
                     }
+
                     is DragInteraction.Cancel -> {
                         interactions.remove(interaction.start)
                     }
@@ -1657,30 +1666,39 @@ class SelectableChipElevation internal constructor(
                     is HoverInteraction.Enter -> {
                         interactions.add(interaction)
                     }
+
                     is HoverInteraction.Exit -> {
                         interactions.remove(interaction.enter)
                     }
+
                     is FocusInteraction.Focus -> {
                         interactions.add(interaction)
                     }
+
                     is FocusInteraction.Unfocus -> {
                         interactions.remove(interaction.focus)
                     }
+
                     is PressInteraction.Press -> {
                         interactions.add(interaction)
                     }
+
                     is PressInteraction.Release -> {
                         interactions.remove(interaction.press)
                     }
+
                     is PressInteraction.Cancel -> {
                         interactions.remove(interaction.press)
                     }
+
                     is DragInteraction.Start -> {
                         interactions.add(interaction)
                     }
+
                     is DragInteraction.Stop -> {
                         interactions.remove(interaction.start)
                     }
+
                     is DragInteraction.Cancel -> {
                         interactions.remove(interaction.start)
                     }
@@ -1777,44 +1795,32 @@ class ChipColors constructor(
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    internal fun containerColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
-    }
+    internal fun containerColor(enabled: Boolean): Color =
+        if (enabled) containerColor else disabledContainerColor
 
     /**
      * Represents the label color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    internal fun labelColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) labelColor else disabledLabelColor)
-    }
+    internal fun labelColor(enabled: Boolean): Color =
+        if (enabled) labelColor else disabledLabelColor
 
     /**
      * Represents the leading icon's content color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    internal fun leadingIconContentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) leadingIconContentColor else disabledLeadingIconContentColor
-        )
-    }
+    internal fun leadingIconContentColor(enabled: Boolean): Color =
+        if (enabled) leadingIconContentColor else disabledLeadingIconContentColor
 
     /**
      * Represents the trailing icon's content color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    internal fun trailingIconContentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) trailingIconContentColor else disabledTrailingIconContentColor
-        )
-    }
+    internal fun trailingIconContentColor(enabled: Boolean): Color =
+        if (enabled) trailingIconContentColor else disabledTrailingIconContentColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -1892,14 +1898,12 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    internal fun labelColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
+    internal fun labelColor(enabled: Boolean, selected: Boolean): Color {
+        return when {
             !enabled -> disabledLabelColor
             !selected -> labelColor
             else -> selectedLabelColor
         }
-        return rememberUpdatedState(target)
     }
 
     /**
@@ -1908,14 +1912,12 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    internal fun leadingIconContentColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
+    internal fun leadingIconContentColor(enabled: Boolean, selected: Boolean): Color {
+        return when {
             !enabled -> disabledLeadingIconColor
             !selected -> leadingIconColor
             else -> selectedLeadingIconColor
         }
-        return rememberUpdatedState(target)
     }
 
     /**
@@ -1924,14 +1926,12 @@ class SelectableChipColors constructor(
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    internal fun trailingIconContentColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
+    internal fun trailingIconContentColor(enabled: Boolean, selected: Boolean): Color {
+        return when {
             !enabled -> disabledTrailingIconColor
             !selected -> trailingIconColor
             else -> selectedTrailingIconColor
         }
-        return rememberUpdatedState(target)
     }
 
     override fun equals(other: Any?): Boolean {

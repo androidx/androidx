@@ -44,7 +44,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -185,7 +184,7 @@ private fun BoxScope.SwitchImpl(
     minBound: Dp,
     maxBound: Dp,
 ) {
-    val trackColor by colors.trackColor(enabled, checked)
+    val trackColor = colors.trackColor(enabled, checked)
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val thumbValueDp = with(LocalDensity.current) { thumbValue.value.toDp() }
@@ -215,14 +214,13 @@ private fun BoxScope.SwitchImpl(
         .height(SwitchHeight)
         .border(
             SwitchTokens.TrackOutlineWidth,
-            colors.borderColor(enabled, checked).value,
+            colors.borderColor(enabled, checked),
             trackShape
         )
         .background(trackColor, trackShape)
 
     Box(modifier) {
-        val thumbColor by colors.thumbColor(enabled, checked)
-        val resolvedThumbColor = thumbColor
+        val resolvedThumbColor = colors.thumbColor(enabled, checked)
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
@@ -238,7 +236,7 @@ private fun BoxScope.SwitchImpl(
             if (thumbContent != null) {
                 val iconColor = colors.iconColor(enabled, checked)
                 CompositionLocalProvider(
-                    LocalContentColor provides iconColor.value,
+                    LocalContentColor provides iconColor,
                     content = thumbContent
                 )
             }
@@ -387,16 +385,12 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable
-    internal fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedThumbColor else uncheckedThumbColor
-            } else {
-                if (checked) disabledCheckedThumbColor else disabledUncheckedThumbColor
-            }
-        )
-    }
+    internal fun thumbColor(enabled: Boolean, checked: Boolean): Color =
+        if (enabled) {
+            if (checked) checkedThumbColor else uncheckedThumbColor
+        } else {
+            if (checked) disabledCheckedThumbColor else disabledUncheckedThumbColor
+        }
 
     /**
      * Represents the color used for the switch's track, depending on [enabled] and [checked].
@@ -404,16 +398,12 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable
-    internal fun trackColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedTrackColor else uncheckedTrackColor
-            } else {
-                if (checked) disabledCheckedTrackColor else disabledUncheckedTrackColor
-            }
-        )
-    }
+    internal fun trackColor(enabled: Boolean, checked: Boolean): Color =
+        if (enabled) {
+            if (checked) checkedTrackColor else uncheckedTrackColor
+        } else {
+            if (checked) disabledCheckedTrackColor else disabledUncheckedTrackColor
+        }
 
     /**
      * Represents the color used for the switch's border, depending on [enabled] and [checked].
@@ -421,16 +411,12 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable
-    internal fun borderColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedBorderColor else uncheckedBorderColor
-            } else {
-                if (checked) disabledCheckedBorderColor else disabledUncheckedBorderColor
-            }
-        )
-    }
+    internal fun borderColor(enabled: Boolean, checked: Boolean): Color =
+        if (enabled) {
+            if (checked) checkedBorderColor else uncheckedBorderColor
+        } else {
+            if (checked) disabledCheckedBorderColor else disabledUncheckedBorderColor
+        }
 
     /**
      * Represents the content color passed to the icon if used
@@ -438,16 +424,12 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable
-    internal fun iconColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedIconColor else uncheckedIconColor
-            } else {
-                if (checked) disabledCheckedIconColor else disabledUncheckedIconColor
-            }
-        )
-    }
+    internal fun iconColor(enabled: Boolean, checked: Boolean): Color =
+        if (enabled) {
+            if (checked) checkedIconColor else uncheckedIconColor
+        } else {
+            if (checked) disabledCheckedIconColor else disabledUncheckedIconColor
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
