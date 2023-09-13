@@ -33,6 +33,8 @@ val MainScreen = Screen.Selection(
     LazyLayouts,
     TextFields,
     AndroidTextFieldSamples,
+    Screen.Example("BottomSheetScaffold") { BottomSheetScaffoldExample() },
+    Screen.Example("ModalNavigationDrawer") { ModalNavigationDrawerExample() }
 )
 
 sealed interface Screen {
