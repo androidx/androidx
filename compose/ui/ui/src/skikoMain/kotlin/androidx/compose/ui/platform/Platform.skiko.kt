@@ -15,9 +15,14 @@
  */
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
@@ -30,11 +35,13 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 
-// TODO(demin): make it public when we stabilize it after implementing it for uikit and js
+// Do not make it public, it will be replaced to public shared context between scenes during refactor.
 internal interface Platform {
     val windowInfo: WindowInfo
     val focusManager: FocusManager
     val inputModeManager: InputModeManager
+
+    var dialogScrimBlendMode: BlendMode
 
     fun requestFocusForOwner(): Boolean
     val textInputService: PlatformTextInputService
@@ -51,6 +58,8 @@ internal interface Platform {
                 // (hidden textfield cursor, gray titlebar, etc)
                 isWindowFocused = true
             }
+
+            override var dialogScrimBlendMode by mutableStateOf(BlendMode.SrcOver)
 
             override val inputModeManager = DefaultInputModeManager()
             override val focusManager = EmptyFocusManager

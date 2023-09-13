@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 val MainScreen = Screen.Selection(
@@ -28,7 +29,7 @@ val MainScreen = Screen.Selection(
     Screen.FullscreenExample("ApplicationLayouts") { ApplicationLayouts(it) },
     Screen.Example("GraphicsLayerSettings") { GraphicsLayerSettings() },
     Screen.Example("Blending") { Blending() },
-    Screen.Example("Popup & Dialog") { PopupAndDialog() },
+    Screen.Example("Popup & Dialog", backgroundColor = Color.Transparent) { PopupAndDialog() },
     Screen.Example("Date & Time pickers") { DateTimePickers() },
     LazyLayouts,
     TextFields,
@@ -42,6 +43,7 @@ sealed interface Screen {
 
     class Example(
         override val title: String,
+        val backgroundColor: Color? = null,
         val content: @Composable () -> Unit
     ) : Screen
 
@@ -84,7 +86,7 @@ class App(
     fun Content() {
         when (val screen = navigationStack.last()) {
             is Screen.Example -> {
-                ExampleScaffold {
+                ExampleScaffold(backgroundColor = screen.backgroundColor) {
                     screen.content()
                 }
             }
@@ -109,6 +111,7 @@ class App(
 
     @Composable
     private fun ExampleScaffold(
+        backgroundColor: Color?,
         content: @Composable () -> Unit
     ) {
         Scaffold(
@@ -132,7 +135,8 @@ class App(
                         )
                     }
                 )
-            }
+            },
+            backgroundColor = backgroundColor ?: MaterialTheme.colors.background
         ) { innerPadding ->
             Box(
                 Modifier.fillMaxSize().padding(innerPadding)
