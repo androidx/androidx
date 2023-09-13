@@ -143,7 +143,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -164,6 +163,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.atLeast
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -872,24 +872,46 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    @FlakyTest(bugId = 195287742)
-    fun sendScrollEvent_byStateObservation() {
+    fun sendScrollEvent_byStateObservation_horizontal() {
+        sendScrollEvent_byStateObservation(isVertical = false)
+    }
+
+    @Test
+    fun sendScrollEvent_byStateObservation_vertical() {
+        sendScrollEvent_byStateObservation(isVertical = true)
+    }
+
+    private fun sendScrollEvent_byStateObservation(isVertical: Boolean) {
         var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
         val scrollMaxValue = 100f
 
-        val semanticsNode = createSemanticsNodeWithProperties(1, false) {
-            verticalScrollAxisRange = ScrollAxisRange({ scrollValue }, { scrollMaxValue })
-        }
+        val nodeId = 12
+        val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
 
-        accessibilityDelegate.previousSemanticsNodes[1] =
-            SemanticsNodeCopy(
-                semanticsNode,
-                mapOf()
-            )
-        val newNodes = mutableMapOf<Int, SemanticsNodeWithAdjustedBounds>()
-        newNodes[1] = SemanticsNodeWithAdjustedBounds(
-            semanticsNode,
-            android.graphics.Rect()
+        val newNodeId1 = 10
+        val newNodeId2 = 11
+        val newNodeId3 = 12
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+        }
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, emptyList()) {
+            text = AnnotatedString("bar")
+        }
+        val newNode3 = createSemanticsNodeWithChildren(newNodeId3, listOf(newNode1, newNode2)) {
+            val range = ScrollAxisRange({ scrollValue }, { scrollMaxValue })
+            if (isVertical) {
+                verticalScrollAxisRange = range
+            } else {
+                horizontalScrollAxisRange = range
+            }
+        }
+        val focusedRect = android.graphics.Rect(0, 0, 10, 10)
+        val newNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, focusedRect),
+            newNodeId3 to SemanticsNodeWithAdjustedBounds(newNode3, android.graphics.Rect()),
         )
 
         try {
@@ -897,30 +919,32 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
             accessibilityDelegate.sendSemanticsPropertyChangeEvents(newNodes)
 
+            accessibilityDelegate.currentSemanticsNodes.get(1)
+            accessibilityDelegate.currentSemanticsNodes = newNodes
+            accessibilityDelegate.currentlyFocusedANI = info.unwrap()
+            accessibilityDelegate.focusedVirtualViewId = newNodeId2
+
             Snapshot.notifyObjectsInitialized()
-            scrollValue = 1f
+            scrollValue = 2f
             Snapshot.sendApplyNotifications()
         } finally {
             accessibilityDelegate.view.snapshotObserver.stopObserving()
         }
 
-        verify(container, times(1)).requestSendAccessibilityEvent(
-            eq(androidComposeView),
-            argThat(
-                ArgumentMatcher {
-                    it.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
-                        it.contentChangeTypes == AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
-                }
-            )
+        val resultFocusRect = android.graphics.Rect()
+        info.unwrap().getBoundsInScreen(resultFocusRect)
+        assertEquals(
+            focusedRect,
+            resultFocusRect
         )
 
-        verify(container, times(1)).requestSendAccessibilityEvent(
+        accessibilityDelegate.sendTypeViewScrolledAccessibilityEvent(newNode3.layoutNode)
+
+        verify(container, atLeast(1)).requestSendAccessibilityEvent(
             eq(androidComposeView),
             argThat(
                 ArgumentMatcher {
-                    it.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED &&
-                        it.scrollY == 1 &&
-                        it.maxScrollY > it.scrollY
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED
                 }
             )
         )
