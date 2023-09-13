@@ -126,7 +126,14 @@ private inline fun createScrollableState(
 }
 
 // Layout
-internal fun Modifier.textFieldScroll(
+internal expect fun Modifier.textFieldScroll(
+    scrollerPosition: TextFieldScrollerPosition,
+    textFieldValue: TextFieldValue,
+    visualTransformation: VisualTransformation,
+    textLayoutResultProvider: () -> TextLayoutResultProxy?
+): Modifier
+
+internal fun Modifier.defaultTextFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
