@@ -17,9 +17,8 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.node.LayoutNodeLayoutDelegate
 import androidx.compose.ui.node.LookaheadCapablePlaceable
-import androidx.compose.ui.node.NodeCoordinator
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -348,85 +347,6 @@ abstract class Placeable : Measured {
         ) {
             placeAt(position + apparentToRealOffset, zIndex, layerBlock)
         }
-
-        internal companion object : PlacementScope() {
-            override var parentLayoutDirection = LayoutDirection.Ltr
-                private set
-            override var parentWidth = 0
-                private set
-            private var _coordinates: LayoutCoordinates? = null
-
-            override val coordinates: LayoutCoordinates?
-                get() {
-                    // if coordinates are not null we will only set this flag when the inner
-                    // coordinate values are read. see NodeCoordinator.onCoordinatesUsed()
-                    if (_coordinates == null) {
-                        layoutDelegate?.onCoordinatesUsed()
-                    }
-                    return _coordinates
-                }
-
-            private var layoutDelegate: LayoutNodeLayoutDelegate? = null
-
-            inline fun executeWithRtlMirroringValues(
-                parentWidth: Int,
-                parentLayoutDirection: LayoutDirection,
-                lookaheadCapablePlaceable: LookaheadCapablePlaceable?,
-                crossinline block: PlacementScope.() -> Unit
-            ) {
-                val previousLayoutCoordinates = _coordinates
-                val previousParentWidth = Companion.parentWidth
-                val previousParentLayoutDirection = Companion.parentLayoutDirection
-                val previousLayoutDelegate = layoutDelegate
-                Companion.parentWidth = parentWidth
-                Companion.parentLayoutDirection = parentLayoutDirection
-                val wasPlacingForAlignment =
-                    configureForPlacingForAlignment(lookaheadCapablePlaceable)
-                this.block()
-                lookaheadCapablePlaceable?.isPlacingForAlignment = wasPlacingForAlignment
-                Companion.parentWidth = previousParentWidth
-                Companion.parentLayoutDirection = previousParentLayoutDirection
-                _coordinates = previousLayoutCoordinates
-                layoutDelegate = previousLayoutDelegate
-            }
-
-            /**
-             * Configures [_coordinates] and [layoutDelegate] based on the [scope].
-             * When it is [NodeCoordinator.isPlacingForAlignment], then [_coordinates] should
-             * be `null`, and when [coordinates] is accessed, it indicates that the placement
-             * should not be finalized. When [NodeCoordinator.isShallowPlacing], then
-             * [_coordinates] should be `null`, but we don't have to do anything else
-             * to trigger relayout because shallow placing will replace again anyway.
-             *
-             * [NodeCoordinator.isPlacingForAlignment] will be set to true if its parent's
-             * value is `true`.
-             *
-             * @return the value for [NodeCoordinator.isPlacingForAlignment] that should
-             * be set after completing the lambda.
-             */
-            private fun configureForPlacingForAlignment(
-                scope: LookaheadCapablePlaceable?
-            ): Boolean {
-                val wasPlacingForAlignment: Boolean
-                if (scope == null) {
-                    _coordinates = null
-                    layoutDelegate = null
-                    wasPlacingForAlignment = false
-                } else {
-                    wasPlacingForAlignment = scope.isPlacingForAlignment
-                    if (scope.parent?.isPlacingForAlignment == true) {
-                        scope.isPlacingForAlignment = true
-                    }
-                    layoutDelegate = scope.layoutNode.layoutDelegate
-                    if (scope.isPlacingForAlignment || scope.isShallowPlacing) {
-                        _coordinates = null
-                    } else {
-                        _coordinates = scope.coordinates
-                    }
-                }
-                return wasPlacingForAlignment
-            }
-        }
     }
 }
 
@@ -436,3 +356,48 @@ abstract class Placeable : Measured {
 private val DefaultLayerBlock: GraphicsLayerScope.() -> Unit = {}
 
 private val DefaultConstraints = Constraints()
+
+internal fun PlacementScope(
+    lookaheadCapablePlaceable: LookaheadCapablePlaceable
+): Placeable.PlacementScope =
+    LookaheadCapablePlacementScope(lookaheadCapablePlaceable)
+
+internal fun PlacementScope(owner: Owner): Placeable.PlacementScope = OuterPlacementScope(owner)
+
+/**
+ * PlacementScope used by almost all parts of Compose.
+ */
+private class LookaheadCapablePlacementScope(
+    private val within: LookaheadCapablePlaceable
+) : Placeable.PlacementScope() {
+    override val parentWidth: Int
+        get() = within.measuredWidth
+
+    override val parentLayoutDirection: LayoutDirection
+        get() = within.layoutDirection
+
+    override val coordinates: LayoutCoordinates?
+        get() {
+            val coords = if (within.isPlacingForAlignment) null else within.coordinates
+            // if coordinates are not null we will only set this flag when the inner
+            // coordinate values are read. see NodeCoordinator.onCoordinatesUsed()
+            if (coords == null) {
+                within.layoutNode.layoutDelegate.onCoordinatesUsed()
+            }
+            return coords
+        }
+}
+
+/**
+ * The PlacementScope that is used at the root of the compose layout hierarchy.
+ */
+private class OuterPlacementScope(val owner: Owner) : Placeable.PlacementScope() {
+    override val parentWidth: Int
+        get() = owner.root.width
+
+    override val parentLayoutDirection: LayoutDirection
+        get() = owner.layoutDirection
+
+    override val coordinates: LayoutCoordinates
+        get() = owner.root.outerCoordinator
+}

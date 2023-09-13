@@ -129,6 +129,8 @@ import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -410,6 +412,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         )
 
     private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
+
+    override val placementScope: Placeable.PlacementScope
+        get() = PlacementScope(this)
 
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
