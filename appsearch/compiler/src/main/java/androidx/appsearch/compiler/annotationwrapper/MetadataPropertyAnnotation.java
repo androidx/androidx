@@ -31,11 +31,13 @@ import javax.lang.model.element.AnnotationMirror;
  * An annotation for a metadata property e.g. {@code @Document.Id}.
  */
 public enum MetadataPropertyAnnotation implements PropertyAnnotation {
-    ID(/* simpleClassName= */"Id"),
-    NAMESPACE(/* simpleClassName= */"Namespace"),
-    CREATION_TIMESTAMP_MILLIS(/* simpleClassName= */"CreationTimestampMillis"),
-    TTL_MILLIS(/* simpleClassName= */"TtlMillis"),
-    SCORE(/* simpleClassName= */"Score");
+    ID(/* simpleClassName= */"Id", /* genericDocSetterName= */"setId"),
+    NAMESPACE(/* simpleClassName= */"Namespace", /* genericDocSetterName= */"setNamespace"),
+    CREATION_TIMESTAMP_MILLIS(
+            /* simpleClassName= */"CreationTimestampMillis",
+            /* genericDocSetterName= */"setCreationTimestampMillis"),
+    TTL_MILLIS(/* simpleClassName= */"TtlMillis", /* genericDocSetterName= */"setTtlMillis"),
+    SCORE(/* simpleClassName= */"Score", /* genericDocSetterName= */"setScore");
 
     /**
      * Attempts to parse an {@link AnnotationMirror} into a {@link MetadataPropertyAnnotation},
@@ -54,8 +56,13 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     @SuppressWarnings("ImmutableEnumChecker") // ClassName is an immutable third-party type
     private final ClassName mClassName;
 
-    MetadataPropertyAnnotation(@NonNull String simpleClassName) {
+    @NonNull
+    private final String mGenericDocSetterName;
+
+    MetadataPropertyAnnotation(
+            @NonNull String simpleClassName, @NonNull String genericDocSetterName) {
         mClassName = DOCUMENT_ANNOTATION_CLASS.nestedClass(simpleClassName);
+        mGenericDocSetterName = genericDocSetterName;
     }
 
     @Override
@@ -64,10 +71,18 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
         return mClassName;
     }
 
+
+
     @Override
     @NonNull
     public PropertyAnnotation.Kind getPropertyKind() {
         return Kind.METADATA_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public String getGenericDocSetterName() {
+        return mGenericDocSetterName;
     }
 }
 

@@ -16,6 +16,7 @@
 package androidx.appsearch.compiler;
 
 import static com.google.auto.common.MoreTypes.asTypeElement;
+import static java.util.stream.Collectors.toCollection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +31,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,6 +80,9 @@ public class IntrospectionHelper {
 
     public static final ClassName DOCUMENT_ANNOTATION_CLASS =
             ClassName.get(APPSEARCH_ANNOTATION_PKG, DOCUMENT_ANNOTATION_SIMPLE_CLASS_NAME);
+
+    public static final ClassName GENERIC_DOCUMENT_CLASS =
+            ClassName.get(APPSEARCH_PKG, "GenericDocument");
 
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
@@ -243,6 +248,42 @@ public class IntrospectionHelper {
     }
 
     /**
+     * Returns all the methods within a class, whether inherited or declared directly.
+     */
+    @NonNull
+    public LinkedHashSet<ExecutableElement> getAllMethods(@NonNull TypeElement clazz) {
+        return mEnv.getElementUtils().getAllMembers(clazz).stream()
+                .filter(element -> element.getKind() == ElementKind.METHOD)
+                .map(element -> (ExecutableElement) element)
+                .collect(toCollection(LinkedHashSet::new));
+    }
+
+    /**
+     * Whether a type is the same as {@code long[]}.
+     */
+    public boolean isPrimitiveLongArray(@NonNull TypeMirror type) {
+        return isArrayOf(type, mLongPrimitiveType);
+    }
+
+    /**
+     * Whether a type is the same as {@code double[]}.
+     */
+    public boolean isPrimitiveDoubleArray(@NonNull TypeMirror type) {
+        return isArrayOf(type, mDoublePrimitiveType);
+    }
+
+    /**
+     * Whether a type is the same as {@code boolean[]}.
+     */
+    public boolean isPrimitiveBooleanArray(@NonNull TypeMirror type) {
+        return isArrayOf(type, mBooleanPrimitiveType);
+    }
+
+    private boolean isArrayOf(@NonNull TypeMirror type, @NonNull TypeMirror arrayComponentType) {
+        return mTypeUtils.isSameType(type, mTypeUtils.getArrayType(arrayComponentType));
+    }
+
+    /**
      * Get a list of super classes of element annotated with @Document, in order starting with the
      * class at the top of the hierarchy and descending down the class hierarchy. Note that this
      * ordering is important because super classes must appear first in the list than child classes
@@ -290,6 +331,21 @@ public class IntrospectionHelper {
         if (method.getModifiers().contains(Modifier.STATIC)) {
             errors.add(new ProcessingException(
                     "Getter cannot be used: must not be static", method));
+        }
+        return errors;
+    }
+
+    /**
+     * Same as {@link #validateIsGetter} but additionally verifies that the getter returns the
+     * specified type.
+     */
+    @NonNull
+    public List<ProcessingException> validateIsGetterThatReturns(
+            @NonNull ExecutableElement method, @NonNull TypeMirror expectedReturnType) {
+        List<ProcessingException> errors = validateIsGetter(method);
+        if (!mTypeUtils.isSameType(method.getReturnType(), expectedReturnType)) {
+            errors.add(new ProcessingException(
+                    "Getter cannot be used: Does not return " + expectedReturnType, method));
         }
         return errors;
     }

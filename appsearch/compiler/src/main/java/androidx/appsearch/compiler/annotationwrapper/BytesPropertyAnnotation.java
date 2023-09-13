@@ -38,7 +38,7 @@ public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("BytesPropertyConfig");
 
     public BytesPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS);
+        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyBytes");
     }
 
     /**
