@@ -25,10 +25,8 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.IllegalStateException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -107,15 +105,15 @@ class DataStoreDelegateTest {
     }
 
     @Test
-    fun testCreateWithContextAndName() = runTest {
-        coroutineScope {
-            with(GlobalDataStoreTestHelper("file_name1", this@coroutineScope)) {
+    fun testCreateWithContextAndName() {
+        runTest {
+            with(GlobalDataStoreTestHelper("file_name1", backgroundScope)) {
                 context.ds.updateData { 123 }
             }
         }
 
-        coroutineScope {
-            with(GlobalDataStoreTestHelper("file_name1", this@coroutineScope)) {
+        runTest {
+            with(GlobalDataStoreTestHelper("file_name1", backgroundScope)) {
                 assertThat(context.ds.data.first()).isEqualTo(123)
             }
         }
@@ -123,8 +121,8 @@ class DataStoreDelegateTest {
 
     @Test
     fun testCreateSameTwiceThrowsException() = runTest {
-        val helper1 = GlobalDataStoreTestHelper("file_name2", this)
-        val helper2 = GlobalDataStoreTestHelper("file_name2", this)
+        val helper1 = GlobalDataStoreTestHelper("file_name2", backgroundScope)
+        val helper2 = GlobalDataStoreTestHelper("file_name2", backgroundScope)
 
         with(helper1) {
             context.ds.data.first()
