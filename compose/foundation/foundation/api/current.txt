@@ -527,7 +527,7 @@ package androidx.compose.foundation.gestures.snapping {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPositionInLayout {
-    method public int position(int layoutSize, int itemSize, int itemIndex);
+    method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex);
     field public static final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout.Companion Companion;
   }
 
