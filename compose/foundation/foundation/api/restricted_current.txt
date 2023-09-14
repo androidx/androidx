@@ -1624,8 +1624,10 @@ package androidx.compose.foundation.text2.input {
     method @kotlin.PublishedApi internal void commitEdit(androidx.compose.foundation.text2.input.TextFieldBuffer newValue);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,kotlin.Unit> block);
     method public androidx.compose.foundation.text2.input.TextFieldCharSequence getText();
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text2.input.UndoState getUndoState();
     method @kotlin.PublishedApi internal androidx.compose.foundation.text2.input.TextFieldBuffer startEdit(androidx.compose.foundation.text2.input.TextFieldCharSequence value);
     property public final androidx.compose.foundation.text2.input.TextFieldCharSequence text;
+    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text2.input.UndoState undoState;
   }
 
   public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text2.input.TextFieldState,java.lang.Object> {
@@ -1656,6 +1658,16 @@ package androidx.compose.foundation.text2.input {
     property public final int Hidden;
     property public final int RevealLastTyped;
     property public final int Visible;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class UndoState {
+    method public void clearHistory();
+    method public boolean getCanRedo();
+    method public boolean getCanUndo();
+    method public void redo();
+    method public void undo();
+    property public final boolean canRedo;
+    property public final boolean canUndo;
   }
 
 }
