@@ -695,13 +695,17 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
-        assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter for \"price\"");
+                "Could not find a suitable constructor/factory method for "
+                        + "\"com.example.appsearch.Gift\" that covers properties: [price]. "
+                        + "See the warnings for more details.");
         assertThat(compilation).hadWarningContaining(
-                "Cannot use this creation method to construct the class: This method doesn't have "
-                        + "parameters for the following fields: [price]");
+                "Could not find any of the setter(s): "
+                        + "[public] void price(int)|"
+                        + "[public] void setPrice(int)");
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this constructor to construct the class: "
+                        + "\"com.example.appsearch.Gift\". "
+                        + "No parameters for the properties: [price]");
     }
 
     @Test
@@ -717,15 +721,15 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
-        assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter for \"price\"");
+                "Could not find a suitable constructor/factory method for "
+                        + "\"com.example.appsearch.Gift\" that covers properties: [price]. "
+                        + "See the warnings for more details.");
+        assertThat(compilation).hadWarningContaining(
+                "Could not find any of the setter(s): "
+                        + "[public] void price(int)|"
+                        + "[public] void setPrice(int)");
         assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: private visibility");
-        assertThat(compilation).hadWarningContaining(
-                "Cannot use this creation method to construct the class: This method doesn't have "
-                        + "parameters for the following fields: [price]");
     }
 
     @Test
@@ -741,15 +745,19 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
-        assertThat(compilation).hadWarningContainingMatch(
-                "Field cannot be written .* failed to find a suitable setter for \"price\"");
+                "Could not find a suitable constructor/factory method for "
+                        + "\"com.example.appsearch.Gift\" that covers properties: [price]. "
+                        + "See the warnings for more details.");
+        assertThat(compilation).hadWarningContaining(
+                "Could not find any of the setter(s): "
+                        + "[public] void price(int)|"
+                        + "[public] void setPrice(int)");
         assertThat(compilation).hadWarningContaining(
                 "Setter cannot be used: takes 0 parameters instead of 1");
         assertThat(compilation).hadWarningContaining(
-                "Cannot use this creation method to construct the class: This method doesn't have "
-                        + "parameters for the following fields: [price]");
+                "Cannot use this constructor to construct the class: "
+                        + "\"com.example.appsearch.Gift\". "
+                        + "No parameters for the properties: [price]");
     }
 
     @Test
@@ -780,10 +788,9 @@ public class AppSearchCompilerTest {
                         + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
-        assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
-        assertThat(compilation).hadWarningContaining("Creation method is private");
+        assertThat(compilation).hadErrorContaining("Could not find a suitable creation method");
+        assertThat(compilation).hadWarningContaining(
+                "Method cannot be used to create a document class: private visibility");
     }
 
     @Test
@@ -798,10 +805,17 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
+                "Could not find a suitable constructor/factory method for "
+                        + "\"com.example.appsearch.Gift\" that covers properties: [id]. "
+                        + "See the warnings for more details.");
         assertThat(compilation).hadWarningContaining(
-                "doesn't have parameters for the following fields: [id]");
+                "Could not find any of the setter(s): "
+                        + "[public] void setId(java.lang.String)|"
+                        + "[public] void id(java.lang.String)");
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this constructor to construct the class: "
+                        + "\"com.example.appsearch.Gift\". "
+                        + "No parameters for the properties: [id]");
     }
 
     @Test
@@ -916,9 +930,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.LongProperty int price;\n"
                         + "}\n");
 
-        assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build class "
-                        + "\"com.example.appsearch.Gift\"");
+        assertThat(compilation).hadErrorContaining("Could not find a suitable creation method");
         assertThat(compilation).hadWarningContaining(
                 "Parameter \"unknownParam\" is not an AppSearch parameter; don't know how to "
                         + "supply it");
@@ -1861,11 +1873,11 @@ public class AppSearchCompilerTest {
                         + "  public void setPrice(int price);\n"
                         + "}\n");
 
-        assertThat(compilation).hadErrorContaining("Failed to find any suitable creation methods");
+        assertThat(compilation).hadErrorContaining("Could not find a suitable creation method");
     }
 
     @Test
-    public void testAnnotationOnGetterWithoutSetter() throws Exception {
+    public void testAnnotationOnGetterWithoutSetter() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public interface Gift {\n"
@@ -1890,7 +1902,21 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadWarningContaining(
-                "Element cannot be written directly because it is an annotated getter");
+                "Cannot use this creation method to construct the class: "
+                        + "\"com.example.appsearch.Gift\". "
+                        + "No parameters for the properties: [getPrice]");
+        assertThat(compilation).hadWarningContaining(
+                "Could not find any of the setter(s): "
+                        + "[public] void namespace(java.lang.String)|"
+                        + "[public] void setNamespace(java.lang.String)");
+        assertThat(compilation).hadWarningContaining(
+                "Could not find any of the setter(s): "
+                        + "[public] void setId(java.lang.String)|"
+                        + "[public] void id(java.lang.String)");
+        assertThat(compilation).hadWarningContaining(
+                "Could not find any of the setter(s): "
+                        + "[public] void price(int)|"
+                        + "[public] void setPrice(int)");
     }
 
     @Test
@@ -2694,9 +2720,32 @@ public class AppSearchCompilerTest {
                         + "    return new Gift();\n"
                         + "  }\n"
                         + "}\n");
+        assertThat(compilation).hadErrorContaining(
+                "Could not find a suitable builder producer for "
+                        + "\"com.example.appsearch.Gift\" that covers properties: [price]. "
+                        + "See the warnings for more details.");
         assertThat(compilation).hadWarningContaining(
-                "Element cannot be written directly because a builder producer is provided, and "
-                        + "we failed to find a suitable setter");
+                "Could not find any of the setter(s): "
+                        + "[public] void price(int)|"
+                        + "[public] void setPrice(int)");
+        assertThat(compilation).hadWarningContaining(
+                "Cannot use this creation method to construct the class: "
+                        + "\"com.example.appsearch.Gift\". "
+                        + "No parameters for the properties: [price]");
+    }
+
+    @Test
+    public void testAbstractConstructor() {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public abstract class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  public Gift() {}\n"
+                        + "}\n");
+        assertThat(compilation).hadErrorContaining("Could not find a suitable creation method");
+        assertThat(compilation).hadWarningContaining(
+                "Method cannot be used to create a document class: abstract constructor");
     }
 
     private Compilation compile(String classBody) {
