@@ -20,7 +20,9 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.detector.api.AnnotationUsageType.ASSIGNMENT_RHS
 import com.android.tools.lint.detector.api.AnnotationUsageType.FIELD_REFERENCE
+import com.android.tools.lint.detector.api.AnnotationUsageType.METHOD_CALL_PARAMETER
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -47,6 +49,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.uast.UAnnotated
@@ -441,9 +444,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
-        // Are we visiting a Kotlin property as a field reference when it's actually a method?
-        // Ignore it, since we'll also visit it as a method.
-        if (isKotlin(usage.sourcePsi) && type == FIELD_REFERENCE && referenced is PsiMethod) {
+        // Don't visit values assigned to annotated fields or properties, parameters passed to
+        // annotated methods, or annotated properties being referenced as fields. We'll visit the
+        // annotated fields and methods separately.
+        if (referenced is PsiField && type == ASSIGNMENT_RHS ||
+            referenced is PsiMethod && type == ASSIGNMENT_RHS ||
+            referenced is PsiMethod && type == FIELD_REFERENCE ||
+            referenced is PsiMethod && type == METHOD_CALL_PARAMETER) {
             return
         }
 
@@ -579,6 +586,15 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // Is the containing package experimental?
         if (context.evaluator.getPackage(this)?.getAnnotation(annotationFqName) != null) {
             return true
+        }
+
+        // For property accessors, check the property's annotation w/o use-site
+        // which is landed on the backing field if any
+        if (sourcePsi is KtProperty && this is UMethod) {
+            val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
+            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
+                return true
+            }
         }
 
         return false
