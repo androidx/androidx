@@ -21,6 +21,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Binder
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
 import android.view.MotionEvent
@@ -37,32 +38,41 @@ import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @MediumTest
-class IntegrationTests {
+class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @get:Rule
     var activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     companion object {
+        const val TEST_ONLY_USE_REMOTE_ADAPTER = "testOnlyUseRemoteAdapter"
         const val TIMEOUT = 1000.toLong()
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{index}: invokeBackwardsCompatFlow={0}")
+        fun data(): Array<Any> = arrayOf(
+            arrayOf(true),
+            arrayOf(false),
+        )
     }
 
     private lateinit var context: Context
@@ -73,7 +83,9 @@ class IntegrationTests {
 
     @Before
     fun setup() {
-        Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        // TODO(b/300397160): Enable backward compat test on S- devices
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+
         context = InstrumentationRegistry.getInstrumentation().context
         activity = activityScenarioRule.withActivity { this }
         view = SandboxedSdkView(context)
@@ -96,11 +108,9 @@ class IntegrationTests {
     @Test
     fun testChangingSandboxedSdkViewLayoutChangesChildLayout() {
         val adapter = TestSandboxedUiAdapter(
-            null,
-            null,
             false /* hasFailiningTestSession */
         )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val userRemoteAdapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(userRemoteAdapter)
 
@@ -145,15 +155,14 @@ class IntegrationTests {
     }
 
     @Test
-    fun testSessionOpen() {
-        val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+    fun testOpenSession_onSetAdapter() {
+        val adapter = TestSandboxedUiAdapter(false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val userRemoteAdapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(userRemoteAdapter)
 
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(adapter.isOpenSessionCalled)
+        assertWithMessage("openSession is called on adapter")
+                .that(adapter.isOpenSessionCalled).isTrue()
         var isSessionInitialised = try {
             adapter.session
             true
@@ -164,12 +173,11 @@ class IntegrationTests {
     }
 
     @Test
-    fun testOpenSessionFromAdapter() {
-        val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+    fun testOpenSession_fromAdapter() {
+        val adapter = TestSandboxedUiAdapter(false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
-        val testSessionClient = TestSandboxedUiAdapter.TestSessionClient()
+        val testSessionClient = TestSessionClient()
 
         adapterFromCoreLibInfo.openSession(
             context,
@@ -181,28 +189,26 @@ class IntegrationTests {
             testSessionClient
         )
 
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(adapter.isOpenSessionCalled).isTrue()
         assertThat(testSessionClient.isSessionOpened).isTrue()
     }
 
     @Test
-    @Ignore("b/272324246")
     fun testConfigurationChanged() {
-        val configChangedLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(
-            null,
-            configChangedLatch,
-            false
-        )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
-        val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
-        view.setAdapter(adapterFromCoreLibInfo)
+        val sdkAdapter = TestSandboxedUiAdapter(/*hasfailingTestSession=*/false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(sdkAdapter)
+        val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+
+        view.setAdapter(adapter)
+        assertThat(sdkAdapter.isOpenSessionCalled).isTrue()
+
         activity.runOnUiThread {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
-        configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(configChangedLatch.count == 0.toLong())
+
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
+        assertWithMessage("Configuration changed").that(testSession.config?.orientation)
+                .isEqualTo(Configuration.ORIENTATION_LANDSCAPE)
     }
 
     /**
@@ -210,18 +216,15 @@ class IntegrationTests {
      */
     @Test
     fun testZOrderChanged() {
-        val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(
-            openSessionLatch,
-            null,
-            /* hasFailingTestSession=*/false
-        )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapter = TestSandboxedUiAdapter(/* hasFailingTestSession=*/false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterFromCoreLibInfo)
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(adapter.isOpenSessionCalled).isTrue()
+
         view.orderProviderUiAboveClientUi(!adapter.initialZOrderOnTop)
-        assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val testSession = adapter.session as TestSandboxedUiAdapter.TestSession
+        assertThat(testSession.zOrderChanged).isTrue()
     }
 
     /**
@@ -229,18 +232,15 @@ class IntegrationTests {
      */
     @Test
     fun testZOrderUnchanged() {
-        val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(
-            openSessionLatch,
-            null,
-            /* hasFailingTestSession=*/false
-        )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapter = TestSandboxedUiAdapter(/* hasFailingTestSession=*/false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterFromCoreLibInfo)
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(adapter.isOpenSessionCalled).isTrue()
+
         view.orderProviderUiAboveClientUi(adapter.initialZOrderOnTop)
-        assertThat(adapter.zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        val testSession = adapter.session as TestSandboxedUiAdapter.TestSession
+        assertThat(testSession.zOrderChanged).isFalse()
     }
 
     @Test
@@ -253,6 +253,9 @@ class IntegrationTests {
 
     @Test
     fun testHostCanSetZOrderBelowBeforeOpeningSession() {
+        // TODO(b/300396631): Skip for backward compats
+        assumeTrue(!invokeBackwardsCompatFlow)
+
         val adapter = openSessionAndWaitToBeActive(false)
         injectInputEventOnView()
         // the injected touch should not reach the provider in Z-below mode
@@ -261,27 +264,79 @@ class IntegrationTests {
 
     @Test
     fun testSessionError() {
-        val adapter = TestSandboxedUiAdapter(
-            null, null, true
-        )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapter = TestSandboxedUiAdapter(true)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterThatFailsToCreateUi =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterThatFailsToCreateUi)
-        errorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(stateChangeListener.currentState is SandboxedSdkUiSessionState.Error)
-        val errorMessage = (stateChangeListener.currentState as
-            SandboxedSdkUiSessionState.Error).throwable.message
-        assertTrue(errorMessage == "Test Session Exception")
+        assertThat(errorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(stateChangeListener.error?.message).isEqualTo("Test Session Exception")
+    }
+
+    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    @Test
+    fun test_ProviderInitiatedResize_ReceivedByClient() {
+        val sdkAdapter = TestSandboxedUiAdapter(/*hasfailingTestSession=*/false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(sdkAdapter)
+        val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        val testSessionClient = TestSessionClient()
+
+        adapter.openSession(
+            context,
+            Binder(),
+            /*initialWidth=*/ 10,
+            /*initialHeight=*/ 10,
+            true,
+            Runnable::run,
+            testSessionClient
+        )
+        assertThat(testSessionClient.isSessionOpened).isTrue()
+
+        // Request resize from Session side
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
+        testSession.sessionClient.onResizeRequested(20, 30)
+
+        // Verify SessionClient received the request
+        assertWithMessage("Resized width").that(testSessionClient.resizedWidth).isEqualTo(20)
+        assertWithMessage("Resized height").that(testSessionClient.resizedHeight).isEqualTo(30)
+    }
+
+    // TODO(b/300056633): Replace with actual e2e test flow that triggers resize request
+    @Test
+    fun test_ClientInitiatedResize_ReceivedByProvider() {
+        val sdkAdapter = TestSandboxedUiAdapter(/*hasfailingTestSession=*/false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(sdkAdapter)
+        val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        val testSessionClient = TestSessionClient()
+        adapter.openSession(
+            context,
+            Binder(),
+            /*initialWidth=*/ 10,
+            /*initialHeight=*/ 10,
+            true,
+            Runnable::run,
+            testSessionClient
+        )
+        assertThat(testSessionClient.isSessionOpened).isTrue()
+
+        // Notify resized from the client
+        testSessionClient.session.notifyResized(20, 30)
+
+        // Verify Session received the request
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
+        assertWithMessage("Resized width").that(testSession.resizedWidth).isEqualTo(20)
+        assertWithMessage("Resized height").that(testSession.resizedHeight).isEqualTo(30)
+    }
+
+    private fun getCoreLibInfoFromAdapter(sdkAdapter: SandboxedUiAdapter): Bundle {
+        val bundle = sdkAdapter.toCoreLibInfo(context)
+        bundle.putBoolean(TEST_ONLY_USE_REMOTE_ADAPTER, !invokeBackwardsCompatFlow)
+        return bundle
     }
 
     private fun openSessionAndWaitToBeActive(initialZOrder: Boolean): TestSandboxedUiAdapter {
-        val adapter = TestSandboxedUiAdapter(
-            null,
-            null,
-            /* hasFailingTestSession=*/false
-        )
-        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapter = TestSandboxedUiAdapter(/*hasFailingTestSession=*/ false)
+        val coreLibInfo = getCoreLibInfoFromAdapter(adapter)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.orderProviderUiAboveClientUi(initialZOrder)
         view.setAdapter(adapterFromCoreLibInfo)
@@ -315,24 +370,33 @@ class IntegrationTests {
         override fun onStateChanged(state: SandboxedSdkUiSessionState) {
             currentState = state
             if (state is SandboxedSdkUiSessionState.Error) {
-                errorLatch.countDown()
                 error = state.throwable
+                errorLatch.countDown()
             }
         }
     }
 
+    /**
+     *  TestSandboxedUiAdapter provides content from a fake SDK to show on the host's UI.
+     *
+     *  A [SandboxedUiAdapter] is supposed to fetch the content from SandboxedSdk, but we fake the
+     *  source of content in this class.
+     *
+     *  If [hasFailingTestSession] is true, the fake server side logic returns error.
+     */
     class TestSandboxedUiAdapter(
-        val openSessionLatch: CountDownLatch?,
-        val configChangedLatch: CountDownLatch?,
-        val hasFailingTestSession: Boolean
+        private val hasFailingTestSession: Boolean
     ) : SandboxedUiAdapter {
 
-        var isOpenSessionCalled = false
+        private val openSessionLatch: CountDownLatch = CountDownLatch(1)
+
+        val isOpenSessionCalled: Boolean
+            get() = openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+
         var initialZOrderOnTop = false
-        var zOrderLatch = CountDownLatch(1)
         var touchedLatch = CountDownLatch(1)
+
         lateinit var session: SandboxedUiAdapter.Session
-        lateinit var internalClient: SandboxedUiAdapter.SessionClient
 
         override fun openSession(
             context: Context,
@@ -343,24 +407,26 @@ class IntegrationTests {
             clientExecutor: Executor,
             client: SandboxedUiAdapter.SessionClient
         ) {
-            internalClient = client
-            isOpenSessionCalled = true
             initialZOrderOnTop = isZOrderOnTop
             session = if (hasFailingTestSession) {
-                FailingTestSession(context)
+                FailingTestSession(context, client)
             } else {
-                TestSession(context)
+                TestSession(context, client)
             }
             client.onSessionOpened(session)
-            openSessionLatch?.countDown()
+            openSessionLatch.countDown()
         }
 
+        /**
+         * A failing session that always sends error notice to the client when content is requested.
+         */
         inner class FailingTestSession(
-            private val context: Context
+            private val context: Context,
+            private val sessionClient: SandboxedUiAdapter.SessionClient
         ) : SandboxedUiAdapter.Session {
             override val view: View
                 get() {
-                    internalClient.onSessionError(Throwable("Test Session Exception"))
+                    sessionClient.onSessionError(Throwable("Test Session Exception"))
                     return View(context)
                 }
 
@@ -378,8 +444,38 @@ class IntegrationTests {
         }
 
         inner class TestSession(
-            private val context: Context
+            private val context: Context,
+            val sessionClient: SandboxedUiAdapter.SessionClient
         ) : SandboxedUiAdapter.Session {
+
+            private val configLatch = CountDownLatch(1)
+            private val resizeLatch = CountDownLatch(1)
+            private val zOrderLatch = CountDownLatch(1)
+
+            var config: Configuration? = null
+                get() {
+                    configLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                    return field
+                }
+
+            var zOrderChanged = false
+                get() {
+                    zOrderLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                    return field
+                }
+
+            var resizedWidth = 0
+                get() {
+                    resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                    return field
+                }
+
+            var resizedHeight = 0
+                get() {
+                    resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                    return field
+                }
+
             override val view: View
                 get() {
                     return View(context).also {
@@ -390,39 +486,60 @@ class IntegrationTests {
                     }
                 }
 
-            init {
-                internalClient.onSessionOpened(this)
-            }
-
             override fun notifyResized(width: Int, height: Int) {
+                resizedWidth = width
+                resizedHeight = height
+                resizeLatch.countDown()
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                zOrderChanged = true
                 zOrderLatch.countDown()
             }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
-                configChangedLatch?.countDown()
+                config = configuration
+                configLatch.countDown()
             }
 
             override fun close() {
             }
         }
+    }
 
-        class TestSessionClient : SandboxedUiAdapter.SessionClient {
-            private val latch = CountDownLatch(1)
-            val isSessionOpened: Boolean
-                get() = latch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+    class TestSessionClient : SandboxedUiAdapter.SessionClient {
+        private val sessionOpenedLatch = CountDownLatch(1)
+        private val resizeRequestedLatch = CountDownLatch(1)
 
-            override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
-                latch.countDown()
+        lateinit var session: SandboxedUiAdapter.Session
+
+        val isSessionOpened: Boolean
+            get() = sessionOpenedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+
+        var resizedWidth = 0
+            get() {
+                resizeRequestedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                return field
             }
 
-            override fun onSessionError(throwable: Throwable) {
+        var resizedHeight = 0
+            get() {
+                resizeRequestedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                return field
             }
 
-            override fun onResizeRequested(width: Int, height: Int) {
-            }
+        override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
+            this.session = session
+            sessionOpenedLatch.countDown()
+        }
+
+        override fun onSessionError(throwable: Throwable) {
+        }
+
+        override fun onResizeRequested(width: Int, height: Int) {
+            resizedWidth = width
+            resizedHeight = height
+            resizeRequestedLatch.countDown()
         }
     }
 }
