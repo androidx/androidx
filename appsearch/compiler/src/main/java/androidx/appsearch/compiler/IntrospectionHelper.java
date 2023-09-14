@@ -352,7 +352,7 @@ public class IntrospectionHelper {
     public List<ProcessingException> validateIsGetterThatReturns(
             @NonNull ExecutableElement method, @NonNull TypeMirror expectedReturnType) {
         List<ProcessingException> errors = validateIsGetter(method);
-        if (!mTypeUtils.isSameType(method.getReturnType(), expectedReturnType)) {
+        if (!mTypeUtils.isAssignable(method.getReturnType(), expectedReturnType)) {
             errors.add(new ProcessingException(
                     "Getter cannot be used: Does not return " + expectedReturnType, method));
         }
