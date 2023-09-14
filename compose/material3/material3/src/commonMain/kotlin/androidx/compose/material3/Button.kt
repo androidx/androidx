@@ -927,6 +927,7 @@ class ButtonColors constructor(
      *
      * @param enabled whether the button is enabled
      */
+    @Stable
     internal fun containerColor(enabled: Boolean): Color =
         if (enabled) containerColor else disabledContainerColor
 
@@ -935,6 +936,7 @@ class ButtonColors constructor(
      *
      * @param enabled whether the button is enabled
      */
+    @Stable
     internal fun contentColor(enabled: Boolean): Color =
         if (enabled) contentColor else disabledContentColor
 

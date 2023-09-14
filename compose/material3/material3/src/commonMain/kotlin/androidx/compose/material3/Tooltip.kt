@@ -1066,6 +1066,7 @@ interface TooltipState : BasicTooltipState {
     val transition: MutableTransitionState<Boolean>
 }
 
+@Stable
 private fun Modifier.textVerticalPadding(
     subheadExists: Boolean,
     actionExists: Boolean
