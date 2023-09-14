@@ -23,12 +23,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.unit.IntSize
 
 /**
  * Provides information about the Window that is hosting this compose hierarchy.
  */
 @Stable
+@JvmDefaultWithCompatibility
 actual interface WindowInfo {
     /**
      * Indicates whether the window hosting this compose hierarchy is in focus.
@@ -42,14 +44,16 @@ actual interface WindowInfo {
     /**
      * Indicates the state of keyboard modifiers (pressed or not).
      */
-    @ExperimentalComposeUiApi
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalComposeUiApi
     actual val keyboardModifiers: PointerKeyboardModifiers
+        get() = WindowInfoImpl.GlobalKeyboardModifiers.value
 
     /**
      * Size of the window's content container in pixels.
      */
     @ExperimentalComposeUiApi
-    val containerSize: IntSize
+    val containerSize: IntSize get() = IntSize.Zero
 }
 
 internal class WindowInfoImpl : WindowInfo {

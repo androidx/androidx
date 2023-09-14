@@ -23,11 +23,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * Provides information about the Window that is hosting this compose hierarchy.
  */
 @Stable
+@JvmDefaultWithCompatibility
 expect interface WindowInfo {
     /**
      * Indicates whether the window hosting this compose hierarchy is in focus.
@@ -41,8 +43,11 @@ expect interface WindowInfo {
     /**
      * Indicates the state of keyboard modifiers (pressed or not).
      */
-    @ExperimentalComposeUiApi
-    val keyboardModifiers: PointerKeyboardModifiers
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-412/Remove-getExperimentalComposeUiApi-from-val-keyboardModifiers)
+    //  remove get:ExperimentalComposeUiApi, as it actually isn't experimental
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalComposeUiApi
+    open val keyboardModifiers: PointerKeyboardModifiers
 }
 
 @Composable
