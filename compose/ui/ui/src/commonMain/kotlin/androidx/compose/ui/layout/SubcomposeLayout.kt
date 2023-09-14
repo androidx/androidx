@@ -739,7 +739,7 @@ internal class LayoutNodeSubcompositionsState(
         "layouts is not supported. This includes components that are built on top of " +
         "SubcomposeLayout, such as lazy lists, BoxWithConstraints, TabRow, etc. To mitigate " +
         "this:\n" +
-        "- if intrinsic measurements are used to achieve 'match parent' sizing,, consider " +
+        "- if intrinsic measurements are used to achieve 'match parent' sizing, consider " +
         "replacing the parent of the component with a custom layout which controls the order in " +
         "which children are measured, making intrinsic measurement not needed\n" +
         "- adding a size modifier to the component, in order to fast return the queried " +
