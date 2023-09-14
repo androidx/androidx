@@ -662,6 +662,29 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testRead_GetterReturnsSubtype() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "import com.google.common.collect.*;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty private List<String> from = \n"
+                        + "    new ArrayList<>();\n"
+                        + "  ImmutableList<String> getFrom() {"
+                        + "    return ImmutableList.copyOf(from);"
+                        + "  }"
+                        + "  void setFrom(Collection<String> from) {"
+                        + "    this.from = new ArrayList<>(from);"
+                        + "  }"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testGetterAndSetterFunctions_withFieldName() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
