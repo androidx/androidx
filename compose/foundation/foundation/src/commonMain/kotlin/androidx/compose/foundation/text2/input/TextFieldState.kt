@@ -130,10 +130,15 @@ class TextFieldState internal constructor(
 
     /**
      * Undo history controller for this TextFieldState.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextField2UndoSample
      */
     // TextField does not implement UndoState because Undo related APIs should be able to remain
     // separately experimental than TextFieldState
-    internal val undoState: UndoState = UndoState(this)
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalFoundationApi
+    @get:ExperimentalFoundationApi
+    val undoState: UndoState = UndoState(this)
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
