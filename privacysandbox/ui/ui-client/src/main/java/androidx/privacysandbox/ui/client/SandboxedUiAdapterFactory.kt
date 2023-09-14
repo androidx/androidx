@@ -79,9 +79,25 @@ object SandboxedUiAdapterFactory {
      * [LocalAdapter] fetches UI from a provider living on same process as the client but on a
      * different class loader.
      */
-    private class LocalAdapter(private val adapterInterface: ISandboxedUiAdapter) :
+    private class LocalAdapter(adapterInterface: ISandboxedUiAdapter) :
         SandboxedUiAdapter {
         private val uiProviderBinder = adapterInterface.asBinder()
+
+        private val targetSessionClientClass = Class.forName(
+            SandboxedUiAdapter.SessionClient::class.java.name,
+            /* initialize = */ false,
+            uiProviderBinder.javaClass.classLoader
+        )
+
+        // The adapterInterface provided must have a openSession method on its class.
+        // Since the object itself has been instantiated on a different classloader, we
+        // need reflection to get hold of it.
+        private val openSessionMethod: Method = Class.forName(
+            SandboxedUiAdapter::class.java.name,
+            /*initialize=*/ false,
+            uiProviderBinder.javaClass.classLoader
+        ).getMethod("openSession", Context::class.java, IBinder::class.java, Int::class.java,
+            Int::class.java, Boolean::class.java, Executor::class.java, targetSessionClientClass)
 
         @SuppressLint("BanUncheckedReflection") // using reflection on library classes
         override fun openSession(
@@ -94,28 +110,13 @@ object SandboxedUiAdapterFactory {
             client: SandboxedUiAdapter.SessionClient
         ) {
             try {
-                // openSession call needs to be forwarded to uiProvider object instantiated
-                // on a different classloader.
-                val uiProviderClassLoader = uiProviderBinder.javaClass.classLoader
-                val classOnUiProviderClassLoader = Class.forName(uiProviderBinder::class.java.name,
-                        /*initialize=*/false, uiProviderBinder.javaClass.classLoader)
-                val openSessionMethod = classOnUiProviderClassLoader.methods.first {
-                        method -> method.name.equals("openSession")
-                }
-
                 // We can't pass the client object as-is since it's been created on a different
                 // classloader.
-                val targetSessionClientClass = Class.forName(
-                    SandboxedUiAdapter.SessionClient::class.java.name,
-                    /*initialize=*/ false,
-                    uiProviderClassLoader
-                )
                 val sessionClientProxy = Proxy.newProxyInstance(
-                    uiProviderClassLoader,
+                    uiProviderBinder.javaClass.classLoader,
                     arrayOf(targetSessionClientClass),
                     SessionClientProxyHandler(client)
                 )
-
                 openSessionMethod.invoke(uiProviderBinder, context, windowInputToken, initialWidth,
                         initialHeight, isZOrderOnTop, clientExecutor, sessionClientProxy)
             } catch (exception: Throwable) {
@@ -123,51 +124,32 @@ object SandboxedUiAdapterFactory {
             }
         }
 
-        private inner class SessionClientProxyHandler(
+        private class SessionClientProxyHandler(
             private val origClient: SandboxedUiAdapter.SessionClient,
         ) : InvocationHandler {
 
             @SuppressLint("BanUncheckedReflection") // using reflection on library classes
-            override fun invoke(proxy: Any, method: Method, args: Array<Any>?): Any? {
+            override fun invoke(proxy: Any, method: Method, args: Array<Any>?): Any {
                 return when (method.name) {
                     "onSessionOpened" -> {
-                        args!! // This method will always have an argument, so safe to !!
-
                         // We have to forward the call to original client, but it won't
-                        // recognize Session class on targetClassLoader. We need another proxy.
-                        val origSessionClass = Class.forName(
-                            SandboxedUiAdapter.Session::class.java.name,
-                            /*initialize=*/ false,
-                            origClient.javaClass.classLoader
-                        )
-                        val sessionProxy = Proxy.newProxyInstance(
-                            origClient.javaClass.classLoader,
-                            arrayOf(origSessionClass),
-                            SessionProxyHandler(args[0])
-                        )
-
-                        val methodOrig = origClient.javaClass.getMethod("onSessionOpened",
-                        SandboxedUiAdapter.Session::class.java)
-                        methodOrig.invoke(origClient, sessionProxy)
+                        // recognize Session class on targetClassLoader. We need proxy for it
+                        // on local ClassLoader.
+                        args!! // This method will always have an argument, so safe to !!
+                        origClient.onSessionOpened(SessionProxy(args[0]))
                     }
                     "onSessionError" -> {
                         args!! // This method will always have an argument, so safe to !!
-
                         val throwable = args[0] as Throwable
-                        val methodOrig = origClient.javaClass.getMethod("onSessionError",
-                        Throwable::class.java)
-                        methodOrig.invoke(origClient, throwable)
+                        origClient.onSessionError(throwable)
                     }
                     "onResizeRequested" -> {
                         args!! // This method will always have an argument, so safe to !!
-
-                        val methodOrig = origClient.javaClass.getMethod("onResizeRequested",
-                                Int::class.java, Int::class.java)
-                        methodOrig.invoke(origClient, args[0], args[1])
+                        val width = args[0] as Int
+                        val height = args[1] as Int
+                        origClient.onResizeRequested(width, height)
                     }
-                    "toString" -> {
-                        origClient.javaClass.getMethod("toString").invoke(origClient)
-                    }
+                    "toString" -> origClient.toString()
                     else -> {
                         // TODO(b/282918647): Implement other methods required
                         throw UnsupportedOperationException(
@@ -179,52 +161,51 @@ object SandboxedUiAdapterFactory {
         }
 
         /**
-         * Create [SandboxedUiAdapter.Session] on [targetClassLoader] that proxies to [origClient]
+         * Create [SandboxedUiAdapter.Session] that proxies to [origSession]
          */
-        private inner class SessionProxyHandler(
-                private val origClient: Any,
-            ) : InvocationHandler {
+        private class SessionProxy(
+            private val origSession: Any,
+        ) : SandboxedUiAdapter.Session {
+
+            private val targetClass = Class.forName(
+                SandboxedUiAdapter.Session::class.java.name,
+                /* initialize = */ false,
+                origSession.javaClass.classLoader
+            ).also {
+                it.cast(origSession)
+            }
+
+            private val getViewMethod = targetClass.getMethod("getView")
+            private val notifyResizedMethod = targetClass.getMethod(
+                "notifyResized", Int::class.java, Int::class.java)
+            private val notifyZOrderChangedMethod =
+                targetClass.getMethod("notifyZOrderChanged", Boolean::class.java)
+            private val notifyConfigurationChangedMethod = targetClass.getMethod(
+                "notifyConfigurationChanged", Configuration::class.java)
+            private val closeMethod = targetClass.getMethod("close")
+
+            override val view: View
+                @SuppressLint("BanUncheckedReflection") // using reflection on library classes
+                get() = getViewMethod.invoke(origSession) as View
 
             @SuppressLint("BanUncheckedReflection") // using reflection on library classes
-            override fun invoke(proxy: Any, method: Method, args: Array<Any>?): Any? {
-                return when (method.name) {
-                    "close" -> {
-                        origClient.javaClass.getMethod("close").invoke(origClient)
-                    }
-                    "getView" -> {
-                        origClient.javaClass.getMethod("getView").invoke(origClient)
-                    }
-                    "notifyResized" -> {
-                        args!! // This method will always have an argument, so safe to !!
+            override fun notifyResized(width: Int, height: Int) {
+                notifyResizedMethod.invoke(origSession, width, height)
+            }
 
-                        val methodOrig = origClient.javaClass.getMethod("notifyResized",
-                                Int::class.java, Int::class.java)
-                        methodOrig.invoke(origClient, args[0], args[1])
-                    }
-                    "notifyZOrderChanged" -> {
-                        args!! // This method will always have an argument, so safe to !!
+            @SuppressLint("BanUncheckedReflection") // using reflection on library classes
+            override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                notifyZOrderChangedMethod.invoke(origSession, isZOrderOnTop)
+            }
 
-                        val methodOrig = origClient.javaClass.getMethod("notifyZOrderChanged",
-                                Boolean::class.java)
-                        methodOrig.invoke(origClient, args[0])
-                    }
-                    "notifyConfigurationChanged" -> {
-                        args!! // This method will always have an argument, so safe to !!
+            @SuppressLint("BanUncheckedReflection") // using reflection on library classes
+            override fun notifyConfigurationChanged(configuration: Configuration) {
+                notifyConfigurationChangedMethod.invoke(origSession, configuration)
+            }
 
-                        val methodOrig = origClient.javaClass.getMethod(
-                            "notifyConfigurationChanged", Configuration::class.java)
-                        methodOrig.invoke(origClient, args[0])
-                    }
-                    "toString" -> {
-                        origClient.javaClass.getMethod("toString").invoke(origClient)
-                    }
-                    else -> {
-                        // TODO(b/282918647): Implement other methods required
-                        throw UnsupportedOperationException(
-                            "Unexpected method call object:$proxy, method: $method, args: $args"
-                        )
-                    }
-                }
+            @SuppressLint("BanUncheckedReflection") // using reflection on library classes
+            override fun close() {
+                closeMethod.invoke(origSession)
             }
         }
     }
