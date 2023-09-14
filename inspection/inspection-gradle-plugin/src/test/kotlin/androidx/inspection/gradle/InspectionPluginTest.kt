@@ -17,15 +17,14 @@
 package androidx.inspection.gradle
 
 import androidx.testutils.gradle.ProjectSetupRule
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.apache.tools.zip.ZipFile
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,33 +36,33 @@ class InspectionPluginTest {
     val projectSetup = ProjectSetupRule()
 
     lateinit var gradleRunner: GradleRunner
-    lateinit var dxExecutable: String
 
     @Before
     fun setUp() {
-        val sdkDir = projectSetup.getSdkDirectory()
-        dxExecutable = File(sdkDir, "build-tools/${projectSetup.props.buildToolsVersion}/dx")
-            .absolutePath
-        File("src/test/test-data", "app-project").copyRecursively(projectSetup.rootDir)
-
+        File("src/test/test-data").copyRecursively(projectSetup.rootDir)
         gradleRunner = GradleRunner.create()
             .withProjectDir(projectSetup.rootDir)
             .withPluginClasspath()
     }
 
-    @Ignore // b/193918205
     @Test
-    fun applyInspection() {
-        File(projectSetup.rootDir, "settings.gradle")
-            .writeText("rootProject.name = \"test-inspector\"")
-        projectSetup.writeDefaultBuildGradle(
-            prefix = """
+    fun testInspectorJar() {
+        with(projectSetup) {
+            val prefix =
+                "import static androidx.inspection.gradle.InspectionPluginKt.packageInspector\n\n" +
+                "plugins { id(\"com.android.library\") }\n"
+            File(rootDir, "lib/build.gradle")
+                .writeText("$prefix\n\n" +
+                    "$repositories\n\n$androidProject\n${namespace("foox.lib")}\n" +
+                    "packageInspector(project, \":lib-inspector\")"
+                )
+            val inspectorPlugins = """
                 plugins {
                     id("com.android.library")
                     id("androidx.inspection")
                 }
-            """.trimIndent(),
-            suffix = """
+            """.trimIndent()
+            val suffix = """
                 dependencies {
                     implementation("androidx.inspection:inspection:1.0.0")
                 }
@@ -72,32 +71,31 @@ class InspectionPluginTest {
                         targetSdkVersion 30
                     }
                 }
-            """
-        )
-        val output = gradleRunner.withArguments("dexInspectorRelease", "--stacktrace").build()
-        assertEquals(output.task(":dexInspectorRelease")!!.outcome, TaskOutcome.SUCCESS)
-        val artifact = File(
-            projectSetup.rootDir,
-            "build/androidx_inspection/dexedInspector/release/test-inspector.jar"
-        )
+            """.trimIndent()
+
+            File(rootDir, "lib-inspector/build.gradle")
+                .writeText(
+                    "$inspectorPlugins\n$repositories\n\n$androidProject\n" +
+                        "${namespace("foox.lib.inspector")}\n$suffix"
+                )
+        }
+
+        val task = ":lib:assembleRelease"
+        val output = gradleRunner.withArguments(task).build()
+        assertEquals(output.task(task)!!.outcome, TaskOutcome.SUCCESS)
+        val artifact = File(projectSetup.rootDir, "lib/build/outputs/aar/lib-release.aar")
         assertTrue { artifact.exists() }
-        assertDeclaredInDex(artifact, "Ltest/inspector/TestInspector;")
-        assertDeclaredInDex(artifact, "Ltest/inspector/TestInspectorProtocol;")
-        assertDeclaredInDex(artifact, "Ldeps/test/inspector/com/google/protobuf/ByteString;")
-    }
-
-    // rely that classes should have a constructor and it is declared in class itself
-    private fun assertDeclaredInDex(artifact: File, className: String) {
-        val exec = Runtime.getRuntime().exec(
-            arrayOf(dxExecutable, "--find-usages", artifact.absolutePath, className, "<init>")
-        )
-        exec.waitFor()
-        assertEquals(exec.exitValue(), 0)
-
-        assertTrue {
-            BufferedReader(InputStreamReader(exec.inputStream)).readLines().any {
-                it.contains("<init> method declared")
+        val inspectorJar = ZipFile(artifact).use { aarFile ->
+            aarFile.entries.toList().find {
+                it.name == "inspector.jar"
             }
         }
+        assertNotNull(inspectorJar)
     }
 }
+
+private fun namespace(name: String) = """
+    android {
+         namespace "$name"
+    }
+""".trimIndent()
