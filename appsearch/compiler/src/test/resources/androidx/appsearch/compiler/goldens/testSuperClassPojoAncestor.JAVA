@@ -65,8 +65,8 @@ public final class $$__AppSearch__Gift$$__FooGift implements DocumentClassFactor
 
   @Override
   public Gift.FooGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     int scoreConv = genericDoc.getScore();
     String[] noteCopy = genericDoc.getPropertyStringArray("note");
     String noteConv = null;

@@ -70,8 +70,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String getIdConv = genericDoc.getId();
     String getNamespaceConv = genericDoc.getNamespace();
+    String getIdConv = genericDoc.getId();
     String[] getStr2Copy = genericDoc.getPropertyStringArray("str2");
     String getStr2Conv = null;
     if (getStr2Copy != null && getStr2Copy.length != 0) {
