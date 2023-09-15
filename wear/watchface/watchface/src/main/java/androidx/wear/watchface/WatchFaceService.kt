@@ -1416,6 +1416,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                             "${it.params.instanceId} and constructed instance id " +
                                             params.instanceId
                                     }
+                                    Log.d(TAG, "onInteractiveWatchFaceCreated: $instance")
                                     it.callback.onInteractiveWatchFaceCreated(instance)
                                 }
                         } catch (e: Exception) {
@@ -1462,6 +1463,7 @@ public abstract class WatchFaceService : WallpaperService() {
                                     pendingWallpaperInstance.params,
                                     "Boot with pendingWallpaperInstance"
                                 )
+                            Log.d(TAG, "onInteractiveWatchFaceCreated: $instance")
                             pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
                                 instance
                             )
@@ -1507,6 +1509,7 @@ public abstract class WatchFaceService : WallpaperService() {
         ) {
             uiThreadCoroutineScope.launch {
                 try {
+                    Log.d(TAG, "attachToParameterlessEngine onInteractiveWatchFaceCreated")
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
                         createInteractiveInstance(
                             pendingWallpaperInstance.params,
@@ -2110,6 +2113,7 @@ public abstract class WatchFaceService : WallpaperService() {
             _createdBy: String
         ): InteractiveWatchFaceImpl =
             TraceEvent("EngineWrapper.createInteractiveInstance").use {
+                Log.d(TAG, "createInteractiveInstance: " + _createdBy)
                 mainThreadPriorityDelegate.setInteractivePriority()
 
                 require(!watchFaceCreatedOrPending()) {
