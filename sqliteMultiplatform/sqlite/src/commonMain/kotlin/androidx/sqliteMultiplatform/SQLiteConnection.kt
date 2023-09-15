@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-// see ../playground-common/README.md for details on how this works
-pluginManagement {
-    apply from: "../playground-common/configure-plugin-management.gradle", to: it
-}
-plugins {
-    id "playground"
-}
+package androidx.sqliteMultiplatform
 
-rootProject.name = "room-playground"
-
-playground {
-    setupPlayground("..")
-    selectProjectsFromAndroidX({ name ->
-        if (name.startsWith(":room")) return true
-        if (name.startsWith(":sqlite:") && !name.contains("inspection")) return true
-        return false
-    })
+/**
+ * SQLite connection definition
+ *
+ * See also [Database Connection](https://www.sqlite.org/c3ref/sqlite3.html)
+ */
+interface SQLiteConnection {
+    fun prepare(sql: String): SQLiteStatement
+    fun close()
 }
