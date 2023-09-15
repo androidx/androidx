@@ -16,6 +16,8 @@
 
 package androidx.core.telecom.test
 
+import android.media.AudioManager.AudioRecordingCallback
+import android.media.AudioRecord
 import android.telecom.CallEndpoint
 import android.telecom.DisconnectCause
 import android.view.LayoutInflater
@@ -31,10 +33,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @RequiresApi(34)
-class CallListAdapter(private var mList: ArrayList<CallRow>?) :
-    RecyclerView.Adapter<CallListAdapter.ViewHolder>() {
+class CallListAdapter(
+    private var mList: ArrayList<CallRow>?,
+    private var mAudioRecord: AudioRecord? = null
+) : RecyclerView.Adapter<CallListAdapter.ViewHolder>() {
     var mCallIdToViewHolder: MutableMap<String, ViewHolder> = mutableMapOf()
     private val CONTROL_ACTION_FAILED_MSG = "CurrentState=[FAILED-T]"
+    internal var mAudioRecordingCallback: AudioRecordingCallback? = null
 
     class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
         // TextViews
@@ -79,6 +84,11 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
 
             holder.activeButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
+                    // If the audio is not already recording, start it up (i.e. if call was set
+                    // to inactive just before).
+                    if (mAudioRecord?.recordingState != AudioRecord.RECORDSTATE_RECORDING) {
+                        mAudioRecord?.startRecording()
+                    }
                     when (ItemsViewModel.callObject.mCallControl!!.setActive()) {
                         is CallControlResult.Success -> {
                             holder.currentState.text = "CurrentState=[active]"
@@ -93,6 +103,8 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
 
             holder.holdButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
+                    // Pause recording but don't clear callback
+                    mAudioRecord?.stop()
                     when (ItemsViewModel.callObject.mCallControl!!.setInactive()) {
                         is CallControlResult.Success -> {
                             holder.currentState.text = "CurrentState=[onHold]"
@@ -107,6 +119,7 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
 
             holder.disconnectButton.setOnClickListener {
                 CoroutineScope(Dispatchers.IO).launch {
+                    endAudioRecording()
                     ItemsViewModel.callObject.mCallControl?.disconnect(
                         DisconnectCause(
                             DisconnectCause.LOCAL
@@ -182,6 +195,18 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
         CoroutineScope(Dispatchers.Main).launch {
             val holder = mCallIdToViewHolder[callId]
             holder?.currentEndpoint?.text = "currentEndpoint=[$endpoint]"
+        }
+    }
+
+    private fun endAudioRecording() {
+        try {
+            // Stop audio recording
+            mAudioRecord?.stop()
+            mAudioRecord?.unregisterAudioRecordingCallback(mAudioRecordingCallback!!)
+        } catch (e: java.lang.Exception) {
+            // pass through
+        } finally {
+            mAudioRecordingCallback = null
         }
     }
 }
