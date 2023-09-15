@@ -84,7 +84,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     content: @Composable () -> Unit,
 ) {
     val animatedWidth by animateDpAsState(
-        targetValue = if (doesNavigationDrawerHaveFocus) {
+        targetValue = if (hasFocus) {
             NavigationDrawerItemDefaults.ExpandedDrawerItemWidth
         } else {
             NavigationDrawerItemDefaults.CollapsedDrawerItemWidth
@@ -101,7 +101,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
         onClick = onClick,
         headlineContent = {
             AnimatedVisibility(
-                visible = doesNavigationDrawerHaveFocus,
+                visible = hasFocus,
                 enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
                 exit = NavigationDrawerItemDefaults.ContentAnimationExit,
             ) {
@@ -116,7 +116,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
         trailingContent = trailingContent?.let {
             {
                 AnimatedVisibility(
-                    visible = doesNavigationDrawerHaveFocus,
+                    visible = hasFocus,
                     enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
                     exit = NavigationDrawerItemDefaults.ContentAnimationExit,
                 ) {
@@ -127,7 +127,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
         supportingContent = supportingContent?.let {
             {
                 AnimatedVisibility(
-                    visible = doesNavigationDrawerHaveFocus,
+                    visible = hasFocus,
                     enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
                     exit = NavigationDrawerItemDefaults.ContentAnimationExit,
                 ) {
@@ -155,7 +155,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
         onLongClick = onLongClick,
         tonalElevation = tonalElevation,
         shape = shape.toToggleableListItemShape(),
-        colors = colors.toToggleableListItemColors(doesNavigationDrawerHaveFocus),
+        colors = colors.toToggleableListItemColors(hasFocus),
         scale = scale.toToggleableListItemScale(),
         border = border.toToggleableListItemBorder(),
         glow = glow.toToggleableListItemGlow(),

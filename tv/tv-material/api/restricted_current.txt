@@ -747,8 +747,8 @@ package androidx.tv.material3 {
   }
 
   @SuppressCompatibility @androidx.tv.material3.ExperimentalTvMaterial3Api public interface NavigationDrawerScope {
-    method public boolean getDoesNavigationDrawerHaveFocus();
-    property public abstract boolean doesNavigationDrawerHaveFocus;
+    method public boolean getHasFocus();
+    property public abstract boolean hasFocus;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class NonInteractiveSurfaceColors {
