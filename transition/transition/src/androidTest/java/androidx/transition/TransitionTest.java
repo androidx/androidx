@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -56,6 +57,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class TransitionTest extends BaseTest {
@@ -431,6 +434,86 @@ public class TransitionTest extends BaseTest {
         rule.runOnUiThread(() -> {
             assertEquals(2, startCount[0]);
         });
+    }
+
+    // A listener removed from the parent is also removed from the child.
+    @Test
+    public void removedListenerNotNotifying() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        final Transition slide = new Slide();
+        slide.setDuration(1);
+        final CountDownLatch latch1 = new CountDownLatch(1);
+        final CountDownLatch latch2 = new CountDownLatch(1);
+        final TransitionListenerAdapter listener1 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch1.countDown();
+            }
+        };
+        final TransitionListenerAdapter listener2 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                transition.addListener(listener1);
+                slide.removeListener(this);
+                slide.removeListener(listener1); // should do nothing
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch2.countDown();
+            }
+        };
+        slide.addListener(listener2);
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            view.setVisibility(View.INVISIBLE);
+        });
+        assertTrue(latch1.await(1, TimeUnit.SECONDS));
+        rule.runOnUiThread(() -> assertEquals(1, latch2.getCount()));
+    }
+
+    // A listener added to the parent is also added to the child.
+    @Test
+    public void addedListenerNotifying() throws Throwable {
+        rule.runOnUiThread(() -> {
+            mScenes[0].enter();
+        });
+        View view = rule.getActivity().findViewById(R.id.view0);
+
+        final Transition slide = new Slide();
+        slide.setDuration(1);
+        final CountDownLatch latch1 = new CountDownLatch(1);
+        final CountDownLatch latch2 = new CountDownLatch(1);
+        final TransitionListenerAdapter listener1 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch1.countDown();
+            }
+        };
+        final TransitionListenerAdapter listener2 = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                slide.addListener(listener1);
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
+                latch2.countDown();
+            }
+        };
+        slide.addListener(listener2);
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            view.setVisibility(View.INVISIBLE);
+        });
+        assertTrue(latch1.await(1, TimeUnit.SECONDS));
+        assertTrue(latch2.await(1, TimeUnit.SECONDS));
     }
 
     private void showInitialScene() throws Throwable {
