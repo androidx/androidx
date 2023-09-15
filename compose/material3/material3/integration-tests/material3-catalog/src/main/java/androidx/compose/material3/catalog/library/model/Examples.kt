@@ -21,9 +21,9 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldCustomConfigSample
-import androidx.compose.material3.adaptive.samples.NavigationSuiteScaffoldSample
-import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
 import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
@@ -728,7 +728,7 @@ val NavigationDrawerExamples = listOf(
 
 private const val NavigationSuiteScaffoldExampleDescription = "Navigation suite scaffold examples"
 private const val NavigationSuiteScaffoldExampleSourceUrl =
-    "$AdaptiveSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
+    "$AdaptiveNavigationSuiteSampleSourceUrl/NavigationSuiteScaffoldSamples.kt"
 val NavigationSuiteScaffoldExamples =
     listOf(
         Example(

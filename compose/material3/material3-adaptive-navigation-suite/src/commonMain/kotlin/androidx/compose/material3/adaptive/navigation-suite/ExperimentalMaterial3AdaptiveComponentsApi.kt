@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive
+package androidx.compose.material3.adaptive.navigation.suite
 
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
-internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo = WindowAdaptiveInfo(
-    windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 1000.dp)),
-    posture = Posture()
+@RequiresOptIn(
+    "This material3-adaptive-navigation-suite API is experimental and is likely to" +
+        "change or to be removed in the future."
 )
+@Retention(AnnotationRetention.BINARY)
+annotation class ExperimentalMaterial3AdaptiveNavigationSuiteApi

@@ -18,7 +18,7 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
-import androidx.compose.material3.catalog.library.util.AdaptiveMaterial3SourceUrl
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -254,7 +254,7 @@ private val NavigationSuiteScaffold = Component(
     // No navigation suite scaffold icon
     guidelinesUrl = "", // TODO: Add guidelines url when available
     docsUrl = "", // TODO: Add docs url when available
-    sourceUrl = "$AdaptiveMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    sourceUrl = "$AdaptiveNavigationSuiteMaterial3SourceUrl/NavigationSuiteScaffold.kt",
     examples = NavigationSuiteScaffoldExamples
 )
 
