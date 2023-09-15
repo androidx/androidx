@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.getSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.core.util.Preconditions
 
 /**
  * An interface for retrieving Camera2-related camera information.
@@ -32,7 +31,7 @@ import androidx.core.util.Preconditions
 @ExperimentalCamera2Interop
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CameraInfo private constructor(
-    private val cameraProperties: CameraProperties,
+    internal val cameraProperties: CameraProperties,
 ) {
 
     /**
@@ -73,6 +72,31 @@ class Camera2CameraInfo private constructor(
 
     fun getCameraId(): String = cameraProperties.cameraId.value
 
+    /**
+     * Returns a map consisting of the camera ids and the
+     * [android.hardware.camera2.CameraCharacteristics]s.
+     *
+     * For every camera, the map contains at least the CameraCharacteristics for the camera id.
+     * If the camera is logical camera, it will also contain associated physical camera ids and
+     * their CameraCharacteristics.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getCameraCharacteristicsMap(): Map<String, CameraCharacteristics> {
+        return buildMap {
+            put(
+                cameraProperties.cameraId.value,
+                cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
+            )
+            for (cameraId in cameraProperties.metadata.physicalCameraIds) {
+                put(
+                    cameraId.value,
+                    cameraProperties.metadata.awaitPhysicalMetadata(cameraId)
+                        .unwrapAs(CameraCharacteristics::class)!!
+                )
+            }
+        }
+    }
+
     companion object {
 
         /**
@@ -87,11 +111,10 @@ class Camera2CameraInfo private constructor(
         @JvmStatic
         fun from(@Suppress("UNUSED_PARAMETER") cameraInfo: CameraInfo): Camera2CameraInfo {
             var cameraInfoImpl = (cameraInfo as CameraInfoInternal).implementation
-            Preconditions.checkArgument(
-                cameraInfoImpl is CameraInfoAdapter,
+            require(cameraInfoImpl is CameraInfoAdapter) {
                 "CameraInfo doesn't contain Camera2 implementation."
-            )
-            return (cameraInfoImpl as CameraInfoAdapter).camera2CameraInfo
+            }
+            return cameraInfoImpl.camera2CameraInfo
         }
 
         /**
@@ -100,5 +123,29 @@ class Camera2CameraInfo private constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun create(cameraProperties: CameraProperties) = Camera2CameraInfo(cameraProperties)
+
+        /**
+         * Returns the [android.hardware.camera2.CameraCharacteristics] for this camera.
+         *
+         * The CameraCharacteristics will be the ones that would be obtained by
+         * [android.hardware.camera2.CameraManager.getCameraCharacteristics]. The
+         * CameraCharacteristics that are retrieved are not static and can change depending on the
+         * current internal configuration of the camera.
+         *
+         * @param cameraInfo The [CameraInfo] to extract the CameraCharacteristics from.
+         * @throws IllegalStateException if the camera info does not contain the camera 2
+         *                               characteristics(e.g., if CameraX was not initialized with a
+         *                               [androidx.camera.camera2.Camera2Config]).
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        fun extractCameraCharacteristics(cameraInfo: CameraInfo): CameraCharacteristics {
+            var cameraInfoImpl = (cameraInfo as CameraInfoInternal).implementation
+            require(cameraInfoImpl is CameraInfoAdapter) {
+                "CameraInfo doesn't contain Camera2 implementation."
+            }
+            return cameraInfoImpl.camera2CameraInfo
+                .cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
+        }
     }
 }
