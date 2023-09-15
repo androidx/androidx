@@ -68,7 +68,10 @@ class TwoWayIpcConnection(
         }
     }
 
-    fun disconnect() {
+    suspend fun disconnect() {
+        sendMessage(Message.obtain().also {
+            it.what = TwoWayIpcService.MSG_DESTROY_SUBJECTS
+        })
         context.unbindService(this)
     }
 
