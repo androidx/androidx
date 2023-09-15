@@ -31,6 +31,7 @@ import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RecomposeScopeOwner
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
@@ -184,12 +185,12 @@ internal sealed class Operation(
         ) {
             val value = getObject(Value)
             val groupSlotIndex = getInt(GroupSlotIndex)
-            if (value is RememberObserver) {
-                rememberManager.remembering(value)
+            if (value is RememberObserverHolder) {
+                rememberManager.remembering(value.wrapped)
             }
             when (val previous = slots.set(groupSlotIndex, value)) {
-                is RememberObserver ->
-                    rememberManager.forgetting(previous)
+                is RememberObserverHolder ->
+                    rememberManager.forgetting(previous.wrapped)
                 is RecomposeScopeImpl -> previous.release()
             }
         }
