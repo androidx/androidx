@@ -372,6 +372,11 @@ object BottomSheetDefaults {
     val SheetPeekHeight = 56.dp
 
     /**
+     * The default max width used by [ModalBottomSheet] and [BottomSheetScaffold]
+     */
+    val SheetMaxWidth = 640.dp
+
+    /**
      * Default insets to be used and consumed by the [ModalBottomSheet] window.
      */
     val windowInsets: WindowInsets
@@ -495,4 +500,3 @@ internal fun rememberSheetState(
 }
 
 private val DragHandleVerticalPadding = 22.dp
-internal val BottomSheetMaxWidth = 640.dp
