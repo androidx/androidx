@@ -279,8 +279,10 @@ private fun Configuration.setupReleaseAttribute() {
 
 @ExperimentalStdlibApi
 private fun generateProguardDetectionFile(libraryProject: Project) {
-    val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
-    libExtension.libraryVariants.all { variant ->
+    val componentsExtension =
+        libraryProject.extensions.findByType(AndroidComponentsExtension::class.java)
+            ?: throw GradleException("android plugin must be used")
+    componentsExtension.onVariants { variant ->
         libraryProject.registerGenerateProguardDetectionFileTask(variant)
     }
 }
