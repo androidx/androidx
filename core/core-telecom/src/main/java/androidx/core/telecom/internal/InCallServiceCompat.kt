@@ -30,14 +30,26 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.CapabilityExchange
+import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
+import androidx.core.telecom.util.ExperimentalAppActions
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeout
 
 /**
  * This class defines the Jetpack ICS layer which will be leveraged as part of supporting VOIP app
  * actions.
  */
-@RequiresApi(Build.VERSION_CODES.M)
+@ExperimentalAppActions
+@RequiresApi(Build.VERSION_CODES.O)
 internal class InCallServiceCompat(context: Context) : InCallService() {
     private val mContext: Context = context
+    private val mSupportedCapabilities = mutableListOf(Capability())
 
     companion object {
         /**
@@ -51,6 +63,11 @@ internal class InCallServiceCompat(context: Context) : InCallService() {
         internal const val EXTRAS = 1
         internal const val CAPABILITY_EXCHANGE = 2
         internal const val UNKNOWN = 3
+
+        /**
+         * Current capability exchange version
+         */
+        internal const val CAPABILITY_EXCHANGE_VERSION = 1
 
         private val TAG = InCallServiceCompat::class.simpleName
     }
@@ -95,8 +112,6 @@ internal class InCallServiceCompat(context: Context) : InCallService() {
      * @return the extension type [InCallServiceCompat.CapabilityExchangeType] resolved for the
      * call.
      */
-    @RequiresApi(Build.VERSION_CODES.O)
-    @CapabilityExchangeType
     internal fun resolveCallExtensionsType(call: Call): Int {
         var callDetails = call.details
         val callExtras = callDetails?.extras ?: Bundle()
@@ -124,5 +139,81 @@ internal class InCallServiceCompat(context: Context) : InCallService() {
 
         Log.i(TAG, "Unable to resolve call extension type. Returning $UNKNOWN.")
         return UNKNOWN
+    }
+
+    /**
+     * Initiate capability exchange negotiation between ICS and VOIP app. The acknowledgement begins
+     * when the ICS sends a call event with [CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE] to
+     * notify the VOIP app to begin capability exchange negotiation. At that point, 3 stages of
+     * acknowledgement are required between the two parties in order for negotiation to succeed.
+     *
+     * This entails the ICS side waiting for the VOIP app to communicate its supported capabilities,
+     * the VOIP side waiting for the ICS side to communicate its supported capabilities, and the
+     * VOIP side signaling the ICS side that feature setup (negotiation) is complete. If any one of
+     * the aforementioned stages of ACK fails (i.e. timeout), the negotiation will fail.
+     *
+     * Note: Negotiation is only supported by InCallServices that support capability exchange
+     * ([InCallServiceCompat.CAPABILITY_EXCHANGE]).
+     *
+     * @param call to initiate capability exchange for.
+     * @return the capability negotiation status.
+     * between the ICS and VOIP app.
+     */
+    internal suspend fun initiateICSCapabilityExchange(call: Call): Boolean {
+        Log.i(TAG, "initiateICSCapabilityExchange: " +
+            "Starting capability negotiation with VOIP app...")
+
+        // Initialize binder for facilitating IPC (capability exchange) between ICS and VOIP app
+        // and notify VOIP app via a call event.
+        val capExchange = CapabilityExchange()
+        val extras = Bundle()
+        extras.putBinder(CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER, capExchange)
+        extras.putInt(CallsManager.EXTRA_CAPABILITY_EXCHANGE_VERSION, CAPABILITY_EXCHANGE_VERSION)
+        call.sendCallEvent(CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
+
+        // Launch a new coroutine from the context of the current coroutine and wait for task to
+        // complete.
+        return CoroutineScope(coroutineContext).async {
+            beginCapabilityNegotiationAck(capExchange)
+        }.await()
+    }
+
+    /**
+     * Helper to start acknowledgement process for capability negotiation between the ICS and VOIP
+     * app.
+     */
+    private suspend fun beginCapabilityNegotiationAck(capExchange: CapabilityExchange): Boolean {
+        var negotiationAckStatus = false
+        try {
+            withTimeout(CapabilityExchangeUtils.CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT) {
+                // Wait for VOIP app to return its supported capabilities.
+                if (capExchange.negotiatedCapabilitiesLatch.await(
+                        CapabilityExchangeUtils.CAPABILITY_EXCHANGE_TIMEOUT,
+                        TimeUnit.MILLISECONDS)) {
+                    // Respond back to the VOIP app with the InCallService's supported
+                    // capabilities (stub empty capabilities until implementation is supported).
+                    capExchange.capabilityExchangeListener
+                        .onCapabilitiesNegotiated(mSupportedCapabilities)
+                    // Ensure that feature setup is signaled from VOIP app side.
+                    if (capExchange.featureSetUpCompleteLatch.await(
+                            CapabilityExchangeUtils.CAPABILITY_EXCHANGE_TIMEOUT,
+                            TimeUnit.MILLISECONDS)) {
+                        Log.i(TAG, "initiateICSCapabilityExchange: " +
+                            "Completed capability exchange feature set up.")
+                        negotiationAckStatus = true
+                    }
+                }
+
+                // Report negotiation acknowledgement failure, if it occurred.
+                if (!negotiationAckStatus) {
+                    Log.i(TAG, "initiateICSCapabilityExchange: Unable to complete capability " +
+                            "exchange feature set up.")
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            Log.i(TAG, "initiateICSCapabilityExchange: Capability negotiation job timed " +
+                "out in ICS side.")
+        }
+        return negotiationAckStatus
     }
 }

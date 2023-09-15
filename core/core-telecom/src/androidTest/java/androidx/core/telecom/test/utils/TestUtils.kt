@@ -326,19 +326,26 @@ object TestUtils {
      */
     suspend fun waitOnCallExtras(call: Call) {
         try {
-            withTimeout(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT) {
-                while (isActive /* aka  within timeout window */ && (
-                        call.details?.extras == null || call.details.extras.isEmpty)) {
+            withTimeout(WAIT_ON_CALL_STATE_TIMEOUT) {
+                while (isActive /* aka  within timeout window */ && isCallDetailExtrasEmpty(call)) {
                     yield() // another mechanism to stop the while loop if the coroutine is dead
                     delay(1) // sleep x millisecond(s) instead of spamming check
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            Log.i(TestUtils.LOG_TAG, "waitOnCallExtras: timeout reached")
-            TestUtils.dumpTelecom()
+            Log.i(LOG_TAG, "waitOnCallExtras: timeout reached")
+            dumpTelecom()
             MockInCallService.destroyAllCalls()
             throw AssertionError("Expected call detail extras to be non-null.")
         }
+    }
+
+    /**
+     * Helper used to determine if the call detail extras is empty or null, which is used as a basis
+     * for waiting in the voip app action tests (around capability exchange).
+     */
+    private fun isCallDetailExtrasEmpty(call: Call): Boolean {
+        return call.details?.extras == null || call.details.extras.isEmpty
     }
 
     /**
