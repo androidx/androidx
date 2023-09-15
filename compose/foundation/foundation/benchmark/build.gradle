@@ -53,10 +53,6 @@ tasks.withType(KotlinCompile).configureEach {
 
 android {
     namespace "androidx.compose.foundation.benchmark"
-    defaultConfig {
-        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
-        testInstrumentationRunnerArguments["androidx.benchmark.profiling.mode"]= 'None'
-    }
 }
 
 androidx {

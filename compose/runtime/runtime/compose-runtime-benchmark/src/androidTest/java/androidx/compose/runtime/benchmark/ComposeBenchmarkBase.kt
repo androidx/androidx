@@ -21,7 +21,6 @@ import androidx.activity.compose.setContent
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.MetricCapture
 import androidx.benchmark.MicrobenchmarkConfig
-import androidx.benchmark.ProfilerConfig
 import androidx.benchmark.TimeCapture
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.runtime.Composable
@@ -112,7 +111,6 @@ abstract class ComposeBenchmarkBase {
                     }
                 }
             ),
-            profiler = ProfilerConfig.MethodTracing(),
         )
     )
 
