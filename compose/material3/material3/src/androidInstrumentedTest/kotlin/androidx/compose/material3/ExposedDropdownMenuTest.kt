@@ -16,10 +16,6 @@
 
 package androidx.compose.material3
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
-import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -34,7 +30,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +44,6 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -66,6 +60,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -79,19 +74,11 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
-@RunWith(Parameterized::class)
-class ExposedDropdownMenuTest(
-    private val softInputMode: SoftInputMode,
-) {
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun parameters() = SoftInputMode.values()
-    }
+@RunWith(AndroidJUnit4::class)
+class ExposedDropdownMenuTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -106,7 +93,6 @@ class ExposedDropdownMenuTest(
     fun edm_expandsOnClick_andCollapsesOnClickOutside() {
         var textFieldBounds = Rect.Zero
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -137,7 +123,6 @@ class ExposedDropdownMenuTest(
     @Test
     fun edm_collapsesOnTextFieldClick() {
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(true) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -158,7 +143,6 @@ class ExposedDropdownMenuTest(
     @Test
     fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -194,7 +178,6 @@ class ExposedDropdownMenuTest(
     @Test
     fun edm_expandsAndFocusesTextField_whenTrailingIconClicked() {
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -216,7 +199,6 @@ class ExposedDropdownMenuTest(
     fun edm_doesNotExpand_ifTouchEndsOutsideBounds() {
         var textFieldBounds = Rect.Zero
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -256,7 +238,6 @@ class ExposedDropdownMenuTest(
         val testIndex = 2
         var textFieldSize = IntSize.Zero
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -342,7 +323,6 @@ class ExposedDropdownMenuTest(
         lateinit var scrollState: ScrollState
         lateinit var scope: CoroutineScope
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             scrollState = rememberScrollState()
             scope = rememberCoroutineScope()
             Column(Modifier.verticalScroll(scrollState)) {
@@ -391,7 +371,6 @@ class ExposedDropdownMenuTest(
         var textFieldBounds by mutableStateOf(Rect.Zero)
         var menuBounds by mutableStateOf(Rect.Zero)
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(true) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -416,7 +395,6 @@ class ExposedDropdownMenuTest(
     @Test
     fun edm_collapsesWithSelection_whenMenuItemClicked() {
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             var expanded by remember { mutableStateOf(true) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
@@ -444,7 +422,6 @@ class ExposedDropdownMenuTest(
 
         rule.setMaterialContent(lightColorScheme()) {
             density = LocalDensity.current
-            SoftInputMode(softInputMode)
             Column(Modifier.fillMaxSize()) {
                 // Push the EDM down so opening the keyboard causes a pan/scroll
                 Spacer(Modifier.weight(1f))
@@ -487,7 +464,6 @@ class ExposedDropdownMenuTest(
     fun edm_doesNotCrash_whenAnchorDetachedFirst() {
         var parent: FrameLayout? = null
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             AndroidView(
                 factory = { context ->
                     FrameLayout(context).apply {
@@ -525,13 +501,11 @@ class ExposedDropdownMenuTest(
         // Should not have crashed.
     }
 
-    @Ignore("b/297059209")
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun edm_withScrolledContent() {
         lateinit var scrollState: ScrollState
         rule.setMaterialContent(lightColorScheme()) {
-            SoftInputMode(softInputMode)
             Box(Modifier.fillMaxSize()) {
                 ExposedDropdownMenuBox(
                     modifier = Modifier.align(Alignment.Center),
@@ -629,31 +603,4 @@ class ExposedDropdownMenuTest(
             }
         }
     }
-}
-
-enum class SoftInputMode {
-    AdjustResize,
-    AdjustPan
-}
-
-@Suppress("DEPRECATION")
-@Composable
-fun SoftInputMode(mode: SoftInputMode) {
-    val context = LocalContext.current
-    DisposableEffect(mode) {
-        val activity = context.findActivityOrNull() ?: return@DisposableEffect onDispose {}
-        val originalMode = activity.window.attributes.softInputMode
-        activity.window.setSoftInputMode(when (mode) {
-            SoftInputMode.AdjustResize -> WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            SoftInputMode.AdjustPan -> WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
-        })
-        onDispose {
-            activity.window.setSoftInputMode(originalMode)
-        }
-    }
-}
-
-private tailrec fun Context.findActivityOrNull(): Activity? {
-    return (this as? Activity)
-        ?: (this as? ContextWrapper)?.baseContext?.findActivityOrNull()
 }
