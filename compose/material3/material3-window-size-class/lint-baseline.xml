@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method calculateFromSize has parameter supportedWidthSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
+        errorLine1="            supportedWidthSizeClasses: Set&lt;WindowWidthSizeClass> ="
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method calculateFromSize has parameter supportedHeightSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
+        errorLine1="            supportedHeightSizeClasses: Set&lt;WindowHeightSizeClass> ="
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field DefaultSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;WindowWidthSizeClass> of getDefaultSizeClasses: replace with IntSet"
+        errorLine1="        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;WindowWidthSizeClass> of getStandardSizeClasses: replace with IntSet"
+        errorLine1="        val StandardSizeClasses get() = DefaultSizeClasses"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method fromWidth$lint_module has parameter supportedSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
+        errorLine1="            supportedSizeClasses: Set&lt;WindowWidthSizeClass>"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable sortedSizeClasses with type List&lt;? extends WindowWidthSizeClass>: replace with IntList"
+        errorLine1="            val sortedSizeClasses = supportedSizeClasses.sortedDescending()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field DefaultSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;WindowHeightSizeClass> of getDefaultSizeClasses: replace with IntSet"
+        errorLine1="        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;WindowHeightSizeClass> of getStandardSizeClasses: replace with IntSet"
+        errorLine1="        val StandardSizeClasses get() = DefaultSizeClasses"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method fromHeight$lint_module has parameter supportedSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
+        errorLine1="            supportedSizeClasses: Set&lt;WindowHeightSizeClass>"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable sortedSizeClasses with type List&lt;? extends WindowHeightSizeClass>: replace with IntList"
+        errorLine1="            val sortedSizeClasses = supportedSizeClasses.sortedDescending()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
+    </issue>
+
+</issues>

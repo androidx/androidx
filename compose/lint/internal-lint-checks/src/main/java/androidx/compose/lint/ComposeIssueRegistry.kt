@@ -35,6 +35,7 @@ class ComposeIssueRegistry : IssueRegistry() {
             UnnecessaryLambdaCreationDetector.ISSUE,
             PlatformReferenceInCommonModuleDetector.IMPORT_ISSUE,
             PlatformReferenceInCommonModuleDetector.REFERENCE_ISSUE,
+            PrimitiveInCollectionDetector.ISSUE,
             PrimitiveInLambdaDetector.ISSUE,
         )
     }
