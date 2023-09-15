@@ -155,6 +155,96 @@ public final class DynamicDataBuilders {
             return new FixedString.Builder().setValue(constant).build();
         }
 
+        /**
+         * Returns true if the {@link DynamicDataValue} contains an int value. Otherwise returns
+         * false.
+         */
+        default boolean hasIntValue(){
+            return false;
+        }
+
+        /**
+         * Returns the int value stored in this {@link DynamicDataValue}.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain an int
+         *     value.
+         */
+        default int getIntValue() {
+            throw new IllegalStateException("Type mismatch.");
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataValue} contains a color value. Otherwise returns
+         * false.
+         */
+        default boolean hasColorValue(){
+            return false;
+        }
+
+        /**
+         * Returns the color value stored in this {@link DynamicDataValue}.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain a color
+         *     value.
+         */
+        default @ColorInt int getColorValue() {
+            throw new IllegalStateException("Type mismatch.");
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataValue} contains a boolean value. Otherwise returns
+         * false.
+         */
+        default boolean hasBoolValue(){
+            return false;
+        }
+
+        /**
+         * Returns the boolean value stored in this {@link DynamicDataValue}.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain a boolean
+         *     value.
+         */
+        default boolean getBoolValue() {
+            throw new IllegalStateException("Type mismatch.");
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataValue} contains a float value. Otherwise returns
+         * false.
+         */
+        default boolean hasFloatValue(){
+            return false;
+        }
+
+        /**
+         * Returns the float value stored in this {@link DynamicDataValue}.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain a float
+         *     value.
+         */
+        default float getFloatValue() {
+            throw new IllegalStateException("Type mismatch.");
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataValue} contains a String value. Otherwise returns
+         * false.
+         */
+        default boolean hasStringValue(){
+            return false;
+        }
+
+        /**
+         * Returns the String value stored in this {@link DynamicDataValue}.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain a String
+         *     value.
+         */
+        default @NonNull String getStringValue() {
+            throw new IllegalStateException("Type mismatch.");
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
