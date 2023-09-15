@@ -47,6 +47,7 @@ import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,6 +84,7 @@ class LazyGridScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
             GridRemeasureTestCase(
@@ -95,6 +97,7 @@ class LazyGridScrollingBenchmark(
     }
 
     @Test
+    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed() {
         benchmarkRule.toggleStateBenchmark {
             GridRemeasureTestCase(
