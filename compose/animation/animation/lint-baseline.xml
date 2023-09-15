@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable constraintsMap with type Map&lt;S, Constraints>: replace with ObjectLongMap"
+        errorLine1="        val constraintsMap = remember { mutableMapOf&lt;S, Constraints>() }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor AnimatedContentMeasurePolicy has parameter constraintsMap with type Map&lt;S, Constraints>: replace with ObjectLongMap"
+        errorLine1="    val constraintsMap: MutableMap&lt;S, Constraints>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field constraintsMap with type Map&lt;S, Constraints>: replace with ObjectLongMap"
+        errorLine1="    val constraintsMap: MutableMap&lt;S, Constraints>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;S, Constraints> of getConstraintsMap: replace with ObjectLongMap"
+        errorLine1="    val constraintsMap: MutableMap&lt;S, Constraints>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimatedContent.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInLambda"
