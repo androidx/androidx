@@ -260,10 +260,7 @@ package androidx.compose.ui.autofill {
 package androidx.compose.ui.draganddrop {
 
   public final class DragAndDropEvent {
-    ctor public DragAndDropEvent(int type, android.view.DragEvent dragEvent);
-    method public int getType();
-    method public void setType(int);
-    property public final int type;
+    ctor public DragAndDropEvent(android.view.DragEvent dragEvent, optional androidx.collection.ArraySet<androidx.compose.ui.draganddrop.DragAndDropModifierNode> interestedNodes);
   }
 
   @kotlin.jvm.JvmInline public final value class DragAndDropEventType {
@@ -299,6 +296,18 @@ package androidx.compose.ui.draganddrop {
     property public final androidx.compose.ui.draganddrop.DragAndDropTransfer transfer;
   }
 
+  public interface DragAndDropModifierNode extends androidx.compose.ui.node.DelegatableNode androidx.compose.ui.draganddrop.DragAndDropTarget {
+    method public void drag(androidx.compose.ui.draganddrop.DragAndDropInfo dragAndDropInfo);
+  }
+
+  public final class DragAndDropNodeKt {
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget> onDragAndDropEvent);
+  }
+
+  public fun interface DragAndDropTarget {
+    method public boolean onDragAndDropEvent(androidx.compose.ui.draganddrop.DragAndDropEvent event, int type);
+  }
+
   public final class DragAndDropTransfer {
     ctor public DragAndDropTransfer(android.content.ClipData clipData, optional Object? localState, optional int flags);
     method public android.content.ClipData getClipData();
@@ -311,6 +320,7 @@ package androidx.compose.ui.draganddrop {
 
   public final class DragAndDrop_androidKt {
     method public static android.view.DragEvent getDragEvent(androidx.compose.ui.draganddrop.DragAndDropEvent);
+    method public static java.util.Set<java.lang.String> mimeTypes(androidx.compose.ui.draganddrop.DragAndDropEvent);
   }
 
 }
