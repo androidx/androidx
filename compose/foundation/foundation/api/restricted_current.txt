@@ -287,6 +287,26 @@ package androidx.compose.foundation {
 
 }
 
+package androidx.compose.foundation.draganddrop {
+
+  public final class AndroidDragAndDropSource_androidKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  public final class DragAndDropSourceKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDrawDragShadow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DragAndDropSourceScope extends androidx.compose.ui.input.pointer.PointerInputScope {
+    method public void startTransfer(androidx.compose.ui.draganddrop.DragAndDropTransfer transfer);
+  }
+
+  public final class DragAndDropTargetKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropTarget(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> onStarted, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> onDropped, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onEntered, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onMoved, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onChanged, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onExited, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onEnded);
+  }
+
+}
+
 package androidx.compose.foundation.gestures {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface AnchoredDragScope {
