@@ -37,6 +37,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
+                implementation(project(":collection:collection"))
             }
         }
 
@@ -77,7 +78,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation:1.1.0")
             }
         }
 
