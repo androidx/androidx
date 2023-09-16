@@ -43,7 +43,7 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation kotlin("test")
+                implementation kotlin("test-junit")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
             }
@@ -72,7 +72,6 @@ androidXMultiplatform {
                 api(libs.kotlinCoroutinesCore)
             }
         }
-
 
         androidMain {
             dependsOn(jvmMain)
