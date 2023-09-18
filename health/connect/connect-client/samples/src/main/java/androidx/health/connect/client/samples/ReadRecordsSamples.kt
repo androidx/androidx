@@ -22,6 +22,7 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -128,5 +129,31 @@ suspend fun ReadSleepSessions(
         )
     for (sleepRecord in response.records) {
         // Process each sleep record
+    }
+}
+
+@Sampled
+suspend fun ReadRecordsInBackground(
+    healthConnectClient: HealthConnectClient,
+    startTime: Instant,
+    endTime: Instant,
+) {
+    val grantedPermissions = healthConnectClient.permissionController.getGrantedPermissions()
+
+    // The permission should be requested and granted beforehand when the app is in foreground
+    if (PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND !in grantedPermissions) {
+        return
+    }
+
+    val response =
+        healthConnectClient.readRecords(
+            ReadRecordsRequest(
+                recordType = StepsRecord::class,
+                timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
+            )
+        )
+
+    for (stepsRecord in response.records) {
+        // Process each record
     }
 }

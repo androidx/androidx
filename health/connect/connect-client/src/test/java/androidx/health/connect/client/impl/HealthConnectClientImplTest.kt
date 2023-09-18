@@ -227,6 +227,22 @@ class HealthConnectClientImplTest {
     }
 
     @Test
+    fun getGrantedPermissions_backgroundRead() = runTest {
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+                    .build()
+            )
+        )
+
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
+
+        assertThat(response)
+            .containsExactly(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+    }
+
+    @Test
     fun insertRecords_steps() = runTest {
         fakeAhpServiceStub.insertDataResponse = InsertDataResponse(listOf("0"))
         val response = testBlocking {

@@ -63,16 +63,17 @@ class HealthConnectClientImpl
 internal constructor(
     private val delegate: HealthDataAsyncClient,
     private val allPermissions: List<String> =
-        buildList() {
+        buildList {
             addAll(
                 HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
-                    listOf<String>(
+                    listOf(
                         HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
                         HealthPermission.READ_PERMISSION_PREFIX + it.value
                     )
                 }
             )
             add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+            add(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
         },
 ) : HealthConnectClient, PermissionController {
 
