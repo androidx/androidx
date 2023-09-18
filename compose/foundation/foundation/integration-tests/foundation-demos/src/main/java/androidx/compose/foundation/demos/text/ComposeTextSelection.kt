@@ -33,7 +33,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -59,6 +58,18 @@ fun TextSelectionDemo() {
             Text(
                 modifier = textBorderModifier,
                 text = buildAnnotatedString {
+                    fun appendWithColor(color: Color, text: String) {
+                        withStyle(SpanStyle(color = color)) {
+                            append(text)
+                        }
+                    }
+
+                    fun appendCode(text: String) {
+                        withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
+                            append(text)
+                        }
+                    }
+
                     appendWithColor(Color.Green, "Green")
                     append(" borders represent a ")
                     appendCode("SelectionContainer")
@@ -305,17 +316,5 @@ fun OutlinedDisableSelection(content: @Composable () -> Unit) {
             .padding(1.dp)
     ) {
         DisableSelection(content)
-    }
-}
-
-internal fun AnnotatedString.Builder.appendWithColor(color: Color, text: String) {
-    withStyle(SpanStyle(color = color)) {
-        append(text)
-    }
-}
-
-internal fun AnnotatedString.Builder.appendCode(text: String) {
-    withStyle(SpanStyle(fontFamily = FontFamily.Monospace)) {
-        append(text)
     }
 }
