@@ -383,28 +383,25 @@ internal class ComposeAccessible(
 
         override fun getAccessibleRole(): AccessibleRole {
             controller?.notifyIsInUse()
-            when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
-                Role.Button -> return AccessibleRole.PUSH_BUTTON
-                Role.Checkbox -> return AccessibleRole.CHECK_BOX
-                Role.RadioButton -> return AccessibleRole.RADIO_BUTTON
+            val fromSemanticRole = when (semanticsNode.config.getOrNull(SemanticsProperties.Role)) {
+                Role.Button -> AccessibleRole.PUSH_BUTTON
+                Role.Checkbox -> AccessibleRole.CHECK_BOX
+                Role.RadioButton -> AccessibleRole.RADIO_BUTTON
                 Role.Tab -> AccessibleRole.PAGE_TAB
+                else -> null
                 // ?
                 //  Role.Switch ->
                 //  Role.Image ->
             }
-            if (isPassword) {
-                return AccessibleRole.PASSWORD_TEXT
+
+            return when {
+                fromSemanticRole != null -> fromSemanticRole
+                isPassword -> AccessibleRole.PASSWORD_TEXT
+                scrollBy != null -> AccessibleRole.SCROLL_PANE
+                setText != null -> AccessibleRole.TEXT
+                text != null -> AccessibleRole.LABEL
+                else -> AccessibleRole.PANEL
             }
-            if (scrollBy != null) {
-                return AccessibleRole.SCROLL_PANE
-            }
-            if (setText != null) {
-                return AccessibleRole.TEXT
-            }
-            if (text != null) {
-                return AccessibleRole.LABEL
-            }
-            return AccessibleRole.PANEL
         }
 
         override fun getAccessibleStateSet(): AccessibleStateSet {

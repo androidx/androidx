@@ -16,10 +16,15 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.assertThat
+import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import javax.accessibility.AccessibleRole
 import javax.accessibility.AccessibleText
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -56,4 +61,24 @@ class AccessibilityTest {
         assertEquals("world", accessibleText.getBeforeIndex(AccessibleText.WORD, 21))
         assertEquals("Hi world", accessibleText.getBeforeIndex(AccessibleText.SENTENCE, 21))
     }
+
+    @Test
+    fun tabHasPageTabAccessibleRole() {
+        rule.setContent {
+            TabRow(selectedTabIndex = 0) {
+                Tab(
+                    selected = true,
+                    onClick = { },
+                    modifier = Modifier.testTag("tab"),
+                    text = { Text("Tab") }
+                )
+            }
+        }
+
+        val node = rule.onNodeWithTag("tab").fetchSemanticsNode()
+        val accessibleNode = ComposeAccessible(node)
+        assertThat(accessibleNode.accessibleContext.accessibleRole)
+            .isEqualTo(AccessibleRole.PAGE_TAB)
+    }
+
 }
