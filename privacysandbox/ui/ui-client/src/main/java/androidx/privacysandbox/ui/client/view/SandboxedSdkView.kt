@@ -134,7 +134,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var previousWidth = -1
     private var previousHeight = -1
     private var currentClippingBounds = Rect()
-    private var currentConfig = context.resources.configuration
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
 
     /**
@@ -313,10 +312,16 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         } else {
             super.addView(contentView, 0, contentView.layoutParams)
         }
-        // Wait for the next frame commit before sending an ACTIVE state change to listeners.
-        viewTreeObserver.registerFrameCommitCallback {
-            stateListenerManager.currentUiSessionState =
-                SandboxedSdkUiSessionState.Active
+
+        // TODO(b/301605964): registerFrameCommitCallback not supported below API 29
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Wait for the next frame commit before sending an ACTIVE state change to listeners.
+            viewTreeObserver.registerFrameCommitCallback {
+                stateListenerManager.currentUiSessionState =
+                    SandboxedSdkUiSessionState.Active
+            }
+        } else {
+            stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
         }
 
         if (contentView is SurfaceView) {
@@ -408,13 +413,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         super.onDetachedFromWindow()
     }
 
+    // TODO(b/298658350): Cache previous config properly to avoid unnecessary binder calls
     override fun onConfigurationChanged(config: Configuration?) {
         requireNotNull(config) { "Config cannot be null" }
-        if (config == currentConfig) {
-            return
-        }
         super.onConfigurationChanged(config)
-        currentConfig = config
         client?.notifyConfigurationChanged(config)
         checkClientOpenSession()
     }
