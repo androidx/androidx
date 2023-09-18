@@ -40,13 +40,7 @@ public interface PreviewCapabilities {
      */
     boolean isStabilizationSupported();
 
-
     /** An empty implementation. */
     @NonNull
-    PreviewCapabilities EMPTY = new PreviewCapabilities() {
-        @Override
-        public boolean isStabilizationSupported() {
-            return false;
-        }
-    };
+    PreviewCapabilities EMPTY = () -> false;
 }
