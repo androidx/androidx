@@ -155,9 +155,6 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Scrollable Column Text Selection") {
                     TextScrollableColumnSelectionDemo()
                 },
-                ComposableDemo("Selection Minimum Touch Target") {
-                    MinTouchTargetTextSelection()
-                },
             )
         ),
         DemoCategory(
