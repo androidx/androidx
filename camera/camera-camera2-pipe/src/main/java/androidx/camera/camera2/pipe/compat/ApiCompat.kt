@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -314,6 +315,13 @@ internal object Api31Compat {
 
     @JvmStatic
     @DoNotInline
+    fun getCameraExtensionCharacteristics(
+        cameraManager: CameraManager,
+        cameraId: String
+    ): CameraExtensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
+
+    @JvmStatic
+    @DoNotInline
     fun newExtensionSessionConfiguration(
         extensionMode: Int,
         outputs: List<OutputConfiguration?>,
@@ -322,6 +330,29 @@ internal object Api31Compat {
     ): ExtensionSessionConfiguration {
         return ExtensionSessionConfiguration(extensionMode, outputs, executor, stateCallback)
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getSupportedExtensions(
+        extensionCharacteristics: CameraExtensionCharacteristics
+    ): List<Int> = extensionCharacteristics.supportedExtensions
+
+    @JvmStatic
+    @DoNotInline
+    fun getExtensionSupportedSizes(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        imageFormat: Int
+    ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, imageFormat)
+
+    @JvmStatic
+    @DoNotInline
+    fun getExtensionSupportedSizes(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        klass: Class<*>
+    ): List<Size> =
+        extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -379,4 +410,30 @@ internal object Api33Compat {
     fun getTimestampBase(outputConfig: OutputConfiguration): Int {
         return outputConfig.timestampBase
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableCaptureRequestKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Set<CaptureRequest.Key<Any>> =
+        extensionCharacteristics.getAvailableCaptureRequestKeys(extension)
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableCaptureResultKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Set<CaptureResult.Key<Any>> =
+        extensionCharacteristics.getAvailableCaptureResultKeys(extension)
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+internal object Api34Compat {
+    @JvmStatic
+    @DoNotInline
+    fun isPostviewAvailable(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Boolean = extensionCharacteristics.isPostviewAvailable(extension)
 }
