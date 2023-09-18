@@ -87,14 +87,30 @@ public class Utils {
     /**
      * Checks if the given AssetFileDescriptor passes certain conditions.
      */
-    public static void checkAssetFileDescriptor(@NonNull AssetFileDescriptor afd) {
-        if (afd.getStartOffset() != 0) {
-            throw new UnsupportedOperationException(
-                    "AssetFileDescriptor.getStartOffset() != 0");
+
+    public static void checkAssetFileDescriptor(@NonNull AssetFileDescriptor afd,
+            boolean allowUnknownLength) {
+        if (afd.getStartOffset() < 0) {
+            throw new IllegalArgumentException(
+                    "AssetFileDescriptor offset should be >= 0");
         }
-        if (afd.getLength() < 0) {
+        if (afd.getLength() != AssetFileDescriptor.UNKNOWN_LENGTH && afd.getLength() < 0) {
+            throw new IllegalArgumentException(
+                    "AssetFileDescriptor should have valid length");
+        }
+        if (afd.getDeclaredLength() != AssetFileDescriptor.UNKNOWN_LENGTH
+                && afd.getDeclaredLength() < 0) {
+            throw new IllegalArgumentException(
+                    "AssetFileDescriptor should have valid declared length");
+        }
+        if (afd.getLength() == AssetFileDescriptor.UNKNOWN_LENGTH && afd.getStartOffset() != 0) {
             throw new UnsupportedOperationException(
-                    "AssetFileDescriptor.getLength() should be >=0");
+                    "AssetFileDescriptor offset should be 0 for unknown length");
+        }
+
+        if (!allowUnknownLength && afd.getLength() == AssetFileDescriptor.UNKNOWN_LENGTH) {
+            throw new UnsupportedOperationException(
+                    "AssetFileDescriptor should have known length");
         }
     }
 
@@ -155,7 +171,7 @@ public class Utils {
             boolean truncate)
             throws IOException, LengthLimitExceededException {
         try {
-            Utils.checkAssetFileDescriptor(afd);
+            Utils.checkAssetFileDescriptor(afd, /*allowUnknownLength=*/ false);
             int lengthToRead = (int) afd.getLength();
             if (afd.getLength() > maxLength) {
                 if (truncate) {

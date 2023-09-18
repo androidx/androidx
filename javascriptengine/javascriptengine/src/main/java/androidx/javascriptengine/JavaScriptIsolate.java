@@ -16,7 +16,9 @@
 
 package androidx.javascriptengine;
 
+import android.content.res.AssetFileDescriptor;
 import android.os.Binder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -37,7 +39,7 @@ import java.util.concurrent.Executor;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
- * Environment within a {@link JavaScriptSandbox} where Javascript is executed.
+ * Environment within a {@link JavaScriptSandbox} where JavaScript is executed.
  * <p>
  * A single {@link JavaScriptSandbox} process can contain any number of {@link JavaScriptIsolate}
  * instances where JS can be evaluated independently and in parallel.
@@ -207,6 +209,74 @@ public final class JavaScriptIsolate implements AutoCloseable {
         Objects.requireNonNull(code);
         synchronized (mLock) {
             return mIsolateState.evaluateJavaScriptAsync(code);
+        }
+    }
+
+    /**
+     * Reads and evaluates the JavaScript code in the file described by the given
+     * AssetFileDescriptor.
+     * <p>
+     * Please refer to the documentation of {@link #evaluateJavaScriptAsync(String)} as the
+     * behavior of this method is similar other than for the input type.
+     * <p>
+     * This API exposes the underlying file to the service. In case the service process is
+     * compromised for unforeseen reasons, it might be able to read from the {@code
+     * AssetFileDescriptor} beyond the given length and offset.  This API does <strong> not
+     * </strong> close the given {@code AssetFileDescriptor}.
+     * <p>
+     * <strong>Note: The underlying file must be UTF-8 encoded.</strong>
+     * <p>
+     * This overload is useful when the source of the data is easily readable as a
+     * {@code AssetFileDescriptor}, e.g. an asset or raw resource.
+     *
+     * @param afd An {@code AssetFileDescriptor} for a file containing UTF-8 encoded JavaScript
+     *            code that is evaluated. Returns a String or a Promise of a String in case
+     *            {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported
+     * @return Future that evaluates to the result String of the evaluation or exceptions (see
+     * {@link JavaScriptException} and subclasses) if there is an error
+     */
+    @SuppressWarnings("NullAway")
+    @NonNull
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD,
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull AssetFileDescriptor afd) {
+        Objects.requireNonNull(afd);
+        synchronized (mLock) {
+            return mIsolateState.evaluateJavaScriptAsync(afd);
+        }
+    }
+
+    /**
+     * Reads and evaluates the JavaScript code in the file described by the given
+     * {@code ParcelFileDescriptor}.
+     * <p>
+     * Please refer to the documentation of {@link #evaluateJavaScriptAsync(String)} as the
+     * behavior of this method is similar other than for the input type.
+     * <p>
+     * This API exposes the underlying file to the service. In case the service process is
+     * compromised for unforeseen reasons, it might be able to read from the {@code
+     * ParcelFileDescriptor} beyond the given length and offset. This API does <strong> not
+     * </strong> close the given {@code ParcelFileDescriptor}.
+     * <p>
+     * <strong>Note: The underlying file must be UTF-8 encoded.</strong>
+     * <p>
+     * This overload is useful when the source of the data is easily readable as a
+     * {@code ParcelFileDescriptor}, e.g. a file from shared memory or the app's data directory.
+     *
+     * @param pfd A {@code ParcelFileDescriptor} for a file containing UTF-8 encoded JavaScript
+     *            code that is evaluated. Returns a String or a Promise of a String in case
+     *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported
+     * @return Future that evaluates to the result String of the evaluation or exceptions (see
+     * {@link JavaScriptException} and subclasses) if there is an error
+     */
+    @SuppressWarnings("NullAway")
+    @NonNull
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD,
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+    public ListenableFuture<String> evaluateJavaScriptAsync(@NonNull ParcelFileDescriptor pfd) {
+        Objects.requireNonNull(pfd);
+        synchronized (mLock) {
+            return mIsolateState.evaluateJavaScriptAsync(pfd);
         }
     }
 
