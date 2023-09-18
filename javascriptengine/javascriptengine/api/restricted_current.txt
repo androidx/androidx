@@ -52,6 +52,8 @@ package androidx.javascriptengine {
   public final class JavaScriptIsolate implements java.lang.AutoCloseable {
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void clearConsoleCallback();
     method public void close();
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(android.content.res.AssetFileDescriptor);
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(android.os.ParcelFileDescriptor);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(androidx.javascriptengine.JavaScriptConsoleCallback);
@@ -66,6 +68,7 @@ package androidx.javascriptengine {
     method public boolean isFeatureSupported(String);
     method public static boolean isSupported();
     field public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
+    field public static final String JS_FEATURE_EVALUATE_FROM_FD = "JS_FEATURE_EVALUATE_FROM_FD";
     field public static final String JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT = "JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT";
     field public static final String JS_FEATURE_ISOLATE_MAX_HEAP_SIZE = "JS_FEATURE_ISOLATE_MAX_HEAP_SIZE";
     field public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";

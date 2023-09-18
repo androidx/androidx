@@ -135,6 +135,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
                     JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
                     JS_FEATURE_CONSOLE_MESSAGING,
                     JS_FEATURE_ISOLATE_CLIENT,
+                    JS_FEATURE_EVALUATE_FROM_FD,
             })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -221,6 +222,15 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     static final String JS_FEATURE_ISOLATE_CLIENT =
             "JS_FEATURE_ISOLATE_CLIENT";
+
+    /**
+     * When this feature is present,
+     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(android.content.res.AssetFileDescriptor)},
+     * and {@link JavaScriptIsolate#evaluateJavaScriptAsync(android.os.ParcelFileDescriptor)}
+     * can be used to evaluate JavaScript code of known and unknown length from file descriptors.
+     */
+    public static final String JS_FEATURE_EVALUATE_FROM_FD =
+            "JS_FEATURE_EVALUATE_FROM_FD";
 
     // This set must not be modified after JavaScriptSandbox construction.
     @NonNull
@@ -500,6 +510,11 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
         if (features.contains(IJsSandboxService.ISOLATE_CLIENT + ":DEV")) {
             featureSet.add(JS_FEATURE_ISOLATE_CLIENT);
+        }
+        // Temporarily adding :DEV suffix for this feature flag
+        // TODO: Figure out a long term solution for dev flags compatible with stableAidl
+        if (features.contains(IJsSandboxService.EVALUATE_FROM_FD + ":DEV")) {
+            featureSet.add(JS_FEATURE_EVALUATE_FROM_FD);
         }
         return featureSet;
     }
