@@ -164,34 +164,30 @@ class SdkSandboxControllerCompatSandboxedTest {
         UiThreadStatement.runOnUiThread {
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.INITIALIZED)
-            activityLifecycleCallbackCaptor.value.onActivityCreated(activityMock, bundleMock)
+
+            activityLifecycleCallbackCaptor.value.onActivityPostCreated(activityMock, bundleMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.CREATED)
 
-            activityLifecycleCallbackCaptor.value.onActivityStarted(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPostStarted(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.STARTED)
 
-            activityLifecycleCallbackCaptor.value.onActivityResumed(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPostResumed(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.RESUMED)
 
-            activityLifecycleCallbackCaptor.value.onActivityPaused(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPrePaused(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.STARTED)
 
-            activityLifecycleCallbackCaptor.value.onActivityStopped(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPreStopped(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.CREATED)
 
-            activityLifecycleCallbackCaptor.value.onActivityDestroyed(activityMock)
+            activityLifecycleCallbackCaptor.value.onActivityPreDestroyed(activityMock)
             assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
                 Lifecycle.State.DESTROYED)
-
-            val currentState = activityHolderCaptor.value.lifecycle.currentState
-            activityLifecycleCallbackCaptor.value.onActivitySaveInstanceState(
-                activityMock, bundleMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(currentState)
         }
     }
 
