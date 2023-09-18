@@ -76,6 +76,8 @@ open class GattServerRequest private constructor() {
     /**
      * Represents a request to write characteristics.
      *
+     * If two or more writes are requested, they are expected to be written in order.
+     *
      * @property parts a list of write request parts
      */
     class WriteCharacteristics internal constructor(
@@ -103,6 +105,13 @@ open class GattServerRequest private constructor() {
 
         /**
          * A part of write requests.
+         *
+         * It represents a partial write request such that
+         * [value] is to be written to a part of [characteristic] based on [offset].
+         * <p>
+         * For example, if the [offset] is 2, the first byte of [value] should be written to
+         * the third byte of the [characteristic], and the second byte of [value] should be
+         * written to the fourth byte of the [characteristic] and so on.
          *
          * @property characteristic a characteristic to write
          * @property offset an offset of the first octet to be written
