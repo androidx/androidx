@@ -443,9 +443,7 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
         scm.url.set("https://cs.android.com/androidx/platform/frameworks/support")
         scm.connection.set(ANDROID_GIT_URL)
     }
-    pom.organization { org ->
-        org.name.set("The Android Open Source Project")
-    }
+    pom.organization { org -> org.name.set("The Android Open Source Project") }
     pom.developers { devs ->
         devs.developer { dev -> dev.name.set("The Android Open Source Project") }
     }

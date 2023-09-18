@@ -303,9 +303,10 @@ abstract class AffectedModuleDetectorLoader :
                 projectGraph = parameters.projectGraph,
                 dependencyTracker = parameters.dependencyTracker,
                 logger = logger.toLogger(),
-                cobuiltTestPaths = parameters.cobuiltTestPaths
-                        ?: AffectedModuleDetectorImpl.COBUILT_TEST_PATHS,
-                alwaysBuildIfExists = parameters.alwaysBuildIfExists
+                cobuiltTestPaths =
+                    parameters.cobuiltTestPaths ?: AffectedModuleDetectorImpl.COBUILT_TEST_PATHS,
+                alwaysBuildIfExists =
+                    parameters.alwaysBuildIfExists
                         ?: AffectedModuleDetectorImpl.ALWAYS_BUILD_IF_EXISTS,
                 ignoredPaths = parameters.ignoredPaths ?: AffectedModuleDetectorImpl.IGNORED_PATHS,
                 changedFilesProvider = changedFilesProvider

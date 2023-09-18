@@ -77,8 +77,9 @@ fun Project.configureVersionFileWriter(
     }
 
     libraryAndroidComponentsExtension.onVariants {
-        it.sources
-            .resources!!
-            .addGeneratedSourceDirectory(writeVersionFile, VersionFileWriterTask::outputDir)
+        it.sources.resources!!.addGeneratedSourceDirectory(
+            writeVersionFile,
+            VersionFileWriterTask::outputDir
+        )
     }
 }

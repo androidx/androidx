@@ -300,21 +300,19 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
         if (!clientToT && !serviceToT) return
         testModules.add(
             TestModule(
-                name = getJsonName(
-                    clientToT = clientToT,
-                    serviceToT = serviceToT,
-                    clientTests = true
-                ),
+                name =
+                    getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true),
                 path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
             )
         )
         testModules.add(
             TestModule(
-                name = getJsonName(
-                    clientToT = clientToT,
-                    serviceToT = serviceToT,
-                    clientTests = false
-                ),
+                name =
+                    getJsonName(
+                        clientToT = clientToT,
+                        serviceToT = serviceToT,
+                        clientTests = false
+                    ),
                 path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
             )
         )
