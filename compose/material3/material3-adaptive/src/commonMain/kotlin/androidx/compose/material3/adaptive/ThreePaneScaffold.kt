@@ -117,6 +117,8 @@ fun ThreePaneScaffold(
                 val layoutPhysicalPartitions = mutableListOf<Rect>()
                 var actualLeft = layoutBounds.left + outerVerticalGutterSize
                 var actualRight = layoutBounds.right - outerVerticalGutterSize
+                val actualTop = layoutBounds.top + outerHorizontalGutterSize
+                val actualBottom = layoutBounds.bottom - outerHorizontalGutterSize
                 // Assume hinge bounds are sorted from left to right, non-overlapped.
                 layoutDirective.excludedBounds.fastForEach { hingeBound ->
                     if (hingeBound.left <= actualLeft) {
@@ -133,7 +135,7 @@ fun ThreePaneScaffold(
                         // The hinge is inside the layout, add the current partition to the list and
                         // move the left edge of the next partition to the right of the hinge.
                         layoutPhysicalPartitions.add(
-                            Rect(actualLeft, layoutBounds.top, hingeBound.left, layoutBounds.bottom)
+                            Rect(actualLeft, actualTop, hingeBound.left, actualBottom)
                         )
                         actualLeft +=
                             max(hingeBound.right, hingeBound.left + innerVerticalGutterSize)
@@ -142,7 +144,7 @@ fun ThreePaneScaffold(
                 if (actualLeft < actualRight) {
                     // The last partition
                     layoutPhysicalPartitions.add(
-                        Rect(actualLeft, layoutBounds.top, actualRight, layoutBounds.bottom)
+                        Rect(actualLeft, actualTop, actualRight, actualBottom)
                     )
                 }
                 if (layoutPhysicalPartitions.size == 1) {
@@ -266,7 +268,7 @@ private fun Placeable.PlacementScope.measureAndPlacePanesWithLocalBounds(
 }
 
 private fun Placeable.PlacementScope.getLocalBounds(bounds: Rect): IntRect {
-    return bounds.translate(coordinates!!.localToWindow(Offset.Zero)).roundToIntRect()
+    return bounds.translate(coordinates!!.windowToLocal(Offset.Zero)).roundToIntRect()
 }
 
 private class PaneMeasurable(
