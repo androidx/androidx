@@ -3,11 +3,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 apply plugin: "kotlin"
-apply plugin: "java-gradle-plugin"
 
 buildscript {
-    project.ext.supportRootFolder = project.projectDir.getParentFile().getParentFile()
-    apply from: "../repos.gradle"
+    project.ext.supportRootFolder = buildscript.sourceFile.parentFile.parentFile
+    apply from: "${buildscript.sourceFile.parent}/repos.gradle"
     repos.addMavenRepositories(repositories)
     dependencies {
         classpath(libs.kotlinGradlePluginz)
@@ -17,10 +16,10 @@ buildscript {
 dependencies {
     implementation(project(":jetpad-integration"))
 }
-apply from: "../out.gradle"
+apply from: "${buildscript.sourceFile.parent}/out.gradle"
 init.chooseBuildSrcBuildDir()
 
-apply from: "../shared-dependencies.gradle"
+apply from: "${buildscript.sourceFile.parent}/shared-dependencies.gradle"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -30,10 +29,6 @@ java {
 project.tasks.withType(Jar) { task ->
     task.reproducibleFileOrder = true
     task.preserveFileTimestamps = false
-}
-
-validatePlugins {
-    enableStricterValidation = true
 }
 
 project.repos.addMavenRepositories(project.repositories)

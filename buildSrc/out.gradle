@@ -44,7 +44,7 @@ def chooseBuildSrcBuildDir(subdir = "") {
     def (outDir, buildSrcOut) = getOutDir(subdir)
     project.ext.buildSrcOut = buildSrcOut
     project.ext.outDir = outDir
-    def pathAsFilepath = project.path.replace(":", "").replaceAll(":", "/")
+    def pathAsFilepath = project.path.replaceFirst(":", "").replaceAll(":", "/")
     project.layout.buildDirectory.set(new File(buildSrcOut, "$pathAsFilepath/build").getCanonicalFile())
 }
 

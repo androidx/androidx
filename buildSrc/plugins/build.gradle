@@ -2,6 +2,13 @@ apply plugin: "kotlin"
 
 dependencies {
     implementation(project(":public"))
+    api project(":imports:baseline-profile-gradle-plugin")
+    api project(":imports:benchmark-darwin-plugin")
+    api project(":imports:benchmark-gradle-plugin")
+    api project(":imports:compose-icons")
+    api project(":imports:glance-layout-generator")
+    api project(":imports:inspection-gradle-plugin")
+    api project(":imports:stableaidl-gradle-plugin")
 }
 
 apply from: "../shared.gradle"

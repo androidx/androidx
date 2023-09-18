@@ -18,6 +18,13 @@ include ":jetpad-integration"
 include ":plugins"
 include ":private"
 include ":public"
+include ":imports:benchmark-gradle-plugin"
+include ":imports:benchmark-darwin-plugin"
+include ":imports:baseline-profile-gradle-plugin"
+include ":imports:inspection-gradle-plugin"
+include ":imports:compose-icons"
+include ":imports:glance-layout-generator"
+include ":imports:stableaidl-gradle-plugin"
 
 dependencyResolutionManagement {
     versionCatalogs {
