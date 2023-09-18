@@ -121,12 +121,6 @@ package androidx.compose.ui {
     method public static androidx.compose.ui.Modifier materializeModifier(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier modifier);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalComposeUiApi {
-  }
-
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="Unstable API for use only between compose-ui modules sharing the same exact version, " + "subject to change without notice in major, minor, or patch releases.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalComposeUiApi {
-  }
-
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface Modifier {
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.compose.ui.Modifier.Element,java.lang.Boolean> predicate);
     method public boolean any(kotlin.jvm.functions.Function1<? super androidx.compose.ui.Modifier.Element,java.lang.Boolean> predicate);
