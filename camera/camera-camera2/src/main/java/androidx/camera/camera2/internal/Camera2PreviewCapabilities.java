@@ -28,12 +28,11 @@ import androidx.camera.core.impl.CameraInfoInternal;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2PreviewCapabilities implements PreviewCapabilities {
 
-    private boolean mIsStabilizationSupported = false;
+    private final boolean mIsStabilizationSupported;
 
     Camera2PreviewCapabilities(@NonNull CameraInfoInternal cameraInfoInternal) {
         mIsStabilizationSupported = cameraInfoInternal.isPreviewStabilizationSupported();
     }
-
 
     @NonNull
     static Camera2PreviewCapabilities from(@NonNull CameraInfo cameraInfo) {

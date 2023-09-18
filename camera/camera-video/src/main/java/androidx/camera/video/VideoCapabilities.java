@@ -123,7 +123,9 @@ public interface VideoCapabilities {
      * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    boolean isStabilizationSupported();
+    default boolean isStabilizationSupported() {
+        return false;
+    }
 
     /**
      * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality and
