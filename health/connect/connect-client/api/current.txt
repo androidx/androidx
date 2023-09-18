@@ -41,6 +41,12 @@ package androidx.health.connect.client {
     field public static final int SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2; // 0x2
   }
 
+  public final class HealthConnectClientExt {
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> void deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter);
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> void deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList);
+    method public static suspend inline <reified T extends androidx.health.connect.client.records.Record> androidx.health.connect.client.response.ReadRecordResponse<T> readRecord(androidx.health.connect.client.HealthConnectClient, String recordId);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
     method public static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract();
     method public static androidx.activity.result.contract.ActivityResultContract<java.util.Set<java.lang.String>,java.util.Set<java.lang.String>> createRequestPermissionResultContract(optional String providerPackageName);
@@ -1393,6 +1399,10 @@ package androidx.health.connect.client.request {
 
   public final class ReadRecordsRequest<T extends androidx.health.connect.client.records.Record> {
     ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
+  }
+
+  public final class ReadRecordsRequestKt {
+    method public static inline <reified T extends androidx.health.connect.client.records.Record> androidx.health.connect.client.request.ReadRecordsRequest<T> ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
   }
 
 }
