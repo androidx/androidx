@@ -935,6 +935,13 @@ internal abstract class NodeCoordinator(
      */
     fun onRelease() {
         released = true
+        // It is important to call invalidateParentLayer() here, even though updateLayerBlock() may
+        // call it. The reason is because we end up calling this from the bottom up, which means
+        // that if we have two layout modifiers getting removed, where the parent one has a layer
+        // and the bottom one doesn't, the parent layer gets invalidated but then removed, leaving
+        // no layers invalidated. By always calling this, we ensure that after all nodes are
+        // removed at least one layer is invalidated.
+        invalidateParentLayer()
         if (layer != null) {
             updateLayerBlock(null)
         }
