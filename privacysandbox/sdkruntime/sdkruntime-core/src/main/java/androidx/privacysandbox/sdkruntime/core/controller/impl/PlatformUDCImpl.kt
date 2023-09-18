@@ -96,33 +96,46 @@ internal class PlatformUDCImpl(
 
         private fun proxyLifeCycleEvents() {
             val callback = object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityCreated(p0: Activity, p1: Bundle?) {
-                    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+                override fun onActivityCreated(activity: Activity, bundle: Bundle?) {}
+
+                override fun onActivityPostCreated(
+                    activity: Activity,
+                    savedInstanceState: Bundle?
+                ) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
                 }
 
-                override fun onActivityStarted(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                override fun onActivityStarted(activity: Activity) {}
+
+                override fun onActivityPostStarted(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
                 }
 
-                override fun onActivityResumed(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+                override fun onActivityResumed(activity: Activity) {}
+
+                override fun onActivityPostResumed(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
                 }
 
-                override fun onActivityPaused(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                override fun onActivityPrePaused(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
                 }
 
-                override fun onActivityStopped(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+                override fun onActivityPaused(activity: Activity) {}
+
+                override fun onActivityPreStopped(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
                 }
 
-                override fun onActivityDestroyed(p0: Activity) {
-                    lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+                override fun onActivityStopped(activity: Activity) {}
+
+                override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+
+                override fun onActivityPreDestroyed(activity: Activity) {
+                    lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
                 }
 
-                override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
-                    // No need for proxying
-                }
+                override fun onActivityDestroyed(activity: Activity) {}
             }
             platformActivity.registerActivityLifecycleCallbacks(callback)
         }
