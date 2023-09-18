@@ -16,12 +16,17 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.material.Button
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.isEqualTo
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import javax.accessibility.AccessibleRole
@@ -75,10 +80,28 @@ class AccessibilityTest {
             }
         }
 
-        val node = rule.onNodeWithTag("tab").fetchSemanticsNode()
-        val accessibleNode = ComposeAccessible(node)
-        assertThat(accessibleNode.accessibleContext.accessibleRole)
-            .isEqualTo(AccessibleRole.PAGE_TAB)
+        rule.onNodeWithTag("tab").assertHasAccessibleRole(AccessibleRole.PAGE_TAB)
+    }
+
+    @Test
+    fun dropDownListRoleTranslatesToComboBoxAccessibleRole() {
+        rule.setContent {
+            Button(
+                modifier = Modifier
+                    .semantics { role = Role.DropdownList }
+                    .testTag("button"),
+                onClick = { }
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.onNodeWithTag("button").assertHasAccessibleRole(AccessibleRole.COMBO_BOX)
+    }
+
+    private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
+        val accessible = ComposeAccessible(fetchSemanticsNode())
+        assertThat(accessible.accessibleContext.accessibleRole).isEqualTo(role)
     }
 
 }

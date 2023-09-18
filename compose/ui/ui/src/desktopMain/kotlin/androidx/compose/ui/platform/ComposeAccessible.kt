@@ -388,6 +388,7 @@ internal class ComposeAccessible(
                 Role.Checkbox -> AccessibleRole.CHECK_BOX
                 Role.RadioButton -> AccessibleRole.RADIO_BUTTON
                 Role.Tab -> AccessibleRole.PAGE_TAB
+                Role.DropdownList -> AccessibleRole.COMBO_BOX
                 else -> null
                 // ?
                 //  Role.Switch ->
