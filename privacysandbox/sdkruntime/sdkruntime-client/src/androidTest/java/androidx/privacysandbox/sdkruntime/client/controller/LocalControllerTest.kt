@@ -43,7 +43,7 @@ class LocalControllerTest {
     fun setUp() {
         locallyLoadedSdks = LocallyLoadedSdks()
         appOwnedSdkRegistry = StubAppOwnedSdkInterfaceRegistry()
-        controller = LocalController(locallyLoadedSdks, appOwnedSdkRegistry)
+        controller = LocalController(SDK_PACKAGE_NAME, locallyLoadedSdks, appOwnedSdkRegistry)
     }
 
     @Test
@@ -88,6 +88,34 @@ class LocalControllerTest {
     }
 
     @Test
+    fun registerSdkSandboxActivityHandler_registerWithCorrectSdkPackageName() {
+        val token =
+            controller.registerSdkSandboxActivityHandler(object : SdkSandboxActivityHandlerCompat {
+                override fun onActivityCreated(activityHolder: ActivityHolder) {
+                    // do nothing
+                }
+            })
+
+        val anotherSdkController = LocalController(
+            "LocalControllerTest.anotherSdk",
+            locallyLoadedSdks,
+            appOwnedSdkRegistry
+        )
+        val anotherSdkHandler = object : SdkSandboxActivityHandlerCompat {
+            override fun onActivityCreated(activityHolder: ActivityHolder) {
+                // do nothing
+            }
+        }
+        val anotherSdkToken =
+            anotherSdkController.registerSdkSandboxActivityHandler(anotherSdkHandler)
+
+        LocalSdkActivityHandlerRegistry.unregisterAllActivityHandlersForSdk(SDK_PACKAGE_NAME)
+
+        assertThat(LocalSdkActivityHandlerRegistry.isRegistered(token)).isFalse()
+        assertThat(LocalSdkActivityHandlerRegistry.isRegistered(anotherSdkToken)).isTrue()
+    }
+
+    @Test
     fun unregisterSdkSandboxActivityHandler_delegateToLocalSdkActivityHandlerRegistry() {
         val handler = object : SdkSandboxActivityHandlerCompat {
             override fun onActivityCreated(activityHolder: ActivityHolder) {
@@ -128,5 +156,9 @@ class LocalControllerTest {
 
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
             appOwnedSdks
+    }
+
+    companion object {
+        private const val SDK_PACKAGE_NAME = "LocalControllerTest.sdk"
     }
 }

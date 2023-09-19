@@ -29,10 +29,11 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.client.controller.LocalController
+import androidx.privacysandbox.sdkruntime.client.controller.LocalControllerFactory
 import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
 import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalAppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.impl.PlatformAppOwnedSdkRegistry
@@ -163,6 +164,7 @@ class SdkSandboxManagerCompat private constructor(
             platformApi.unloadSdk(sdkName)
         } else {
             localEntry.sdkProvider.beforeUnloadSdk()
+            LocalSdkActivityHandlerRegistry.unregisterAllActivityHandlersForSdk(sdkName)
         }
     }
 
@@ -450,8 +452,8 @@ class SdkSandboxManagerCompat private constructor(
                     } else {
                         LocalAppOwnedSdkRegistry()
                     }
-                    val controller = LocalController(localSdks, appOwnedSdkRegistry)
-                    val sdkLoader = SdkLoader.create(context, controller)
+                    val controllerFactory = LocalControllerFactory(localSdks, appOwnedSdkRegistry)
+                    val sdkLoader = SdkLoader.create(context, controllerFactory)
                     val platformApi = PlatformApiFactory.create(context)
                     instance = SdkSandboxManagerCompat(
                         platformApi,
