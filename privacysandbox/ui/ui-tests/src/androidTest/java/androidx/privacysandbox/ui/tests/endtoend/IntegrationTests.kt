@@ -257,7 +257,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         )
 
         // Notify resized from the client
-        testSessionClient.session.notifyResized(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
+        testSessionClient.session?.notifyResized(INITIAL_WIDTH + 10, INITIAL_HEIGHT + 10)
 
         // Verify Session received the request
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
@@ -265,6 +265,27 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             .isEqualTo(INITIAL_WIDTH + 10)
         assertWithMessage("Resized height").that(testSession.resizedHeight)
             .isEqualTo(INITIAL_HEIGHT + 10)
+    }
+
+    @Test
+    fun testSessionClientProxy_methodsOnObjectClass() {
+        // Only makes sense when a dynamic proxy is involved in the flow
+        assumeTrue(invokeBackwardsCompatFlow)
+
+        val testSessionClient = TestSessionClient()
+        val sdkAdapter = createAdapterAndEstablishSession(
+            viewForSession = null,
+            testSessionClient = testSessionClient
+        )
+
+        // Verify toString, hashCode and equals have been implemented for dynamic proxy
+        val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
+        val client = testSession.sessionClient
+        assertThat(client.toString()).isEqualTo(testSessionClient.toString())
+
+        assertThat(client.equals(client)).isTrue()
+        assertThat(client).isNotEqualTo(testSessionClient)
+        assertThat(client.hashCode()).isEqualTo(client.hashCode())
     }
 
     private fun getCoreLibInfoFromAdapter(sdkAdapter: SandboxedUiAdapter): Bundle {
@@ -488,7 +509,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         private val sessionOpenedLatch = CountDownLatch(1)
         private val resizeRequestedLatch = CountDownLatch(1)
 
-        lateinit var session: SandboxedUiAdapter.Session
+        var session: SandboxedUiAdapter.Session? = null
+            get() {
+                sessionOpenedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+                return field
+            }
 
         val isSessionOpened: Boolean
             get() = sessionOpenedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)

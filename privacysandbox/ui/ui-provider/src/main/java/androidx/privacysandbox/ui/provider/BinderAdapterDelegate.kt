@@ -55,14 +55,14 @@ fun SandboxedUiAdapter.toCoreLibInfo(@Suppress("ContextFirst") context: Context)
 private class BinderAdapterDelegate(
     private val sandboxContext: Context,
     private val adapter: SandboxedUiAdapter
-) : ISandboxedUiAdapter.Stub() {
+) : ISandboxedUiAdapter.Stub(), SandboxedUiAdapter {
 
     companion object {
         private const val TAG = "BinderAdapterDelegate"
         private const val FRAME_TIMEOUT_MILLIS = 1000.toLong()
     }
 
-    fun openSession(
+    override fun openSession(
         context: Context,
         windowInputToken: IBinder,
         initialWidth: Int,
