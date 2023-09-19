@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
+import androidx.webkit.UserAgentMetadata;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
 
@@ -152,5 +153,25 @@ public class WebSettingsAdapter {
      */
     public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
         mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
+     */
+    @NonNull
+    public UserAgentMetadata getUserAgentMetadata() {
+        return UserAgentMetadataInternal.getUserAgentMetadataFromMap(
+                mBoundaryInterface.getUserAgentMetadataMap());
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
+     * WebSettings, UserAgentMetadata)}.
+     */
+    public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
+        mBoundaryInterface.setUserAgentMetadataFromMap(
+                UserAgentMetadataInternal.convertUserAgentMetadataToMap(uaMetadata));
     }
 }

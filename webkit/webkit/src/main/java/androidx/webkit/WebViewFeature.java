@@ -102,6 +102,7 @@ public class WebViewFeature {
             ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             GET_COOKIE_INFO,
             REQUESTED_WITH_HEADER_ALLOW_LIST,
+            USER_AGENT_METADATA,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -532,6 +533,18 @@ public class WebViewFeature {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String REQUESTED_WITH_HEADER_ALLOW_LIST =
             "REQUESTED_WITH_HEADER_ALLOW_LIST";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
+     *
+     * TODO(b/294183509): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
