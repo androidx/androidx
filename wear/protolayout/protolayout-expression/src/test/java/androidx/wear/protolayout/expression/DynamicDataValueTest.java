@@ -18,6 +18,8 @@ package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
@@ -35,41 +37,68 @@ public final class DynamicDataValueTest {
     public void boolDynamicDataValue() {
         DynamicDataValue<DynamicBool> boolDynamicDataValue = DynamicDataValue.fromBool(true);
 
+        assertThat(boolDynamicDataValue.hasBoolValue()).isTrue();
+        assertThat(boolDynamicDataValue.getBoolValue()).isTrue();
         assertThat(boolDynamicDataValue.toDynamicDataValueProto().getBoolVal().getValue()).isTrue();
+
+        assertThat(boolDynamicDataValue.hasColorValue()).isFalse();
+        assertThrows(IllegalStateException.class, boolDynamicDataValue::getColorValue);
     }
 
     @Test
     public void colorDynamicDataValue() {
-        DynamicDataValue<DynamicColor> colorDynamicDataValue =
-                DynamicDataValue.fromColor(0xff00ff00);
+        int c = 0xff00ff00;
+        DynamicDataValue<DynamicColor> colorDynamicDataValue = DynamicDataValue.fromColor(c);
 
+        assertThat(colorDynamicDataValue.hasColorValue()).isTrue();
+        assertThat(colorDynamicDataValue.getColorValue()).isEqualTo(c);
         assertThat(colorDynamicDataValue.toDynamicDataValueProto().getColorVal().getArgb())
-                .isEqualTo(0xff00ff00);
+                .isEqualTo(c);
+
+        assertThat(colorDynamicDataValue.hasFloatValue()).isFalse();
+        assertThrows(IllegalStateException.class, colorDynamicDataValue::getFloatValue);
     }
 
     @Test
     public void floatDynamicDataValue() {
-        DynamicDataValue<DynamicFloat> floatDynamicDataValue = DynamicDataValue.fromFloat(42.42f);
+        float f = 42.42f;
+        DynamicDataValue<DynamicFloat> floatDynamicDataValue = DynamicDataValue.fromFloat(f);
 
+        assertThat(floatDynamicDataValue.hasFloatValue()).isTrue();
+        assertThat(floatDynamicDataValue.getFloatValue()).isEqualTo(f);
         assertThat(floatDynamicDataValue.toDynamicDataValueProto().getFloatVal().getValue())
                 .isWithin(0.0001f)
-                .of(42.42f);
+                .of(f);
+
+        assertThat(floatDynamicDataValue.hasIntValue()).isFalse();
+        assertThrows(IllegalStateException.class, floatDynamicDataValue::getIntValue);
     }
 
     @Test
     public void intDynamicDataValue() {
-        DynamicDataValue<DynamicInt32> intDynamicDataValue = DynamicDataValue.fromInt(42);
+        int i = 42;
+        DynamicDataValue<DynamicInt32> intDynamicDataValue = DynamicDataValue.fromInt(i);
 
+        assertThat(intDynamicDataValue.hasIntValue()).isTrue();
+        assertThat(intDynamicDataValue.getIntValue()).isEqualTo(i);
         assertThat(intDynamicDataValue.toDynamicDataValueProto().getInt32Val().getValue())
-                .isEqualTo(42);
+                .isEqualTo(i);
+
+        assertThat(intDynamicDataValue.hasStringValue()).isFalse();
+        assertThrows(IllegalStateException.class, intDynamicDataValue::getStringValue);
     }
 
     @Test
     public void stringDynamicDataValue() {
-        DynamicDataValue<DynamicString> stringDynamicDataValue =
-                DynamicDataValue.fromString("constant-value");
+        String s = "constant-value";
+        DynamicDataValue<DynamicString> stringDynamicDataValue = DynamicDataValue.fromString(s);
 
+        assertThat(stringDynamicDataValue.hasStringValue()).isTrue();
+        assertThat(stringDynamicDataValue.getStringValue()).isEqualTo(s);
         assertThat(stringDynamicDataValue.toDynamicDataValueProto().getStringVal().getValue())
-                .isEqualTo("constant-value");
+                .isEqualTo(s);
+
+        assertThat(stringDynamicDataValue.hasBoolValue()).isFalse();
+        assertThrows(IllegalStateException.class, stringDynamicDataValue::getBoolValue);
     }
 }
