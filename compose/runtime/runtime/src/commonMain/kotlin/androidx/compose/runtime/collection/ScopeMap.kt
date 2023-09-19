@@ -35,24 +35,24 @@ internal class ScopeMap<T : Any> {
      * it already existed.
      */
     fun add(key: Any, scope: T): Boolean =
-        when (val value = map[key]) {
-            null -> {
-                map[key] = scope
-                true
-            }
-            is MutableScatterSet<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                (value as MutableScatterSet<T>).add(scope)
-            }
-            else -> {
-                if (value !== scope) {
-                    val set = MutableScatterSet<T>()
-                    map[key] = set
+        map.compute(key) { _, value ->
+            when (value) {
+                null -> scope
+                is MutableScatterSet<*> -> {
                     @Suppress("UNCHECKED_CAST")
-                    set.add(value as T)
-                    set.add(scope)
-                } else {
-                    false
+                    (value as MutableScatterSet<T>).add(scope)
+                    value
+                }
+                else -> {
+                    if (value !== scope) {
+                        val set = MutableScatterSet<T>()
+                        @Suppress("UNCHECKED_CAST")
+                        set.add(value as T)
+                        set.add(scope)
+                        set
+                    } else {
+                        value
+                    }
                 }
             }
         }
