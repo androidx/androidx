@@ -78,6 +78,33 @@ class ChipTest {
     }
 
     @Test
+    fun assistChip_longClickSemantics() {
+        var count by mutableStateOf(0)
+        rule.setContent {
+            Box {
+                AssistChip(
+                    modifier = Modifier.testTag(AssistChipTag),
+                    onClick = {},
+                    onLongClick = { count++ }
+                ) { Text("Test Text") }
+            }
+        }
+
+        val node = rule.onNodeWithTag(AssistChipTag)
+
+        assert(count == 0)
+
+        node
+            .requestFocus()
+            .assertHasClickAction()
+            .assertIsEnabled()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        rule.waitForIdle()
+
+        assert(count == 1)
+    }
+
+    @Test
     fun assistChip_disabledSemantics() {
         rule.setContent {
             Box {
@@ -200,6 +227,36 @@ class ChipTest {
         rule.onNodeWithTag(FilterChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
+    }
+
+    @Test
+    fun filterChip_longClickSemantics() {
+        var count by mutableStateOf(0)
+        rule.setContent {
+            Box {
+                FilterChip(
+                    modifier = Modifier.testTag(FilterChipTag),
+                    onClick = {},
+                    onLongClick = { count++ },
+                    selected = false
+                ) {
+                    Text("Test Text")
+                }
+            }
+        }
+
+        val node = rule.onNodeWithTag(FilterChipTag)
+
+        assert(count == 0)
+
+        node
+            .requestFocus()
+            .assertHasClickAction()
+            .assertIsEnabled()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        rule.waitForIdle()
+
+        assert(count == 1)
     }
 
     @Test
@@ -386,6 +443,36 @@ class ChipTest {
     }
 
     @Test
+    fun inputChip_longClickSemantics() {
+        var count by mutableStateOf(0)
+        rule.setContent {
+            Box {
+                InputChip(
+                    modifier = Modifier.testTag(InputChipTag),
+                    onClick = {},
+                    onLongClick = { count++ },
+                    selected = false
+                ) {
+                    Text("Test Text")
+                }
+            }
+        }
+
+        val node = rule.onNodeWithTag(InputChipTag)
+
+        assert(count == 0)
+
+        node
+            .requestFocus()
+            .assertHasClickAction()
+            .assertIsEnabled()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        rule.waitForIdle()
+
+        assert(count == 1)
+    }
+
+    @Test
     fun inputChip_disabledSemantics() {
         rule.setContent {
             Box {
@@ -522,6 +609,35 @@ class ChipTest {
         rule.onNodeWithTag(SuggestionChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
+    }
+
+    @Test
+    fun suggestionChip_longClickSemantics() {
+        var count by mutableStateOf(0)
+        rule.setContent {
+            Box {
+                SuggestionChip(
+                    modifier = Modifier.testTag(SuggestionChipTag),
+                    onLongClick = { count++ },
+                    onClick = {}
+                ) {
+                    Text("mvTvSelectableChip")
+                }
+            }
+        }
+
+        val node = rule.onNodeWithTag(SuggestionChipTag)
+
+        assert(count == 0)
+
+        node
+            .requestFocus()
+            .assertHasClickAction()
+            .assertIsEnabled()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        rule.waitForIdle()
+
+        assert(count == 1)
     }
 
     @Test
