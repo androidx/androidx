@@ -21,6 +21,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerInputEventData
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.util.fastAny
 
 /**
  * Compose or user code can't work well if we miss some events.
@@ -67,7 +69,12 @@ internal class SyntheticEventSender(
     fun updatePointerPosition() {
         if (needUpdatePointerPosition) {
             needUpdatePointerPosition = false
-            previousEvent?.let { sendSyntheticMove(it) }
+
+            previousEvent?.let { event ->
+                if (event.pointers.fastAny { it.down || it.type == PointerType.Mouse }) {
+                    sendSyntheticMove(event)
+                }
+            }
         }
     }
 
