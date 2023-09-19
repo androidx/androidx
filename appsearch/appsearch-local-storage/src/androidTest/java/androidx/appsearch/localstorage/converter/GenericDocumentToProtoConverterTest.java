@@ -352,7 +352,8 @@ public class GenericDocumentToProtoConverterTest {
         assertThat(convertedDocumentProto).isEqualTo(outerDocumentProto);
         assertThat(convertedGenericDocument).isEqualTo(outerDocument);
     }
-
+    // @exportToFramework:startStrip()
+    // TODO(b/274157614): setParentTypes is hidden
     @Test
     public void testConvertDocument_withParentTypes() throws Exception {
         // Create a type with a parent type.
@@ -409,12 +410,14 @@ public class GenericDocumentToProtoConverterTest {
                 GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
                         schemaMap, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new DefaultIcingOptionsConfig(),
-                                /* storeParentInfoAsSyntheticProperty= */ false));
+                                /* storeParentInfoAsSyntheticProperty= */ false,
+                                /* shouldRetrieveParentInfo= */ true));
         GenericDocument actualDocWithParentAsSyntheticProperty =
                 GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
                         schemaMap, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new DefaultIcingOptionsConfig(),
-                                /* storeParentInfoAsSyntheticProperty= */ true));
+                                /* storeParentInfoAsSyntheticProperty= */ true,
+                                /* shouldRetrieveParentInfo= */ true));
 
         assertThat(actualDocWithParentAsMetaField).isEqualTo(expectedDocWithParentAsMetaField);
         assertThat(actualDocWithParentAsMetaField).isNotEqualTo(
@@ -425,4 +428,5 @@ public class GenericDocumentToProtoConverterTest {
         assertThat(actualDocWithParentAsSyntheticProperty).isNotEqualTo(
                 expectedDocWithParentAsMetaField);
     }
+    // @exportToFramework:endStrip()
 }

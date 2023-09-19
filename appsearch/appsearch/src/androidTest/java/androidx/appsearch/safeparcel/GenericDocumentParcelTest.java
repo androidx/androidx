@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.safeparcel;
+package androidx.appsearch.safeparcel;
 
 import static com.google.common.truth.Truth.assertThat;
 

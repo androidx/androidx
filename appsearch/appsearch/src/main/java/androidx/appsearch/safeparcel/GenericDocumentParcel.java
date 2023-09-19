@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.safeparcel;
+package androidx.appsearch.safeparcel;
 
 import android.os.Parcel;
 
@@ -25,8 +25,6 @@ import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.safeparcel.AbstractSafeParcelable;
-import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.GenericDocumentParcelCreator;
 import androidx.collection.ArrayMap;
 
@@ -276,7 +274,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable {
          * Creates a new {@link GenericDocumentParcel.Builder} from the given
          * {@link GenericDocumentParcel}.
          */
-        Builder(@NonNull GenericDocumentParcel documentSafeParcel) {
+        public Builder(@NonNull GenericDocumentParcel documentSafeParcel) {
             Objects.requireNonNull(documentSafeParcel);
 
             mNamespace = documentSafeParcel.mNamespace;
