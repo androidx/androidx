@@ -31,7 +31,7 @@ internal enum class UIKitInteropViewHierarchyChange {
 /**
  * Lambda containing changes to UIKit objects, which can be synchronized within [CATransaction]
  */
-typealias UIKitInteropAction = () -> Unit
+internal typealias UIKitInteropAction = () -> Unit
 
 internal interface UIKitInteropTransaction {
     val actions: List<UIKitInteropAction>
