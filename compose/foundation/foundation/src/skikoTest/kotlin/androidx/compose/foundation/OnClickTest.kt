@@ -18,7 +18,9 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,11 +34,13 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 
 @ExperimentalCoroutinesApi
 @OptIn(ExperimentalFoundationApi::class)
@@ -70,6 +74,37 @@ class OnClickTest {
         scene.sendPointerEvent(PointerEventType.Press, Offset(5f, 5f), button = button)
         scene.sendPointerEvent(PointerEventType.Release, Offset(5f, 5f), button = button)
         assertThat(clicksCount).isEqualTo(2)
+    }
+
+    // https://github.com/JetBrains/compose-multiplatform/issues/3655
+    // Isn't reproducible with ImageComposeScene because of Dispatchers.Unconfined
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalCoroutinesApi::class)
+    @Test
+    fun simpleClickWithoutMove() = runTest {
+        val scene = ComposeScene(coroutineContext = coroutineContext)
+        try {
+            scene.constraints = Constraints.fixed(100, 100)
+            scene.setContent {
+                Box(
+                    Modifier
+                        .onClick {}
+                        .fillMaxSize()
+                )
+            }
+
+            scene.sendPointerEvent(
+                PointerEventType.Press,
+                Offset(30f, 10f),
+                button = PointerButton.Primary
+            )
+            scene.sendPointerEvent(
+                PointerEventType.Release,
+                Offset(30f, 10f),
+                button = PointerButton.Primary
+            )
+        } finally {
+            scene.close()
+        }
     }
 
     @Test

@@ -94,8 +94,6 @@ suspend fun PointerInputScope.detectTapGestures(
 
     while (currentCoroutineContext().isActive) {
         awaitPointerEventScope {
-            // TODO: [1.4 Update] seems that launch may introduce races?
-            //  TapGestureDetectorKt.detectTapGestures also use it
             launch { pressScope.reset() }
 
             val down = awaitPress(filter = filter, requireUnconsumed = true).apply { changes[0].consume() }
@@ -119,10 +117,10 @@ suspend fun PointerInputScope.detectTapGestures(
             }
 
             if (cancelled) {
-                pressScope.cancel()
+                launch { pressScope.cancel() }
                 return@awaitPointerEventScope
             } else if (firstRelease != null) {
-                pressScope.release()
+                launch { pressScope.release() }
             }
 
             if (firstRelease == null) {
@@ -132,7 +130,7 @@ suspend fun PointerInputScope.detectTapGestures(
                         consumeUntilRelease = true,
                         filter = longClickReleaseFilter
                     )
-                    pressScope.release()
+                    launch { pressScope.release() }
                 }
             } else if (onDoubleTap == null) {
                 onTap?.invoke(firstRelease.changes[0].position)
@@ -146,8 +144,6 @@ suspend fun PointerInputScope.detectTapGestures(
                 if (secondPress == null) {
                     onTap?.invoke(firstRelease.changes[0].position)
                 } else {
-                    // TODO: [1.4 Update] seems that launch may introduce races?
-                    //  TapGestureDetectorKt.detectTapGestures also use it
                     launch { pressScope.reset() }
                     launch { pressScope.onPress(secondPress.changes[0].position) }
 
@@ -161,10 +157,10 @@ suspend fun PointerInputScope.detectTapGestures(
                     }
 
                     if (cancelled) {
-                        pressScope.cancel()
+                        launch { pressScope.cancel() }
                         return@awaitPointerEventScope
                     } else if (secondRelease != null) {
-                        pressScope.release()
+                        launch { pressScope.release() }
                     }
 
                     if (secondRelease == null) {
@@ -174,7 +170,7 @@ suspend fun PointerInputScope.detectTapGestures(
                                 consumeUntilRelease = true,
                                 filter = longClickReleaseFilter
                             )
-                            pressScope.release()
+                            launch { pressScope.release() }
                         }
                     } else if (!cancelled) {
                         onDoubleTap(secondRelease.changes[0].position)
