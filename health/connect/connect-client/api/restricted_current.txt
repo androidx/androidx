@@ -63,8 +63,6 @@ package androidx.health.connect.client.aggregate {
     method public operator boolean contains(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     method public operator <T> T? get(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
     method public java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> getDataOrigins();
-    method @Deprecated public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
-    method @Deprecated public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     property public final java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins;
   }
 
