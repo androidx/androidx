@@ -42,6 +42,8 @@ class GridFragment : Fragment(R.layout.kitten_fragment_grid) {
             adapter = KittenGridAdapter(callback)
             layoutManager = GridLayoutManager(context, 2)
         }
+        enterTransition = Fade()
+        exitTransition = Fade()
         // View is created so postpone the transition
         postponeEnterTransition()
         OneShotPreDrawListener.add(view.parent as ViewGroup) {
