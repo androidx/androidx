@@ -321,10 +321,19 @@ class AdvertiserFragment : Fragment() {
     // Permissions are handled by MainActivity requestBluetoothPermissions
     @SuppressLint("MissingPermission")
     private fun startAdvertise() {
+        Log.d(TAG, "startAdvertise() called")
+
         advertiseJob = advertiseScope.launch {
+            Log.d(
+                TAG, "bluetoothLe.advertise() called with: " +
+                    "viewModel.advertiseParams = ${viewModel.advertiseParams}"
+            )
+
             isAdvertising = true
 
             bluetoothLe.advertise(viewModel.advertiseParams) {
+                Log.d(TAG, "bluetoothLe.advertise result: AdvertiseResult = $it")
+
                 when (it) {
                     BluetoothLe.ADVERTISE_STARTED -> {
                         toast("ADVERTISE_STARTED").show()
@@ -355,6 +364,8 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun onAddGattService() {
+        Log.d(TAG, "onAddGattService() called")
+
         val editTextUuid = EditText(requireActivity())
         editTextUuid.hint = getString(R.string.service_uuid)
 
@@ -386,6 +397,11 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun onAddGattCharacteristic(bluetoothGattService: GattService) {
+        Log.d(
+            TAG, "onAddGattCharacteristic() called with: " +
+                "bluetoothGattService = $bluetoothGattService"
+        )
+
         val view = layoutInflater.inflate(R.layout.dialog_add_characteristic, null)
         val editTextUuid = view.findViewById<EditText>(R.id.edit_text_uuid)
 
@@ -457,24 +473,46 @@ class AdvertiserFragment : Fragment() {
         Log.d(TAG, "openGattServer() called")
 
         gattServerJob = gattServerScope.launch {
+            Log.d(
+                TAG, "bluetoothLe.openGattServer() called with: " +
+                    "viewModel.gattServerServices = ${viewModel.gattServerServices}"
+            )
+
             isGattServerOpen = true
 
             bluetoothLe.openGattServer(viewModel.gattServerServices) {
+                Log.d(
+                    TAG, "bluetoothLe.openGattServer() called with: " +
+                        "viewModel.gattServerServices = ${viewModel.gattServerServices}"
+                )
+
                 connectRequests.collect {
+                    Log.d(TAG, "connectRequests.collected: GattServerConnectRequest = $it")
+
                     launch {
                         it.accept {
-                            requests.collect {
-                                // TODO(b/269390098): handle request correctly
-                                when (it) {
+                            Log.d(
+                                TAG, "GattServerConnectRequest accepted: " +
+                                    "GattServerSessionScope = $it"
+                            )
+
+                            requests.collect { gattServerRequest ->
+                                Log.d(
+                                    TAG, "requests collected: " +
+                                        "gattServerRequest = $gattServerRequest"
+                                )
+
+                                // TODO(b/269390098): Handle requests correctly
+                                when (gattServerRequest) {
                                     is GattServerRequest.ReadCharacteristic ->
-                                        it.sendResponse(
+                                        gattServerRequest.sendResponse(
                                             ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array()
                                         )
 
                                     is GattServerRequest.WriteCharacteristics ->
-                                        it.sendResponse()
+                                        gattServerRequest.sendResponse()
 
-                                    else -> throw NotImplementedError("unknown request")
+                                    else -> throw NotImplementedError("Unknown request")
                                 }
                             }
                         }
