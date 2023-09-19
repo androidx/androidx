@@ -147,7 +147,9 @@ fun ThreePaneScaffold(
                         Rect(actualLeft, actualTop, actualRight, actualBottom)
                     )
                 }
-                if (layoutPhysicalPartitions.size == 1) {
+                if (layoutPhysicalPartitions.size == 0) {
+                    // Display nothing
+                } else if (layoutPhysicalPartitions.size == 1) {
                     measureAndPlacePanes(
                         layoutPhysicalPartitions[0],
                         innerVerticalGutterSize,
