@@ -10,6 +10,7 @@ import androidx.compose.material3.Text as Text3
 import androidx.compose.material3.TextField as TextField3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,10 +52,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.launch
 
@@ -167,9 +172,13 @@ private fun PopupSample() {
     var popup1 by remember { mutableStateOf(0) }
     var popup2 by remember { mutableStateOf(0) }
     var popup3 by remember { mutableStateOf(0) }
+    var popupMax by remember { mutableStateOf(false) }
     Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         Button(onClick = { popup1++ }) {
             Text("Popup")
+        }
+        Button(onClick = { popupMax = true }) {
+            Text("Popup (max size)")
         }
     }
     if (popup1 > 0) {
@@ -197,6 +206,27 @@ private fun PopupSample() {
             focusable = false,
             onClose = { popup3 = 0 }
         )
+    }
+    if (popupMax) {
+        Popup(
+            popupPositionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset {
+                    return IntOffset.Zero
+                }
+            },
+            onDismissRequest = { popupMax = false }
+        ) {
+            Box(Modifier
+                .fillMaxSize()
+                .background(Color.Yellow)
+                .clickable { popupMax = false }
+            )
+        }
     }
 }
 

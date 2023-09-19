@@ -18,8 +18,7 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 
 @Composable
-internal actual fun Density.platformOffset(): IntOffset =
-    IntOffset.Zero
+internal actual fun Density.platformPadding(): RootLayoutPadding =
+    RootLayoutPadding.Zero

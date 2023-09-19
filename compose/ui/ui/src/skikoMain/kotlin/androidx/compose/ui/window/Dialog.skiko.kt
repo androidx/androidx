@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.center
 
@@ -178,7 +177,7 @@ private fun DialogLayout(
         val density = LocalDensity.current
         val measurePolicy = rememberDialogMeasurePolicy(
             properties = properties,
-            platformOffset = with(density) { platformOffset() }
+            platformPadding = with(density) { platformPadding() }
         ) {
             owner.bounds = it
         }
@@ -192,14 +191,16 @@ private fun DialogLayout(
 @Composable
 private fun rememberDialogMeasurePolicy(
     properties: DialogProperties,
-    platformOffset: IntOffset,
+    platformPadding: RootLayoutPadding,
     onBoundsChanged: (IntRect) -> Unit
-) = remember(properties, platformOffset, onBoundsChanged) {
+) = remember(properties, platformPadding, onBoundsChanged) {
     RootMeasurePolicy(
-        platformOffset = platformOffset,
+        platformPadding = platformPadding,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        val position = windowSize.center - contentSize.center
+        val position = positionWithPadding(platformPadding, windowSize) {
+            it.center - contentSize.center
+        }
         onBoundsChanged(IntRect(position, contentSize))
         position
     }

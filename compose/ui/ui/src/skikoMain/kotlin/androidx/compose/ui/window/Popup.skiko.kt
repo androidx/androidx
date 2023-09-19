@@ -434,7 +434,7 @@ private fun PopupLayout(
         val measurePolicy = rememberPopupMeasurePolicy(
             popupPositionProvider = popupPositionProvider,
             properties = properties,
-            platformOffset = with(density) { platformOffset() },
+            platformPadding = with(density) { platformPadding() },
             layoutDirection = layoutDirection,
             parentBounds = parentBounds
         ) {
@@ -461,18 +461,20 @@ private fun Modifier.parentBoundsInWindow(
 private fun rememberPopupMeasurePolicy(
     popupPositionProvider: PopupPositionProvider,
     properties: PopupProperties,
-    platformOffset: IntOffset,
+    platformPadding: RootLayoutPadding,
     layoutDirection: LayoutDirection,
     parentBounds: IntRect,
     onBoundsChanged: (IntRect) -> Unit
-) = remember(popupPositionProvider, properties, platformOffset, layoutDirection, parentBounds, onBoundsChanged) {
+) = remember(popupPositionProvider, properties, platformPadding, layoutDirection, parentBounds, onBoundsChanged) {
     RootMeasurePolicy(
-        platformOffset = platformOffset,
+        platformPadding = platformPadding,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        var position = popupPositionProvider.calculatePosition(
-            parentBounds, windowSize, layoutDirection, contentSize
-        )
+        var position = positionWithPadding(platformPadding, windowSize) {
+            popupPositionProvider.calculatePosition(
+                parentBounds, it, layoutDirection, contentSize
+            )
+        }
         if (properties.clippingEnabled) {
             position = IntOffset(
                 x = position.x.coerceIn(0, windowSize.width - contentSize.width),

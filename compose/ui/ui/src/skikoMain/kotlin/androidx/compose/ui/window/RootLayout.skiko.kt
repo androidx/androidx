@@ -99,12 +99,12 @@ internal fun EmptyLayout(
 )
 
 internal fun RootMeasurePolicy(
-    platformOffset: IntOffset,
+    platformPadding: RootLayoutPadding,
     usePlatformDefaultWidth: Boolean,
     calculatePosition: (windowSize: IntSize, contentSize: IntSize) -> IntOffset,
 ) = MeasurePolicy {measurables, constraints ->
     val platformConstraints = applyPlatformConstrains(
-        constraints, platformOffset, usePlatformDefaultWidth
+        constraints, platformPadding, usePlatformDefaultWidth
     )
     val placeables = measurables.fastMap { it.measure(platformConstraints) }
     val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
@@ -122,12 +122,12 @@ internal fun RootMeasurePolicy(
 
 private fun Density.applyPlatformConstrains(
     constraints: Constraints,
-    platformOffset: IntOffset,
+    platformPadding: RootLayoutPadding,
     usePlatformDefaultWidth: Boolean
 ): Constraints {
     val platformConstraints = constraints.offset(
-        horizontal = -2 * platformOffset.x,
-        vertical = -2 * platformOffset.y
+        horizontal = -(platformPadding.left + platformPadding.right),
+        vertical = -(platformPadding.top + platformPadding.bottom)
     )
     return if (usePlatformDefaultWidth) {
         platformConstraints.constrain(
@@ -138,8 +138,32 @@ private fun Density.applyPlatformConstrains(
     }
 }
 
+internal data class RootLayoutPadding(
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int
+) {
+    companion object {
+        val Zero = RootLayoutPadding(0, 0, 0, 0)
+    }
+}
+
+internal fun positionWithPadding(
+    padding: RootLayoutPadding,
+    size: IntSize,
+    calculatePosition: (size: IntSize) -> IntOffset,
+): IntOffset {
+    val sizeWithPadding = IntSize(
+        width = size.width - padding.left - padding.right,
+        height = size.height - padding.top - padding.bottom
+    )
+    val position = calculatePosition(sizeWithPadding)
+    return position + IntOffset(padding.left, padding.top)
+}
+
 @Composable
-internal expect fun Density.platformOffset(): IntOffset
+internal expect fun Density.platformPadding(): RootLayoutPadding
 
 private fun Density.platformDefaultConstrains(
     constraints: Constraints
