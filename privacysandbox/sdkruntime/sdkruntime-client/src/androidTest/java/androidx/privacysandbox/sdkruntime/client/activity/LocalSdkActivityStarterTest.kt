@@ -50,7 +50,10 @@ class LocalSdkActivityStarterTest {
     @Test
     fun tryStart_whenHandlerRegistered_startSdkActivityAndReturnTrue() {
         val handler = TestHandler()
-        val registeredToken = LocalSdkActivityHandlerRegistry.register(handler)
+        val registeredToken = LocalSdkActivityHandlerRegistry.register(
+            "LocalSdkActivityStarterTest.sdk",
+            handler
+        )
 
         val startResult = with(ActivityScenario.launch(EmptyActivity::class.java)) {
             withActivity {

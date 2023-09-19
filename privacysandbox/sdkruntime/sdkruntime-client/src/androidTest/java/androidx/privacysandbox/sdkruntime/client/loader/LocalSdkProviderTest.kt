@@ -304,7 +304,9 @@ internal class LocalSdkProviderTest(
             val sdkLoader = SdkLoader(
                 TestClassLoaderFactory(testStorage),
                 context,
-                controller
+                object : SdkLoader.ControllerFactory {
+                    override fun createControllerFor(sdkConfig: LocalSdkConfig) = controller
+                }
             )
             return sdkLoader.loadSdk(sdkConfig)
         }
