@@ -106,6 +106,7 @@ class UseCaseCameraTest {
                 }
             )
         }
+
         @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
             controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
@@ -117,7 +118,8 @@ class UseCaseCameraTest {
                 NoOpInactiveSurfaceCloser,
             ),
             threads = useCaseThreads,
-            requestControl = requestControl
+            sessionProcessorManager = null,
+            requestControl = requestControl,
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
         }
@@ -146,7 +148,7 @@ class UseCaseCameraTest {
 }
 
 @RequiresApi(21)
-private class FakeTestUseCase() : FakeUseCase(
+private class FakeTestUseCase : FakeUseCase(
     FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
 ) {
 

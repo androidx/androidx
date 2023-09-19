@@ -93,8 +93,10 @@ class TestUseCaseCamera(
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
-        val cameraGraphConfig = createCameraGraphConfig(sessionConfigAdapter, streamConfigMap,
-            callbackMap, requestListener, cameraConfig, cameraQuirks, null)
+        val cameraGraphConfig = createCameraGraphConfig(
+            sessionConfigAdapter, streamConfigMap,
+            callbackMap, requestListener, cameraConfig, cameraQuirks, null
+        )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
         useCaseCameraGraphConfig = UseCaseCameraConfig(
@@ -102,7 +104,8 @@ class TestUseCaseCamera(
             sessionConfigAdapter,
             CameraStateAdapter(),
             cameraGraph,
-            streamConfigMap
+            streamConfigMap,
+            sessionProcessorManager = null
         ).provideUseCaseGraphConfig(
             useCaseSurfaceManager = useCaseSurfaceManager,
             cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()

@@ -52,8 +52,10 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     private var streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
     private var config: UseCaseCameraConfig =
-        UseCaseCameraConfig(emptyList(), sessionConfigAdapter, CameraStateAdapter(), cameraGraph,
-            streamConfigMap)
+        UseCaseCameraConfig(
+            emptyList(), sessionConfigAdapter, CameraStateAdapter(), cameraGraph,
+            streamConfigMap, sessionProcessorManager = null
+        )
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
         this.config = config

@@ -90,6 +90,7 @@ class UseCaseCameraImpl @Inject constructor(
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
     private val threads: UseCaseThreads,
+    private val sessionProcessorManager: SessionProcessorManager?,
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
@@ -98,6 +99,11 @@ class UseCaseCameraImpl @Inject constructor(
     override var runningUseCases = setOf<UseCase>()
         set(value) {
             field = value
+
+            if (sessionProcessorManager != null) {
+                return
+            }
+
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
@@ -141,6 +147,7 @@ class UseCaseCameraImpl @Inject constructor(
                 debug { "Closing $this" }
                 requestControl.close()
                 useCaseGraphConfig.graph.close()
+                sessionProcessorManager?.close()
                 useCaseSurfaceManager.stopAsync().await()
             }
         } else {
