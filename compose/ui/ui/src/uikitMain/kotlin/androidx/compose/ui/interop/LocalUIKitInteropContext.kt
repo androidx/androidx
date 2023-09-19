@@ -19,6 +19,62 @@ package androidx.compose.ui.interop
 import androidx.compose.runtime.staticCompositionLocalOf
 import platform.Foundation.NSLock
 
+internal enum class UIKitInteropState {
+    BEGAN, UNCHANGED, ENDED
+}
+
+internal enum class UIKitInteropViewHierarchyChange {
+    VIEW_ADDED,
+    VIEW_REMOVED
+}
+
+/**
+ * Lambda containing changes to UIKit objects, which can be synchronized within [CATransaction]
+ */
+typealias UIKitInteropAction = () -> Unit
+
+internal interface UIKitInteropTransaction {
+    val actions: List<UIKitInteropAction>
+    val state: UIKitInteropState
+
+    companion object {
+        val empty = object : UIKitInteropTransaction {
+            override val actions: List<UIKitInteropAction>
+                get() = listOf()
+
+            override val state: UIKitInteropState
+                get() = UIKitInteropState.UNCHANGED
+        }
+    }
+}
+
+internal fun UIKitInteropTransaction.isEmpty() = actions.isEmpty() && state == UIKitInteropState.UNCHANGED
+internal fun UIKitInteropTransaction.isNotEmpty() = !isEmpty()
+
+private class UIKitInteropMutableTransaction: UIKitInteropTransaction {
+    override val actions = mutableListOf<UIKitInteropAction>()
+    override var state = UIKitInteropState.UNCHANGED
+        set(value) {
+            field = when (value) {
+                UIKitInteropState.UNCHANGED -> error("Can't assign UNCHANGED value explicitly")
+                UIKitInteropState.BEGAN -> {
+                    when (field) {
+                        UIKitInteropState.BEGAN -> error("Can't assign BEGAN twice in the same transaction")
+                        UIKitInteropState.UNCHANGED -> value
+                        UIKitInteropState.ENDED -> UIKitInteropState.UNCHANGED
+                    }
+                }
+                UIKitInteropState.ENDED -> {
+                    when (field) {
+                        UIKitInteropState.BEGAN -> UIKitInteropState.UNCHANGED
+                        UIKitInteropState.UNCHANGED -> value
+                        UIKitInteropState.ENDED -> error("Can't assign ENDED twice in the same transaction")
+                    }
+                }
+            }
+        }
+}
+
 /**
  * Class which can be used to add actions related to UIKit objects to be executed in sync with compose rendering,
  * Addding deferred actions is threadsafe, but they will be executed in the order of their submission, and on the main thread.
@@ -27,29 +83,52 @@ internal class UIKitInteropContext(
     val requestRedraw: () -> Unit
 ) {
     private val lock: NSLock = NSLock()
-    private val actions = mutableListOf<() -> Unit>()
+    private var transaction = UIKitInteropMutableTransaction()
+
+    /**
+     * Number of views, created by interop API and present in current view hierarchy
+     */
+    private var viewsCount = 0
+        set(value) {
+            require(value >= 0)
+
+            field = value
+        }
 
     /**
      * Add lambda to a list of commands which will be executed later in the same CATransaction, when the next rendered Compose frame is presented
      */
-    fun deferAction(action: () -> Unit) {
+    fun deferAction(hierarchyChange: UIKitInteropViewHierarchyChange? = null, action: () -> Unit) {
         requestRedraw()
 
         lock.doLocked {
-            actions.add(action)
+            if (hierarchyChange == UIKitInteropViewHierarchyChange.VIEW_ADDED) {
+                if (viewsCount == 0) {
+                    transaction.state = UIKitInteropState.BEGAN
+                }
+                viewsCount += 1
+            }
+
+            transaction.actions.add(action)
+
+            if (hierarchyChange == UIKitInteropViewHierarchyChange.VIEW_REMOVED) {
+                viewsCount -= 1
+                if (viewsCount == 0) {
+                    transaction.state = UIKitInteropState.ENDED
+                }
+            }
         }
     }
 
     /**
-     * Return a copy of the list of [actions] and clear it.
+     * Return an object containing pending changes and reset internal storage
      */
-    internal fun getActionsAndClear(): List<() -> Unit> {
-        return lock.doLocked {
-            val result = actions.toList()
-            actions.clear()
+    internal fun retrieve(): UIKitInteropTransaction =
+        lock.doLocked {
+            val result = transaction
+            transaction = UIKitInteropMutableTransaction()
             result
         }
-    }
 }
 
 private inline fun <T> NSLock.doLocked(block: () -> T): T {

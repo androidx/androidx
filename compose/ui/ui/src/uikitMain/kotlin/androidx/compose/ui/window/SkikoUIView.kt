@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.interop.UIKitInteropAction
+import androidx.compose.ui.interop.UIKitInteropTransaction
 import androidx.compose.ui.platform.IOSSkikoInput
 import androidx.compose.ui.platform.SkikoUITextInputTraits
 import androidx.compose.ui.platform.TextActions
@@ -29,8 +31,6 @@ import platform.Metal.MTLPixelFormatBGRA8Unorm
 import platform.QuartzCore.CAMetalLayer
 import platform.UIKit.*
 import platform.darwin.NSInteger
-import kotlin.math.max
-import kotlin.math.min
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.SkikoInputModifiers
 import org.jetbrains.skiko.SkikoKey
@@ -49,7 +49,7 @@ internal interface SkikoUIViewDelegate {
 
     fun onPointerEvent(event: SkikoPointerEvent)
 
-    fun retrieveCATransactionCommands(): List<() -> Unit>
+    fun retrieveInteropTransaction(): UIKitInteropTransaction
 
     fun draw(surface: Surface, targetTimestamp: NSTimeInterval)
 }
@@ -83,8 +83,9 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
                 delegate?.draw(surface, targetTimestamp)
             }
 
-            override fun retrieveCATransactionCommands(): List<() -> Unit> =
-                delegate?.retrieveCATransactionCommands() ?: listOf()
+            override fun retrieveInteropTransaction(): UIKitInteropTransaction =
+                delegate?.retrieveInteropTransaction() ?: UIKitInteropTransaction.empty
+
         }
     )
 
@@ -105,7 +106,6 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
 
     init {
         multipleTouchEnabled = true
-        opaque = false // For UIKit interop through a "Hole"
 
         _metalLayer.also {
             // Workaround for KN compiler bug
@@ -117,6 +117,7 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
             doubleArrayOf(0.0, 0.0, 0.0, 0.0).usePinned { pinned ->
                 it.backgroundColor = CGColorCreate(CGColorSpaceCreateDeviceRGB(), pinned.addressOf(0))
             }
+            it.setOpaque(true)
             it.framebufferOnly = false
         }
     }

@@ -43,13 +43,13 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.round
 import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.CValue
+import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
+import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIColor
 import platform.UIKit.UIView
-import platform.darwin.dispatch_async
-import platform.darwin.dispatch_get_main_queue
 
 private val STUB_CALLBACK_WITH_RECEIVER: Any.() -> Unit = {}
 private val NoOpUpdate: UIView.() -> Unit = STUB_CALLBACK_WITH_RECEIVER
@@ -122,9 +122,11 @@ fun <T : UIView> UIKitView(
 
     DisposableEffect(Unit) {
         componentInfo.component = factory()
-        componentInfo.updater = Updater(componentInfo.component, update, interopContext::deferAction)
+        componentInfo.updater = Updater(componentInfo.component, update) {
+            interopContext.deferAction(action = it)
+        }
 
-        interopContext.deferAction {
+        interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_ADDED) {
             componentInfo.container = UIView().apply {
                 addSubview(componentInfo.component)
             }
@@ -132,7 +134,7 @@ fun <T : UIView> UIKitView(
         }
 
         onDispose {
-            interopContext.deferAction {
+            interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_REMOVED) {
                 componentInfo.container.removeFromSuperview()
                 componentInfo.updater.dispose()
                 onRelease(componentInfo.component)
