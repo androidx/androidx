@@ -68,7 +68,7 @@ class TextFieldState internal constructor(
 
     constructor(
         initialText: String = "",
-        initialSelectionInChars: TextRange = TextRange.Zero
+        initialSelectionInChars: TextRange = TextRange(initialText.length)
     ) : this(initialText, initialSelectionInChars, TextUndoManager())
 
     /**
@@ -466,10 +466,12 @@ fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { te
  */
 @ExperimentalFoundationApi
 @Composable
-fun rememberTextFieldState(): TextFieldState =
-    rememberSaveable(saver = TextFieldState.Saver) {
-        TextFieldState()
-    }
+fun rememberTextFieldState(
+    initialText: String = "",
+    initialSelectionInChars: TextRange = TextRange(initialText.length)
+): TextFieldState = rememberSaveable(saver = TextFieldState.Saver) {
+    TextFieldState(initialText, initialSelectionInChars)
+}
 
 /**
  * Sets the text in this [TextFieldState] to [text], replacing any text that was previously there,

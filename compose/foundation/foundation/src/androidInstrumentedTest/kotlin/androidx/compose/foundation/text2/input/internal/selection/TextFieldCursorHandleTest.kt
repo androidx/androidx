@@ -373,7 +373,7 @@ class TextFieldCursorHandleTest {
 
     @Test
     fun cursorHandle_disappearsOnVerticalScroll() {
-        state = TextFieldState("hello hello hello hello")
+        state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -404,7 +404,7 @@ class TextFieldCursorHandleTest {
 
     @Test
     fun cursorHandle_disappearsOnHorizontalScroll() = with(rule.density) {
-        state = TextFieldState("hello hello hello hello")
+        state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -435,7 +435,7 @@ class TextFieldCursorHandleTest {
 
     @Test
     fun cursorHandle_reappearsOnVerticalScroll() {
-        state = TextFieldState("hello hello hello hello")
+        state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         rule.setContent {
             BasicTextField2(
@@ -470,7 +470,7 @@ class TextFieldCursorHandleTest {
 
     @Test
     fun cursorHandle_reappearsOnHorizontalScroll() {
-        state = TextFieldState("hello hello hello hello")
+        state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         rule.setContent {
             BasicTextField2(

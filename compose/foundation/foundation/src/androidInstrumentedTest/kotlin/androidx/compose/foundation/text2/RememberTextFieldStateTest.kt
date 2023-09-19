@@ -34,12 +34,28 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TextFieldStateRestorationTest {
+class RememberTextFieldStateTest {
 
     @get:Rule
     val rule = createComposeRule()
 
     private val restorationTester = StateRestorationTester(rule)
+
+    @Test
+    fun rememberTextFieldState_withInitialTextAndSelection() {
+        lateinit var state: TextFieldState
+        rule.setContent {
+            state = rememberTextFieldState(
+                initialText = "hello",
+                initialSelectionInChars = TextRange(2)
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("hello")
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
+        }
+    }
 
     @Test
     fun rememberTextFieldState_restoresTextAndSelection() {
@@ -57,6 +73,37 @@ class TextFieldStateRestorationTest {
         rule.runOnIdle {
             originalState.edit {
                 append("hello, world")
+                selectAll()
+            }
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnIdle {
+            assertThat(restoredState.text.toString()).isEqualTo("hello, world")
+            assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 12))
+        }
+    }
+
+    @Test
+    fun rememberTextFieldState_withInitialTextAndSelection_restoresTextAndSelection() {
+        lateinit var originalState: TextFieldState
+        lateinit var restoredState: TextFieldState
+        var rememberCount = 0
+        restorationTester.setContent {
+            val state = rememberTextFieldState(
+                initialText = "this should be ignored",
+                initialSelectionInChars = TextRange.Zero
+            )
+            if (remember { rememberCount++ } == 0) {
+                originalState = state
+            } else {
+                restoredState = state
+            }
+        }
+        rule.runOnIdle {
+            originalState.edit {
+                replace(0, length, "hello, world")
                 selectAll()
             }
         }

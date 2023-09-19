@@ -151,7 +151,10 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             "\u05D0\u05D1\u05D2\u05D3"
 
         val tag = "BasicTextField2"
-        val state = TextFieldState("$fillerWord $fillerWord $fillerWord ".repeat(10))
+        val state = TextFieldState(
+            "$fillerWord $fillerWord $fillerWord ".repeat(10),
+            initialSelectionInChars = TextRange.Zero
+        )
 
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
