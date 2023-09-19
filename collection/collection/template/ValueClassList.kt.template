@@ -13,9 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier", "UnusedImport")
-/* ktlint-disable max-line-length */
-/* ktlint-disable import-ordering */
+
+@file:Suppress(
+    "RedundantVisibilityModifier",
+    "KotlinRedundantDiagnosticSuppress",
+    "KotlinConstantConditions",
+    "PropertyName",
+    "ConstPropertyName",
+    "PrivatePropertyName",
+    "NOTHING_TO_INLINE",
+    "UnusedImport",
+    "ktlint:standard:import-ordering",
+    "ktlint:standard:max-line-length",
+    "ktlint:standard:no-unused-imports",
+)
 
 package PACKAGE
 
@@ -28,22 +39,14 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
 
-// To use this template, you must substitute several strings. You can copy this and search/replace
-// or use a sed command. These properties must be changed:
-// * PACKAGE - target package (e.g. androidx.compose.ui.ui.collection)
-// * VALUE_PKG - package in which the value class resides
-// * VALUE_CLASS - the value class contained in the list (e.g. Color or Offset)
-// * vALUE_CLASS - the value class, with the first letter lower case (e.g. color or offset)
-// * BACKING_PROPERTY - the field in VALUE_CLASS containing the backing primitive (e.g. packedValue)
-// * PRIMITIVE - the primitive type of the backing list (e.g. Long or Float)
-// * TO_PARAM - an operation done on the primitive to convert to the value class parameter
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to this kotlin source file.
 //
-// For example, to create a ColorList:
-// sed -e "s/PACKAGE/androidx.compose.ui.graphics/" -e "s/VALUE_CLASS/Color/g" \
-//     -e "s/vALUE_CLASS/color/g" -e "s/BACKING_PROPERTY/value.toLong()/g" -e "s/PRIMITIVE/Long/g" \
-//     -e "s/TO_PARAM/.toULong()/g" -e "s/VALUE_PKG/androidx.compose.ui.graphics/g" \
-//     collection/collection/template/ValueClassList.kt.template \
-//     > compose/ui/ui-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/ColorList.kt
+// This file was generated from a template:
+//   collection/collection/template/ValueClassList.kt.template
+// Make a change to the original template and run the generateValueClassCollections.sh script
+// to ensure the change is available on all versions of the list.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
  * [VALUE_CLASSList] is a [List]-like collection for [VALUE_CLASS] values. It allows retrieving
@@ -58,7 +61,7 @@ import kotlin.jvm.JvmInline
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-internal value class VALUE_CLASSList(val list: PRIMITIVEList) {
+VISIBILITY value class VALUE_CLASSList(val list: PRIMITIVEList) {
     /**
      * The number of elements in the [VALUE_CLASSList].
      */
@@ -378,7 +381,7 @@ internal value class VALUE_CLASSList(val list: PRIMITIVEList) {
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-internal value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
+VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
     public constructor(initialCapacity: Int = 16) : this(MutablePRIMITIVEList(initialCapacity))
 
     /**
@@ -853,23 +856,23 @@ internal value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
 /**
  * @return a read-only [VALUE_CLASSList] with nothing in it.
  */
-internal inline fun emptyVALUE_CLASSList(): VALUE_CLASSList = VALUE_CLASSList(emptyPRIMITIVEList())
+VISIBILITY inline fun emptyVALUE_CLASSList(): VALUE_CLASSList = VALUE_CLASSList(emptyPRIMITIVEList())
 
 /**
  * @return a read-only [VALUE_CLASSList] with nothing in it.
  */
-internal inline fun vALUE_CLASSListOf(): VALUE_CLASSList = VALUE_CLASSList(emptyPRIMITIVEList())
+VISIBILITY inline fun vALUE_CLASSListOf(): VALUE_CLASSList = VALUE_CLASSList(emptyPRIMITIVEList())
 
 /**
  * @return a new read-only [VALUE_CLASSList] with [element1] as the only item in the list.
  */
-internal inline fun vALUE_CLASSListOf(element1: VALUE_CLASS): VALUE_CLASSList =
+VISIBILITY inline fun vALUE_CLASSListOf(element1: VALUE_CLASS): VALUE_CLASSList =
     VALUE_CLASSList(mutablePRIMITIVEListOf(element1.BACKING_PROPERTY))
 
 /**
  * @return a new read-only [VALUE_CLASSList] with 2 elements, [element1] and [element2], in order.
  */
-internal inline fun vALUE_CLASSListOf(element1: VALUE_CLASS, element2: VALUE_CLASS): VALUE_CLASSList =
+VISIBILITY inline fun vALUE_CLASSListOf(element1: VALUE_CLASS, element2: VALUE_CLASS): VALUE_CLASSList =
     VALUE_CLASSList(
         mutablePRIMITIVEListOf(
             element1.BACKING_PROPERTY,
@@ -881,7 +884,7 @@ internal inline fun vALUE_CLASSListOf(element1: VALUE_CLASS, element2: VALUE_CLA
  * @return a new read-only [VALUE_CLASSList] with 3 elements, [element1], [element2], and [element3],
  * in order.
  */
-internal inline fun vALUE_CLASSListOf(
+VISIBILITY inline fun vALUE_CLASSListOf(
         element1: VALUE_CLASS,
         element2: VALUE_CLASS,
         element3: VALUE_CLASS
@@ -896,19 +899,19 @@ internal inline fun vALUE_CLASSListOf(
 /**
  * @return a new empty [MutableVALUE_CLASSList] with the default capacity.
  */
-internal inline fun mutableVALUE_CLASSListOf(): MutableVALUE_CLASSList =
+VISIBILITY inline fun mutableVALUE_CLASSListOf(): MutableVALUE_CLASSList =
     MutableVALUE_CLASSList(MutablePRIMITIVEList())
 
 /**
  * @return a new [MutableVALUE_CLASSList] with [element1] as the only item in the list.
  */
-internal inline fun mutableVALUE_CLASSListOf(element1: VALUE_CLASS): MutableVALUE_CLASSList =
+VISIBILITY inline fun mutableVALUE_CLASSListOf(element1: VALUE_CLASS): MutableVALUE_CLASSList =
     MutableVALUE_CLASSList(mutablePRIMITIVEListOf(element1.BACKING_PROPERTY))
 
 /**
  * @return a new [MutableVALUE_CLASSList] with 2 elements, [element1] and [element2], in order.
  */
-internal inline fun mutableVALUE_CLASSListOf(
+VISIBILITY inline fun mutableVALUE_CLASSListOf(
         element1: VALUE_CLASS,
         element2: VALUE_CLASS
     ): MutableVALUE_CLASSList = MutableVALUE_CLASSList(
@@ -922,7 +925,7 @@ internal inline fun mutableVALUE_CLASSListOf(
  * @return a new [MutableVALUE_CLASSList] with 3 elements, [element1], [element2], and [element3],
  * in order.
  */
-internal inline fun mutableVALUE_CLASSListOf(
+VISIBILITY inline fun mutableVALUE_CLASSListOf(
         element1: VALUE_CLASS,
         element2: VALUE_CLASS,
         element3: VALUE_CLASS

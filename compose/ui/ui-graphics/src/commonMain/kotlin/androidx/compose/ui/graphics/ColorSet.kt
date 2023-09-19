@@ -28,13 +28,13 @@
     "ktlint:standard:no-unused-imports",
 )
 
-package PACKAGE
+package androidx.compose.ui.graphics
 
-import androidx.collection.PRIMITIVESet
-import androidx.collection.MutablePRIMITIVESet
-import androidx.collection.emptyPRIMITIVESet
-import androidx.collection.mutablePRIMITIVESetOf
-import VALUE_PKG.VALUE_CLASS
+import androidx.collection.LongSet
+import androidx.collection.MutableLongSet
+import androidx.collection.emptyLongSet
+import androidx.collection.mutableLongSetOf
+import androidx.compose.ui.graphics.Color
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmInline
@@ -49,113 +49,113 @@ import kotlin.jvm.JvmInline
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
- * Returns an empty, read-only [VALUE_CLASSSet].
+ * Returns an empty, read-only [ColorSet].
  */
-VISIBILITY inline fun emptyVALUE_CLASSSet(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
+public inline fun emptyColorSet(): ColorSet = ColorSet(emptyLongSet())
 
 /**
- * Returns an empty, read-only [VALUE_CLASSSet].
+ * Returns an empty, read-only [ColorSet].
  */
-VISIBILITY inline fun vALUE_CLASSSetOf(): VALUE_CLASSSet = VALUE_CLASSSet(emptyPRIMITIVESet())
+public inline fun colorSetOf(): ColorSet = ColorSet(emptyLongSet())
 
 /**
- * Returns a new read-only [VALUE_CLASSSet] with only [element1] in it.
+ * Returns a new read-only [ColorSet] with only [element1] in it.
  */
-VISIBILITY inline fun vALUE_CLASSSetOf(element1: VALUE_CLASS): VALUE_CLASSSet =
-    VALUE_CLASSSet(mutablePRIMITIVESetOf(element1.BACKING_PROPERTY))
+public inline fun colorSetOf(element1: Color): ColorSet =
+    ColorSet(mutableLongSetOf(element1.value.toLong()))
 
 /**
- * Returns a new read-only [VALUE_CLASSSet] with only [element1] and [element2] in it.
+ * Returns a new read-only [ColorSet] with only [element1] and [element2] in it.
  */
 @Suppress("UNCHECKED_CAST")
-VISIBILITY fun vALUE_CLASSSetOf(
-    element1: VALUE_CLASS,
-    element2: VALUE_CLASS
-): VALUE_CLASSSet =
-    VALUE_CLASSSet(
-        mutablePRIMITIVESetOf(
-            element1.BACKING_PROPERTY,
-            element2.BACKING_PROPERTY,
+public fun colorSetOf(
+    element1: Color,
+    element2: Color
+): ColorSet =
+    ColorSet(
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
         )
     )
 
 /**
- * Returns a new read-only [VALUE_CLASSSet] with only [element1], [element2], and [element3] in it.
+ * Returns a new read-only [ColorSet] with only [element1], [element2], and [element3] in it.
  */
 @Suppress("UNCHECKED_CAST")
-VISIBILITY fun vALUE_CLASSSetOf(
-    element1: VALUE_CLASS,
-    element2: VALUE_CLASS,
-    element3: VALUE_CLASS
-): VALUE_CLASSSet = VALUE_CLASSSet(
-    mutablePRIMITIVESetOf(
-        element1.BACKING_PROPERTY,
-        element2.BACKING_PROPERTY,
-        element3.BACKING_PROPERTY,
+public fun colorSetOf(
+    element1: Color,
+    element2: Color,
+    element3: Color
+): ColorSet = ColorSet(
+    mutableLongSetOf(
+        element1.value.toLong(),
+        element2.value.toLong(),
+        element3.value.toLong(),
     )
 )
 
 /**
- * Returns a new [MutableVALUE_CLASSSet].
+ * Returns a new [MutableColorSet].
  */
-VISIBILITY fun mutableVALUE_CLASSSetOf(): MutableVALUE_CLASSSet = MutableVALUE_CLASSSet(
-    MutablePRIMITIVESet()
+public fun mutableColorSetOf(): MutableColorSet = MutableColorSet(
+    MutableLongSet()
 )
 
 /**
- * Returns a new [MutableVALUE_CLASSSet] with only [element1] in it.
+ * Returns a new [MutableColorSet] with only [element1] in it.
  */
-VISIBILITY fun mutableVALUE_CLASSSetOf(element1: VALUE_CLASS): MutableVALUE_CLASSSet =
-    MutableVALUE_CLASSSet(mutablePRIMITIVESetOf(element1.BACKING_PROPERTY))
+public fun mutableColorSetOf(element1: Color): MutableColorSet =
+    MutableColorSet(mutableLongSetOf(element1.value.toLong()))
 
 /**
- * Returns a new [MutableVALUE_CLASSSet] with only [element1] and [element2] in it.
+ * Returns a new [MutableColorSet] with only [element1] and [element2] in it.
  */
-VISIBILITY fun mutableVALUE_CLASSSetOf(
-    element1: VALUE_CLASS,
-    element2: VALUE_CLASS
-): MutableVALUE_CLASSSet =
-    MutableVALUE_CLASSSet(
-        mutablePRIMITIVESetOf(
-            element1.BACKING_PROPERTY,
-            element2.BACKING_PROPERTY,
+public fun mutableColorSetOf(
+    element1: Color,
+    element2: Color
+): MutableColorSet =
+    MutableColorSet(
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
         )
     )
 
 /**
- * Returns a new [MutableVALUE_CLASSSet] with only [element1], [element2], and [element3] in it.
+ * Returns a new [MutableColorSet] with only [element1], [element2], and [element3] in it.
  */
-VISIBILITY fun mutableVALUE_CLASSSetOf(
-    element1: VALUE_CLASS,
-    element2: VALUE_CLASS,
-    element3: VALUE_CLASS
-): MutableVALUE_CLASSSet =
-    MutableVALUE_CLASSSet(
-        mutablePRIMITIVESetOf(
-            element1.BACKING_PROPERTY,
-            element2.BACKING_PROPERTY,
-            element3.BACKING_PROPERTY,
+public fun mutableColorSetOf(
+    element1: Color,
+    element2: Color,
+    element3: Color
+): MutableColorSet =
+    MutableColorSet(
+        mutableLongSetOf(
+            element1.value.toLong(),
+            element2.value.toLong(),
+            element3.value.toLong(),
         )
     )
 
 /**
- * [VALUE_CLASSSet] is a container with a [Set]-like interface designed to avoid
+ * [ColorSet] is a container with a [Set]-like interface designed to avoid
  * allocations, including boxing.
  *
  * This implementation makes no guarantee as to the order of the elements,
  * nor does it make guarantees that the order remains constant over time.
  *
- * Though [VALUE_CLASSSet] offers a read-only interface, it is always backed
- * by a [MutableVALUE_CLASSSet]. Read operations alone are thread-safe. However,
- * any mutations done through the backing [MutableVALUE_CLASSSet] while reading
+ * Though [ColorSet] offers a read-only interface, it is always backed
+ * by a [MutableColorSet]. Read operations alone are thread-safe. However,
+ * any mutations done through the backing [MutableColorSet] while reading
  * on another thread are not safe and the developer must protect the set
  * from such changes during read operations.
  *
- * @see [MutableVALUE_CLASSSet]
+ * @see [MutableColorSet]
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
+public value class ColorSet(val set: LongSet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
@@ -195,7 +195,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * Returns the first element in the collection.
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): VALUE_CLASS = VALUE_CLASS(set.first()TO_PARAM)
+    public inline fun first(): Color = Color(set.first().toULong())
 
     /**
      * Returns the first element in the collection for which [predicate] returns `true`.
@@ -210,17 +210,17 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      * collection is empty.
      */
-    public inline fun first(predicate: (element: VALUE_CLASS) -> Boolean): VALUE_CLASS =
-        VALUE_CLASS(set.first { predicate(VALUE_CLASS(itTO_PARAM)) }TO_PARAM)
+    public inline fun first(predicate: (element: Color) -> Boolean): Color =
+        Color(set.first { predicate(Color(it.toULong())) }.toULong())
 
     /**
      * Iterates over every element stored in this set by invoking
      * the specified [block] lambda.
      * @param block called with each element in the set
      */
-    public inline fun forEach(block: (element: VALUE_CLASS) -> Unit) {
+    public inline fun forEach(block: (element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        set.forEach { block(VALUE_CLASS(itTO_PARAM)) }
+        set.forEach { block(Color(it.toULong())) }
     }
 
     /**
@@ -228,9 +228,9 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * @param predicate called for elements in the set to determine if it returns return `true` for
      * all elements.
      */
-    public inline fun all(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {
+    public inline fun all(predicate: (element: Color) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        return set.all { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.all { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -238,9 +238,9 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * @param predicate called for elements in the set to determine if it returns `true` for any
      * elements.
      */
-    public inline fun any(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {
+    public inline fun any(predicate: (element: Color) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        return set.any { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.any { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -255,9 +255,9 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * `true`.
      */
     @androidx.annotation.IntRange(from = 0)
-    public inline fun count(predicate: (element: VALUE_CLASS) -> Boolean): Int {
+    public inline fun count(predicate: (element: Color) -> Boolean): Int {
         contract { callsInPlace(predicate) }
-        return set.count { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.count { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -265,8 +265,8 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * otherwise.
      * @param element The element to look for in this set
      */
-    public inline operator fun contains(element: VALUE_CLASS): Boolean =
-        set.contains(element.BACKING_PROPERTY)
+    public inline operator fun contains(element: Color): Boolean =
+        set.contains(element.value.toLong())
 
     /**
      * Returns a string representation of this set. The set is denoted in the
@@ -290,7 +290,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
 }
 
 /**
- * [MutableVALUE_CLASSSet] is a container with a [MutableSet]-like interface based on a flat
+ * [MutableColorSet] is a container with a [MutableSet]-like interface based on a flat
  * hash table implementation. The underlying implementation is designed to avoid
  * all allocations on insertion, removal, retrieval, and iteration. Allocations
  * may still happen on insertion when the underlying storage needs to grow to
@@ -306,7 +306,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
+public value class MutableColorSet(val set: MutableLongSet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
@@ -346,7 +346,7 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * Returns the first element in the collection.
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): VALUE_CLASS = VALUE_CLASS(set.first()TO_PARAM)
+    public inline fun first(): Color = Color(set.first().toULong())
 
     /**
      * Returns the first element in the collection for which [predicate] returns `true`.
@@ -361,17 +361,17 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      * collection is empty.
      */
-    public inline fun first(predicate: (element: VALUE_CLASS) -> Boolean): VALUE_CLASS =
-        VALUE_CLASS(set.first { predicate(VALUE_CLASS(itTO_PARAM)) }TO_PARAM)
+    public inline fun first(predicate: (element: Color) -> Boolean): Color =
+        Color(set.first { predicate(Color(it.toULong())) }.toULong())
 
     /**
      * Iterates over every element stored in this set by invoking
      * the specified [block] lambda.
      * @param block called with each element in the set
      */
-    public inline fun forEach(block: (element: VALUE_CLASS) -> Unit) {
+    public inline fun forEach(block: (element: Color) -> Unit) {
         contract { callsInPlace(block) }
-        set.forEach { block(VALUE_CLASS(itTO_PARAM)) }
+        set.forEach { block(Color(it.toULong())) }
     }
 
     /**
@@ -379,9 +379,9 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @param predicate called for elements in the set to determine if it returns return `true` for
      * all elements.
      */
-    public inline fun all(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {
+    public inline fun all(predicate: (element: Color) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        return set.all { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.all { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -389,9 +389,9 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @param predicate called for elements in the set to determine if it returns `true` for any
      * elements.
      */
-    public inline fun any(predicate: (element: VALUE_CLASS) -> Boolean): Boolean {
+    public inline fun any(predicate: (element: Color) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        return set.any { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.any { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -406,9 +406,9 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * `true`.
      */
     @androidx.annotation.IntRange(from = 0)
-    public inline fun count(predicate: (element: VALUE_CLASS) -> Boolean): Int {
+    public inline fun count(predicate: (element: Color) -> Boolean): Int {
         contract { callsInPlace(predicate) }
-        return set.count { predicate(VALUE_CLASS(itTO_PARAM)) }
+        return set.count { predicate(Color(it.toULong())) }
     }
 
     /**
@@ -416,28 +416,28 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * otherwise.
      * @param element The element to look for in this set
      */
-    public inline operator fun contains(element: VALUE_CLASS): Boolean =
-        set.contains(element.BACKING_PROPERTY)
+    public inline operator fun contains(element: Color): Boolean =
+        set.contains(element.value.toLong())
 
     /**
      * Returns a string representation of this set. The set is denoted in the
      * string by the `{}`. Each element is separated by `, `.
      */
-    public override fun toString(): String = asVALUE_CLASSSet().toString()
+    public override fun toString(): String = asColorSet().toString()
 
     /**
-     * Creates a new [MutableVALUE_CLASSSet]
+     * Creates a new [MutableColorSet]
      * @param initialCapacity The initial desired capacity for this container.
      * The container will honor this value by guaranteeing its internal structures
      * can hold that many elements without requiring any allocations. The initial
      * capacity can be set to 0.
      */
-    public constructor(initialCapacity: Int = 6) : this(MutablePRIMITIVESet(initialCapacity))
+    public constructor(initialCapacity: Int = 6) : this(MutableLongSet(initialCapacity))
 
     /**
      * Returns a read-only interface to the set.
      */
-    public inline fun asVALUE_CLASSSet(): VALUE_CLASSSet = VALUE_CLASSSet(set)
+    public inline fun asColorSet(): ColorSet = ColorSet(set)
 
     /**
      * Adds the specified element to the set.
@@ -445,43 +445,43 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @return `true` if the element has been added or `false` if the element is already
      * contained within the set.
      */
-    public inline fun add(element: VALUE_CLASS): Boolean = set.add(element.BACKING_PROPERTY)
+    public inline fun add(element: Color): Boolean = set.add(element.value.toLong())
 
     /**
      * Adds the specified element to the set.
      * @param element The element to add to the set.
      */
-    public inline operator fun plusAssign(element: VALUE_CLASS) =
-        set.plusAssign(element.BACKING_PROPERTY)
+    public inline operator fun plusAssign(element: Color) =
+        set.plusAssign(element.value.toLong())
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [VALUE_CLASSSet] of elements to add to this set.
+     * @param elements A [ColorSet] of elements to add to this set.
      * @return `true` if any of the specified elements were added to the collection,
      * `false` if the collection was not modified.
      */
-    public inline fun addAll(elements: VALUE_CLASSSet): Boolean = set.addAll(elements.set)
+    public inline fun addAll(elements: ColorSet): Boolean = set.addAll(elements.set)
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [VALUE_CLASSSet] of elements to add to this set.
+     * @param elements A [ColorSet] of elements to add to this set.
      * @return `true` if any of the specified elements were added to the collection,
      * `false` if the collection was not modified.
      */
-    public inline fun addAll(elements: MutableVALUE_CLASSSet): Boolean = set.addAll(elements.set)
+    public inline fun addAll(elements: MutableColorSet): Boolean = set.addAll(elements.set)
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [VALUE_CLASSSet] of elements to add to this set.
+     * @param elements A [ColorSet] of elements to add to this set.
      */
-    public inline operator fun plusAssign(elements: VALUE_CLASSSet) =
+    public inline operator fun plusAssign(elements: ColorSet) =
         set.plusAssign(elements.set)
 
     /**
      * Adds all the elements in the [elements] set into this set.
-     * @param elements A [VALUE_CLASSSet] of elements to add to this set.
+     * @param elements A [ColorSet] of elements to add to this set.
      */
-    public inline operator fun plusAssign(elements: MutableVALUE_CLASSSet) =
+    public inline operator fun plusAssign(elements: MutableColorSet) =
         set.plusAssign(elements.set)
 
     /**
@@ -490,42 +490,42 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @return `true` if the [element] was present in the set, or `false` if it wasn't
      * present before removal.
      */
-    public inline fun remove(element: VALUE_CLASS): Boolean = set.remove(element.BACKING_PROPERTY)
+    public inline fun remove(element: Color): Boolean = set.remove(element.value.toLong())
 
     /**
      * Removes the specified [element] from the set if it is present.
      * @param element The element to remove from the set.
      */
-    public inline operator fun minusAssign(element: VALUE_CLASS) =
-        set.minusAssign(element.BACKING_PROPERTY)
+    public inline operator fun minusAssign(element: Color) =
+        set.minusAssign(element.value.toLong())
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [VALUE_CLASSSet] of elements to be removed from the set.
+     * @param elements An [ColorSet] of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public inline fun removeAll(elements: VALUE_CLASSSet): Boolean = set.removeAll(elements.set)
+    public inline fun removeAll(elements: ColorSet): Boolean = set.removeAll(elements.set)
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [VALUE_CLASSSet] of elements to be removed from the set.
+     * @param elements An [ColorSet] of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public inline fun removeAll(elements: MutableVALUE_CLASSSet): Boolean =
+    public inline fun removeAll(elements: MutableColorSet): Boolean =
         set.removeAll(elements.set)
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [VALUE_CLASSSet] of elements to be removed from the set.
+     * @param elements An [ColorSet] of elements to be removed from the set.
      */
-    public inline operator fun minusAssign(elements: VALUE_CLASSSet) =
+    public inline operator fun minusAssign(elements: ColorSet) =
         set.minusAssign(elements.set)
 
     /**
      * Removes the specified [elements] from the set, if present.
-     * @param elements An [VALUE_CLASSSet] of elements to be removed from the set.
+     * @param elements An [ColorSet] of elements to be removed from the set.
      */
-    public inline operator fun minusAssign(elements: MutableVALUE_CLASSSet) =
+    public inline operator fun minusAssign(elements: MutableColorSet) =
         set.minusAssign(elements.set)
 
     /**
@@ -534,7 +534,7 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
     public inline fun clear() = set.clear()
 
     /**
-     * Trims this [MutableVALUE_CLASSSet]'s storage so it is sized appropriately
+     * Trims this [MutableColorSet]'s storage so it is sized appropriately
      * to hold the current elements.
      *
      * Returns the number of empty elements removed from this set's storage.
