@@ -46,7 +46,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
-import java.nio.ByteBuffer
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -504,15 +503,42 @@ class AdvertiserFragment : Fragment() {
 
                                 // TODO(b/269390098): Handle requests correctly
                                 when (gattServerRequest) {
-                                    is GattServerRequest.ReadCharacteristic ->
-                                        gattServerRequest.sendResponse(
-                                            ByteBuffer.allocate(Int.SIZE_BYTES).putInt(1).array()
+                                    is GattServerRequest.ReadCharacteristic -> {
+                                        val characteristic = gattServerRequest.characteristic
+
+                                        val value = viewModel.readGattCharacteristicValue(
+                                            characteristic
                                         )
 
-                                    is GattServerRequest.WriteCharacteristics ->
-                                        gattServerRequest.sendResponse()
+                                        toast(
+                                            "Read value: ${value.decodeToString()} " +
+                                                "for characteristic = ${characteristic.uuid}"
+                                        ).show()
 
-                                    else -> throw NotImplementedError("Unknown request")
+                                        gattServerRequest.sendResponse(value)
+                                    }
+
+                                    is GattServerRequest.WriteCharacteristics -> {
+                                        val characteristic =
+                                            gattServerRequest.parts[0].characteristic
+                                        val value = gattServerRequest.parts[0].value
+
+                                        toast(
+                                            "Writing value: ${value.decodeToString()} " +
+                                                "to characteristic = ${characteristic.uuid}"
+                                        ).show()
+
+                                        viewModel.updateGattCharacteristicValue(
+                                            characteristic,
+                                            value
+                                        )
+
+                                        gattServerRequest.sendResponse()
+                                    }
+
+                                    else -> {
+                                        throw NotImplementedError("Unknown request")
+                                    }
                                 }
                             }
                         }

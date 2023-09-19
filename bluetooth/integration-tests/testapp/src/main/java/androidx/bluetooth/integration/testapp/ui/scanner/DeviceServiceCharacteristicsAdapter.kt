@@ -26,7 +26,6 @@ import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
-import androidx.bluetooth.integration.testapp.ui.common.toHexString
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 
@@ -133,10 +132,7 @@ class DeviceServiceCharacteristicsAdapter(
 
             val value = deviceConnection.valueFor(characteristic)
             layoutValue.isVisible = value != null
-            textViewValue.text = buildString {
-                append("toHexString: " + value?.toHexString() + "\n")
-                append("decodeToString: " + value?.decodeToString())
-            }
+            textViewValue.text = value?.decodeToString()
         }
     }
 }
