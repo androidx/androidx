@@ -20,7 +20,7 @@ package androidx.compose.runtime
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
-import androidx.compose.runtime.collection.IdentityScopeMap
+import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
@@ -471,12 +471,13 @@ internal class CompositionImpl(
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
      * object is modified the associated scopes should be invalidated.
      */
-    private val observations = IdentityScopeMap<RecomposeScopeImpl>()
+    private val observations = ScopeMap<RecomposeScopeImpl>()
 
     /**
      * Used for testing. Returns the objects that are observed
      */
-    internal val observedObjects get() = observations.values.filterNotNull()
+    internal val observedObjects
+        @TestOnly @Suppress("AsCollectionCall") get() = observations.map.asMap().keys
 
     /**
      * A set of scopes that were invalidated conditionally (that is they were invalidated by a
@@ -489,18 +490,19 @@ internal class CompositionImpl(
     /**
      * A map of object read during derived states to the corresponding derived state.
      */
-    private val derivedStates = IdentityScopeMap<DerivedState<*>>()
+    private val derivedStates = ScopeMap<DerivedState<*>>()
 
     /**
      * Used for testing. Returns dependencies of derived states that are currently observed.
      */
-    internal val derivedStateDependencies get() = derivedStates.values.filterNotNull()
+    internal val derivedStateDependencies
+        @TestOnly @Suppress("AsCollectionCall") get() = derivedStates.map.asMap().keys
 
     /**
      * Used for testing. Returns the conditional scopes being tracked by the composer
      */
-    internal val conditionalScopes: List<RecomposeScopeImpl> get() =
-        conditionallyInvalidatedScopes.toList()
+    internal val conditionalScopes: List<RecomposeScopeImpl>
+        @TestOnly get() = conditionallyInvalidatedScopes.toList()
 
     /**
      * A list of changes calculated by [Composer] to be applied to the [Applier] and the
@@ -526,7 +528,7 @@ internal class CompositionImpl(
      * scopes that were already dismissed by composition and should be ignored in the next call
      * to [recordModificationsOf].
      */
-    private val observationsProcessed = IdentityScopeMap<RecomposeScopeImpl>()
+    private val observationsProcessed = ScopeMap<RecomposeScopeImpl>()
 
     /**
      * A map of the invalid [RecomposeScope]s. If this map is non-empty the current state of
@@ -856,21 +858,21 @@ internal class CompositionImpl(
         }
 
         if (forgetConditionalScopes && conditionallyInvalidatedScopes.isNotEmpty()) {
-            observations.removeValueIf { scope ->
+            observations.removeScopeIf { scope ->
                 scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
             }
             conditionallyInvalidatedScopes.clear()
             cleanUpDerivedStateObservations()
         } else {
             invalidated?.let {
-                observations.removeValueIf { scope -> scope in it }
+                observations.removeScopeIf { scope -> scope in it }
                 cleanUpDerivedStateObservations()
             }
         }
     }
 
     private fun cleanUpDerivedStateObservations() {
-        derivedStates.removeValueIf { derivedState -> derivedState !in observations }
+        derivedStates.removeScopeIf { derivedState -> derivedState !in observations }
         if (conditionallyInvalidatedScopes.isNotEmpty()) {
             conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
         }
@@ -979,7 +981,7 @@ internal class CompositionImpl(
             if (pendingInvalidScopes) {
                 trace("Compose:unobserve") {
                     pendingInvalidScopes = false
-                    observations.removeValueIf { scope -> !scope.valid }
+                    observations.removeScopeIf { scope -> !scope.valid }
                     cleanUpDerivedStateObservations()
                 }
             }
