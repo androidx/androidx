@@ -115,8 +115,8 @@ public class Camera2SessionConfigImplBuilder {
 
         Camera2SessionConfigImplImpl(@NonNull Camera2SessionConfigImplBuilder builder) {
             mSessionTemplateId = builder.getSessionTemplateId();
-            mSessionParameters = builder.getSessionParameters();
-            mCamera2OutputConfigs = builder.getCamera2OutputConfigs();
+            mSessionParameters = new HashMap<>(builder.getSessionParameters());
+            mCamera2OutputConfigs = new ArrayList<>(builder.getCamera2OutputConfigs());
             mSessionType = builder.getSessionType();
         }
 
