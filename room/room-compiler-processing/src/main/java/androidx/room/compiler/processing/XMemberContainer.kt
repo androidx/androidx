@@ -56,4 +56,14 @@ interface XMemberContainer : XElement {
      * representing this container does not exist (e.g. a top level Kotlin source file)
      */
     val type: XType?
+
+    /**
+     * Returns true if this member container's origin is Java source or class
+     */
+    fun isFromJava(): Boolean
+
+    /**
+     * Returns true if this member container's origin is Kotlin source or class
+     */
+    fun isFromKotlin(): Boolean
 }
