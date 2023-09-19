@@ -157,8 +157,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 val variant =
                     config.library.libraryVariants.find {
                         it.name == Release.DEFAULT_PUBLISH_CONFIG
-                    }
-                        ?: return@afterEvaluate
+                    } ?: return@afterEvaluate
 
                 javaInputs =
                     JavaCompileInputs.fromLibraryVariant(

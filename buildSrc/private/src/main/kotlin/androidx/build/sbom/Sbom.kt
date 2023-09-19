@@ -215,24 +215,22 @@ fun Project.configureSbomPublishing() {
     val allowPublicRepos = System.getenv("ALLOW_PUBLIC_REPOS") != null
     val sbomPublishDir = project.getSbomPublishDir()
 
-    val sbomBuiltFile = project.layout.buildDirectory.file(
-        "spdx/release.spdx.json"
-    ).get().getAsFile()
+    val sbomBuiltFile =
+        project.layout.buildDirectory.file("spdx/release.spdx.json").get().getAsFile()
 
-    val publishTask = project.tasks.register("exportSboms", Copy::class.java) { publishTask ->
-        publishTask.destinationDir = sbomPublishDir
-        val sbomBuildDir = sbomBuiltFile.parentFile
-        publishTask.from(sbomBuildDir)
-        publishTask.rename(sbomBuiltFile.name, "$projectName-$projectVersion.spdx.json")
+    val publishTask =
+        project.tasks.register("exportSboms", Copy::class.java) { publishTask ->
+            publishTask.destinationDir = sbomPublishDir
+            val sbomBuildDir = sbomBuiltFile.parentFile
+            publishTask.from(sbomBuildDir)
+            publishTask.rename(sbomBuiltFile.name, "$projectName-$projectVersion.spdx.json")
 
-        publishTask.doFirst {
-            if (!sbomBuiltFile.exists()) {
-                throw GradleException(
-                    "sbom file does not exist: $sbomBuiltFile"
-                )
+            publishTask.doFirst {
+                if (!sbomBuiltFile.exists()) {
+                    throw GradleException("sbom file does not exist: $sbomBuiltFile")
+                }
             }
         }
-    }
 
     project.tasks.withType(SpdxSbomTask::class.java).configureEach { task ->
         val sbomProjectDir = project.projectDir
@@ -302,9 +300,7 @@ fun Project.configureSbomPublishing() {
             target.getConfigurations().set(sbomConfigurations)
         }
         project.addToBuildOnServer(tasks.named("spdxSbomForRelease"))
-        publishTask.configure { task ->
-            task.dependsOn("spdxSbomForRelease")
-        }
+        publishTask.configure { task -> task.dependsOn("spdxSbomForRelease") }
     }
 }
 

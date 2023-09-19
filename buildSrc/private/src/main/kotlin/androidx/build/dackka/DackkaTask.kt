@@ -154,8 +154,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                             sourceLinks = emptyList()
                         )
                     }
-                }
-                ?: emptyList()
+                } ?: emptyList()
         return listOf(
             DokkaInputModels.SourceSet(
                 id = sourceSetIdForSourceSet("main"),

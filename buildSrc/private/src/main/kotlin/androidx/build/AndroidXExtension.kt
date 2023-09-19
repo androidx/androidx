@@ -411,8 +411,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         get() = kotlinTarget.map { project.getVersionByName(it.catalogVersion) }
 
     /**
-     * Whether to validate the androidx configuration block using validateProjectParser. This
-     * should always be set to true unless we are temporarily working around a bug.
+     * Whether to validate the androidx configuration block using validateProjectParser. This should
+     * always be set to true unless we are temporarily working around a bug.
      */
     var runProjectParser: Boolean = true
 

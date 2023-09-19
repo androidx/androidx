@@ -98,9 +98,10 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
         }
     }
 
-    val disableNames = setOf(
-        "releaseSourcesJar",
-    )
+    val disableNames =
+        setOf(
+            "releaseSourcesJar",
+        )
     disableUnusedSourceJarTasks(disableNames)
 }
 
@@ -134,9 +135,10 @@ fun Project.configureSourceJarForJava() {
         }
     registerSourcesVariant(sourceJar)
 
-    val disableNames = setOf(
-        "kotlinSourcesJar",
-    )
+    val disableNames =
+        setOf(
+            "kotlinSourcesJar",
+        )
     disableUnusedSourceJarTasks(disableNames)
 }
 
@@ -171,9 +173,10 @@ fun Project.configureSourceJarForMultiplatform() {
             task.metaInf.from(metadataFile)
         }
     registerMultiplatformSourcesVariant(sourceJar)
-    val disableNames = setOf(
-        "kotlinSourcesJar",
-    )
+    val disableNames =
+        setOf(
+            "kotlinSourcesJar",
+        )
     disableUnusedSourceJarTasks(disableNames)
 }
 
@@ -273,9 +276,8 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
             }
         }
     }
-    val sourceSetMetadata = mapOf(
-        "sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] }
-    )
+    val sourceSetMetadata =
+        mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
     val gson = GsonBuilder().setPrettyPrinting().create()
     return gson.toJson(sourceSetMetadata)
 }

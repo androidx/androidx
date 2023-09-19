@@ -45,9 +45,7 @@ import org.gradle.process.JavaExecSpec
 val bundlingAttribute: Attribute<String> =
     Attribute.of("org.gradle.dependency.bundling", String::class.java)
 
-/**
- * JVM Args needed to run it on JVM 17+
- */
+/** JVM Args needed to run it on JVM 17+ */
 private fun JavaExecSpec.addKtlintJvmArgs() {
     this.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
@@ -179,8 +177,7 @@ abstract class BaseKtlintTask : DefaultTask() {
             val subdirectories = overrideSubdirectories
             if (subdirectories.isNullOrEmpty()) return@let
             subdirectories.map { arguments.add("$it/$InputDir/$IncludedFiles") }
-        }
-            ?: arguments.add("$InputDir/$IncludedFiles")
+        } ?: arguments.add("$InputDir/$IncludedFiles")
 
         ExcludedDirectoryGlobs.mapTo(arguments) { "!$InputDir/$it" }
         return arguments

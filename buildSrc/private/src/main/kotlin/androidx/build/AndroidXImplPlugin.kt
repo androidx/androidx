@@ -308,7 +308,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     if (details.requested.group == "org.jetbrains.kotlin") {
                         if (
                             details.requested.group == "org.jetbrains.kotlin" &&
-                            details.requested.version == null
+                                details.requested.version == null
                         ) {
                             details.useVersion(kotlinVersionStringProvider.get())
                         }
@@ -1158,9 +1158,10 @@ private fun Project.addToProjectMap(extension: AndroidXExtension) {
 }
 
 val Project.androidExtension: AndroidComponentsExtension<*, *, *>
-    get() = extensions.findByType<LibraryAndroidComponentsExtension>()
-        ?: extensions.findByType<ApplicationAndroidComponentsExtension>()
-        ?: throw IllegalArgumentException("Failed to find any registered Android extension")
+    get() =
+        extensions.findByType<LibraryAndroidComponentsExtension>()
+            ?: extensions.findByType<ApplicationAndroidComponentsExtension>()
+            ?: throw IllegalArgumentException("Failed to find any registered Android extension")
 
 val Project.multiplatformExtension
     get() = extensions.findByType(KotlinMultiplatformExtension::class.java)
@@ -1278,9 +1279,7 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
     }
 }
 
-/**
- * Verifies we don't accidentially write "implementation" instead of "commonMainImplementation"
- */
+/** Verifies we don't accidentially write "implementation" instead of "commonMainImplementation" */
 fun Project.disallowAccidentalAndroidDependenciesInKmpProject(
     kmpExtension: AndroidXMultiplatformExtension
 ) {
@@ -1288,15 +1287,16 @@ fun Project.disallowAccidentalAndroidDependenciesInKmpProject(
         if (kmpExtension.supportedPlatforms.isNotEmpty()) {
             val androidConfiguration = project.configurations.findByName("implementation")
             if (androidConfiguration != null) {
-               if (
-                   androidConfiguration.dependencies.isNotEmpty() ||
-                   androidConfiguration.dependencyConstraints.isNotEmpty()
-               ) {
-                   throw GradleException(
-                       "The 'implementation' Configuration should not be used in a " +
-                       "multiplatform project: this Configuration is declared by the " +
-                       "Android plugin rather than the kmp plugin. Did you mean " +
-                       "'commonMainImplementation'?")
+                if (
+                    androidConfiguration.dependencies.isNotEmpty() ||
+                        androidConfiguration.dependencyConstraints.isNotEmpty()
+                ) {
+                    throw GradleException(
+                        "The 'implementation' Configuration should not be used in a " +
+                            "multiplatform project: this Configuration is declared by the " +
+                            "Android plugin rather than the kmp plugin. Did you mean " +
+                            "'commonMainImplementation'?"
+                    )
                 }
             }
         }

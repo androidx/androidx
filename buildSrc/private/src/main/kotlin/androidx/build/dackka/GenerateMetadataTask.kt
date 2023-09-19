@@ -59,15 +59,13 @@ abstract class GenerateMetadataTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val entries = createEntries(
-            getArtifactIds().get(),
-            getArtifactFiles().get(),
-            multiplatform = false
-        ) + createEntries(
-            getMultiplatformArtifactIds().get(),
-            getMultiplatformArtifactFiles().get(),
-            multiplatform = true
-        )
+        val entries =
+            createEntries(getArtifactIds().get(), getArtifactFiles().get(), multiplatform = false) +
+                createEntries(
+                    getMultiplatformArtifactIds().get(),
+                    getMultiplatformArtifactFiles().get(),
+                    multiplatform = true
+                )
 
         val gson =
             if (DEBUG) {
@@ -99,15 +97,17 @@ abstract class GenerateMetadataTask : DefaultTask() {
             val componentId = (id.componentIdentifier as ModuleComponentIdentifier)
 
             // Fetch the list of files contained in the .jar file
-            val fileList = ZipFile(file).entries().toList().map {
-                if (multiplatform) {
-                    // Paths for multiplatform will start with a directory for the platform (e.g.
-                    // "commonMain"), while Dackka only sees the part of the path after this.
-                    it.name.substringAfter("/")
-                } else {
-                    it.name
+            val fileList =
+                ZipFile(file).entries().toList().map {
+                    if (multiplatform) {
+                        // Paths for multiplatform will start with a directory for the platform
+                        // (e.g.
+                        // "commonMain"), while Dackka only sees the part of the path after this.
+                        it.name.substringAfter("/")
+                    } else {
+                        it.name
+                    }
                 }
-            }
 
             MetadataEntry(
                 groupId = componentId.group,
