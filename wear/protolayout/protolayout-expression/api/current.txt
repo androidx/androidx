@@ -296,6 +296,16 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> fromFloat(float);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> fromInt(int);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!> fromString(String);
+    method public default boolean getBoolValue();
+    method @ColorInt public default int getColorValue();
+    method public default float getFloatValue();
+    method public default int getIntValue();
+    method public default String getStringValue();
+    method public default boolean hasBoolValue();
+    method public default boolean hasColorValue();
+    method public default boolean hasFloatValue();
+    method public default boolean hasIntValue();
+    method public default boolean hasStringValue();
     method public default byte[] toDynamicDataValueByteArray();
     method public default int toDynamicDataValueByteArray(byte[]);
     method public default int toDynamicDataValueByteArray(byte[], int, int);
