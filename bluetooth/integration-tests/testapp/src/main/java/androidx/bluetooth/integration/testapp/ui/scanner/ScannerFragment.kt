@@ -355,7 +355,7 @@ class ScannerFragment : Fragment() {
                                         Log.d(
                                             TAG, "writeCharacteristic() called with: " +
                                                 "characteristic = $characteristic, " +
-                                                "value = $value"
+                                                "value = ${value.decodeToString()}"
                                         )
 
                                         val result = writeCharacteristic(characteristic, value)
