@@ -20,10 +20,13 @@ import androidx.datastore.core.twoWayIpc.TwoWayIpcConnection
 import androidx.datastore.core.twoWayIpc.TwoWayIpcService
 import androidx.datastore.core.twoWayIpc.TwoWayIpcService2
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -37,6 +40,7 @@ import org.junit.runner.Description
  * are properly closed after test.
  */
 class MultiProcessTestRule : TestWatcher() {
+    private val didRunTest = AtomicBoolean(false)
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     // use a real scope, it is too hard to use a TestScope when we cannot control the IPC
@@ -53,8 +57,17 @@ class MultiProcessTestRule : TestWatcher() {
     fun runTest(block: suspend CoroutineScope.() -> Unit) {
         // don't use datastore scope here as it will not finish by itself.
         runBlocking {
-            withTimeout(TEST_TIMEOUT) {
-                block()
+            check(didRunTest.compareAndSet(false, true)) {
+                "Cannot call runTest multiple times"
+            }
+            try {
+                withTimeout(TEST_TIMEOUT) {
+                    block()
+                }
+            } finally {
+                connections.map {
+                    async { it.disconnect() }
+                }.awaitAll()
             }
         }
     }
@@ -75,9 +88,6 @@ class MultiProcessTestRule : TestWatcher() {
 
     override fun finished(description: Description) {
         super.finished(description)
-        connections.forEach {
-            it.disconnect()
-        }
         datastoreScope.cancel()
     }
 
