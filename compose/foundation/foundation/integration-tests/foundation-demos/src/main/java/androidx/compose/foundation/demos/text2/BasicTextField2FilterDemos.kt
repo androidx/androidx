@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
 import androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
-import androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
+import androidx.compose.foundation.samples.BasicTextField2CustomInputTransformationSample
+import androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
+import androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
@@ -71,7 +73,17 @@ fun BasicTextField2FilterDemos() {
 
         TagLine(tag = "Custom (type backwards with prompt)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
-            BasicTextField2CustomFilterSample()
+            BasicTextField2CustomInputTransformationSample()
+        }
+
+        TagLine(tag = "Custom (string,string->string with replacement)")
+        Box(demoTextFieldModifiers, propagateMinConstraints = true) {
+            BasicTextField2InputTransformationByValueReplaceSample()
+        }
+
+        TagLine(tag = "Custom (string,string->string with choice)")
+        Box(demoTextFieldModifiers, propagateMinConstraints = true) {
+            BasicTextField2InputTransformationByValueChooseSample()
         }
 
         TagLine(tag = "Change tracking (change logging sample)")
