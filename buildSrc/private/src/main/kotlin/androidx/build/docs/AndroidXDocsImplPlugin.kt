@@ -472,12 +472,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 task.getArtifactFiles().set(artifacts.map { result -> result.map { it.file } })
                 val multiplatformArtifacts =
                     multiplatformDocsConfiguration.incoming.artifacts.resolvedArtifacts
-                task.getMultiplatformArtifactIds().set(multiplatformArtifacts.map { result ->
-                    result.map { it.id }
-                })
-                task.getMultiplatformArtifactFiles().set(multiplatformArtifacts.map { result ->
-                    result.map { it.file }
-                })
+                task
+                    .getMultiplatformArtifactIds()
+                    .set(multiplatformArtifacts.map { result -> result.map { it.id } })
+                task
+                    .getMultiplatformArtifactFiles()
+                    .set(multiplatformArtifacts.map { result -> result.map { it.file } })
                 task.destinationFile.set(getMetadataRegularFile(project))
             }
 
@@ -487,10 +487,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val dackkaTask =
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
-                task.argsJsonFile = File(
-                    project.rootProject.getDistributionDirectory(),
-                    "dackkaArgs-${project.name}.json"
-                )
+                task.argsJsonFile =
+                    File(
+                        project.rootProject.getDistributionDirectory(),
+                        "dackkaArgs-${project.name}.json"
+                    )
                 task.apply {
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)

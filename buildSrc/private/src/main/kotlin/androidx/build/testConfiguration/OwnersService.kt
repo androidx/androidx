@@ -41,9 +41,13 @@ abstract class ModuleInfoGenerator : DefaultTask() {
         // media service/client tests are created from multiple projects, so we get multiple
         // entries with the same TestModule.name. This code merges all the TestModule.path entries
         // across the test modules with the same name.
-        val data = testModules.groupBy { it.name }.map {
-            TestModule(name = it.key, path = it.value.flatMap { module -> module.path })
-        }.associateBy { it.name }
+        val data =
+            testModules
+                .groupBy { it.name }
+                .map {
+                    TestModule(name = it.key, path = it.value.flatMap { module -> module.path })
+                }
+                .associateBy { it.name }
         return gson.toJson(data)
     }
 

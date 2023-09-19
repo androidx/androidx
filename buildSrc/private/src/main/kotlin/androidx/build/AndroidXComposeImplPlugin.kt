@@ -109,9 +109,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
 
                     // Disable ListIterator if we are not in a matching path, or we are in an
                     // unpublished project
-                    if (
-                        ignoreListIteratorFilter.any { path.contains(it) } || !isPublished
-                    ) {
+                    if (ignoreListIteratorFilter.any { path.contains(it) } || !isPublished) {
                         disable.add("ListIterator")
                     }
                 }
