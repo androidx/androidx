@@ -253,6 +253,7 @@ private fun LayoutNode.Builder.setImageNode(element: EmittableImage) {
         else -> error("Unknown content scale ${element.contentScale}")
     }
     hasImageDescription = !element.isDecorative()
+    hasImageColorFilter = element.colorFilterParams != null
 }
 
 private fun LayoutNode.Builder.setColumnNode(element: EmittableColumn) {
