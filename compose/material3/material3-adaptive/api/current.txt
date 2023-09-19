@@ -200,8 +200,8 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldDefaults {
+    method public androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies(optional androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy);
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement getListDetailLayoutArrangement();
-    method public androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies threePaneScaffoldAdaptStrategies(optional androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy);
     property public final androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement ListDetailLayoutArrangement;
     field public static final androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults INSTANCE;
   }

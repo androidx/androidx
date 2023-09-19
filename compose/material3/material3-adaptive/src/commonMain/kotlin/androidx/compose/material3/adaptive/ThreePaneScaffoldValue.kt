@@ -52,7 +52,7 @@ private inline fun buildThreePaneScaffoldValue(
 fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        ThreePaneScaffoldDefaults.threePaneScaffoldAdaptStrategies(),
+        ThreePaneScaffoldDefaults.adaptStrategies(),
     currentFocus: ThreePaneScaffoldRole? = null,
 ): ThreePaneScaffoldValue {
     var expandedCount = if (currentFocus != null) 1 else 0
