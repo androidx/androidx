@@ -49,7 +49,9 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin.JAVA
 import com.google.devtools.ksp.symbol.Origin.JAVA_LIB
+import com.google.devtools.ksp.symbol.Origin.KOTLIN
 import com.google.devtools.ksp.symbol.Origin.KOTLIN_LIB
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
@@ -394,6 +396,20 @@ internal sealed class KspTypeElement(
             .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { env.wrapClassDeclaration(it) }
             .toList()
+    }
+
+    override fun isFromJava(): Boolean {
+        return when (declaration.origin) {
+            JAVA, JAVA_LIB -> true
+            else -> false
+        }
+    }
+
+    override fun isFromKotlin(): Boolean {
+        return when (declaration.origin) {
+            KOTLIN, KOTLIN_LIB -> true
+            else -> false
+        }
     }
 
     private class DefaultKspTypeElement(
