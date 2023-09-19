@@ -45,12 +45,15 @@ fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
             isTableTop = true
         }
         val hingeBounds = it.bounds.toComposeRect()
-        allHingeBounds.add(hingeBounds)
-        if (it.isSeparating) {
-            separatingHingeBounds.add(hingeBounds)
-        }
-        if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
-            occludingHingeBounds.add(hingeBounds)
+        // TODO(conradchen): Figure out how to deal with horizontal hinges
+        if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
+            allHingeBounds.add(hingeBounds)
+            if (it.isSeparating) {
+                separatingHingeBounds.add(hingeBounds)
+            }
+            if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
+                occludingHingeBounds.add(hingeBounds)
+            }
         }
     }
     return Posture(
