@@ -112,11 +112,6 @@ androidXMultiplatform {
             }
         }
 
-
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
         androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
@@ -127,6 +122,8 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(libs.kotlinReflect)
                 implementation(libs.kotlinTest)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
             }
         }
 
@@ -147,13 +144,6 @@ androidXMultiplatform {
 
         androidMain.kotlin.srcDirs("${supportRootFolder}/text/text/src/main/java")
     }
-}
-
-dependencies {
-    // Can't declare this in kotlin { sourceSets { androidUnitTest.dependencies { .. } } } as that
-    // leaks into instrumented tests (b/214407011)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
 }
 
 androidx {

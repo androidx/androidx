@@ -151,10 +151,6 @@ androidXMultiplatform {
             }
         }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
         androidUnitTest {
             dependsOn(jvmTest)
             dependencies {
@@ -164,6 +160,9 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(libs.kotlinTest)
+                implementation(libs.robolectric)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
                 implementation(project(":compose:test-utils"))
@@ -210,12 +209,6 @@ packageInspector(project, ":compose:ui:ui-inspection")
 dependencies {
     lintChecks(project(":compose:ui:ui-lint"))
     lintPublish(project(":compose:ui:ui-lint"))
-
-    // Can't declare this in kotlin { sourceSets { androidUnitTest.dependencies { .. } } } as that
-    // leaks into instrumented tests (b/214407011)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
 }
 
 androidx {
