@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 
 package androidx.compose.runtime.collection
 
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class IdentityScopeMapTest {
-    private val map = IdentityScopeMap<Scope>()
+class ScopeMapTest {
+    private val map = ScopeMap<Scope>()
 
     private val scopeList = listOf(Scope(10), Scope(12), Scope(1), Scope(30), Scope(10))
     private val valueList = listOf(Value("A"), Value("B"))
 
     @Test
     fun emptyConstruction() {
-        val m = IdentityScopeMap<Test>()
+        val m = ScopeMap<Scope>()
         assertEquals(0, m.size)
     }
 
@@ -83,8 +80,7 @@ class IdentityScopeMapTest {
         map.add(valueList[1], scopeList[1])
         map.clear()
         assertEquals(0, map.size)
-        assertEquals(0, map.scopeSets[0]!!.size)
-        assertEquals(0, map.scopeSets[1]!!.size)
+        assertEquals(0, map.map.size)
     }
 
     @Test
@@ -115,17 +111,16 @@ class IdentityScopeMapTest {
         map.add(valueC, scopeList[3])
 
         // remove a scope that won't cause any values to be removed:
-        map.removeValueIf { scope ->
+        map.removeScopeIf { scope ->
             scope === scopeList[1]
         }
         assertEquals(3, map.size)
 
         // remove the last scope in a set:
-        map.removeValueIf { scope ->
+        map.removeScopeIf { scope ->
             scope === scopeList[2]
         }
         assertEquals(2, map.size)
-        assertEquals(0, map.scopeSets[map.valueOrder[2]]!!.size)
 
         map.forEachScopeOf(valueList[1]) {
             fail("There shouldn't be any scopes for this value")
@@ -146,39 +141,6 @@ class IdentityScopeMapTest {
         assertFalse(Value("D") in map)
     }
 
-    /**
-     * Validate the test maintains the internal assumptions of the map.
-     */
-    @AfterTest
-    fun validateMap() {
-        // Ensure that no duplicates exist in value-order and all indexes are represented
-        val pendingRepresentation = mutableSetOf(*map.values.indices.toList().toTypedArray())
-        map.valueOrder.forEach {
-            assertTrue(it in pendingRepresentation, "Index $it was duplicated")
-            pendingRepresentation.remove(it)
-        }
-        assertTrue(pendingRepresentation.isEmpty(), "Not all indexes are in the valueOrder map")
-
-        // Ensure values are non-null and sets are not empty for index < size and values are
-        // null and sets are empty or missing for >= size
-        val size = map.size
-        map.valueOrder.forEachIndexed { index, order ->
-            val value = map.values[order]
-            val set = map.scopeSets[order]
-            if (index < size) {
-                assertNotNull(value, "A value was unexpectedly null")
-                assertNotNull(set, "A set was unexpectedly null")
-                assertTrue(set.size > 0, "An empty set wasn't collected")
-            } else {
-                assertNull(value, "A reference to a removed value was retained")
-                assertTrue(
-                    actual = set == null || set.size == 0,
-                    message = "A non-empty set was dropped"
-                )
-            }
-        }
-    }
-
-    data class Scope(val item: Int)
-    data class Value(val s: String)
+    class Scope(val item: Int)
+    class Value(val s: String)
 }

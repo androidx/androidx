@@ -987,7 +987,7 @@ public class MutableScatterMap<K, V>(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (K, V) -> Boolean) {
+    public inline fun removeIf(predicate: (K, V) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(keys[index] as K, values[index] as V)) {
@@ -1048,7 +1048,8 @@ public class MutableScatterMap<K, V>(
         }
     }
 
-    private fun removeValueAt(index: Int): V? {
+    @PublishedApi
+    internal fun removeValueAt(index: Int): V? {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group
