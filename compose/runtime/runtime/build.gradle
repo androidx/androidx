@@ -37,12 +37,13 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
+                implementation(project(":collection:collection"))
             }
         }
 
         commonTest {
             dependencies {
-                implementation kotlin("test")
+                implementation kotlin("test-junit")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
             }
@@ -72,12 +73,10 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation:1.1.0")
             }
         }
 

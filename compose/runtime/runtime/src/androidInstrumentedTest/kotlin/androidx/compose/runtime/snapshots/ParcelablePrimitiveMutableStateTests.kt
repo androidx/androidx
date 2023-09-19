@@ -22,7 +22,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ParcelablePrimitiveMutableStateTests {
@@ -59,7 +59,7 @@ class ParcelablePrimitiveMutableStateTests {
         state.doubleValue = 1.5
 
         val restored = recreateViaParcel(state)
-        assertEquals(1.5, restored.doubleValue)
+        assertEquals(1.5, restored.doubleValue, 0.0)
     }
 
     private inline fun <reified T> recreateViaParcel(value: T): T {
