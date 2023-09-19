@@ -76,8 +76,8 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
                 implementation(project(":internal-testutils-common"))
                 implementation(project(":internal-testutils-ktx"))
             }
