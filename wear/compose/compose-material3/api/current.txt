@@ -57,27 +57,29 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class CardColors {
-    ctor public CardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long appNameColor, long timeColor, long titleColor);
+    ctor public CardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, long contentColor, long appNameColor, long timeColor, long titleColor, long subtitleColor);
     method public long getAppNameColor();
     method public androidx.compose.ui.graphics.painter.Painter getContainerPainter();
     method public long getContentColor();
+    method public long getSubtitleColor();
     method public long getTimeColor();
     method public long getTitleColor();
     property public final long appNameColor;
     property public final androidx.compose.ui.graphics.painter.Painter containerPainter;
     property public final long contentColor;
+    property public final long subtitleColor;
     property public final long timeColor;
     property public final long titleColor;
   }
 
   public final class CardDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors imageCardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors imageCardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional long outlineColor, optional float borderWidth);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors(optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors(optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.CardDefaults INSTANCE;
@@ -87,7 +89,7 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> appName, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? appImage, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Card(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void OutlinedCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? time, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? subtitle, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.CardColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit>? content);
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {

@@ -20,14 +20,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -233,32 +238,30 @@ fun AppCard(
 }
 
 /**
- * Opinionated Wear Material 3 [Card] that offers a specific 3 slot layout to show interactive
+ * Opinionated Wear Material 3 [Card] that offers a specific layout to show interactive
  * information about an application, e.g. a message. TitleCards are designed for use within an
  * application.
  *
- * The first row of the layout has two slots. 1. a start aligned title. The title text is
- * expected to be a maximum of 2 lines of text.
- * 2. An optional time that the application activity has occurred shown at the
- * end of the row, expected to be an end aligned [Text] composable showing a time relevant to the
- * contents of the [Card].
+ * The [time], [subtitle] and [content] fields are optional,
+ * but it is expected that at least one of these is provided.
+ * The layout will vary according to which fields are supplied - see samples.
  *
- * The rest of the [Card] contains the content which is expected to be [Text] or a contained
- * [Image].
+ * If the [content] is text it can be single or multiple line and is expected to be Top and Start
+ * aligned. When [subtitle] is used [content] shouldn't
+ * exceed 2 lines height. Overall the [title], [content] and [subtitle] text should be no more than
+ * 5 rows of text combined.
  *
- * If the content is text it can be single or multiple line and is expected to be Top and Start
- * aligned and of type of [Typography.bodyMedium].
- *
- * Overall the [title] and [content] text should be no more than 5 rows of text combined.
- *
- * If more than one composable is provided in the content slot it is the responsibility of the
+ * If more than one composable is provided in the [content] slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
- * Example of a [TitleCard]:
+ * Example of a [TitleCard] with [time], [title] and [content]:
  * @sample androidx.wear.compose.material3.samples.TitleCardSample
  *
- * Example of a [TitleCard] with image:
+ * Example of a [TitleCard] with a background image:
  * @sample androidx.wear.compose.material3.samples.TitleCardWithImageSample
+ *
+ * Example of a [TitleCard] with [time], [title] and [subtitle]:
+ * @sample androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSample
  *
  * Example of an outlined [TitleCard]:
  * @sample androidx.wear.compose.material3.samples.OutlinedTitleCardSample
@@ -268,9 +271,14 @@ fun AppCard(
  * guide.
  *
  * @param onClick Will be called when the user clicks the card
- * @param title A slot for displaying the title of the card, expected to be one or two lines of text
- * of [Typography.titleMedium]
+ * @param title A slot for displaying the title of the card, expected to be one or
+ * two lines of text.
  * @param modifier Modifier to be applied to the card
+ * @param time An optional slot for displaying the time relevant to the contents of the card,
+ * expected to be a short piece of text. Depending on whether we have a [content]
+ * or not, can be placed at the end of the [title] line or above it.
+ * @param subtitle An optional slot for displaying the subtitle of the card, expected to be
+ * one line of text.
  * @param enabled Controls the enabled state of the card. When false, this card will not
  * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
  * elevation or alpha differences when not enabled - they are simply not clickable.
@@ -285,62 +293,87 @@ fun AppCard(
  * [Interaction]s for this card. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this card in different [Interaction]s.
- * @param time An optional slot for displaying the time relevant to the contents of the card,
- * expected to be a short piece of end aligned text.
- * @param content The main slot for a content of this card
+ * @param content The optional body content of the card. If not provided then title
+ * and subtitle are expected to be provided
  */
 @Composable
 fun TitleCard(
     onClick: () -> Unit,
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    time: @Composable (() -> Unit)? = null,
+    subtitle: @Composable (ColumnScope.() -> Unit)? = null,
     enabled: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    time: @Composable (RowScope.() -> Unit)? = null,
-    content: @Composable () -> Unit,
+    content: @Composable (() -> Unit)? = null,
 ) {
-    androidx.wear.compose.materialcore.TitleCard(
+    val timeWithTextStyle: @Composable () -> Unit = {
+        time?.let {
+            CompositionLocalProvider(
+                values = arrayOf(
+                    LocalContentColor provides colors.timeColor,
+                    LocalTextStyle provides MaterialTheme.typography.labelSmall
+                ),
+                content = time
+            )
+        }
+    }
+
+    androidx.wear.compose.materialcore.Card(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = shape,
+        containerPainter = colors.containerPainter,
         border = border,
         contentPadding = contentPadding,
-        containerPainter = colors.containerPainter,
         interactionSource = interactionSource,
-        title = {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides MaterialTheme.typography.titleMedium,
-            ) {
-                title()
+        role = null,
+        shape = shape
+    ) {
+        Column {
+            if (content == null) {
+                timeWithTextStyle()
+                Spacer(modifier = Modifier.height(4.dp))
             }
-        },
-        time = {
-            time?.let {
-                Spacer(modifier = Modifier.weight(1.0f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.timeColor,
-                    LocalTextStyle provides MaterialTheme.typography.labelSmall,
+                    LocalContentColor provides colors.titleColor,
+                    LocalTextStyle provides MaterialTheme.typography.titleMedium,
                 ) {
-                    time()
+                    title()
+                }
+                if (content != null) {
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    timeWithTextStyle()
                 }
             }
-        },
-        content = {
-            CompositionLocalProvider(
-                values = arrayOf(
-                    LocalContentColor provides colors.contentColor,
-                    LocalTextStyle provides MaterialTheme.typography.bodyLarge
-                ),
-                content = content
-            )
+            content?.let {
+                CompositionLocalProvider(
+                    values = arrayOf(
+                        LocalContentColor provides colors.contentColor,
+                        LocalTextStyle provides MaterialTheme.typography.bodyLarge
+                    ),
+                    content = content
+                )
+            }
+            subtitle?.let {
+                Spacer(modifier = Modifier.height(if (content != null) 2.dp else 4.dp))
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.subtitleColor,
+                    LocalTextStyle provides MaterialTheme.typography.titleMedium
+                ) {
+                    subtitle()
+                }
+            }
         }
-    )
+    }
 }
 
 /**
@@ -418,6 +451,7 @@ object CardDefaults {
      * @param appNameColor the color used for appName, only applies to [AppCard].
      * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
+     * @param subtitleColor the color used for subtitle, applies to [TitleCard].
      */
     @Composable
     fun cardColors(
@@ -426,12 +460,14 @@ object CardDefaults {
         appNameColor: Color = contentColor,
         timeColor: Color = contentColor,
         titleColor: Color = MaterialTheme.colorScheme.onSurface,
+        subtitleColor: Color = MaterialTheme.colorScheme.tertiary,
     ): CardColors = CardColors(
         containerPainter = remember(containerColor) { ColorPainter(containerColor) },
         contentColor = contentColor,
         appNameColor = appNameColor,
         timeColor = timeColor,
-        titleColor = titleColor
+        titleColor = titleColor,
+        subtitleColor = subtitleColor
     )
 
     /**
@@ -442,6 +478,7 @@ object CardDefaults {
      * @param appNameColor the color used for appName, only applies to [AppCard].
      * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
+     * @param subtitleColor the color used for subtitle, applies to [TitleCard].
      */
     @Composable
     fun outlinedCardColors(
@@ -449,12 +486,14 @@ object CardDefaults {
         appNameColor: Color = contentColor,
         timeColor: Color = contentColor,
         titleColor: Color = MaterialTheme.colorScheme.onSurface,
+        subtitleColor: Color = MaterialTheme.colorScheme.tertiary
     ): CardColors = CardColors(
         containerPainter = remember { ColorPainter(Color.Transparent) },
         contentColor = contentColor,
         appNameColor = appNameColor,
         timeColor = timeColor,
-        titleColor = titleColor
+        titleColor = titleColor,
+        subtitleColor = subtitleColor
     )
 
     /**
@@ -466,6 +505,7 @@ object CardDefaults {
      * @param appNameColor the color used for appName, only applies to [AppCard].
      * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
      * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
+     * @param subtitleColor the color used for subtitle, applies to [TitleCard].
      */
     @Composable
     fun imageCardColors(
@@ -474,12 +514,14 @@ object CardDefaults {
         appNameColor: Color = contentColor,
         timeColor: Color = contentColor,
         titleColor: Color = contentColor,
+        subtitleColor: Color = MaterialTheme.colorScheme.tertiary
     ): CardColors = CardColors(
         containerPainter = containerPainter,
         contentColor = contentColor,
         appNameColor = appNameColor,
         timeColor = timeColor,
-        titleColor = titleColor
+        titleColor = titleColor,
+        subtitleColor = subtitleColor
     )
 
     /**
@@ -549,6 +591,7 @@ object CardDefaults {
  * @param appNameColor the color used for appName, only applies to [AppCard].
  * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
  * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
+ * @param subtitleColor the color used for subtitle, applies to [TitleCard].
  */
 @Immutable
 class CardColors(
@@ -557,6 +600,7 @@ class CardColors(
     val appNameColor: Color,
     val timeColor: Color,
     val titleColor: Color,
+    val subtitleColor: Color
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -567,6 +611,7 @@ class CardColors(
         if (appNameColor != other.appNameColor) return false
         if (timeColor != other.timeColor) return false
         if (titleColor != other.titleColor) return false
+        if (subtitleColor != other.subtitleColor) return false
 
         return true
     }
@@ -577,6 +622,7 @@ class CardColors(
         result = 31 * result + appNameColor.hashCode()
         result = 31 * result + timeColor.hashCode()
         result = 31 * result + titleColor.hashCode()
+        result = 31 * result + subtitleColor.hashCode()
         return result
     }
 }
