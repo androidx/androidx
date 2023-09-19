@@ -25,7 +25,7 @@ plugins {
 dependencies {
     implementation(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":tracing:tracing-perfetto-binary"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto-binary"))
     implementation(libs.kotlinStdlib)
 }
 

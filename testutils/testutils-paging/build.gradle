@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation(project(":paging:paging-common"))
+    implementation(androidxArtifact(":paging:paging-common"))
     implementation(libs.kotlinTest)
 }
 

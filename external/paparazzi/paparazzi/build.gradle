@@ -39,8 +39,8 @@ dependencies {
 
     compileOnlyAarAsJar("androidx.compose.runtime:runtime:1.2.1")
     compileOnlyAarAsJar("androidx.compose.ui:ui:1.2.1")
-    compileOnly(project(":lifecycle:lifecycle-common"))
-    compileOnlyAarAsJar(project(":lifecycle:lifecycle-runtime"))
+    compileOnly(androidxArtifact(":lifecycle:lifecycle-common"))
+    compileOnlyAarAsJar(androidxArtifact(":lifecycle:lifecycle-runtime"))
     compileOnlyAarAsJar("androidx.savedstate:savedstate:1.2.0")
 
     ksp(libs.moshiCodeGen)

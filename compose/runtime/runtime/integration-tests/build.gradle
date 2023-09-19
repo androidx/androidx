@@ -84,7 +84,8 @@ androidXMultiplatform {
                 implementation(projectOrArtifact(":compose:material:material"))
                 implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
                 implementation(projectOrArtifact(":compose:test-utils"))
-                implementation(projectOrArtifact(":activity:activity-compose"))
+                // This line is the reason for issue with corrupted gradle sync, so commented it out
+                // implementation(androidxArtifact(":activity:activity-compose"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)

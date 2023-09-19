@@ -23,8 +23,9 @@ plugins {
 }
 
 dependencies {
-    implementation(projectOrArtifact(":annotation:annotation"))
-    implementation(projectOrArtifact(":annotation:annotation-experimental"))
+    implementation(androidxArtifact(":annotation:annotation"))
+    // TODO: artifact is not found, so commented out
+//    implementation(androidxArtifact(":annotation:annotation-experimental"))
     implementation(libs.kotlinStdlib)
 }
 
