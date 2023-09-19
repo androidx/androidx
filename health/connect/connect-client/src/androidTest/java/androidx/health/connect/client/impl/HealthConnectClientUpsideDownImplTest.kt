@@ -485,6 +485,92 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    fun aggregateRecordsGroupByPeriod_monthly() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                StepsRecord(
+                    count = 100,
+                    startTime = START_TIME - 40.days,
+                    startZoneOffset = ZONE_OFFSET,
+                    endTime = START_TIME - 40.days + 5.minutes,
+                    endZoneOffset = ZONE_OFFSET
+                ),
+                StepsRecord(
+                    count = 200,
+                    startTime = START_TIME - 40.days + 10.minutes,
+                    startZoneOffset = ZONE_OFFSET,
+                    endTime = START_TIME - 40.days + 30.minutes,
+                    endZoneOffset = ZONE_OFFSET
+                ),
+                StepsRecord(
+                    count = 50,
+                    startTime = START_TIME,
+                    startZoneOffset = ZONE_OFFSET,
+                    endTime = START_TIME + 10.minutes,
+                    endZoneOffset = ZONE_OFFSET
+                )
+            )
+        )
+
+        val queryStartTime = LocalDateTime.ofInstant(START_TIME - 40.days, ZONE_ID)
+        val queryEndTime = LocalDateTime.ofInstant(START_TIME + 2.days, ZONE_ID)
+
+        val aggregateResponse =
+            healthConnectClient.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    setOf(StepsRecord.COUNT_TOTAL),
+                    TimeRangeFilter.between(
+                        queryStartTime,
+                        queryEndTime,
+                    ),
+                    timeRangeSlicer = Period.ofMonths(1)
+                )
+            )
+
+        with(aggregateResponse) {
+            assertThat(this).hasSize(2)
+
+            assertThat(this[0].startTime).isEqualTo(queryStartTime)
+            assertThat(this[0].endTime).isEqualTo(queryStartTime.plus(Period.ofMonths(1)))
+            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isEqualTo(300)
+
+            assertThat(this[1].startTime).isEqualTo(queryStartTime.plus(Period.ofMonths(1)))
+            assertThat(this[1].endTime).isEqualTo(queryEndTime)
+            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isEqualTo(50)
+        }
+    }
+
+    @Test
+    fun aggregateRecordsGroupByPeriod_monthly_noData() = runTest {
+        val queryStartTime = LocalDateTime.ofInstant(START_TIME - 40.days, ZONE_ID)
+        val queryEndTime = LocalDateTime.ofInstant(START_TIME + 2.days, ZONE_ID)
+
+        val aggregateResponse =
+            healthConnectClient.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    setOf(StepsRecord.COUNT_TOTAL),
+                    TimeRangeFilter.between(
+                        queryStartTime,
+                        queryEndTime,
+                    ),
+                    timeRangeSlicer = Period.ofMonths(1)
+                )
+            )
+
+        with(aggregateResponse) {
+            assertThat(this).hasSize(2)
+
+            assertThat(this[0].startTime).isEqualTo(queryStartTime)
+            assertThat(this[0].endTime).isEqualTo(queryStartTime.plus(Period.ofMonths(1)))
+            assertThat(this[0].result[StepsRecord.COUNT_TOTAL]).isNull()
+
+            assertThat(this[1].startTime).isEqualTo(queryStartTime.plus(Period.ofMonths(1)))
+            assertThat(this[1].endTime).isEqualTo(queryEndTime)
+            assertThat(this[1].result[StepsRecord.COUNT_TOTAL]).isNull()
+        }
+    }
+
+    @Test
     fun getChangesToken() = runTest {
         val token =
             healthConnectClient.getChangesToken(
