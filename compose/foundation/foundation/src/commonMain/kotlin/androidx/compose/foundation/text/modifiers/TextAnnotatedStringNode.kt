@@ -225,6 +225,7 @@ internal class TextAnnotatedStringNode(
     ) {
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
             if (isAttached) {
+                // isAttached check because invalidateSemantics will throw otherwise
                 invalidateSemantics()
             }
         }
@@ -241,6 +242,7 @@ internal class TextAnnotatedStringNode(
                 placeholders = placeholders
             )
             if (isAttached) {
+                // isAttached check because invalidateMeasurement will throw otherwise
                 invalidateMeasurement()
             }
             invalidateDraw()
