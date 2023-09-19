@@ -48,6 +48,7 @@ import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
@@ -642,7 +643,7 @@ internal actual class ComposeWindow : UIViewController {
             override fun retrieveInteropTransaction(): UIKitInteropTransaction =
                 interopContext.retrieve()
 
-            override fun draw(surface: Surface, targetTimestamp: NSTimeInterval) {
+            override fun render(canvas: Canvas, targetTimestamp: NSTimeInterval) {
                 // The calculation is split in two instead of
                 // `(targetTimestamp * 1e9).toLong()`
                 // to avoid losing precision for fractional part
@@ -652,7 +653,7 @@ internal actual class ComposeWindow : UIViewController {
                 val nanos =
                     integral.roundToLong() * secondsToNanos + (fractional * 1e9).roundToLong()
 
-                scene.render(surface.canvas, nanos)
+                scene.render(canvas, nanos)
             }
         }
 
