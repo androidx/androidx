@@ -34,6 +34,7 @@ import androidx.build.testConfiguration.ModuleInfoGenerator
 import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
+import androidx.build.uptodatedness.TaskUpToDateValidator
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -78,6 +79,7 @@ import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
 import org.gradle.kotlin.dsl.create
@@ -103,9 +105,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
  * A plugin which enables all of the Gradle customizations for AndroidX. This plugin reacts to other
  * plugins being added and adds required and optional functionality.
  */
-class AndroidXImplPlugin
+abstract class AndroidXImplPlugin
 @Inject
 constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Project> {
+    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
+
     override fun apply(project: Project) {
         if (project.isRoot)
             throw Exception("Root project should use AndroidXRootImplPlugin instead")
@@ -170,6 +174,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
         project.disallowAccidentalAndroidDependenciesInKmpProject(kmpExtension)
+        TaskUpToDateValidator.setup(project, registry)
     }
 
     private fun Project.registerProjectOrArtifact() {

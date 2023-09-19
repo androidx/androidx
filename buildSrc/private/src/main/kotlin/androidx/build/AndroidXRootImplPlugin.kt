@@ -26,7 +26,6 @@ import androidx.build.license.CheckExternalDependencyLicensesTask
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
-import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
@@ -38,12 +37,9 @@ import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.ZipEntryCompression
-import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
-    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
-
     override fun apply(project: Project) {
         if (!project.isRoot) {
             throw Exception("This plugin should only be applied to root project")
@@ -160,8 +156,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
 
         registerStudioTask()
-
-        TaskUpToDateValidator.setup(project, registry)
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.setOutput(File(project.getDistributionDirectory(), "task_outputs.txt"))
