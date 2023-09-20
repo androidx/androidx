@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.driver
+package androidx.sqliteMultiplatform
 
-import androidx.sqliteMultiplatform.BaseConformanceTest
-import androidx.sqliteMultiplatform.SQLiteDriver
+fun SQLiteConnection.execSQL(sql: String) {
+    prepare(sql).use { it.step() }
+}
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
-
-    override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver(":memory:")
+fun <R> SQLiteStatement.use(block: (SQLiteStatement) -> R): R {
+    try {
+        return block.invoke(this)
+    } finally {
+        close()
     }
 }

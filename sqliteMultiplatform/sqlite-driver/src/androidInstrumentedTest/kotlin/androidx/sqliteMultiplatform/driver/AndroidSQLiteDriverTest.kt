@@ -19,9 +19,9 @@ package androidx.sqliteMultiplatform.driver
 import androidx.sqliteMultiplatform.BaseConformanceTest
 import androidx.sqliteMultiplatform.SQLiteDriver
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
+class AndroidSQLiteDriverTest : BaseConformanceTest() {
 
     override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver(":memory:")
+        return AndroidSQLiteDriver(":memory:")
     }
 }
