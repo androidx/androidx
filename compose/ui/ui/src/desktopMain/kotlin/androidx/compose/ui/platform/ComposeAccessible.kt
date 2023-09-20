@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -153,6 +154,9 @@ internal class ComposeAccessible(
                 }
             }
 
+        val progressBarRangeInfo
+            get() = semanticsNode.config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
+
         private fun makeScrollbarChild(
             vertical: Boolean
         ): Accessible {
@@ -265,29 +269,11 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleValue(): AccessibleValue? {
-            if (toggleableState != null) {
-                return object : AccessibleValue {
-                    override fun getCurrentAccessibleValue(): Number {
-                        return when (toggleableState) {
-                            ToggleableState.On -> 1
-                            else -> 0
-                        }
-                    }
-
-                    override fun setCurrentAccessibleValue(n: Number?): Boolean {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun getMinimumAccessibleValue(): Number {
-                        return 0
-                    }
-
-                    override fun getMaximumAccessibleValue(): Number {
-                        return 1
-                    }
-                }
+            return when {
+                toggleableState != null -> ToggleableAccessibleValue(this)
+                progressBarRangeInfo != null -> ProgressBarAccessibleValue(this)
+                else -> null
             }
-            return null
         }
 
         override fun getAccessibleIndexInParent(): Int {
@@ -401,6 +387,7 @@ internal class ComposeAccessible(
                 scrollBy != null -> AccessibleRole.SCROLL_PANE
                 setText != null -> AccessibleRole.TEXT
                 text != null -> AccessibleRole.LABEL
+                progressBarRangeInfo != null -> AccessibleRole.PROGRESS_BAR
                 else -> AccessibleRole.PANEL
             }
         }
@@ -798,5 +785,54 @@ internal class ComposeAccessible(
         override fun doAccessibleAction(i: Int): Boolean {
             return accessibleAction?.doAccessibleAction(i) ?: false
         }
+    }
+}
+
+private class ToggleableAccessibleValue(
+    val component: ComposeAccessible.ComposeAccessibleComponent
+): AccessibleValue {
+    override fun getCurrentAccessibleValue(): Number {
+        return when (component.toggleableState) {
+            ToggleableState.On -> 1
+            else -> 0
+        }
+    }
+
+    override fun setCurrentAccessibleValue(n: Number?): Boolean {
+        // TODO: Implement this
+        return false
+    }
+
+    override fun getMinimumAccessibleValue(): Number {
+        return 0
+    }
+
+    override fun getMaximumAccessibleValue(): Number {
+        return 1
+    }
+}
+
+private class ProgressBarAccessibleValue(
+    val component: ComposeAccessible.ComposeAccessibleComponent
+): AccessibleValue {
+
+    private val rangeInfo: ProgressBarRangeInfo?
+        get() = component.progressBarRangeInfo
+
+    override fun getCurrentAccessibleValue(): Number {
+        return rangeInfo?.current ?: 0f
+    }
+
+    override fun setCurrentAccessibleValue(n: Number?): Boolean {
+        // Can't set the value of a progress bar
+        return false
+    }
+
+    override fun getMinimumAccessibleValue(): Number {
+        return rangeInfo?.range?.start ?: 0f
+    }
+
+    override fun getMaximumAccessibleValue(): Number {
+        return rangeInfo?.range?.endInclusive ?: 1f
     }
 }

@@ -16,10 +16,17 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.Button
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.isEqualTo
@@ -29,8 +36,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import javax.accessibility.AccessibleRole
 import javax.accessibility.AccessibleText
+import kotlin.test.fail
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -97,6 +106,28 @@ class AccessibilityTest {
         }
 
         rule.onNodeWithTag("button").assertHasAccessibleRole(AccessibleRole.COMBO_BOX)
+    }
+
+    @Test
+    fun progressBarHasCorrectRoleAndValues() {
+        rule.setContent {
+            LinearProgressIndicator(
+                progress = 0.2f,
+                modifier = Modifier.testTag("progressbar")
+            )
+        }
+
+        rule.onNodeWithTag("progressbar").apply {
+            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext
+            val value = context.accessibleValue
+                ?: fail("No accessibleValue on LinearProgressIndicator")
+
+            assertThat(context.accessibleRole).isEqualTo(AccessibleRole.PROGRESS_BAR)
+            assertThat(value.minimumAccessibleValue).isEqualTo(0f)
+            assertThat(value.maximumAccessibleValue).isEqualTo(1f)
+            assertThat(value.currentAccessibleValue).isEqualTo(0.2f)
+        }
+
     }
 
     private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
