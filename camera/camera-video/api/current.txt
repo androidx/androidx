@@ -148,6 +148,7 @@ package androidx.camera.video {
     method public java.util.Set<androidx.camera.core.DynamicRange!> getSupportedDynamicRanges();
     method public java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.DynamicRange);
     method public boolean isQualitySupported(androidx.camera.video.Quality, androidx.camera.core.DynamicRange);
+    method public default boolean isStabilizationSupported();
   }
 
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
@@ -156,6 +157,7 @@ package androidx.camera.video {
     method public T getOutput();
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
+    method public boolean isVideoStabilizationEnabled();
     method public void setTargetRotation(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
@@ -167,6 +169,7 @@ package androidx.camera.video {
     method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
+    method public androidx.camera.video.VideoCapture.Builder<T!> setVideoStabilizationEnabled(boolean);
   }
 
   @RequiresApi(21) public interface VideoOutput {
