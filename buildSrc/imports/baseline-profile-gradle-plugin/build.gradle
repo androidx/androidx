@@ -1,0 +1,34 @@
+apply from: "../../shared.gradle"
+apply plugin: "java-gradle-plugin"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}" +
+            "/benchmark/baseline-profile-gradle-plugin/src/main/kotlin"
+    main.resources.srcDirs += "${supportRootFolder}" +
+            "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
+}
+
+gradlePlugin {
+    plugins {
+        baselineProfileProducer {
+            id = "androidx.baselineprofile.producer"
+            implementationClass = "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
+        }
+        baselineProfileConsumer {
+            id = "androidx.baselineprofile.consumer"
+            implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
+        }
+        baselineProfileAppTarget {
+            id = "androidx.baselineprofile.apptarget"
+            implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
+        }
+        baselineProfileWrapper {
+            id = "androidx.baselineprofile"
+            implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
+        }
+    }
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}
