@@ -14,31 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.core.impl.capability;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewCapabilities;
 import androidx.camera.core.impl.CameraInfoInternal;
 
 /**
- * Camera2 implementation of {@link PreviewCapabilities}.
+ * Implementation of {@link PreviewCapabilities}. It delegates to {@link CameraInfoInternal} to
+ * retrieve {@link Preview} related capabilities.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class Camera2PreviewCapabilities implements PreviewCapabilities {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(21)
+public class PreviewCapabilitiesImpl implements PreviewCapabilities {
 
-    private final boolean mIsStabilizationSupported;
+    private boolean mIsStabilizationSupported;
 
-    Camera2PreviewCapabilities(@NonNull CameraInfoInternal cameraInfoInternal) {
+    PreviewCapabilitiesImpl(@NonNull CameraInfoInternal cameraInfoInternal) {
         mIsStabilizationSupported = cameraInfoInternal.isPreviewStabilizationSupported();
     }
 
+    /**
+     * Gets {@link PreviewCapabilities} by the {@link CameraInfo}.
+     */
     @NonNull
-    static Camera2PreviewCapabilities from(@NonNull CameraInfo cameraInfo) {
-        return new Camera2PreviewCapabilities((CameraInfoInternal) cameraInfo);
+    public static PreviewCapabilities from(@NonNull CameraInfo cameraInfo) {
+        return new PreviewCapabilitiesImpl((CameraInfoInternal) cameraInfo);
     }
-
 
     @Override
     public boolean isStabilizationSupported() {

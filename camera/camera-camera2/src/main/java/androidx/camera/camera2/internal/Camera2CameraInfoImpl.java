@@ -22,6 +22,7 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATIO
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
+
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
 import android.hardware.camera2.CameraCharacteristics;
@@ -55,7 +56,6 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
-import androidx.camera.core.PreviewCapabilities;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -506,12 +506,6 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         } else {
             return Collections.emptySet();
         }
-    }
-
-    @NonNull
-    @Override
-    public PreviewCapabilities getPreviewCapabilities() {
-        return Camera2PreviewCapabilities.from(this);
     }
 
     @Override
