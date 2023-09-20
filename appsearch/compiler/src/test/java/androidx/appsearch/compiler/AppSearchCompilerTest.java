@@ -1491,6 +1491,43 @@ public class AppSearchCompilerTest {
 
         assertThat(compilation).succeededWithoutWarnings();
         checkEqualsGolden("AutoValue_Gift.java");
+        checkDocumentMapEqualsGolden(/* roundIndex= */0);
+        // The number of rounds that the annotation processor takes can vary from setup to setup.
+        // In this test case, AutoValue documents are processed in the second round because their
+        // generated classes are not available in the first turn.
+        checkDocumentMapEqualsGolden(/* roundIndex= */1);
+    }
+
+    @Test
+    public void testAutoValueDocumentWithNormalDocument() throws IOException {
+        Compilation compilation = compile(
+                "import com.google.auto.value.AutoValue;\n"
+                        + "import com.google.auto.value.AutoValue.*;\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "@AutoValue\n"
+                        + "public abstract class Gift {\n"
+                        + "  @CopyAnnotations @Document.Id abstract String id();\n"
+                        + "  @CopyAnnotations @Document.Namespace abstract String namespace();\n"
+                        + "  @CopyAnnotations\n"
+                        + "  @Document.StringProperty abstract String property();\n"
+                        + "  public static Gift create(String id, String namespace, String"
+                        + " property) {\n"
+                        + "    return new AutoValue_Gift(id, namespace, property);\n"
+                        + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("AutoValue_Gift.java");
+        checkDocumentMapEqualsGolden(/* roundIndex= */0);
+        // The number of rounds that the annotation processor takes can vary from setup to setup.
+        // In this test case, AutoValue documents are processed in the second round because their
+        // generated classes are not available in the first turn.
+        checkDocumentMapEqualsGolden(/* roundIndex= */1);
     }
 
     @Test
@@ -1639,6 +1676,7 @@ public class AppSearchCompilerTest {
         checkResultContains("Gift.java", "addParentType($$__AppSearch__Parent2.SCHEMA_NAME)");
 
         checkEqualsGolden("Gift.java");
+        checkDocumentMapEqualsGolden(/* roundIndex= */0);
     }
 
     @Test
@@ -1998,6 +2036,7 @@ public class AppSearchCompilerTest {
         checkResultContains("Gift.java", "document.getStr2()");
         checkResultContains("Gift.java", "document.getPrice()");
         checkEqualsGolden("Gift.java");
+        checkDocumentMapEqualsGolden(/* roundIndex= */0);
     }
 
     @Test
@@ -2771,6 +2810,28 @@ public class AppSearchCompilerTest {
                 "Method cannot be used to create a document class: abstract constructor");
     }
 
+    @Test
+    public void testDocumentClassesWithDuplicatedNames() throws Exception {
+        Compilation compilation = compile(
+                "@Document(name=\"A\")\n"
+                        + "class MyClass1 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "}\n"
+                        + "@Document(name=\"A\")\n"
+                        + "class MyClass2 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "}\n"
+                        + "@Document(name=\"B\")\n"
+                        + "class MyClass3 {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkDocumentMapEqualsGolden(/* roundIndex= */0);
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }
@@ -2797,8 +2858,27 @@ public class AppSearchCompilerTest {
     }
 
     private void checkEqualsGolden(String className) throws IOException {
-        // Get the expected file contents
         String goldenResPath = "goldens/" + mTestName.getMethodName() + ".JAVA";
+        File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
+        File actualPath =
+                new File(actualPackageDir, IntrospectionHelper.GEN_CLASS_PREFIX + className);
+        checkEqualsGoldenHelper(goldenResPath, actualPath);
+    }
+
+    private void checkDocumentMapEqualsGolden(int roundIndex) throws IOException {
+        String goldenResPath =
+                "goldens/" + mTestName.getMethodName() + "DocumentMap_" + roundIndex + ".JAVA";
+        File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
+        File[] files = actualPackageDir.listFiles((dir, name) ->
+                name.startsWith(IntrospectionHelper.GEN_CLASS_PREFIX + "DocumentClassMap")
+                        && name.endsWith("_" + roundIndex + ".java"));
+        Truth.assertThat(files).isNotNull();
+        Truth.assertThat(files).hasLength(1);
+        checkEqualsGoldenHelper(goldenResPath, files[0]);
+    }
+
+    private void checkEqualsGoldenHelper(String goldenResPath, File actualPath) throws IOException {
+        // Get the expected file contents
         String expected = "";
         try (InputStream is = getClass().getResourceAsStream(goldenResPath)) {
             if (is == null) {
@@ -2810,9 +2890,6 @@ public class AppSearchCompilerTest {
         }
 
         // Get the actual file contents
-        File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
-        File actualPath =
-                new File(actualPackageDir, IntrospectionHelper.GEN_CLASS_PREFIX + className);
         Truth.assertWithMessage("Path " + actualPath + " is not a file")
                 .that(actualPath.isFile()).isTrue();
         String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
