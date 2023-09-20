@@ -74,4 +74,12 @@ public class StubCreators {
     /** Stub creator for {@link GenericDocumentParcel}. */
     public static class GenericDocumentParcelCreator extends AbstractCreator {
     }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
+    public static class VisibilityPermissionDocumentCreator extends AbstractCreator {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
+    public static class VisibilityDocumentCreator extends AbstractCreator {
+    }
 }

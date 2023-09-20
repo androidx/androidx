@@ -134,31 +134,29 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityDocument actualDocument1 = new VisibilityDocument(
+        VisibilityDocument actualDocument1 = new VisibilityDocument.Builder(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityDocument.NAMESPACE,
                         /*id=*/ prefix + "Schema1",
-                        /*typePropertyPaths=*/ Collections.emptyMap()));
-        VisibilityDocument actualDocument2 = new VisibilityDocument(
+                        /*typePropertyPaths=*/ Collections.emptyMap())).build();
+        VisibilityDocument actualDocument2 = new VisibilityDocument.Builder(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityDocument.NAMESPACE,
                         /*id=*/ prefix + "Schema2",
-                        /*typePropertyPaths=*/ Collections.emptyMap()));
+                        /*typePropertyPaths=*/ Collections.emptyMap())).build();
 
         VisibilityDocument expectedDocument1 =
                 new VisibilityDocument.Builder(/*id=*/ prefix + "Schema1")
                         .setNotDisplayedBySystem(true)
-                        .setCreationTimestampMillis(actualDocument1.getCreationTimestampMillis())
                         .addVisibleToPackage(new PackageIdentifier(packageNameFoo, sha256CertFoo))
                         .build();
         VisibilityDocument expectedDocument2 =
                 new VisibilityDocument.Builder(/*id=*/ prefix + "Schema2")
                         .setNotDisplayedBySystem(true)
-                        .setCreationTimestampMillis(actualDocument2.getCreationTimestampMillis())
                         .addVisibleToPackage(new PackageIdentifier(packageNameBar, sha256CertBar))
                         .build();
         assertThat(actualDocument1).isEqualTo(expectedDocument1);
