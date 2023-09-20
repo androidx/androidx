@@ -741,7 +741,6 @@ internal class DefaultSpecialEffectsController(
                 // Now set up our completion signal on the completely merged transition set
                 val (enteringViews, mergedTransition) =
                     createMergedTransition(container, lastIn, firstOut)
-                var animateToStartRunnable: Runnable? = null
                 transitionInfos.map { it.operation }.forEach { operation ->
                     val cancelRunnable = Runnable { seekCancelLambda?.invoke() }
                     transitionImpl.setListenerForTransitionEnd(
@@ -750,24 +749,13 @@ internal class DefaultSpecialEffectsController(
                         transitionSignal,
                         cancelRunnable,
                         Runnable {
-                            // If we are ended due to the transition being cancelled and calling
-                            // animateToStart, we need to cancel the transition to set transition
-                            // state back to the beginning before we complete the operation.
-                            if (animateToStartRunnable != null) {
-                                animateToStartRunnable?.run()
-                                transitionInfos.mapNotNull { it.operation.fragment.view }
-                                    .forEach { view ->
-                                        operation.finalState.applyState(view, container)
-                                    }
-                            } else {
-                                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                    Log.v(
-                                        FragmentManager.TAG,
-                                        "Transition for operation $operation has completed"
-                                    )
-                                }
-                                operation.completeEffect(this)
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(
+                                    FragmentManager.TAG,
+                                    "Transition for operation $operation has completed"
+                                )
                             }
+                            operation.completeEffect(this)
                         })
                 }
 
@@ -783,20 +771,18 @@ internal class DefaultSpecialEffectsController(
                         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(FragmentManager.TAG, "Animating to start")
                         }
-                        animateToStartRunnable =
-                            transitionImpl.animateToStart(controller!!, container) {
-                                transitionInfos.map { it.operation }.forEach { operation ->
-                                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                        Log.v(
-                                            FragmentManager.TAG,
-                                            "Transition for operation $operation has " +
-                                                "completed as result of cancellation"
-                                        )
-                                    }
-                                    operation.completeEffect(this)
-                                    animateToStartRunnable = null
+                        transitionImpl.animateToStart(controller!!) {
+                            transitionInfos.forEach { transitionInfo ->
+                                val operation = transitionInfo.operation
+                                val view = operation.fragment.view
+                                if (view != null) {
+                                    operation.finalState.applyState(view, container)
                                 }
                             }
+                            transitionInfos.map { it.operation }.forEach { operation ->
+                                operation.completeEffect(this)
+                            }
+                        }
                     }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(FragmentManager.TAG,

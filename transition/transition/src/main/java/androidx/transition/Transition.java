@@ -2719,6 +2719,7 @@ public abstract class Transition implements Cloneable {
         private SpringAnimation mSpringAnimation;
         private Consumer<TransitionSeekController>[] mListenerCache = null;
         private final VelocityTracker1D mVelocityTracker = new VelocityTracker1D();
+        private Runnable mResetToStartState;
 
         @Override
         public long getDurationMillis() {
@@ -2858,6 +2859,16 @@ public abstract class Transition implements Cloneable {
             mSpringAnimation.addEndListener((anim, canceled, value, velocity) -> {
                 if (!canceled) {
                     boolean isReversed = value < 1f;
+
+                    if (isReversed) {
+                        long duration = getDurationMillis();
+                        Transition.this.setCurrentPlayTimeMillis(duration, mCurrentPlayTime);
+                        mCurrentPlayTime = duration;
+                        if (mResetToStartState != null) {
+                            mResetToStartState.run();
+                        }
+                        mAnimators.clear();
+                    }
                     notifyListeners(TransitionNotification.ON_END, isReversed);
                 }
                 mSpringAnimation = null;
@@ -2871,7 +2882,8 @@ public abstract class Transition implements Cloneable {
         }
 
         @Override
-        public void animateToStart() {
+        public void animateToStart(@NonNull Runnable resetToStartState) {
+            mResetToStartState = resetToStartState;
             ensureAnimation();
             mSpringAnimation.animateToFinalPosition(-1);
         }
