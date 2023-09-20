@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.renderer.impl;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.content.Context;
@@ -268,11 +269,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                             TAG
                                     + " - inflated result was null, but inflating into new parent"
                                     + " requested.");
-            inflateResult.updateDynamicDataPipeline(isReattaching);
             parent.removeAllViews();
             parent.addView(
-                    inflateResult.inflateParent,
-                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    inflateResult.inflateParent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            inflateResult.updateDynamicDataPipeline(isReattaching);
             return Futures.immediateVoidFuture();
         }
     }
