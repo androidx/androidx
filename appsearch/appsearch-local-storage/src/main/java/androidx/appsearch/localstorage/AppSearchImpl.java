@@ -813,10 +813,9 @@ public final class AppSearchImpl implements Closeable {
                 // fake the id, they can only mess their own app. That's totally allowed and
                 // they can do this via the public API too.
                 String prefixedSchemaType = prefix + unPrefixedDocument.getId();
-                prefixedVisibilityDocuments.add(new VisibilityDocument(
-                        unPrefixedDocument.toBuilder()
-                                .setId(prefixedSchemaType)
-                                .build()));
+                prefixedVisibilityDocuments.add(
+                        new VisibilityDocument.Builder(
+                                unPrefixedDocument).setId(prefixedSchemaType).build());
                 // This schema has visibility settings. We should keep it from the removal list.
                 deprecatedVisibilityDocuments.remove(prefixedSchemaType);
             }

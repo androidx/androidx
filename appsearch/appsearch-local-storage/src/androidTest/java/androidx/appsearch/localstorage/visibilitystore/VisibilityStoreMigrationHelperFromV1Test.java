@@ -128,13 +128,13 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityDocument actualDocument = new VisibilityDocument(
+        VisibilityDocument actualDocument = new VisibilityDocument.Builder(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityDocument.NAMESPACE,
                         /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()));
+                        /*typePropertyPaths=*/ Collections.emptyMap())).build();
 
         assertThat(actualDocument.isNotDisplayedBySystem()).isTrue();
         assertThat(actualDocument.getPackageNames()).asList().containsExactly(packageNameFoo,
