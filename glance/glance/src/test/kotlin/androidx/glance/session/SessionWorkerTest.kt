@@ -267,6 +267,36 @@ class SessionWorkerTest {
         assertThat(result).hasCauseThat().isEqualTo(cause)
         assertThat(result).hasMessageThat().isEqualTo("message")
     }
+
+    @Test
+    fun sessionWorkerDoesNotLeakEffectJobOnCancellation() = runTest {
+        val workerJob = launch {
+            var wasCancelled = false
+            try {
+                worker.doWork()
+            } catch (e: CancellationException) {
+                wasCancelled = true
+                assertThat(worker.effectJob?.isCancelled).isTrue()
+            } finally {
+                assertThat(wasCancelled).isTrue()
+            }
+        }
+
+        sessionManager.startSession(context).first()
+        workerJob.cancel()
+    }
+
+    @Test
+    fun sessionWorkerDoesNotLeakEffectJobOnClose() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+            assertThat(worker.effectJob?.isCancelled).isTrue()
+        }
+
+        sessionManager.startSession(context).first()
+        sessionManager.closeSession()
+    }
 }
 
 private const val SESSION_KEY = "123"
