@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.collection.MutableLongList
-import androidx.collection.longListOf
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +38,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.MutableColorList
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
@@ -60,18 +59,15 @@ private val Blue = Color(0xff4A7DCF)
 private val Indigo = Color(0xff3F0FB7)
 private val Purple = Color(0xff7B4397)
 
-private fun Long.toColor(): Color = Color(toULong())
-private fun Color.toLong(): Long = value.toLong()
-
 // red is used for the selection container color
-private val Rainbow = longListOf(
-    Orange.toLong(),
-    Yellow.toLong(),
-    Green.toLong(),
-    Blue.toLong(),
-    Indigo.toLong(),
-    Purple.toLong(),
-)
+private val Rainbow = MutableColorList(initialCapacity = 6).apply {
+    add(Orange)
+    add(Yellow)
+    add(Green)
+    add(Blue)
+    add(Indigo)
+    add(Purple)
+}.asColorList()
 
 @Composable
 fun MinTouchTargetTextSelection() {
@@ -147,8 +143,7 @@ private fun MinTouchTargetInTextSelection() {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Rainbow.forEachIndexed { index, long ->
-                val color = long.toColor()
+            Rainbow.forEachIndexed { index, color ->
                 val fadedColor = color.copy(alpha)
                 Text(
                     text = "Text",
@@ -186,12 +181,9 @@ private fun Modifier.drawMinTouchTargetBorderBehind(
 
 private fun AnnotatedString.Builder.appendRainbowText(text: String, alpha: Float = 1f) {
     val size = Rainbow.size
-    val colors = Rainbow.fold(MutableLongList(size)) { list, long ->
-        list.also { list += long.toColor().copy(alpha).toLong() }
-    }
     text.forEachIndexed { index, char ->
-        val long = colors[index % size]
-        withStyle(SpanStyle(color = long.toColor())) {
+        val color = Rainbow[index % size].copy(alpha)
+        withStyle(SpanStyle(color = color)) {
             append(char)
         }
     }
