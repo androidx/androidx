@@ -329,7 +329,7 @@ object ThreePaneScaffoldDefaults {
      * @param secondaryPaneAdaptStrategy the adapt strategy of the secondary pane
      * @param tertiaryPaneAdaptStrategy the adapt strategy of the tertiary pane
      */
-    fun threePaneScaffoldAdaptStrategies(
+    fun adaptStrategies(
         primaryPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         secondaryPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         tertiaryPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
