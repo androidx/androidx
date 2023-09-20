@@ -91,6 +91,7 @@ class UseCaseCameraImpl @Inject constructor(
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
     private val threads: UseCaseThreads,
     private val sessionProcessorManager: SessionProcessorManager?,
+    private val sessionConfigAdapter: SessionConfigAdapter,
     override val requestControl: UseCaseCameraRequestControl,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
@@ -101,6 +102,9 @@ class UseCaseCameraImpl @Inject constructor(
             field = value
 
             if (sessionProcessorManager != null) {
+                sessionConfigAdapter.getValidSessionConfigOrNull()?.let {
+                    requestControl.setSessionConfigAsync(it)
+                }
                 return
             }
 
@@ -146,6 +150,7 @@ class UseCaseCameraImpl @Inject constructor(
             threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 requestControl.close()
+                sessionProcessorManager?.onCaptureSessionEnd()
                 useCaseGraphConfig.graph.close()
                 sessionProcessorManager?.close()
                 useCaseSurfaceManager.stopAsync().await()

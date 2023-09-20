@@ -61,7 +61,7 @@ class SessionProcessorManagerTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule(testDispatcher)
 
-    private val fakeSessionProcessor: SessionProcessor = object : SessionProcessor {
+    private val fakeSessionProcessor = object : SessionProcessor {
         val previewOutputConfigId = 0
         val imageCaptureOutputConfigId = 1
         val imageAnalysisOutputConfigId = 2

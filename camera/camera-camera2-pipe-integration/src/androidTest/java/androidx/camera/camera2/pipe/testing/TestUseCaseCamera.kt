@@ -127,7 +127,11 @@ class TestUseCaseCamera(
                 throw NotImplementedError("Not implemented")
             }
         },
-        state = UseCaseCameraState(useCaseCameraGraphConfig, threads),
+        state = UseCaseCameraState(
+            useCaseCameraGraphConfig,
+            threads,
+            sessionProcessorManager = null
+        ),
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->

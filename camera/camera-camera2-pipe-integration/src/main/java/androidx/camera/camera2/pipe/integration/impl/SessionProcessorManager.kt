@@ -31,7 +31,9 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.OutputSurfaceConfiguration
+import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.SessionProcessor.CaptureCallback
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.streamsharing.StreamSharing
@@ -148,6 +150,18 @@ class SessionProcessorManager @Inject constructor(
         )
 
         useCaseManager.tryResumeUseCaseManager(useCaseManagerConfig)
+    }
+
+    internal fun onCaptureSessionStart(requestProcessor: RequestProcessor) {
+        sessionProcessor.onCaptureSessionStart(requestProcessor)
+    }
+
+    internal fun startRepeating(captureCallback: CaptureCallback) {
+        sessionProcessor.startRepeating(captureCallback)
+    }
+
+    internal fun onCaptureSessionEnd() {
+        sessionProcessor.onCaptureSessionEnd()
     }
 
     internal fun close() {

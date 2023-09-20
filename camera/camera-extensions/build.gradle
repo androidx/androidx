@@ -29,6 +29,8 @@ dependencies {
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.autoValueAnnotations)
+    implementation(project(':camera:camera-camera2-pipe-integration'))
+    implementation(project(':camera:camera-camera2-pipe'))
     annotationProcessor(libs.autoValue)
 
     compileOnly(project(":camera:camera-extensions-stub"))

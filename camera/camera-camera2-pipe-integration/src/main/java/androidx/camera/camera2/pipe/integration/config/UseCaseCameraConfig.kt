@@ -89,6 +89,12 @@ class UseCaseCameraConfig(
 
     @UseCaseCameraScope
     @Provides
+    fun provideSessionConfigAdapter(): SessionConfigAdapter {
+        return sessionConfigAdapter
+    }
+
+    @UseCaseCameraScope
+    @Provides
     fun provideSessionProcessorManager(): SessionProcessorManager? {
         return sessionProcessorManager
     }
@@ -177,6 +183,8 @@ data class UseCaseGraphConfig(
 )
 interface UseCaseCameraComponent {
     fun getUseCaseCamera(): UseCaseCamera
+
+    fun getUseCaseGraphConfig(): UseCaseGraphConfig
 
     @Subcomponent.Builder
     interface Builder {

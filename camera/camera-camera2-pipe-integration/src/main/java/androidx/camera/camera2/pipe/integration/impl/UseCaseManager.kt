@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -44,6 +45,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.DynamicRange
@@ -56,6 +58,7 @@ import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import javax.inject.Inject
 import javax.inject.Provider
@@ -165,6 +168,8 @@ class UseCaseManager @Inject constructor(
     private var _activeComponent: UseCaseCameraComponent? = null
     val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
+    val useCaseGraphConfig: UseCaseGraphConfig?
+        get() = _activeComponent?.getUseCaseGraphConfig()
 
     private val closingCameraJobs = mutableListOf<Job>()
 
@@ -410,6 +415,20 @@ class UseCaseManager @Inject constructor(
 
             for (control in allControls) {
                 control.useCaseCamera = camera
+            }
+
+            if (sessionProcessorEnabled) {
+                val sessionProcessorSurfaces =
+                    sessionConfigAdapter.deferrableSurfaces.map {
+                        it as SessionProcessorSurface
+                    }
+                val requestProcessorAdapter = RequestProcessorAdapter(
+                    useCaseGraphConfig!!,
+                    sessionConfigAdapter.getValidSessionConfigOrNull(),
+                    sessionProcessorSurfaces,
+                    useCaseThreads.get().scope,
+                )
+                checkNotNull(sessionProcessorManager).onCaptureSessionStart(requestProcessorAdapter)
             }
             camera?.setActiveResumeMode(activeResumeEnabled)
 

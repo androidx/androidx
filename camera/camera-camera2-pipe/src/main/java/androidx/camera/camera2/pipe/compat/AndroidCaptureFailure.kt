@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
  * [CaptureFailure] object.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidCaptureFailure(
+class AndroidCaptureFailure(
     override val requestMetadata: RequestMetadata,
     override val captureFailure: CaptureFailure
 ) : RequestFailure, UnsafeWrapper {

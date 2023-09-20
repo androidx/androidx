@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
@@ -82,6 +83,7 @@ class UseCaseCameraTest {
     private val fakeUseCaseCameraState = UseCaseCameraState(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
         threads = useCaseThreads,
+        sessionProcessorManager = null,
     )
     private val requestControl = UseCaseCameraRequestControlImpl(
         capturePipeline = FakeCapturePipeline(),
@@ -119,6 +121,7 @@ class UseCaseCameraTest {
             ),
             threads = useCaseThreads,
             sessionProcessorManager = null,
+            sessionConfigAdapter = SessionConfigAdapter(listOf(fakeUseCase)),
             requestControl = requestControl,
         ).also {
             it.runningUseCases = setOf(fakeUseCase)

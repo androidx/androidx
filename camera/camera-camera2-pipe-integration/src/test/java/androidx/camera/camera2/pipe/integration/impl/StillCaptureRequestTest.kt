@@ -440,6 +440,7 @@ class StillCaptureRequestTest {
         fakeUseCaseCameraState = UseCaseCameraState(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             threads = fakeUseCaseThreads,
+            sessionProcessorManager = null,
         )
         requestControl = UseCaseCameraRequestControlImpl(
             capturePipeline = CapturePipelineImpl(
