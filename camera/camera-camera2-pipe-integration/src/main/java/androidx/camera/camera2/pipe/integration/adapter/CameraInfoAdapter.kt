@@ -54,7 +54,6 @@ import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
-import androidx.camera.core.PreviewCapabilities
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
@@ -211,10 +210,6 @@ class CameraInfoAdapter @Inject constructor(
             }
         }
         return setOf(SDR)
-    }
-
-    override fun getPreviewCapabilities(): PreviewCapabilities = PreviewCapabilities {
-        isPreviewStabilizationSupported
     }
 
     override fun isPreviewStabilizationSupported(): Boolean {

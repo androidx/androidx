@@ -87,6 +87,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
@@ -670,6 +671,17 @@ public final class Preview extends UseCase {
     @NonNull
     public Range<Integer> getTargetFrameRate() {
         return getTargetFrameRateInternal();
+    }
+
+    /**
+     * Returns {@link PreviewCapabilities} to query preview stream related device capability.
+     *
+     * @return {@link PreviewCapabilities}
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static PreviewCapabilities getPreviewCapabilities(@NonNull CameraInfo cameraInfo) {
+        return PreviewCapabilitiesImpl.from(cameraInfo);
     }
 
     /**

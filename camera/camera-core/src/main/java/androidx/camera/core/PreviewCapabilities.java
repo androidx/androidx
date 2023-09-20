@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.hardware.camera2.CaptureRequest;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -39,8 +38,4 @@ public interface PreviewCapabilities {
      * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
      */
     boolean isStabilizationSupported();
-
-    /** An empty implementation. */
-    @NonNull
-    PreviewCapabilities EMPTY = () -> false;
 }
