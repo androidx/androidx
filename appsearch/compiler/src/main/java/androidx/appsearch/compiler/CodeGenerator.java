@@ -25,7 +25,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -62,12 +61,8 @@ class CodeGenerator {
         mOutputClass = createClass();
     }
 
-    public void writeToFiler() throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(mEnv.getFiler());
-    }
-
-    public void writeToFolder(@NonNull File folder) throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(folder);
+    public JavaFile createJavaFile() throws IOException {
+        return JavaFile.builder(mOutputPackage, mOutputClass).build();
     }
 
     /**
