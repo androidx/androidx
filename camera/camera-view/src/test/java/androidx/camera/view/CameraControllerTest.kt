@@ -20,15 +20,18 @@ import android.content.Context
 import android.graphics.Matrix
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.MirrorMode
 import androidx.camera.core.TorchState
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
@@ -449,6 +452,32 @@ class CameraControllerTest {
         val qualitySelector = QualitySelector.from(targetVideoQuality)
         controller.videoCaptureQualitySelector = qualitySelector
         assertThat(controller.videoCaptureQualitySelector).isEqualTo(qualitySelector)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureMirrorMode() {
+        controller.videoCaptureMirrorMode = MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+        assertThat(controller.videoCaptureMirrorMode)
+            .isEqualTo(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+        assertThat(controller.mVideoCapture.mirrorMode)
+            .isEqualTo(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureDynamicRange() {
+        controller.videoCaptureDynamicRange = DynamicRange.HDR10_10_BIT
+        assertThat(controller.videoCaptureDynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+        assertThat(controller.mVideoCapture.dynamicRange).isEqualTo(DynamicRange.HDR10_10_BIT)
+    }
+
+    @UiThreadTest
+    @Test
+    fun setVideoCaptureFrameRate() {
+        controller.videoCaptureTargetFrameRate = Range.create(60, 120)
+        assertThat(controller.videoCaptureTargetFrameRate).isEqualTo(Range.create(60, 120))
+        assertThat(controller.mVideoCapture.targetFrameRate).isEqualTo(Range.create(60, 120))
     }
 
     @UiThreadTest
