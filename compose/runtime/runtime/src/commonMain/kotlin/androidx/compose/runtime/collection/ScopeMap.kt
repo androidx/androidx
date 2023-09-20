@@ -31,10 +31,9 @@ internal class ScopeMap<T : Any> {
     val size get() = map.size
 
     /**
-     * Adds a [key]/[scope] pair to the map and returns `true` if it was added or `false` if
-     * it already existed.
+     * Adds a [key]/[scope] pair to the map.
      */
-    fun add(key: Any, scope: T): Boolean =
+    fun add(key: Any, scope: T) {
         map.compute(key) { _, value ->
             when (value) {
                 null -> scope
@@ -43,6 +42,7 @@ internal class ScopeMap<T : Any> {
                     (value as MutableScatterSet<T>).add(scope)
                     value
                 }
+
                 else -> {
                     if (value !== scope) {
                         val set = MutableScatterSet<T>()
@@ -56,6 +56,7 @@ internal class ScopeMap<T : Any> {
                 }
             }
         }
+    }
 
     /**
      * Returns true if any scopes are associated with [element]

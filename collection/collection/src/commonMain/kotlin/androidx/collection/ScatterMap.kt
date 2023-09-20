@@ -844,9 +844,9 @@ public class MutableScatterMap<K, V>(
      * `null` if the key is not in the map). The computed value is then stored in the map for the
      * given [key].
      *
-     * @return `true` if the value was inserted and `false` if the existing value was replaced.
+     * @return value computed by `computeBlock`.
      */
-    public inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): Boolean {
+    public inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): V {
         val index = findInsertIndex(key)
         val inserting = index < 0
 
@@ -864,7 +864,7 @@ public class MutableScatterMap<K, V>(
         } else {
             values[index] = computedValue
         }
-        return inserting
+        return computedValue
     }
 
     /**
