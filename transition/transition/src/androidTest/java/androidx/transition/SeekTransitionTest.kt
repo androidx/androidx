@@ -454,7 +454,7 @@ class SeekTransitionTest : BaseTest() {
         }
         verify(listener2, timeout(3000)).onTransitionStart(any())
         rule.runOnUiThread {
-            verify(listener2, times(1)).onTransitionEnd(any())
+            verify(listener2, times(2)).onTransitionEnd(any())
             // All transitions should be ended
             val runningTransitions = TransitionManager.getRunningTransitions()
             assertThat(runningTransitions[root]).isEmpty()
