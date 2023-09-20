@@ -106,7 +106,9 @@ class ThreePaneScaffoldTest {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockLayoutDirective = AdaptiveLayoutDirective(
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(0.dp, 0.dp)
+    gutterSizes = GutterSizes(0.dp, 0.dp),
+    maxVerticalPartitions = 1,
+    excludedBounds = emptyList()
 )
 
 internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
