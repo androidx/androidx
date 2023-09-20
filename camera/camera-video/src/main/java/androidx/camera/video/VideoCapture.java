@@ -1797,9 +1797,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * <p>This target will be used as a part of the heuristics for the algorithm that determines
          * the final frame rate range and resolution of all concurrently bound use cases.
+         *
          * <p>It is not guaranteed that this target frame rate will be the final range,
          * as other use cases as well as frame rate restrictions of the device may affect the
          * outcome of the algorithm that chooses the actual frame rate.
+         *
+         * <p>For supported frame rates, see {@link CameraInfo#getSupportedFrameRateRanges()}.
          *
          * @param targetFrameRate the target frame rate range.
          */
