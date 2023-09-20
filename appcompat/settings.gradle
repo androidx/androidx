@@ -12,10 +12,6 @@ playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
         if (name.startsWith(":appcompat")) return true
-        if (name == ":internal-testutils-appcompat") return true
-        if (name == ":internal-testutils-runtime") return true
-        // Transitive dependencies of internal-testutils-appcompat
-        if (name.startsWith(":annotation:annotation-experimental")) return true
         return false
     })
 }

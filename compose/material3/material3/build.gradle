@@ -128,7 +128,7 @@ androidXMultiplatform {
                 implementation(project(":compose:test-utils"))
                 implementation(project(':compose:foundation:foundation-layout'))
                 implementation(project(":test:screenshot:screenshot"))
-                implementation(project(":core:core"))
+                implementation(projectOrArtifact(":core:core"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
