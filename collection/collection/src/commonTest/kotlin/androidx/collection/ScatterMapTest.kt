@@ -337,17 +337,17 @@ class ScatterMapTest {
         val map = MutableScatterMap<String, String?>()
         map["Hello"] = "World"
 
-        var inserting = map.compute("Hello") { _, _ ->
+        var computed = map.compute("Hello") { _, _ ->
             "New World"
         }
         assertEquals("New World", map["Hello"])
-        assertFalse(inserting)
+        assertEquals("New World", computed)
 
-        inserting = map.compute("Bonjour") { _, _ ->
+        computed = map.compute("Bonjour") { _, _ ->
             "Monde"
         }
         assertEquals("Monde", map["Bonjour"])
-        assertTrue(inserting)
+        assertEquals("Monde", computed)
 
         map.compute("Bonjour") { _, v ->
             v ?: "Welt"
