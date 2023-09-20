@@ -16,6 +16,7 @@ package androidx.slidingpanelayout.widget {
     method @Px public int getParallaxDistance();
     method @Deprecated @ColorInt public int getSliderFadeColor();
     method public boolean isOpen();
+    method public final boolean isOverlappingEnabled();
     method public boolean isSlideable();
     method public void open();
     method public boolean openPane();
@@ -23,6 +24,7 @@ package androidx.slidingpanelayout.widget {
     method public void removeSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
     method @Deprecated public void setCoveredFadeColor(int);
     method public final void setLockMode(int);
+    method public final void setOverlappingEnabled(boolean);
     method @Deprecated public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener? listener);
     method public void setParallaxDistance(@Px int);
     method @Deprecated public void setShadowDrawable(android.graphics.drawable.Drawable? drawable);
@@ -35,6 +37,7 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
     property @Deprecated @ColorInt public int coveredFadeColor;
+    property public final boolean isOverlappingEnabled;
     property public boolean isSlideable;
     property public final int lockMode;
     property @Px public int parallaxDistance;
@@ -56,11 +59,7 @@ package androidx.slidingpanelayout.widget {
     ctor public SlidingPaneLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams source);
     ctor public SlidingPaneLayout.LayoutParams(androidx.slidingpanelayout.widget.SlidingPaneLayout.LayoutParams source);
     ctor public SlidingPaneLayout.LayoutParams(int width, int height);
-    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.LayoutParams.Companion Companion;
     field public float weight;
-  }
-
-  public static final class SlidingPaneLayout.LayoutParams.Companion {
   }
 
   public static interface SlidingPaneLayout.PanelSlideListener {
