@@ -20,17 +20,11 @@ import androidx.appactions.builtintypes.types.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpecBuilder
 import androidx.appactions.interaction.capabilities.serializers.properties.NAME_TYPE_SPEC
-import androidx.appactions.interaction.capabilities.serializers.properties.TEXT_ONLY_DISAMBIGUATING_DESCRIPTION_TYPE_SPEC
 
 val GENERIC_ERROR_STATUS_TYPE_SPEC: TypeSpec<GenericErrorStatus> = TypeSpecBuilder.newBuilder(
   "GenericErrorStatus",
   GenericErrorStatus::Builder,
   GenericErrorStatus.Builder<*>::build
-).bindSpecField(
-  "disambiguatingDescription",
-  { it.disambiguatingDescription },
-  GenericErrorStatus.Builder<*>::setDisambiguatingDescription,
-  TEXT_ONLY_DISAMBIGUATING_DESCRIPTION_TYPE_SPEC
 ).bindSpecField(
   "name",
   { it.name },

@@ -25,8 +25,4 @@ val REPEAT_FREQUENCY_TYPE_SPEC = UnionTypeSpec.Builder<RepeatFrequency>().bindMe
   memberGetter = RepeatFrequency::asDuration,
   ctor = { RepeatFrequency(it) },
   typeSpec = TypeSpec.DURATION_TYPE_SPEC
-).bindMemberType(
-  memberGetter = RepeatFrequency::asText,
-  ctor = { RepeatFrequency(it) },
-  typeSpec = TypeSpec.STRING_TYPE_SPEC
 ).build()
