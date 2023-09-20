@@ -21,7 +21,6 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -110,10 +109,12 @@ internal abstract class Ripple(
     private val radius: Dp,
     private val color: State<Color>
 ) : Indication {
+    @Suppress("DEPRECATION_ERROR")
+    @Deprecated("Super method is deprecated")
     @Composable
     final override fun rememberUpdatedInstance(
         interactionSource: InteractionSource
-    ): IndicationInstance {
+    ): androidx.compose.foundation.IndicationInstance {
         val theme = LocalRippleTheme.current
         val color = rememberUpdatedState(
             if (color.value.isSpecified) {
@@ -197,14 +198,16 @@ internal expect class PlatformRipple(
 }
 
 /**
- * Abstract [IndicationInstance] that provides common functionality used by [PlatformRipple]
- * implementations. Implementing classes should call [drawStateLayer] to draw the [StateLayer], so
- * they only need to handle showing the ripple effect when pressed, and not other [Interaction]s.
+ * Abstract [androidx.compose.foundation.IndicationInstance] that provides common functionality
+ * used by [PlatformRipple] implementations. Implementing classes should call [drawStateLayer] to
+ * draw the [StateLayer], so they only need to handle showing the ripple effect when pressed, and
+ * not other [Interaction]s.
  */
+@Suppress("DEPRECATION_ERROR")
 internal abstract class RippleIndicationInstance(
     bounded: Boolean,
     rippleAlpha: State<RippleAlpha>
-) : IndicationInstance {
+) : androidx.compose.foundation.IndicationInstance {
     private val stateLayer = StateLayer(bounded, rippleAlpha)
 
     abstract fun addRipple(interaction: PressInteraction.Press, scope: CoroutineScope)

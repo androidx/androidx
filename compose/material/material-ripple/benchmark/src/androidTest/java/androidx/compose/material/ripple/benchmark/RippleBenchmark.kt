@@ -73,6 +73,7 @@ class RippleBenchmark {
      * Composition cost of creating a ripple instance - this is what actually allocates
      * ripple-related machinery and is later responsible for drawing ripples.
      */
+    @Suppress("DEPRECATION_ERROR")
     @Test
     fun initialRippleRememberUpdatedInstanceFirstComposition() {
         benchmarkRule.benchmarkFirstCompose {
@@ -99,6 +100,7 @@ class RippleBenchmark {
      * Composition cost of creating a second ripple instance, after one has already been created,
      * discounting any first-ripple performance costs.
      */
+    @Suppress("DEPRECATION_ERROR")
     @Test
     fun additionalRippleRememberUpdatedInstanceFirstComposition() {
         benchmarkRule.benchmarkFirstCompose {
@@ -263,6 +265,7 @@ class RippleBenchmark {
  * Test case for a manually-drawn ripple (no [androidx.compose.foundation.indication]) that allows
  * emitting [Interaction]s with [emitInteraction].
  */
+@Suppress("DEPRECATION_ERROR")
 private class RippleInteractionTestCase : LayeredComposeTestCase() {
     private val interactionSource = MutableInteractionSource()
 

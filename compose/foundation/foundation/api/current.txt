@@ -147,17 +147,23 @@ package androidx.compose.foundation {
   }
 
   @androidx.compose.runtime.Stable public interface Indication {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
+    method @Deprecated @androidx.compose.runtime.Composable public default androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
   }
 
-  public interface IndicationInstance {
-    method public void drawIndication(androidx.compose.ui.graphics.drawscope.ContentDrawScope);
+  @Deprecated public interface IndicationInstance {
+    method @Deprecated public void drawIndication(androidx.compose.ui.graphics.drawscope.ContentDrawScope);
   }
 
   public final class IndicationKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.Indication> getLocalIndication();
     method public static androidx.compose.ui.Modifier indication(androidx.compose.ui.Modifier, androidx.compose.foundation.interaction.InteractionSource interactionSource, androidx.compose.foundation.Indication? indication);
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.Indication> LocalIndication;
+  }
+
+  @androidx.compose.runtime.Stable public interface IndicationNodeFactory extends androidx.compose.foundation.Indication {
+    method public androidx.compose.ui.node.DelegatableNode create(androidx.compose.foundation.interaction.InteractionSource interactionSource);
+    method public boolean equals(Object? other);
+    method public int hashCode();
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalFoundationApi {
