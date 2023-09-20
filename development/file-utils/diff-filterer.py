@@ -126,6 +126,17 @@ class FileIo(object):
           return result
     return result
 
+  # returns the time at which <path> was last modified, without following symlinks
+  def getModificationTime(self, path):
+    if os.path.exists(path):
+      if os.path.islink(path):
+        # for a symlink, the last time the link itself was modified is the ctime (mtime for a broken link is undefined)
+        return os.path.getctime(path)
+      else:
+        # for a file, the last time its content was modified is the mtime
+        return os.path.getmtime(path)
+    return None
+
 fileIo = FileIo()
 
 # Returns cpu usage
@@ -159,20 +170,13 @@ class FileCopyCache(object):
     path = os.path.abspath(cachePath + "/" + sourcePath)
     if path in self.modificationTimes:
       # we've already shared this file before; let's check whether it has been modified since then
-      if self.modificationTimes[path] == self.getModificationTime(path):
+      if self.modificationTimes[path] == fileIo.getModificationTime(path):
         # this file hasn't been modified since we last shared it; we can just reuse it
         return path
     # we don't have an existing file that we can reuse, so we have to make one
     fileIo.copyFile(sourcePath, path)
-    self.modificationTimes[path] = self.getModificationTime(path)
+    self.modificationTimes[path] = fileIo.getModificationTime(path)
     return path
-
-  # returns the time at which <path> was last modified
-  def getModificationTime(self, path):
-    if os.path.exists(path):
-      return os.path.getmtime(path)
-    return None
-
 
 fileCopyCache = FileCopyCache()
 
@@ -561,7 +565,8 @@ class Job(object):
         if isinstance(modified, FileBacked_FileContent):
           # If any filepath wasn't modified since the start of the test, then its content matches the original
           # (If the content is known to match the original, we won't have to reset it next time)
-          if os.path.getmtime(modified.referencePath) < testStartSeconds:
+          referenceModification = fileIo.getModificationTime(modified.referencePath)
+          if referenceModification is not None and referenceModification < testStartSeconds:
             original = fullStateToTest.getContent(key)
             if original is not None:
               if isinstance(original, FileBacked_FileContent):
