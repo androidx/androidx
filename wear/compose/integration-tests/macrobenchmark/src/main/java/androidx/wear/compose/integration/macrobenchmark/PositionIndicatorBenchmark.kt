@@ -63,27 +63,47 @@ class PositionIndicatorBenchmark(
                 startActivityAndWait(intent)
             }
         ) {
-            val buttonShow = device.findObject(By.desc(CHANGE_VISIBILITY))
-            val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
-            val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
+            val buttonChangeVisibility = device.findObject(By.desc(CHANGE_VISIBILITY))
 
-            // Setting a gesture margin is important otherwise gesture nav is triggered.
-            repeat(10) {
-                buttonIncrease?.let { it.click() }
-                device.waitForIdle()
-                sleep(500)
-            }
+            // By default indicator visibility is Show
+            // Increase and decrease indicator 10 times 1 direction and 10 times another
+            repeatIncrementAndDecrement(10, 200)
 
-            repeat(10) {
-                buttonDecrease?.let { it.click() }
-                device.waitForIdle()
-                sleep(500)
-            }
+            // Switch from Show to AutoHide
+            buttonChangeVisibility?.click()
 
-            repeat(4) {
-                buttonShow?.let { it.click() }
-                sleep(3000)
-            }
+            // Increase and decrease indicator with delay shorter than hiding delay
+            repeatIncrementAndDecrement(10, 200)
+
+            // Increase and decrease indicator with delay longer than hiding delay
+            repeatIncrementAndDecrement(3, 2500)
+
+            // Switch from Autohide to Hide
+            buttonChangeVisibility?.click()
+
+            // Increase and decrease indicator 10 times 1 direction and 10 times another
+            repeatIncrementAndDecrement(10, 200)
+
+            // Switch from Hide to Show
+            buttonChangeVisibility?.click()
+            sleep(100)
+        }
+    }
+
+    private fun repeatIncrementAndDecrement(times: Int, delayBetweenClicks: Long) {
+        val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
+        val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
+
+        repeat(times) {
+            buttonIncrease?.click()
+            device.waitForIdle()
+            sleep(delayBetweenClicks)
+        }
+
+        repeat(times) {
+            buttonDecrease?.click()
+            device.waitForIdle()
+            sleep(delayBetweenClicks)
         }
     }
 

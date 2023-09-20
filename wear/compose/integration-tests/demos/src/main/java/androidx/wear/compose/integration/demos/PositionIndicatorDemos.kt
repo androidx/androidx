@@ -113,6 +113,7 @@ fun HideWhenFullSLCDemo() {
 fun ControllablePositionIndicator() {
     val position = remember { mutableFloatStateOf(0.2f) }
     val size = remember { mutableFloatStateOf(0.5f) }
+    val visibility = remember { mutableStateOf(PositionIndicatorVisibility.Show) }
     var alignment by remember { mutableIntStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
@@ -130,7 +131,7 @@ fun ControllablePositionIndicator() {
         Scaffold(
             positionIndicator = {
                 PositionIndicator(
-                    state = CustomPositionIndicatorState(position, size),
+                    state = CustomPositionIndicatorState(position, size, visibility),
                     indicatorHeight = 76.dp,
                     indicatorWidth = 6.dp,
                     paddingHorizontal = 5.dp,
@@ -146,7 +147,7 @@ fun ControllablePositionIndicator() {
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Position")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
@@ -178,6 +179,24 @@ fun ControllablePositionIndicator() {
                                 textAlign = TextAlign.Center
                             )
                         }
+                    }
+                    Button(onClick = {
+                        visibility.value = when (visibility.value) {
+                            PositionIndicatorVisibility.Show ->
+                                PositionIndicatorVisibility.AutoHide
+                            PositionIndicatorVisibility.AutoHide ->
+                                PositionIndicatorVisibility.Hide
+                            else ->
+                                PositionIndicatorVisibility.Show
+                        }
+                    }) {
+                        Text(
+                            when (visibility.value) {
+                                PositionIndicatorVisibility.AutoHide -> "AutoHide"
+                                PositionIndicatorVisibility.Show -> "Show"
+                                else -> "Hide"
+                            }
+                        )
                     }
                 }
             }
@@ -217,16 +236,20 @@ fun SharedPositionIndicator() {
 
 internal class CustomPositionIndicatorState(
     private val position: State<Float>,
-    private val size: State<Float>
+    private val size: State<Float>,
+    private val visibility: State<PositionIndicatorVisibility>
 ) : PositionIndicatorState {
     override val positionFraction get() = position.value
     override fun sizeFraction(scrollableContainerSizePx: Float) = size.value
-    override fun visibility(scrollableContainerSizePx: Float) = PositionIndicatorVisibility.Show
+    override fun visibility(scrollableContainerSizePx: Float) = visibility.value
 
     override fun equals(other: Any?) =
         other is CustomPositionIndicatorState &&
             position == other.position &&
-            size == other.size
+            size == other.size &&
+            visibility == other.visibility
 
-    override fun hashCode(): Int = position.hashCode() + 31 * size.hashCode()
+    override fun hashCode(): Int = position.hashCode() +
+        31 * size.hashCode() +
+        31 * visibility.hashCode()
 }
