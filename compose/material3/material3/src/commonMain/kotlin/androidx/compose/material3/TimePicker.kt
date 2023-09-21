@@ -1586,10 +1586,16 @@ private enum class LayoutId {
     Selector, InnerCircle,
 }
 
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3373) fix expect composable getter
 @OptIn(ExperimentalMaterial3Api::class)
-internal expect val defaultTimePickerLayoutType: TimePickerLayoutType
+internal val defaultTimePickerLayoutType: TimePickerLayoutType
     @Composable
-    @ReadOnlyComposable get
+    @ReadOnlyComposable get() = defaultTimePickerLayoutType()
+
+@Composable
+@ReadOnlyComposable
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect fun defaultTimePickerLayoutType() : TimePickerLayoutType
 
 @kotlin.jvm.JvmInline
 internal value class Selection private constructor(val value: Int) {
