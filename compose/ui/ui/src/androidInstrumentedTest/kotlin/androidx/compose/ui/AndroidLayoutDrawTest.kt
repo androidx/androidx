@@ -57,12 +57,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -393,27 +391,10 @@ class AndroidLayoutDrawTest {
             ViewLayerContainer(activity),
             {},
             {}).apply {
-            updateLayerProperties(
-                scaleX = 1f,
-                scaleY = 1f,
-                alpha = 1f,
-                translationX = 0f,
-                translationY = 0f,
-                shadowElevation = 0f,
-                rotationX = 0f,
-                rotationY = 0f,
-                rotationZ = 0f,
-                cameraDistance = cameraDistance,
-                transformOrigin = TransformOrigin.Center,
-                shape = RectangleShape,
-                clip = true,
-                layoutDirection = LayoutDirection.Ltr,
-                density = Density(1f),
-                renderEffect = null,
-                ambientShadowColor = DefaultShadowColor,
-                spotShadowColor = DefaultShadowColor,
-                compositingStrategy = compositingStrategy
-            )
+            val scope = ReusableGraphicsLayerScope()
+            scope.cameraDistance = cameraDistance
+            scope.compositingStrategy = compositingStrategy
+            updateLayerProperties(scope, LayoutDirection.Ltr, Density(1f))
         }
         return expectedLayerType == view.layerType &&
             expectedOverlappingRendering == view.hasOverlappingRendering()
@@ -451,27 +432,9 @@ class AndroidLayoutDrawTest {
             {},
             {}
         ).apply {
-            updateLayerProperties(
-                scaleX = 1f,
-                scaleY = 1f,
-                alpha = 1f,
-                translationX = 0f,
-                translationY = 0f,
-                shadowElevation = 0f,
-                rotationX = 0f,
-                rotationY = 0f,
-                rotationZ = 0f,
-                cameraDistance = cameraDistance,
-                transformOrigin = TransformOrigin.Center,
-                shape = RectangleShape,
-                clip = true,
-                layoutDirection = LayoutDirection.Ltr,
-                density = Density(1f),
-                renderEffect = null,
-                ambientShadowColor = DefaultShadowColor,
-                spotShadowColor = DefaultShadowColor,
-                compositingStrategy = CompositingStrategy.Auto
-            )
+            val scope = ReusableGraphicsLayerScope()
+            scope.cameraDistance = cameraDistance
+            updateLayerProperties(scope, LayoutDirection.Ltr, Density(1f))
         }
         // Verify that the camera distance is applied properly even after accounting for
         // the internal dp conversion within View
