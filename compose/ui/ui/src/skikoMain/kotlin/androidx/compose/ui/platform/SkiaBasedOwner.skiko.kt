@@ -244,6 +244,11 @@ internal class SkiaBasedOwner(
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
         sendKeyEvent(platformInputService, focusOwner, keyEvent)
 
+    override fun forceAccessibilityForTesting() = TODO("Not yet implemented")
+
+    override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) =
+        TODO("Not yet implemented")
+
     override var showLayoutBounds = false
 
     override fun requestFocus() = true

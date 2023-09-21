@@ -165,14 +165,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         const val AccessibilitySliderStepsCount = 20
 
         /**
-         * Delay before dispatching a recurring accessibility event in milliseconds.
-         * This delay guarantees that a recurring event will be send at most once
-         * during the [SendRecurringAccessibilityEventsIntervalMillis] time
-         * frame.
-         */
-        const val SendRecurringAccessibilityEventsIntervalMillis: Long = 100
-
-        /**
          * Timeout to determine whether a text selection changed event and the pending text
          * traversed event could be resulted from the same traverse action.
          */
@@ -235,6 +227,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             field = value
             currentSemanticsNodesInvalidated = true
         }
+
+    /**
+     * Delay before dispatching a recurring accessibility event in milliseconds.
+     * This delay guarantees that a recurring event will be send at most once
+     * during the [SendRecurringAccessibilityEventsIntervalMillis] time
+     * frame.
+     */
+    internal var SendRecurringAccessibilityEventsIntervalMillis = 100L
 
     private val enabledStateListener = AccessibilityStateChangeListener { enabled ->
         enabledServices = if (enabled) {
@@ -2210,6 +2210,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * recent layout changes and sends events to the accessibility and content capture framework in
      * batches separated by a 100ms delay.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     internal suspend fun boundsUpdatesEventLoop() {
         try {
             val subtreeChangedSemanticsNodesIds = ArraySet<Int>()
