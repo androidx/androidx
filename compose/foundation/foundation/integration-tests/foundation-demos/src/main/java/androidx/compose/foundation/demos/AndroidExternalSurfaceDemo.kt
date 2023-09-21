@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.samples.EmbeddedGraphicsSurfaceColors
-import androidx.compose.foundation.samples.GraphicsSurfaceColors
+import androidx.compose.foundation.samples.AndroidEmbeddedExternalSurfaceColors
+import androidx.compose.foundation.samples.AndroidExternalSurfaceColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,12 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GraphicsSurfaceDemo() {
+fun AndroidExternalSurfaceDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("GraphicsSurface:")
-        GraphicsSurfaceColors()
+        Text("ExternalSurface:")
+        AndroidExternalSurfaceColors()
         Spacer(Modifier.height(50.dp))
-        Text("EmbeddedGraphicsSurface:")
-        EmbeddedGraphicsSurfaceColors()
+        Text("EmbeddedExternalSurface:")
+        AndroidEmbeddedExternalSurfaceColors()
     }
 }
