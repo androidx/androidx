@@ -181,11 +181,15 @@ class ListDetailPaneScaffoldStateTest {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockSinglePaneLayoutDirective = AdaptiveLayoutDirective(
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(0.dp, 0.dp)
+    gutterSizes = GutterSizes(0.dp, 0.dp),
+    maxVerticalPartitions = 1,
+    excludedBounds = emptyList()
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockDualPaneLayoutDirective = AdaptiveLayoutDirective(
     maxHorizontalPartitions = 2,
-    gutterSizes = GutterSizes(16.dp, 16.dp)
+    gutterSizes = GutterSizes(16.dp, 16.dp),
+    maxVerticalPartitions = 1,
+    excludedBounds = emptyList()
 )

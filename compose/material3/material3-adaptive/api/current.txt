@@ -12,7 +12,7 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class AdaptiveLayoutDirective {
-    ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, optional int maxVerticalPartitions, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    ctor public AdaptiveLayoutDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, int maxVerticalPartitions, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getExcludedBounds();
     method public androidx.compose.material3.adaptive.GutterSizes getGutterSizes();
     method public int getMaxHorizontalPartitions();

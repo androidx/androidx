@@ -172,8 +172,8 @@ private fun getExcludedBounds(posture: Posture, hingePolicy: HingePolicy): List<
 class AdaptiveLayoutDirective(
     val maxHorizontalPartitions: Int,
     val gutterSizes: GutterSizes,
-    val maxVerticalPartitions: Int = 1,
-    val excludedBounds: List<Rect> = emptyList()
+    val maxVerticalPartitions: Int,
+    val excludedBounds: List<Rect>
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
