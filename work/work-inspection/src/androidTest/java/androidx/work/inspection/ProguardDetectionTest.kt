@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.inspection.gradle
+package androidx.work.inspection
 
-import com.android.build.api.variant.Variant
-import org.gradle.api.Project
-import org.gradle.api.file.Directory
-import org.gradle.api.provider.Provider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth
+import org.junit.Test
+import org.junit.runner.RunWith
 
-internal fun Variant.taskName(baseName: String) =
-    "$baseName${name.replaceFirstChar(Char::titlecase)}"
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+class ProguardDetectionTest {
 
-internal fun Project.taskWorkingDir(
-    variant: Variant,
-    baseName: String
-): Provider<Directory> {
-    return layout.buildDirectory.dir("androidx_inspection/$baseName/${variant.name}")
+    @Test
+    fun testProguardFileExists() {
+        val proguard = Class.forName("androidx.inspection.work.runtime.ProguardDetection")
+        Truth.assertThat(proguard).isNotNull()
+    }
 }
