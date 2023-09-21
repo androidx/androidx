@@ -27,10 +27,11 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/241876294
+ *     Bug Id: b/241876294, b/299075294
  *     Description: CamcorderProfile resolutions can not find a match in the output size list of
- *                  CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP. Since these resolutions
- *                  can be supported in native camera app, add these resolutions back.
+ *                  CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP. Some resolutions are
+ *                  added back as they are supported by the camera and do not have stretching
+ *                  issues.
  *     Device(s): Motorola Moto E5 Play.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -75,14 +76,10 @@ public class ExtraSupportedOutputSizeQuirk implements Quirk {
         // Both the front and the main cameras support the following resolutions.
         return new Size[]{
                 // FHD
-                new Size(1920, 1080),
                 new Size(1440, 1080),
                 // HD
-                new Size(1280, 720),
                 new Size(960, 720),
                 // SD (640:480 is already included in the original list)
-                new Size(864, 480),
-                new Size(720, 480),
         };
     }
 }
