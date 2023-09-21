@@ -20,7 +20,6 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.RemoteException
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
@@ -44,7 +43,6 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
-import java.io.IOException
 import kotlin.reflect.KClass
 
 @JvmDefaultWithCompatibility
@@ -320,13 +318,6 @@ interface HealthConnectClient {
             "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
-         * The minimum version code of the default provider APK that supports manage data intent
-         * action.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE = 82932
-
-        /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
          */
@@ -337,6 +328,12 @@ interface HealthConnectClient {
                 "android.health.connect.action.HEALTH_HOME_SETTINGS"
             else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal val ACTION_HEALTH_CONNECT_MANAGE_DATA =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                "android.health.connect.action.MANAGE_HEALTH_DATA"
+            else "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+
         /**
          * The Health Connect SDK is unavailable on this device at the time. This can be due to
          * the device running a lower than required Android Version.
@@ -344,6 +341,7 @@ interface HealthConnectClient {
          * Apps should hide any integration points to Health Connect in this case.
          */
         const val SDK_UNAVAILABLE = 1
+
         /**
          * The Health Connect SDK APIs are currently unavailable, the provider is either not
          * installed or needs to be updated.
@@ -351,6 +349,7 @@ interface HealthConnectClient {
          * Apps may choose to redirect to package installers to find a suitable APK.
          */
         const val SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2
+
         /**
          * The Health Connect SDK APIs are available.
          *
@@ -363,11 +362,11 @@ interface HealthConnectClient {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(
             value =
-                [
-                    SDK_UNAVAILABLE,
-                    SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
-                    SDK_AVAILABLE,
-                ]
+            [
+                SDK_UNAVAILABLE,
+                SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+                SDK_AVAILABLE,
+            ]
         )
         annotation class AvailabilityStatus
 
@@ -469,26 +468,30 @@ interface HealthConnectClient {
         }
 
         /**
-         * Intent action to open Health Connect data management screen on this phone. Developers
+         * Intent to open Health Connect data management screen on this phone. Developers
          * should use this if they want to re-direct the user to Health Connect data management.
          *
          * @param context the context
-         * @return Intent action to open Health Connect data management screen.
+         * @param providerPackageName optional alternative package provider to choose for backend
+         * implementation
+         * @return Intent to open Health Connect data management screen.
          */
+        @JvmOverloads
         @JvmStatic
-        fun getHealthConnectManageDataAction(context: Context): String {
-            val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                "android.health.connect.action.MANAGE_HEALTH_DATA"
-            } else if (isProviderAvailable(
-                    context = context,
-                    providerVersionCode = ACTION_MANAGE_DATA_MIN_SUPPORTED_VERSION_CODE
-                )
+        fun getHealthConnectManageDataIntent(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Intent {
+            val pm = context.packageManager
+            val manageDataIntent = Intent(ACTION_HEALTH_CONNECT_MANAGE_DATA)
+
+            return if (isProviderAvailable(context, providerPackageName) &&
+                pm.resolveActivity(manageDataIntent, /* flags */ 0) != null
             ) {
-                "androidx.health.ACTION_MANAGE_HEALTH_DATA"
+                manageDataIntent
             } else {
-                ACTION_HEALTH_CONNECT_SETTINGS
+                Intent(ACTION_HEALTH_CONNECT_SETTINGS)
             }
-            return action
         }
 
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
