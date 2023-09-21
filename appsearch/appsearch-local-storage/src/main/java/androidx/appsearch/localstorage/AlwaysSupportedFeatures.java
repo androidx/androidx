@@ -16,6 +16,8 @@
 // @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/AlwaysSupportedFeatures.java)
 package androidx.appsearch.localstorage;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
@@ -73,5 +75,10 @@ public class AlwaysSupportedFeatures implements Features {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public int getMaxIndexedProperties(@NonNull Context unused) {
+        return 64;
     }
 }

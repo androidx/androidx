@@ -246,6 +246,7 @@ package androidx.appsearch.app {
   }
 
   public interface Features {
+    method public int getMaxIndexedProperties(android.content.Context);
     method public boolean isFeatureSupported(String);
     field public static final String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
     field public static final String GLOBAL_SEARCH_SESSION_GET_BY_ID = "GLOBAL_SEARCH_SESSION_GET_BY_ID";
@@ -272,7 +273,7 @@ package androidx.appsearch.app {
     method public static androidx.appsearch.app.GenericDocument fromDocumentClass(Object) throws androidx.appsearch.exceptions.AppSearchException;
     method public long getCreationTimestampMillis();
     method public String getId();
-    method public static int getMaxIndexedProperties();
+    method @Deprecated public static int getMaxIndexedProperties();
     method public String getNamespace();
     method public Object? getProperty(String);
     method public boolean getPropertyBoolean(String);
