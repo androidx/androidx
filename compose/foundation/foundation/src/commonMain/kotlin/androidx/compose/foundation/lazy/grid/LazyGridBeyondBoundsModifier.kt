@@ -16,43 +16,14 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsModifierLocal
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 
-/**
- * This modifier is used to measure and place additional items when the lazyList receives a
- * request to layout items beyond the visible bounds.
- */
-@Suppress("ComposableModifierFactory")
 @Composable
-internal fun Modifier.lazyGridBeyondBoundsModifier(
-    state: LazyGridState,
-    reverseLayout: Boolean,
-    orientation: Orientation
-): Modifier {
-    val layoutDirection = LocalLayoutDirection.current
-    val beyondBoundsState = remember(state) {
+internal fun rememberLazyGridBeyondBoundsState(state: LazyGridState): LazyLayoutBeyondBoundsState {
+    return remember(state) {
         LazyGridBeyondBoundsState(state)
-    }
-    return this then remember(
-        state,
-        beyondBoundsState,
-        reverseLayout,
-        layoutDirection,
-        orientation
-    ) {
-        LazyLayoutBeyondBoundsModifierLocal(
-            beyondBoundsState,
-            state.beyondBoundsInfo,
-            reverseLayout,
-            layoutDirection,
-            orientation
-        )
     }
 }
 

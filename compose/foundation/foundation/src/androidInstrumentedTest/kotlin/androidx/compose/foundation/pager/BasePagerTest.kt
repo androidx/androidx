@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -66,9 +67,10 @@ open class BasePagerTest(private val config: ParamConfig) :
     lateinit var scope: CoroutineScope
     var pagerSize: Int = 0
     var placed = mutableSetOf<Int>()
+    var focused = mutableSetOf<Int>()
     var pageSize: Int = 0
     lateinit var focusManager: FocusManager
-    lateinit var firstItemFocusRequester: FocusRequester
+    lateinit var initialFocusedItem: FocusRequester
     var composeView: View? = null
     lateinit var pagerState: PagerState
 
@@ -171,9 +173,9 @@ open class BasePagerTest(private val config: ParamConfig) :
     }
 
     @Composable
-    internal fun Page(index: Int) {
+    internal fun Page(index: Int, initialFocusedItemIndex: Int = 0) {
         val focusRequester = FocusRequester().also {
-            if (index == 0) firstItemFocusRequester = it
+            if (index == initialFocusedItemIndex) initialFocusedItem = it
         }
         Box(modifier = Modifier
             .focusRequester(focusRequester)
@@ -184,8 +186,16 @@ open class BasePagerTest(private val config: ParamConfig) :
             .fillMaxSize()
             .background(Color.Blue)
             .testTag("$index")
+            .onFocusChanged {
+                if (it.isFocused) {
+                    focused.add(index)
+                } else {
+                    focused.remove(index)
+                }
+            }
             .focusable(),
-            contentAlignment = Alignment.Center) {
+            contentAlignment = Alignment.Center
+        ) {
             BasicText(text = index.toString())
         }
     }
