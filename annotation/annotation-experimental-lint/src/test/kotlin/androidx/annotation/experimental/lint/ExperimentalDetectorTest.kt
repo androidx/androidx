@@ -165,28 +165,28 @@ src/sample/experimental/UseJavaExperimentalFromKt.kt:58: Error: This declaration
 
         val expectedFix = """
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
-@@ -25 +25
+@@ -28 +28
 +     @androidx.annotation.OptIn(ExperimentalDateTime::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
-@@ -25 +25
+@@ -28 +28
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
-@@ -25 +25
+@@ -28 +28
 +     @androidx.annotation.OptIn(ExperimentalDateTime::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
-@@ -25 +25
+@@ -28 +28
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -51 +51
+@@ -54 +54
 +     @androidx.annotation.OptIn(ExperimentalLocation::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -51 +51
+@@ -54 +54
 +     @ExperimentalLocation
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -51 +51
+@@ -54 +54
 +     @androidx.annotation.OptIn(ExperimentalLocation::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -51 +51
+@@ -54 +54
 +     @ExperimentalLocation
         """.trimIndent()
         /* ktlint-enable max-line-length */

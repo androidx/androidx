@@ -111,16 +111,16 @@ class DeprecationMismatchDetectorTest : AbstractLintDetectorTest(
 
         val expectedFixDiffs = """
             Autofix for src/java/androidx/Foo.java line 6: Annotate with @Deprecated:
-            @@ -3 +3
+            @@ -6 +6
             + @Deprecated
             Autofix for src/java/androidx/Foo.java line 10: Annotate with @Deprecated:
-            @@ -7 +7
+            @@ -10 +10
             +     @Deprecated
             Autofix for src/java/androidx/Foo.java line 15: Annotate with @Deprecated:
-            @@ -12 +12
+            @@ -15 +15
             +     @Deprecated
             Autofix for src/java/androidx/Foo.java line 20: Annotate with @Deprecated:
-            @@ -17 +17
+            @@ -20 +20
             +     @Deprecated
         """.trimIndent()
         /* ktlint-enable max-line-length */
