@@ -47,40 +47,11 @@ internal constructor(
      * @param metric an aggregate metric identifier.
      * @return whether given metric is set.
      */
-    @Deprecated(
-        message = "Please use contains(AggregateMetric)",
-        replaceWith = ReplaceWith("contains(metric)"),
-    )
-    fun hasMetric(metric: AggregateMetric<*>): Boolean = contains(metric)
-
-    /**
-     * Checks whether the aggregation result contains a metric or not. If there is no relevant
-     * record that contribute to requested metric, the metric will not be provided.
-     *
-     * @param metric an aggregate metric identifier.
-     * @return whether given metric is set.
-     */
     operator fun contains(metric: AggregateMetric<*>): Boolean =
         when (metric.converter) {
             is Converter.FromLong -> metric.metricKey in longValues
             is Converter.FromDouble -> metric.metricKey in doubleValues
         }
-
-    /**
-     * Retrieves a metric with given metric identifier.
-     *
-     * If there are no relevant records contributing to the requested metric, the metric will not be
-     * provided.
-     *
-     * @return the value of the metric, or null if not set.
-     *
-     * @see contains
-     */
-    @Deprecated(
-        message = "Please use get(AggregateMetric)",
-        replaceWith = ReplaceWith("get(metric)"),
-    )
-    fun <T : Any> getMetric(metric: AggregateMetric<T>): T? = get(metric)
 
     /**
      * Retrieves a metric with given metric identifier.
