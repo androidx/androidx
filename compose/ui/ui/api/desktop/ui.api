@@ -3119,6 +3119,24 @@ public final class androidx/compose/ui/platform/LocalSoftwareKeyboardController 
 	public final fun provides (Landroidx/compose/ui/platform/SoftwareKeyboardController;)Landroidx/compose/runtime/ProvidedValue;
 }
 
+public final class androidx/compose/ui/platform/PlatformInsets {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/platform/PlatformInsets$Companion;
+	public synthetic fun <init> (FFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom-D9Ej5fM ()F
+	public final fun getLeft-D9Ej5fM ()F
+	public final fun getRight-D9Ej5fM ()F
+	public final fun getTop-D9Ej5fM ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/platform/PlatformInsets$Companion {
+	public final fun getZero ()Landroidx/compose/ui/platform/PlatformInsets;
+}
+
 public abstract interface class androidx/compose/ui/platform/PlatformLocalization {
 	public abstract fun getCopy ()Ljava/lang/String;
 	public abstract fun getCut ()Ljava/lang/String;
@@ -3202,9 +3220,14 @@ public final class androidx/compose/ui/platform/ViewConfiguration$DefaultImpls {
 }
 
 public abstract interface class androidx/compose/ui/platform/WindowInfo {
-	public abstract fun getContainerSize-YbymL2g ()J
-	public abstract fun getKeyboardModifiers-k7X9c1A ()I
+	public fun getContainerSize-YbymL2g ()J
+	public fun getKeyboardModifiers-k7X9c1A ()I
 	public abstract fun isWindowFocused ()Z
+}
+
+public final class androidx/compose/ui/platform/WindowInfo$DefaultImpls {
+	public static fun getContainerSize-YbymL2g (Landroidx/compose/ui/platform/WindowInfo;)J
+	public static fun getKeyboardModifiers-k7X9c1A (Landroidx/compose/ui/platform/WindowInfo;)I
 }
 
 public final class androidx/compose/ui/res/ClassLoaderResourceLoader : androidx/compose/ui/res/ResourceLoader {
@@ -3657,8 +3680,8 @@ public final class androidx/compose/ui/window/DialogProperties {
 	public static final field $stable I
 	public fun <init> (ZZZ)V
 	public synthetic fun <init> (ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZZJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZZJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZ[Ljava/lang/Void;Z)V
 	public synthetic fun <init> (ZZ[Ljava/lang/Void;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -3666,6 +3689,7 @@ public final class androidx/compose/ui/window/DialogProperties {
 	public final fun getDismissOnClickOutside ()Z
 	public final fun getScrimColor-0d7_KjU ()J
 	public final fun getUsePlatformDefaultWidth ()Z
+	public final fun getUsePlatformInsets ()Z
 	public fun hashCode ()I
 }
 
@@ -3775,8 +3799,8 @@ public final class androidx/compose/ui/window/PopupProperties {
 	public fun <init> ()V
 	public fun <init> (ZZZZ)V
 	public synthetic fun <init> (ZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (ZZZZZ)V
-	public synthetic fun <init> (ZZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZZZZZ)V
+	public synthetic fun <init> (ZZZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZZ[Ljava/lang/Void;Z)V
 	public synthetic fun <init> (ZZZ[Ljava/lang/Void;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -3785,6 +3809,7 @@ public final class androidx/compose/ui/window/PopupProperties {
 	public final fun getDismissOnClickOutside ()Z
 	public final fun getFocusable ()Z
 	public final fun getUsePlatformDefaultWidth ()Z
+	public final fun getUsePlatformInsets ()Z
 	public fun hashCode ()I
 }
 

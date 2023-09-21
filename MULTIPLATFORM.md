@@ -13,7 +13,7 @@
 
 Run tests for Desktop:
 ```bash
-./gradlew :mpp:testDesktop
+./gradlew desktopTest
 ```
 
 Run tests for Web:
