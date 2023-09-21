@@ -304,6 +304,24 @@ class DatePickerTest {
     }
 
     @Test
+    fun state_initWithoutRemember() {
+        val datePickerState = DatePickerState(
+            locale = Locale.getDefault(),
+            initialSelectedDateMillis = 1649721600000L // 04/12/2022
+        )
+        with(datePickerState) {
+            assertThat(selectedDateMillis).isEqualTo(1649721600000L)
+            // Using the JVM Locale.getDefault() for testing purposes only.
+            assertThat(displayedMonthMillis).isEqualTo(
+                createCalendarModel(Locale.getDefault()).getMonth(
+                    year = 2022,
+                    month = 4
+                ).startUtcTimeMillis
+            )
+        }
+    }
+
+    @Test
     fun state_initWithSelectedDate() {
         lateinit var datePickerState: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
