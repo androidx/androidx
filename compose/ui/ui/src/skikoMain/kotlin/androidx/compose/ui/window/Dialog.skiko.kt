@@ -35,6 +35,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
@@ -169,15 +170,15 @@ private fun DialogLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val platformInsets = platformInsets()
     RootLayout(
         modifier = modifier,
         focusable = true,
         onOutsidePointerEvent = onOutsidePointerEvent
     ) { owner ->
-        val density = LocalDensity.current
         val measurePolicy = rememberDialogMeasurePolicy(
             properties = properties,
-            platformPadding = with(density) { platformPadding() }
+            platformInsets = platformInsets
         ) {
             owner.bounds = it
         }
@@ -191,14 +192,14 @@ private fun DialogLayout(
 @Composable
 private fun rememberDialogMeasurePolicy(
     properties: DialogProperties,
-    platformPadding: RootLayoutPadding,
+    platformInsets: PlatformInsets,
     onBoundsChanged: (IntRect) -> Unit
-) = remember(properties, platformPadding, onBoundsChanged) {
+) = remember(properties, platformInsets, onBoundsChanged) {
     RootMeasurePolicy(
-        platformPadding = platformPadding,
+        platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        val position = positionWithPadding(platformPadding, windowSize) {
+        val position = positionWithInsets(platformInsets, windowSize) {
             it.center - contentSize.center
         }
         onBoundsChanged(IntRect(position, contentSize))

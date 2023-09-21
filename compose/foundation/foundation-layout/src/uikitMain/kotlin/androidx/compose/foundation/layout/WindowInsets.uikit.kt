@@ -18,13 +18,17 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.LocalLayoutMargins
+import androidx.compose.ui.platform.LocalSafeArea
+import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.dp
 
 private val ZeroInsets = WindowInsets(0, 0, 0, 0)
 
-@OptIn(InternalComposeApi::class)
-private fun IOSInsets.toWindowInsets() = WindowInsets(
+@OptIn(ExperimentalComposeUiApi::class)
+private fun PlatformInsets.toWindowInsets() = WindowInsets(
     top = top,
     bottom = bottom,
     left = left,
@@ -36,16 +40,16 @@ private fun IOSInsets.toWindowInsets() = WindowInsets(
  */
 private val WindowInsets.Companion.iosSafeArea: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class)
-    get() = LocalSafeAreaState.current.value.toWindowInsets()
+    @OptIn(InternalComposeApi::class, ExperimentalComposeUiApi::class)
+    get() = LocalSafeArea.current.toWindowInsets()
 
 /**
  * This insets represents iOS layoutMargins.
  */
 private val WindowInsets.Companion.layoutMargins: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class)
-    get() = LocalLayoutMarginsState.current.value.toWindowInsets()
+    @OptIn(InternalComposeApi::class, ExperimentalComposeUiApi::class)
+    get() = LocalLayoutMargins.current.toWindowInsets()
 
 /**
  * An insets type representing the window of a caption bar.

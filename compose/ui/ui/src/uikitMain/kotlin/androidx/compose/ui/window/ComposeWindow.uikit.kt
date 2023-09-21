@@ -19,7 +19,9 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
@@ -32,7 +34,6 @@ import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.LocalUIViewController
-import androidx.compose.ui.interop.UIKitInteropAction
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
 import androidx.compose.ui.platform.*
@@ -49,7 +50,6 @@ import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.SkikoKeyboardEvent
@@ -148,8 +148,8 @@ internal actual class ComposeWindow : UIViewController {
     internal lateinit var configuration: ComposeUIViewControllerConfiguration
     private val keyboardOverlapHeightState = mutableStateOf(0f)
     private var isInsideSwiftUI = false
-    private val safeAreaState = mutableStateOf(IOSInsets())
-    private val layoutMarginsState = mutableStateOf(IOSInsets())
+    private var safeAreaState by mutableStateOf(PlatformInsets())
+    private var layoutMarginsState by mutableStateOf(PlatformInsets())
     private val interopContext = UIKitInteropContext(
         requestRedraw = {
             attachedComposeContext?.view?.needRedraw()
@@ -299,7 +299,7 @@ internal actual class ComposeWindow : UIViewController {
     fun viewSafeAreaInsetsDidChange() {
         // super.viewSafeAreaInsetsDidChange() // TODO: call super after Kotlin 1.8.20
         view.safeAreaInsets.useContents {
-            safeAreaState.value = IOSInsets(
+            safeAreaState = PlatformInsets(
                 top = top.dp,
                 bottom = bottom.dp,
                 left = left.dp,
@@ -307,7 +307,7 @@ internal actual class ComposeWindow : UIViewController {
             )
         }
         view.directionalLayoutMargins.useContents {
-            layoutMarginsState.value = IOSInsets(
+            layoutMarginsState = PlatformInsets(
                 top = top.dp,
                 bottom = bottom.dp,
                 left = leading.dp,
@@ -665,8 +665,8 @@ internal actual class ComposeWindow : UIViewController {
                     LocalLayerContainer provides view,
                     LocalUIViewController provides this,
                     LocalKeyboardOverlapHeightState provides keyboardOverlapHeightState,
-                    LocalSafeAreaState provides safeAreaState,
-                    LocalLayoutMarginsState provides layoutMarginsState,
+                    LocalSafeArea provides safeAreaState,
+                    LocalLayoutMargins provides layoutMarginsState,
                     LocalInterfaceOrientationState provides interfaceOrientationState,
                     LocalSystemTheme provides systemTheme.value,
                     LocalUIKitInteropContext provides interopContext,
