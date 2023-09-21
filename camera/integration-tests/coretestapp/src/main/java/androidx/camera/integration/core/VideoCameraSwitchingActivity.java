@@ -275,7 +275,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private void exportTestInformation() {
         String information = KEY_DEVICE_ORIENTATION + ": " + mDeviceOrientation;
         FileUtil.writeTextToExternalFile(information,
-                generateFileName(INFO_FILE_PREFIX, false), "txt");
+                generateFileName(INFO_FILE_PREFIX, true), "txt");
     }
 
     @NonNull
