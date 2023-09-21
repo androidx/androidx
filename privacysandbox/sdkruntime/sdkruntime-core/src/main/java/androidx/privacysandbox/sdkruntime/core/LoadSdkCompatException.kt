@@ -111,7 +111,8 @@ class LoadSdkCompatException : Exception {
      *  @return Platform exception.
      */
     @RequiresExtension(extension = AD_SERVICES, version = 4)
-    internal fun toLoadSdkException(): LoadSdkException {
+    @RestrictTo(LIBRARY_GROUP)
+    fun toLoadSdkException(): LoadSdkException {
         return ApiAdServicesV4Impl.toLoadSdkException(this)
     }
 

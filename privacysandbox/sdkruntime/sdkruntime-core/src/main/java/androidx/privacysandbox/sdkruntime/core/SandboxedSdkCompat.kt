@@ -105,7 +105,8 @@ class SandboxedSdkCompat private constructor(
      * @return Platform SandboxedSdk
      */
     @RequiresExtension(extension = AD_SERVICES, version = 4)
-    internal fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
+    @RestrictTo(LIBRARY_GROUP)
+    fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
 
     internal interface SandboxedSdkImpl {
         fun getInterface(): IBinder?
