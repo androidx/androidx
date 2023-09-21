@@ -48,7 +48,6 @@ import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -73,7 +72,7 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 
 /** A simple example canvas based digital watch face. */
-class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
+class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 

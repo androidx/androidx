@@ -33,7 +33,6 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -56,7 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
+open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
 
     internal val twelveHourClockOption by lazy {
         ListOption(
