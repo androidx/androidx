@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+package androidx.compose.mpp.demo.components.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+package androidx.compose.mpp.demo.components.material3
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -42,20 +42,20 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimePickers() {
+fun DateTimePickerExample() {
     Column(
         modifier = Modifier
             .padding(5.dp)
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
     ) {
-        Text("DatePicker:")
+        Text("DatePicker")
         Box(Modifier.border(1.dp, Color.Black)) {
             val state = rememberDatePickerState()
             DatePicker(state)
         }
 
-        Text("TimePicker:")
+        Text("TimePicker")
         Box(Modifier.border(1.dp, Color.Black)) {
             val state = rememberTimePickerState()
             TimePicker(state)

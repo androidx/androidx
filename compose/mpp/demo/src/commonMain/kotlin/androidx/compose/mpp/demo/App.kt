@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.mpp.demo.textfield.TextFields
+import androidx.compose.mpp.demo.components.Components
 import androidx.compose.mpp.demo.textfield.android.AndroidTextFieldSamples
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 
 val MainScreen = Screen.Selection(
     "Demo",
+    Components,
     BugReproducers,
     Screen.Example("Example1") { Example1() },
     Screen.Example("ImageViewer") { ImageViewer() },
@@ -29,13 +30,7 @@ val MainScreen = Screen.Selection(
     Screen.FullscreenExample("ApplicationLayouts") { ApplicationLayouts(it) },
     Screen.Example("GraphicsLayerSettings") { GraphicsLayerSettings() },
     Screen.Example("Blending") { Blending() },
-    Screen.Example("Popup & Dialog", backgroundColor = Color.Transparent) { PopupAndDialog() },
-    Screen.Example("Date & Time pickers") { DateTimePickers() },
-    LazyLayouts,
-    TextFields,
     AndroidTextFieldSamples,
-    Screen.Example("BottomSheetScaffold") { BottomSheetScaffoldExample() },
-    Screen.Example("ModalNavigationDrawer") { ModalNavigationDrawerExample() }
 )
 
 sealed interface Screen {
