@@ -18,11 +18,11 @@ package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.os.Build
-import androidx.graphics.opengl.FrameBufferPool.Companion.findEntryWith
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.hardware.BufferPool.Companion.findEntryWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
