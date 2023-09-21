@@ -525,6 +525,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     annotationsNotToDisplayJava = hiddenAnnotationsJava
                     annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
                     hidingAnnotations = annotationsToHideApis
+                    nullabilityAnnotations = validNullabilityAnnotations
                     versionMetadataFiles =
                         versionMetadataConfiguration.incoming.artifacts.resolvedArtifacts.map {
                             it.map { it.file }
@@ -699,6 +700,13 @@ private val hiddenAnnotations: List<String> =
         // This annotation is intended to target the compiler and is general not useful for devs.
         "java.lang.Override"
     )
+
+val validNullabilityAnnotations = listOf(
+    "androidx.annotation.Nullable", "android.annotation.Nullable",
+    "androidx.annotation.NonNull", "android.annotation.NonNull",
+    // Required by media3
+    "org.checkerframework.checker.nullness.qual.Nullable",
+)
 
 // Annotations which should not be displayed in the Kotlin docs, in addition to hiddenAnnotations
 private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunctionType")
