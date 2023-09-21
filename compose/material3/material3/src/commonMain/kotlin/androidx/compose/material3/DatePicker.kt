@@ -336,6 +336,8 @@ value class DisplayMode internal constructor(internal val value: Int) {
 /**
  * Creates a [DatePickerState] for a [DatePicker] that is remembered across compositions.
  *
+ * To create a date picker state outside composition, see the `DatePickerState` function.
+ *
  * @param initialSelectedDateMillis timestamp in _UTC_ milliseconds from the epoch that represents
  * an initial selection of a date. Provide a `null` to indicate no selection.
  * @param initialDisplayedMonthMillis timestamp in _UTC_ milliseconds from the epoch that represents
@@ -355,7 +357,7 @@ fun rememberDatePickerState(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
-    selectableDates: SelectableDates = object : SelectableDates {}
+    selectableDates: SelectableDates = DatePickerDefaults.AllDates
 ): DatePickerState {
     val locale = defaultLocale()
     return rememberSaveable(
@@ -371,6 +373,48 @@ fun rememberDatePickerState(
         )
     }
 }
+
+/**
+ * Creates a [DatePickerState].
+ *
+ * Note that in most cases, you are advised to use the [rememberDatePickerState] when in a
+ * composition.
+ *
+ * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
+ * and more
+ * @param initialSelectedDateMillis timestamp in _UTC_ milliseconds from the epoch that
+ * represents an initial selection of a date. Provide a `null` to indicate no selection. Note
+ * that the state's
+ * [DatePickerState.selectedDateMillis] will provide a timestamp that represents the _start_ of the
+ * day, which may be different than the provided initialSelectedDateMillis.
+ * @param initialDisplayedMonthMillis timestamp in _UTC_ milliseconds from the epoch that
+ * represents an initial selection of a month to be displayed to the user. In case `null` is
+ * provided, the displayed month would be the current one.
+ * @param yearRange an [IntRange] that holds the year range that the date picker will be limited
+ * to
+ * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+ * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
+ * In case a date is not allowed to be selected, it will appear disabled in the UI.
+ * @see rememberDatePickerState
+ * @throws [IllegalArgumentException] if the initial selected date or displayed month represent
+ * a year that is out of the year range.
+ */
+@ExperimentalMaterial3Api
+fun DatePickerState(
+    locale: CalendarLocale,
+    @Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,
+    @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
+    yearRange: IntRange = DatePickerDefaults.YearRange,
+    initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    selectableDates: SelectableDates = DatePickerDefaults.AllDates
+): DatePickerState = DatePickerStateImpl(
+    initialSelectedDateMillis = initialSelectedDateMillis,
+    initialDisplayedMonthMillis = initialDisplayedMonthMillis,
+    yearRange = yearRange,
+    initialDisplayMode = initialDisplayMode,
+    selectableDates = selectableDates,
+    locale = locale
+)
 
 /**
  * Contains default values used by the [DatePicker].
@@ -621,6 +665,11 @@ object DatePickerDefaults {
 
     /** The default shape for date picker dialogs. */
     val shape: Shape @Composable get() = DatePickerModalTokens.ContainerShape.value
+
+    /**
+     * A default [SelectableDates] that allows all dates to be selected.
+     */
+    val AllDates: SelectableDates = object : SelectableDates {}
 
     /**
      * A date format skeleton used to format the date picker's year selection menu button (e.g.
@@ -947,7 +996,9 @@ internal abstract class BaseDatePickerStateImpl(
  * to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
- * In case a date is not allowed to be selected, it will appear disabled in the UI.
+ * In case a date is not allowed to be selected, it will appear disabled in the UI
+ * @param locale a [CalendarLocale] to be used when formatting dates, determining the input format,
+ * and more
  * @see rememberDatePickerState
  * @throws [IllegalArgumentException] if the initial selected date or displayed month represent
  * a year that is out of the year range.

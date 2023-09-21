@@ -493,9 +493,11 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public void DatePickerTitle(int displayMode, optional androidx.compose.ui.Modifier modifier);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.DatePickerColors colors(optional long containerColor, optional long titleContentColor, optional long headlineContentColor, optional long weekdayContentColor, optional long subheadContentColor, optional long navigationContentColor, optional long yearContentColor, optional long disabledYearContentColor, optional long currentYearContentColor, optional long selectedYearContentColor, optional long disabledSelectedYearContentColor, optional long selectedYearContainerColor, optional long disabledSelectedYearContainerColor, optional long dayContentColor, optional long disabledDayContentColor, optional long selectedDayContentColor, optional long disabledSelectedDayContentColor, optional long selectedDayContainerColor, optional long disabledSelectedDayContainerColor, optional long todayContentColor, optional long todayDateBorderColor, optional long dayInSelectionRangeContentColor, optional long dayInSelectionRangeContainerColor, optional long dividerColor, optional androidx.compose.material3.TextFieldColors dateTextFieldColors);
     method public androidx.compose.material3.DatePickerFormatter dateFormatter(optional String yearSelectionSkeleton, optional String selectedDateSkeleton, optional String selectedDateDescriptionSkeleton);
+    method public androidx.compose.material3.SelectableDates getAllDates();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getTonalElevation();
     method public kotlin.ranges.IntRange getYearRange();
+    property public final androidx.compose.material3.SelectableDates AllDates;
     property public final float TonalElevation;
     property public final kotlin.ranges.IntRange YearRange;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
@@ -516,6 +518,7 @@ package androidx.compose.material3 {
 
   public final class DatePickerKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void DatePicker(androidx.compose.material3.DatePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.DatePickerFormatter dateFormatter, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headline, optional boolean showModeToggle, optional androidx.compose.material3.DatePickerColors colors);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DatePickerState DatePickerState(java.util.Locale locale, optional Long? initialSelectedDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DatePickerState rememberDatePickerState(optional Long? initialSelectedDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
   }
 
@@ -543,6 +546,7 @@ package androidx.compose.material3 {
 
   public final class DateRangePickerKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void DateRangePicker(androidx.compose.material3.DateRangePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.DatePickerFormatter dateFormatter, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headline, optional boolean showModeToggle, optional androidx.compose.material3.DatePickerColors colors);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DateRangePickerState DateRangePickerState(java.util.Locale locale, optional Long? initialSelectedStartDateMillis, optional Long? initialSelectedEndDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DateRangePickerState rememberDateRangePickerState(optional Long? initialSelectedStartDateMillis, optional Long? initialSelectedEndDateMillis, optional Long? initialDisplayedMonthMillis, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
   }
 
