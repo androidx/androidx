@@ -716,6 +716,10 @@ class DiffRunner(object):
     numCompletedTests = 2 # Already tested initial passing state and initial failing state
     numJobsAtFirstSuccessAfterMerge = None
     timedOut = False
+    summaryLogPath = os.path.join(self.workPath, "diff-filterer.log")
+    summaryLog = open(summaryLogPath, "w")
+    summaryLog.write("diff-filterer.py starting at " + str(datetime.datetime.now()))
+    summaryLog.flush()
     # continue until all files fail and no jobs are running
     while (numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() and not timedOut) or len(activeTestStatesById) > 0:
       # display status message
@@ -753,7 +757,8 @@ class DiffRunner(object):
           numConsecutiveFailures = 0
           numFailuresSinceLastSplitOrSuccess = 0
           acceptedState = box #.getAllFiles()
-          #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
+          summaryLog.write("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()) + "\n")
+          summaryLog.flush()
           maxRunningSize = max([state.size() for state in activeTestStatesById.values()])
           maxRelevantSize = maxRunningSize / len(activeTestStatesById)
           if acceptedState.size() < maxRelevantSize:
