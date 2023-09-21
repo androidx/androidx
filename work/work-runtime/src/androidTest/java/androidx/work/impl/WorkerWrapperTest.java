@@ -32,6 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -93,7 +94,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -404,7 +404,6 @@ public class WorkerWrapperTest extends DatabaseTest {
                 containsInAnyOrder(value1, value2));
     }
 
-    @Ignore // b/268530685
     @Test
     @SmallTest
     public void testDependencies_setsPeriodStartTimesForUnblockedWork() {
@@ -425,12 +424,14 @@ public class WorkerWrapperTest extends DatabaseTest {
             mDatabase.endTransaction();
         }
 
+        assertThat(mWorkSpecDao.getWorkSpec(work.getStringId()).lastEnqueueTime, is(-1L));
+
         long beforeUnblockedTime = System.currentTimeMillis();
 
         createBuilder(prerequisiteWork.getStringId()).build().run();
 
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
-        assertThat(workSpec.lastEnqueueTime, is(greaterThan(beforeUnblockedTime)));
+        assertThat(workSpec.lastEnqueueTime, is(greaterThanOrEqualTo(beforeUnblockedTime)));
     }
 
     @Test
