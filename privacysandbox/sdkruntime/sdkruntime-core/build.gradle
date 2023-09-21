@@ -51,9 +51,9 @@ android {
 }
 
 androidx {
-    name = "androidx.privacysandbox.sdkruntime:sdkruntime-core"
+    name = "SdkRuntime Core"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
-    description = "Provides components for SdkRuntime aware SDKs"
+    description = "Provides shared components for SdkRuntime libraries"
     metalavaK2UastEnabled = true
 }
