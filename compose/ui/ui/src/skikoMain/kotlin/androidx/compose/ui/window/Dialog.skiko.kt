@@ -58,6 +58,8 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
  * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
  * the platform default, which is smaller than the screen width.
+ * @property usePlatformInsets Whether the width of the popup's content should be limited by
+ * platform insets.
  * @property scrimColor Color of background fill.
  */
 @Immutable
@@ -65,6 +67,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = true,
+    val usePlatformInsets: Boolean = true,
     val scrimColor: Color = DefaultScrimColor,
 ) {
     // Constructor with all non-experimental arguments.
@@ -76,7 +79,8 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         dismissOnBackPress = dismissOnBackPress,
         dismissOnClickOutside = dismissOnClickOutside,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
-        scrimColor = DefaultScrimColor
+        usePlatformInsets = true,
+        scrimColor = DefaultScrimColor,
     )
 
     actual constructor(
@@ -97,7 +101,8 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         dismissOnBackPress = dismissOnBackPress,
         dismissOnClickOutside = dismissOnClickOutside,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
-        scrimColor = DefaultScrimColor
+        usePlatformInsets = true,
+        scrimColor = DefaultScrimColor,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -107,6 +112,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         if (dismissOnBackPress != other.dismissOnBackPress) return false
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
+        if (usePlatformInsets != other.usePlatformInsets) return false
         if (scrimColor != other.scrimColor) return false
 
         return true
@@ -116,6 +122,7 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         var result = dismissOnBackPress.hashCode()
         result = 31 * result + dismissOnClickOutside.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
+        result = 31 * result + usePlatformInsets.hashCode()
         result = 31 * result + scrimColor.hashCode()
         return result
     }
@@ -170,7 +177,11 @@ private fun DialogLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val platformInsets = platformInsets()
+    val platformInsets = if (properties.usePlatformInsets) {
+        platformInsets()
+    } else {
+        PlatformInsets.Zero
+    }
     RootLayout(
         modifier = modifier,
         focusable = true,

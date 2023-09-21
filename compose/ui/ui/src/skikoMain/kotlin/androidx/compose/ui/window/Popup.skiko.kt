@@ -58,11 +58,13 @@ import androidx.compose.ui.unit.round
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
  * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
- * screen. By default the window is clipped to the screen boundaries. Setting this to false will
+ * screen. By default, the window is clipped to the screen boundaries. Setting this to false will
  * allow windows to be accurately positioned.
  * The default value is true.
- * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
+ * @property usePlatformDefaultWidth Whether the width of the popup's content should be limited to
  * the platform default, which is smaller than the screen width.
+ * @property usePlatformInsets Whether the width of the popup's content should be limited by
+ * platform insets.
  */
 @Immutable
 actual class PopupProperties @ExperimentalComposeUiApi constructor(
@@ -71,6 +73,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
     actual val dismissOnClickOutside: Boolean = true,
     actual val clippingEnabled: Boolean = true,
     val usePlatformDefaultWidth: Boolean = false,
+    val usePlatformInsets: Boolean = true,
 ) {
     // Constructor with all non-experimental arguments.
     constructor(
@@ -84,6 +87,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = false,
+        usePlatformInsets = true,
     )
 
     actual constructor(
@@ -107,6 +111,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = false,
+        usePlatformInsets = true,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -118,6 +123,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
         if (clippingEnabled != other.clippingEnabled) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
+        if (usePlatformInsets != other.usePlatformInsets) return false
 
         return true
     }
@@ -128,6 +134,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         result = 31 * result + dismissOnClickOutside.hashCode()
         result = 31 * result + clippingEnabled.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
+        result = 31 * result + usePlatformInsets.hashCode()
         return result
     }
 }
@@ -421,7 +428,11 @@ private fun PopupLayout(
     onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val platformInsets = platformInsets()
+    val platformInsets = if (properties.usePlatformInsets) {
+        platformInsets()
+    } else {
+        PlatformInsets.Zero
+    }
     var layoutParentBoundsInWindow: IntRect? by remember { mutableStateOf(null) }
     EmptyLayout(Modifier.parentBoundsInWindow { layoutParentBoundsInWindow = it })
     RootLayout(
