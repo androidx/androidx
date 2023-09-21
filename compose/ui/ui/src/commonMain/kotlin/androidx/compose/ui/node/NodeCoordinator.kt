@@ -448,25 +448,9 @@ internal abstract class NodeCoordinator(
                 ?: LayerPositionalProperties().also { layerPositionalProperties = it }
             layerPositionalProperties.copyFrom(graphicsLayerScope)
             layer.updateLayerProperties(
-                scaleX = graphicsLayerScope.scaleX,
-                scaleY = graphicsLayerScope.scaleY,
-                alpha = graphicsLayerScope.alpha,
-                translationX = graphicsLayerScope.translationX,
-                translationY = graphicsLayerScope.translationY,
-                shadowElevation = graphicsLayerScope.shadowElevation,
-                ambientShadowColor = graphicsLayerScope.ambientShadowColor,
-                spotShadowColor = graphicsLayerScope.spotShadowColor,
-                rotationX = graphicsLayerScope.rotationX,
-                rotationY = graphicsLayerScope.rotationY,
-                rotationZ = graphicsLayerScope.rotationZ,
-                cameraDistance = graphicsLayerScope.cameraDistance,
-                transformOrigin = graphicsLayerScope.transformOrigin,
-                shape = graphicsLayerScope.shape,
-                clip = graphicsLayerScope.clip,
-                renderEffect = graphicsLayerScope.renderEffect,
-                compositingStrategy = graphicsLayerScope.compositingStrategy,
-                layoutDirection = layoutNode.layoutDirection,
-                density = layoutNode.density
+                graphicsLayerScope,
+                layoutNode.layoutDirection,
+                layoutNode.density,
             )
             isClipping = graphicsLayerScope.clip
             lastLayerAlpha = graphicsLayerScope.alpha
