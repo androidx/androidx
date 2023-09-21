@@ -380,8 +380,8 @@ public fun rememberRevealState(
  * Example of SwipeToReveal with primary action and undo action
  * @sample androidx.wear.compose.foundation.samples.SwipeToRevealSample
  *
- * Example of SwipeToReveal using [RevealScope]
- * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithRevealOffset
+ * Example of SwipeToReveal using [RevealScope] to delay the appearance of primary action text
+ * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithDelayedText
  *
  * Example of SwipeToReveal used with Expandables
  * @sample androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables

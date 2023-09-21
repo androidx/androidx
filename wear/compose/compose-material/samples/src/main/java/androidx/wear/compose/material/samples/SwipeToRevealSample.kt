@@ -24,7 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.rememberRevealState
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.CardDefaults
@@ -40,10 +45,26 @@ import androidx.wear.compose.material.Text
 @OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
 @Composable
 @Sampled
-fun SwipeToRevealChipSample() {
+fun SwipeToRevealChipSample(swipeToDismissBoxState: SwipeToDismissBoxState) {
     SwipeToRevealChip(
         revealState = rememberRevealState(),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            // Use edgeSwipeToDismiss to allow SwipeToDismissBox to capture swipe events
+            .edgeSwipeToDismiss(swipeToDismissBoxState)
+            .semantics {
+                // Use custom actions to make the primary and secondary actions accessible
+                customActions = listOf(
+                    CustomAccessibilityAction("Delete") {
+                        /* Add the primary action click handler here */
+                        true
+                    },
+                    CustomAccessibilityAction("More Options") {
+                        /* Add the secondary click handler here */
+                        true
+                    }
+                )
+            },
         primaryAction = SwipeToRevealDefaults.primaryAction(
             icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
             label = { Text("Delete") },
@@ -63,6 +84,7 @@ fun SwipeToRevealChipSample() {
         )
     ) {
         Chip(
+            modifier = Modifier.fillMaxWidth(),
             onClick = { /* Add the chip click handler here */ },
             colors = ChipDefaults.primaryChipColors(),
             border = ChipDefaults.outlinedChipBorder()
@@ -75,10 +97,26 @@ fun SwipeToRevealChipSample() {
 @OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
 @Composable
 @Sampled
-fun SwipeToRevealCardSample() {
+fun SwipeToRevealCardSample(swipeToDismissBoxState: SwipeToDismissBoxState) {
     SwipeToRevealCard(
         revealState = rememberRevealState(),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            // Use edgeSwipeToDismiss to allow SwipeToDismissBox to capture swipe events
+            .edgeSwipeToDismiss(swipeToDismissBoxState)
+            .semantics {
+                // Use custom actions to make the primary and secondary actions accessible
+                customActions = listOf(
+                    CustomAccessibilityAction("Delete") {
+                        /* Add the primary action click handler here */
+                        true
+                    },
+                    CustomAccessibilityAction("More Options") {
+                        /* Add the secondary click handler here */
+                        true
+                    }
+                )
+            },
         primaryAction = SwipeToRevealDefaults.primaryAction(
             icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
             label = { Text("Delete") },
