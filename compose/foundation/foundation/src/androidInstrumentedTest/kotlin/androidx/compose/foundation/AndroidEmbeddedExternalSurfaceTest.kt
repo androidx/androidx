@@ -54,7 +54,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
-class EmbeddedGraphicsSurfaceTest {
+class AndroidEmbeddedExternalSurfaceTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -72,7 +72,7 @@ class EmbeddedGraphicsSurfaceTest {
                 size.toPx().roundToInt()
             }
 
-            EmbeddedGraphicsSurface(modifier = Modifier.size(size)) {
+            AndroidEmbeddedExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, width, height ->
                     surfaceRef = surface
                     surfaceWidth = width
@@ -106,7 +106,7 @@ class EmbeddedGraphicsSurfaceTest {
                 desiredSize.toPx().roundToInt()
             }
 
-            EmbeddedGraphicsSurface(modifier = Modifier.size(desiredSize)) {
+            AndroidEmbeddedExternalSurface(modifier = Modifier.size(desiredSize)) {
                 onSurface { surface, initWidth, initHeight ->
                     surfaceWidth = initWidth
                     surfaceHeight = initHeight
@@ -151,7 +151,7 @@ class EmbeddedGraphicsSurfaceTest {
 
         rule.setContent {
             if (visible) {
-                EmbeddedGraphicsSurface(modifier = Modifier.size(size)) {
+                AndroidEmbeddedExternalSurface(modifier = Modifier.size(size)) {
                     onSurface { surface, _, _ ->
                         surfaceRef = surface
 
@@ -184,7 +184,7 @@ class EmbeddedGraphicsSurfaceTest {
         // the window, and only creates when it gets attached to the window
         rule.setContent {
             if (visible) {
-                EmbeddedGraphicsSurface(modifier = Modifier.size(size)) {
+                AndroidEmbeddedExternalSurface(modifier = Modifier.size(size)) {
                     onSurface { surface, _, _ ->
                         surfaceCreatedCount++
                         surface.onDestroyed {
@@ -222,7 +222,7 @@ class EmbeddedGraphicsSurfaceTest {
             expectedSize = with(LocalDensity.current) {
                 size.toPx().roundToInt()
             }
-            EmbeddedGraphicsSurface(modifier = Modifier.size(size)) {
+            AndroidEmbeddedExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, _, _ ->
                     surfaceRef = surface
                     surface.lockHardwareCanvas().apply {
@@ -251,7 +251,7 @@ class EmbeddedGraphicsSurfaceTest {
                 Canvas(modifier = Modifier.size(size)) {
                     drawRect(Color.White)
                 }
-                EmbeddedGraphicsSurface(
+                AndroidEmbeddedExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("EmbeddedGraphicSurface"),
@@ -283,7 +283,7 @@ class EmbeddedGraphicsSurfaceTest {
                 Canvas(modifier = Modifier.size(size)) {
                     drawRect(Color.Green)
                 }
-                EmbeddedGraphicsSurface(
+                AndroidEmbeddedExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("EmbeddedGraphicSurface")

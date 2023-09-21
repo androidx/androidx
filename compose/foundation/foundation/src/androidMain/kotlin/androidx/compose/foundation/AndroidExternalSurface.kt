@@ -35,10 +35,10 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 /**
- * [SurfaceScope] is a scoped environment provided by [GraphicsSurface] and
- * [EmbeddedGraphicsSurface] to handle [Surface] lifecycle events.
+ * [SurfaceScope] is a scoped environment provided by [AndroidExternalSurface] and
+ * [AndroidEmbeddedExternalSurface] to handle [Surface] lifecycle events.
  *
- * @sample androidx.compose.foundation.samples.GraphicsSurfaceColors
+ * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
 interface SurfaceScope {
     /**
@@ -58,29 +58,30 @@ interface SurfaceScope {
 
 /**
  * [SurfaceCoroutineScope] is a scoped environment provided by
- * [GraphicsSurface] and [EmbeddedGraphicsSurface] when a new [Surface] is
+ * [AndroidExternalSurface] and [AndroidEmbeddedExternalSurface] when a new [Surface] is
  * created. This environment is a coroutine scope that also provides access to
  * a [SurfaceScope] environment which can itself be used to handle other [Surface]
  * lifecycle events.
  *
  * @see SurfaceScope
- * @see GraphicsSurfaceScope
+ * @see AndroidExternalSurfaceScope
  *
- * @sample androidx.compose.foundation.samples.GraphicsSurfaceColors
+ * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
 interface SurfaceCoroutineScope : SurfaceScope, CoroutineScope
 
 /**
- * [GraphicsSurfaceScope] is a scoped environment provided when a [GraphicsSurface]
- * or [EmbeddedGraphicsSurface] is first initialized. This environment can be
- * used to register a lambda to invoke when a new [Surface] associated with the
- * [GraphicsSurface]/[EmbeddedGraphicsSurface] is created.
+ * [AndroidExternalSurfaceScope] is a scoped environment provided when an
+ * [AndroidExternalSurface] or [AndroidEmbeddedExternalSurface] is first initialized.
+ * This environment can be used to register a lambda to invoke when a new [Surface]
+ * associated with the [AndroidExternalSurface]/[AndroidEmbeddedExternalSurface]
+ * is created.
  */
-interface GraphicsSurfaceScope {
+interface AndroidExternalSurfaceScope {
     /**
      * Invokes [onSurface] when a new [Surface] is created. The [onSurface] lambda
      * is invoked on the main thread as part of a [SurfaceCoroutineScope] to provide
-     * a coroutine context.
+     * a coroutine context. Always invoked on the main thread.
      *
      * @param onSurface Callback invoked when a new [Surface] is created. The initial
      *                  dimensions of the surface are provided.
@@ -92,13 +93,13 @@ interface GraphicsSurfaceScope {
 }
 
 /**
- * Base class for [GraphicsSurface] and [EmbeddedGraphicsSurface] state. This class
+ * Base class for [AndroidExternalSurface] and [AndroidEmbeddedExternalSurface] state. This class
  * provides methods to properly dispatch lifecycle events on [Surface] creation,
  * change, and destruction. Surface creation is treated as a coroutine launch,
  * using the specified [scope] as the parent. This scope must be the main thread scope.
  */
-private abstract class BaseGraphicsSurfaceState(val scope: CoroutineScope) :
-    GraphicsSurfaceScope, SurfaceScope {
+private abstract class BaseAndroidExternalSurfaceState(val scope: CoroutineScope) :
+    AndroidExternalSurfaceScope, SurfaceScope {
 
     private var onSurface:
         (suspend SurfaceCoroutineScope.(surface: Surface, width: Int, height: Int) -> Unit)? = null
@@ -130,7 +131,8 @@ private abstract class BaseGraphicsSurfaceState(val scope: CoroutineScope) :
             job = scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 job?.cancelAndJoin()
                 val receiver =
-                    object : SurfaceCoroutineScope, SurfaceScope by this@BaseGraphicsSurfaceState,
+                    object : SurfaceCoroutineScope,
+                        SurfaceScope by this@BaseAndroidExternalSurfaceState,
                         CoroutineScope by this {}
                 onSurface?.invoke(receiver, surface, width, height)
             }
@@ -156,8 +158,8 @@ private abstract class BaseGraphicsSurfaceState(val scope: CoroutineScope) :
     }
 }
 
-private class GraphicsSurfaceState(scope: CoroutineScope) : BaseGraphicsSurfaceState(scope),
-    SurfaceHolder.Callback {
+private class AndroidExternalSurfaceState(scope: CoroutineScope) :
+    BaseAndroidExternalSurfaceState(scope), SurfaceHolder.Callback {
 
     var lastWidth = -1
     var lastHeight = -1
@@ -185,34 +187,39 @@ private class GraphicsSurfaceState(scope: CoroutineScope) : BaseGraphicsSurfaceS
 }
 
 @Composable
-private fun rememberGraphicsSurfaceState(): GraphicsSurfaceState {
+private fun rememberAndroidExternalSurfaceState(): AndroidExternalSurfaceState {
     val scope = rememberCoroutineScope()
-    return remember { GraphicsSurfaceState(scope) }
+    return remember { AndroidExternalSurfaceState(scope) }
 }
 
 @JvmInline
-value class GraphicsSurfaceZOrder private constructor(val zOrder: Int) {
+value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
     companion object {
-        val Behind = GraphicsSurfaceZOrder(0)
-        val MediaOverlay = GraphicsSurfaceZOrder(1)
-        val OnTop = GraphicsSurfaceZOrder(2)
+        val Behind = AndroidExternalSurfaceZOrder(0)
+        val MediaOverlay = AndroidExternalSurfaceZOrder(1)
+        val OnTop = AndroidExternalSurfaceZOrder(2)
     }
 }
 
 /**
- * Provides a dedicated drawing [Surface] as a separate layer positioned by default behind
- * the window holding the [GraphicsSurface] composable. Because [GraphicsSurface] uses
- * a separate window layer, graphics composition is handled by the system compositor which
- * can bypass the GPU and provide better performance and power usage characteristics compared
- * to [EmbeddedGraphicsSurface]. It is therefore recommended to use [GraphicsSurface]
- * whenever possible.
+ * Provides a dedicated drawing [Surface] as a separate layer positioned by default
+ * behind the window holding the [AndroidExternalSurface] composable. Because
+ * [AndroidExternalSurface] uses a separate window layer, graphics composition is handled
+ * by the system compositor which can bypass the GPU and provide better performance and
+ * power usage characteristics compared to [AndroidEmbeddedExternalSurface]. It is therefore
+ * recommended to use [AndroidExternalSurface] over [AndroidEmbeddedExternalSurface] whenever
+ * possible.
+ *
+ * The [Surface] provided can be used to present content that's external to Compose, such as
+ * a video stream (from a camera or a media player), OpenGL, Vulkan...The provided [Surface]
+ * can be rendered into using a thread different from the main thread.
  *
  * The z-ordering of the surface can be controlled using the [zOrder] parameter:
  *
- * - [GraphicsSurfaceZOrder.Behind]: positions the surface behind the window
- * - [GraphicsSurfaceZOrder.MediaOverlay]: positions the surface behind the window but
- *   above other [GraphicsSurfaceZOrder.Behind] surfaces
- * - [GraphicsSurfaceZOrder.OnTop]: positions the surface above the window
+ * - [AndroidExternalSurfaceZOrder.Behind]: positions the surface behind the window
+ * - [AndroidExternalSurfaceZOrder.MediaOverlay]: positions the surface behind the window but
+ *   above other [AndroidExternalSurfaceZOrder.Behind] surfaces
+ * - [AndroidExternalSurfaceZOrder.OnTop]: positions the surface above the window
  *
  * The drawing surface is opaque by default, which can be controlled with the [isOpaque]
  * parameter. When the surface is transparent, you may need to change the z-order to
@@ -220,7 +227,7 @@ value class GraphicsSurfaceZOrder private constructor(val zOrder: Int) {
  *
  * To start rendering, the caller must first acquire the [Surface] when it's created.
  * This is achieved by providing the [onInit] lambda, which allows the caller to
- * register an appropriate [GraphicsSurfaceScope.onSurface] callback. The [onInit]
+ * register an appropriate [AndroidExternalSurfaceScope.onSurface] callback. The [onInit]
  * lambda can also be used to initialize/cache resources needed once a surface is
  * available.
  *
@@ -237,7 +244,7 @@ value class GraphicsSurfaceZOrder private constructor(val zOrder: Int) {
  * be stretched at render time to fit the layout size. This can be used for instance to
  * render at a lower resolution for performance reasons.
  *
- * @param modifier Modifier to be applied to the [GraphicsSurface]
+ * @param modifier Modifier to be applied to the [AndroidExternalSurface]
  * @param isOpaque Whether the managed surface should be opaque or transparent.
  * @param zOrder Sets the z-order of the surface relative to its parent window.
  * @param surfaceSize Sets the surface size independently of the layout size of
@@ -250,18 +257,18 @@ value class GraphicsSurfaceZOrder private constructor(val zOrder: Int) {
  *               declare a [GraphicsSurfaceScope.onSurface] callback that will be
  *               invoked when a surface is available.
  *
- * @sample androidx.compose.foundation.samples.GraphicsSurfaceColors
+ * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
 @Composable
-fun GraphicsSurface(
+fun AndroidExternalSurface(
     modifier: Modifier = Modifier,
     isOpaque: Boolean = true,
-    zOrder: GraphicsSurfaceZOrder = GraphicsSurfaceZOrder.Behind,
+    zOrder: AndroidExternalSurfaceZOrder = AndroidExternalSurfaceZOrder.Behind,
     surfaceSize: IntSize = IntSize.Zero,
     isSecure: Boolean = false,
-    onInit: GraphicsSurfaceScope.() -> Unit
+    onInit: AndroidExternalSurfaceScope.() -> Unit
 ) {
-    val state = rememberGraphicsSurfaceState()
+    val state = rememberAndroidExternalSurfaceState()
 
     AndroidView(
         factory = { context ->
@@ -288,9 +295,9 @@ fun GraphicsSurface(
             )
 
             when (zOrder) {
-                GraphicsSurfaceZOrder.Behind -> view.setZOrderOnTop(false)
-                GraphicsSurfaceZOrder.MediaOverlay -> view.setZOrderMediaOverlay(true)
-                GraphicsSurfaceZOrder.OnTop -> view.setZOrderOnTop(true)
+                AndroidExternalSurfaceZOrder.Behind -> view.setZOrderOnTop(false)
+                AndroidExternalSurfaceZOrder.MediaOverlay -> view.setZOrderMediaOverlay(true)
+                AndroidExternalSurfaceZOrder.OnTop -> view.setZOrderOnTop(true)
             }
 
             view.setSecure(isSecure)
@@ -298,8 +305,8 @@ fun GraphicsSurface(
     )
 }
 
-private class EmbeddedGraphicsSurfaceState(scope: CoroutineScope) : BaseGraphicsSurfaceState(scope),
-    TextureView.SurfaceTextureListener {
+private class AndroidEmbeddedExternalSurfaceState(scope: CoroutineScope) :
+    BaseAndroidExternalSurfaceState(scope), TextureView.SurfaceTextureListener {
 
     var surfaceSize = IntSize.Zero
 
@@ -355,30 +362,36 @@ private class EmbeddedGraphicsSurfaceState(scope: CoroutineScope) : BaseGraphics
 }
 
 @Composable
-private fun rememberEmbeddedGraphicsSurfaceState(): EmbeddedGraphicsSurfaceState {
+private fun rememberAndroidEmbeddedExternalSurfaceState(): AndroidEmbeddedExternalSurfaceState {
     val scope = rememberCoroutineScope()
-    return remember { EmbeddedGraphicsSurfaceState(scope) }
+    return remember { AndroidEmbeddedExternalSurfaceState(scope) }
 }
 
 /**
  * Provides a dedicated drawing [Surface] embedded directly in the UI hierarchy.
- * Unlike [GraphicsSurface], [EmbeddedGraphicsSurface] positions its surface as a
- * regular element inside the composable hierarchy. This means that graphics
+ * Unlike [AndroidExternalSurface], [AndroidEmbeddedExternalSurface] positions its
+ * surface as a regular element inside the composable hierarchy. This means that graphics
  * composition is handled like any other UI widget, using the GPU. This can lead
- * to increased power and memory bandwidth usage compared to [GraphicsSurface]. It
- * is therefore recommended to use [GraphicsSurface] when possible.
+ * to increased power and memory bandwidth usage compared to [AndroidExternalSurface].
+ * It is therefore recommended to use [AndroidExternalSurface] over
+ * [AndroidEmbeddedExternalSurface] whenever possible.
  *
- * [EmbeddedGraphicsSurface] can however be useful when interactions with other widgets
+ * [AndroidEmbeddedExternalSurface] can however be useful when interactions with other widgets
  * is necessary, for instance if the surface needs to be "sandwiched" between two
  * other widgets, or if it must participate in visual effects driven by
  * a `Modifier.graphicsLayer{}`.
+ *
+ * The [Surface] provided can be used to present content that's external to Compose,
+ * such as a video stream (from a camera or a media player), OpenGL, Vulkan...
+ * The provided [Surface] can be rendered into using a thread different from the main
+ * thread.
  *
  * The drawing surface is opaque by default, which can be controlled with the [isOpaque]
  * parameter.
  *
  * To start rendering, the caller must first acquire the [Surface] when it's created.
  * This is achieved by providing the [onInit] lambda, which allows the caller to
- * register an appropriate [GraphicsSurfaceScope.onSurface] callback. The [onInit]
+ * register an appropriate [AndroidExternalSurfaceScope.onSurface] callback. The [onInit]
  * lambda can also be used to initialize/cache resources needed once a surface is
  * available.
  *
@@ -395,7 +408,7 @@ private fun rememberEmbeddedGraphicsSurfaceState(): EmbeddedGraphicsSurfaceState
  * be stretched at render time to fit the layout size. This can be used for instance to
  * render at a lower resolution for performance reasons.
  *
- * @param modifier Modifier to be applied to the [GraphicsSurface]
+ * @param modifier Modifier to be applied to the [AndroidExternalSurface]
  * @param isOpaque Whether the managed surface should be opaque or transparent. If
  *                 transparent and [isMediaOverlay] is `false`, the surface will
  *                 be positioned above the parent window.
@@ -406,16 +419,16 @@ private fun rememberEmbeddedGraphicsSurfaceState(): EmbeddedGraphicsSurfaceState
  *               declare a [GraphicsSurfaceScope.onSurface] callback that will be
  *               invoked when a surface is available.
  *
- * @sample androidx.compose.foundation.samples.EmbeddedGraphicsSurfaceColors
+ * @sample androidx.compose.foundation.samples.AndroidEmbeddedExternalSurfaceColors
  */
 @Composable
-fun EmbeddedGraphicsSurface(
+fun AndroidEmbeddedExternalSurface(
     modifier: Modifier = Modifier,
     isOpaque: Boolean = true,
     surfaceSize: IntSize = IntSize.Zero,
-    onInit: GraphicsSurfaceScope.() -> Unit
+    onInit: AndroidExternalSurfaceScope.() -> Unit
 ) {
-    val state = rememberEmbeddedGraphicsSurfaceState()
+    val state = rememberAndroidEmbeddedExternalSurfaceState()
 
     AndroidView(
         factory = { context ->

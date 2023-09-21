@@ -1,6 +1,30 @@
 // Signature format: 4.0
 package androidx.compose.foundation {
 
+  public final class AndroidExternalSurfaceKt {
+    method @androidx.compose.runtime.Composable public static void AndroidEmbeddedExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
+    method @androidx.compose.runtime.Composable public static void AndroidExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional int zOrder, optional long surfaceSize, optional boolean isSecure, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
+  }
+
+  public interface AndroidExternalSurfaceScope {
+    method public void onSurface(kotlin.jvm.functions.Function5<? super androidx.compose.foundation.SurfaceCoroutineScope,? super android.view.Surface,? super java.lang.Integer,? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onSurface);
+  }
+
+  @kotlin.jvm.JvmInline public final value class AndroidExternalSurfaceZOrder {
+    method public int getZOrder();
+    property public final int zOrder;
+    field public static final androidx.compose.foundation.AndroidExternalSurfaceZOrder.Companion Companion;
+  }
+
+  public static final class AndroidExternalSurfaceZOrder.Companion {
+    method public int getBehind();
+    method public int getMediaOverlay();
+    method public int getOnTop();
+    property public final int Behind;
+    property public final int MediaOverlay;
+    property public final int OnTop;
+  }
+
   public final class BackgroundKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier background(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Brush brush, optional androidx.compose.ui.graphics.Shape shape, optional @FloatRange(from=0.0, to=1.0) float alpha);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier background(androidx.compose.ui.Modifier, long color, optional androidx.compose.ui.graphics.Shape shape);
@@ -109,30 +133,6 @@ package androidx.compose.foundation {
 
   public final class FocusedBoundsKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier onFocusedBoundsChanged(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onPositioned);
-  }
-
-  public final class GraphicsSurfaceKt {
-    method @androidx.compose.runtime.Composable public static void EmbeddedGraphicsSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.GraphicsSurfaceScope,kotlin.Unit> onInit);
-    method @androidx.compose.runtime.Composable public static void GraphicsSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional int zOrder, optional long surfaceSize, optional boolean isSecure, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.GraphicsSurfaceScope,kotlin.Unit> onInit);
-  }
-
-  public interface GraphicsSurfaceScope {
-    method public void onSurface(kotlin.jvm.functions.Function5<? super androidx.compose.foundation.SurfaceCoroutineScope,? super android.view.Surface,? super java.lang.Integer,? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onSurface);
-  }
-
-  @kotlin.jvm.JvmInline public final value class GraphicsSurfaceZOrder {
-    method public int getZOrder();
-    property public final int zOrder;
-    field public static final androidx.compose.foundation.GraphicsSurfaceZOrder.Companion Companion;
-  }
-
-  public static final class GraphicsSurfaceZOrder.Companion {
-    method public int getBehind();
-    method public int getMediaOverlay();
-    method public int getOnTop();
-    property public final int Behind;
-    property public final int MediaOverlay;
-    property public final int OnTop;
   }
 
   public final class HoverableKt {

@@ -74,7 +74,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 @RunWith(AndroidJUnit4::class)
-class GraphicsSurfaceTest {
+class AndroidExternalSurfaceTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -92,7 +92,7 @@ class GraphicsSurfaceTest {
                 size.toPx().roundToInt()
             }
 
-            GraphicsSurface(modifier = Modifier.size(size)) {
+            AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, width, height ->
                     surfaceRef = surface
                     surfaceWidth = width
@@ -126,7 +126,7 @@ class GraphicsSurfaceTest {
                 desiredSize.toPx().roundToInt()
             }
 
-            GraphicsSurface(modifier = Modifier.size(desiredSize)) {
+            AndroidExternalSurface(modifier = Modifier.size(desiredSize)) {
                 onSurface { surface, _, _ ->
                     surface.onChanged { newWidth, newHeight ->
                         surfaceWidth = newWidth
@@ -169,7 +169,7 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             if (visible) {
-                GraphicsSurface(modifier = Modifier.size(size)) {
+                AndroidExternalSurface(modifier = Modifier.size(size)) {
                     onSurface { surface, _, _ ->
                         surfaceRef = surface
 
@@ -201,7 +201,7 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             view = LocalView.current
-            GraphicsSurface(modifier = Modifier.size(size)) {
+            AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, _, _ ->
                     surfaceCreatedCount++
                     surface.onDestroyed {
@@ -242,7 +242,7 @@ class GraphicsSurfaceTest {
             expectedSize = with(LocalDensity.current) {
                 size.toPx().roundToInt()
             }
-            GraphicsSurface(modifier = Modifier.size(size)) {
+            AndroidExternalSurface(modifier = Modifier.size(size)) {
                 onSurface { surface, _, _ ->
                     surfaceRef = surface
                     surface.lockHardwareCanvas().apply {
@@ -269,7 +269,7 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
-                GraphicsSurface(
+                AndroidExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("GraphicSurface")
@@ -311,9 +311,9 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
-                GraphicsSurface(
+                AndroidExternalSurface(
                     modifier = Modifier.size(size),
-                    zOrder = GraphicsSurfaceZOrder.Behind
+                    zOrder = AndroidExternalSurfaceZOrder.Behind
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -329,11 +329,11 @@ class GraphicsSurfaceTest {
                         }
                     }
                 }
-                GraphicsSurface(
+                AndroidExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("GraphicSurface"),
-                    zOrder = GraphicsSurfaceZOrder.MediaOverlay
+                    zOrder = AndroidExternalSurfaceZOrder.MediaOverlay
                 ) {
                     onSurface { surface, _, _ ->
                         surface.lockHardwareCanvas().apply {
@@ -363,11 +363,11 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
-                GraphicsSurface(
+                AndroidExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("GraphicSurface"),
-                    zOrder = GraphicsSurfaceZOrder.OnTop
+                    zOrder = AndroidExternalSurfaceZOrder.OnTop
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -407,12 +407,12 @@ class GraphicsSurfaceTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(size)) {
-                GraphicsSurface(
+                AndroidExternalSurface(
                     modifier = Modifier
                         .size(size)
                         .testTag("GraphicSurface"),
                     isOpaque = false,
-                    zOrder = GraphicsSurfaceZOrder.OnTop
+                    zOrder = AndroidExternalSurfaceZOrder.OnTop
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -455,7 +455,7 @@ class GraphicsSurfaceTest {
         val latch = CountDownLatch(frameCount)
 
         rule.setContent {
-            GraphicsSurface(
+            AndroidExternalSurface(
                 modifier = Modifier
                     .size(size)
                     .testTag("GraphicSurface"),

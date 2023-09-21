@@ -18,8 +18,8 @@ package androidx.compose.foundation.samples
 
 import android.graphics.Rect
 import androidx.annotation.Sampled
-import androidx.compose.foundation.EmbeddedGraphicsSurface
-import androidx.compose.foundation.GraphicsSurface
+import androidx.compose.foundation.AndroidEmbeddedExternalSurface
+import androidx.compose.foundation.AndroidExternalSurface
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -33,8 +33,8 @@ import kotlin.math.sin
 
 @Sampled
 @Composable
-fun GraphicsSurfaceColors() {
-    GraphicsSurface(
+fun AndroidExternalSurfaceColors() {
+    AndroidExternalSurface(
         modifier = Modifier.fillMaxWidth().height(400.dp)
     ) {
         // Resources can be initialized/cached here
@@ -60,8 +60,7 @@ fun GraphicsSurfaceColors() {
             surface.onDestroyed {
             }
 
-            // Render loop, automatically cancelled by GraphicsSurface
-            // on surface destruction
+            // Render loop, automatically cancelled on surface destruction
             while (true) {
                 withFrameNanos { time ->
                     surface.lockCanvas(Rect(0, 0, w, h)).apply {
@@ -78,8 +77,8 @@ fun GraphicsSurfaceColors() {
 
 @Sampled
 @Composable
-fun EmbeddedGraphicsSurfaceColors() {
-    EmbeddedGraphicsSurface(
+fun AndroidEmbeddedExternalSurfaceColors() {
+    AndroidEmbeddedExternalSurface(
         modifier = Modifier.fillMaxWidth().height(400.dp)
     ) {
         // Resources can be initialized/cached here
@@ -105,8 +104,7 @@ fun EmbeddedGraphicsSurfaceColors() {
             surface.onDestroyed {
             }
 
-            // Render loop, automatically cancelled by EmbeddedGraphicsSurface
-            // on surface destruction
+            // Render loop, automatically cancelled on surface destruction
             while (true) {
                 withFrameNanos { time ->
                     surface.lockCanvas(Rect(0, 0, w, h)).apply {
