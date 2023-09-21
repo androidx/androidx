@@ -111,7 +111,6 @@ package androidx.browser.customtabs {
     method public static boolean isBookmarksButtonEnabled(android.content.Intent);
     method public static boolean isDownloadButtonEnabled(android.content.Intent);
     method public static boolean isSendToExternalDefaultHandlerEnabled(android.content.Intent);
-    method public static boolean isShowOnToolbarEnabled(android.content.Intent);
     method public void launchUrl(android.content.Context, android.net.Uri);
     method public static android.content.Intent setAlwaysUseBrowserUI(android.content.Intent?);
     method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent);
@@ -150,7 +149,6 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER = "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
     field public static final String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
     field public static final String EXTRA_SHARE_STATE = "androidx.browser.customtabs.extra.SHARE_STATE";
-    field public static final String EXTRA_SHOW_ON_TOOLBAR = "android.support.customtabs.customaction.SHOW_ON_TOOLBAR";
     field public static final String EXTRA_TINT_ACTION_BUTTON = "android.support.customtabs.extra.TINT_ACTION_BUTTON";
     field public static final String EXTRA_TITLE_VISIBILITY_STATE = "android.support.customtabs.extra.TITLE_VISIBILITY";
     field public static final String EXTRA_TOOLBAR_COLOR = "android.support.customtabs.extra.TOOLBAR_COLOR";
@@ -204,7 +202,6 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShareIdentityEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShareState(int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowOnToolbarEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);

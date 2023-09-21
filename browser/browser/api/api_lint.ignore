@@ -39,8 +39,6 @@ ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.SEND_TO_EXTERNAL_DEFAULT_HANDLER`, was `android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SESSION:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.SESSION`, was `android.support.customtabs.extra.SESSION`
-ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SHOW_ON_TOOLBAR:
-    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SHOW_ON_TOOLBAR`, was `android.support.customtabs.customaction.SHOW_ON_TOOLBAR`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TINT_ACTION_BUTTON:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.TINT_ACTION_BUTTON`, was `android.support.customtabs.extra.TINT_ACTION_BUTTON`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TITLE_VISIBILITY_STATE:
