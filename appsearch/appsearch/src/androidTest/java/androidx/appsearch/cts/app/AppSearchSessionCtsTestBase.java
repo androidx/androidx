@@ -469,6 +469,27 @@ public abstract class AppSearchSessionCtsTestBase {
 
 // @exportToFramework:startStrip()
 
+    /** Test indexing maximum properties into a schema. */
+    @Test
+    public void testSetSchema_maxProperties() throws Exception {
+        int maxProperties = mDb1.getFeatures().getMaxIndexedProperties(
+                ApplicationProvider.getApplicationContext());
+        AppSearchSchema.Builder schemaBuilder = new AppSearchSchema.Builder("testSchema");
+        for (int i = 0; i < maxProperties; i++) {
+            schemaBuilder.addProperty(new StringPropertyConfig.Builder("string" + i)
+                    .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                    .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                    .build());
+        }
+        AppSearchSchema maxSchema = schemaBuilder.build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(maxSchema).build()).get();
+        Set<AppSearchSchema> actual1 = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual1).containsExactly(maxSchema);
+
+        // TODO(b/300135897): Expand test to assert adding more than allowed properties is
+        //  fixed once fixed.
+    }
+
     @Test
     public void testGetSchema() throws Exception {
         AppSearchSchema emailSchema1 = new AppSearchSchema.Builder("Email1")
@@ -1009,11 +1030,11 @@ public abstract class AppSearchSessionCtsTestBase {
     public void testPutLargeDocumentBatch() throws Exception {
         // Schema registration
         AppSearchSchema schema = new AppSearchSchema.Builder("Type").addProperty(
-                new StringPropertyConfig.Builder("body")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .build())
+                        new StringPropertyConfig.Builder("body")
+                                .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .build())
                 .build();
         mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
 
@@ -3097,8 +3118,8 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByDocumentIdAsync(
-                new GetByDocumentIdRequest.Builder("namespace").addIds("id1",
-                        "id2").build())
+                        new GetByDocumentIdRequest.Builder("namespace").addIds("id1",
+                                "id2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("id1").getResultCode())
@@ -3280,7 +3301,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 SearchSpec.TERM_MATCH_PREFIX).addFilterPackageNames(
                 ApplicationProvider.getApplicationContext().getPackageName()).build()).get();
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByDocumentIdAsync(
-                new GetByDocumentIdRequest.Builder("namespace").addIds("id1", "id2").build())
+            new GetByDocumentIdRequest.Builder("namespace").addIds("id1", "id2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("id1").getResultCode())

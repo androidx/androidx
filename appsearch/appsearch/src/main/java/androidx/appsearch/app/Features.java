@@ -15,6 +15,8 @@
  */
 package androidx.appsearch.app;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -182,4 +184,13 @@ public interface Features {
      * backend.
      */
     boolean isFeatureSupported(@NonNull String feature);
+
+    /**
+     * Returns the maximum amount of properties that can be indexed in a Document
+     * given the Android API level and AppSearch backend.
+     *
+     * <p>A property is defined as all values that are present at a particular path.
+     * @param context to check mainline module version, as support varies by module version.
+     */
+    int getMaxIndexedProperties(@NonNull Context context);
 }
