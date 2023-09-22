@@ -280,6 +280,29 @@ public class ProtoLayoutInflaterTest {
         expect.that(tv.getText().toString()).isEmpty();
     }
 
+    @Test
+    public void inflate_textView_withEmptyValueForLayout() {
+        LayoutElement root =
+            LayoutElement.newBuilder()
+                .setText(
+                    Text.newBuilder()
+                        .setText(
+                            StringProp.newBuilder()
+                                .setValue("abcde")
+                                .setDynamicValue(
+                                    DynamicString.newBuilder()
+                                        .setFixed(
+                                            FixedString.newBuilder()
+                                                .setValue("Dynamic Fixed Text")))
+                                        .setValueForLayout("")))
+                .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        FrameLayout sizedContainer = (FrameLayout) rootLayout.getChildAt(0);
+        expect.that(sizedContainer.getWidth()).isEqualTo(0);
+    }
+
     // obsoleteContentDescription is tested for backward compatibility
     @SuppressWarnings("deprecation")
     @Test
@@ -2153,6 +2176,38 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_arcLine_usesZeroValueForLayout() {
+        DynamicFloat arcLength =
+                DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setLine(
+                                                                ArcLine.newBuilder()
+                                                                        .setLength(
+                                                                                degreesDynamic(
+                                                                                        arcLength,
+                                                                                        0f))
+                                                                        .setThickness(dp(12)))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        SizedArcContainer sizedContainer = (SizedArcContainer) arcLayout.getChildAt(0);
+        expect.that(sizedContainer.getSweepAngleDegrees()).isEqualTo(0f);
+        WearCurvedLineView line = (WearCurvedLineView) sizedContainer.getChildAt(0);
+        expect.that(line.getMaxSweepAngleDegrees()).isEqualTo(0f);
+    }
+
+    @Test
     public void inflate_arcLine_dynamicData_updatesArcLength() {
         AppDataKey<DynamicBuilders.DynamicInt32> keyFoo = new AppDataKey<>("foo");
         mStateStore.setAppStateEntryValuesProto(
@@ -2262,7 +2317,7 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
-    public void inflate_arcLine_withoutValueForLayout_noLegacyMode_usesArcLength() {
+    public void inflate_arcLine_withoutValueForLayout_legacyMode_usesArcLength() {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
