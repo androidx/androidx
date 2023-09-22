@@ -537,6 +537,8 @@ MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFrom
     Missing nullability on parameter `in` in method `createFromParcel`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
     Missing nullability on parameter `loader` in method `createFromParcel`
+MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
+    Missing nullability on method `newArray` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
     Missing nullability on method `getFonts` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontRequestCallback#onTypefaceRetrieved(android.graphics.Typeface) parameter #0:
@@ -611,6 +613,8 @@ MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpanFlags(Object
     Missing nullability on parameter `tag` in method `getSpanFlags`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpanStart(Object) parameter #0:
     Missing nullability on parameter `tag` in method `getSpanStart`
+MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
+    Missing nullability on method `getSpans` return
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>) parameter #2:
     Missing nullability on parameter `type` in method `getSpans`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor):
