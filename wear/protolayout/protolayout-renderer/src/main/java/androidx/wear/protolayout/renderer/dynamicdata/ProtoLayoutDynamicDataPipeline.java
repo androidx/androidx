@@ -26,7 +26,10 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.icu.util.ULocale;
 import android.util.Log;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AnimationSet;
 
 import androidx.annotation.NonNull;
@@ -369,6 +372,7 @@ public class ProtoLayoutDynamicDataPipeline {
          */
         @UiThread
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @SuppressWarnings("RestrictTo")
         public void commit(@NonNull ViewGroup parentView, boolean isReattaching) {
             for (String nodePosId : mNodesPendingChildrenRemoval) {
                 mPipeline.removeChildNodesFor(nodePosId);
@@ -389,44 +393,74 @@ public class ProtoLayoutDynamicDataPipeline {
                 mChangedNodes.clear();
             }
 
-            Runnable runnable =
+            // Capture nodes with EnterTransition animation.
+            Map<String, EnterTransition> enterTransitionNodes = new ArrayMap<>();
+            boolean hasSlideInAnimation = false;
+            if (mPipeline.mEnableAnimations) {
+                for (String changedNode : mChangedNodes) {
+                    List<NodeInfo> nodesAffectedBy =
+                            mPipeline.getNodesAffectedBy(
+                                    changedNode,
+                                    node -> {
+                                        AnimatedVisibility animatedVisibility =
+                                                node.getAnimatedVisibility();
+                                        return animatedVisibility != null
+                                                && animatedVisibility.hasEnterTransition();
+                                    });
+                    for (NodeInfo affectedNode : nodesAffectedBy) {
+                        EnterTransition enterTransition =
+                                checkNotNull(affectedNode.getAnimatedVisibility())
+                                        .getEnterTransition();
+                        enterTransitionNodes.putIfAbsent(affectedNode.getPosId(), enterTransition);
+                        hasSlideInAnimation |= enterTransition.hasSlideIn();
+                    }
+                }
+            }
+
+            Runnable initLayoutRunnable =
                     () -> {
                         mPipeline.initNewLayout();
-                        playEnterAnimations(parentView, isReattaching);
+                        playEnterAnimations(parentView, isReattaching, enterTransitionNodes);
                     };
-            if (parentView.isInEditMode()) {
-                runnable.run();
+
+            // Slide animations need to know the new measurements of the view in order to calculate
+            // start and end positions, so we force a measure pass.
+            if (hasSlideInAnimation) {
+                // The GlobalLayoutListener ensures that initLayoutRunnable will run after the
+                // measure
+                // pass has finished.
+                ViewTreeObserver viewTreeObserver = parentView.getViewTreeObserver();
+                viewTreeObserver.addOnGlobalLayoutListener(
+                        new OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                if (viewTreeObserver.isAlive()) {
+                                    viewTreeObserver.removeOnGlobalLayoutListener(this);
+                                    initLayoutRunnable.run();
+                                }
+                            }
+                        });
+                parentView.measure(
+                        MeasureSpec.makeMeasureSpec(
+                                parentView.getMeasuredWidth(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(
+                                parentView.getMeasuredHeight(), MeasureSpec.EXACTLY));
             } else {
-                parentView.post(runnable);
+                initLayoutRunnable.run();
             }
         }
 
         @UiThread
-        private void playEnterAnimations(@NonNull ViewGroup parentView, boolean isReattaching) {
+        private void playEnterAnimations(
+                @NonNull ViewGroup parentView,
+                boolean isReattaching,
+                Map<String, EnterTransition> animatingNodes) {
             // Cancel any already running Enter animation.
             mPipeline.mEnterAnimations.forEach(QuotaAwareAnimationSet::cancelAnimations);
             mPipeline.mEnterAnimations.clear();
 
             if (isReattaching || !mPipeline.mFullyVisible || !mPipeline.mEnableAnimations) {
                 return;
-            }
-            Map<String, EnterTransition> animatingNodes = new ArrayMap<>();
-            for (String changedNode : mChangedNodes) {
-                List<NodeInfo> nodesAffectedBy =
-                        mPipeline.getNodesAffectedBy(
-                                changedNode,
-                                node -> {
-                                    AnimatedVisibility animatedVisibility =
-                                            node.getAnimatedVisibility();
-                                    return animatedVisibility != null
-                                            && animatedVisibility.hasEnterTransition();
-                                });
-                for (NodeInfo affectedNode : nodesAffectedBy) {
-                    animatingNodes.putIfAbsent(
-                            affectedNode.getPosId(),
-                            checkNotNull(affectedNode.getAnimatedVisibility())
-                                    .getEnterTransition());
-                }
             }
             for (Map.Entry<String, EnterTransition> animatingNode : animatingNodes.entrySet()) {
                 View associatedView = parentView.findViewWithTag(animatingNode.getKey());
