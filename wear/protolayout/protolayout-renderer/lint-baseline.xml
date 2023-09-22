@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -769,8 +769,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="AnimatedVisibility.hasEnterTransition can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                                            &amp;&amp; animatedVisibility.hasEnterTransition();"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                                &amp;&amp; animatedVisibility.hasEnterTransition();"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
     </issue>
@@ -778,8 +778,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="AnimatedVisibility.getEnterTransition can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
-        errorLine1="                                    .getEnterTransition());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                        .getEnterTransition();"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="EnterTransition.hasSlideIn can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                        hasSlideInAnimation |= enterTransition.hasSlideIn();"
+        errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/renderer/dynamicdata/ProtoLayoutDynamicDataPipeline.java"/>
     </issue>
