@@ -57,8 +57,7 @@ internal abstract class NodeCoordinator(
     LookaheadCapablePlaceable(),
     Measurable,
     LayoutCoordinates,
-    OwnerScope,
-        (Canvas) -> Unit {
+    OwnerScope {
 
     abstract val tail: Modifier.Node
 
@@ -378,7 +377,7 @@ internal abstract class NodeCoordinator(
 
     // implementation of draw block passed to the OwnedLayer
     @Suppress("LiftReturnOrAssignment")
-    override fun invoke(canvas: Canvas) {
+    private val drawBlock: (Canvas) -> Unit = { canvas ->
         if (layoutNode.isPlaced) {
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
                 drawContainedDrawModifiers(canvas)
@@ -406,7 +405,7 @@ internal abstract class NodeCoordinator(
         if (isAttached && layerBlock != null) {
             if (layer == null) {
                 layer = layoutNode.requireOwner().createLayer(
-                    this,
+                    drawBlock,
                     invalidateParentLayer
                 ).apply {
                     resize(measuredSize)

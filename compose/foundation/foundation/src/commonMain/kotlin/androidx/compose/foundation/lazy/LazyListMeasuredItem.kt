@@ -168,7 +168,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
                     }
                     offset = animatedOffset
                 }
-                layerBlock = animation
+                layerBlock = animation.layerBlock
             } else {
                 layerBlock = DefaultLayerBlock
             }
