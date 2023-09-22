@@ -187,6 +187,7 @@ import androidx.wear.protolayout.renderer.helper.TestFingerprinter;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroupMutation;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.ViewProperties;
 import androidx.wear.protolayout.renderer.test.R;
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
@@ -3083,7 +3084,7 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
@@ -3129,10 +3130,10 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout2);
+                        getRenderedMetadata(inflatedViewParent1), layout2, ViewProperties.EMPTY);
         ViewGroupMutation mutation3 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout3);
+                        getRenderedMetadata(inflatedViewParent1), layout3, ViewProperties.EMPTY);
 
         renderer.mRenderer.applyMutation(inflatedViewParent1, mutation3).get();
         assertThrows(
@@ -3220,7 +3221,7 @@ public class ProtoLayoutInflaterTest {
         // Apply first mutation
         ViewGroupMutation mutation1 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation1).isNotNull();
         assertThat(mutation1.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation1).get();
@@ -3241,7 +3242,7 @@ public class ProtoLayoutInflaterTest {
         // Apply second mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout3);
+                        getRenderedMetadata(inflatedViewParent), layout3, ViewProperties.EMPTY);
         assertThat(mutation2).isNotNull();
         assertThat(mutation2.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation2).get();
@@ -3314,7 +3315,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3357,7 +3358,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3401,7 +3402,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3499,7 +3500,7 @@ public class ProtoLayoutInflaterTest {
         }
 
         ViewGroupMutation computeMutation(RenderedMetadata renderedMetadata, Layout targetLayout) {
-            return mRenderer.computeMutation(renderedMetadata, targetLayout);
+            return mRenderer.computeMutation(renderedMetadata, targetLayout, ViewProperties.EMPTY);
         }
 
         boolean applyMutation(ViewGroup parent, ViewGroupMutation mutation) {
