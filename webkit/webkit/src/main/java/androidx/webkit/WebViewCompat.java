@@ -1072,6 +1072,66 @@ public class WebViewCompat {
         }
     }
 
+    /**
+     * Sets the Profile with its name as the current Profile for this WebView.
+     * <ul>
+     * <li> This should be called before doing anything else with WebView other than attaching it to
+     * the view hierarchy.
+     * <li> This should be only called if WebView is to use a Profile other than the default.
+     * <li> This method will create the profile if it doesn't exist.
+     * </ul>
+     * This method must be called on the UI thread.
+     *
+     * @param webView the WebView to modify.
+     * @param profileName the name of the profile to use in the passed {@code webView}.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     * @throws IllegalStateException if the previous profile has been accessed via a call to
+     * {@link WebViewCompat#getProfile(WebView)}.
+     * @throws IllegalStateException if the profile has already been set previously via this method.
+     * @throws IllegalStateException if {@link WebView#evaluateJavascript(String, ValueCallback)} is
+     * called on the WebView before this method.
+     * @throws IllegalStateException if the WebView has previously navigated to a web page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setProfile(@NonNull WebView webView,
+            @NonNull String profileName) throws IllegalStateException {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).setProfileWithName(profileName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the Profile associated with this WebView.
+     * <p>
+     * Gets the profile object set on this WebView using
+     * {@link WebViewCompat#setProfile(WebView, String)}, or the default profile if it has not
+     * been changed.
+     * <p> This method must be called on the UI thread.
+     *
+     * @param webView the WebView to get the profile object associated with.
+     * @return the profile object set to this WebView.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static Profile getProfile(@NonNull WebView webView) throws IllegalStateException {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webView).getProfile();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }
