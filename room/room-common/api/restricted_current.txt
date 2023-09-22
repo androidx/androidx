@@ -104,11 +104,15 @@ package androidx.room {
     property public abstract Class<?> entity;
   }
 
-  @java.lang.annotation.Repeatable(DeleteColumn.Entries::class) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteColumn {
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteColumn {
     method public abstract String columnName();
     method public abstract String tableName();
     property public abstract String columnName;
     property public abstract String tableName;
+  }
+
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteColumn.Container {
+    method public abstract androidx.room.DeleteColumn[] value();
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteColumn.Entries {
@@ -116,9 +120,13 @@ package androidx.room {
     property public abstract androidx.room.DeleteColumn[] value;
   }
 
-  @java.lang.annotation.Repeatable(DeleteTable.Entries::class) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteTable {
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DeleteTable {
     method public abstract String tableName();
     property public abstract String tableName;
+  }
+
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteTable.Container {
+    method public abstract androidx.room.DeleteTable[] value();
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface DeleteTable.Entries {
@@ -334,7 +342,7 @@ package androidx.room {
     property public abstract String[] projection;
   }
 
-  @java.lang.annotation.Repeatable(RenameColumn.Entries::class) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameColumn {
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameColumn {
     method public abstract String fromColumnName();
     method public abstract String tableName();
     method public abstract String toColumnName();
@@ -343,16 +351,24 @@ package androidx.room {
     property public abstract String toColumnName;
   }
 
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameColumn.Container {
+    method public abstract androidx.room.RenameColumn[] value();
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameColumn.Entries {
     method public abstract androidx.room.RenameColumn[] value();
     property public abstract androidx.room.RenameColumn[] value;
   }
 
-  @java.lang.annotation.Repeatable(RenameTable.Entries::class) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameTable {
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface RenameTable {
     method public abstract String fromTableName();
     method public abstract String toTableName();
     property public abstract String fromTableName;
     property public abstract String toTableName;
+  }
+
+  @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameTable.Container {
+    method public abstract androidx.room.RenameTable[] value();
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public static @interface RenameTable.Entries {

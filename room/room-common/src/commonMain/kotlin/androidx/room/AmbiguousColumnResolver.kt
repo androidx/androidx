@@ -17,7 +17,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import java.util.Locale
+import kotlin.jvm.JvmStatic
 
 /**
  * Utility class for resolving and mapping ambiguous columns from a query result.
@@ -73,11 +73,11 @@ public object AmbiguousColumnResolver {
                 column.substring(1, column.length - 1)
             } else {
                 column
-            }.lowercase(Locale.US)
+            }.lowercase()
         }
         for (i in mappings.indices) {
             for (j in mappings[i].indices) {
-                mappings[i][j] = mappings[i][j].lowercase(Locale.US)
+                mappings[i][j] = mappings[i][j].lowercase()
             }
         }
 

@@ -22,6 +22,8 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.multidex)
+
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(projectOrArtifact(":room:room-ktx"))
     implementation(projectOrArtifact(":room:room-rxjava2"))
@@ -44,10 +46,14 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":annotation:annotation"))
 }
 
 android {
     namespace "androidx.paging.integration.testapp"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
 
 // Enable parameter names to support Room incremental when its a project() dep.
