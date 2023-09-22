@@ -14,7 +14,7 @@ package androidx.mediarouter.app {
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
 
-  public class MediaRouteButton extends android.view.View {
+  public class MediaRouteButton extends androidx.appcompat.widget.AppCompatImageView {
     ctor public MediaRouteButton(android.content.Context);
     ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet?);
     ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet?, int);
