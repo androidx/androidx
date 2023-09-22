@@ -24,6 +24,7 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
+import androidx.health.connect.client.readRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -529,6 +530,87 @@ class HealthConnectClientUpsideDownImplTest {
 
         assertThat(healthConnectClient.getChanges(token).changes)
             .containsExactly(DeletionChange(insertedRecordId))
+    }
+
+    @Test
+    fun nutritionRecord_roundTrip_valuesEqual() = runTest {
+        val recordId =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        NutritionRecord(
+                            startTime = START_TIME,
+                            startZoneOffset = ZONE_OFFSET,
+                            endTime = START_TIME + 10.minutes,
+                            endZoneOffset = ZONE_OFFSET,
+                            calcium = Mass.grams(15.0),
+                            monounsaturatedFat = Mass.grams(50.0),
+                            energy = Energy.calories(300.0)
+                        )
+                    )
+                )
+                .recordIdsList[0]
+
+        val nutritionRecord = healthConnectClient.readRecord<NutritionRecord>(recordId).record
+
+        with(nutritionRecord) {
+            assertThat(calcium).isEqualTo(Mass.grams(15.0))
+            assertThat(monounsaturatedFat).isEqualTo(Mass.grams(50.0))
+            assertThat(energy).isEqualTo(Energy.calories(300.0))
+        }
+    }
+
+    @Test
+    fun nutritionRecord_roundTrip_zeroValues() = runTest {
+        val recordId =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        NutritionRecord(
+                            startTime = START_TIME,
+                            startZoneOffset = ZONE_OFFSET,
+                            endTime = START_TIME + 10.minutes,
+                            endZoneOffset = ZONE_OFFSET,
+                            calcium = Mass.grams(0.0),
+                            monounsaturatedFat = Mass.grams(0.0),
+                            energy = Energy.calories(0.0)
+                        )
+                    )
+                )
+                .recordIdsList[0]
+
+        val nutritionRecord = healthConnectClient.readRecord<NutritionRecord>(recordId).record
+
+        with(nutritionRecord) {
+            assertThat(calcium).isEqualTo(Mass.grams(0.0))
+            assertThat(monounsaturatedFat).isEqualTo(Mass.grams(0.0))
+            assertThat(energy).isEqualTo(Energy.calories(0.0))
+        }
+    }
+
+    @Test
+    fun nutritionRecord_roundTrip_nullValues() = runTest {
+        val recordId =
+            healthConnectClient
+                .insertRecords(
+                    listOf(
+                        NutritionRecord(
+                            startTime = START_TIME,
+                            startZoneOffset = ZONE_OFFSET,
+                            endTime = START_TIME + 10.minutes,
+                            endZoneOffset = ZONE_OFFSET,
+                        )
+                    )
+                )
+                .recordIdsList[0]
+
+        val nutritionRecord = healthConnectClient.readRecord<NutritionRecord>(recordId).record
+
+        with(nutritionRecord) {
+            assertThat(calcium).isNull()
+            assertThat(monounsaturatedFat).isNull()
+            assertThat(energy).isNull()
+        }
     }
 
     @Test
