@@ -3632,7 +3632,9 @@ public final class ProtoLayoutInflater {
      */
     @Nullable
     public ViewGroupMutation computeMutation(
-            @NonNull RenderedMetadata prevRenderedMetadata, @NonNull Layout targetLayout) {
+            @NonNull RenderedMetadata prevRenderedMetadata,
+            @NonNull Layout targetLayout,
+            @NonNull ViewProperties parentViewProp) {
         if (prevRenderedMetadata.getTreeFingerprint() == null) {
             Log.w(TAG, "No previous fingerprint available.");
             return null;
@@ -3664,7 +3666,7 @@ public final class ProtoLayoutInflater {
             }
             ViewProperties parentInfo;
             if (nodePosId.equals(ROOT_NODE_ID)) {
-                parentInfo = ViewProperties.EMPTY;
+                parentInfo = parentViewProp;
             } else {
                 String parentNodePosId = getParentNodePosId(nodePosId);
                 if (parentNodePosId == null || !prevLayoutInfo.contains(parentNodePosId)) {
