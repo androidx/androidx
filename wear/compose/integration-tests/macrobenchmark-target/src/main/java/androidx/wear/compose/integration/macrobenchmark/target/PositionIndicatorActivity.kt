@@ -94,6 +94,36 @@ class PositionIndicatorActivity : ComponentActivity() {
                     Box(modifier = Modifier
                         .size(30.dp)
                         .clickable {
+                            visibility.value = PositionIndicatorVisibility.Hide
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_HIDE
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = PositionIndicatorVisibility.Show
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_SHOW
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            visibility.value = PositionIndicatorVisibility.AutoHide
+                        }
+                        .semantics {
+                            contentDescription = CHANGE_VISIBILITY_AUTO_HIDE
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
                             fraction.floatValue += 0.05f
                         }
                         .semantics {
@@ -133,3 +163,6 @@ class PositionIndicatorActivity : ComponentActivity() {
 private const val INCREASE_POSITION = "PI_INCREASE_POSITION"
 private const val DECREASE_POSITION = "PI_DECREASE_POSITION"
 private const val CHANGE_VISIBILITY = "PI_VISIBILITY"
+private const val CHANGE_VISIBILITY_SHOW = "PI_VISIBILITY_SHOW"
+private const val CHANGE_VISIBILITY_HIDE = "PI_VISIBILITY_HIDE"
+private const val CHANGE_VISIBILITY_AUTO_HIDE = "PI_VISIBILITY_AUTO_HIDE"

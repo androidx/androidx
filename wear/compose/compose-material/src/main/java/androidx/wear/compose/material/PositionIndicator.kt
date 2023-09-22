@@ -21,7 +21,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -36,7 +35,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -387,6 +385,13 @@ public fun PositionIndicator(
  * @param position indicates where to put the PositionIndicator on the screen, default is
  * [PositionIndicatorPosition#End]
  */
+@Deprecated(
+    "This overload is provided for backwards compatibility with " +
+        "Compose for Wear OS 1.2." +
+        "A newer overload is available with additional showFadeInAnimation, " +
+        "showFadeOutAnimation and showPositionAnimation parameters.",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun PositionIndicator(
     state: PositionIndicatorState,
@@ -399,23 +404,110 @@ public fun PositionIndicator(
     reverseDirection: Boolean = false,
     position: PositionIndicatorAlignment = PositionIndicatorAlignment.End
 ) {
+    PositionIndicator(
+        state = state,
+        indicatorHeight = indicatorHeight,
+        indicatorWidth = indicatorWidth,
+        paddingHorizontal = paddingHorizontal,
+        modifier = modifier,
+        background = background,
+        color = color,
+        reverseDirection = reverseDirection,
+        position = position,
+        showFadeInAnimation = true,
+        showFadeOutAnimation = true,
+        showPositionAnimation = true
+    )
+}
+
+/**
+ * An indicator on one side of the screen to show the current [PositionIndicatorState].
+ *
+ * Typically used with the [Scaffold] but can be used to decorate any full screen situation.
+ *
+ * This composable should only be used to fill the whole screen as Wear Material Design language
+ * requires the placement of the position indicator to be right center of the screen as the
+ * indicator is curved on circular devices.
+ *
+ * It detects if the screen is round or square and draws itself as a curve or line.
+ *
+ * Note that the composable will take the whole screen, but it will be drawn with the given
+ * dimensions [indicatorHeight] and [indicatorWidth], and position with respect to the edge of the
+ * screen according to [paddingHorizontal]
+ *
+ * This [PositionIndicator] has 3 separate flags to control different animations.
+ * - [showFadeInAnimation] - controls fade-in animation.
+ * - [showFadeOutAnimation] - controls fade-out animation.
+ * - [showPositionAnimation] - controls position change animation.
+ *
+ * For performance reasons and for UX consistency, when [PositionIndicator] is used with scrollable
+ * list, we recommend to switch off [showFadeInAnimation] and [showPositionAnimation] flags.
+ * If [PositionIndicator] is used as a standalone indicator, for example as volume control,
+ * then we recommend to have all 3 animations turned on.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
+ * @param state the [PositionIndicatorState] of the state we are displaying.
+ * @param indicatorHeight the height of the position indicator in Dp.
+ * @param indicatorWidth the width of the position indicator in Dp.
+ * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
+ * @param modifier The modifier to be applied to the component.
+ * @param background the color to draw the non-active part of the position indicator.
+ * @param color the color to draw the active part of the indicator in.
+ * @param reverseDirection Reverses direction of PositionIndicator if true.
+ * @param position indicates where to put the PositionIndicator on the screen, default is
+ * [PositionIndicatorPosition#End]
+ * @param showFadeInAnimation turns on the "Fade-in" animation of [PositionIndicator].
+ * If true, the Fade-in animation is triggered when the [PositionIndicator] becomes
+ * visible - either when state.visibility changes to Show, or state.visibility
+ * is AutoHide and state.positionFraction/state.sizeFraction are changed.
+ * @param showFadeOutAnimation turns on the "Fade-out" animation of PositionIndicator.
+ * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
+ * If true, the Fade-out animation is triggered after a delay if no changes in
+ * state.positionFraction or state.sizeFraction were detected,
+ * hiding the [PositionIndicator] with animation.
+ * @param showPositionAnimation turns on the "Position" animation of [PositionIndicator].
+ * The Position animation is used for animating changes between state.positionFraction
+ * and state.sizeFraction of [PositionIndicatorState].
+ * If true, the Position animation will be triggered on any change of
+ * state.positionFraction or state.sizeFraction.
+ */
+@Composable
+public fun PositionIndicator(
+    state: PositionIndicatorState,
+    indicatorHeight: Dp,
+    indicatorWidth: Dp,
+    paddingHorizontal: Dp,
+    modifier: Modifier = Modifier,
+    background: Color = MaterialTheme.colors.onBackground.copy(alpha = 0.3f),
+    color: Color = MaterialTheme.colors.onBackground,
+    reverseDirection: Boolean = false,
+    position: PositionIndicatorAlignment = PositionIndicatorAlignment.End,
+    showFadeInAnimation: Boolean = true,
+    showFadeOutAnimation: Boolean = true,
+    showPositionAnimation: Boolean = true
+) {
     val isScreenRound = isRoundDevice()
     val layoutDirection = LocalLayoutDirection.current
     val leftyMode = isLeftyModeEnabled()
-
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-    var positionIndicatorAlpha by remember { mutableFloatStateOf(0f) }
+    val alphaAnimatable = remember { Animatable(0f) }
+    var showIndicator by remember { mutableStateOf(false) }
 
     val positionFractionAnimatable = remember { Animatable(0f) }
     val sizeFractionAnimatable = remember { Animatable(0f) }
 
-    val indicatorChangeAnimationSpec: AnimationSpec<Float> = remember {
+    val positionChangeAnimationSpec: AnimationSpec<Float> =
         tween(
             durationMillis = 500,
             easing = CubicBezierEasing(0f, 0f, 0f, 1f)
         )
-    }
+
+    val alphaChangeAnimationSpec: AnimationSpec<Float> =
+        spring(stiffness = Spring.StiffnessMediumLow)
 
     val indicatorOnTheRight = when (position) {
         PositionIndicatorAlignment.End -> layoutDirection == LayoutDirection.Ltr
@@ -452,45 +544,83 @@ public fun PositionIndicator(
         )
     }
 
-    LaunchedEffect(state) {
+    LaunchedEffect(state, showFadeInAnimation, showPositionAnimation, showFadeOutAnimation) {
         var beforeFirstAnimation = true
-        snapshotFlow {
-            DisplayState(
-                state.positionFraction,
-                state.sizeFraction(containerSize.height.toFloat()),
-                state.visibility(containerSize.height.toFloat())
-            )
-        }.collectLatest {
-            if (beforeFirstAnimation) {
-                sizeFractionAnimatable.snapTo(it.size)
-                positionFractionAnimatable.snapTo(it.position)
-                beforeFirstAnimation = false
-            } else {
-                launch {
-                    sizeFractionAnimatable
-                        .animateTo(it.size, animationSpec = indicatorChangeAnimationSpec)
-                }
-                launch {
-                    positionFractionAnimatable
-                        .animateTo(it.position, animationSpec = indicatorChangeAnimationSpec)
-                }
-            }
 
-            when (it.visibility) {
-                PositionIndicatorVisibility.Show -> positionIndicatorAlpha = 1f
-                PositionIndicatorVisibility.Hide -> positionIndicatorAlpha = 0f
-                else -> {
-                    // Waiting for 2000ms and animating alpha to 0f
-                    delay(2000)
-                    animate(
-                        initialValue = positionIndicatorAlpha,
-                        targetValue = 0f,
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                    ) { value, _ ->
-                        positionIndicatorAlpha = value
+        launch {
+            // This snapshotFlow listens to changes in position, size and visibility
+            // of PositionIndicatorState and starts necessary animations if needed
+            snapshotFlow {
+                DisplayState(
+                    state.positionFraction,
+                    state.sizeFraction(containerSize.height.toFloat()),
+                    state.visibility(containerSize.height.toFloat())
+                )
+            }.collectLatest {
+                if (beforeFirstAnimation || !showPositionAnimation) {
+                    sizeFractionAnimatable.snapTo(it.size)
+                    positionFractionAnimatable.snapTo(it.position)
+                    beforeFirstAnimation = false
+                } else {
+                    launch {
+                        sizeFractionAnimatable
+                            .animateTo(
+                                it.size,
+                                animationSpec = positionChangeAnimationSpec
+                            )
+                    }
+                    launch {
+                        positionFractionAnimatable
+                            .animateTo(
+                                it.position,
+                                animationSpec = positionChangeAnimationSpec
+                            )
+                    }
+                }
+
+                when (it.visibility) {
+                    // Visibility cases are handled in another snapshot flow
+                    // by checking showIndicator value.
+                    PositionIndicatorVisibility.Show -> showIndicator = true
+                    PositionIndicatorVisibility.Hide -> showIndicator = false
+                    else -> {
+                        showIndicator = true
+                        // Waiting for 2000ms and starting alpha animation to 0f
+                        delay(2000)
+                        showIndicator = false
                     }
                 }
             }
+        }
+
+        // Skip first alpha animation only when initial visibility is SHOW
+        var skipFirstAlphaAnimation =
+            state.visibility(containerSize.height.toFloat()) == PositionIndicatorVisibility.Show
+
+        // This snapshotFlow listens to changes of [showIndicator] flag and triggers
+        // show or hide animations if necessary.
+        launch {
+            snapshotFlow { showIndicator }
+                .collectLatest {
+                    if (showIndicator) {
+                        if (skipFirstAlphaAnimation || !showFadeInAnimation) {
+                            alphaAnimatable.snapTo(1f)
+                            skipFirstAlphaAnimation = false
+                        } else {
+                            launch {
+                                alphaAnimatable.animateTo(1f, alphaChangeAnimationSpec)
+                            }
+                        }
+                    } else {
+                        if (showFadeOutAnimation) {
+                            launch {
+                                alphaAnimatable.animateTo(0f, alphaChangeAnimationSpec)
+                            }
+                        } else {
+                            alphaAnimatable.snapTo(0f)
+                        }
+                    }
+                }
         }
     }
 
@@ -501,7 +631,7 @@ public fun PositionIndicator(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    alpha = positionIndicatorAlpha
+                    alpha = alphaAnimatable.value
                 }
                 .drawWithCache {
                     // We need to invert reverseDirection when the screen is round and we are on
