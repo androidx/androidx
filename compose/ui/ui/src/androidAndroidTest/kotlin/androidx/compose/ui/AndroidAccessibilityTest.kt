@@ -4782,6 +4782,35 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @Test
+    fun canScroll_returnsFalse_whenAccessedOutsideOfMainThread() {
+        container.setContent {
+            Box(
+                Modifier.semantics(mergeDescendants = true) { }
+            ) {
+                Column(
+                    Modifier
+                        .size(50.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    repeat(10) {
+                        Box(Modifier.size(30.dp))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            androidComposeView.dispatchTouchEvent(
+                createHoverMotionEvent(MotionEvent.ACTION_DOWN, 10f, 10f)
+            )
+
+            assertTrue(androidComposeView.canScrollVertically(1))
+        }
+
+        assertFalse(androidComposeView.canScrollVertically(1))
+    }
+
     private fun eventIndex(list: List<AccessibilityEvent>, event: AccessibilityEvent): Int {
         for (i in list.indices) {
             if (ReflectionEquals(list[i], null).matches(event)) {
