@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="MissingInflatedId"
@@ -7,7 +7,9 @@
         errorLine1="        final Button addButton = findViewById(R.id.addButton);"
         errorLine2="                                              ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"
+            line="51"
+            column="47"/>
     </issue>
 
     <issue
@@ -16,7 +18,196 @@
         errorLine1="        final Button clearButton = findViewById(R.id.clearButton);"
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"
+            line="54"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="55"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {"
+        errorLine2="                                                       ^">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="55"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.getInstance can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="55"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO("
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="78"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.getInstance can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO("
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="78"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="                () -> mDatabase.getCustomerDao().insert(createCustomer()));"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="79"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO("
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="84"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.getInstance can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO("
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="84"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="                () -> mDatabase.getCustomerDao().removeAll());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="85"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="InvalidationTracker.addWeakObserver can only be called from within the same library group prefix (referenced groupId=`androidx.room` with prefix androidx from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        db.getInvalidationTracker().addWeakObserver(mObserver);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/LastNameAscCustomerDataSource.java"
+            line="57"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="InvalidationTracker.refreshVersionsSync can only be called from within the same library group prefix (referenced groupId=`androidx.room` with prefix androidx from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        mDb.getInvalidationTracker().refreshVersionsSync();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/LastNameAscCustomerDataSource.java"
+            line="62"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.getInstance can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance()"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="51"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="            .executeOnDiskIO { database.customerDao.insert(createCustomer()) }"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="52"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="            .executeOnDiskIO { database.customerDao.insert(createCustomer()) }"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="52"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="56"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.executeOnDiskIO can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO {"
+        errorLine2="                                                       ^">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="56"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArchTaskExecutor.getInstance can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`paging-playground.paging.integration-tests`)"
+        errorLine1="        ArchTaskExecutor.getInstance().executeOnDiskIO {"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/v3room/V3RoomViewModel.kt"
+            line="56"
+            column="26"/>
     </issue>
 
     <issue
@@ -25,7 +216,9 @@
         errorLine1="    public String getName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
+            line="45"
+            column="12"/>
     </issue>
 
     <issue
@@ -34,7 +227,9 @@
         errorLine1="    public void setName(String name) {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
+            line="49"
+            column="25"/>
     </issue>
 
     <issue
@@ -43,7 +238,9 @@
         errorLine1="    public String getLastName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
+            line="53"
+            column="12"/>
     </issue>
 
     <issue
@@ -52,7 +249,9 @@
         errorLine1="    public void setLastName(String lastName) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
+            line="57"
+            column="29"/>
     </issue>
 
     <issue
@@ -61,7 +260,9 @@
         errorLine1="    void insert(Customer customer);"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="39"
+            column="17"/>
     </issue>
 
     <issue
@@ -70,7 +271,9 @@
         errorLine1="    void insertAll(Customer[] customers);"
         errorLine2="                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="46"
+            column="20"/>
     </issue>
 
     <issue
@@ -79,7 +282,9 @@
         errorLine1="    DataSource.Factory&lt;Integer, Customer> loadPagedAgeOrder();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="59"
+            column="5"/>
     </issue>
 
     <issue
@@ -88,7 +293,9 @@
         errorLine1="    PagingSource&lt;Integer, Customer> loadPagedAgeOrderPagingSource();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="65"
+            column="5"/>
     </issue>
 
     <issue
@@ -97,7 +304,9 @@
         errorLine1="    LiveData&lt;List&lt;Customer>> all();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="77"
+            column="5"/>
     </issue>
 
     <issue
@@ -106,7 +315,9 @@
         errorLine1="    List&lt;Customer> customerNameInitial(int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="82"
+            column="5"/>
     </issue>
 
     <issue
@@ -115,7 +326,9 @@
         errorLine1="    List&lt;Customer> customerNameLoadAfter(String key, int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="85"
+            column="5"/>
     </issue>
 
     <issue
@@ -124,7 +337,9 @@
         errorLine1="    List&lt;Customer> customerNameLoadAfter(String key, int limit);"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="85"
+            column="42"/>
     </issue>
 
     <issue
@@ -133,7 +348,9 @@
         errorLine1="    int customerNameCountAfter(String key);"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="88"
+            column="32"/>
     </issue>
 
     <issue
@@ -142,7 +359,9 @@
         errorLine1="    List&lt;Customer> customerNameLoadBefore(String key, int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="91"
+            column="5"/>
     </issue>
 
     <issue
@@ -151,7 +370,9 @@
         errorLine1="    List&lt;Customer> customerNameLoadBefore(String key, int limit);"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="91"
+            column="43"/>
     </issue>
 
     <issue
@@ -160,7 +381,9 @@
         errorLine1="    int customerNameCountBefore(String key);"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
+            line="94"
+            column="33"/>
     </issue>
 
     <issue
@@ -169,7 +392,9 @@
         errorLine1="    public CustomerViewModel(Application application) {"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
+            line="44"
+            column="30"/>
     </issue>
 
     <issue
@@ -178,7 +403,9 @@
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"
+            line="42"
+            column="35"/>
     </issue>
 
     <issue
@@ -187,7 +414,9 @@
         errorLine1="    protected void onSaveInstanceState(Bundle outState) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"
+            line="79"
+            column="40"/>
     </issue>
 
     <issue
@@ -196,7 +425,9 @@
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"
+            line="40"
+            column="35"/>
     </issue>
 
 </issues>
