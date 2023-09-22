@@ -49,13 +49,14 @@ androidXMultiplatform {
                 api project(":compose:ui:ui-graphics")
                 api project(":compose:ui:ui-text")
                 api project(":compose:ui:ui-unit")
-                implementation(project(":compose:ui:ui-util"))
+                api project(":compose:ui:ui-util")
             }
         }
 
         commonTest {
             dependencies {
                 implementation(libs.kotlinReflect)
+                api project(":compose:ui:ui-util")
             }
         }
 
