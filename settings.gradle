@@ -23,6 +23,9 @@ pluginManagement {
 buildscript {
     ext.supportRootFolder = buildscript.sourceFile.getParentFile()
     apply(from: "buildSrc/repos.gradle")
+    apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
+    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
+
     repos.addMavenRepositories(repositories)
 
     dependencies {
@@ -33,6 +36,7 @@ buildscript {
         classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta04")
     }
 }
+skikoSetup.defineSkikoInVersionCatalog(settings)
 
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
 if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
@@ -146,33 +150,6 @@ dependencyResolutionManagement {
                 logger.warn("Using custom version ${metalavaOverride} of metalava due to METALAVA_VERSION being set.")
                 version('metalava', metalavaOverride)
             }
-            def skikoOverride = System.getenv("SKIKO_VERSION")
-            if (skikoOverride != null) {
-                logger.warn("Using custom version ${skikoOverride} of SKIKO due to SKIKO_VERSION being set.")
-                version('skiko', skikoOverride)
-            }
-            String os = System.getProperty("os.name").toLowerCase(Locale.US)
-            String currentOsArtifact
-            if (os.contains("mac os x") ||  os.contains("darwin") || os.contains("osx")) {
-                def arch = System.getProperty("os.arch")
-                if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-awt-runtime-macos-arm64"
-                } else {
-                    currentOsArtifact = "skiko-awt-runtime-macos-x64"
-                }
-            } else if (os.startsWith("win")) {
-                currentOsArtifact = "skiko-awt-runtime-windows-x64"
-            } else if (os.startsWith("linux") ) {
-                def arch = System.getProperty("os.arch")
-                if (arch == "aarch64") {
-                    currentOsArtifact = "skiko-awt-runtime-linux-arm64"
-                } else {
-                    currentOsArtifact = "skiko-awt-runtime-linux-x64"
-                }
-            } else {
-                throw GradleException("Unsupported operating system $os")
-            }
-            library("skikoCurrentOs", "org.jetbrains.skiko", currentOsArtifact).versionRef("skiko")
         }
     }
 }
@@ -309,25 +286,12 @@ boolean shouldIncludeForFilter(List<BuildType> includeList) {
 def includeProject(name, List<BuildType> filter = []) {
     includeProject(name, null, filter)
 }
-
-// A map of project path to a set of project paths referenced directly by this project.
-@Field Map<String, Set<String>> projectReferences = new HashMap<String, Set<String>>()
-
-// A map of all project paths to their project directory.
-@Field Map<String, File> allProjects = new HashMap<String, File>()
+// createProjectDependencyGraph is provided by project-dependency-graph.groovy
+ext.projectDependencyGraph = createProjectDependencyGraph(settings)
 // A set of projects that the user asked to filter to.
 @Field Set<String> filteredProjects = new HashSet<String>()
 filteredProjects.add(":lint-checks")
 
-@Field Pattern projectReferencePattern = Pattern.compile(
-        "(project|projectOrArtifact)\\((path: )?[\"'](?<name>\\S*)[\"'](, configuration: .*)?\\)"
-)
-@Field Pattern testProjectTarget = Pattern.compile("targetProjectPath = \"(.*)\"")
-@Field Pattern multilineProjectReference = Pattern.compile("project\\(\$")
-@Field Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
-@Field Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
-@Field Pattern paparazziPlugin = Pattern.compile("id\\(\"AndroidXPaparazziPlugin\"\\)")
-@Field Pattern iconGenerator = Pattern.compile("IconGenerationTask\\.register")
 
 // Calling includeProject(name, filePath) is shorthand for:
 //
@@ -355,52 +319,7 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
     } else {
         file = new File(rootDir, name.substring(1).replace(":", "/"))
     }
-    allProjects[name] = file
-    File buildGradle = new File(file, "build.gradle")
-    if (buildGradle.exists()) {
-        def buildGradleProperty = settings.services.get(ObjectFactory).fileProperty().fileValue(buildGradle)
-        def contents = settings.providers.fileContents(buildGradleProperty).getAsText().get()
-        Set<String> links = new HashSet<String>()
-        for (line in contents.lines()) {
-            Matcher m = projectReferencePattern.matcher(line)
-            if (m.find()) {
-                links.add(m.group("name"))
-            }
-            if (multilineProjectReference.matcher(line).find()) {
-                throw new IllegalStateException(
-                        "Multi-line project() references are not supported. Please fix $file.absolutePath"
-                )
-            }
-            Matcher targetProject = testProjectTarget.matcher(line)
-            if (targetProject.find()) {
-                links.add(targetProject.group(1))
-            }
-            Matcher matcherInspection = inspection.matcher(line)
-            if (matcherInspection) {
-                links.add(matcherInspection.group(1))
-            }
-            if (composePlugin.matcher(line).find()) {
-                links.add(":compose:compiler:compiler")
-                links.add(":compose:lint:internal-lint-checks")
-            }
-            if (paparazziPlugin.matcher(line).find()) {
-                links.add(":test:screenshot:screenshot-proto")
-                links.add(":internal-testutils-paparazzi")
-            }
-            if (iconGenerator.matcher(line).find()) {
-                links.add(":compose:material:material:icons:generator")
-            }
-        }
-        projectReferences[name] = links
-    }
-    // Remove file existence checking when https://github.com/gradle/gradle/issues/25531 is fixed.
-    if (!file.exists()) {
-        // This option is supported so that development/simplify_build_failure.sh can try
-        // deleting entire projects at once to identify the cause of a build failure
-        if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
-            throw new Exception("Path " + file + " does not exist; cannot include project " + name)
-        }
-    }
+    projectDependencyGraph.addToAllProjects(name, file)
 }
 
 /////////////////////////////
@@ -1242,46 +1161,12 @@ if (!startParameter.projectProperties.containsKey('androidx.update.signatures'))
 // --- there should be no includeProject additions after this line -----
 // ---------------------------------------------------------------------
 
-// For a given project path add the transitive project references to the include set.
-void addReferences(String projectPath, Set<String> included) {
-    if (projectPath in included) return
-    included.add(projectPath)
-    for (reference in projectReferences[projectPath]) {
-        if (!allProjects.containsKey(reference) || allProjects[reference] == "") {
-            throw new GradleException("Project $reference does not exist.\n" +
-                    "Please check the build.gradle file for your $projectPath project " +
-                    "and update the project dependencies.")
-        }
-        addReferences(reference, included)
-    }
-}
-
 void includeRequestedProjectsAndDependencies() {
-    // Adding by including `:foo:bar` Gradle will automatically load `:foo`, so we need to
-    // add those implicit parent project references.
-    for (projectPath in projectReferences.keySet()) {
-        Set<String> newReferences = new HashSet<>()
-        for (reference in projectReferences[projectPath]) {
-            String[] segments = reference.substring(1).split(":")
-            String subpath = ""
-            for (int i = 0; i < segments.length; i++) {
-                subpath += ":" + segments[i]
-                if (allProjects.containsKey(subpath)) {
-                    newReferences.add(subpath)
-                }
-            }
-        }
-        projectReferences[projectPath].addAll(newReferences)
-    }
-
-    Set<String> projectsToInclude = new HashSet<>()
-    for (filteredProject in filteredProjects) {
-        addReferences(filteredProject, projectsToInclude)
-    }
-    for (entry in projectsToInclude) {
-        settings.include(entry)
-        project(entry).projectDir = allProjects[entry]
+    Set<String> projectsToInclude = projectDependencyGraph
+            .getAllProjectsWithDependencies(filteredProjects)
+    projectsToInclude.forEach { path, dir ->
+        settings.include(path)
+        project(path).projectDir = dir
     }
 }
-
 includeRequestedProjectsAndDependencies()
