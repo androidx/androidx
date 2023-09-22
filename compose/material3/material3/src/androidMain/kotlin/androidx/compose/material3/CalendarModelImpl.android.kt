@@ -191,8 +191,10 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
             locale: CalendarLocale,
             cache: MutableMap<String, Any>
         ): DateTimeFormatter {
-            val key = pattern + locale.toLanguageTag()
-            return cache.getOrPut(key) {
+            // Prepend the pattern and language tag with a "P" to avoid cache collisions when the
+            // called already cached a string as value when the pattern equals to the skeleton it
+            // was created from.
+            return cache.getOrPut(key = "P:$pattern${locale.toLanguageTag()}") {
                 DateTimeFormatter.ofPattern(pattern, locale)
                     .withDecimalStyle(DecimalStyle.of(locale))
             } as DateTimeFormatter

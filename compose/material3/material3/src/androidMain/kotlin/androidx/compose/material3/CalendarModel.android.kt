@@ -52,7 +52,10 @@ actual fun formatWithSkeleton(
     locale: CalendarLocale,
     cache: MutableMap<String, Any>
 ): String {
-    val pattern = cache.getOrPut(key = skeleton + locale.toLanguageTag()) {
+    // Prepend the skeleton and language tag with a "S" to avoid cache collisions when the
+    // called already cached a string as value when the pattern equals to the skeleton it
+    // was created from.
+    val pattern = cache.getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
         DateFormat.getBestDateTimePattern(locale, skeleton)
     }.toString()
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
