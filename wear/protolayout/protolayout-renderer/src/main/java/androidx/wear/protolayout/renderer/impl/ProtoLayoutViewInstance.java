@@ -17,6 +17,8 @@
 package androidx.wear.protolayout.renderer.impl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.widget.FrameLayout.LayoutParams.UNSPECIFIED_GRAVITY;
+
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.content.Context;
@@ -57,6 +59,8 @@ import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroup
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.PendingFrameLayoutParams;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.ViewProperties;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers;
 import androidx.wear.protolayout.renderer.inflater.StandardResourceResolvers;
 
@@ -741,8 +745,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     private RenderResult renderOrComputeMutations(
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
-            @Nullable RenderedMetadata prevRenderedMetadata) {
-
+            @Nullable RenderedMetadata prevRenderedMetadata,
+            @NonNull ViewProperties parentViewProp) {
         ResourceResolvers resolvers =
                 mResourceResolversProvider.getResourceResolvers(
                         mUiContext, resources, mUiExecutorService, mAnimationEnabled);
@@ -792,7 +796,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         if (mAdaptiveUpdateRatesEnabled && prevRenderedMetadata != null) {
             // Compute the mutation here, but if there is a change, apply it in the UI thread.
             try {
-                mutation = inflater.computeMutation(prevRenderedMetadata, layout);
+                mutation = inflater.computeMutation(prevRenderedMetadata, layout, parentViewProp);
             } catch (UnsupportedOperationException ex) {
                 Log.w(TAG, "Error computing mutation.", ex);
             }
@@ -862,7 +866,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @UiThread
     @SuppressWarnings({
         "ReferenceEquality",
-        "ExecutorTaskName"
+        "ExecutorTaskName",
     }) // layout == prevLayout is intentional (and enough in this case)
     @NonNull
     public ListenableFuture<Void> renderAndAttach(
@@ -908,11 +912,33 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         if (mRenderFuture == null) {
             mPrevLayout = layout;
+
+            int gravity = UNSPECIFIED_GRAVITY;
+            LayoutParams layoutParams = new LayoutParams(MATCH_PARENT, MATCH_PARENT);
+
+            if (prevInflateParent != null && prevInflateParent.getChildCount() > 0) {
+                View firstChild = prevInflateParent.getChildAt(0);
+                if (firstChild != null) {
+                    FrameLayout.LayoutParams childLp =
+                            (FrameLayout.LayoutParams) firstChild.getLayoutParams();
+                    if (childLp != null) {
+                        gravity = childLp.gravity;
+                    }
+                }
+            }
+
+            ViewProperties parentViewProp =
+                    ViewProperties.fromViewGroup(
+                            parent,
+                            layoutParams,
+                            // We need this specific ones as otherwise gravity gets lost for
+                            // attachParent node.
+                            new PendingFrameLayoutParams(gravity));
+
             mRenderFuture =
                     mBgExecutorService.submit(
-                            () ->
-                                    renderOrComputeMutations(
-                                            layout, resources, prevRenderedMetadata));
+                            () -> renderOrComputeMutations(
+                                layout, resources, prevRenderedMetadata, parentViewProp));
             mCanReattachWithoutRendering = false;
         }
         SettableFuture<Void> result = SettableFuture.create();
