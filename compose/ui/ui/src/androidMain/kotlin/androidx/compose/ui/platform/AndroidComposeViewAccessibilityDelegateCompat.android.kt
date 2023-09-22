@@ -467,7 +467,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         vertical: Boolean,
         direction: Int,
         position: Offset
-    ): Boolean = canScroll(currentSemanticsNodes.values, vertical, direction, position)
+    ): Boolean {
+        // Workaround for access from bg thread, it is not supported by semantics (b/298159434)
+        if (Looper.getMainLooper().thread != Thread.currentThread()) {
+            return false
+        }
+
+        return canScroll(currentSemanticsNodes.values, vertical, direction, position)
+    }
 
     @VisibleForTesting
     internal fun canScroll(
