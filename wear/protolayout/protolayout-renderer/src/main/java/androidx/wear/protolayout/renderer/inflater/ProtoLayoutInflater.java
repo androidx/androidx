@@ -283,6 +283,8 @@ public final class ProtoLayoutInflater {
     final LoadActionListener mLoadActionListener;
     final boolean mAnimationEnabled;
 
+    private boolean mApplyFontVariantBodyAsDefault = false;
+
     /**
      * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
      * layout.
@@ -498,6 +500,8 @@ public final class ProtoLayoutInflater {
         private final boolean mAnimationEnabled;
         private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
+        private final boolean mApplyFontVarianBodyAsDefault;
+
         Config(
                 @NonNull Context uiContext,
                 @NonNull Layout layout,
@@ -510,7 +514,8 @@ public final class ProtoLayoutInflater {
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
                 boolean animationEnabled,
-                boolean allowLayoutChangingBindsWithoutDefault) {
+                boolean allowLayoutChangingBindsWithoutDefault,
+                boolean applyFontVarianBodyAsDefault) {
             this.mUiContext = uiContext;
             this.mLayout = layout;
             this.mLayoutResourceResolvers = layoutResourceResolvers;
@@ -523,6 +528,7 @@ public final class ProtoLayoutInflater {
             this.mAllowLayoutChangingBindsWithoutDefault = allowLayoutChangingBindsWithoutDefault;
             this.mClickableIdExtra = clickableIdExtra;
             this.mExtensionViewProvider = extensionViewProvider;
+            this.mApplyFontVarianBodyAsDefault = applyFontVarianBodyAsDefault;
         }
 
         /** A {@link Context} suitable for interacting with UI. */
@@ -608,6 +614,11 @@ public final class ProtoLayoutInflater {
             return mAllowLayoutChangingBindsWithoutDefault;
         }
 
+        /** Whether to apply FONT_VARIANT_BODY as default variant. */
+        public boolean getApplyFontVariantBodyAsDefault() {
+            return mApplyFontVarianBodyAsDefault;
+        }
+
         /** Builder for the Config class. */
         public static final class Builder {
             @NonNull private final Context mUiContext;
@@ -623,6 +634,9 @@ public final class ProtoLayoutInflater {
             @Nullable private String mClickableIdExtra;
 
             @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider = null;
+
+            private boolean mApplyFontVariantBodyAsDefault = false;
+
             /**
              * @param uiContext A {@link Context} suitable for interacting with UI with.
              * @param layout The layout to be rendered.
@@ -731,6 +745,13 @@ public final class ProtoLayoutInflater {
                 return this;
             }
 
+            /** Apply FONT_VARIANT_BODY as default variant. */
+            @NonNull
+            public Builder setApplyFontVariantBodyAsDefault(boolean applyFontVariantBodyAsDefault) {
+                this.mApplyFontVariantBodyAsDefault = applyFontVariantBodyAsDefault;
+                return this;
+            }
+
             /** Builds a Config instance. */
             @NonNull
             public Config build() {
@@ -763,7 +784,8 @@ public final class ProtoLayoutInflater {
                         mExtensionViewProvider,
                         checkNotNull(mClickableIdExtra),
                         mAnimationEnabled,
-                        mAllowLayoutChangingBindsWithoutDefault);
+                        mAllowLayoutChangingBindsWithoutDefault,
+                        mApplyFontVariantBodyAsDefault);
             }
         }
     }
@@ -787,6 +809,7 @@ public final class ProtoLayoutInflater {
                 config.getAllowLayoutChangingBindsWithoutDefault();
         this.mClickableIdExtra = config.getClickableIdExtra();
         this.mExtensionViewProvider = config.getExtensionViewProvider();
+        this.mApplyFontVariantBodyAsDefault = config.getApplyFontVariantBodyAsDefault();
     }
 
     private int safeDpToPx(float dp) {
@@ -2300,8 +2323,12 @@ public final class ProtoLayoutInflater {
 
         if (text.hasFontStyle()) {
             applyFontStyle(text.getFontStyle(), textView);
+        } else if (mApplyFontVariantBodyAsDefault) {
+            applyFontStyle(FontStyle.getDefaultInstance(), textView);
         }
 
+        // Setting colours **must** go after setting the Text Appearance, otherwise it will get
+        // immediately overridden.
         textView.setTextColor(extractTextColorArgb(text.getFontStyle()));
 
         View wrappedView =
@@ -2947,6 +2974,12 @@ public final class ProtoLayoutInflater {
             String posId,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
         TextView tv = newThemedTextView();
+
+        // Setting colours **must** go after setting the Text Appearance, otherwise it will get
+        // immediately overridden.
+        if (mApplyFontVariantBodyAsDefault) {
+            applyFontStyle(FontStyle.getDefaultInstance(), tv, posId, pipelineMaker);
+        }
 
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
