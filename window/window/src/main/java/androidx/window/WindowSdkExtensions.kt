@@ -17,6 +17,7 @@
 package androidx.window
 
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.window.core.ExtensionsUtil
 
 /**
@@ -31,7 +32,7 @@ import androidx.window.core.ExtensionsUtil
  *
  * @sample androidx.window.samples.checkWindowSdkExtensionsVersion
  */
-abstract class WindowSdkExtensions internal constructor() {
+abstract class WindowSdkExtensions @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     /**
      * Reports the device's extension version
@@ -81,17 +82,20 @@ abstract class WindowSdkExtensions internal constructor() {
 
         private var decorator: WindowSdkExtensionsDecorator = EmptyDecoratorWindowSdk
 
-        internal fun overrideDecorator(overridingDecorator: WindowSdkExtensionsDecorator) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun overrideDecorator(overridingDecorator: WindowSdkExtensionsDecorator) {
             decorator = overridingDecorator
         }
 
-        internal fun reset() {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun reset() {
             decorator = EmptyDecoratorWindowSdk
         }
     }
 }
 
-internal interface WindowSdkExtensionsDecorator {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface WindowSdkExtensionsDecorator {
     /** Returns a [WindowSdkExtensions] instance. */
     fun decorate(windowSdkExtensions: WindowSdkExtensions): WindowSdkExtensions
 }
