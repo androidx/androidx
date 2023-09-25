@@ -98,7 +98,7 @@ internal fun Project.maybeRegisterFilterableTask() {
  */
 internal fun Project.relativePathForFiltering(): String =
     if (ProjectLayoutType.isPlayground(project)) {
-        "${rootProject.projectDir.name}/"
+        "${projectDir.relativeTo(getSupportRootFolder())}/"
     } else {
-        ""
-    } + "${projectDir.relativeTo(rootDir)}/"
+        "${projectDir.relativeTo(rootDir)}/"
+    }
