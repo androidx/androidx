@@ -89,6 +89,10 @@
     <string name="cookie_manager_new_api_text">New cookie API: </string>
     <string name="cookie_manager_get_cookie_info_not_supported">CookieManagerCompat#getCookieInfo not supported.</string>
     <string name="image_drag_drop_activity_title">Image Drag And Drop</string>
+    <string name="multi_profile_activity_title">Multi Profile Demo</string>
+    <string name="default_profile_text">Default Profile - Tap to print cookie.</string>
+    <string name="first_profile_text">Created Profile - Tap to print cookie.</string>
+    <string name="multi_profile_not_supported">Multi-Profile feature is not supported.</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
