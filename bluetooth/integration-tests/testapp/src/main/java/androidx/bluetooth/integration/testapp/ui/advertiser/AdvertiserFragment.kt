@@ -334,31 +334,25 @@ class AdvertiserFragment : Fragment() {
                 Log.d(TAG, "bluetoothLe.advertise result: AdvertiseResult = $it")
 
                 when (it) {
-                    BluetoothLe.ADVERTISE_STARTED -> {
+                    BluetoothLe.ADVERTISE_STARTED ->
                         toast("ADVERTISE_STARTED").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE ->
                         toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
                         toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR ->
                         toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
-                    }
 
-                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
-                        isAdvertising = false
+                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
                         toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
-                    }
                 }
             }
+
+            Log.d(TAG, "bluetoothLe.advertise completed")
+            isAdvertising = false
         }
     }
 
