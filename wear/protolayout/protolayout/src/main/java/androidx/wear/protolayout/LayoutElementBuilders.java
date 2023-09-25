@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.ColorBuilders.Brush;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint;
@@ -4517,12 +4518,32 @@ public final class LayoutElementBuilders {
         /**
          * Gets the color of this line.
          *
+         * <p>While this field is statically accessible from 1.0, it's only bindable since version
+         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>If a brush is set, this color will not be used.
+         *
          * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
                 return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets a brush used to draw this line. If set, the brush will be used instead of the color
+         * provided in {@code setColor()}.
+         *
+         * @since 1.3
+         */
+        @Nullable
+        public Brush getBrush() {
+            if (mImpl.hasBrush()) {
+                return ColorBuilders.brushFromProto(mImpl.getBrush());
             } else {
                 return null;
             }
@@ -4600,6 +4621,8 @@ public final class LayoutElementBuilders {
                     + getThickness()
                     + ", color="
                     + getColor()
+                    + ", brush="
+                    + getBrush()
                     + ", modifiers="
                     + getModifiers()
                     + ", strokeCap="
@@ -4678,6 +4701,8 @@ public final class LayoutElementBuilders {
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
+             * <p>If a brush is set, this color will not be used.
+             *
              * @since 1.0
              */
             @NonNull
@@ -4685,6 +4710,20 @@ public final class LayoutElementBuilders {
                 mImpl.setColor(color.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets a brush used to draw this line. If set, the brush will be used instead of the
+             * color provided in {@code setColor()}.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setBrush(@NonNull Brush brush) {
+                mImpl.setBrush(brush.toBrushProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(brush.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 

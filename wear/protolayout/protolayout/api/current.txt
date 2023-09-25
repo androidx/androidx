@@ -105,6 +105,9 @@ package androidx.wear.protolayout {
     method public static androidx.wear.protolayout.ColorBuilders.ColorProp argb(@ColorInt int);
   }
 
+  public static interface ColorBuilders.Brush {
+  }
+
   public static final class ColorBuilders.ColorProp {
     method @ColorInt public int getArgb();
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? getDynamicValue();
@@ -116,6 +119,24 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ColorBuilders.ColorProp build();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp.Builder setDynamicValue(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor);
+  }
+
+  public static final class ColorBuilders.ColorStop {
+    ctor public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    ctor public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.TypeBuilders.FloatProp);
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOffset();
+  }
+
+  public static final class ColorBuilders.SweepGradient implements androidx.wear.protolayout.ColorBuilders.Brush {
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAngularShift();
+    method public java.util.List<androidx.wear.protolayout.ColorBuilders.ColorStop!> getColorStops();
+  }
+
+  public static final class ColorBuilders.SweepGradient.Builder {
+    ctor @java.lang.SafeVarargs public ColorBuilders.SweepGradient.Builder(androidx.wear.protolayout.ColorBuilders.ColorStop!...);
+    method public androidx.wear.protolayout.ColorBuilders.SweepGradient build();
+    method public androidx.wear.protolayout.ColorBuilders.SweepGradient.Builder setAngularShift(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
   }
 
   public final class DeviceParametersBuilders {
@@ -397,6 +418,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.ArcLine implements androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement {
+    method public androidx.wear.protolayout.ColorBuilders.Brush? getBrush();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
     method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicLength();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getLength();
@@ -408,6 +430,7 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.ArcLine.Builder {
     ctor public LayoutElementBuilders.ArcLine.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setBrush(androidx.wear.protolayout.ColorBuilders.Brush);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLayoutConstraintsForDynamicLength(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
