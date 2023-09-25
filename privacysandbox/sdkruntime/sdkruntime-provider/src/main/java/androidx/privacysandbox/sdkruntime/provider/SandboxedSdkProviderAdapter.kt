@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.privacysandbox.sdkruntime.core
+
+package androidx.privacysandbox.sdkruntime.provider
 
 import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
@@ -24,22 +25,16 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
 import androidx.annotation.RequiresExtension
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 
 /**
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
-@SuppressLint("Override") // b/273473397
 @RequiresExtension(extension = AD_SERVICES, version = 4)
-// TODO(b/301437557) Remove after documentation migration to sdkruntime-provider
-@Deprecated(
-    message = "Use SandboxedSdkProviderAdapter from sdkruntime-provider library",
-    replaceWith = ReplaceWith(
-        expression = "SandboxedSdkProviderAdapter",
-        imports = arrayOf("androidx.privacysandbox.sdkruntime.provider.SandboxedSdkProviderAdapter")
-    )
-)
+@SuppressLint("ClassVerificationFailure")
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {
