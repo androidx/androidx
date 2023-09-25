@@ -31,51 +31,33 @@ import com.android.tools.lint.detector.api.OtherFileScanner
 import com.android.tools.lint.detector.api.Scope
 import com.intellij.core.CoreFileTypeRegistry
 import com.intellij.lang.LanguageParserDefinitions
-import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.fileTypes.UnknownFileType
 import com.intellij.openapi.vfs.local.CoreLocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.psi.SingleRootFileViewProvider
 import java.io.File
-import java.lang.reflect.Method
 
 /**
  * Abstract class for detectors running against AIDL definitions (e.g. .aidl files).
  */
 abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
 
-    private var delegate: Any? = null
-    private var methodRun: Method? = null
+    override fun getApplicableFiles() = Scope.OTHER_SCOPE
 
     override fun beforeCheckEachProject(context: Context) {
-        val detectorClass = this.javaClass
-        var aidlFileType: LanguageFileType = AidlFileType.INSTANCE
-        var useMethodRun: Method? = null
-        var useDelegate: Any? = null
+        val aidlFileType = AidlFileType.INSTANCE
 
-        // Register the parser, if it hasn't already been registered by another instance.
+        // We only need to register the language parser once per daemon process...
         LanguageParserDefinitions.INSTANCE.apply {
             synchronized(this) {
-                val existingParser = forLanguage(aidlFileType.language)
-                if (existingParser == null) {
+                val existingParsers = forLanguage(aidlFileType.language)
+                if (existingParsers == null) {
                     addExplicitExtension(aidlFileType.language, AidlParserDefinition())
-                } else {
-                    // An instance of this class already registered the parser, potentially from a
-                    // different ClassLoader. Avoid conflicts (see b/300097739) by delegating to a
-                    // detector instance loaded from the registered parser's ClassLoader.
-                    val classLoader = existingParser.javaClass.classLoader
-                    classLoader.loadClass(detectorClass.name).let {
-                        useDelegate = it.getConstructor().newInstance()
-                        useMethodRun = it.getMethod("runInternal", Context::class.java)
-                    }
-                    classLoader.loadClass(AidlFileType::class.qualifiedName).let {
-                        aidlFileType = it.getField("INSTANCE").get(null) as LanguageFileType
-                    }
                 }
             }
         }
 
-        // Register the file type, if it hasn't already ben registered by another instance.
+        // ...but we need to register the file type every time we run Gradle.
         (CoreFileTypeRegistry.getInstance() as CoreFileTypeRegistry).apply {
             synchronized(this) {
                 val existingFileType = getFileTypeByExtension(aidlFileType.defaultExtension)
@@ -84,24 +66,9 @@ abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
                 }
             }
         }
-
-        delegate = useDelegate
-        methodRun = useMethodRun
     }
-
-    override fun getApplicableFiles() = Scope.OTHER_SCOPE
 
     override fun run(context: Context) {
-        // Call the delegate's run method, if we have one.
-        methodRun?.invoke(delegate, context) ?: runInternal(context)
-    }
-
-    /**
-     * Actual implementation of [run]. This must be Java-visible since it will be called via
-     * reflection from what is _technically_ a different class.
-     */
-    @Suppress("MemberVisibilityCanBePrivate")
-    fun runInternal(context: Context) {
         if (context.file.extension == AidlFileType.DEFAULT_ASSOCIATED_EXTENSION) {
             ioFileToAidlFile(context, context.file)
                 .allAidlDeclarations
@@ -117,8 +84,6 @@ abstract class AidlDefinitionDetector : Detector(), OtherFileScanner {
                 visitAidlInterfaceDeclaration(context, aidlDeclaration)
             is AidlParcelableDeclaration ->
                 visitAidlParcelableDeclaration(context, aidlDeclaration)
-            is AidlMethodDeclaration ->
-                visitAidlMethodDeclaration(context, aidlDeclaration)
             is AidlUnionDeclaration -> {
                 listOf(
                     aidlDeclaration.interfaceDeclarationList,
