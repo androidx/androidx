@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.widget.EditText;
 
 import androidx.emoji.text.EmojiCompat;
@@ -66,6 +67,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(1)).process(sameCharSequence(testString), eq(0), eq(1),
                 eq(Integer.MAX_VALUE), anyInt());
@@ -78,6 +80,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 anyInt());
@@ -104,6 +107,7 @@ public class EmojiTextWatcherTest {
         assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT));
@@ -111,6 +115,7 @@ public class EmojiTextWatcherTest {
         mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
                 eq(EmojiCompat.REPLACE_STRATEGY_ALL));
@@ -122,6 +127,7 @@ public class EmojiTextWatcherTest {
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_DEFAULT);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
