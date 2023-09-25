@@ -37,7 +37,7 @@ fun IconToggleButtonSample() {
     ) {
         Icon(
             imageVector = Icons.Filled.Favorite,
-            contentDescription = "Flight Mode"
+            contentDescription = "Favorite icon"
         )
     }
 }
