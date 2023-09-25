@@ -207,4 +207,25 @@ public class Utils {
             afd.close();
         }
     }
+
+    /**
+     * Convert an Exception to a RuntimeException if needed, without needlessly wrapping up an
+     * existing RuntimeException.
+     * <p>
+     * Compared to {@code new RuntimeException(e)}, this avoids hiding a specific subclass of
+     * RuntimeException from catch blocks if one is available.
+     *
+     * @param e Exception to potentially wrap.
+     * @return e if e was a RuntimeException, else e wrapped in a RuntimeException.
+     */
+    @NonNull
+    public static RuntimeException exceptionToRuntimeException(@NonNull Exception e) {
+        if (e instanceof RuntimeException) {
+            // Don't hide the original RuntimeException type by wrapping it in another
+            // RuntimeException. Just return it directly.
+            return (RuntimeException) e;
+        } else {
+            return new RuntimeException(e);
+        }
+    }
 }

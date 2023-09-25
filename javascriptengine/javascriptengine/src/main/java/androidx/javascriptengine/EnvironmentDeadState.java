@@ -76,8 +76,7 @@ final class EnvironmentDeadState implements IsolateState {
     }
 
     @Override
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
-        return false;
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
     }
 
     @Override

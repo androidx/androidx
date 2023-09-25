@@ -80,7 +80,7 @@ final class IsolateClosedState implements IsolateState {
     }
 
     @Override
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         throw new IllegalStateException(
                 "Calling provideNamedData() when " + mDescription);
     }
