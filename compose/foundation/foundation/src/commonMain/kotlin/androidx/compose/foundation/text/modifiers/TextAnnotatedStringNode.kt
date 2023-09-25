@@ -223,11 +223,12 @@ internal class TextAnnotatedStringNode(
         layoutChanged: Boolean,
         callbacksChanged: Boolean
     ) {
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
         if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            if (isAttached) {
-                // isAttached check because invalidateSemantics will throw otherwise
-                invalidateSemantics()
-            }
+            invalidateSemantics()
         }
 
         if (textChanged || layoutChanged || callbacksChanged) {
@@ -241,10 +242,7 @@ internal class TextAnnotatedStringNode(
                 minLines = minLines,
                 placeholders = placeholders
             )
-            if (isAttached) {
-                // isAttached check because invalidateMeasurement will throw otherwise
-                invalidateMeasurement()
-            }
+            invalidateMeasurement()
             invalidateDraw()
         }
         if (drawChanged) {
@@ -485,6 +483,10 @@ internal class TextAnnotatedStringNode(
         return contentDrawScope.draw()
     }
     override fun ContentDrawScope.draw() {
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
         selectionController?.draw(this)
         drawIntoCanvas { canvas ->
             val layoutCache = getLayoutCache(this)
