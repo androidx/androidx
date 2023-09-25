@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -28,6 +29,7 @@ import android.view.Display
 import android.view.SurfaceControlViewHost
 import android.view.SurfaceView
 import android.view.View
+import android.window.SurfaceSyncGroup
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.core.IRemoteSessionClient
 import androidx.privacysandbox.ui.core.IRemoteSessionController
@@ -256,7 +258,9 @@ object SandboxedUiAdapterFactory {
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
 
                 clientExecutor.execute {
-                    client.onSessionOpened(SessionImpl(surfaceView, remoteSessionController))
+                    client
+                        .onSessionOpened(SessionImpl(surfaceView,
+                            remoteSessionController, surfacePackage))
                 }
             }
 
@@ -275,7 +279,8 @@ object SandboxedUiAdapterFactory {
 
         private class SessionImpl(
             val surfaceView: SurfaceView,
-            val remoteSessionController: IRemoteSessionController
+            val remoteSessionController: IRemoteSessionController,
+            val surfacePackage: SurfaceControlViewHost.SurfacePackage
         ) : SandboxedUiAdapter.Session {
 
             override val view: View = surfaceView
@@ -284,8 +289,35 @@ object SandboxedUiAdapterFactory {
                 remoteSessionController.notifyConfigurationChanged(configuration)
             }
 
+            @SuppressLint("ClassVerificationFailure")
             override fun notifyResized(width: Int, height: Int) {
-                remoteSessionController.notifyResized(width, height)
+
+                val clientResizeRunnable = Runnable {
+                    surfaceView.layout(
+                        /* left = */ 0,
+                        /* top = */ 0,
+                        /* right = */ width,
+                        /* bottom = */ height)
+                }
+
+                val providerResizeRunnable = Runnable {
+                    remoteSessionController.notifyResized(width, height)
+                }
+
+                // TODO(b/298618670) : This logic will be removed since
+                // SdkRuntime won't ba available for android T and lower
+                // versions of Android.
+                if (SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    clientResizeRunnable.run()
+                    providerResizeRunnable.run()
+                    return
+                }
+
+                val syncGroup = SurfaceSyncGroup("AppAndSdkViewsSurfaceSync")
+
+                syncGroup.add(surfaceView.rootSurfaceControl, clientResizeRunnable)
+                syncGroup.add(surfacePackage, providerResizeRunnable)
+                syncGroup.markSyncReady()
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
