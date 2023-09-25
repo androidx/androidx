@@ -49,7 +49,7 @@ val UIKitViewAndDropDownMenu = Screen.Example("UIKitViewAndDropDownMenu") {
             contentAlignment = Alignment.Center
         ) {
             UIKitView(modifier = Modifier.fillMaxSize(), factory = { MKMapView() })
-            ButtonAndDropDownMenu("Menu not over UIKitView")
+            ButtonAndDropDownMenu("Menu over UIKitView")
         }
         Divider()
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {

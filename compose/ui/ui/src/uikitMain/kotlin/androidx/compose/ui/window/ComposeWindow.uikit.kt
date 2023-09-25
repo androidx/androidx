@@ -607,15 +607,12 @@ internal actual class ComposeWindow : UIViewController {
 
             override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
                 point.useContents {
-                    val hitsInteropView = attachedComposeContext?.scene?.mainOwner?.hitInteropView(
-                        pointerPosition = Offset(
-                            (x * density.density).toFloat(),
-                            (y * density.density).toFloat()
-                        ),
-                        isTouchEvent = true,
-                    ) ?: false
+                    val position = Offset(
+                        (x * density.density).toFloat(),
+                        (y * density.density).toFloat()
+                    )
 
-                    !hitsInteropView
+                    !scene.hitTestInteropView(position)
                 }
 
             override fun onPointerEvent(event: SkikoPointerEvent) {
