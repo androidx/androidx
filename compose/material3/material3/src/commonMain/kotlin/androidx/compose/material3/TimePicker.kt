@@ -495,7 +495,7 @@ class TimePickerState(
 ) {
     init {
         require(initialHour in 0..23) { "initialHour should in [0..23] range" }
-        require(initialHour in 0..59) { "initialMinute should be in [0..59] range" }
+        require(initialMinute in 0..59) { "initialMinute should be in [0..59] range" }
     }
 
     val minute: Int get() = minuteAngle.toMinute()
@@ -523,10 +523,10 @@ class TimePickerState(
     internal val values get() = if (selection == Selection.Minute) Minutes else Hours
 
     internal var selection by mutableStateOf(Selection.Hour)
-    internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
+    internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
 
-    internal var hourAngle by mutableStateOf(RadiansPerHour * initialHour % 12 - FullCircle / 4)
+    internal var hourAngle by mutableStateOf(RadiansPerHour * (initialHour % 12) - FullCircle / 4)
     internal var minuteAngle by mutableStateOf(RadiansPerMinute * initialMinute - FullCircle / 4)
 
     private val mutex = MutatorMutex()
@@ -539,8 +539,8 @@ class TimePickerState(
     }
 
     internal fun setHour(hour: Int) {
-        isInnerCircle = hour > 12 || hour == 0
-        hourAngle = RadiansPerHour * hour % 12 - FullCircle / 4
+        isInnerCircle = hour >= 12
+        hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
@@ -586,7 +586,6 @@ class TimePickerState(
     }
 
     private fun hourForDisplay(hour: Int): Int = when {
-        is24hour && isInnerCircle && hour == 0 -> 12
         is24hour -> hour % 24
         hour % 12 == 0 -> 12
         isAfternoon -> hour - 12
@@ -605,8 +604,8 @@ class TimePickerState(
     }
 
     private fun Float.toMinute(): Int {
-        val hourOffset: Float = RadiansPerMinute / 2
-        val totalOffset = hourOffset + QuarterCircle
+        val minuteOffset: Float = RadiansPerMinute / 2
+        val totalOffset = minuteOffset + QuarterCircle
         return ((this + totalOffset) / RadiansPerMinute).toInt() % 60
     }
 
@@ -783,7 +782,7 @@ private fun TimeInputImpl(
         }
 
         if (!state.is24hour) {
-            Box(modifier.padding(start = PeriodToggleMargin)) {
+            Box(Modifier.padding(start = PeriodToggleMargin)) {
                 VerticalPeriodToggle(
                     modifier = Modifier.size(
                         PeriodSelectorContainerWidth,
