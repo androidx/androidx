@@ -33,8 +33,9 @@ import java.util.ServiceLoader;
  * A class that maintains the map from schema type names to the fully qualified names of the
  * corresponding document classes.
  *
- * <p>Do not extend this class directly. AppSearch's annotation processor will automatically
- * generate necessary subclasses to hold the map.
+ * <p>This class is part of AppSearch's internal infrastructure, and only public so that it is
+ * available to the generated code by AppSearch's annotation processor. Application code does not
+ * need to reference this class.
  */
 @AnyThread
 public abstract class AppSearchDocumentClassMap {
