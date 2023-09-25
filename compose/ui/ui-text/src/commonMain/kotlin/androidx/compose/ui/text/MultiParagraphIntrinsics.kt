@@ -132,7 +132,7 @@ class MultiParagraphIntrinsics(
         style: ParagraphStyle,
         defaultStyle: ParagraphStyle
     ): ParagraphStyle {
-        return style.textDirection?.let { style } ?: style.copy(
+        return if (style.textDirection != TextDirection.Unspecified) style else style.copy(
             textDirection = defaultStyle.textDirection
         )
     }
