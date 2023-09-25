@@ -31,6 +31,7 @@ import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.ImageReader
 import android.os.Build
 import android.os.Handler
 import android.util.Size
@@ -290,6 +291,27 @@ internal object Api28Compat {
         callback: CameraManager.AvailabilityCallback
     ) {
         cameraManager.registerAvailabilityCallback(executor, callback)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun discardFreeBuffers(imageReader: ImageReader) {
+        imageReader.discardFreeBuffers()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+internal object Api29Compat {
+    @JvmStatic
+    @DoNotInline
+    fun imageReaderNewInstance(
+        width: Int,
+        height: Int,
+        format: Int,
+        capacity: Int,
+        usage: Long
+    ): ImageReader {
+        return ImageReader.newInstance(width, height, format, capacity, usage)
     }
 }
 
