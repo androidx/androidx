@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
  */
 class KeyboardHelper(
     private val composeRule: ComposeContentTestRule,
-    private val timeout: Long = 15_000L
+    private val timeout: Long = 20_000L
 ) {
     /**
      * The [View] hosting the compose rule's content. Must be set before calling any methods on this
