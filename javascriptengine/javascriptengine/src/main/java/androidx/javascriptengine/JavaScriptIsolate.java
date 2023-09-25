@@ -369,16 +369,15 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * @param inputBytes Bytes to be passed into the JavaScript environment. This array must not be
      *                   modified until the JavaScript promise returned by
      *                   consumeNamedDataAsArrayBuffer has resolved (or rejected).
-     * @return {@code true} on success, {@code false} if the name has already been used before,
-     * in which case the client should use an unused name
+     * @throws IllegalStateException if the name has previously been used in the isolate.
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
-    public boolean provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(inputBytes);
         synchronized (mLock) {
-            return mIsolateState.provideNamedData(name, inputBytes);
+            mIsolateState.provideNamedData(name, inputBytes);
         }
     }
 

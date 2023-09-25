@@ -35,6 +35,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.pm.PackageInfoCompat;
+import androidx.javascriptengine.common.Utils;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -270,9 +271,12 @@ public final class JavaScriptSandbox implements AutoCloseable {
                     IJsSandboxService.Stub.asInterface(service);
             try {
                 mJsSandbox = new JavaScriptSandbox(mContext, this, jsSandboxService);
-            } catch (RemoteException e) {
+            } catch (DeadObjectException e) {
                 runShutdownTasks(e);
                 return;
+            } catch (RemoteException | RuntimeException e) {
+                runShutdownTasks(e);
+                throw Utils.exceptionToRuntimeException(e);
             }
             mCompleter.set(mJsSandbox);
             mCompleter = null;
@@ -478,9 +482,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
                         killDueToException(e);
                         isolate = JavaScriptIsolate.createDead(this,
                                 "sandbox found dead during call to createIsolate");
-                    } catch (RemoteException e) {
+                    } catch (RemoteException | RuntimeException e) {
                         killDueToException(e);
-                        throw new RuntimeException(e);
+                        throw Utils.exceptionToRuntimeException(e);
                     }
                     break;
                 case DEAD:
