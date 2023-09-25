@@ -18,7 +18,9 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -127,6 +129,24 @@ public class WaitForRepeatingRequestStart {
                         int sequenceId) {
                     if (mStartStreamingCompleter != null) {
                         mStartStreamingCompleter.setCancelled();
+                        mStartStreamingCompleter = null;
+                    }
+                }
+
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                        @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    if (mStartStreamingCompleter != null) {
+                        mStartStreamingCompleter.set(null);
+                        mStartStreamingCompleter = null;
+                    }
+                }
+
+                @Override
+                public void onCaptureFailed(@NonNull CameraCaptureSession session,
+                        @NonNull CaptureRequest request, @NonNull CaptureFailure failure) {
+                    if (mStartStreamingCompleter != null) {
+                        mStartStreamingCompleter.set(null);
                         mStartStreamingCompleter = null;
                     }
                 }
