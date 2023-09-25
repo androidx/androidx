@@ -237,7 +237,7 @@ class AndroidViewTest {
                 }
                 val info: AccessibilityNodeInfo = AccessibilityNodeInfo()
                 delegate.onInitializeAccessibilityNodeInfo(view, info)
-                if (info.isVisibleToUser()) {
+                if (!info.isVisibleToUser()) {
                     throw exception
                 }
                 if (!info.isScreenReaderFocusable()) {

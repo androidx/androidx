@@ -819,8 +819,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 ) {
                     super.onInitializeAccessibilityNodeInfo(host, info)
 
-                    // Prevent TalkBack from trying to focus the AndroidViewHolder
-                    info.setVisibleToUser(false)
+                    // Prevent TalkBack from trying to focus the AndroidViewHolder.
+                    // This also prevents UIAutomator from finding nodes, so don't
+                    // do it if there are no enabled a11y services (which implies that
+                    // UIAutomator is the one requesting an AccessibilityNodeInfo).
+                    if (accessibilityDelegate.isEnabledForAccessibility) {
+                        info.setVisibleToUser(false)
+                    }
 
                     var parentId = layoutNode
                         .findClosestParentNode { it.nodes.has(Nodes.Semantics) }
