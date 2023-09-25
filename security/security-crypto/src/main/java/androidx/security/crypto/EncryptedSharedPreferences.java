@@ -16,8 +16,6 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
@@ -77,7 +75,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *  // use the shared preferences and editor as you normally would
  *  SharedPreferences.Editor editor = sharedPreferences.edit();
  * </pre>
+ * @deprecated Use {@link android.content.SharedPreferences} instead.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public final class EncryptedSharedPreferences implements SharedPreferences {
 
     private static final String KEY_KEYSET_ALIAS =
@@ -165,12 +166,12 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefKeyEncryptionScheme.getKeyTemplate())
                 .withSharedPref(applicationContext, KEY_KEYSET_ALIAS, fileName)
-                .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
+                .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
         KeysetHandle aeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefValueEncryptionScheme.getKeyTemplate())
                 .withSharedPref(applicationContext, VALUE_KEYSET_ALIAS, fileName)
-                .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
+                .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
 
         DeterministicAead daead = daeadKeysetHandle.getPrimitive(DeterministicAead.class);
@@ -183,7 +184,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
     /**
      * The encryption scheme to encrypt keys.
+     * @deprecated Use {@link android.content.SharedPreferences} instead.
      */
+    @Deprecated
     public enum PrefKeyEncryptionScheme {
         /**
          * Pref keys are encrypted deterministically with AES256-SIV-CMAC (RFC 5297).
@@ -207,7 +210,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
     /**
      * The encryption scheme to encrypt values.
+     * @deprecated Use {@link android.content.SharedPreferences} instead.
      */
+    @Deprecated
     public enum PrefValueEncryptionScheme {
         /**
          * Pref values are encrypted with AES256-GCM. The associated data is the encrypted pref key.
