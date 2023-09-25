@@ -303,6 +303,21 @@ public final class androidx/compose/foundation/layout/WindowInsetsPaddingKt {
 	public static final fun withConsumedWindowInsets (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 }
 
+public final class androidx/compose/foundation/layout/WindowInsetsPadding_skikoKt {
+	public static final fun captionBarPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun displayCutoutPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun imePadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun mandatorySystemGesturesPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun navigationBarsPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun safeContentPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun safeDrawingPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun safeGesturesPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun statusBarsPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun systemBarsPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun systemGesturesPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public static final fun waterfallPadding (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+}
+
 public final class androidx/compose/foundation/layout/WindowInsetsSides {
 	public static final field Companion Landroidx/compose/foundation/layout/WindowInsetsSides$Companion;
 	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/WindowInsetsSides;

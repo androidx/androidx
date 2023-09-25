@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
  *
  * @sample androidx.compose.foundation.layout.samples.safeDrawingPaddingSample
  */
-fun Modifier.safeDrawingPadding() =
+actual fun Modifier.safeDrawingPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "safeDrawingPadding" }) { safeDrawing }
 
 /**
@@ -55,7 +55,7 @@ fun Modifier.safeDrawingPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.safeGesturesPaddingSample
  */
-fun Modifier.safeGesturesPadding() =
+actual fun Modifier.safeGesturesPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "safeGesturesPadding" }) { safeGestures }
 
 /**
@@ -73,7 +73,7 @@ fun Modifier.safeGesturesPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.safeContentPaddingSample
  */
-fun Modifier.safeContentPadding() =
+actual fun Modifier.safeContentPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "safeContentPadding" }) { safeContent }
 
 /**
@@ -91,7 +91,7 @@ fun Modifier.safeContentPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.systemBarsPaddingSample
  */
-fun Modifier.systemBarsPadding() =
+actual fun Modifier.systemBarsPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "systemBarsPadding" }) { systemBars }
 
 /**
@@ -109,7 +109,7 @@ fun Modifier.systemBarsPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.displayCutoutPaddingSample
  */
-fun Modifier.displayCutoutPadding() =
+actual fun Modifier.displayCutoutPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "displayCutoutPadding" }) { displayCutout }
 
 /**
@@ -127,7 +127,7 @@ fun Modifier.displayCutoutPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-fun Modifier.statusBarsPadding() =
+actual fun Modifier.statusBarsPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "statusBarsPadding" }) { statusBars }
 
 /**
@@ -145,7 +145,7 @@ fun Modifier.statusBarsPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.imePaddingSample
  */
-fun Modifier.imePadding() =
+actual fun Modifier.imePadding() =
     windowInsetsPadding(debugInspectorInfo { name = "imePadding" }) { ime }
 
 /**
@@ -163,7 +163,7 @@ fun Modifier.imePadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-fun Modifier.navigationBarsPadding() =
+actual fun Modifier.navigationBarsPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "navigationBarsPadding" }) { navigationBars }
 
 /**
@@ -181,7 +181,7 @@ fun Modifier.navigationBarsPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.captionBarPaddingSample
  */
-fun Modifier.captionBarPadding() =
+actual fun Modifier.captionBarPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "captionBarPadding" }) { captionBar }
 
 /**
@@ -199,7 +199,7 @@ fun Modifier.captionBarPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.waterfallPaddingSample
  */
-fun Modifier.waterfallPadding() =
+actual fun Modifier.waterfallPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "waterfallPadding" }) { waterfall }
 
 /**
@@ -217,7 +217,7 @@ fun Modifier.waterfallPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.systemGesturesPaddingSample
  */
-fun Modifier.systemGesturesPadding() =
+actual fun Modifier.systemGesturesPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "systemGesturesPadding" }) { systemGestures }
 
 /**
@@ -236,7 +236,7 @@ fun Modifier.systemGesturesPadding() =
  *
  * @sample androidx.compose.foundation.layout.samples.mandatorySystemGesturesPaddingSample
  */
-fun Modifier.mandatorySystemGesturesPadding() =
+actual fun Modifier.mandatorySystemGesturesPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "mandatorySystemGesturesPadding" }) {
         mandatorySystemGestures
     }
