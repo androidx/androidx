@@ -59,7 +59,6 @@ import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
-import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
@@ -2728,28 +2727,24 @@ public abstract class WatchFaceService : WallpaperService() {
                     // or no data.
                     val screenBounds = renderer.screenBounds
                     for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                        if (
-                            complication.enabled &&
-                                when (complication.complicationData.value.type) {
-                                    ComplicationType.EMPTY -> false
-                                    ComplicationType.NO_DATA -> false
-                                    else -> true
-                                }
-                        ) {
+                        if (complication.enabled) {
                             if (complication.boundsType == ComplicationSlotBoundsType.BACKGROUND) {
                                 ComplicationSlotBoundsType.BACKGROUND
                             } else {
-                                labels.add(
-                                    Pair(
-                                        complication.accessibilityTraversalIndex,
-                                        ContentDescriptionLabel(
-                                            _context,
-                                            complication.computeBounds(screenBounds),
-                                            complication.complicationData.value
-                                                .asWireComplicationData()
+                                complication.complicationData.value.let { data ->
+                                    data.getContentDescription(_context)?.let { text ->
+                                        labels.add(
+                                            Pair(
+                                                complication.accessibilityTraversalIndex,
+                                                ContentDescriptionLabel(
+                                                    complication.computeBounds(screenBounds),
+                                                    text,
+                                                    data.tapAction
+                                                )
+                                            )
                                         )
-                                    )
-                                )
+                                    }
+                                }
                             }
                         }
                     }

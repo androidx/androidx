@@ -1945,33 +1945,6 @@ public class WatchFaceServiceTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
-    public fun ContentDescriptionLabels_notMadeForEmptyComplication() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication, backgroundComplication),
-            UserStyleSchema(emptyList()),
-            setInitialComplicationData = false
-        )
-
-        // We're only sending one complication, the others should default to empty.
-        setComplicationViaWallpaperCommand(
-            rightComplication.id,
-            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                .setShortText(WireComplicationText.plainText("Initial Short"))
-                .build()
-        )
-
-        runPostedTasksFor(0)
-
-        assertThat(engineWrapper.contentDescriptionLabels.size).isEqualTo(2)
-        assertThat(engineWrapper.contentDescriptionLabels[0].bounds)
-            .isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
-        assertThat(engineWrapper.contentDescriptionLabels[1].bounds)
-            .isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun moveComplications() {
         initEngine(
             WatchFaceType.ANALOG,
