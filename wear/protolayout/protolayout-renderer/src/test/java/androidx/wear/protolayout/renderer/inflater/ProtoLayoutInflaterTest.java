@@ -3447,7 +3447,8 @@ public class ProtoLayoutInflaterTest {
                         getApplicationContext(), layout, resourceResolvers.build())
                 .setClickableIdExtra(EXTRA_CLICKABLE_ID)
                 .setLoadActionListener(p -> {})
-                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()));
+                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()))
+                .setApplyFontVariantBodyAsDefault(true);
     }
 
     private Renderer renderer(Layout layout) {
