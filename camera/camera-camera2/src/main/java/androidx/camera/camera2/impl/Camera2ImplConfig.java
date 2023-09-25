@@ -244,10 +244,19 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
         /** Inserts options from other {@link Config} object. */
         @NonNull
         public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config) {
+            insertAllOptions(config, OptionPriority.OPTIONAL);
+            return this;
+        }
+
+        /** Inserts options from other {@link Config} object with the given option priority. */
+        @NonNull
+        public Camera2ImplConfig.Builder insertAllOptions(@NonNull Config config,
+                @NonNull OptionPriority optionPriority) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                 Option<Object> objectOpt = (Option<Object>) option;
-                mMutableOptionsBundle.insertOption(objectOpt, config.retrieveOption(objectOpt));
+                mMutableOptionsBundle.insertOption(objectOpt, optionPriority,
+                        config.retrieveOption(objectOpt));
             }
             return this;
         }

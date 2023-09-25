@@ -495,7 +495,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
         Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
-        if (tag != null && tag instanceof Integer) {
+        if (tag instanceof Integer) {
             mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
         }
         mSessionConfigBuilder.addTag(TAG_SESSION_UPDATE_ID, mCurrentSessionUpdateId);
@@ -638,8 +638,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @ExecutedBy("mExecutor")
     Config getSessionOptions() {
         Camera2ImplConfig.Builder builder = new Camera2ImplConfig.Builder();
-        builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
+        builder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_MODE,
+                CaptureRequest.CONTROL_MODE_AUTO, Config.OptionPriority.REQUIRED);
 
         // AF Mode is assigned in mFocusMeteringControl.
         mFocusMeteringControl.addFocusMeteringOptions(builder);
@@ -650,8 +650,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {
-            builder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
-                    CaptureRequest.FLASH_MODE_TORCH);
+            builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_MODE,
+                    CaptureRequest.FLASH_MODE_TORCH, Config.OptionPriority.REQUIRED);
         } else {
             switch (mFlashMode) {
                 case FLASH_MODE_OFF:
@@ -666,22 +666,16 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     break;
             }
         }
-        builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, getSupportedAeMode(aeMode));
+        builder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AE_MODE,
+                getSupportedAeMode(aeMode), Config.OptionPriority.REQUIRED);
 
-        builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AWB_MODE,
-                getSupportedAwbMode(CaptureRequest.CONTROL_AWB_MODE_AUTO));
+        builder.setCaptureRequestOptionWithPriority(CaptureRequest.CONTROL_AWB_MODE,
+                getSupportedAwbMode(CaptureRequest.CONTROL_AWB_MODE_AUTO),
+                Config.OptionPriority.REQUIRED);
 
         mExposureControl.setCaptureRequestOption(builder);
 
-        Config currentConfig = mCamera2CameraControl.getCamera2ImplConfig();
-        for (Config.Option<?> option : currentConfig.listOptions()) {
-            @SuppressWarnings("unchecked")
-            Config.Option<Object> objectOpt = (Config.Option<Object>) option;
-            builder.getMutableConfig().insertOption(objectOpt,
-                    Config.OptionPriority.ALWAYS_OVERRIDE,
-                    currentConfig.retrieveOption(objectOpt));
-        }
+        mCamera2CameraControl.applyOptionsToBuilder(builder);
 
         return builder.build();
     }
