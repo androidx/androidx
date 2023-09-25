@@ -65,6 +65,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.math.sign
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -162,16 +163,6 @@ private data class MarqueeModifierElement(
     private val spacing: MarqueeSpacing,
     private val velocity: Dp,
 ) : ModifierNodeElement<MarqueeModifierNode>() {
-    override fun InspectorInfo.inspectableProperties() {
-        name = "basicMarquee"
-        properties["iterations"] = iterations
-        properties["animationMode"] = animationMode
-        properties["delayMillis"] = delayMillis
-        properties["initialDelayMillis"] = initialDelayMillis
-        properties["spacing"] = spacing
-        properties["velocity"] = velocity
-    }
-
     override fun create(): MarqueeModifierNode =
         MarqueeModifierNode(
             iterations = iterations,
@@ -192,6 +183,16 @@ private data class MarqueeModifierElement(
             velocity = velocity,
         )
     }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "basicMarquee"
+        properties["iterations"] = iterations
+        properties["animationMode"] = animationMode
+        properties["delayMillis"] = delayMillis
+        properties["initialDelayMillis"] = initialDelayMillis
+        properties["spacing"] = spacing
+        properties["velocity"] = velocity
+    }
 }
 
 private class MarqueeModifierNode(
@@ -209,6 +210,7 @@ private class MarqueeModifierNode(
     private var contentWidth by mutableIntStateOf(0)
     private var containerWidth by mutableIntStateOf(0)
     private var hasFocus by mutableStateOf(false)
+    private var animationJob: Job? = null
     var spacing: MarqueeSpacing by mutableStateOf(spacing)
     var animationMode: MarqueeAnimationMode by mutableStateOf(animationMode)
 
@@ -226,6 +228,11 @@ private class MarqueeModifierNode(
 
     override fun onAttach() {
         restartAnimation()
+    }
+
+    override fun onDetach() {
+        animationJob?.cancel()
+        animationJob = null
     }
 
     fun update(
@@ -330,8 +337,12 @@ private class MarqueeModifierNode(
     }
 
     private fun restartAnimation() {
+        val oldJob = animationJob
+        oldJob?.cancel()
         if (isAttached) {
-            coroutineScope.launch {
+            animationJob = coroutineScope.launch {
+                // Wait for the cancellation to finish.
+                oldJob?.join()
                 runAnimation()
             }
         }
@@ -370,6 +381,8 @@ private class MarqueeModifierNode(
                 try {
                     offset.animateTo(contentWithSpacingWidth, spec)
                 } finally {
+                    // This needs to be in a finally so the offset is reset if the animation is
+                    // cancelled when losing focus in WhileFocused mode.
                     offset.snapTo(0f)
                 }
             }
