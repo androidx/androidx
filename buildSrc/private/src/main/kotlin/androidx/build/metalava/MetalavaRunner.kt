@@ -91,6 +91,7 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
             execOperations.javaexec {
                 // Intellij core reflects into java.util.ResourceBundle
                 it.jvmArgs = listOf("--add-opens", "java.base/java.util=ALL-UNNAMED")
+                it.systemProperty("java.awt.headless", "true")
                 it.classpath(parameters.metalavaClasspath.get())
                 it.mainClass.set("com.android.tools.metalava.Driver")
                 it.args = parameters.args.get() + k2UastArg
