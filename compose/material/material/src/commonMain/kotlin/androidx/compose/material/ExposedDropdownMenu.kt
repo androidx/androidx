@@ -18,6 +18,9 @@ package androidx.compose.material
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.ColumnScope
@@ -31,9 +34,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 
 /**
  * [Material Design Exposed Dropdown Menu](https://material.io/components/menus#exposed-dropdown-menu).
@@ -121,6 +130,31 @@ internal expect fun ExposedDropdownMenuBoxScope.ExposedDropdownMenuDefaultImpl(
     scrollState: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
 )
+
+internal fun Modifier.expandable(
+    onExpandedChange: () -> Unit,
+    menuLabel: String
+) = composed {
+    val currentOnExpandedChange by rememberUpdatedState(onExpandedChange)
+    pointerInput(Unit) {
+        awaitEachGesture {
+            // Must be PointerEventPass.Initial to observe events before the text field consumes them
+            // in the Main pass
+            awaitFirstDown(pass = PointerEventPass.Initial)
+            val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+            if (upEvent != null) {
+                currentOnExpandedChange()
+            }
+        }
+    }.semantics {
+        contentDescription = menuLabel // this should be a localised string
+        onClick {
+            currentOnExpandedChange()
+            true
+        }
+    }
+}
+
 
 /**
  * Contains default values used by Exposed Dropdown Menu.

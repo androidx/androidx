@@ -17,9 +17,6 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.heightIn
@@ -34,15 +31,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.toIntRect
 import kotlin.math.max
 
@@ -130,25 +122,4 @@ internal actual fun ExposedDropdownMenuBoxScope.ExposedDropdownMenuDefaultImpl(
         modifier = modifier.exposedDropdownSize(),
         content = content
     )
-}
-
-private fun Modifier.expandable(
-    onExpandedChange: () -> Unit,
-    menuLabel: String
-) = pointerInput(Unit) {
-    awaitEachGesture {
-        // Must be PointerEventPass.Initial to observe events before the text field consumes them
-        // in the Main pass
-        awaitFirstDown(pass = PointerEventPass.Initial)
-        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-        if (upEvent != null) {
-            onExpandedChange()
-        }
-    }
-}.semantics {
-    contentDescription = menuLabel // this should be a localised string
-    onClick {
-        onExpandedChange()
-        true
-    }
 }

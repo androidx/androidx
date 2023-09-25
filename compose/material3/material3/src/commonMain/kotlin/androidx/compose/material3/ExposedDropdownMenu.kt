@@ -16,6 +16,9 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -25,9 +28,18 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 
 /**
@@ -125,6 +137,36 @@ internal expect fun ExposedDropdownMenuBoxScope.ExposedDropdownMenuDefaultImpl(
     modifier: Modifier,
     content: @Composable ColumnScope.() -> Unit
 )
+
+@Suppress("ComposableModifierFactory")
+@Composable
+internal fun Modifier.expandable(
+    expanded: Boolean,
+    onExpandedChange: () -> Unit,
+    menuDescription: String = getString(Strings.ExposedDropdownMenu),
+    expandedDescription: String = getString(Strings.MenuExpanded),
+    collapsedDescription: String = getString(Strings.MenuCollapsed),
+) = composed {
+    val currentOnExpandedChange by rememberUpdatedState(onExpandedChange)
+    pointerInput(Unit) {
+        awaitEachGesture {
+            // Must be PointerEventPass.Initial to observe events before the text field consumes them
+            // in the Main pass
+            awaitFirstDown(pass = PointerEventPass.Initial)
+            val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+            if (upEvent != null) {
+                currentOnExpandedChange()
+            }
+        }
+    }.semantics {
+        stateDescription = if (expanded) expandedDescription else collapsedDescription
+        contentDescription = menuDescription
+        onClick {
+            currentOnExpandedChange()
+            true
+        }
+    }
+}
 
 /**
  * Contains default values used by Exposed Dropdown Menu.
