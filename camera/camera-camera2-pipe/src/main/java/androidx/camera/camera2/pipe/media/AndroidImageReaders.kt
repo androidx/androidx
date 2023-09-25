@@ -42,20 +42,20 @@ class AndroidImageReader private constructor(
     override val capacity: Int,
     private val outputId: OutputId
 ) : ImageReaderWrapper, ImageReader.OnImageAvailableListener {
-    private val onNextImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
+    private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
 
     override val surface: Surface = imageReader.surface
 
-    override fun onImageListener(
+    override fun setOnImageListener(
         onImageListener: ImageReaderWrapper.OnImageListener
     ) {
-        this.onNextImageListener.value = onImageListener
+        this.onImageListener.value = onImageListener
     }
 
     override fun onImageAvailable(reader: ImageReader?) {
         val image = reader?.acquireNextImage()
         if (image != null) {
-            val listener = onNextImageListener.value
+            val listener = onImageListener.value
             if (listener == null) {
                 image.close()
                 return
@@ -166,21 +166,21 @@ class AndroidMultiResolutionImageReader(
     override val capacity: Int,
     private val outputMap: Map<MultiResolutionStreamInfo, OutputId>
 ) : ImageReaderWrapper, ImageReader.OnImageAvailableListener {
-    private val onNextImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
+    private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
 
     override val surface: Surface
         get() = multiResolutionImageReader.surface
 
-    override fun onImageListener(
+    override fun setOnImageListener(
         onImageListener: ImageReaderWrapper.OnImageListener
     ) {
-        this.onNextImageListener.value = onImageListener
+        this.onImageListener.value = onImageListener
     }
 
     override fun onImageAvailable(reader: ImageReader?) {
         val image = reader?.acquireNextImage()
         if (image != null) {
-            val listener = onNextImageListener.value
+            val listener = onImageListener.value
             if (listener == null) {
                 image.close()
                 return
