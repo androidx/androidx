@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.privacysandbox.sdkruntime.core
+
+package androidx.privacysandbox.sdkruntime.provider
 
 import android.app.sdksandbox.LoadSdkException
 import android.content.Context
@@ -23,6 +24,10 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
 import androidx.annotation.RequiresExtension
+import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -41,7 +46,6 @@ import org.mockito.Mockito.mock
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 @SdkSuppress(minSdkVersion = TIRAMISU)
-@Suppress("DEPRECATION")
 class SandboxedSdkProviderAdapterTest {
 
     private lateinit var context: Context

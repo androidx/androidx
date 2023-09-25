@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":privacysandbox:sdkruntime:sdkruntime-core"))
+    implementation(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
 }
 
 /*
