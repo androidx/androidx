@@ -490,6 +490,44 @@ class DialogFragmentNavigatorTest {
         assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    @UiThreadTest
+    @Test
+    fun testConsecutiveNavigateThenDismissLifecycle() {
+        val dialogFragments = mutableListOf<DialogFragment>()
+        fragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return super.instantiate(classLoader, className).also { fragment ->
+                    if (fragment is DialogFragment) {
+                        dialogFragments += fragment
+                    }
+                }
+            }
+        }
+
+        val entry = createBackStackEntry()
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+
+        dialogNavigator.navigate(listOf(entry), null, null)
+        dialogNavigator.navigate(listOf(secondEntry), null, null)
+        fragmentManager.executePendingTransactions()
+
+        assertThat(navigatorState.backStack.value).containsExactly(entry, secondEntry).inOrder()
+        assertThat(entry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        val secondFragment = dialogFragments[1]
+        assertThat(secondFragment.tag).isEqualTo(secondEntry.id)
+
+        // dismiss top dialog
+        secondFragment.dismiss()
+        fragmentManager.executePendingTransactions()
+
+        assertThat(navigatorState.backStack.value).containsExactly(entry)
+        assertThat(entry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(dialogFragments[0].lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     private fun createBackStackEntry(
         destId: Int = INITIAL_FRAGMENT,
         clazz: KClass<out Fragment> = EmptyDialogFragment::class
