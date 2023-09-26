@@ -63,17 +63,22 @@ class DeviceServiceCharacteristicsAdapter(
 
         private val buttonRead: Button = itemView.findViewById(R.id.button_read)
         private val buttonWrite: Button = itemView.findViewById(R.id.button_write)
+        private val buttonSubscribe: Button = itemView.findViewById(R.id.button_subscribe)
 
         private var currentDeviceConnection: DeviceConnection? = null
         private var currentCharacteristic: GattCharacteristic? = null
 
         init {
             buttonRead.setOnClickListener {
-                onClick(OnCharacteristicActionClick.ACTION_READ)
+                onClick(OnCharacteristicActionClick.READ)
             }
 
             buttonWrite.setOnClickListener {
-                onClick(OnCharacteristicActionClick.ACTION_WRITE)
+                onClick(OnCharacteristicActionClick.WRITE)
+            }
+
+            buttonSubscribe.setOnClickListener {
+                onClick(OnCharacteristicActionClick.SUBSCRIBE)
             }
         }
 
@@ -117,6 +122,10 @@ class DeviceServiceCharacteristicsAdapter(
                 properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0 ||
                 properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0
             buttonWrite.isVisible = isWriteable
+
+            val isSubscribable = properties.and(GattCharacteristic.PROPERTY_INDICATE) != 0 ||
+                properties.and(GattCharacteristic.PROPERTY_NOTIFY) != 0
+            buttonSubscribe.isVisible = isSubscribable
 
             val value = deviceConnection.valueFor(characteristic)
             layoutValue.isVisible = value != null

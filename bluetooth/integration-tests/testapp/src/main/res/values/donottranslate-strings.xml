@@ -47,6 +47,7 @@
     <string name="notify">Notify</string>
     <string name="read">Read</string>
     <string name="signed_write">Signed Write</string>
+    <string name="subscribe">Subscribe</string>
     <string name="write">Write</string>
     <string name="write_no_response">Write No Response</string>
     <string name="value">Value</string>
