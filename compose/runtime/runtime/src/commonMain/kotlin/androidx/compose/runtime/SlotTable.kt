@@ -764,7 +764,7 @@ internal class GroupSourceInformation(val key: Int, var sourceInformation: Strin
 
     private fun hasAnchor(anchor: Anchor): Boolean =
         groups?.fastAny {
-            it == anchor || (it is GroupSourceInformation && hasAnchor(anchor))
+            it == anchor || (it is GroupSourceInformation && it.hasAnchor(anchor))
         } == true
 
     fun removeAnchor(anchor: Anchor): Boolean {
