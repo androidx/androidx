@@ -17,7 +17,11 @@
 package androidx.graphics
 
 import android.annotation.SuppressLint
+import android.graphics.BlendMode
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ColorSpace
+import android.graphics.HardwareBufferRenderer
 import android.graphics.HardwareRenderer
 import android.graphics.PixelFormat
 import android.graphics.RenderNode
@@ -27,11 +31,23 @@ import android.media.ImageReader
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.graphics.BufferedRendererImpl.Companion.DefaultColorSpace
+import androidx.graphics.lowlatency.BufferTransformHintResolver
+import androidx.graphics.lowlatency.BufferTransformer
+import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.BufferPool
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+
+internal fun defaultBufferTransformer(width: Int, height: Int) =
+    BufferTransformer().apply {
+        computeTransform(width, height, BufferTransformHintResolver.UNKNOWN_TRANSFORM)
+    }
 
 /**
  * Helper class used to draw RenderNode content into a HardwareBuffer instance. The contents of the
@@ -39,13 +55,242 @@ import kotlin.concurrent.withLock
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class MultiBufferedCanvasRenderer(
-    private val renderNode: RenderNode,
     width: Int,
     height: Int,
+    bufferTransformer: BufferTransformer = defaultBufferTransformer(width, height),
     format: Int = PixelFormat.RGBA_8888,
     usage: Long = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT,
     maxImages: Int = 3
 ) {
+
+    private val mBufferRenderer: BufferedRendererImpl =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            BufferedRendererV34(
+                width,
+                height,
+                bufferTransformer,
+                format,
+                usage,
+                maxImages
+            )
+        } else {
+            BufferedRendererV29(
+                width,
+                height,
+                bufferTransformer,
+                format,
+                usage,
+                maxImages
+            )
+        }
+
+    private val mPreserveContents = AtomicBoolean(false)
+
+    var preserveContents: Boolean
+        get() = mPreserveContents.get()
+        set(value) { mPreserveContents.set(value) }
+
+    private var mIsReleased = false
+
+    inline fun record(block: (canvas: Canvas) -> Unit) {
+        val canvas = mBufferRenderer.beginRecording()
+        if (!preserveContents) {
+            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+        }
+        block(canvas)
+        mBufferRenderer.endRecording()
+    }
+
+    var colorSpace: ColorSpace
+        get() = mBufferRenderer.colorSpace
+        set(value) { mBufferRenderer.colorSpace = value }
+
+    fun renderFrame(
+        executor: Executor,
+        bufferAvailable: (HardwareBuffer, SyncFenceCompat?) -> Unit
+    ) {
+        if (!mIsReleased) {
+            mBufferRenderer.renderFrame(executor, bufferAvailable)
+        }
+    }
+
+    /**
+     * Release the buffer and close the corresponding [Image] instance to allow for the buffer
+     * to be re-used on a subsequent render
+     */
+    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
+        mBufferRenderer.releaseBuffer(hardwareBuffer, fence)
+    }
+
+    fun release() {
+        if (!mIsReleased) {
+            mBufferRenderer.release()
+            mIsReleased = true
+        }
+    }
+
+    internal companion object {
+        const val TAG = "MultiBufferRenderer"
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+internal interface BufferedRendererImpl {
+
+    fun beginRecording(): Canvas
+
+    fun endRecording()
+
+    fun renderFrame(executor: Executor, bufferAvailable: (HardwareBuffer, SyncFenceCompat?) -> Unit)
+
+    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?)
+
+    var colorSpace: ColorSpace
+        get() = DefaultColorSpace
+        set(_) {}
+
+    fun release()
+
+    val isReleased: Boolean
+
+    companion object {
+        val DefaultColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private class BufferedRendererV34(
+    val width: Int,
+    val height: Int,
+    val bufferTransformer: BufferTransformer,
+    val format: Int,
+    val usage: Long,
+    maxImages: Int
+) : BufferedRendererImpl {
+
+    private val mRenderNode = RenderNode("node").apply {
+        setPosition(
+            0,
+            0,
+            this@BufferedRendererV34.width,
+            this@BufferedRendererV34.height
+        )
+    }
+
+    private val mColorSpaceRef = AtomicReference(DefaultColorSpace)
+
+    private data class HardwareBufferProvider(
+        private val buffer: HardwareBuffer,
+        val renderer: HardwareBufferRenderer
+    ) : BufferPool.BufferProvider {
+        override val hardwareBuffer: HardwareBuffer
+            get() = buffer
+
+        override fun release() {
+            renderer.close()
+            buffer.close()
+        }
+    }
+
+    private val mInverseTransform =
+        bufferTransformer.invertBufferTransform(bufferTransformer.computedTransform)
+
+    private val mPool = BufferPool<HardwareBufferProvider>(maxImages)
+
+    private fun obtainBufferEntry(): HardwareBufferProvider =
+        mPool.obtain {
+            val hardwareBuffer = HardwareBuffer.create(
+                bufferTransformer.glWidth,
+                bufferTransformer.glHeight,
+                format,
+                1,
+                usage
+            )
+            val renderer = HardwareBufferRenderer(hardwareBuffer).apply {
+                setContentRoot(mRenderNode)
+            }
+            HardwareBufferProvider(hardwareBuffer, renderer)
+        }
+
+    override fun beginRecording(): Canvas = mRenderNode.beginRecording()
+
+    override fun endRecording() {
+        mRenderNode.endRecording()
+    }
+
+    override val isReleased: Boolean
+        get() = mPool.isClosed
+
+    override fun renderFrame(
+        executor: Executor,
+        bufferAvailable: (HardwareBuffer, SyncFenceCompat?) -> Unit
+    ) {
+        executor.execute {
+            val entry = obtainBufferEntry()
+            entry.renderer.obtainRenderRequest().apply {
+                setColorSpace(colorSpace)
+                if (mInverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                    setBufferTransform(mInverseTransform)
+                }
+            }.draw(executor) { result ->
+                bufferAvailable(entry.hardwareBuffer, SyncFenceCompat(result.fence))
+            }
+        }
+    }
+
+    override var colorSpace: ColorSpace
+        get() = mColorSpaceRef.get()
+        set(value) { mColorSpaceRef.set(value) }
+
+    override fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
+        mPool.release(hardwareBuffer, fence)
+    }
+
+    override fun release() {
+        mPool.close()
+        mRenderNode.discardDisplayList()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private class BufferedRendererV29(
+    width: Int,
+    height: Int,
+    bufferTransformer: BufferTransformer,
+    format: Int,
+    usage: Long,
+    maxImages: Int
+) : BufferedRendererImpl {
+
+    private val mRenderNode = RenderNode("renderNode").apply {
+        setPosition(
+            0,
+            0,
+            bufferTransformer.glWidth,
+            bufferTransformer.glHeight
+        )
+    }
+
+    private val mTransform = android.graphics.Matrix().apply {
+        when (bufferTransformer.computedTransform) {
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                setRotate(270f)
+                postTranslate(0f, width.toFloat())
+            }
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                setRotate(180f)
+                postTranslate(width.toFloat(), height.toFloat())
+            }
+            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                setRotate(90f)
+                postTranslate(height.toFloat(), 0f)
+            }
+            else -> {
+                reset()
+            }
+        }
+    }
+
     // PixelFormat.RGBA_8888 should be accepted here but Android Studio flags as a warning
     @SuppressLint("WrongConstant")
     private val mImageReader = ImageReader.newInstance(width, height, format, maxImages, usage)
@@ -53,7 +298,7 @@ internal class MultiBufferedCanvasRenderer(
         // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
         // otherwise it will clear contents across subsequent renders
         isOpaque = true
-        setContentRoot(renderNode)
+        setContentRoot(mRenderNode)
         setSurface(mImageReader.surface)
         start()
     }
@@ -78,26 +323,30 @@ internal class MultiBufferedCanvasRenderer(
      */
     private val mAllocatedBuffers = HashMap<HardwareBuffer, Image>()
 
-    var preserveContents: Boolean = true
-        set(value) {
-            mHardwareRenderer?.isOpaque = value
-            field = value
-        }
+    override val isReleased: Boolean
+        get() = mHardwareRenderer == null
 
-    private var mIsReleased = false
+    private var mCanvas: Canvas? = null
 
-    inline fun record(block: (canvas: Canvas) -> Unit) {
-        val canvas = renderNode.beginRecording()
-        block(canvas)
-        renderNode.endRecording()
+    override fun beginRecording(): Canvas {
+        val canvas = mRenderNode.beginRecording()
+        canvas.save()
+        canvas.setMatrix(mTransform)
+        mCanvas = canvas
+        return canvas
     }
 
-    fun renderFrame(
+    override fun endRecording() {
+        mCanvas?.restore()
+        mRenderNode.endRecording()
+    }
+
+    override fun renderFrame(
         executor: Executor,
         bufferAvailable: (HardwareBuffer, SyncFenceCompat?) -> Unit
     ) {
         val renderer = mHardwareRenderer
-        if (renderer != null && !mIsReleased) {
+        if (renderer != null && !isReleased) {
             with(renderer) {
                 createRenderRequest()
                     .setFrameCommitCallback(executor) {
@@ -170,7 +419,7 @@ internal class MultiBufferedCanvasRenderer(
      * Release the buffer and close the corresponding [Image] instance to allow for the buffer
      * to be re-used on a subsequent render
      */
-    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
+    override fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
         mBufferLock.withLock {
             // Remove the mapping of HardwareBuffer to Image and close the Image associated with
             // this HardwareBuffer instance
@@ -196,22 +445,19 @@ internal class MultiBufferedCanvasRenderer(
         mBufferSignal.signal()
     }
 
-    fun release() {
-        if (!mIsReleased) {
-            renderNode.discardDisplayList()
-            closeBuffers()
-            mImageReader.close()
-            mHardwareRenderer?.let { renderer ->
-                renderer.stop()
-                renderer.destroy()
-            }
-            mHardwareRenderer = null
-            mIsReleased = true
+    override fun release() {
+        closeBuffers()
+        mImageReader.close()
+        mHardwareRenderer?.let { renderer ->
+            renderer.stop()
+            renderer.destroy()
         }
+        mHardwareRenderer = null
+        mRenderNode.discardDisplayList()
     }
 
-    internal companion object {
-        const val TAG = "MultiBufferRenderer"
+    private companion object {
+        const val TAG = "BufferedRendererV29"
     }
 }
 

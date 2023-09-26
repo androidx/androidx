@@ -204,9 +204,13 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             transaction.apply {
                 mFrontBufferedLayerSurfaceControl?.let { frontSurfaceControl ->
                     setVisibility(frontSurfaceControl, false)
+                    callback.onMultiBufferedLayerRenderComplete(
+                        frontSurfaceControl,
+                        targetSurfaceControl,
+                        transaction
+                    )
                 }
             }
-            callback.onMultiBufferedLayerRenderComplete(targetSurfaceControl, transaction)
         }
     }
 
@@ -848,12 +852,17 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * front buffered layer content is drawn. This can be used to configure various properties
          * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
          * [SurfaceControlCompat.Transaction].
+         * @param multiBufferedLayerSurfaceControl Handle to the [SurfaceControlCompat] where the
+         * front buffered layer content is drawn. This can be used to configure various properties
+         * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         * [SurfaceControlCompat.Transaction].
          * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
          * content to the multi buffered layer.
          */
         @WorkerThread
         fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+            multiBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
             // Default implementation is a no-op

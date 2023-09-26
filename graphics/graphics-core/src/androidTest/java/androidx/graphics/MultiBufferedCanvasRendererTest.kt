@@ -19,7 +19,6 @@ package androidx.graphics
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorSpace
-import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -46,14 +45,12 @@ class MultiBufferedCanvasRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderFrameInvokesCallback() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            canvas.drawColor(Color.RED)
-            endRecording()
-        }
         val executor = Executors.newSingleThreadExecutor()
-        val renderer = MultiBufferedCanvasRenderer(renderNode, TEST_WIDTH, TEST_HEIGHT)
+        val renderer = MultiBufferedCanvasRenderer(TEST_WIDTH, TEST_HEIGHT).apply {
+            record { canvas ->
+                canvas.drawColor(Color.RED)
+            }
+        }
         try {
             val renderLatch = CountDownLatch(1)
             renderer.renderFrame(executor) { _, _ ->
@@ -69,14 +66,10 @@ class MultiBufferedCanvasRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderAfterReleaseDoesNotRender() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            canvas.drawColor(Color.RED)
-            endRecording()
-        }
         val executor = Executors.newSingleThreadExecutor()
-        val renderer = MultiBufferedCanvasRenderer(renderNode, TEST_WIDTH, TEST_HEIGHT)
+        val renderer = MultiBufferedCanvasRenderer(TEST_WIDTH, TEST_HEIGHT).apply {
+            record { canvas -> canvas.drawColor(Color.RED) }
+        }
         try {
             val renderLatch = CountDownLatch(1)
             renderer.release()
@@ -92,13 +85,9 @@ class MultiBufferedCanvasRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMultiReleasesDoesNotCrash() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            canvas.drawColor(Color.RED)
-            endRecording()
+        val renderer = MultiBufferedCanvasRenderer(TEST_WIDTH, TEST_HEIGHT).apply {
+            record { canvas -> canvas.drawColor(Color.RED) }
         }
-        val renderer = MultiBufferedCanvasRenderer(renderNode, TEST_WIDTH, TEST_HEIGHT)
         renderer.release()
         renderer.release()
     }
@@ -106,22 +95,20 @@ class MultiBufferedCanvasRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderOutput() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            drawSquares(
-                canvas,
-                TEST_WIDTH,
-                TEST_HEIGHT,
-                Color.RED,
-                Color.YELLOW,
-                Color.GREEN,
-                Color.BLUE
-            )
-            endRecording()
-        }
         val executor = Executors.newSingleThreadExecutor()
-        val renderer = MultiBufferedCanvasRenderer(renderNode, TEST_WIDTH, TEST_HEIGHT)
+        val renderer = MultiBufferedCanvasRenderer(TEST_WIDTH, TEST_HEIGHT).apply {
+            record { canvas ->
+                drawSquares(
+                    canvas,
+                    TEST_WIDTH,
+                    TEST_HEIGHT,
+                    Color.RED,
+                    Color.YELLOW,
+                    Color.GREEN,
+                    Color.BLUE
+                )
+            }
+        }
         try {
             val renderLatch = CountDownLatch(1)
             var bitmap: Bitmap? = null
@@ -145,18 +132,13 @@ class MultiBufferedCanvasRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRendererBlocksOnBufferRelease() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            canvas.drawColor(Color.RED)
-            endRecording()
-        }
         val renderer = MultiBufferedCanvasRenderer(
-            renderNode,
             TEST_WIDTH,
             TEST_HEIGHT,
             maxImages = 2
-        )
+        ).apply {
+            record { canvas -> canvas.drawColor(Color.RED) }
+        }
         val executor = Executors.newSingleThreadExecutor()
         try {
             val latch1 = CountDownLatch(1)
@@ -171,17 +153,13 @@ class MultiBufferedCanvasRendererTest {
             }
             assertTrue(latch1.await(1000, TimeUnit.MILLISECONDS))
 
-            var canvas = renderNode.beginRecording()
-            canvas.drawColor(Color.BLUE)
-            renderNode.endRecording()
+            renderer.record { canvas -> canvas.drawColor(Color.BLUE) }
 
             renderer.renderFrame(executor) { _, _ -> latch2.countDown() }
 
             assertTrue(latch2.await(1000, TimeUnit.MILLISECONDS))
 
-            canvas = renderNode.beginRecording()
-            canvas.drawColor(Color.GREEN)
-            renderNode.endRecording()
+            renderer.record { canvas -> canvas.drawColor(Color.GREEN) }
 
             renderer.renderFrame(executor) { _, _ -> latch3.countDown() }
 
