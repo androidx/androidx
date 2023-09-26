@@ -19,6 +19,8 @@ package androidx.graphics.lowlatency
 import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorSpace
+import android.hardware.DataSpace
 import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -39,6 +41,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Test
@@ -154,6 +157,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -261,6 +265,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -356,6 +361,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -441,6 +447,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -529,6 +536,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -641,6 +649,7 @@ class CanvasFrontBufferedRendererTest {
 
             override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -860,6 +869,212 @@ class CanvasFrontBufferedRendererTest {
             testActivity!!.setOnDestroyCallback { destroyLatch.countDown() }
             scenario.moveToState(Lifecycle.State.DESTROYED)
             Assert.assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testFrontBufferRenderWithDisplayP3() {
+        if (!isSupported()) {
+            return
+        }
+
+        val displayP3ColorSpace = ColorSpace.getFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)!!
+        val darkRed = Color.pack(0x6F / 255f, 0f, 0f, 1f, displayP3ColorSpace)
+        val converted = Color.convert(
+            Color.red(darkRed),
+            Color.green(darkRed),
+            Color.blue(darkRed),
+            Color.alpha(darkRed),
+            displayP3ColorSpace,
+            ColorSpace.get(ColorSpace.Named.SRGB)
+        )
+        assertTrue(Color.isSrgb(converted))
+        val argb = Color.toArgb(converted)
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                canvas.drawColor(darkRed)
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                // NO-OP
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                transaction.setDataSpace(
+                    frontBufferedLayerSurfaceControl,
+                    DataSpace.DATASPACE_DISPLAY_P3
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        }
+                    )
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        // Create a lambda to configure the CanvasFrontBufferedRenderer instance as
+        // the AndroidTest runner will fail on older API levels even though there is
+        // a minSdk check at the beginning of the test case.
+        // The test runner will still attempt to resolve all methods on a class
+        // and will fail to resolve the ColorSpace API for Android platform versions that
+        // do not have it.
+        val configureRenderer: (CanvasFrontBufferedRenderer<*>) -> Unit = { target ->
+            target.colorSpace = displayP3ColorSpace
+        }
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
+                        configureRenderer.invoke(this)
+                    }
+                }
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+            }
+            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+            SurfaceControlUtils.validateOutput { bitmap ->
+                argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testMultiBufferedLayerRenderWithDisplayP3() {
+        if (!isSupported()) {
+            return
+        }
+
+        val displayP3ColorSpace = ColorSpace.getFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)!!
+        val darkRed = Color.pack(0x6F / 255f, 0f, 0f, 1f, displayP3ColorSpace)
+        val converted = Color.convert(
+            Color.red(darkRed),
+            Color.green(darkRed),
+            Color.blue(darkRed),
+            Color.alpha(darkRed),
+            displayP3ColorSpace,
+            ColorSpace.get(ColorSpace.Named.SRGB)
+        )
+        assertTrue(Color.isSrgb(converted))
+        val argb = Color.toArgb(converted)
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                canvas.drawColor(darkRed)
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                transaction.setDataSpace(
+                    multiBufferedLayerSurfaceControl,
+                    DataSpace.DATASPACE_DISPLAY_P3
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        }
+                    )
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
+        // Create a lambda to configure the CanvasFrontBufferedRenderer instance as
+        // the AndroidTest runner will fail on older API levels even though there is
+        // a minSdk check at the beginning of the test case.
+        // The test runner will still attempt to resolve all methods on a class
+        // and will fail to resolve the ColorSpace API for Android platform versions that
+        // do not have it.
+        val configureRenderer: (CanvasFrontBufferedRenderer<*>) -> Unit = { target ->
+            target.colorSpace = displayP3ColorSpace
+        }
+        try {
+            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
+                        configureRenderer.invoke(this)
+                    }
+                }
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+                renderer?.commit()
+            }
+            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+            SurfaceControlUtils.validateOutput { bitmap ->
+                argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+            }
+        } finally {
+            renderer.blockingRelease()
         }
     }
 

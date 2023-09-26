@@ -18,12 +18,10 @@ package androidx.graphics.opengl
 
 import android.hardware.HardwareBuffer
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLSpec
+import androidx.hardware.BufferPool
 import androidx.hardware.SyncFenceCompat
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Allocation pool used for the creation and reuse of [FrameBuffer] instances.
@@ -58,23 +56,16 @@ internal class FrameBufferPool(
     private val maxPoolSize: Int
 ) {
 
-    private data class FrameBufferEntry(
-        var frameBuffer: FrameBuffer,
-        var fence: SyncFenceCompat?,
-        var isAvailable: Boolean
-    )
+    private class FrameBufferProvider(val frameBuffer: FrameBuffer) : BufferPool.BufferProvider {
+        override val hardwareBuffer: HardwareBuffer
+            get() = frameBuffer.hardwareBuffer
 
-    private val mPool = ArrayList<FrameBufferEntry>()
-    private var mBuffersAvailable = 0
-    private val mLock = ReentrantLock()
-    private val mCondition = mLock.newCondition()
-    private var mIsClosed = false
-
-    init {
-        if (maxPoolSize <= 0) {
-            throw IllegalArgumentException("Pool size must be at least 1")
+        override fun release() {
+            frameBuffer.close()
         }
     }
+
+    private val mPool = BufferPool<FrameBufferProvider>(maxPoolSize)
 
     /**
      * Return the current pool allocation size. This will increase until the [maxPoolSize].
@@ -82,7 +73,7 @@ internal class FrameBufferPool(
      * closed buffer is no longer re-usable
      */
     val allocationCount: Int
-        get() = mPool.size
+        get() = mPool.allocationCount
 
     /**
      * Obtains a [FrameBuffer] instance. This will either return a [FrameBuffer] if one is
@@ -90,29 +81,8 @@ internal class FrameBufferPool(
      * outstanding [FrameBuffer] instances is less than [maxPoolSize]
      */
     fun obtain(eglSpec: EGLSpec): FrameBuffer {
-        mLock.withLock {
-            if (mIsClosed) {
-                throw IllegalStateException("Attempt to obtain frame buffer from FrameBufferPool " +
-                    "that has already been closed")
-            }
-            while (mBuffersAvailable == 0 && mPool.size >= maxPoolSize) {
-                Log.w(
-                    TAG,
-                    "Waiting for FrameBuffer to become available, current allocation " +
-                        "count: ${mPool.size}"
-                )
-                mCondition.await()
-            }
-            val entry = mPool.findEntryWith(isAvailable, signaledFence)
-            return if (entry != null) {
-                mBuffersAvailable--
-                entry.isAvailable = false
-                entry.fence?.let { fence ->
-                    fence.awaitForever()
-                    fence.close()
-                }
-                entry.frameBuffer
-            } else {
+        return mPool.obtain {
+            FrameBufferProvider(
                 FrameBuffer(
                     eglSpec,
                     HardwareBuffer.create(
@@ -122,11 +92,9 @@ internal class FrameBufferPool(
                         1,
                         usage
                     )
-                ).also {
-                    mPool.add(FrameBufferEntry(it, null, false))
-                }
-            }
-        }
+                )
+            )
+        }.frameBuffer
     }
 
     /**
@@ -136,48 +104,11 @@ internal class FrameBufferPool(
      * This method is thread safe.
      */
     fun release(frameBuffer: FrameBuffer, fence: SyncFenceCompat? = null) {
-        mLock.withLock {
-            val entry = mPool.find { entry -> entry.frameBuffer === frameBuffer }
-            if (entry != null) {
-                // Only mark the entry as available if it was previously allocated
-                // This protects against the potential for the same buffer to be released
-                // multiple times into the same pool
-                if (!entry.isAvailable) {
-                    if (!entry.frameBuffer.isClosed) {
-                        entry.fence = fence
-                        entry.isAvailable = true
-                        mBuffersAvailable++
-                    } else {
-                        // The consumer closed the buffer before releasing it to the pool.
-                        // In this case remove the entry to allocate new buffers when requested.
-                        // Because framebuffer instances can be managed by applications, we should
-                        // defend against this potential scenario.
-                        mPool.remove(entry)
-                    }
-                }
-
-                if (!mIsClosed) {
-                    mCondition.signal()
-                } else {
-                    // If a buffer is attempted to be released after the pool is closed
-                    // just remove it from the entries and release it
-                    frameBuffer.close()
-                    if (mBuffersAvailable == mPool.size) {
-                        mPool.clear()
-                    }
-                }
-            } else if (!frameBuffer.isClosed) {
-                // If the FrameBuffer is not previously closed and we don't own this, flag this as
-                // an error as most likely this buffer was attempted to be returned to the wrong
-                // pool
-                throw IllegalArgumentException("No entry associated with this framebuffer " +
-                    "instance. Was this frame buffer created from a different FrameBufferPool?")
-            }
-        }
+        mPool.release(frameBuffer.hardwareBuffer, fence)
     }
 
     val isClosed: Boolean
-        get() = mLock.withLock { mIsClosed }
+        get() = mPool.isClosed
 
     /**
      * Invokes [FrameBuffer.close] on all [FrameBuffer] instances currently available within
@@ -185,63 +116,6 @@ internal class FrameBufferPool(
      * This method is thread safe.
      */
     fun close() {
-        mLock.withLock {
-            if (!mIsClosed) {
-                for (entry in mPool) {
-                    val frameBuffer = entry.frameBuffer
-                    if (entry.isAvailable) {
-                        entry.fence?.let { fence ->
-                            fence.awaitForever()
-                            fence.close()
-                        }
-                        frameBuffer.close()
-                    }
-                }
-                if (mBuffersAvailable == mPool.size) {
-                    mPool.clear()
-                }
-                mIsClosed = true
-            }
-        }
-    }
-
-    internal companion object {
-        private const val TAG = "FrameBufferPool"
-
-        /**
-         * Predicate used to search for the first entry within the pool that is either null
-         * or has already signalled
-         */
-        private val signaledFence: (FrameBufferEntry) -> Boolean = { entry ->
-            val fence = entry.fence
-            fence == null || fence.getSignalTimeNanos() != SyncFenceCompat.SIGNAL_TIME_PENDING
-        }
-
-        private val isAvailable: (FrameBufferEntry) -> Boolean = { entry -> entry.isAvailable }
-
-        /**
-         * Finds the first element within the ArrayList that satisfies both primary and
-         * secondary conditions. If no entries satisfy the secondary condition, this returns
-         * the first entry that satisfies the primary condition or null if no entries do.
-         */
-        internal fun <T> ArrayList<T>.findEntryWith(
-            primaryCondition: ((T) -> Boolean),
-            secondaryCondition: ((T) -> Boolean)
-        ): T? {
-            var fallback: T? = null
-            for (entry in this) {
-                if (primaryCondition(entry)) {
-                    if (fallback == null) {
-                        fallback = entry
-                    }
-                    if (secondaryCondition(entry)) {
-                        return entry
-                    }
-                }
-            }
-            // No elements satisfy the condition, return the entry that satisfies the primary
-            // condition if available
-            return fallback
-        }
+        mPool.close()
     }
 }

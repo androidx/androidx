@@ -17,6 +17,7 @@
 package androidx.graphics.lowlatency
 
 import android.graphics.Canvas
+import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -73,6 +74,11 @@ internal interface SingleBufferedCanvasRenderer<T> {
      * Cancel all pending render requests
      */
     fun cancelPending()
+
+    /**
+     * Configure the color space that the content is rendered with
+     */
+    var colorSpace: ColorSpace
 
     companion object {
 
