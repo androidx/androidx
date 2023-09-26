@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
+
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
 }
 
-androidXMultiplatform {
-    jvm {}
-    mac()
-    linux()
-    ios()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
+androidXComposeMultiplatform {
+    desktop()
+    darwin()
+    js()
+    wasm()
+
+    configureDarwinFlags()
+}
+
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -59,4 +68,8 @@ androidXMultiplatform {
 
 androidx {
     type = LibraryType.INTERNAL_TEST_LIBRARY
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }
