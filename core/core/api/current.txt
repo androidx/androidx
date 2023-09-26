@@ -3987,9 +3987,11 @@ package androidx.core.view.inputmethod {
     method public static CharSequence? getInitialSelectedText(android.view.inputmethod.EditorInfo, int);
     method public static CharSequence? getInitialTextAfterCursor(android.view.inputmethod.EditorInfo, int, int);
     method public static CharSequence? getInitialTextBeforeCursor(android.view.inputmethod.EditorInfo, int, int);
+    method public static boolean isStylusHandwritingEnabled(android.view.inputmethod.EditorInfo);
     method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, String![]?);
     method public static void setInitialSurroundingSubText(android.view.inputmethod.EditorInfo, CharSequence, int);
     method public static void setInitialSurroundingText(android.view.inputmethod.EditorInfo, CharSequence);
+    method public static void setStylusHandwritingEnabled(android.view.inputmethod.EditorInfo, boolean);
     field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
     field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
   }
