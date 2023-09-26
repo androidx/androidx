@@ -31,3 +31,7 @@ BecameUnchecked: androidx.compose.material3.TimePickerState.Companion:
     Removed class androidx.compose.material3.TimePickerState.Companion from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.TimePickerState.Companion#Saver():
     Removed method androidx.compose.material3.TimePickerState.Companion.Saver() from compatibility checked API surface
+
+
+DefaultValueChange: androidx.compose.material3.SnackbarHostState#showSnackbar(String, String, boolean, androidx.compose.material3.SnackbarDuration, kotlin.coroutines.Continuation<? super androidx.compose.material3.SnackbarResult>) parameter #4:
+    Attempted to remove default value from parameter arg5 in androidx.compose.material3.SnackbarHostState.showSnackbar
