@@ -72,13 +72,6 @@
             android:text="@string/read" />
 
         <CheckBox
-            android:id="@+id/check_box_properties_signed_write"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/signed_write" />
-
-        <CheckBox
             android:id="@+id/check_box_properties_write"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -91,6 +84,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/write_no_response" />
+
+        <CheckBox
+            android:id="@+id/check_box_properties_signed_write"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/signed_write" />
 
     </LinearLayout>
 

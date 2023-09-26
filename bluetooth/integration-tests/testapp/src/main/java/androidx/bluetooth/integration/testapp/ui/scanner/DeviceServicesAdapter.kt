@@ -23,19 +23,18 @@ import android.widget.TextView
 import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
-import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
+import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
 import androidx.recyclerview.widget.RecyclerView
 
 class DeviceServicesAdapter(
     var deviceConnection: DeviceConnection? = null,
-    private val onClickReadCharacteristic: OnClickCharacteristic,
-    private val onClickWriteCharacteristic: OnClickCharacteristic
+    private val onCharacteristicActionClick: OnCharacteristicActionClick,
 ) : RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service, parent, false)
-        return ViewHolder(view, onClickReadCharacteristic, onClickWriteCharacteristic)
+        return ViewHolder(view, onCharacteristicActionClick)
     }
 
     override fun getItemCount(): Int {
@@ -51,8 +50,7 @@ class DeviceServicesAdapter(
 
     inner class ViewHolder(
         itemView: View,
-        private val onClickReadCharacteristic: OnClickCharacteristic,
-        private val onClickWriteCharacteristic: OnClickCharacteristic
+        private val onCharacteristicActionClick: OnCharacteristicActionClick,
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
@@ -66,8 +64,7 @@ class DeviceServicesAdapter(
             recyclerViewServiceCharacteristic.adapter = DeviceServiceCharacteristicsAdapter(
                 deviceConnection,
                 service.characteristics,
-                onClickReadCharacteristic,
-                onClickWriteCharacteristic
+                onCharacteristicActionClick
             )
         }
     }

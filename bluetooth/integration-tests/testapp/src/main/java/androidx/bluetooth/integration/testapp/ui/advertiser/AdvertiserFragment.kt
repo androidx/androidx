@@ -211,6 +211,7 @@ class AdvertiserFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         isAdvertising = false
+        isGattServerOpen = false
     }
 
     private fun initData() {
