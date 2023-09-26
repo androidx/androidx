@@ -3932,6 +3932,21 @@ class CompositionTests {
         advance()
     }
 
+    // regression test for b/264467571, checks that composing with continue doesn't crash runtime
+    @Test
+    fun continueInALoop() = compositionTest {
+        var iterations by mutableIntStateOf(5)
+        compose {
+            for (i in 1..iterations) {
+                if (i == 4) continue
+                Text(i.toString())
+            }
+        }
+
+        iterations++
+        expectChanges()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
