@@ -42,6 +42,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.fail
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,7 +70,7 @@ class TextStringSimpleNodeTest {
             Canvas(Modifier.fillMaxSize()) {
                 val contentDrawScope = object : ContentDrawScope, DrawScope by this {
                     override fun drawContent() {
-                        TODO("Not needed")
+                        fail("Not used")
                     }
                 } as ContentDrawScope
                 with(subject) {
