@@ -21,19 +21,15 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
+/**
+ * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
+ * TODO(b/261755947) Replace with AD_SERVICES_EXTENSION_INT after new core library release
+ */
 internal object AdServicesInfo {
 
-    fun adServicesVersion(): Int {
-        return if (Build.VERSION.SDK_INT >= 33) {
+    fun version(): Int {
+        return if (Build.VERSION.SDK_INT >= 30) {
             Extensions30Impl.getAdServicesVersion()
-        } else {
-            0
-        }
-    }
-
-    fun extServicesVersion(): Int {
-        return if (Build.VERSION.SDK_INT == 31 || Build.VERSION.SDK_INT == 32) {
-            Extensions30ExtImpl.getAdExtServicesVersion()
         } else {
             0
         }
@@ -44,15 +40,5 @@ internal object AdServicesInfo {
         @DoNotInline
         fun getAdServicesVersion() =
             SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
-    }
-
-    @RequiresApi(30)
-    private object Extensions30ExtImpl {
-        // For ExtServices, there is no AD_SERVICES extension version, so we need to check
-        // for the build version. Use S for now, but this can be changed to R when we add
-        // support for R later.
-        @DoNotInline
-        fun getAdExtServicesVersion() =
-            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
     }
 }
