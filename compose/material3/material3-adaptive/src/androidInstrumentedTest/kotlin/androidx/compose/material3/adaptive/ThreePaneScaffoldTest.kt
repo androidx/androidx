@@ -136,21 +136,33 @@ internal fun SampleThreePaneScaffold(
         scaffoldValue = scaffoldValue,
         arrangement = arrangement,
         secondaryPane = {
-            Surface(
-                modifier = Modifier.testTag(tag = "SecondaryPane"),
-                color = MaterialTheme.colorScheme.secondary
-            ) {}
+            AnimatedPane(
+                modifier = Modifier.testTag(tag = "SecondaryPane")
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.secondary
+                ) {}
+            }
         },
         tertiaryPane = {
-            Surface(
-                modifier = Modifier.testTag(tag = "TertiaryPane"),
-                color = MaterialTheme.colorScheme.tertiary
-            ) {}
+            AnimatedPane(
+                modifier = Modifier.testTag(tag = "TertiaryPane")
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.tertiary
+                ) {}
+            }
         }
     ) {
-        Surface(
-            modifier = Modifier.testTag(tag = "PrimaryPane"),
-            color = MaterialTheme.colorScheme.primary
-        ) {}
+        AnimatedPane(
+            modifier = Modifier.testTag(tag = "PrimaryPane")
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.primary
+            ) {}
+        }
     }
 }
