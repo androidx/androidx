@@ -256,7 +256,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * True if any accessibility service enabled in the system, except the UIAutomator (as it
      * doesn't appear in the list of enabled services)
      */
-    private val isEnabledForAccessibility: Boolean
+    internal val isEnabledForAccessibility: Boolean
         get() {
             // checking the list allows us to filter out the UIAutomator which doesn't appear in it
             return accessibilityForceEnabledForTesting ||
