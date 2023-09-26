@@ -26,9 +26,18 @@ import androidx.test.espresso.matcher.ViewMatchers
 internal actual fun SemanticsNodeInteraction.checkIsDisplayed(
     assertIsFullyVisible: Boolean
 ): Boolean {
-    // hierarchy check - check layout nodes are visible
-    val errorMessageOnFail = "Failed to perform isDisplayed check."
-    val node = fetchSemanticsNode(errorMessageOnFail)
+    val nodes = fetchSemanticsNodes(atLeastOneRootRequired = true)
+    if (nodes.selectedNodes.isEmpty()) {
+        // If the node doesn't exist, it's not displayed.
+        return false
+    }
+    if (nodes.selectedNodes.size > 1) {
+        throw AssertionError(
+            "Failed to perform checkIsDisplayed check: Expected at most 1 node but found " +
+                "${nodes.selectedNodes.size} nodes that satisfy (${selector.description})"
+        )
+    }
+    val node = nodes.selectedNodes.single()
 
     fun isNotPlaced(node: LayoutInfo): Boolean {
         return !node.isPlaced

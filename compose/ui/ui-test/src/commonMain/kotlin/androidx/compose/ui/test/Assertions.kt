@@ -30,11 +30,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
  * Throws [AssertionError] if the node is not displayed.
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
-    // TODO(b/143607231): check semantics hidden property
-    // TODO(b/143608742): check the correct AndroidCraneView is visible
-
-    if (!checkIsDisplayed(assertIsFullyVisible = false)) {
-        // TODO(b/133217292)
+    if (!isDisplayed()) {
         throw AssertionError("Assert failed: The component is not displayed!")
     }
     return this
@@ -46,11 +42,7 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
  * Throws [AssertionError] if the node is displayed.
  */
 fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
-    // TODO(b/143607231): check semantics hidden property
-    // TODO(b/143608742): check no AndroidCraneView contains the given component
-
-    if (checkIsDisplayed(assertIsFullyVisible = true)) {
-        // TODO(b/133217292)
+    if (!isNotDisplayed()) {
         throw AssertionError("Assert failed: The component is displayed!")
     }
     return this
@@ -352,6 +344,33 @@ fun SemanticsNodeInteractionCollection.assertAll(
     return this
 }
 
+/**
+ * Returns true if the matched node is displayed on screen.
+ *
+ * Specifically, the node must be composed, placed and at least a portion of its bounds must be
+ * visible on screen after clipping is applied. If no matching node is found, returns false.
+ * If multiple nodes match, throws an [AssertionError].
+ *
+ * @sample androidx.compose.ui.test.samples.waitForDisplayed
+ *
+ * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
+ */
+fun SemanticsNodeInteraction.isDisplayed(): Boolean =
+    checkIsDisplayed(assertIsFullyVisible = false)
+
+/**
+ * Asserts that the current semantics node is not displayed on screen.
+ *
+ * If no matching node is found, returns true. If multiple nodes match, throws an [AssertionError].
+ *
+ * @sample androidx.compose.ui.test.samples.waitForNotDisplayed
+ *
+ * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
+ */
+fun SemanticsNodeInteraction.isNotDisplayed(): Boolean =
+    !checkIsDisplayed(assertIsFullyVisible = true)
+
+@Suppress("DocumentExceptions")
 internal expect fun SemanticsNodeInteraction.checkIsDisplayed(
     assertIsFullyVisible: Boolean
 ): Boolean
