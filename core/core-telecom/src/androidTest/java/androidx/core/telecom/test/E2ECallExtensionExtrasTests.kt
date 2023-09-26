@@ -211,28 +211,4 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
             assertTrue(containsBackwardsCompatKey)
         }
     }
-
-//    private suspend fun waitOnInCallServiceToReachXCallCompats(targetCallCompatCount: Int):
-//        CallCompat? {
-//        var targetCallCompat: CallCompat? = null
-//            try {
-//                val callCompatList = MockInCallService.getService()?.mCallCompats
-//                if (callCompatList != null) {
-//                    withTimeout(1000) {
-//                        while(isActive && callCompatList.size < targetCallCompatCount){
-//                            delay(1)
-//                        }
-//                        targetCallCompat = callCompatList.last()
-//                    }
-//                }
-//            } catch (e: TimeoutCancellationException) {
-//                Log.i(TAG, "assertCallExtraOrProperty: timeout reached")
-//                TestUtils.dumpTelecom()
-//                MockInCallService.destroyAllCalls()
-//                throw AssertionError(
-//                    "MockInCallService mCallCompats is still empty."
-//                )
-//            }
-//        return targetCallCompat
-//    }
 }
