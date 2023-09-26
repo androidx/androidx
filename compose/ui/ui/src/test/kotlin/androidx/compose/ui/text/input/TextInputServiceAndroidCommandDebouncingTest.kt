@@ -256,6 +256,19 @@ class TextInputServiceAndroidCommandDebouncingTest {
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
     }
 
+    @Test
+    fun commandsAreCleared_afterProcessing() {
+        service.startInput()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+
+        service.showSoftwareKeyboard()
+        scope.advanceUntilIdle()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1) // does not increase
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(2)
+    }
+
     private fun TextInputServiceAndroid.startInput() {
         startInput(
             TextFieldValue(),
