@@ -1716,7 +1716,7 @@ package androidx.compose.ui.input.nestedscroll {
 package androidx.compose.ui.input.pointer {
 
   @kotlin.coroutines.RestrictsSuspension @kotlin.jvm.JvmDefaultWithCompatibility public interface AwaitPointerEventScope extends androidx.compose.ui.unit.Density {
-    method public suspend Object? awaitPointerEvent(optional androidx.compose.ui.input.pointer.PointerEventPass pass, optional kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerEvent>);
+    method public suspend Object? awaitPointerEvent(optional androidx.compose.ui.input.pointer.PointerEventPass pass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerEvent>);
     method public androidx.compose.ui.input.pointer.PointerEvent getCurrentEvent();
     method public default long getExtendedTouchPadding();
     method public long getSize();

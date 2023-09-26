@@ -184,7 +184,7 @@ package androidx.compose.ui.text {
     method public float getLastBaseline();
     method public float getLineBottom(int lineIndex);
     method public int getLineCount();
-    method public int getLineEnd(int lineIndex, boolean visibleEnd);
+    method public int getLineEnd(int lineIndex, optional boolean visibleEnd);
     method public int getLineForOffset(int offset);
     method public int getLineForVerticalPosition(float vertical);
     method public float getLineHeight(int lineIndex);
@@ -202,9 +202,9 @@ package androidx.compose.ui.text {
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
-    method public void paint(androidx.compose.ui.graphics.Canvas canvas, androidx.compose.ui.graphics.Brush brush, float alpha, androidx.compose.ui.graphics.Shadow? shadow, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle, int blendMode);
-    method public void paint(androidx.compose.ui.graphics.Canvas canvas, long color, androidx.compose.ui.graphics.Shadow? shadow, androidx.compose.ui.text.style.TextDecoration? textDecoration);
-    method public void paint(androidx.compose.ui.graphics.Canvas canvas, long color, androidx.compose.ui.graphics.Shadow? shadow, androidx.compose.ui.text.style.TextDecoration? textDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle, int blendMode);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas, androidx.compose.ui.graphics.Brush brush, optional float alpha, optional androidx.compose.ui.graphics.Shadow? shadow, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle, optional int blendMode);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas, optional long color, optional androidx.compose.ui.graphics.Shadow? shadow, optional androidx.compose.ui.text.style.TextDecoration? textDecoration);
+    method public void paint(androidx.compose.ui.graphics.Canvas canvas, optional long color, optional androidx.compose.ui.graphics.Shadow? shadow, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle, optional int blendMode);
     property public abstract boolean didExceedMaxLines;
     property public abstract float firstBaseline;
     property public abstract float height;

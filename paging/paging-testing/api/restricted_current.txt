@@ -14,7 +14,7 @@ package androidx.paging.testing {
   }
 
   public final class PagerFlowSnapshotKt {
-    method @VisibleForTesting public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, optional kotlin.coroutines.Continuation<java.util.List<Value>>);
+    method @VisibleForTesting public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, kotlin.coroutines.Continuation<java.util.List<Value>>);
   }
 
   @VisibleForTesting public final class SnapshotLoader<Value> {
@@ -38,7 +38,7 @@ package androidx.paging.testing {
     method public suspend Object? getPagingState(int anchorPosition, kotlin.coroutines.Continuation<androidx.paging.PagingState<Key,Value>>);
     method public suspend Object? getPagingState(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> anchorPositionLookup, kotlin.coroutines.Continuation<androidx.paging.PagingState<Key,Value>>);
     method public suspend Object? prepend(kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
-    method public suspend Object? refresh(optional Key? initialKey, optional kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
+    method public suspend Object? refresh(optional Key? initialKey, kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>);
   }
 
 }
