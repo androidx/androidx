@@ -16,8 +16,26 @@
 
 package androidx.bluetooth.integration.testapp.data.connection
 
+import androidx.annotation.IntDef
 import androidx.bluetooth.GattCharacteristic
 
-interface OnClickCharacteristic {
-    fun onClick(deviceConnection: DeviceConnection, characteristic: GattCharacteristic)
+interface OnCharacteristicActionClick {
+
+    companion object {
+        const val ACTION_READ = 0
+        const val ACTION_WRITE = 1
+    }
+
+    @Target(AnnotationTarget.TYPE)
+    @IntDef(
+        ACTION_READ,
+        ACTION_WRITE,
+    )
+    annotation class Action
+
+    fun onClick(
+        deviceConnection: DeviceConnection,
+        characteristic: GattCharacteristic,
+        action: @Action Int
+    )
 }

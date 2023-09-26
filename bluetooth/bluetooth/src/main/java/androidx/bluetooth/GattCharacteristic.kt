@@ -49,6 +49,7 @@ class GattCharacteristic internal constructor(
          * It permits broadcasts of the characteristic.
          */
         const val PROPERTY_BROADCAST = FwkCharacteristic.PROPERTY_BROADCAST
+
         /**
          * It permits reads of the characteristic.
          */
