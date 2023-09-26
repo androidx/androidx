@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 
-import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.privacysandbox.ads.adservices.java.measurement.MeasurementManagerFutures;
 import androidx.privacysandbox.ads.adservices.measurement.DeletionRequest;
@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("NewApi")
 @RunWith(JUnit4.class)
 @SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 // TODO: Consider refactoring so that we're not duplicating code.
@@ -79,9 +78,6 @@ public class MeasurementManagerTest {
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("1");
         mMeasurementManager =
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
-        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.enableBackCompat();
-        }
 
         // Put in a short sleep to make sure the updated config propagates
         // before starting the tests
@@ -96,21 +92,14 @@ public class MeasurementManagerTest {
         mTestUtil.overrideMeasurementKillSwitches(false);
         mTestUtil.overrideAdIdKillSwitch(false);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("0");
-        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.disableBackCompat();
-        }
-
         // Cool-off rate limiter
         TimeUnit.SECONDS.sleep(1);
     }
 
     @Test
     public void testRegisterSource_NoServerSetup_NoErrors() throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         assertThat(mMeasurementManager.registerSourceAsync(
                 SOURCE_REGISTRATION_URI,
@@ -120,12 +109,8 @@ public class MeasurementManagerTest {
 
     @Test
     public void testRegisterAppSources_NoServerSetup_NoErrors() throws Exception {
-        // Skip the test if the right SDK extension is not present
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
         // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         SourceRegistrationRequest request =
                 new SourceRegistrationRequest.Builder(
@@ -137,23 +122,18 @@ public class MeasurementManagerTest {
 
     @Test
     public void testRegisterTrigger_NoServerSetup_NoErrors() throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         assertThat(mMeasurementManager.registerTriggerAsync(TRIGGER_REGISTRATION_URI).get())
                 .isNotNull();
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void registerWebSource_NoErrors() throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         WebSourceParams webSourceParams =
                 new WebSourceParams(SOURCE_REGISTRATION_URI, false);
@@ -172,12 +152,10 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void registerWebTrigger_NoErrors() throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         WebTriggerParams webTriggerParams =
                 new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
@@ -191,12 +169,11 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withNoRange_withCallback_NoErrors()
             throws Exception {
         // Skip the test if SDK extension 5 is not present.
-        // This test should not run for back compat because it depends on adServices running in
-        // system server
-        Assume.assumeTrue(VersionCompatUtil.INSTANCE.isTPlusWithMinAdServicesVersion(5));
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -210,13 +187,11 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withEmptyLists_withRange_withCallback_NoErrors()
             throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -232,13 +207,11 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void testDeleteRegistrations_withRequest_withInvalidArguments_withCallback_hasError()
             throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -257,12 +230,10 @@ public class MeasurementManagerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 33)
     public void testMeasurementApiStatus_returnResultStatus() throws Exception {
-        // Skip the test if the right SDK extension is not present.
-        Assume.assumeTrue(
-                VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+        // Skip the test if SDK extension 5 is not present.
+        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 5);
 
         int result = mMeasurementManager.getMeasurementApiStatusAsync().get();
         assertThat(result).isEqualTo(1);
