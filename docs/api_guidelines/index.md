@@ -1,12 +1,15 @@
-# Library API guidelines
+# Library guidelines
 
 [TOC]
 
-## Introduction {#introduction}
+This guide is intended to help Jetpack library developers understand best
+practices for designing and evolving their libraries.
 
-This guide is an addendum to
+It is an addendum to
 s.android.com/api-guidelines,
-which covers standard and practices for designing platform APIs.
+which covers standard and practices for designing platform APIs, and it extends
+beyond API guidelines to cover implementation details that are relevant to
+clients of Jetpack libraries.
 
 All platform API design guidelines also apply to Jetpack libraries, with any
 additional guidelines or exceptions noted in this document. Jetpack libraries
@@ -25,6 +28,8 @@ for Kotlin libraries.
 <!--#include file="/company/teams/androidx/api_guidelines/resources.md"-->
 
 <!--#include file="/company/teams/androidx/api_guidelines/dependencies.md"-->
+
+<!--#include file="/company/teams/androidx/api_guidelines/functionality.md"-->
 
 <!--#include file="/company/teams/androidx/api_guidelines/annotations.md"-->
 
