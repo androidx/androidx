@@ -19,18 +19,16 @@ package androidx.privacysandbox.ads.adservices.java.adid
 import android.content.Context
 import android.os.Looper
 import android.os.OutcomeReceiver
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.ads.adservices.adid.AdId
-import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.android.dx.mockito.inline.extended.ExtendedMockito
-import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import kotlin.test.assertNotEquals
-import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -38,8 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
@@ -48,45 +44,25 @@ import org.mockito.invocation.InvocationOnMock
 @SdkSuppress(minSdkVersion = 30)
 class AdIdManagerFuturesTest {
 
-    private var mSession: StaticMockitoSession? = null
-    private val mValidAdExtServicesSdkExtVersion = VersionCompatUtil.isSWithMinExtServicesVersion(9)
-
     @Before
     fun setUp() {
-        mContext = spy(ApplicationProvider.getApplicationContext<Context>())
-
-        if (mValidAdExtServicesSdkExtVersion) {
-            // setup a mockitoSession to return the mocked manager
-            // when the static method .get() is called
-            mSession = ExtendedMockito.mockitoSession()
-                .mockStatic(android.adservices.adid.AdIdManager::class.java)
-                .startMocking()
-        }
-    }
-
-    @After
-    fun tearDown() {
-        mSession?.finishMocking()
+        mContext = Mockito.spy(ApplicationProvider.getApplicationContext<Context>())
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdIdOlderVersions() {
-        Assume.assumeFalse("maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
-            VersionCompatUtil.isTestableVersion(
-                /* minAdServicesVersion=*/ 4,
-                /* minExtServicesVersion=*/ 9))
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
         Truth.assertThat(AdIdManagerFutures.from(mContext)).isEqualTo(null)
     }
 
     @Test
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     fun testAdIdAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            VersionCompatUtil.isTestableVersion(
-                /* minAdServicesVersion= */ 4,
-                /* minExtServicesVersion=*/ 9))
-
-        val adIdManager = mockAdIdManager(mContext, mValidAdExtServicesSdkExtVersion)
+        val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        val adIdManager = mockAdIdManager(mContext)
         setupResponse(adIdManager)
         val managerCompat = AdIdManagerFutures.from(mContext)
 
@@ -100,23 +76,16 @@ class AdIdManagerFuturesTest {
         Mockito.verify(adIdManager).getAdId(ArgumentMatchers.any(), ArgumentMatchers.any())
     }
 
+    @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     companion object {
         private lateinit var mContext: Context
 
-        private fun mockAdIdManager(
-            spyContext: Context,
-            isExtServices: Boolean
-        ): android.adservices.adid.AdIdManager {
+        private fun mockAdIdManager(spyContext: Context): android.adservices.adid.AdIdManager {
             val adIdManager = Mockito.mock(android.adservices.adid.AdIdManager::class.java)
-            // mock the .get() method if using extServices version, otherwise mock getSystemService
-            if (isExtServices) {
-                `when`(android.adservices.adid.AdIdManager.get(ArgumentMatchers.any()))
-                    .thenReturn(adIdManager)
-            } else {
-                `when`(spyContext.getSystemService(
-                    android.adservices.adid.AdIdManager::class.java)).thenReturn(adIdManager)
-            }
+            Mockito.`when`(spyContext.getSystemService(
+                android.adservices.adid.AdIdManager::class.java)).thenReturn(adIdManager)
             return adIdManager
         }
 
