@@ -58,23 +58,20 @@ public open class SchemaBundle(
             )
             .create()
 
-        /**
-         */
         @Throws(UnsupportedEncodingException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmStatic
         public fun deserialize(fis: InputStream): SchemaBundle {
             InputStreamReader(fis, CHARSET).use { inputStream ->
                 return GSON.fromJson(inputStream, SchemaBundle::class.javaObjectType)
-                    ?: throw IllegalStateException("Empty schema file")
+                    ?: throw EmptySchemaException()
             }
         }
 
-        /**
-         */
         @Throws(IOException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmStatic
+        @Deprecated("Prefer overload version that has OutputStream as parameter.")
         public fun serialize(bundle: SchemaBundle, file: File) {
             serialize(bundle, FileOutputStream(file, false))
         }
@@ -140,4 +137,10 @@ public open class SchemaBundle(
             }
         }
     }
+
+    /**
+     * A exception indicating a schema file being read was empty.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public class EmptySchemaException : IllegalStateException("Empty schema file")
 }
