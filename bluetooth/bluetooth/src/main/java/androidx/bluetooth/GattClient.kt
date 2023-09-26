@@ -341,7 +341,7 @@ class GattClient(private val context: Context) {
                         }
                     }
 
-                    this.awaitClose {
+                    awaitClose {
                         launch {
                             unregisterSubscribeListener(characteristic.fwkCharacteristic)
                         }
