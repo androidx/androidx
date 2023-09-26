@@ -26,8 +26,7 @@ class DeviceConnection(
     val bluetoothDevice: BluetoothDevice
 ) {
     var job: Job? = null
-    var onClickReadCharacteristic: OnClickCharacteristic? = null
-    var onClickWriteCharacteristic: OnClickCharacteristic? = null
+    var onCharacteristicActionClick: OnCharacteristicActionClick? = null
     var status = Status.DISCONNECTED
     var services = emptyList<GattService>()
 
