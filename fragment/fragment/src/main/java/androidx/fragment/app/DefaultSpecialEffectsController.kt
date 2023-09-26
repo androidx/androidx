@@ -986,8 +986,22 @@ internal class DefaultSpecialEffectsController(
                         if (hasLastInEpicenter) {
                             transitionImpl.setEpicenter(transition, lastInEpicenterRect)
                         }
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Entering Transition: $transition")
+                            Log.v(FragmentManager.TAG, ">>>>> EnteringViews <<<<<")
+                            for (view: View in transitioningViews) {
+                                Log.v(FragmentManager.TAG, "View: $view")
+                            }
+                        }
                     } else {
                         transitionImpl.setEpicenter(transition, firstOutEpicenterView)
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(FragmentManager.TAG, "Exiting Transition: $transition")
+                            Log.v(FragmentManager.TAG, ">>>>> ExitingViews <<<<<")
+                            for (view: View in transitioningViews) {
+                                Log.v(FragmentManager.TAG, "View: $view")
+                            }
+                        }
                     }
                     // Now determine how this transition should be merged together
                     if (transitionInfo.isOverlapAllowed) {
@@ -1008,6 +1022,10 @@ internal class DefaultSpecialEffectsController(
             // runs after the mergedTransition set is complete
             mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
                 mergedNonOverlappingTransition, sharedElementTransition)
+
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Final merged transition: $mergedTransition")
+            }
 
             return Pair(enteringViews, mergedTransition)
         }
