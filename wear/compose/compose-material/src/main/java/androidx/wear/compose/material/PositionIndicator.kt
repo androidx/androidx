@@ -738,6 +738,9 @@ internal class ScalingLazyColumnStateAdapter(
 
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
+
+    override fun canScrollBackwardsOrForwards(): Boolean =
+        state.canScrollBackward || state.canScrollForward
 }
 
 /**
@@ -760,6 +763,9 @@ internal class MaterialScalingLazyColumnStateAdapter(
     override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
 
     override fun isScrollInProgress(): Boolean = state.isScrollInProgress
+
+    override fun canScrollBackwardsOrForwards(): Boolean =
+        state.canScrollBackward || state.canScrollForward
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -856,9 +862,7 @@ internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorSta
         }
 
     override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = !noVisibleItems() &&
-            (decimalFirstItemIndex() > 0 ||
-                decimalLastItemIndex() < totalItemsCount())
+        val canScroll = !noVisibleItems() && canScrollBackwardsOrForwards()
         return if (canScroll) {
             if (isScrollInProgress())
                 PositionIndicatorVisibility.Show
@@ -878,6 +882,8 @@ internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorSta
     abstract fun decimalLastItemIndex(): Float
 
     abstract fun decimalFirstItemIndex(): Float
+
+    abstract fun canScrollBackwardsOrForwards(): Boolean
 }
 
 /**

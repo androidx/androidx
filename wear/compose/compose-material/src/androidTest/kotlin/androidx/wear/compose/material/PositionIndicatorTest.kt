@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListScope
@@ -38,6 +39,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,13 +50,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
-import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo as ScalingLazyListLayoutInfo
-import androidx.wear.compose.foundation.lazy.ScalingLazyListScope as ScalingLazyListScope
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState as rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -120,6 +122,108 @@ public class PositionIndicatorTest {
             items(3) {
                 Box(Modifier.requiredSize(itemSizeDp))
             }
+        }
+    }
+
+    @Test
+    fun positionIndicatorWithScalingLazyColumn_alwaysVisible() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = remember { ScalingLazyColumnStateAdapter(state) }
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier
+                    .size(213.dp) // Size of large round Wear device
+                    .onSizeChanged { viewPortHeight = it.height }
+            ) {
+                items(5) {
+                    Box(modifier = Modifier.size(30.dp))
+                }
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingHorizontal = 5.dp,
+            )
+        }
+
+        while (state.canScrollForward) {
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(10f)
+                }
+            }
+            rule.runOnIdle {
+                assertThat(
+                    positionIndicatorState.visibility(viewPortHeight.toFloat())
+                ).isNotEqualTo(PositionIndicatorVisibility.Hide)
+            }
+        }
+    }
+
+    @Test
+    fun positionIndicatorWithShortScalingLazyColumn_hidden() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = remember { ScalingLazyColumnStateAdapter(state) }
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier
+                    .size(213.dp)
+                    .onSizeChanged { viewPortHeight = it.height }
+            ) {
+                item {
+                    Box(modifier = Modifier.size(30.dp))
+                }
+            }
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingHorizontal = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                positionIndicatorState.visibility(viewPortHeight.toFloat())
+            ).isEqualTo(PositionIndicatorVisibility.Hide)
+        }
+    }
+
+    @Test
+    fun positionIndicator_withEmptyScalingLazyColumn_hidden() {
+        lateinit var state: ScalingLazyListState
+        lateinit var positionIndicatorState: PositionIndicatorState
+        var viewPortHeight = 0
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            positionIndicatorState = remember { ScalingLazyColumnStateAdapter(state) }
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier
+                    .size(213.dp)
+                    .onSizeChanged { viewPortHeight = it.height }
+            ) {}
+            PositionIndicator(
+                state = positionIndicatorState,
+                indicatorHeight = 50.dp,
+                indicatorWidth = 4.dp,
+                paddingHorizontal = 5.dp,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                positionIndicatorState.visibility(viewPortHeight.toFloat())
+            ).isEqualTo(PositionIndicatorVisibility.Hide)
         }
     }
 
