@@ -49,7 +49,7 @@ internal class CapabilityExchangeUtils {
          * informing the ICS of its supported capabilities, receiving the ICS's supported
          * capabilities (ACK), and informing the ICS that negotiation has completed. If the VOIP
          * side is unable to receive the ICS supported capabilities, feature setup will fail and
-         * the ICS will report the status for negotiation as successful.
+         * the ICS will report the status for negotiation as failed.
          *
          * @param extras received from call event.
          * @param supportedCapabilities for the VOIP app.

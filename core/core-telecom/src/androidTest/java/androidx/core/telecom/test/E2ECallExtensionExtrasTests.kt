@@ -24,10 +24,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.internal.InCallServiceCompat
+import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.test.utils.TestUtils.waitOnInCallServiceToReachXCallCompats
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -59,7 +60,12 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
-    private lateinit var inCallServiceCompat: InCallServiceCompat
+    companion object {
+        /**
+         * Logging for within the test class.
+         */
+        internal val TAG = E2ECallExtensionExtrasTests::class.simpleName
+    }
 
     /**
      * Grant READ_PHONE_NUMBERS permission as part of testing
@@ -72,7 +78,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @Before
     fun setUp() {
         Utils.resetUtils()
-        inCallServiceCompat = InCallServiceCompat(mContext)
     }
 
     @After
@@ -193,12 +198,12 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
             } else if (Utils.hasPlatformV2Apis()) {
-                // We need to check the phone account, which requires accessing TelecomManager.
-                // Directly resolving the extension type via resolveCallExtensionsType() will
-                // provide that functionality so no need to rewrite it here.
-                assertEquals(
-                    inCallServiceCompat.resolveCallExtensionsType(call),
-                    InCallServiceCompat.CAPABILITY_EXCHANGE)
+                var callCompat: CallCompat?
+                // Wait for capability exchange to complete before verifying the extension level:
+                runBlocking {
+                    callCompat = waitOnInCallServiceToReachXCallCompats(1)
+                }
+                assertEquals(CallCompat.CAPABILITY_EXCHANGE, callCompat?.mExtensionLevelSupport)
             }
         } else {
             val containsBackwardsCompatKey = callDetails.extras != null && callDetails.extras
@@ -206,4 +211,28 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
             assertTrue(containsBackwardsCompatKey)
         }
     }
+
+//    private suspend fun waitOnInCallServiceToReachXCallCompats(targetCallCompatCount: Int):
+//        CallCompat? {
+//        var targetCallCompat: CallCompat? = null
+//            try {
+//                val callCompatList = MockInCallService.getService()?.mCallCompats
+//                if (callCompatList != null) {
+//                    withTimeout(1000) {
+//                        while(isActive && callCompatList.size < targetCallCompatCount){
+//                            delay(1)
+//                        }
+//                        targetCallCompat = callCompatList.last()
+//                    }
+//                }
+//            } catch (e: TimeoutCancellationException) {
+//                Log.i(TAG, "assertCallExtraOrProperty: timeout reached")
+//                TestUtils.dumpTelecom()
+//                MockInCallService.destroyAllCalls()
+//                throw AssertionError(
+//                    "MockInCallService mCallCompats is still empty."
+//                )
+//            }
+//        return targetCallCompat
+//    }
 }
