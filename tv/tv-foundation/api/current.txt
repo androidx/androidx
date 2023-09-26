@@ -126,7 +126,7 @@ package androidx.tv.foundation.lazy.grid {
 
   @androidx.compose.runtime.Stable public final class TvLazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TvLazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -134,7 +134,7 @@ package androidx.tv.foundation.lazy.grid {
     method public androidx.tv.foundation.lazy.grid.TvLazyGridLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -225,7 +225,7 @@ package androidx.tv.foundation.lazy.list {
 
   @androidx.compose.runtime.Stable public final class TvLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TvLazyListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -233,7 +233,7 @@ package androidx.tv.foundation.lazy.list {
     method public androidx.tv.foundation.lazy.list.TvLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;

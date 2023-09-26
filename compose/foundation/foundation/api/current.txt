@@ -61,13 +61,13 @@ package androidx.compose.foundation {
     method public boolean isPersistent();
     method public boolean isVisible();
     method public void onDispose();
-    method public suspend Object? show(optional androidx.compose.foundation.MutatePriority mutatePriority, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? show(optional androidx.compose.foundation.MutatePriority mutatePriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract boolean isPersistent;
     property public abstract boolean isVisible;
   }
 
   public final class BasicTooltip_androidKt {
-    method @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, androidx.compose.ui.Modifier modifier, boolean focusable, boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void BasicTooltipBox(androidx.compose.ui.window.PopupPositionProvider positionProvider, kotlin.jvm.functions.Function0<kotlin.Unit> tooltip, androidx.compose.foundation.BasicTooltipState state, optional androidx.compose.ui.Modifier modifier, optional boolean focusable, optional boolean enableUserInput, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class BorderKt {
@@ -246,7 +246,7 @@ package androidx.compose.foundation {
 
   @androidx.compose.runtime.Stable public final class ScrollState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public ScrollState(int initial);
-    method public suspend Object? animateScrollTo(int value, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollTo(int value, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public int getMaxValue();
@@ -314,7 +314,7 @@ package androidx.compose.foundation.gestures {
   public final class AnchoredDraggableKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.foundation.gestures.DraggableAnchors<T> DraggableAnchors(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.gestures.DraggableAnchorsConfig<T>,kotlin.Unit> builder);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static <T> androidx.compose.ui.Modifier anchoredDraggable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.AnchoredDraggableState<T> state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, optional float velocity, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? animateTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, optional float velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static suspend <T> Object? snapTo(androidx.compose.foundation.gestures.AnchoredDraggableState<T>, T targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
@@ -436,9 +436,9 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class ScrollExtensionsKt {
-    method public static suspend Object? animateScrollBy(androidx.compose.foundation.gestures.ScrollableState, float value, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.coroutines.Continuation<? super java.lang.Float>);
+    method public static suspend Object? animateScrollBy(androidx.compose.foundation.gestures.ScrollableState, float value, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super java.lang.Float>);
     method public static suspend Object? scrollBy(androidx.compose.foundation.gestures.ScrollableState, float value, kotlin.coroutines.Continuation<? super java.lang.Float>);
-    method public static suspend Object? stopScroll(androidx.compose.foundation.gestures.ScrollableState, optional androidx.compose.foundation.MutatePriority scrollPriority, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? stopScroll(androidx.compose.foundation.gestures.ScrollableState, optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public interface ScrollScope {
@@ -476,10 +476,10 @@ package androidx.compose.foundation.gestures {
 
   public final class TapGestureDetectorKt {
     method @Deprecated public static suspend androidx.compose.ui.input.pointer.PointerInputChange awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional boolean requireUnconsumed);
-    method public static suspend Object? awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional boolean requireUnconsumed, optional androidx.compose.ui.input.pointer.PointerEventPass pass, optional kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
-    method public static suspend Object? detectTapGestures(androidx.compose.ui.input.pointer.PointerInputScope, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onDoubleTap, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onLongPress, optional kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.PressGestureScope,? super androidx.compose.ui.geometry.Offset,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onPress, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onTap, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional boolean requireUnconsumed, optional androidx.compose.ui.input.pointer.PointerEventPass pass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
+    method public static suspend Object? detectTapGestures(androidx.compose.ui.input.pointer.PointerInputScope, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onDoubleTap, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onLongPress, optional kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.PressGestureScope,? super androidx.compose.ui.geometry.Offset,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onPress, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onTap, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public static suspend androidx.compose.ui.input.pointer.PointerInputChange? waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope);
-    method public static suspend Object? waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional androidx.compose.ui.input.pointer.PointerEventPass pass, optional kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
+    method public static suspend Object? waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional androidx.compose.ui.input.pointer.PointerEventPass pass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
   }
 
   public final class TransformGestureDetectorKt {
@@ -508,13 +508,13 @@ package androidx.compose.foundation.gestures {
 
   public final class TransformableStateKt {
     method public static androidx.compose.foundation.gestures.TransformableState TransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,kotlin.Unit> onTransformation);
-    method public static suspend Object? animatePanBy(androidx.compose.foundation.gestures.TransformableState, long offset, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend Object? animateRotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend Object? animateZoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? animatePanBy(androidx.compose.foundation.gestures.TransformableState, long offset, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? animateRotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? animateZoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend Object? panBy(androidx.compose.foundation.gestures.TransformableState, long offset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,kotlin.Unit> onTransformation);
     method public static suspend Object? rotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend Object? stopTransformation(androidx.compose.foundation.gestures.TransformableState, optional androidx.compose.foundation.MutatePriority terminationPriority, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? stopTransformation(androidx.compose.foundation.gestures.TransformableState, optional androidx.compose.foundation.MutatePriority terminationPriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend Object? zoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
@@ -732,7 +732,7 @@ package androidx.compose.foundation.lazy {
 
   @androidx.compose.runtime.Stable public final class LazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public LazyListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -740,7 +740,7 @@ package androidx.compose.foundation.lazy {
     method public androidx.compose.foundation.lazy.LazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -873,7 +873,7 @@ package androidx.compose.foundation.lazy.grid {
 
   @androidx.compose.runtime.Stable public final class LazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public LazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
-    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -881,7 +881,7 @@ package androidx.compose.foundation.lazy.grid {
     method public androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -1066,7 +1066,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
 
   public final class LazyStaggeredGridState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public LazyStaggeredGridState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemOffset);
-    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
     method public int getFirstVisibleItemScrollOffset();
@@ -1074,7 +1074,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     method public androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public final int firstVisibleItemIndex;
@@ -1205,7 +1205,7 @@ package androidx.compose.foundation.pager {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public abstract class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public PagerState(optional int initialPage, optional float initialPageOffsetFraction);
-    method public final suspend Object? animateScrollToPage(int page, optional float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? animateScrollToPage(int page, optional float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public final boolean getCanScrollBackward();
     method public final boolean getCanScrollForward();
@@ -1221,7 +1221,7 @@ package androidx.compose.foundation.pager {
     method public final int getTargetPage();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final suspend Object? scrollToPage(int page, optional float pageOffsetFraction, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? scrollToPage(int page, optional float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional float pageOffsetFraction);
     method public final void updateTargetPage(androidx.compose.foundation.gestures.ScrollScope, int targetPage);
     property public final boolean canScrollBackward;
@@ -1247,7 +1247,7 @@ package androidx.compose.foundation.pager {
 package androidx.compose.foundation.relocation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface BringIntoViewRequester {
-    method public suspend Object? bringIntoView(optional androidx.compose.ui.geometry.Rect? rect, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? bringIntoView(optional androidx.compose.ui.geometry.Rect? rect, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class BringIntoViewRequesterKt {

@@ -255,7 +255,7 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class BlurEffect extends androidx.compose.ui.graphics.RenderEffect {
-    ctor public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, float radiusY, int edgeTreatment);
+    ctor public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, optional float radiusY, optional int edgeTreatment);
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 

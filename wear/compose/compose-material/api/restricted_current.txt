@@ -551,14 +551,14 @@ package androidx.wear.compose.material {
 
   @Deprecated @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor @Deprecated public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
-    method @Deprecated public suspend Object? animateScrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public float dispatchRawDelta(float delta);
     method @Deprecated public int getCenterItemIndex();
     method @Deprecated public int getCenterItemScrollOffset();
     method @Deprecated public androidx.wear.compose.material.ScalingLazyListLayoutInfo getLayoutInfo();
     method @Deprecated public boolean isScrollInProgress();
     method @Deprecated public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @Deprecated public suspend Object? scrollToItem(int index, optional int scrollOffset, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property @Deprecated public boolean canScrollBackward;
     property @Deprecated public boolean canScrollForward;
     property @Deprecated public final int centerItemIndex;
@@ -763,7 +763,7 @@ package androidx.wear.compose.material {
 
   @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.wear.compose.material.ExperimentalWearMaterialApi public class SwipeableState<T> {
     ctor public SwipeableState(T initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
-    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, optional kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final T getCurrentValue();
     method public final float getDirection();
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();

@@ -3,6 +3,10 @@ ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotli
     Method androidx.compose.ui.draw.DrawModifierKt.CacheDrawModifierNode has changed return type from androidx.compose.ui.node.CacheDrawModifierNode to androidx.compose.ui.draw.CacheDrawModifierNode
 
 
+DefaultValueChange: androidx.compose.ui.input.pointer.AwaitPointerEventScope#awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerEvent>) parameter #1:
+    Attempted to remove default value from parameter arg2 in androidx.compose.ui.input.pointer.AwaitPointerEventScope.awaitPointerEvent
+
+
 RemovedClass: androidx.compose.ui.focus.FocusTargetNode:
     Removed class androidx.compose.ui.focus.FocusTargetNode
 RemovedClass: androidx.compose.ui.layout.RelocationModifierKt:
