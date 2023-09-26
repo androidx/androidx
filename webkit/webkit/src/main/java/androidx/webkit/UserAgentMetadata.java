@@ -52,7 +52,6 @@ public class UserAgentMetadata {
     private boolean mMobile = true;
     private int mBitness = BITNESS_DEFAULT;
     private boolean mWow64 = false;
-    private final String mFormFactor;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     private UserAgentMetadata(@Nullable List<BrandVersion> brandVersionList,
@@ -60,7 +59,7 @@ public class UserAgentMetadata {
             @Nullable String platformVersion, @Nullable String architecture,
             @Nullable String model,
             boolean mobile,
-            int bitness, boolean wow64, @Nullable String formFactor) {
+            int bitness, boolean wow64) {
         mBrandVersionList = brandVersionList;
         mFullVersion = fullVersion;
         mPlatform = platform;
@@ -70,7 +69,6 @@ public class UserAgentMetadata {
         mMobile = mobile;
         mBitness = bitness;
         mWow64 = wow64;
-        mFormFactor = formFactor;
     }
 
     /**
@@ -179,17 +177,6 @@ public class UserAgentMetadata {
     }
 
     /**
-     * Returns the value for the {@code sec-ch-ua-form-factor} client hint.
-     * <p>
-     * @see Builder#setFormFactor
-     *
-     */
-    @Nullable
-    public String getFormFactor() {
-        return mFormFactor;
-    }
-
-    /**
      * Two UserAgentMetadata objects are equal only if all the metadata values are equal.
      */
     @Override
@@ -202,14 +189,13 @@ public class UserAgentMetadata {
                 && Objects.equals(mFullVersion, that.mFullVersion)
                 && Objects.equals(mPlatform, that.mPlatform) && Objects.equals(
                 mPlatformVersion, that.mPlatformVersion) && Objects.equals(mArchitecture,
-                that.mArchitecture) && Objects.equals(mModel, that.mModel)
-                && Objects.equals(mFormFactor, that.mFormFactor);
+                that.mArchitecture) && Objects.equals(mModel, that.mModel);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mBrandVersionList, mFullVersion, mPlatform, mPlatformVersion,
-                mArchitecture, mModel, mMobile, mBitness, mWow64, mFormFactor);
+                mArchitecture, mModel, mMobile, mBitness, mWow64);
     }
 
     /**
@@ -323,7 +309,6 @@ public class UserAgentMetadata {
         private boolean mMobile = true;
         private int mBitness = BITNESS_DEFAULT;
         private boolean mWow64 = false;
-        private String mFormFactor;
 
         /**
          * Create an empty UserAgentMetadata Builder.
@@ -344,7 +329,6 @@ public class UserAgentMetadata {
             mMobile = uaMetadata.isMobile();
             mBitness = uaMetadata.getBitness();
             mWow64 = uaMetadata.isWow64();
-            mFormFactor = uaMetadata.getFormFactor();
         }
 
         /**
@@ -355,8 +339,7 @@ public class UserAgentMetadata {
         @NonNull
         public UserAgentMetadata build() {
             return new UserAgentMetadata(mBrandVersionList, mFullVersion, mPlatform,
-                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64,
-                    mFormFactor);
+                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64);
         }
 
         /**
@@ -491,20 +474,6 @@ public class UserAgentMetadata {
         @NonNull
         public Builder setWow64(boolean wow64) {
             mWow64 = wow64;
-            return this;
-        }
-
-        /**
-         * Sets the user-agent metadata form factor. The value should not be null but can be
-         * empty string.
-         *
-         * @param formFactor The form factor is used to generate user-agent client hint
-         *                   {@code sec-ch-ua-form-factor}.
-         *
-         */
-        @NonNull
-        public Builder setFormFactor(@NonNull String formFactor) {
-            mFormFactor = formFactor;
             return this;
         }
     }
