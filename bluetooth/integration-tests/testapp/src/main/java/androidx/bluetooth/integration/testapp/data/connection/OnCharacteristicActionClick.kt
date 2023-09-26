@@ -22,14 +22,16 @@ import androidx.bluetooth.GattCharacteristic
 interface OnCharacteristicActionClick {
 
     companion object {
-        const val ACTION_READ = 0
-        const val ACTION_WRITE = 1
+        const val READ = 0
+        const val WRITE = 1
+        const val SUBSCRIBE = 2
     }
 
     @Target(AnnotationTarget.TYPE)
     @IntDef(
-        ACTION_READ,
-        ACTION_WRITE,
+        READ,
+        WRITE,
+        SUBSCRIBE,
     )
     annotation class Action
 

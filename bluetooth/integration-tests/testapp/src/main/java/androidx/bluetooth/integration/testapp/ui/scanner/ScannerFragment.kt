@@ -301,20 +301,22 @@ class ScannerFragment : Fragment() {
                                 )
 
                                 when (action) {
-                                    OnCharacteristicActionClick.ACTION_READ -> {
-                                        readCharacteristic(
-                                            this@connectGatt,
-                                            deviceConnection,
-                                            characteristic
-                                        )
-                                    }
+                                    OnCharacteristicActionClick.READ -> readCharacteristic(
+                                        this@connectGatt,
+                                        deviceConnection,
+                                        characteristic
+                                    )
 
-                                    OnCharacteristicActionClick.ACTION_WRITE -> {
-                                        this@ScannerFragment.writeCharacteristic(
+                                    OnCharacteristicActionClick.WRITE -> writeCharacteristic(
+                                        this@connectGatt,
+                                        characteristic
+                                    )
+
+                                    OnCharacteristicActionClick.SUBSCRIBE ->
+                                        subscribeToCharacteristic(
                                             this@connectGatt,
                                             characteristic
                                         )
-                                    }
                                 }
                             }
                         }
@@ -342,20 +344,12 @@ class ScannerFragment : Fragment() {
         characteristic: GattCharacteristic
     ) {
         connectScope.launch {
-            Log.d(
-                TAG,
-                "readCharacteristic() called with: characteristic = $characteristic"
-            )
+            Log.d(TAG, "readCharacteristic() called with: characteristic = $characteristic")
 
             val result = gattClientScope.readCharacteristic(characteristic)
+            Log.d(TAG, "readCharacteristic() result: result = $result")
 
-            Log.d(
-                TAG, "readCharacteristic() result: result = $result"
-            )
-
-            deviceConnection.storeValueFor(
-                characteristic, result.getOrNull()
-            )
+            deviceConnection.storeValueFor(characteristic, result.getOrNull())
             launch(Dispatchers.Main) {
                 updateDeviceUI(deviceConnection)
             }
@@ -366,9 +360,7 @@ class ScannerFragment : Fragment() {
         gattClientScope: BluetoothLe.GattClientScope,
         characteristic: GattCharacteristic
     ) {
-        val view = layoutInflater.inflate(
-            R.layout.dialog_write_characteristic, null
-        )
+        val view = layoutInflater.inflate(R.layout.dialog_write_characteristic, null)
         val editTextValue = view.findViewById<EditText>(R.id.edit_text_value)
 
         AlertDialog.Builder(requireContext())
@@ -385,23 +377,36 @@ class ScannerFragment : Fragment() {
                             "value = ${value.decodeToString()}"
                     )
 
-                    val result =
-                        gattClientScope.writeCharacteristic(characteristic, value)
-
-                    Log.d(
-                        TAG, "writeCharacteristic() result: result = $result"
-                    )
+                    val result = gattClientScope.writeCharacteristic(characteristic, value)
+                    Log.d(TAG, "writeCharacteristic() result: result = $result")
 
                     launch(Dispatchers.Main) {
-                        toast(
-                            "Called write with: $editTextValueString, result = $result"
-                        ).show()
+                        toast("Called write with: $editTextValueString, result = $result").show()
                     }
                 }
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
             .show()
+    }
+
+    private fun subscribeToCharacteristic(
+        gattClientScope: BluetoothLe.GattClientScope,
+        characteristic: GattCharacteristic
+    ) {
+        connectScope.launch {
+            gattClientScope.subscribeToCharacteristic(characteristic)
+                .collect {
+                    Log.d(
+                        TAG,
+                        "subscribeToCharacteristic() collected: " +
+                            "characteristic = $characteristic, " +
+                            "value.decodeToString() = ${it.decodeToString()}"
+                    )
+                }
+
+            Log.d(TAG, "subscribeToCharacteristic completed")
+        }
     }
 
     private fun disconnect(deviceConnection: DeviceConnection) {
