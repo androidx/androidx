@@ -319,6 +319,24 @@ class NavControllerWithFragmentTest {
         )
     }
 
+    @Test
+    fun testPopEntryInFragmentStarted() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            fragment<PopInOnStartedFragment>("second")
+            fragment<EmptyFragment>("third")
+        }
+        navController.navigate("second")
+
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("third")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+    }
+
     @LargeTest
     @Test
     fun testSystemBackPressAfterPopUpToStartDestinationOffBackStack() = withNavigationActivity {
@@ -395,6 +413,17 @@ class PopInOnResumeFragment : Fragment(R.layout.strict_view_fragment) {
         super.onResume()
         findNavController().navigate("first") {
             popUpTo("first")
+        }
+    }
+}
+
+class PopInOnStartedFragment : Fragment(R.layout.strict_view_fragment) {
+    override fun onStart() {
+        super.onStart()
+        findNavController().navigate("third") {
+            popUpTo("second") {
+                inclusive = true
+            }
         }
     }
 }
