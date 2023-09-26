@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.test.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,7 @@ class TextAnnotatedStringNodeTest {
             Canvas(Modifier.fillMaxSize()) {
                 val contentDrawScope = object : ContentDrawScope, DrawScope by this {
                     override fun drawContent() {
-                        TODO("Not needed")
+                        fail("Not used")
                     }
                 } as ContentDrawScope
                 with(subject) {
