@@ -105,7 +105,7 @@ class FragmentNavigatorTest {
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
         assertWithMessage("Initial navigation should not trigger an addBackStack transaction")
-            .that(fragmentNavigator.pendingOps)
+            .that(fragmentNavigator.pendingOps.entries())
             .isEmpty()
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
@@ -170,7 +170,8 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(listOf(replacementEntry), null, null)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, replacementEntry).inOrder()
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, replacementEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries())
+            .containsExactly(entry.id, replacementEntry.id)
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Replacement Fragment should be added")
@@ -183,7 +184,7 @@ class FragmentNavigatorTest {
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(replacementFragment)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -206,26 +207,26 @@ class FragmentNavigatorTest {
 
         // Pop and then push third fragment, simulating popUpTo to initial.
         fragmentNavigator.popBackStack(secondEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, secondEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry.id, secondEntry.id)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
         val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
         fragmentNavigator.navigate(listOf(thirdEntry), null, null)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, thirdEntry).inOrder()
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, secondEntry.id, thirdEntry.id
         )
         fragmentManager.executePendingTransactions()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Now pop the Fragment
         fragmentNavigator.popBackStack(thirdEntry, false)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, thirdEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry.id, thirdEntry.id)
         fragmentManager.executePendingTransactions()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -244,7 +245,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.onLaunchSingleTop(entry)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Replacement Fragment should be added")
@@ -262,7 +263,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Old instance should be destroyed")
             .that(lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -285,19 +286,21 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(listOf(replacementEntry), null, null)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, replacementEntry).inOrder()
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, replacementEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
+            entry.id, replacementEntry.id
+        )
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment should be added")
             .that(fragment)
             .isNotNull()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         val lifecycle = fragment!!.lifecycle
 
         fragmentNavigator.onLaunchSingleTop(replacementEntry)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, replacementEntry).inOrder()
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, replacementEntry.id, replacementEntry.id
         )
         fragmentManager.executePendingTransactions()
@@ -317,12 +320,14 @@ class FragmentNavigatorTest {
         assertWithMessage("Old instance should be destroyed")
             .that(lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         fragmentNavigator.popBackStack(replacementEntry, false)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, replacementEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
+            entry.id, replacementEntry.id
+        )
         fragmentManager.executePendingTransactions()
         assertWithMessage("Initial Fragment should be on top of back stack after pop")
             .that(fragmentManager.findFragmentById(R.id.container))
@@ -330,7 +335,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Initial Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(initialFragment)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -345,7 +350,7 @@ class FragmentNavigatorTest {
 
         // Now pop the initial Fragment
         fragmentNavigator.popBackStack(entry, false)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         assertThat(navigatorState.backStack.value)
             .isEmpty()
     }
@@ -387,7 +392,9 @@ class FragmentNavigatorTest {
 
         // Now pop the Fragment
         fragmentNavigator.popBackStack(replacementEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, replacementEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
+            entry.id, replacementEntry.id
+        )
         fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
@@ -398,7 +405,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Initial entry should not be added to FragmentManager backstack")
             .that(fragmentManager.backStackEntryCount)
             .isEqualTo(0)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -414,7 +421,9 @@ class FragmentNavigatorTest {
 
         // Now pop thirdEntry
         fragmentNavigator.popBackStack(thirdEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(secondEntry.id, thirdEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
+            secondEntry.id, thirdEntry.id
+        )
         fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, secondEntry)
@@ -426,11 +435,11 @@ class FragmentNavigatorTest {
             .that(fragmentManager.primaryNavigationFragment)
             .isNotInstanceOf(EmptyFragment::class.java)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Pop secondEntry
         fragmentNavigator.popBackStack(secondEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(entry.id, secondEntry.id)
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry.id, secondEntry.id)
         fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value).containsExactly(entry)
         // We should ensure the fragment manager is on the proper fragment at the end
@@ -441,7 +450,7 @@ class FragmentNavigatorTest {
             .that(fragmentManager.primaryNavigationFragment)
             .isInstanceOf(EmptyFragment::class.java)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @Test
@@ -463,15 +472,15 @@ class FragmentNavigatorTest {
         activityRule.runOnUiThread {
             fragmentNavigator.navigate(listOf(entry1), null, null)
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
             fragmentNavigator.navigate(listOf(entry2), options, null)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry1.id, entry2.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry1.id, entry2.id)
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
             fragmentNavigator.navigate(listOf(entry3), null, null)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry2.id, entry3.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry2.id, entry3.id)
             fragmentManager.executePendingTransactions()
         }
 
@@ -480,27 +489,27 @@ class FragmentNavigatorTest {
             .that(fragmentManager.backStackEntryCount)
             .isEqualTo(2)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it).containsExactly(entry2.id, entry3.id)
+            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
         }
         // first pop entry3
         fragmentNavigator.popBackStack(entry3, false)
 
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
 
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it).containsExactly(entry1.id, entry2.id)
+            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
         }
         // And then pop entry2
         fragmentNavigator.popBackStack(entry2, false)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
 
         val fragment1 = fragmentManager.findFragmentById(R.id.container)
@@ -531,7 +540,7 @@ class FragmentNavigatorTest {
             .that(fragmentManager.primaryNavigationFragment)
             .isInstanceOf(EmptyFragment::class.java)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -569,7 +578,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(listOf(replacementEntry), null, null)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry, secondEntry, replacementEntry).inOrder()
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             secondEntry.id, replacementEntry.id
         )
         fragmentManager.executePendingTransactions()
@@ -580,11 +589,11 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment to pop should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(fragmentToPop)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Now pop the Fragment
         fragmentNavigator.popBackStack(replacementEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             secondEntry.id, replacementEntry.id
         )
         fragmentManager.executePendingTransactions()
@@ -596,7 +605,7 @@ class FragmentNavigatorTest {
         )
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(replacementFragment)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -639,7 +648,7 @@ class FragmentNavigatorTest {
                 .commit()
             executePendingTransactions()
         }
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Now pop the Fragment
         fragmentNavigator.popBackStack(replacementEntry, false)
@@ -649,7 +658,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment should be the primary navigation Fragment after pop")
             .that(fragmentManager.primaryNavigationFragment)
             .isSameInstanceAs(fragment)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -701,7 +710,7 @@ class FragmentNavigatorTest {
 
         // Now pop the Fragment
         fragmentNavigator.popBackStack(thirdEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, secondEntry.id, thirdEntry.id
         )
         fragmentManager.executePendingTransactions()
@@ -715,7 +724,7 @@ class FragmentNavigatorTest {
             .that(fragmentManager.primaryNavigationFragment)
             .isNotInstanceOf(EmptyFragment::class.java)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -727,22 +736,22 @@ class FragmentNavigatorTest {
 
         // Push 3 fragments
         fragmentNavigator.navigate(listOf(entry, secondEntry, thirdEntry), null, null)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, secondEntry.id, thirdEntry.id
         )
         fragmentManager.executePendingTransactions()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Now pop multiple fragments with savedState so that the secondEntry does not get
         // marked complete by clear viewModel
         fragmentNavigator.popBackStack(secondEntry, true)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, secondEntry.id, thirdEntry.id
         )
         fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value).containsExactly(entry)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -759,19 +768,19 @@ class FragmentNavigatorTest {
             null, null
         )
         fragmentManager.executePendingTransactions()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         // Pop 2 fragments without executing pending transactions.
         fragmentNavigator.popBackStack(thirdEntry, false)
 
         fragmentNavigator.popBackStack(secondEntry, false)
-        assertThat(fragmentNavigator.pendingOps).containsExactly(
+        assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
             entry.id, secondEntry.id, thirdEntry.id, fourthEntry.id
         )
         fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -798,7 +807,7 @@ class FragmentNavigatorTest {
         fragmentManager.beginTransaction()
             .replace(R.id.container, independentFragment)
             .commit()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         fragmentManager.executePendingTransactions()
 
         assertWithMessage("Independent fragment should be added")
@@ -1438,14 +1447,14 @@ class FragmentNavigatorTest {
         activityRule.runOnUiThread {
             fragmentNavigator.navigate(listOf(entry2), options, null)
             fragmentNavigator.navigate(listOf(entry3), options, null)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(
                 entry1.id, entry2.id, entry3.id
             )
         }
         assertThat(navigatorState.backStack.value).containsExactly(entry1, entry2, entry3)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
         val fragment3 = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment should be added")
@@ -1521,17 +1530,17 @@ class FragmentNavigatorTest {
         // navigate to the second entry and pop it back to back.
         activityRule.runOnUiThread {
             fragmentNavigator.navigate(listOf(entry2), options, null)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry1.id, entry2.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry1.id, entry2.id)
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
             fragmentNavigator.popBackStack(entry2, false)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry1.id, entry2.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry1.id, entry2.id)
         }
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
@@ -1611,12 +1620,12 @@ class FragmentNavigatorTest {
         activityRule.runOnUiThread {
             fragmentNavigator.navigate(listOf(entry2), options, null)
             fragmentNavigator.popBackStack(entry2, false)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry1.id, entry2.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry1.id, entry2.id)
         }
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
@@ -1722,20 +1731,20 @@ class FragmentNavigatorTest {
         }
 
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it).containsExactly(entry2.id, entry3.id)
+            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
         }
         fragmentNavigator.popBackStack(entry3, false)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it).containsExactly(entry1.id, entry2.id)
+            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
         }
         fragmentNavigator.popBackStack(entry2, false)
 
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
 
         val fragment1 = fragmentManager.findFragmentById(R.id.container) as AnimatorFragment
@@ -1776,7 +1785,7 @@ class FragmentNavigatorTest {
 
         // verify that the second entry moved to started
         assertWithMessage("Entry2 should have been started").that(entry2Started).isTrue()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @LargeTest
@@ -1809,9 +1818,9 @@ class FragmentNavigatorTest {
         // navigate to the second entry
         activityRule.runOnUiThread {
             fragmentNavigator.navigate(listOf(entry2), options, null)
-            assertThat(fragmentNavigator.pendingOps).containsExactly(entry1.id, entry2.id)
+            assertThat(fragmentNavigator.pendingOps.entries()).containsExactly(entry1.id, entry2.id)
             fragmentManager.executePendingTransactions()
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
         assertThat(navigatorState.backStack.value).containsExactlyElementsIn(listOf(entry1, entry2))
         assertThat(fragmentNavigator.backStack.value).containsExactlyElementsIn(
@@ -1839,7 +1848,7 @@ class FragmentNavigatorTest {
 
         // system back press
         activityRule.runOnUiThread {
-            assertThat(fragmentNavigator.pendingOps).isEmpty()
+            assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
             emptyActivity.onBackPressed()
         }
 
@@ -1860,7 +1869,7 @@ class FragmentNavigatorTest {
         assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @LargeTest
@@ -1981,7 +1990,7 @@ class FragmentNavigatorTest {
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @Test
@@ -2009,7 +2018,7 @@ class FragmentNavigatorTest {
             .that(fragmentManager.backStackEntryCount)
             .isEqualTo(2)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
 
         activityRule.runOnUiThread {
             // first back press without fully executing
@@ -2058,7 +2067,7 @@ class FragmentNavigatorTest {
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
         assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(fragmentNavigator.pendingOps).isEmpty()
+        assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
     }
 
     @UiThreadTest
@@ -2242,7 +2251,9 @@ class FragmentNavigatorTest {
         return navigatorState.createBackStackEntry(destination, null)
     }
 
-    private fun List<String>.onBackStackChangedStarted(block: (List<String>) -> Unit) {
+    private fun List<Pair<String, Boolean>>.onBackStackChangedStarted(
+        block: (List<Pair<String, Boolean>>) -> Unit
+    ) {
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
             override fun onBackStackChanged() { }
 
@@ -2252,6 +2263,8 @@ class FragmentNavigatorTest {
             }
         })
     }
+
+    private fun List<Pair<String, Boolean>>.entries() = map { it.first }
 }
 
 class EmptyActivity : FragmentActivity() {
