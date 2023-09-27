@@ -75,6 +75,8 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         libraryGroupsByGroupId = versionService.libraryGroupsByGroupId
         overrideLibraryGroupsByProjectPath = versionService.overrideLibraryGroupsByProjectPath
 
+        // Always set a known default based on project path. see: b/302183954
+        setDefaultGroupFromProjectPath()
         mavenGroup = chooseLibraryGroup()
         chooseProjectVersion()
 
@@ -196,6 +198,21 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
             "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
         )
         return result
+    }
+
+    /**
+     * Sets a group for the project based on its path.
+     * This ensures we always use a known value for the project group instead of what Gradle assigns
+     * by default. Furthermore, it also helps make them consistent between the main build and
+     * the playground builds.
+     */
+    private fun setDefaultGroupFromProjectPath() {
+        project.group = project.path
+            .split(":")
+            .filter {
+                it.isNotEmpty()
+            }.dropLast(1)
+            .joinToString(separator = ".", prefix = "androidx.")
     }
 
     private fun chooseProjectVersion() {
