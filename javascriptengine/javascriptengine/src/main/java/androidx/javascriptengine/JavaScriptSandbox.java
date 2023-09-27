@@ -539,12 +539,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
         if (features.contains(IJsSandboxService.CONSOLE_MESSAGING)) {
             featureSet.add(JS_FEATURE_CONSOLE_MESSAGING);
         }
-        if (features.contains(IJsSandboxService.ISOLATE_CLIENT + ":DEV")) {
+        if (features.contains(IJsSandboxService.ISOLATE_CLIENT)) {
             featureSet.add(JS_FEATURE_ISOLATE_CLIENT);
         }
-        // Temporarily adding :DEV suffix for this feature flag
-        // TODO: Figure out a long term solution for dev flags compatible with stableAidl
-        if (features.contains(IJsSandboxService.EVALUATE_FROM_FD + ":DEV")) {
+        if (features.contains(IJsSandboxService.EVALUATE_FROM_FD)) {
             featureSet.add(JS_FEATURE_EVALUATE_FROM_FD);
         }
         return featureSet;
