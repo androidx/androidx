@@ -37,12 +37,10 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import java.util.HashSet
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
@@ -156,7 +154,6 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
         }
     }
 
-    @Ignore // b/277591676
     @Test
     public fun testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01()
@@ -230,12 +227,15 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
                     // First element is emitted twice so it is allowed
                     true
                 }
+
                 mWindowLayoutInfos.contains(windowLayoutInfo) -> {
                     false
                 }
+
                 windowLayoutInfo.displayFeatures.isEmpty() -> {
                     true
                 }
+
                 else -> {
                     mWindowLayoutInfos.add(windowLayoutInfo)
                     true
