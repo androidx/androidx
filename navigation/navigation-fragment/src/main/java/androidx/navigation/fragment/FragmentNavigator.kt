@@ -56,6 +56,9 @@ import java.lang.ref.WeakReference
  * Note that the default implementation does Fragment transactions
  * asynchronously, so the current Fragment will not be available immediately
  * (i.e., in callbacks to [NavController.OnDestinationChangedListener]).
+ *
+ * FragmentNavigator respects [Log.isLoggable] for debug logging, allowing you to
+ * use `adb shell setprop log.tag.FragmentNavigator VERBOSE`.
  */
 @Navigator.Name("fragment")
 public open class FragmentNavigator(
@@ -63,6 +66,11 @@ public open class FragmentNavigator(
     private val fragmentManager: FragmentManager,
     private val containerId: Int
 ) : Navigator<Destination>() {
+    // Logging for FragmentNavigator is automatically enabled along with FragmentManager logging.
+    // see more at [Debug your fragments][https://developer.android.com/guide/fragments/debugging]
+    private fun isLoggingEnabled(level: Int): Boolean {
+        return Log.isLoggable("FragmentManager", level) || Log.isLoggable(TAG, level)
+    }
     private val savedIds = mutableSetOf<String>()
 
     /**
@@ -91,7 +99,7 @@ public open class FragmentNavigator(
                 entry.id == fragment.tag
             }
             if (entry != null) {
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry " +
@@ -108,7 +116,7 @@ public open class FragmentNavigator(
             // Once the lifecycle reaches RESUMED, if the entry is in the back stack we can mark
             // the transition complete
             if (event == Lifecycle.Event.ON_RESUME && state.backStack.value.contains(entry)) {
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry due " +
@@ -119,7 +127,7 @@ public open class FragmentNavigator(
             }
             // Once the lifecycle reaches DESTROYED, we can mark the transition complete
             if (event == Lifecycle.Event.ON_DESTROY) {
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry due " +
@@ -133,13 +141,13 @@ public open class FragmentNavigator(
 
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
-        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+        if (isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "onAttach")
         }
 
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
             val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            if (isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(
                     TAG,
                     "Attaching fragment $fragment associated with entry " +
@@ -164,7 +172,7 @@ public open class FragmentNavigator(
                 // In the case of a pop, we move the entries to STARTED
                 if (pop) {
                     val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
-                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    if (isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(
                             TAG,
                             "OnBackStackChangedStarted for fragment " +
@@ -186,7 +194,7 @@ public open class FragmentNavigator(
                 val op = pendingOps.firstOrNull { it.first == fragment.tag }
                 op?.let { pendingOps.remove(it) }
 
-                if (!isSystemBack && FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                if (!isSystemBack && isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         TAG,
                         "OnBackStackChangedCommitted for fragment " +
@@ -210,7 +218,7 @@ public open class FragmentNavigator(
                     // popBackStack. Otherwise, popBackStack was called directly and we avoid
                     // popping again.
                     if (isSystemBack) {
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        if (isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(
                                 TAG,
                                 "OnBackStackChangedCommitted for fragment $fragment " +
@@ -257,7 +265,7 @@ public open class FragmentNavigator(
             WeakReference {
                 entry.let {
                     state.transitionsInProgress.value.forEach { entry ->
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        if (isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(
                                 TAG,
                                 "Marking transition complete for entry " +
@@ -317,7 +325,7 @@ public open class FragmentNavigator(
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         }
-        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+        if (isLoggingEnabled(Log.VERBOSE)) {
             Log.v(
                 TAG,
                 "Calling popWithTransition via popBackStack() on entry " +
@@ -437,7 +445,7 @@ public open class FragmentNavigator(
         }
         ft.commit()
         // The commit succeeded, update our view of the world
-        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+        if (isLoggingEnabled(Log.VERBOSE)) {
             Log.v(
                 TAG,
                 "Calling pushWithTransition via navigate() on entry $entry"
