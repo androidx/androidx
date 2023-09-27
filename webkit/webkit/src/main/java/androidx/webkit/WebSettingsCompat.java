@@ -769,6 +769,122 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * @hide
+     */
+    @IntDef({ATTRIBUTION_BEHAVIOR_DISABLED,
+            ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
+            ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER,
+            ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(RetentionPolicy.SOURCE)
+    @interface AttributionRegistrationBehavior {
+    }
+
+    /**
+     * AttributionRegistrationBehavior that disables source and trigger registration from WebView.
+     * <p>
+     * Note that the initial network call to the Attribution Source or Trigger URIs may still
+     * happen depending on the installed version of WebView, but any response is discarded and
+     * nothing will be stored on the device.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ATTRIBUTION_BEHAVIOR_DISABLED =
+            WebSettingsBoundaryInterface.AttributionBehavior.DISABLED;
+    /**
+     * AttributionRegistrationBehavior that allows apps to register app sources (sources
+     * associated with the app package name) and web triggers (triggers associated with the
+     * eTLD+1) from WebView.
+     * <p>
+     * This is the default behavior.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER =
+            WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_WEB_TRIGGER;
+    /**
+     * AttributionRegistrationBehavior that allows apps to register web sources and web triggers
+     * from WebView.
+     * <p>
+     * This option should only be used after applying to
+     * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">
+     *     use web sources</a>.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER =
+            WebSettingsBoundaryInterface.AttributionBehavior.WEB_SOURCE_AND_WEB_TRIGGER;
+    /**
+     * AttributionRegistrationBehavior that allows apps to register app sources and app triggers
+     * from WebView.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER =
+            WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_APP_TRIGGER;
+
+    /**
+     * Control how WebView interacts with
+     * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution">Attribution Reporting</a>.
+     * <p>
+     * WebView supports
+     * <a href="https://github.com/WICG/attribution-reporting-api">Attribution Reporting</a> across
+     * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web">apps and web pages</a>
+     * by enabling the web content to register sources and triggers.
+     * <p>
+     * By default, attribution sources will be registered as attributed to the app, while
+     * triggers are attributed to the loaded web content
+     * ({@link #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER}). Apps should only need to
+     * change this default if they have a specific semantic for how they use WebView. In
+     * particular, in-app browsers should follow the steps to apply to the
+     * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">
+     * allowlist for registering web sources</a> and then set the
+     * {@link #ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER} behavior.
+     *
+     * @see
+     * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">How to apply to use web source</a>
+     * @see #ATTRIBUTION_BEHAVIOR_DISABLED
+     * @see #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER
+     * @see #ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER
+     * @see #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param behavior New behavior to use.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setAttributionRegistrationBehavior(@NonNull WebSettings settings,
+            @AttributionRegistrationBehavior int behavior) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ATTRIBUTION_REGISTRATION_BEHAVIOR;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setAttributionRegistrationBehavior(behavior);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Read the current behavior for attribution registration.
+     *
+     * @see #setAttributionRegistrationBehavior(WebSettings, int)
+     * @see #ATTRIBUTION_BEHAVIOR_DISABLED
+     * @see #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER
+     * @see #ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER
+     * @see #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @AttributionRegistrationBehavior
+    public static int getAttributionRegistrationBehavior(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ATTRIBUTION_REGISTRATION_BEHAVIOR;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getAttributionRegistrationBehavior();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebSettingsAdapter getAdapter(WebSettings settings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }
