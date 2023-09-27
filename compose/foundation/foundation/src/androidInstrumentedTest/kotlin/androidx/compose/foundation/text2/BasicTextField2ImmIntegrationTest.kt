@@ -62,8 +62,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @get:Rule
     val immRule = ComposeInputMethodManagerTestRule()
 
-    @get:Rule
-    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicTextField2"
     private val imm = FakeInputMethodManager()
@@ -76,7 +75,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun becomesTextEditor_whenFocusGained() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }
 
@@ -92,7 +91,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun stopsBeingTextEditor_whenFocusLost() {
         val state = TextFieldState()
         var focusManager: FocusManager? = null
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             focusManager = LocalFocusManager.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
@@ -107,7 +106,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun stopsBeingTextEditor_whenChangedToReadOnly() {
         val state = TextFieldState()
         var readOnly by mutableStateOf(false)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag), readOnly = readOnly)
         }
         requestFocus(Tag)
@@ -122,7 +121,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun stopsBeingTextEditor_whenChangedToDisabled() {
         val state = TextFieldState()
         var enabled by mutableStateOf(true)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag), enabled = enabled)
         }
         requestFocus(Tag)
@@ -137,7 +136,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun staysTextEditor_whenFocusTransferred() {
         val state1 = TextFieldState()
         val state2 = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state1, Modifier.testTag(Tag + 1))
             BasicTextField2(state2, Modifier.testTag(Tag + 2))
         }
@@ -157,7 +156,7 @@ internal class BasicTextField2ImmIntegrationTest {
     fun stopsBeingTextEditor_whenRemovedFromCompositionWhileFocused() {
         val state = TextFieldState()
         var compose by mutableStateOf(true)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             if (compose) {
                 BasicTextField2(state, Modifier.testTag(Tag))
             }
@@ -175,7 +174,7 @@ internal class BasicTextField2ImmIntegrationTest {
         val state1 = TextFieldState()
         val state2 = TextFieldState()
         var state by mutableStateOf(state1)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
@@ -192,7 +191,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenFilterChangesText_fromInputConnection() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -248,7 +247,7 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),

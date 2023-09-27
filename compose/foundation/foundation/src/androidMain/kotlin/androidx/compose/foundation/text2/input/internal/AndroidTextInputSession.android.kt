@@ -21,9 +21,7 @@ package androidx.compose.foundation.text2.input.internal
 import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
-import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
@@ -33,41 +31,15 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.view.inputmethod.EditorInfoCompat
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.TestOnly
 
 /** Enable to print logs during debugging, see [logDebug]. */
 @VisibleForTesting
 internal const val TIA_DEBUG = false
 private const val TAG = "AndroidTextInputSession"
 
-private var inputConnectionInterceptor:
-    (CoroutineScope.(EditorInfo, InputConnection, View) -> InputConnection)? = null
-
-/**
- * Installs an [interceptor] to run whenever Android calls [View.onCreateInputConnection].
- *
- * **DON'T USE THIS DIRECTLY in your tests.** Use `InputConnectionInterceptorRule` instead: it's
- * more ergonomic and also ensures the listener is cleaned up correctly.
- *
- * @param interceptor A function that gets the [EditorInfo] passed to [View.onCreateInputConnection]
- * and the [InputConnection] that we created and would use in production. Whatever the interceptor
- * returns will be returned to the system. Tests that want to make their own calls on the
- * [InputConnection] should install an interceptor that returns a no-op [InputConnection] to prevent
- * the system from making its own calls and messing up the expected state.
- */
-@TestOnly
-@VisibleForTesting
-internal fun setInputConnectionInterceptorForTests(
-    interceptor: (CoroutineScope.(EditorInfo, InputConnection, View) -> InputConnection)?
-) {
-    inputConnectionInterceptor = interceptor
-}
-
-@OptIn(ExperimentalFoundationApi::class)
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     imeOptions: ImeOptions,
@@ -121,10 +93,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
                 }
             }
             outAttrs.update(state.text, imeOptions)
-            StatelessInputConnection(textInputSession).let { connection ->
-                inputConnectionInterceptor?.invoke(this, outAttrs, connection, view)
-                    ?: connection
-            }
+            StatelessInputConnection(textInputSession)
         }
     }
 }
