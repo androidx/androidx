@@ -16,9 +16,9 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.safeparcel.GenericDocumentParcel;
-import androidx.appsearch.app.safeparcel.PropertyConfigParcel;
-import androidx.appsearch.app.safeparcel.PropertyParcel;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel;
+import androidx.appsearch.safeparcel.PropertyParcel;
 
 /**
  * Stub creators for any classes extending

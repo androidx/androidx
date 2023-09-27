@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.safeparcel;
+package androidx.appsearch.safeparcel;
 
 import android.os.Parcel;
 
@@ -26,8 +26,6 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig.Cardinality;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig.DataType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JoinableValueType;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TokenizerType;
-import androidx.appsearch.safeparcel.AbstractSafeParcelable;
-import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.DocumentIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.IntegerIndexingConfigParcelCreator;
 import androidx.appsearch.safeparcel.stub.StubCreators.JoinableConfigParcelCreator;

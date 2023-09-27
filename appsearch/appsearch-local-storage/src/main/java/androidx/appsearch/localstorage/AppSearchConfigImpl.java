@@ -28,18 +28,24 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     private final LimitConfig mLimitConfig;
     private final IcingOptionsConfig mIcingOptionsConfig;
     private final boolean mStoreParentInfoAsSyntheticProperty;
+    private final boolean mShouldRetrieveParentInfo;
 
     public AppSearchConfigImpl(@NonNull LimitConfig limitConfig,
             @NonNull IcingOptionsConfig icingOptionsConfig) {
-        this(limitConfig, icingOptionsConfig, false);
+        this(limitConfig,
+                icingOptionsConfig,
+                /* storeParentInfoAsSyntheticProperty= */ false,
+                /* shouldRetrieveParentInfo= */ false);
     }
 
     public AppSearchConfigImpl(@NonNull LimitConfig limitConfig,
             @NonNull IcingOptionsConfig icingOptionsConfig,
-            boolean storeParentInfoAsSyntheticProperty) {
+            boolean storeParentInfoAsSyntheticProperty,
+            boolean shouldRetrieveParentInfo) {
         mLimitConfig = limitConfig;
         mIcingOptionsConfig = icingOptionsConfig;
         mStoreParentInfoAsSyntheticProperty = storeParentInfoAsSyntheticProperty;
+        mShouldRetrieveParentInfo = shouldRetrieveParentInfo;
     }
 
     @Override
@@ -125,5 +131,10 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     @Override
     public boolean shouldStoreParentInfoAsSyntheticProperty() {
         return mStoreParentInfoAsSyntheticProperty;
+    }
+
+    @Override
+    public boolean shouldRetrieveParentInfo() {
+        return mShouldRetrieveParentInfo;
     }
 }

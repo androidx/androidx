@@ -31,4 +31,9 @@ public interface AppSearchConfig extends IcingOptionsConfig, LimitConfig {
      * similar way as namespace, id, creationTimestamp, etc.
      */
     boolean shouldStoreParentInfoAsSyntheticProperty();
+
+    /**
+     * Whether to include the list of parent types when returning a {@link GenericDocument}.
+     */
+    boolean shouldRetrieveParentInfo();
 }
