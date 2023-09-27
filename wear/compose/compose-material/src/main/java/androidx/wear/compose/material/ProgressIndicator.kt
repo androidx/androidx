@@ -181,7 +181,7 @@ public fun CircularProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at 0 with CircularEasing
+                0f at 0 using CircularEasing
                 JumpRotationAngle at HeadAndTailAnimationDuration
             }
         )
@@ -193,7 +193,7 @@ public fun CircularProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at HeadAndTailDelayDuration with CircularEasing
+                0f at HeadAndTailDelayDuration using CircularEasing
                 JumpRotationAngle at durationMillis
             }
         )

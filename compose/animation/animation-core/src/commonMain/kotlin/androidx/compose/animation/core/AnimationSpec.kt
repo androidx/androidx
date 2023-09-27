@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.IntRange
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
 import androidx.compose.runtime.Immutable
@@ -392,6 +393,85 @@ class SnapSpec<T>(val delay: Int = 0) : DurationBasedAnimationSpec<T> {
 }
 
 /**
+ * Shared configuration class used as DSL for keyframe based animations.
+ */
+sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
+    /**
+     * Duration of the animation in milliseconds. The minimum is `0` and defaults to
+     * [DefaultDurationMillis]
+     */
+    @get:IntRange(from = 0)
+    var durationMillis: Int = DefaultDurationMillis
+
+    /**
+     * The amount of time that the animation should be delayed. The minimum is `0` and defaults
+     * to 0.
+     */
+    @get:IntRange(from = 0)
+    var delayMillis: Int = 0
+
+    internal val keyframes = mutableIntObjectMapOf<E>()
+
+    /**
+     * Method used to delegate instantiation of [E] to implementing classes.
+     */
+    internal abstract fun createEntityFor(value: T): E
+
+    /**
+     * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
+     *
+     * @sample androidx.compose.animation.core.samples.floatAtSample
+     *
+     * @param timeStamp The time in the during when animation should reach value: [this], with
+     * a minimum value of `0`.
+     * @return an instance of [E] so a custom [Easing] can be added by the [using] method.
+     */
+    infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
+        val entity = createEntityFor(this)
+        keyframes[timeStamp] = entity
+        return entity
+    }
+
+    /**
+     * Adds a keyframe so that the animation value will be the value specified at a fraction of the
+     * total [durationMillis] set. It's recommended that you always set [durationMillis] before
+     * calling [atFraction]. For example:
+     *
+     * @sample androidx.compose.animation.core.samples.floatAtFractionSample
+     *
+     *  @param fraction The fraction when the animation should reach specified value.
+     *  @return an instance of [E] so a custom [Easing] can be added by the [using] method
+     */
+    infix fun T.atFraction(fraction: Float): E {
+        return at((durationMillis * fraction).roundToInt())
+    }
+
+    /**
+     * Adds an [Easing] for the interval started with the just provided timestamp. For example:
+     *     0f at 50 using LinearEasing
+     *
+     * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
+     * @param easing [Easing] to be used for the next interval.
+     * @return the same [E] instance so that other implementations can expand on the builder pattern
+     */
+    infix fun E.using(easing: Easing): E {
+        this.easing = easing
+        return this
+    }
+}
+
+/**
+ * Base holder class for building a keyframes animation.
+ */
+sealed class KeyframeBaseEntity<T>(
+    internal val value: T,
+    internal var easing: Easing
+) {
+    internal fun <V : AnimationVector> toPair(convertToVector: (T) -> V) =
+        convertToVector.invoke(value) to easing
+}
+
+/**
  * [KeyframesSpec] creates a [VectorizedKeyframesSpec] animation.
  *
  * [VectorizedKeyframesSpec] animates based on the values defined at different timestamps in
@@ -417,48 +497,8 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * @sample androidx.compose.animation.core.samples.KeyframesBuilderForPosition
      * @see keyframes
      */
-    class KeyframesSpecConfig<T> {
-        /**
-         * Duration of the animation in milliseconds. The minimum is `0` and defaults to
-         * [DefaultDurationMillis]
-         */
-        @get:IntRange(from = 0)
-        var durationMillis: Int = DefaultDurationMillis
-
-        /**
-         * The amount of time that the animation should be delayed. The minimum is `0` and defaults
-         * to 0.
-         */
-        @get:IntRange(from = 0)
-        var delayMillis: Int = 0
-
-        internal val keyframes = mutableMapOf<Int, KeyframeEntity<T>>()
-
-        /**
-         * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
-         *     0.8f at 150 // ms
-         *
-         * @param timeStamp The time in the during when animation should reach value: [this], with
-         * a minimum value of `0`.
-         * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
-         */
-        // TODO: Need a IntRange equivalent annotation
-        infix fun T.at(@IntRange(from = 0) timeStamp: Int): KeyframeEntity<T> {
-            return KeyframeEntity(this).also {
-                keyframes[timeStamp] = it
-            }
-        }
-
-        /**
-         * Adds a keyframe so that the animation value will be the value specified at a fraction of the total
-         * [durationMillis] set. For example:
-         *      0.8f atFraction 0.50f // half of the overall duration set
-         *  @param fraction The fraction when the animation should reach specified value.
-         *  @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method
-         */
-        infix fun T.atFraction(fraction: Float): KeyframeEntity<T> {
-            return at((durationMillis * fraction).roundToInt())
-        }
+    class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
+        override fun createEntityFor(value: T): KeyframeEntity<T> = KeyframeEntity(value)
 
         /**
          * Adds an [Easing] for the interval started with the just provided timestamp. For example:
@@ -466,7 +506,14 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          *
          * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
          * @param easing [Easing] to be used for the next interval.
+         * @return the same [KeyframeEntity] instance so that other implementations can expand on
+         * the builder pattern
          */
+        @Deprecated(
+            message = "Use version that returns an instance of the entity so it can be re-used" +
+                " in other keyframe builders.",
+            replaceWith = ReplaceWith("this using easing") // Expected usage pattern
+        )
         infix fun KeyframeEntity<T>.with(easing: Easing) {
             this.easing = easing
         }
@@ -482,8 +529,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is KeyframesSpec<*> &&
-            config == other.config
+        return other is KeyframesSpec<*> && config == other.config
     }
 
     override fun hashCode(): Int {
@@ -493,11 +539,15 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedKeyframesSpec<V> {
+        @SuppressWarnings("PrimitiveInCollection") // Consumed by stable public API
+        val vectorizedKeyframes = mutableMapOf<Int, Pair<V, Easing>>()
+        config.keyframes.forEach { key, value ->
+            vectorizedKeyframes[key] = value.toPair(converter.convertToVector)
+        }
         return VectorizedKeyframesSpec(
-            config.keyframes.mapValues {
-                it.value.toPair(converter.convertToVector)
-            },
-            config.durationMillis, config.delayMillis
+            keyframes = vectorizedKeyframes,
+            durationMillis = config.durationMillis,
+            delayMillis = config.delayMillis
         )
     }
 
@@ -505,11 +555,9 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * Holder class for building a keyframes animation.
      */
     class KeyframeEntity<T> internal constructor(
-        internal val value: T,
-        internal var easing: Easing = LinearEasing
-    ) {
-        internal fun <V : AnimationVector> toPair(convertToVector: (T) -> V) =
-            convertToVector.invoke(value) to easing
+        value: T,
+        easing: Easing = LinearEasing
+    ) : KeyframeBaseEntity<T>(value = value, easing = easing) {
 
         override fun equals(other: Any?): Boolean {
             return other is KeyframeEntity<*> && other.value == value && other.easing == easing
