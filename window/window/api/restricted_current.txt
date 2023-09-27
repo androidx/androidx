@@ -123,7 +123,6 @@ package androidx.window.core {
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
     method public boolean isActivityEmbedded(android.app.Activity activity);
@@ -132,11 +131,6 @@ package androidx.window.embedding {
 
   public static final class ActivityEmbeddingController.Companion {
     method public androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
-  }
-
-  public final class ActivityEmbeddingOptions {
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
   }
 
   public final class ActivityFilter {

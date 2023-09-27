@@ -21,7 +21,6 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 
 /**
@@ -63,34 +62,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
         token: IBinder
     ): ActivityOptions {
         return backend.setLaunchingActivityStack(options, token)
-    }
-
-    /**
-     * Finishes a set of [activityStacks][ActivityStack] from the lowest to the highest z-order
-     * regardless of the order of [ActivityStack] set.
-     *
-     * If the remaining [ActivityStack] from a split participates in other splits with other
-     * `activityStacks`, they might be showing instead. For example, if activityStack A splits with
-     * activityStack B and C, and activityStack C covers activityStack B, finishing activityStack C
-     * might make the split of activityStack A and B show.
-     *
-     * If all associated `activityStacks` of a [ActivityStack] are finished, the [ActivityStack]
-     * will be expanded to fill the parent task container. This is useful to expand the primary
-     * container as the sample linked below shows.
-     *
-     * **Note** that it's caller's responsibility to check whether this API is supported by checking
-     * [WindowSdkExtensions.extensionVersion] is greater than or equal to 3. If not, an alternative
-     * approach to finishing all containers above a particular activity can be to launch it again
-     * with flag [android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP].
-     *
-     * @param activityStacks The set of [ActivityStack] to be finished.
-     * @throws UnsupportedOperationException if extension version is less than 3.
-     * @sample androidx.window.samples.embedding.expandPrimaryContainer
-     */
-    @ExperimentalWindowApi
-    @RequiresWindowSdkExtension(3)
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        backend.finishActivityStacks(activityStacks)
     }
 
     companion object {
