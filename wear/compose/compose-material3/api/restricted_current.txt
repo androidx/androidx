@@ -488,19 +488,19 @@ package androidx.wear.compose.material3 {
   }
 
   public final class TextButtonDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors(optional long containerColor, optional long contentColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors(optional long containerColor, optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float getDefaultButtonSize();
     method public float getLargeButtonSize();
-    method public androidx.compose.foundation.shape.RoundedCornerShape getShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getSmallButtonSize();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors outlinedTextButtonColors(optional long contentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors outlinedTextButtonColors(optional long contentColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors textButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors textToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
     property public final float DefaultButtonSize;
     property public final float LargeButtonSize;
     property public final float SmallButtonSize;
-    property public final androidx.compose.foundation.shape.RoundedCornerShape shape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.TextButtonDefaults INSTANCE;
   }
 
