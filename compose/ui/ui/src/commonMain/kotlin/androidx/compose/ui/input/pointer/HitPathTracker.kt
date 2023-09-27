@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.dispatchForKind
+import androidx.compose.ui.node.has
 import androidx.compose.ui.node.layoutCoordinates
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
@@ -175,6 +176,7 @@ internal open class NodeParent {
             dispatched = it.dispatchFinalEventPass(internalPointerEvent) || dispatched
         }
         cleanUpHits(internalPointerEvent)
+        cleanUpHover()
         return dispatched
     }
 
@@ -217,6 +219,12 @@ internal open class NodeParent {
             }
         }
     }
+
+    open fun cleanUpHover() {
+        children.forEach {
+            it.cleanUpHover()
+        }
+    }
 }
 
 /**
@@ -235,6 +243,9 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     // set.
     val pointerIds: MutableVector<PointerId> = mutableVectorOf()
 
+    private var isIn = true
+    private var hasEntered = false
+
     /**
      * Cached properties that will be set before the main event pass, and reset after the final
      * pass. Since we know that these won't change within the entire pass, we don't need to
@@ -246,8 +257,6 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     private val relevantChanges: MutableMap<PointerId, PointerInputChange> = mutableMapOf()
     private var coordinates: LayoutCoordinates? = null
     private var pointerEvent: PointerEvent? = null
-    private var isIn = true
-    private var hasEntered = false
 
     override fun dispatchMainEventPass(
         changes: Map<PointerId, PointerInputChange>,
@@ -488,7 +497,10 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                 pointerIds.remove(change.id)
             }
         }
+    }
 
+    override fun cleanUpHover() {
+        super.cleanUpHover()
         isIn = false
     }
 
