@@ -48,7 +48,7 @@ internal data class PointerInputEventData(
     val pressure: Float,
     val type: PointerType,
     val issuesEnterExit: Boolean = false,
-    val historical: List<HistoricalChange> = mutableListOf(),
+    val historical: List<HistoricalChange>,
     val scrollDelta: Offset = Offset.Zero
 )
 

@@ -888,6 +888,8 @@ class ComposeScene internal constructor(
          * Pressure of the pointer. 0.0 - no pressure, 1.0 - average pressure
          */
         val pressure: Float = 1.0f,
+
+        val historical: List<HistoricalChange> = emptyList()
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -961,6 +963,7 @@ private fun pointerInputEvent(
                 it.pressed,
                 it.pressure,
                 it.type,
+                historical = it.historical,
                 scrollDelta = scrollDelta
             )
         },

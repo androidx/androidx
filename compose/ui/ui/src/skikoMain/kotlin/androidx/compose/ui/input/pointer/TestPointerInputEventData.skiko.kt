@@ -41,6 +41,7 @@ class TestPointerInputEventData(
             position,
             down,
             pressure = 1.0f,
-            PointerType.Mouse
+            PointerType.Mouse,
+            historical = listOf()
         )
 }

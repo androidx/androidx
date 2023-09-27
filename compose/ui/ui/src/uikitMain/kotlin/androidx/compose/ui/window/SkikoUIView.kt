@@ -48,11 +48,15 @@ internal interface SkikoUIViewDelegate {
 
     fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean
 
-    fun onPointerEvent(event: SkikoPointerEvent)
+    fun onTouchesEvent(view: UIView, event: UIEvent, phase: UITouchesEventPhase)
 
     fun retrieveInteropTransaction(): UIKitInteropTransaction
 
     fun render(canvas: Canvas, targetTimestamp: NSTimeInterval)
+}
+
+internal enum class UITouchesEventPhase {
+    BEGAN, MOVED, ENDED, CANCELLED
 }
 
 @Suppress("CONFLICTING_OVERLOADS")
@@ -289,8 +293,8 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
 
         _touchesCount += touches.size
 
-        withEvent?.let {
-            delegate?.onPointerEvent(it.toSkikoPointerEvent(SkikoPointerEventKind.DOWN))
+        withEvent?.let { event ->
+            delegate?.onTouchesEvent(this, event, UITouchesEventPhase.BEGAN)
         }
     }
 
@@ -299,16 +303,16 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
 
         _touchesCount -= touches.size
 
-        withEvent?.let {
-            delegate?.onPointerEvent(it.toSkikoPointerEvent(SkikoPointerEventKind.UP))
+        withEvent?.let { event ->
+            delegate?.onTouchesEvent(this, event, UITouchesEventPhase.ENDED)
         }
     }
 
     override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesMoved(touches, withEvent)
 
-        withEvent?.let {
-            delegate?.onPointerEvent(it.toSkikoPointerEvent(SkikoPointerEventKind.MOVE))
+        withEvent?.let { event ->
+            delegate?.onTouchesEvent(this, event, UITouchesEventPhase.MOVED)
         }
     }
 
@@ -317,33 +321,9 @@ internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
 
         _touchesCount -= touches.size
 
-        withEvent?.let {
-            delegate?.onPointerEvent(it.toSkikoPointerEvent(SkikoPointerEventKind.UP))
+        withEvent?.let { event ->
+            delegate?.onTouchesEvent(this, event, UITouchesEventPhase.CANCELLED)
         }
-    }
-
-    private fun UIEvent.toSkikoPointerEvent(kind: SkikoPointerEventKind): SkikoPointerEvent {
-        val pointers = touchesForView(this@SkikoUIView).orEmpty().map {
-            val touch = it as UITouch
-            val (x, y) = touch.locationInView(this@SkikoUIView).useContents { x to y }
-            SkikoPointer(
-                x = x,
-                y = y,
-                pressed = touch.isPressed,
-                device = SkikoPointerDevice.TOUCH,
-                id = touch.hashCode().toLong(),
-                pressure = touch.force
-            )
-        }
-
-        return SkikoPointerEvent(
-            x = pointers.centroidX,
-            y = pointers.centroidY,
-            kind = kind,
-            timestamp = (timestamp * 1_000).toLong(),
-            pointers = pointers,
-            platform = this
-        )
     }
 
     override fun inputDelegate(): UITextInputDelegateProtocol? {
@@ -754,14 +734,6 @@ private fun NSWritingDirection.directionToStr() =
         UITextLayoutDirectionDown -> "Down"
         else -> "unknown direction"
     }
-
-private val UITouch.isPressed
-    get() =
-        phase != UITouchPhase.UITouchPhaseEnded &&
-            phase != UITouchPhase.UITouchPhaseCancelled
-
-private val Iterable<SkikoPointer>.centroidX get() = asSequence().map { it.x }.average()
-private val Iterable<SkikoPointer>.centroidY get() = asSequence().map { it.y }.average()
 
 private fun toSkikoKeyboardEvent(
     event: UIPress,
