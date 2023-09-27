@@ -538,13 +538,9 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
-     *
-     * TODO(b/294183509): unhide
-     * @hide
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
 
     /**

@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -29,13 +31,8 @@ import java.util.Objects;
  * <p>
  * This class is functionally equivalent to
  * <a href="https://wicg.github.io/ua-client-hints/#interface">UADataValues</a>.
- * <p>
- * TODO(b/294183509): unhide
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class UserAgentMetadata {
+public final class UserAgentMetadata {
     /**
      * Use this value for bitness to use the platform's default bitness value, which is an empty
      * string for Android WebView.
@@ -80,6 +77,7 @@ public class UserAgentMetadata {
      * @see Builder#setBrandVersionList
      *
      */
+    @SuppressLint("NullableCollection")
     @Nullable
     public List<BrandVersion> getBrandVersionList() {
         return mBrandVersionList;
@@ -170,7 +168,8 @@ public class UserAgentMetadata {
      * <p>
      * @see Builder#setWow64
      *
-     * @return A boolean to indicate whether user-agent's binary is running in 64-bit Windows.
+     * @return A boolean to indicate whether user-agent's binary is running in 32-bit mode on
+     * 64-bit Windows.
      */
     public boolean isWow64() {
         return mWow64;
@@ -207,12 +206,11 @@ public class UserAgentMetadata {
      * <a href="https://wicg.github.io/ua-client-hints/#interface">NavigatorUABrandVersion</a>.
      *
      */
-    public static class BrandVersion {
+    public static final class BrandVersion {
         private final String mBrand;
         private final String mMajorVersion;
         private final String mFullVersion;
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public BrandVersion(@NonNull String brand, @NonNull String majorVersion,
                 @NonNull String fullVersion) {
             if (brand.trim().isEmpty() || majorVersion.trim().isEmpty()
@@ -344,7 +342,9 @@ public class UserAgentMetadata {
 
         /**
          * Sets user-agent metadata brands and their versions. The brand name, major version and
-         * full version should not be blank.
+         * full version should not be blank. The default value is null which means the system
+         * default user-agent metadata brands and versions will be used to generate the
+         * user-agent client hints.
          *
          * @param brandVersions a list of {@link BrandVersion} used to generated user-agent client
          *                     hints {@code sec-cu-ua} and {@code sec-ch-ua-full-version-list}.
