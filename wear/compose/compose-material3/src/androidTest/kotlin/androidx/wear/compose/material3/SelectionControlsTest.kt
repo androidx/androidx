@@ -68,12 +68,15 @@ class SelectionControlsTest {
 
     @Test
     fun checkbox_is_expected_size() {
-        rule.setContentWithThemeForSizeAssertions {
-            Checkbox(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }.assertHeightIsEqualTo(24.dp).assertWidthIsEqualTo(32.dp)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                Checkbox(
+                    checked = true,
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+            .assertHeightIsEqualTo(SELECTION_CONTROL_HEIGHT)
+            .assertWidthIsEqualTo(SELECTION_CONTROL_WIDTH)
     }
 
     @Test
@@ -285,12 +288,15 @@ class SelectionControlsTest {
 
     @Test
     fun switch_is_expected_size() {
-        rule.setContentWithThemeForSizeAssertions {
-            Switch(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }.assertHeightIsEqualTo(24.dp).assertWidthIsEqualTo(32.dp)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                Switch(
+                    checked = true,
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+            .assertHeightIsEqualTo(SELECTION_CONTROL_HEIGHT)
+            .assertWidthIsEqualTo(SELECTION_CONTROL_WIDTH)
     }
 
     @Test
@@ -514,12 +520,15 @@ class SelectionControlsTest {
 
     @Test
     fun radiobutton_is_expected_size() {
-        rule.setContentWithThemeForSizeAssertions {
-            Switch(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }.assertHeightIsEqualTo(24.dp).assertWidthIsEqualTo(32.dp)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                Switch(
+                    checked = true,
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+            .assertHeightIsEqualTo(SELECTION_CONTROL_HEIGHT)
+            .assertWidthIsEqualTo(SELECTION_CONTROL_WIDTH)
     }
 
     @Test
@@ -714,3 +723,6 @@ class SelectionControlsTest {
         image.assertContainsColor(color)
     }
 }
+
+private val SELECTION_CONTROL_WIDTH = 32.dp
+private val SELECTION_CONTROL_HEIGHT = 24.dp

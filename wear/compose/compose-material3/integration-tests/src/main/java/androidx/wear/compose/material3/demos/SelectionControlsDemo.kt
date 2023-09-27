@@ -30,8 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
@@ -48,7 +50,7 @@ fun CheckboxDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         item {
             ListHeader { Text(text = "Checkbox") }
@@ -70,12 +72,12 @@ fun CheckboxDemos() {
             Row {
                 Checkbox(
                     checked = false,
-                    enabled = false
+                    enabled = false,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Checkbox(
                     checked = true,
-                    enabled = false
+                    enabled = false,
                 )
             }
         }
@@ -87,7 +89,7 @@ fun SwitchDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         item {
             ListHeader { Text(text = "Switch") }
@@ -109,12 +111,12 @@ fun SwitchDemos() {
             Row {
                 Switch(
                     checked = false,
-                    enabled = false
+                    enabled = false,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Switch(
                     checked = true,
-                    enabled = false
+                    enabled = false,
                 )
             }
         }
@@ -141,34 +143,28 @@ fun RadioButtonDemos() {
     ScalingLazyColumn(
         modifier = Modifier
             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        autoCentering = AutoCenteringParams(itemIndex = 2)
     ) {
         item {
-            ListHeader { Text(text = "RadioButton") }
+            ListHeader { Text(text = "Radio Button") }
         }
         item {
-            Row {
-                RadioButtonSample()
-                Spacer(modifier = Modifier.width(10.dp))
-                var selected by remember { mutableStateOf(true) }
-                RadioButton(selected = selected, onClick = {
-                    selected = !selected
-                })
-            }
+            RadioButtonSample()
         }
         item {
-            ListHeader { Text(text = "Disabled Radio") }
+            ListHeader { Text(text = "Disabled Radio Button", textAlign = TextAlign.Center) }
         }
         item {
             Row {
                 RadioButton(
                     selected = false,
-                    enabled = false
+                    enabled = false,
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 RadioButton(
                     selected = true,
-                    enabled = false
+                    enabled = false,
                 )
             }
         }
