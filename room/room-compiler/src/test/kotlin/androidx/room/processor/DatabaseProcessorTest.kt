@@ -1430,27 +1430,19 @@ class DatabaseProcessorTest {
             @AutoService(SchemaFileResolver.class)
             public class TestResolver implements SchemaFileResolver {
                 @Override
-                public InputStream readPath(Path path) {
-                    try {
-                        Path resolved = Path.of("$tempDirPath").resolve(path);
-                        if (Files.exists(resolved)) {
-                            return Files.newInputStream(resolved);
-                        } else {
-                            return null;
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException("Oh-oh!", e);
+                public InputStream readPath(Path path) throws IOException {
+                    Path resolved = Path.of("$tempDirPath").resolve(path);
+                    if (Files.exists(resolved)) {
+                        return Files.newInputStream(resolved);
+                    } else {
+                        return null;
                     }
                 }
                 @Override
-                public OutputStream writePath(Path path) {
-                    try {
-                        Path resolved = Path.of("$tempDirPath").resolve(path);
-                        Files.createDirectories(resolved.getParent());
-                        return Files.newOutputStream(resolved);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Oh-oh!", e);
-                    }
+                public OutputStream writePath(Path path) throws IOException {
+                    Path resolved = Path.of("$tempDirPath").resolve(path);
+                    Files.createDirectories(resolved.getParent());
+                    return Files.newOutputStream(resolved);
                 }
             }
             """.trimIndent()

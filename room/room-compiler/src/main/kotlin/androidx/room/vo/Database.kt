@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.util.SchemaFileResolver
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.Path
 import org.apache.commons.codec.digest.DigestUtils
@@ -106,7 +107,11 @@ data class Database(
     // otherwise it is not written.
     fun exportSchema(inputPath: Path, outputPath: Path) {
         val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
-        val inputStream = SchemaFileResolver.RESOLVER.readPath(inputPath)
+        val inputStream = try {
+            SchemaFileResolver.RESOLVER.readPath(inputPath)
+        } catch (e: IOException) {
+            null
+        }
         if (inputStream != null) {
             val existing = inputStream.use {
                 SchemaBundle.deserialize(it)
@@ -118,7 +123,11 @@ data class Database(
                 return
             }
         }
-        val outputStream = SchemaFileResolver.RESOLVER.writePath(outputPath)
+        val outputStream = try {
+            SchemaFileResolver.RESOLVER.writePath(outputPath)
+        } catch (e: IOException) {
+            throw IllegalStateException("Couldn't write schema file!", e)
+        }
         SchemaBundle.serialize(schemaBundle, outputStream)
     }
 
