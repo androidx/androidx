@@ -74,8 +74,10 @@ public open class FragmentNavigator(
      * except in the case of singleTop transactions. Single top transactions involve two
      * fragment instances with the same entry, so we would get two onBackStackChanged callbacks
      * on the same entry.
+     *
+     * Each Pair represents the entry.id and whether this entry is getting popped
      */
-    internal val pendingOps = mutableListOf<String>()
+    internal val pendingOps = mutableListOf<Pair<String, Boolean>>()
 
     /**
      * Get the back stack from the [state].
@@ -181,8 +183,8 @@ public open class FragmentNavigator(
                 // In case of system back, all pending transactions are executed before handling
                 // back press, hence pendingOps will be empty.
                 val isSystemBack = pop && pendingOps.isEmpty() && fragment.isRemoving
-                val removeIndex = pendingOps.indexOfFirst { it == fragment.tag }.takeIf { it != -1 }
-                removeIndex?.let { pendingOps.removeAt(it) }
+                val op = pendingOps.firstOrNull { it.first == fragment.tag }
+                op?.let { pendingOps.remove(it) }
 
                 if (!isSystemBack && FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
@@ -191,7 +193,9 @@ public open class FragmentNavigator(
                             "$fragment associated with entry $entry"
                     )
                 }
-                if (!pop) {
+
+                val popOp = op?.second == true
+                if (!pop && !popOp) {
                     requireNotNull(entry) {
                         "The fragment " + fragment + " is unknown to the FragmentNavigator. " +
                             "Please use the navigate() function to add fragments to the " +
@@ -226,7 +230,8 @@ public open class FragmentNavigator(
             // we get onBackStackStackChangedCommitted callback for an executed navigate where we
             // remove incoming fragment from pendingOps before ATTACH so the listener will still
             // be added
-            if (owner != null && !pendingOps.contains(fragment.tag)) {
+            val isPending = pendingOps.any { it.first == fragment.tag }
+            if (owner != null && !isPending) {
                 val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
                 // We only need to add observers while the viewLifecycle has not reached a final
                 // state
@@ -326,7 +331,7 @@ public open class FragmentNavigator(
         }
         // add pending ops here before any animation (if present) starts
         poppedList.filter { it.id != initialEntry.id }.forEach { entry ->
-            addPendingOps(entry.id)
+            addPendingOps(entry.id, isPop = true)
         }
 
         state.popWithTransition(popUpTo, savedState)
@@ -474,7 +479,7 @@ public open class FragmentNavigator(
             if (incomingEntry != null) {
                 addPendingOps(incomingEntry.id)
             }
-            addPendingOps(backStackEntry.id)
+            addPendingOps(backStackEntry.id, isPop = true)
             fragmentManager.popBackStack(
                 backStackEntry.id,
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -696,9 +701,10 @@ public open class FragmentNavigator(
      * In general, each entry would only get one callback within a transaction except
      * for single top transactions, where we would get two callbacks for the same entry.
      */
-    private fun addPendingOps(id: String, deduplicate: Boolean = true) {
-        if ((deduplicate && !pendingOps.contains(id)) || !deduplicate) {
-            pendingOps.add(id)
+    private fun addPendingOps(id: String, isPop: Boolean = false, deduplicate: Boolean = true) {
+        if (deduplicate) {
+            pendingOps.removeAll { it.first == id }
         }
+        pendingOps.add(id to isPop)
     }
 }
