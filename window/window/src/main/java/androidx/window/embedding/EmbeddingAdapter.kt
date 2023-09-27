@@ -82,12 +82,10 @@ internal class EmbeddingAdapter(
                     ActivityStack(
                         primaryActivityStack.activities,
                         primaryActivityStack.isEmpty,
-                        primaryActivityStack.token,
                     ),
                     ActivityStack(
                         secondaryActivityStack.activities,
                         secondaryActivityStack.isEmpty,
-                        secondaryActivityStack.token,
                     ),
                     translate(splitInfo.splitAttributes),
                     splitInfo.token,
@@ -324,14 +322,12 @@ internal class EmbeddingAdapter(
             val primaryFragment = ActivityStack(
                 primaryActivityStack.activities,
                 primaryActivityStack.isEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
             )
 
             val secondaryActivityStack = splitInfo.secondaryActivityStack
             val secondaryFragment = ActivityStack(
                 secondaryActivityStack.activities,
                 secondaryActivityStack.isEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
             )
             return SplitInfo(
                 primaryFragment,
@@ -502,12 +498,10 @@ internal class EmbeddingAdapter(
                 ActivityStack(
                     splitInfo.primaryActivityStack.activities,
                     splitInfo.primaryActivityStack.isEmpty,
-                    INVALID_ACTIVITY_STACK_TOKEN,
                 ),
                 ActivityStack(
                     splitInfo.secondaryActivityStack.activities,
                     splitInfo.secondaryActivityStack.isEmpty,
-                    INVALID_ACTIVITY_STACK_TOKEN,
                 ),
                 getSplitAttributesCompat(splitInfo),
                 INVALID_SPLIT_INFO_TOKEN,
