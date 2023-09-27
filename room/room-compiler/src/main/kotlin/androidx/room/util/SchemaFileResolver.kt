@@ -16,6 +16,7 @@
 
 package androidx.room.util
 
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
@@ -38,6 +39,7 @@ interface SchemaFileResolver {
      * The path will be a either a sibling of Room's schema location or the folder itself as
      * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaInput.
      */
+    @Throws(IOException::class)
     fun readPath(path: Path): InputStream?
 
     /**
@@ -46,6 +48,7 @@ interface SchemaFileResolver {
      * The path will be a either a sibling of Room's schema location or the folder itself as
      * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaOutput.
      */
+    @Throws(IOException::class)
     fun writePath(path: Path): OutputStream
 
     companion object {

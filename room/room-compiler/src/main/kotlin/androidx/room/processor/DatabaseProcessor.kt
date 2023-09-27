@@ -43,6 +43,7 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
+import java.io.IOException
 import java.nio.file.Path
 import java.util.Locale
 
@@ -198,9 +199,14 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     }
 
     private fun getSchemaBundle(version: Int, schemaFolderPath: Path): DatabaseBundle? {
-        val schemaStream = SchemaFileResolver.RESOLVER.readPath(
-            schemaFolderPath.resolve("$version.json")
-        )
+        val schemaStream =
+            try {
+                SchemaFileResolver.RESOLVER.readPath(
+                    schemaFolderPath.resolve("$version.json")
+                )
+            } catch (e: IOException) {
+                null
+            }
         if (schemaStream == null) {
             context.logger.e(
                 element,
