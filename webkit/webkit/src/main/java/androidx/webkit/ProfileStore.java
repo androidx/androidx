@@ -121,8 +121,10 @@ public interface ProfileStore {
      * @return {@code true} if profile exists and its data is to be deleted, otherwise {@code
      * false}.
      * @throws IllegalStateException if there are living WebViews associated with that profile.
+     * @throws IllegalStateException if you are trying to delete a Profile that was loaded in the
+     * memory using {@link ProfileStore#getOrCreateProfile(String)}} or
+     * {@link ProfileStore#getProfile(String)}.
      * @throws IllegalArgumentException if you are trying to delete the default Profile.
-     *
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
