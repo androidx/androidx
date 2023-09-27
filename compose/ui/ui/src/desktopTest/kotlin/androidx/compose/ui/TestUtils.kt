@@ -39,7 +39,9 @@ import java.text.AttributedString
 import javax.swing.Icon
 import javax.swing.ImageIcon
 import kotlin.math.floor
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import org.jetbrains.skiko.MainUIDispatcher
 
 fun testImage(color: Color): Painter = run {
     val bitmap = ImageBitmap(100, 100)
@@ -211,3 +213,16 @@ fun Dimension.toDpSize() = DpSize(width.dp, height.dp)
 fun Point.toWindowPosition() = WindowPosition(x.dp, y.dp)
 
 fun Size.toInt() = IntSize(width.toInt(), height.toInt())
+
+// to avoid races between GlobalSnapshotManager and scene.render, we need to run test in UI thread
+//
+// It is a bug of ImageComposeScene,
+// calling scene.render should apply or await all global snapshot changes
+// instead, it can skip sometimes applying changes,
+// because GlobalSnapshotManager is currently applying them
+// this results that scene.render won't recompose anything, event if there are states changed
+internal inline fun <R> ImageComposeScene.useInUiThread(
+    crossinline block: (ImageComposeScene) -> R
+): R = runBlocking(MainUIDispatcher) {
+    use(block)
+}
