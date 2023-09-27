@@ -72,8 +72,9 @@ interface SchemaFileResolver {
             }
 
             override fun writePath(path: Path): OutputStream {
-                if (!path.parent.exists()) {
-                    path.createDirectories()
+                val parent = path.parent
+                if (parent != null && !parent.exists()) {
+                    parent.createDirectories()
                 }
                 return path.outputStream()
             }
