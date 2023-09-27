@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.safeparcel;
+package androidx.appsearch.safeparcel;
 
 
 import android.os.Parcel;
@@ -22,8 +22,6 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.safeparcel.AbstractSafeParcelable;
-import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.PropertyParcelCreator;
 
 import java.util.Arrays;

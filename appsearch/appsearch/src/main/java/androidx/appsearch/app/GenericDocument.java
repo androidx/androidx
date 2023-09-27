@@ -79,6 +79,9 @@ public class GenericDocument {
     private static final String NAMESPACE_FIELD = "namespace";
     private static final String PARENT_TYPES_FIELD = "parentTypes";
 
+    /**
+     * <!--@exportToFramework:hide-->
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PARENT_TYPES_SYNTHETIC_PROPERTY = "$$__AppSearch__parentTypes";
 
