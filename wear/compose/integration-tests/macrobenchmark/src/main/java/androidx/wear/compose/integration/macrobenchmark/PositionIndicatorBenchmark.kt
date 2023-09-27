@@ -63,14 +63,18 @@ class PositionIndicatorBenchmark(
                 startActivityAndWait(intent)
             }
         ) {
-            val buttonChangeVisibility = device.findObject(By.desc(CHANGE_VISIBILITY))
+            val buttonVisibilityAutoHide = device.findObject(By.desc(CHANGE_VISIBILITY_AUTO_HIDE))
+            val buttonVisibilityHide = device.findObject(By.desc(CHANGE_VISIBILITY_HIDE))
+            val buttonVisibilityShow = device.findObject(By.desc(CHANGE_VISIBILITY_SHOW))
+
+            buttonVisibilityShow?.click()
 
             // By default indicator visibility is Show
             // Increase and decrease indicator 10 times 1 direction and 10 times another
             repeatIncrementAndDecrement(10, 200)
 
             // Switch from Show to AutoHide
-            buttonChangeVisibility?.click()
+            buttonVisibilityAutoHide?.click()
 
             // Increase and decrease indicator with delay shorter than hiding delay
             repeatIncrementAndDecrement(10, 200)
@@ -79,14 +83,10 @@ class PositionIndicatorBenchmark(
             repeatIncrementAndDecrement(3, 2500)
 
             // Switch from Autohide to Hide
-            buttonChangeVisibility?.click()
+            buttonVisibilityHide?.click()
 
             // Increase and decrease indicator 10 times 1 direction and 10 times another
             repeatIncrementAndDecrement(10, 200)
-
-            // Switch from Hide to Show
-            buttonChangeVisibility?.click()
-            sleep(100)
         }
     }
 
@@ -114,7 +114,9 @@ class PositionIndicatorBenchmark(
                 ".POSITION_INDICATOR_ACTIVITY"
         private const val INCREASE_POSITION = "PI_INCREASE_POSITION"
         private const val DECREASE_POSITION = "PI_DECREASE_POSITION"
-        private const val CHANGE_VISIBILITY = "PI_VISIBILITY"
+        private const val CHANGE_VISIBILITY_SHOW = "PI_VISIBILITY_SHOW"
+        private const val CHANGE_VISIBILITY_HIDE = "PI_VISIBILITY_HIDE"
+        private const val CHANGE_VISIBILITY_AUTO_HIDE = "PI_VISIBILITY_AUTO_HIDE"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

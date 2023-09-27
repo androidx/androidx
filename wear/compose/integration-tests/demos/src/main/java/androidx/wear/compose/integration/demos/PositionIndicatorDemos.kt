@@ -114,6 +114,9 @@ fun ControllablePositionIndicator() {
     val position = remember { mutableFloatStateOf(0.2f) }
     val size = remember { mutableFloatStateOf(0.5f) }
     val visibility = remember { mutableStateOf(PositionIndicatorVisibility.Show) }
+    var showFadeInAnimation by remember { mutableStateOf(true) }
+    var showFadeOutAnimation by remember { mutableStateOf(true) }
+    var showPositionAnimation by remember { mutableStateOf(true) }
     var alignment by remember { mutableIntStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
@@ -135,6 +138,9 @@ fun ControllablePositionIndicator() {
                     indicatorHeight = 76.dp,
                     indicatorWidth = 6.dp,
                     paddingHorizontal = 5.dp,
+                    showFadeInAnimation = showFadeInAnimation,
+                    showFadeOutAnimation = showFadeOutAnimation,
+                    showPositionAnimation = showPositionAnimation,
                     color = MaterialTheme.colors.secondary,
                     reverseDirection = reverseDirection,
                     position = alignmentValues[alignment]
@@ -147,7 +153,10 @@ fun ControllablePositionIndicator() {
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
                     Text("Position")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
@@ -184,8 +193,10 @@ fun ControllablePositionIndicator() {
                         visibility.value = when (visibility.value) {
                             PositionIndicatorVisibility.Show ->
                                 PositionIndicatorVisibility.AutoHide
+
                             PositionIndicatorVisibility.AutoHide ->
                                 PositionIndicatorVisibility.Hide
+
                             else ->
                                 PositionIndicatorVisibility.Show
                         }
@@ -197,6 +208,27 @@ fun ControllablePositionIndicator() {
                                 else -> "Hide"
                             }
                         )
+                    }
+                    Text("Animations")
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        ToggleButton(
+                            checked = showFadeInAnimation,
+                            onCheckedChange = { showFadeInAnimation = !showFadeInAnimation }
+                        ) {
+                            Text("Fade in")
+                        }
+                        ToggleButton(
+                            checked = showFadeOutAnimation,
+                            onCheckedChange = { showFadeOutAnimation = !showFadeOutAnimation }
+                        ) {
+                            Text("Fade out")
+                        }
+                        ToggleButton(
+                            checked = showPositionAnimation,
+                            onCheckedChange = { showPositionAnimation = !showPositionAnimation }
+                        ) {
+                            Text("Position")
+                        }
                     }
                 }
             }
