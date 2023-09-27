@@ -64,6 +64,7 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
@@ -145,8 +146,6 @@ import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -186,7 +185,7 @@ internal var platformTextInputServiceInterceptor:
         (PlatformTextInputService) -> PlatformTextInputService = { it }
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
-@OptIn(ExperimentalComposeUiApi::class, InternalTextApi::class, ExperimentalTextApi::class)
+@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
 internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 

@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.text.InternalTextApi
@@ -47,7 +48,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * represented by an [InputMethodSession], which in turn coordinates between multiple calls to
  * [createInputConnection] for a single session.
  */
-@OptIn(InternalTextApi::class)
+@OptIn(InternalTextApi::class, InternalComposeUiApi::class)
 internal class AndroidPlatformTextInputSession(
     override val view: View,
     private val textInputService: TextInputService,

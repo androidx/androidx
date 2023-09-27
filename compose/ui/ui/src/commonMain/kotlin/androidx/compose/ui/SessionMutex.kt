@@ -32,6 +32,7 @@ import kotlinx.coroutines.job
  * new session's coroutine starts.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalComposeUiApi
 @JvmInline
 value class SessionMutex<T> private constructor(
     private val currentSessionHolder: AtomicReference<Session<T>?>
