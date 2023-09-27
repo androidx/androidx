@@ -2036,3 +2036,42 @@ package androidx.compose.material3 {
 
 }
 
+package androidx.compose.material3.pulltorefresh {
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class PullToRefreshDefaults {
+    method @androidx.compose.runtime.Composable public void Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Modifier modifier, optional long color);
+    method @androidx.compose.runtime.Composable public long getContainerColor();
+    method @androidx.compose.runtime.Composable public long getContentColor();
+    method public float getPositionalThreshold();
+    method public androidx.compose.ui.graphics.Shape getShape();
+    property public final float PositionalThreshold;
+    property @androidx.compose.runtime.Composable public final long containerColor;
+    property @androidx.compose.runtime.Composable public final long contentColor;
+    property public final androidx.compose.ui.graphics.Shape shape;
+    field public static final androidx.compose.material3.pulltorefresh.PullToRefreshDefaults INSTANCE;
+  }
+
+  public final class PullToRefreshKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshContainer(androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.pulltorefresh.PullToRefreshState,kotlin.Unit> indicator, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.pulltorefresh.PullToRefreshState PullToRefreshState(float positionalThresholdPx, optional boolean initialRefreshing, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState(optional float positionalThreshold, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface PullToRefreshState {
+    method public void endRefresh();
+    method public androidx.compose.ui.input.nestedscroll.NestedScrollConnection getNestedScrollConnection();
+    method public float getPositionalThreshold();
+    method @FloatRange(from=0.0) public float getProgress();
+    method @FloatRange(from=0.0) public float getVerticalOffset();
+    method public boolean isRefreshing();
+    method public void setNestedScrollConnection(androidx.compose.ui.input.nestedscroll.NestedScrollConnection);
+    method public void startRefresh();
+    property public abstract boolean isRefreshing;
+    property public abstract androidx.compose.ui.input.nestedscroll.NestedScrollConnection nestedScrollConnection;
+    property public abstract float positionalThreshold;
+    property @FloatRange(from=0.0) public abstract float progress;
+    property @FloatRange(from=0.0) public abstract float verticalOffset;
+  }
+
+}
+
