@@ -373,7 +373,7 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    fun onSizeChangedTest() {
+    fun onLayoutTestWithSizeChange() {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         activity.runOnUiThread {
@@ -381,6 +381,29 @@ class SandboxedSdkViewTest {
         }
         assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertTrue(view.width == 100 && view.height == 200)
+    }
+
+    @Test
+    fun onLayoutTestNoSizeChange() {
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        activity.runOnUiThread {
+            view.layout(view.left, view.top, view.right, view.bottom)
+        }
+        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+    }
+
+    @Test
+    fun onLayoutTestViewShiftWithoutSizeChange() {
+        addViewToLayout()
+        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        val rightShift = 10
+        val upperShift = 30
+        activity.runOnUiThread {
+            view.layout(view.left + rightShift, view.top - upperShift,
+                view.right + rightShift, view.bottom - upperShift)
+        }
+        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
     @Test
