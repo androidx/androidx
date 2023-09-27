@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -30,8 +31,9 @@ import kotlinx.coroutines.job
  * be cancelled and allowed to finish any cancellation tasks (e.g. `finally` blocks) before the
  * new session's coroutine starts.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-internal value class SessionMutex<T> private constructor(
+value class SessionMutex<T> private constructor(
     private val currentSessionHolder: AtomicReference<Session<T>?>
 ) {
     constructor() : this(AtomicReference(null))

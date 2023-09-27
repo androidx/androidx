@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -85,7 +84,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlin.test.assertFails
 import kotlinx.coroutines.flow.drop
 import org.junit.Ignore
 import org.junit.Rule
@@ -98,16 +96,14 @@ import org.junit.runner.RunWith
 internal class BasicTextField2Test {
     @get:Rule
     val rule = createComposeRule()
-
-    @get: Rule
-    val inputMethodInterceptor = InputMethodInterceptorRule(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val Tag = "BasicTextField2"
 
     @Test
     fun textField_rendersEmptyContent() {
         var textLayoutResult: (() -> TextLayoutResult?)? = null
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             val state = remember { TextFieldState() }
             BasicTextField2(
                 state = state,
@@ -125,7 +121,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldState_textChange_updatesState() {
         val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -144,7 +140,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldState_textChange_updatesSemantics() {
         val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -162,7 +158,7 @@ internal class BasicTextField2Test {
     @Test
     fun stringValue_textChange_updatesState() {
         var state by mutableStateOf("Hello ")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = state,
                 onValueChange = { state = it },
@@ -182,7 +178,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_textChange_updatesState() {
         var state by mutableStateOf(TextFieldValue("Hello ", selection = TextRange(Int.MAX_VALUE)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = state,
                 onValueChange = { state = it },
@@ -208,7 +204,7 @@ internal class BasicTextField2Test {
     fun textField_imeUpdatesDontCauseRecomposition() {
         val state = TextFieldState()
         var compositionCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             compositionCount++
             BasicTextField2(
                 state = state,
@@ -233,7 +229,7 @@ internal class BasicTextField2Test {
         var style by mutableStateOf(TextStyle(fontSize = 20.sp))
         var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
         val textLayoutResults = mutableListOf<TextLayoutResult?>()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -265,7 +261,7 @@ internal class BasicTextField2Test {
         val state = TextFieldState("Hello")
         var style by mutableStateOf(TextStyle(color = Color.Red))
         val textLayoutResults = mutableListOf<() -> TextLayoutResult?>()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -290,7 +286,7 @@ internal class BasicTextField2Test {
         val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
         var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
         val textLayoutResults = mutableListOf<TextLayoutResult?>()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -318,9 +314,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_focus_showsSoftwareKeyboard() {
         val state = TextFieldState()
-        val keyboardHelper = KeyboardHelper(rule)
-        rule.setContent {
-            keyboardHelper.initialize()
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier
@@ -332,19 +326,13 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).performClick()
         rule.onNodeWithTag(Tag).assertIsFocused()
 
-        keyboardHelper.waitForKeyboardVisibility(true)
-
-        rule.runOnIdle {
-            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
-        }
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test
     fun textField_focus_doesNotShowSoftwareKeyboard_ifDisabled() {
         val state = TextFieldState()
-        val keyboardHelper = KeyboardHelper(rule)
-        rule.setContent {
-            keyboardHelper.initialize()
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 enabled = false,
@@ -357,22 +345,13 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertIsNotEnabled()
         rule.onNodeWithTag(Tag).performClick()
 
-        // Give the keyboard a chance to be shown, which will fail the test.
-        assertFails {
-            keyboardHelper.waitForKeyboardVisibility(true, timeout = 1_000)
-        }
-
-        rule.runOnIdle {
-            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
     fun textField_focus_doesNotShowSoftwareKeyboard_ifReadOnly() {
         val state = TextFieldState()
-        val keyboardHelper = KeyboardHelper(rule)
-        rule.setContent {
-            keyboardHelper.initialize()
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 readOnly = true,
@@ -381,19 +360,11 @@ internal class BasicTextField2Test {
                     .testTag(Tag)
             )
         }
-        keyboardHelper.hideKeyboardIfShown()
 
         rule.onNodeWithTag(Tag).performClick()
         rule.onNodeWithTag(Tag).assertIsFocused()
 
-        // Give the keyboard a chance to be shown, which will fail the test.
-        assertFails {
-            keyboardHelper.waitForKeyboardVisibility(true, timeout = 1_000)
-        }
-
-        rule.runOnIdle {
-            assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
-        }
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
@@ -402,7 +373,7 @@ internal class BasicTextField2Test {
         val state2 = TextFieldState("World")
         var toggleState by mutableStateOf(true)
         val state by derivedStateOf { if (toggleState) state1 else state2 }
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 enabled = true,
@@ -423,7 +394,7 @@ internal class BasicTextField2Test {
         val state2 = TextFieldState("World")
         var toggleState by mutableStateOf(true)
         val state by derivedStateOf { if (toggleState) state1 else state2 }
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 enabled = true,
@@ -449,7 +420,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_passesKeyboardOptionsThrough() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
@@ -473,7 +444,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toInputConnection() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
@@ -489,7 +460,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toSetTextSemanticsAction() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
@@ -504,7 +475,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toInsertTextSemanticsAction() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
@@ -519,7 +490,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_appliesFilter_toKeyEvents() {
         val state = TextFieldState()
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
@@ -535,7 +506,7 @@ internal class BasicTextField2Test {
     fun textField_appliesFilter_toInputConnection_afterChanging() {
         val state = TextFieldState()
         var filter by mutableStateOf<InputTransformation?>(null)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = filter,
@@ -562,7 +533,7 @@ internal class BasicTextField2Test {
     fun textField_appliesFilter_toSetTextSemanticsAction_afterChanging() {
         val state = TextFieldState()
         var filter by mutableStateOf<InputTransformation?>(null)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = filter,
@@ -588,7 +559,7 @@ internal class BasicTextField2Test {
     fun textField_appliesFilter_toInsertTextSemanticsAction_afterChanging() {
         val state = TextFieldState()
         var filter by mutableStateOf<InputTransformation?>(null)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = filter,
@@ -614,7 +585,7 @@ internal class BasicTextField2Test {
     fun textField_appliesFilter_toKeyEvents_afterChanging() {
         val state = TextFieldState()
         var filter by mutableStateOf<InputTransformation?>(null)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = filter,
@@ -640,7 +611,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenInputConnectionCommits() {
         val state = TextFieldState()
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -666,7 +637,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenInputConnectionComposes() {
         val state = TextFieldState()
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -692,7 +663,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenInputConnectionDeletes() {
         val state = TextFieldState("hello")
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -724,7 +695,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
         val state = TextFieldState("hello")
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -755,7 +726,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenKeyEventInserts() {
         val state = TextFieldState()
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -781,7 +752,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenKeyEventDeletes() {
         val state = TextFieldState("hello")
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -807,7 +778,7 @@ internal class BasicTextField2Test {
     fun textField_changesAreTracked_whenSemanticsActionInserts() {
         val state = TextFieldState()
         lateinit var changes: ChangeList
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
                 inputTransformation = { _, new ->
@@ -836,7 +807,7 @@ internal class BasicTextField2Test {
                 imeAction = ImeAction.Previous
             )
         )
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
@@ -854,7 +825,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_mergedWithParams() {
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
@@ -873,7 +844,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_filterKeyboardOptions_overriddenByParams() {
         val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
@@ -898,7 +869,7 @@ internal class BasicTextField2Test {
                 )
             )
         )
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
@@ -909,8 +880,7 @@ internal class BasicTextField2Test {
 
         inputMethodInterceptor.withEditorInfo {
             assertThat(imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
-            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-                .isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).isNotEqualTo(0)
         }
 
         filter = KeyboardOptionsFilter(
@@ -922,8 +892,7 @@ internal class BasicTextField2Test {
 
         inputMethodInterceptor.withEditorInfo {
             assertThat(imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
-            assertThat(inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL)
-                .isNotEqualTo(0)
+            assertThat(inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL).isNotEqualTo(0)
         }
     }
 
@@ -931,7 +900,7 @@ internal class BasicTextField2Test {
     @Test
     fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
         val testKeyboardController = TestSoftwareKeyboardController(rule)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             CompositionLocalProvider(
                 LocalSoftwareKeyboardController provides testKeyboardController
             ) {
@@ -954,7 +923,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun swipingThroughTextField_doesNotGainFocus() {
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag)
@@ -972,7 +941,7 @@ internal class BasicTextField2Test {
     @Test
     fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
         val scrollState = ScrollState(0)
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             Column(
                 Modifier
                     .size(100.dp)
@@ -999,7 +968,7 @@ internal class BasicTextField2Test {
         val state = TextFieldState("Hello")
         var density by mutableStateOf(Density(1f))
         val fontSize = 20.sp
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalDensity provides density) {
                 BasicTextField2(
                     state = state,
@@ -1025,7 +994,7 @@ internal class BasicTextField2Test {
     @Test
     fun stringValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
         var text by mutableStateOf("hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1043,7 +1012,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
         var text by mutableStateOf(TextFieldValue("hello"))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1061,7 +1030,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_updatesFieldSelection_whenSelectionChangedFromCode_whileUnfocused() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1079,7 +1048,7 @@ internal class BasicTextField2Test {
     @Test
     fun stringValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("hello")
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1098,7 +1067,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1118,7 +1087,7 @@ internal class BasicTextField2Test {
     fun stringValue_doesNotInvokeCallback_onFocus() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = {
@@ -1141,7 +1110,7 @@ internal class BasicTextField2Test {
     fun stringValue_doesNotInvokeCallback_whenOnlySelectionChanged() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = {
@@ -1167,7 +1136,7 @@ internal class BasicTextField2Test {
     fun stringValue_doesNotInvokeCallback_whenOnlyCompositionChanged() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = {
@@ -1193,7 +1162,7 @@ internal class BasicTextField2Test {
     fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileUnfocused() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = {
@@ -1218,7 +1187,7 @@ internal class BasicTextField2Test {
     fun stringValue_doesNotInvokeCallback_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("")
         var onValueChangedCount = 0
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = {
@@ -1243,7 +1212,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_usesInitialSelectionFromValue() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(2)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1257,7 +1226,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_reportsSelectionChangesInCallback() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
@@ -1275,7 +1244,7 @@ internal class BasicTextField2Test {
     @Test
     fun textFieldValue_reportsCompositionChangesInCallback() {
         var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             BasicTextField2(
                 value = text,
                 onValueChange = { text = it },
