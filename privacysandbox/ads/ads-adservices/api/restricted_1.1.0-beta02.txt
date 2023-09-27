@@ -202,7 +202,7 @@ package androidx.privacysandbox.ads.adservices.customaudience {
 
 package androidx.privacysandbox.ads.adservices.measurement {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DeletionRequest {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class DeletionRequest {
     ctor public DeletionRequest(int deletionMode, int matchBehavior, optional java.time.Instant start, optional java.time.Instant end, optional java.util.List<? extends android.net.Uri> domainUris, optional java.util.List<? extends android.net.Uri> originUris);
     method public int getDeletionMode();
     method public java.util.List<android.net.Uri> getDomainUris();
@@ -223,7 +223,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     field public static final int MATCH_BEHAVIOR_PRESERVE = 1; // 0x1
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class DeletionRequest.Builder {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public static final class DeletionRequest.Builder {
     ctor public DeletionRequest.Builder(int deletionMode, int matchBehavior);
     method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest build();
     method public androidx.privacysandbox.ads.adservices.measurement.DeletionRequest.Builder setDomainUris(java.util.List<? extends android.net.Uri> domainUris);
@@ -268,7 +268,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method public androidx.privacysandbox.ads.adservices.measurement.SourceRegistrationRequest.Builder setInputEvent(android.view.InputEvent inputEvent);
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebSourceParams {
+  public final class WebSourceParams {
     ctor public WebSourceParams(android.net.Uri registrationUri, boolean debugKeyAllowed);
     method public boolean getDebugKeyAllowed();
     method public android.net.Uri getRegistrationUri();
@@ -276,7 +276,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     property public final android.net.Uri registrationUri;
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebSourceRegistrationRequest {
+  public final class WebSourceRegistrationRequest {
     ctor public WebSourceRegistrationRequest(java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebSourceParams> webSourceParams, android.net.Uri topOriginUri, optional android.view.InputEvent? inputEvent, optional android.net.Uri? appDestination, optional android.net.Uri? webDestination, optional android.net.Uri? verifiedDestination);
     method public android.net.Uri? getAppDestination();
     method public android.view.InputEvent? getInputEvent();
@@ -301,7 +301,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     method public androidx.privacysandbox.ads.adservices.measurement.WebSourceRegistrationRequest.Builder setWebDestination(android.net.Uri? webDestination);
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebTriggerParams {
+  public final class WebTriggerParams {
     ctor public WebTriggerParams(android.net.Uri registrationUri, boolean debugKeyAllowed);
     method public boolean getDebugKeyAllowed();
     method public android.net.Uri getRegistrationUri();
@@ -309,7 +309,7 @@ package androidx.privacysandbox.ads.adservices.measurement {
     property public final android.net.Uri registrationUri;
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WebTriggerRegistrationRequest {
+  public final class WebTriggerRegistrationRequest {
     ctor public WebTriggerRegistrationRequest(java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> webTriggerParams, android.net.Uri destination);
     method public android.net.Uri getDestination();
     method public java.util.List<androidx.privacysandbox.ads.adservices.measurement.WebTriggerParams> getWebTriggerParams();
