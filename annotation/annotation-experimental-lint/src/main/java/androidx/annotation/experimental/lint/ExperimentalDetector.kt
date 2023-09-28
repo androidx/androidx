@@ -633,6 +633,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     ): LintFix {
         val propagateAnnotation = "@$annotation"
         val lintFixes = fix().alternatives()
+        var addedFix = false
         usage.getContainingUMethod()?.let { containingMethod ->
             val isKotlin = isKotlin(usage.sourcePsi)
             val optInAnnotation = if (isKotlin) {
@@ -642,9 +643,12 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             }
             lintFixes.add(createAnnotateFix(context, containingMethod, optInAnnotation))
             lintFixes.add(createAnnotateFix(context, containingMethod, propagateAnnotation))
+            addedFix = true
         }
-        usage.getContainingUClass()?.let { containingClass ->
-            lintFixes.add(createAnnotateFix(context, containingClass, propagateAnnotation))
+        if (!addedFix) { // workaround for b/301598518 : don't add all three fixes at once
+            usage.getContainingUClass()?.let { containingClass ->
+                lintFixes.add(createAnnotateFix(context, containingClass, propagateAnnotation))
+            }
         }
         return lintFixes.build()
     }
