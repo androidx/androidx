@@ -19,6 +19,7 @@ import androidx.build.BuildServerConfigurationKt
 plugins {
     id("java-library")
     id("com.google.protobuf")
+    id("AndroidXPlugin")
 }
 
 dependencies {
@@ -41,6 +42,15 @@ protobuf {
                     option "lite"
                 }
             }
+        }
+    }
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
         }
     }
 }
