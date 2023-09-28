@@ -202,6 +202,9 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     @Test
     fun testHostCanSetZOrderAboveBeforeOpeningSession() {
+        // TODO(b/301976432): Stop skipping this for backwards compat flow
+        assumeTrue(!invokeBackwardsCompatFlow)
+
         val adapter = createAdapterAndWaitToBeActive(initialZOrder = true)
         injectInputEventOnView()
         // the injected touch should be handled by the provider in Z-above mode
