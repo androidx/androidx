@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api("androidx.activity:activity:1.2.0")
-    api(projectOrArtifact(":compose:test-utils"))
+    api(project(":compose:test-utils"))
     api(projectOrArtifact(":benchmark:benchmark-junit4"))
 
     implementation(libs.kotlinStdlibCommon)

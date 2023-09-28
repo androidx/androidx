@@ -27,15 +27,9 @@ rootProject.name = "navigation-playground"
 playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
-        // Compose projects are not supported in playground yet
+        // requires core:core which is not supported on Github
+        if (name == ":navigation:navigation-compose:integration-tests:navigation-demos") return false
         if (name.startsWith(":navigation")) return true
-        if (name.startsWith(":annotation")) return true
-        if (name == ":compose:integration-tests:demos:common") return true
-        if (name.startsWith(":lifecycle") && !name.contains("integration-tests")) return true
-        if (name == ":internal-testutils-navigation") return true
-        if (name == ":internal-testutils-runtime") return true
-        if (name == ":internal-testutils-truth") return true
-        if (isNeededForComposePlayground(name)) return true
         return false
     })
 }

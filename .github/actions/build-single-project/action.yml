@@ -66,7 +66,7 @@ runs:
           caches/jars-9
           caches/transforms-3
 
-    - name: "gradle buildOnServer zipTestConfigsWithApks test"
+    - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
@@ -74,4 +74,13 @@ runs:
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: ./gradlew buildOnServer zipTestConfigsWithApks test ${{ inputs.gradle-flags }}
+      run: ./gradlew buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
+    - name: "gradle playgroundCIHostTests"
+      env:
+        JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+        JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
+        GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+      working-directory: ${{ inputs.project-root }}
+      shell: bash
+      run: ./gradlew playgroundCIHostTests ${{ inputs.gradle-flags }}

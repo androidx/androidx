@@ -33,7 +33,7 @@ dependencies {
     api(libs.rxjava3)
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
+    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
