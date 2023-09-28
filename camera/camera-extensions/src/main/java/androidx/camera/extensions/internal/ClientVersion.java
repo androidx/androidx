@@ -70,6 +70,22 @@ public class ClientVersion {
     }
 
     /**
+     * Check if the client version meets the maximum compatible version requirement. This implies
+     * that the client version is equal to or older than the version.
+     *
+     * <p> The compatible version is comprised of the major and minor version numbers. The patch
+     * number is ignored.
+     *
+     * @param version The minimum compatible version required
+     * @return True if the client version meets the maximum version requirement and False
+     * otherwise.
+     */
+    public static boolean isMaximumCompatibleVersion(@NonNull Version version) {
+        return ClientVersion.getCurrentVersion().mVersion
+                .compareTo(version.getMajor(), version.getMinor()) <= 0;
+    }
+
+    /**
      * Gets this version number as string.
      *
      * @return the string of the version in a form of MAJOR.MINOR.PATCH-description.
