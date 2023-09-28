@@ -72,4 +72,13 @@ interface HapticManager {
      */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun play(signal: HapticSignal, attrs: HapticAttributes)
+
+    /**
+     * Cancel any [HapticSignal] currently playing.
+     *
+     * Sample code:
+     * @sample androidx.core.haptics.samples.PlayThenCancel
+     */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    fun cancel()
 }

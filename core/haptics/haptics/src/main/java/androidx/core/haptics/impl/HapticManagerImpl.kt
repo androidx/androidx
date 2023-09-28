@@ -36,4 +36,9 @@ internal class HapticManagerImpl internal constructor(
             vibrator.vibrate(vibration, attrs.toAttributes())
         }
     }
+
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    override fun cancel() {
+        vibrator.cancel()
+    }
 }
