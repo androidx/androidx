@@ -99,7 +99,13 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
     override fun isAvailableOnDevice(): Boolean {
         val resultCode = isGooglePlayServicesAvailable(context)
-        return resultCode == ConnectionResult.SUCCESS
+        val isSuccessful = resultCode == ConnectionResult.SUCCESS
+        if (!isSuccessful) {
+            val connectionResult = ConnectionResult(resultCode)
+            Log.w(TAG, "Connection with Google Play Services was not " +
+                "successful. Connection result is: " + connectionResult.toString())
+        }
+        return isSuccessful
     }
 
     // https://developers.google.com/android/reference/com/google/android/gms/common/ConnectionResult
