@@ -16,19 +16,17 @@
 
 package androidx.compose.mpp.demo.textfield
 
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.mpp.demo.Screen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -59,6 +57,17 @@ val TextFields = Screen.Selection(
             FastDelete()
         }
     },
+    Screen.Example("OutlinedTextField") {
+        ClearFocusBox {
+            var text by remember { mutableStateOf("Some text") }
+            OutlinedTextField(
+                readOnly = true,
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("OutlinedTextField Label") },
+            )
+        }
+    }
 )
 
 @Composable
