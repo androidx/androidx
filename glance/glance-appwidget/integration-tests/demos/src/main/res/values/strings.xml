@@ -16,6 +16,7 @@
 
 <resources>
     <string name="demos_label">Glance AppWidget Demos</string>
+    <string name="demo_widget_viewer">Demo Widget Viewer</string>
 
     <!-- Name of the app widgets -->
     <string name="responsive_widget_name">Responsive Widget</string>

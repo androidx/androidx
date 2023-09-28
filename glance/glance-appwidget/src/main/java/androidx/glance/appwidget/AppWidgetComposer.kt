@@ -14,110 +14,94 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalGlanceApi::class)
+
 package androidx.glance.appwidget
 
+import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.widget.RemoteViews
-import androidx.compose.runtime.BroadcastFrameClock
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
-import androidx.glance.Applier
-import androidx.glance.GlanceComposable
+import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceId
-import androidx.glance.LocalContext
-import androidx.glance.LocalGlanceId
-import androidx.glance.LocalState
-import androidx.glance.state.ConfigManager
-import androidx.glance.state.GlanceState
-import androidx.glance.state.PreferencesGlanceStateDefinition
-import kotlin.coroutines.coroutineContext
+import androidx.glance.session.runSession
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
-/**
- * Run the given [content] composition and translate it to [RemoteViews].
- */
-internal suspend fun compose(
-    context: Context,
-    id: GlanceId = AppWidgetId(-1),
-    sizeMode: SizeMode = SizeMode.Single,
-    size: DpSize? = null,
-    options: Bundle? = null,
-    state: Any? = null,
-    configManager: ConfigManager = GlanceState,
-    content: @Composable @GlanceComposable () -> Unit,
-): RemoteViews {
-    val appWidgetId = (id as AppWidgetId).appWidgetId
-    val layoutConfig = LayoutConfiguration.load(context, appWidgetId)
-    val glanceState = state ?: configManager.getValue(
-        context,
-        PreferencesGlanceStateDefinition,
-        createUniqueRemoteUiName(appWidgetId)
-    )
-    val manager = context.appWidgetManager
-    val finalOptions = options ?: manager.getAppWidgetOptions(appWidgetId) ?: Bundle()
-    val minSize = appWidgetMinSize(
-        context.resources.displayMetrics,
-        manager,
-        appWidgetId
-    )
-    try {
-        val root = RemoteViewsRoot(MaxComposeTreeDepth)
-        val applier = Applier(root)
-        val recomposer = Recomposer(coroutineContext)
-        val composition = Composition(applier, recomposer)
-        composition.setContent {
-            CompositionLocalProvider(
-                LocalContext provides context,
-                LocalGlanceId provides id,
-                LocalAppWidgetOptions provides finalOptions,
-                LocalState provides glanceState,
-            ) {
-                ForEachSize(sizeMode, size ?: minSize, content)
-            }
-        }
-        withContext(BroadcastFrameClock()) {
-            launch { recomposer.runRecomposeAndApplyChanges() }
-            recomposer.close()
-            recomposer.join()
-        }
-        normalizeCompositionTree(root)
-        return translateComposition(
-            context,
-            appWidgetId,
-            root,
-            layoutConfig,
-            layoutConfig.addLayout(root),
-            DpSize.Unspecified,
-        )
-    } finally {
-        layoutConfig.save()
-    }
-}
 
 /**
  * Creates a snapshot of the [GlanceAppWidget] content without running recomposition.
  *
  * This runs the composition one time and translates it to [RemoteViews].
+ *
+ * If a valid [id] is provided, this function will use the sizing values from the bound widget if
+ * using [SizeMode.Exact] or [SizeMode.Single].
  */
 suspend fun GlanceAppWidget.compose(
     @Suppress("ContextFirst") context: Context,
-    id: GlanceId,
+    id: GlanceId = createFakeAppWidgetId(),
     options: Bundle? = null,
     size: DpSize? = null,
     state: Any? = null,
 ): RemoteViews =
-    compose(
+    runComposition(
         context = context,
         id = id,
-        sizeMode = if (size != null) SizeMode.Single else sizeMode,
-        size = size,
-        state = state,
-        options = options,
-        content = runGlance(context, id).first { it != null }!!,
+        options = options ?: Bundle(),
+        sizes = listOf(size ?: DpSize.Zero),
+        state = state
+    ).first()
+
+/**
+ * Returns a Flow<RemoteViews> that, on collection, starts a composition session for this
+ * [GlanceAppWidget] and emits [RemoteViews] for each result. The composition is closed when the
+ * flow is cancelled.
+ *
+ * If a valid [id] is provided, this function will use the sizing values from the bound widget if
+ * using [SizeMode.Exact] or [SizeMode.Single].
+ *
+ * Lambda actions and list views in the emitted [RemoteViews] will continue to work while this is
+ * flow is running. This currently does not support resizing (you have to run the flow again with
+ * new [sizes]) or reloading the [androidx.glance.state.GlanceStateDefinition] state value.
+ */
+@ExperimentalGlanceApi
+fun GlanceAppWidget.runComposition(
+    @Suppress("ContextFirst") context: Context,
+    id: GlanceId = createFakeAppWidgetId(),
+    options: Bundle = Bundle(),
+    @SuppressLint("PrimitiveInCollection") sizes: List<DpSize> = listOf(DpSize.Zero),
+    state: Any? = null,
+): Flow<RemoteViews> = flow {
+    val session = AppWidgetSession(
+        widget = this@runComposition,
+        id = id as AppWidgetId,
+        initialOptions = optionsBundleOf(sizes).apply { putAll(options) },
+        initialGlanceState = state,
+        lambdaReceiver = ComponentName(context, UnmanagedSessionReceiver::class.java),
+        // If not composing for a bound widget, override to SizeMode.Exact so we can use the sizes
+        // provided to this function (by setting app widget options).
+        sizeMode =
+            if (id.isFakeId && sizeMode !is SizeMode.Responsive) SizeMode.Exact else sizeMode,
+        shouldPublish = false,
     )
+    coroutineScope {
+        launch {
+            // Register this session to receive lambda actions and provide list items while this
+            // scope is active.
+            UnmanagedSessionReceiver.registerSession(id.appWidgetId, session)
+        }
+        launch {
+            session.runSession(context)
+            this@coroutineScope.cancel()
+        }
+        session.lastRemoteViews
+            .filterNotNull()
+            .collect { emit(it) }
+    }
+}

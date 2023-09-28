@@ -42,4 +42,10 @@ dependencies {
 
 android {
     namespace "androidx.glance.appwidget.demos"
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3'
+    }
 }
