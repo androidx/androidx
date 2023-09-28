@@ -87,6 +87,10 @@ class AccessibilityNodeInfoDumper {
         serializer.attribute("", "visible-to-user", Boolean.toString(node.isVisibleToUser()));
         serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
                 node, width, height, false).toShortString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            serializer.attribute("", "drawing-order",
+                    Integer.toString(Api24Impl.getDrawingOrder(node)));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             serializer.attribute("", "hint", safeCharSeqToString(Api26Impl.getHintText(node)));
         }
@@ -205,6 +209,17 @@ class AccessibilityNodeInfoDumper {
             }
         }
         return ret.toString();
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getDrawingOrder();
+        }
     }
 
     @RequiresApi(26)
