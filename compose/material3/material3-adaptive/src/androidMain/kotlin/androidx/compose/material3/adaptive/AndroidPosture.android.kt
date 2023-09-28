@@ -27,19 +27,11 @@ import androidx.window.layout.FoldingFeature
  */
 @ExperimentalMaterial3AdaptiveApi
 fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
-    var hasVerticalHinge = false
     var isTableTop = false
-    var hasSeparatingHinge = false
     val separatingHingeBounds = mutableListOf<Rect>()
     val occludingHingeBounds = mutableListOf<Rect>()
     val allHingeBounds = mutableListOf<Rect>()
     foldingFeatures.fastForEach {
-        if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
-            hasVerticalHinge = true
-        }
-        if (it.isSeparating) {
-            hasSeparatingHinge = true
-        }
         if (it.orientation == FoldingFeature.Orientation.HORIZONTAL &&
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true
@@ -57,9 +49,7 @@ fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
         }
     }
     return Posture(
-        hasVerticalHinge,
         isTableTop,
-        hasSeparatingHinge,
         separatingHingeBounds,
         occludingHingeBounds,
         allHingeBounds
