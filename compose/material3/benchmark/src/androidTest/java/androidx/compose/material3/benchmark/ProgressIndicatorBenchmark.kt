@@ -55,7 +55,10 @@ class ProgressIndicatorBenchmark(private val type: ProgressIndicatorType) {
 
     @Test
     fun changeProgress() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(testCaseFactory)
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            caseFactory = testCaseFactory,
+            requireRecomposition = false,
+        )
     }
 }
 internal class ProgressIndicatorTestCase(
@@ -69,9 +72,9 @@ internal class ProgressIndicatorTestCase(
 
         when (type) {
             ProgressIndicatorType.Linear ->
-                LinearProgressIndicator(progress = state.value)
+                LinearProgressIndicator(progress = { state.value })
             ProgressIndicatorType.Circular ->
-                CircularProgressIndicator(progress = state.value)
+                CircularProgressIndicator(progress = { state.value })
         }
     }
 
