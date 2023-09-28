@@ -236,9 +236,9 @@ object BadgeDefaults {
 internal val BadgeWithContentHorizontalPadding = 4.dp
 
 /*@VisibleForTesting*/
-// Horizontally align start/end of text badge 4dp from the top end corner of its anchor
-internal val BadgeWithContentHorizontalOffset = -4.dp
-internal val BadgeWithContentVerticalOffset = -4.dp
+// Horizontally align start/end of text badge 6dp from the top end corner of its anchor
+internal val BadgeWithContentHorizontalOffset = -6.dp
+internal val BadgeWithContentVerticalOffset = 6.dp
 
 /*@VisibleForTesting*/
 // Horizontally align start/end of icon only badge 0.dp from the end/start edge of anchor
