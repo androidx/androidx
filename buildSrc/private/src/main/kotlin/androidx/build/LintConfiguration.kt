@@ -18,7 +18,6 @@ package androidx.build
 
 import com.android.build.api.dsl.Lint
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
 import com.android.build.gradle.internal.lint.LintModelWriterTask
@@ -30,7 +29,6 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
@@ -78,10 +76,6 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
 
         afterEvaluate {
             registerLintDebugIfNeededAfterEvaluate()
-
-            if (extension.buildFeatures.aidl == true) {
-                configureLintForAidlAfterEvaluate()
-            }
         }
     }
 
@@ -146,45 +140,6 @@ private fun Project.registerLintDebugIfNeededAfterEvaluate() {
 
 private fun String.camelCase() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase() else it.toString()
-}
-
-/**
- * If the project is targeting Android and using the AIDL build feature, installs AIDL source
- * directories on lint tasks.
- *
- * Adapted from AndroidXComposeImplPlugin's `configureLintForMultiplatformLibrary` extension
- * function. See b/189250111 for AGP feature request.
- *
- * The `UnstableAidlAnnotationDetector` check from `lint-checks` requires that _only_ unstable AIDL
- * files are passed to Lint, e.g. files in the AGP-defined `aidl` source set but not files in the
- * Stable AIDL plugin-defined `stableAidl` source set. If we decide to lint Stable AIDL files, we'll
- * need some other way to distinguish stable from unstable AIDL.
- *
- * This method *must* run after evaluation.
- */
-private fun Project.configureLintForAidlAfterEvaluate() {
-    // BaseExtension needed to access resolved source files on `aidl`.
-    val extension = project.extensions.findByType<BaseExtension>() ?: return
-    val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
-
-    /** Helper function to add the missing sourcesets to this [VariantInputs] */
-    fun VariantInputs.addSourceSets() {
-        // Each variant has a source provider for the variant (such as debug) and the 'main'
-        // variant. The actual files that Lint will run on is both of these providers
-        // combined - so we can just add the dependencies to the first we see.
-        val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
-        val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-        sourceProvider.javaDirectories.withChangesAllowed { from(mainAidl, variantAidl) }
-    }
-
-    // Add the new sources to the lint analysis tasks.
-    project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
-        it.variantInputs.addSourceSets()
-    }
-
-    // Also configure the model writing task, so that we don't run into mismatches between
-    // analyzed sources in one module and a downstream module
-    project.tasks.withType<LintModelWriterTask>().configureEach { it.variantInputs.addSourceSets() }
 }
 
 /**
