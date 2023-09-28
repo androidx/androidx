@@ -45,7 +45,7 @@ interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
     /**
      * Set the [OnImageListener]. Setting additional listeners will override the previous listener.]
      */
-    fun onImageListener(onImageListener: OnImageListener)
+    fun setOnImageListener(onImageListener: OnImageListener)
 
     /**
      * Discard free buffers from the internal memory pool.
