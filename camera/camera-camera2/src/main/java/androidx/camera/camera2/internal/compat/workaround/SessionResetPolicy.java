@@ -18,13 +18,13 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.quirk.Preview3AThreadCrash;
+import androidx.camera.camera2.internal.compat.quirk.Preview3AThreadCrashQuirk;
 import androidx.camera.core.impl.Quirks;
 
 /**
  * Indicate the required actions when going to switch CameraCaptureSession.
  *
- * @see Preview3AThreadCrash
+ * @see Preview3AThreadCrashQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SessionResetPolicy {
@@ -32,7 +32,7 @@ public class SessionResetPolicy {
     private final boolean mNeedAbortCapture;
 
     public SessionResetPolicy(@NonNull Quirks deviceQuirks) {
-        mNeedAbortCapture = deviceQuirks.contains(Preview3AThreadCrash.class);
+        mNeedAbortCapture = deviceQuirks.contains(Preview3AThreadCrashQuirk.class);
     }
 
     /**
