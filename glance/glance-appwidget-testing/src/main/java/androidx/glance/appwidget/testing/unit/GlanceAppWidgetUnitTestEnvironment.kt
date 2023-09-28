@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 
-internal val DEFAULT_TIMEOUT = 1.seconds
+internal val DEFAULT_TIMEOUT = 2.seconds
 
 /**
  * An implementation of [GlanceAppWidgetUnitTest] that provides APIs to run composition for
