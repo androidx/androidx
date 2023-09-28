@@ -75,7 +75,7 @@ public abstract class AppSearchDocumentClassMap {
     @GuardedBy("AppSearchDocumentClassMap.class")
     private static Map<String, List<String>> buildMergedMapLocked() {
         ServiceLoader<AppSearchDocumentClassMap> loader = ServiceLoader.load(
-                AppSearchDocumentClassMap.class);
+                AppSearchDocumentClassMap.class, AppSearchDocumentClassMap.class.getClassLoader());
         Map<String, List<String>> result = new ArrayMap<>();
         for (AppSearchDocumentClassMap appSearchDocumentClassMap : loader) {
             Map<String, List<String>> documentClassMap = appSearchDocumentClassMap.getMap();
