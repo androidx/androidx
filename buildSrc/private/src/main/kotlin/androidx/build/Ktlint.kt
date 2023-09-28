@@ -285,7 +285,11 @@ abstract class KtlintCheckFileTask : DefaultTask() {
             execOperations.javaexec { javaExecSpec ->
                 javaExecSpec.mainClass.set(MainClass)
                 javaExecSpec.classpath = ktlintClasspath
-                val args = mutableListOf("--android", "--disabled_rules", DisabledRules)
+                val args = mutableListOf(
+                    "--code-style=android_studio",
+                    "--disabled_rules",
+                    DisabledRules
+                )
                 args.addAll(kotlinFiles)
                 if (format) args.add("-F")
 
