@@ -82,5 +82,8 @@ class HapticDemosActivity : AppCompatActivity() {
                 HapticAttributes(HapticAttributes.USAGE_RINGTONE),
             )
         }
+        findViewById<Button>(R.id.cancel_btn).setOnClickListener {
+            hapticManager.cancel()
+        }
     }
 }

@@ -36,6 +36,7 @@ internal sealed class FakeVibrator(
     private val effectsSupported: IntArray? = null,
     private val primitivesSupported: IntArray = intArrayOf(),
 ) : VibratorWrapper {
+    private val requests: MutableList<VibratorRequest> = mutableListOf()
     private val vibrations: MutableList<AttributedVibration> = mutableListOf()
 
     override fun hasVibrator(): Boolean = true
@@ -57,19 +58,40 @@ internal sealed class FakeVibrator(
         primitives.map { primitivesSupported.contains(it) }.toBooleanArray()
 
     override fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper?) {
+        requests.add(PlayVibration(vibration))
         vibrations.add(AttributedVibration(vibration, attrs))
     }
 
     override fun cancel() {
-        // No-op
+        requests.add(CancelVibration)
     }
 
     /** Returns all requests sent to the [android.os.Vibrator], in order. */
+    internal fun requests(): List<VibratorRequest> = requests
+
+    /** Returns all vibrate requests sent to the [android.os.Vibrator], in order. */
     internal fun vibrations(): List<AttributedVibration> = vibrations
 }
 
 /**
- * Represents different API levels of support for vibrations with attributes.
+ * Represents different vibrator requests to vibrate or cancel.
+ */
+internal sealed interface VibratorRequest
+
+/**
+ * Represents a request to cancel any vibration.
+ */
+internal object CancelVibration : VibratorRequest
+
+/**
+ * Represents a request to play a given vibration.
+ */
+internal data class PlayVibration(
+    val vibration: VibrationWrapper,
+) : VibratorRequest
+
+/**
+ * Represents a request to vibrate with different API levels of support.
  */
 internal data class AttributedVibration(
     val vibration: VibrationWrapper,
@@ -169,3 +191,9 @@ internal fun vibration(vararg primitives: CompositionPrimitive): VibrationWrappe
         }.compose()
     )
 }
+
+/** Helper to create a request to cancel any vibration. */
+internal fun cancelRequest(): VibratorRequest = CancelVibration
+
+/** Helper to create a request to play given vibration. */
+internal fun playRequest(vibration: VibrationWrapper): VibratorRequest = PlayVibration(vibration)
