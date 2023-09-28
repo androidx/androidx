@@ -22,23 +22,26 @@ import androidx.inspection.gradle.createConsumeNonDexedInspectionConfiguration
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.tasks.Sync
 
 /**
  * Copies artifacts prepared by InspectionPlugin into $destDir/inspection and
  * $destDir/inspection-nondexed
  */
 fun Project.publishInspectionArtifacts() {
-    publishInspectionConfiguration(
-        "copyInspectionArtifacts",
-        createConsumeInspectionConfiguration(),
-        "inspection"
-    )
-    publishInspectionConfiguration(
-        "copyUndexedInspectionArtifacts",
-        createConsumeNonDexedInspectionConfiguration(),
-        "inspection-nondexed"
-    )
+    project.afterEvaluate {
+        if (project.plugins.hasPlugin(InspectionPlugin::class.java)) {
+            publishInspectionConfiguration(
+                "copyInspectionArtifacts",
+                createConsumeInspectionConfiguration(),
+                "inspection"
+            )
+            publishInspectionConfiguration(
+                "copyUndexedInspectionArtifacts",
+                createConsumeNonDexedInspectionConfiguration(),
+                "inspection-nondexed"
+            )
+        }
+    }
 }
 
 internal fun Project.publishInspectionConfiguration(
@@ -46,20 +49,17 @@ internal fun Project.publishInspectionConfiguration(
     configuration: Configuration,
     dirName: String
 ) {
-    val topLevelProject = this
-    subprojects { project ->
-        project.afterEvaluate {
-            if (project.plugins.hasPlugin(InspectionPlugin::class.java)) {
-                topLevelProject.dependencies.add(configuration.name, project)
-            }
-        }
-    }
-
+    project.dependencies.add(configuration.name, project)
     val sync =
-        tasks.register(name, Sync::class.java) {
+        tasks.register(name, SingleFileCopy::class.java) {
             it.dependsOn(configuration)
-            it.from(configuration)
-            it.destinationDir = File(getDistributionDirectory(), dirName)
+            it.sourceFile = project.provider {
+                project.files(configuration).singleFile
+            }
+            it.destinationFile = File(
+                File(getDistributionDirectory(), dirName),
+                "${project.name}.jar"
+            )
         }
     addToBuildOnServer(sync)
 }

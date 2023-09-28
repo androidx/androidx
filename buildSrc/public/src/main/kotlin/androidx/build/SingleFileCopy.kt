@@ -19,6 +19,7 @@ package androidx.build
 import com.google.common.io.Files
 import java.io.File
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -28,12 +29,18 @@ import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Doesn't benefit from cache")
 open class SingleFileCopy : DefaultTask() {
-    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) lateinit var sourceFile: File
+    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) lateinit var sourceFile: Provider<File>
+
+    fun setSourceFile(file: File) {
+        sourceFile = project.provider {
+            file
+        }
+    }
 
     @OutputFile lateinit var destinationFile: File
 
     @TaskAction
     fun copyFile() {
-        Files.copy(sourceFile, destinationFile)
+        Files.copy(sourceFile.get(), destinationFile)
     }
 }
