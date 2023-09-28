@@ -18,6 +18,7 @@ package androidx.compose.ui.node
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropInfo
@@ -51,6 +52,7 @@ import kotlin.coroutines.CoroutineContext
  * to Android [views][android.view.View] and all layout, draw, input, and accessibility is hooked
  * through them.
  */
+@OptIn(InternalComposeUiApi::class)
 internal interface Owner : PlatformTextInputSessionHandler {
 
     /**
