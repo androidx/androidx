@@ -78,6 +78,7 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
@@ -233,10 +234,6 @@ public final class CaptureSessionTest {
 
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
 
-        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
-                mScheduledExecutor, mHandler, mCaptureSessionRepository,
-                new Quirks(new ArrayList<>()), DeviceQuirks.getAll());
-
         String cameraId = CameraUtil.getBackwardCompatibleCameraIdListOrThrow().get(0);
         Context context = ApplicationProvider.getApplicationContext();
         CameraManagerCompat cameraManager = CameraManagerCompat.from(context, mHandler);
@@ -246,6 +243,11 @@ public final class CaptureSessionTest {
         } catch (CameraAccessExceptionCompat e) {
             throw new AssumptionViolatedException("Could not retrieve camera characteristics", e);
         }
+
+        mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
+                mScheduledExecutor, mHandler, mCaptureSessionRepository,
+                CameraQuirks.get(cameraId, mCameraCharacteristics), DeviceQuirks.getAll());
+
         mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0",
                 mCameraCharacteristics);
         mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1",
