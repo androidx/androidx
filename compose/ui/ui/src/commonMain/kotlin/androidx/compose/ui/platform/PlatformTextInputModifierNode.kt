@@ -18,6 +18,7 @@ package androidx.compose.ui.platform
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireLayoutNode
@@ -91,6 +92,7 @@ interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineSco
  * call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection with
  * the input method.
  */
+@OptIn(InternalComposeUiApi::class)
 suspend fun PlatformTextInputModifierNode.textInputSession(
     session: suspend PlatformTextInputSessionScope.() -> Nothing
 ): Nothing {
@@ -102,17 +104,21 @@ suspend fun PlatformTextInputModifierNode.textInputSession(
 
 /**
  * Composition local used to override the [PlatformTextInputSessionHandler] used by
- * [textInputSession] for tests. Should only be used by `PlatformTextInputMethodTestOverride` in the
- * ui-test module.
+ * [textInputSession] for tests. Should only be set by `PlatformTextInputMethodTestOverride` in the
+ * ui-test module, and only ready by [textInputSession].
  */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@InternalComposeUiApi
+@get:InternalComposeUiApi
 val LocalPlatformTextInputMethodOverride =
     staticCompositionLocalOf<PlatformTextInputSessionHandler?> { null }
 
 /**
  * SAM interface used by [textInputSession] to start a text input session.
  */
+@InternalComposeUiApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface PlatformTextInputSessionHandler {
     /**
