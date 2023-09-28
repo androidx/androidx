@@ -31,9 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.isUnspecified
@@ -46,8 +51,32 @@ import kotlinx.coroutines.CoroutineScope
  * allows the ripple to animate smoothly even while the UI thread is under heavy load, such as
  * when navigating between complex screens.
  *
+ * @see RippleNode
+ */
+internal actual fun createPlatformRippleNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+): DelegatableNode {
+    return if (IsRunningInPreview) {
+        CommonRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
+    } else {
+        AndroidRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
+    }
+}
+
+/**
+ * Android specific Ripple implementation that uses a [RippleDrawable] under the hood, which allows
+ * rendering the ripple animation on the render thread (away from the main UI thread). This
+ * allows the ripple to animate smoothly even while the UI thread is under heavy load, such as
+ * when navigating between complex screens.
+ *
  * @see Ripple
  */
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 @Stable
 internal actual class PlatformRipple actual constructor(
     bounded: Boolean,
@@ -62,41 +91,108 @@ internal actual class PlatformRipple actual constructor(
         color: State<Color>,
         rippleAlpha: State<RippleAlpha>
     ): RippleIndicationInstance {
-        val view = findNearestViewGroup()
-        // TODO(b/188112048): Remove isInEditMode once RenderThread support is fixed in Layoutlib.
-        if (view.isInEditMode) {
-            return remember(interactionSource, this) {
-                CommonRippleIndicationInstance(bounded, radius, color, rippleAlpha)
-            }
-        }
-
+        val view = findNearestViewGroup(LocalView.current)
         return remember(interactionSource, this, view) {
             AndroidRippleIndicationInstance(bounded, radius, color, rippleAlpha, view)
         }
     }
+}
+
+/**
+ * Android specific [RippleNode]. This uses a [RippleHostView] provided by [rippleContainer] to
+ * draw ripples in the drawing bounds provided within [draw].
+ *
+ * The state layer is still handled by [stateLayer], and drawn inside Compose.
+ */
+internal class AndroidRippleNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+) : RippleNode(interactionSource, bounded, radius, color, rippleAlpha), RippleHostKey {
+    /**
+     * [RippleContainer] attached to the nearest [ViewGroup]. If it hasn't already been
+     * created by a another ripple, we will create it and attach it to the hierarchy.
+     */
+    private var rippleContainer: RippleContainer? = null
 
     /**
-     * Returns [LocalView] if it is a [ViewGroup], otherwise the nearest parent [ViewGroup] that
-     * we will add a [RippleContainer] to.
-     *
-     * In all normal scenarios this should just be [LocalView], but since [LocalView] is public
-     * API theoretically its value can be overridden with a non-[ViewGroup], so we walk up the
-     * tree to be safe.
+     * Backing [RippleHostView] used to draw ripples for this [RippleIndicationInstance].
      */
-    @Composable
-    private fun findNearestViewGroup(): ViewGroup {
-        var view: View = LocalView.current
-        while (view !is ViewGroup) {
-            val parent = view.parent
-            // We should never get to a ViewParent that isn't a View, without finding a ViewGroup
-            // first - throw an exception if we do.
-            require(parent is View) {
-                "Couldn't find a valid parent for $view. Are you overriding LocalView and " +
-                    "providing a View that is not attached to the view hierarchy?"
-            }
-            view = parent
+    private var rippleHostView: RippleHostView? = null
+        set(value) {
+            field = value
+            invalidateDraw()
         }
-        return view
+
+    /**
+     * Cache the size of the canvas we will draw the ripple into - this is updated each time
+     * [draw] is called. This is needed as before we start animating the ripple, we
+     * need to know its size (changing the bounds mid-animation will cause us to continue the
+     * animation on the UI thread, not the render thread), but the size is only known inside the
+     * draw scope.
+     */
+    private var rippleSize: Size = Size.Zero
+
+    override fun DrawScope.drawRipples() {
+        rippleSize = size
+
+        drawIntoCanvas { canvas ->
+            rippleHostView?.run {
+                // We set these inside addRipple() already, but they may change during the ripple
+                // animation, so update them here too.
+                // Note that changes to color / alpha will not be reflected in any
+                // currently drawn ripples if the ripples are being drawn on the RenderThread,
+                // since only the software paint is updated, not the hardware paint used in
+                // RippleForeground.
+                updateRippleProperties(
+                    size = size,
+                    radius = targetRadius.roundToInt(),
+                    color = rippleColor,
+                    alpha = rippleAlpha().pressedAlpha
+                )
+
+                draw(canvas.nativeCanvas)
+            }
+        }
+    }
+
+    override fun addRipple(interaction: PressInteraction.Press) {
+        rippleHostView = with(getOrCreateRippleContainer()) {
+            getRippleHostView().apply {
+                addRipple(
+                    interaction = interaction,
+                    bounded = bounded,
+                    size = rippleSize,
+                    radius = targetRadius.roundToInt(),
+                    color = rippleColor,
+                    alpha = rippleAlpha().pressedAlpha,
+                    onInvalidateRipple = { invalidateDraw() }
+                )
+            }
+        }
+    }
+
+    override fun removeRipple(interaction: PressInteraction.Press) {
+        rippleHostView?.removeRipple()
+    }
+
+    override fun onDetach() {
+        rippleContainer?.run {
+            disposeRippleIfNeeded()
+        }
+    }
+
+    override fun onResetRippleHostView() {
+        rippleHostView = null
+    }
+
+    private fun getOrCreateRippleContainer(): RippleContainer {
+        if (rippleContainer != null) return rippleContainer!!
+        val view = findNearestViewGroup(currentValueOf(LocalView))
+        rippleContainer = createAndAttachRippleContainerIfNeeded(view)
+        return rippleContainer!!
     }
 }
 
@@ -106,13 +202,15 @@ internal actual class PlatformRipple actual constructor(
  *
  * The state layer is still handled by [drawStateLayer], and drawn inside Compose.
  */
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 internal class AndroidRippleIndicationInstance(
     private val bounded: Boolean,
     private val radius: Dp,
     private val color: State<Color>,
     private val rippleAlpha: State<RippleAlpha>,
     private val view: ViewGroup
-) : RippleIndicationInstance(bounded, rippleAlpha), RememberObserver {
+) : RippleIndicationInstance(bounded, rippleAlpha), RememberObserver, RippleHostKey {
     /**
      * [RippleContainer] attached to the nearest [ViewGroup]: [view]. If it hasn't already been
      * created by a another ripple, we will create it and attach it to the hierarchy.
@@ -230,33 +328,60 @@ internal class AndroidRippleIndicationInstance(
         }
     }
 
-    /**
-     * Remove the reference to the existing host view, so we don't incorrectly draw if it is
-     * recycled and used by another [RippleIndicationInstance].
-     */
-    fun resetHostView() {
+    override fun onResetRippleHostView() {
         rippleHostView = null
     }
 
     private fun getOrCreateRippleContainer(): RippleContainer {
         if (rippleContainer != null) return rippleContainer!!
-
-        // Find existing RippleContainer in the view hierarchy
-        for (index in 0 until view.childCount) {
-            val child = view.getChildAt(index)
-            if (child is RippleContainer) {
-                rippleContainer = child
-                break
-            }
-        }
-
-        // Create a new RippleContainer if needed
-        if (rippleContainer == null) {
-            rippleContainer = RippleContainer(view.context).apply {
-                view.addView(this)
-            }
-        }
-
+        rippleContainer = createAndAttachRippleContainerIfNeeded(view)
         return rippleContainer!!
     }
 }
+
+private fun createAndAttachRippleContainerIfNeeded(view: ViewGroup): RippleContainer {
+    // Try to find existing RippleContainer in the view hierarchy
+    for (index in 0 until view.childCount) {
+        val child = view.getChildAt(index)
+        if (child is RippleContainer) {
+            return child
+        }
+    }
+
+    // Create a new RippleContainer if needed and add to the hierarchy
+    return RippleContainer(view.context).apply {
+        view.addView(this)
+    }
+}
+
+/**
+ * Returns [initialView] if it is a [ViewGroup], otherwise the nearest parent [ViewGroup] that
+ * we will add a [RippleContainer] to.
+ *
+ * In all normal scenarios this should just be [LocalView], but since [LocalView] is public
+ * API theoretically its value can be overridden with a non-[ViewGroup], so we walk up the
+ * tree to be safe.
+ */
+private fun findNearestViewGroup(initialView: View): ViewGroup {
+    var view: View = initialView
+    while (view !is ViewGroup) {
+        val parent = view.parent
+        // We should never get to a ViewParent that isn't a View, without finding a ViewGroup
+        // first - throw an exception if we do.
+        require(parent is View) {
+            "Couldn't find a valid parent for $view. Are you overriding LocalView and " +
+                "providing a View that is not attached to the view hierarchy?"
+        }
+        view = parent
+    }
+    return view
+}
+
+/**
+ * Whether we are running in a preview or not, to control using the native vs the common ripple
+ * implementation. We check this way instead of using [View.isInEditMode] or LocalInspectionMode so
+ * this can be called from outside composition.
+ */
+// TODO(b/188112048): Remove in the future when more versions of Studio support previewing native
+//  ripples
+private val IsRunningInPreview = android.os.Build.DEVICE == "layoutlib"

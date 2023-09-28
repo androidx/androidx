@@ -33,15 +33,59 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.isUnspecified
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+
+/**
+ * Creates a Ripple node using the values provided.
+ *
+ * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
+ * by drawing ripple animations and state layers.
+ *
+ * A Ripple responds to [PressInteraction.Press] by starting a new [RippleAnimation], and
+ * responds to other [Interaction]s by showing a fixed [StateLayer] with varying alpha values
+ * depending on the [Interaction].
+ *
+ * This Ripple node is a low level building block for building IndicationNodeFactory implementations
+ * that use a Ripple - higher level design system libraries such as material and material3 provide
+ * [Indication] implementations using this node internally. In most cases you should use those
+ * factories directly: this node exists for design system libraries to delegate their Ripple
+ * implementation to, after querying any required theme values for customizing the Ripple.
+ *
+ * @param interactionSource the [InteractionSource] used to determine the state of the ripple.
+ * @param bounded if true, ripples are clipped by the bounds of the target layout. Unbounded
+ * ripples always animate from the target layout center, bounded ripples animate from the touch
+ * position.
+ * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
+ * calculated based on the target layout size.
+ * @param color the color of the ripple. This color is usually the same color used by the text or
+ * iconography in the component. This color will then have [rippleAlpha] applied to calculate the
+ * final color used to draw the ripple.
+ * @param rippleAlpha the [RippleAlpha] that will be applied to the [color] depending on the state
+ * of the ripple.
+ */
+public fun createRippleModifierNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+): DelegatableNode {
+    return createPlatformRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
+}
 
 /**
  * Creates and [remember]s a Ripple using values provided by [RippleTheme].
@@ -72,6 +116,17 @@ import kotlinx.coroutines.launch
  * calculate the final color used to draw the ripple. If [Color.Unspecified] is provided the color
  * used will be [RippleTheme.defaultColor] instead.
  */
+@Deprecated(
+    "rememberRipple has been deprecated - it returns an old Indication " +
+        "implementation that is not compatible with the new Indication APIs that provide notable " +
+        "performance improvements. Instead, use the new ripple APIs provided by design system " +
+        "libraries, such as material and material3. If you are implementing your own design " +
+        "system library, use createRippleNode to create your own custom ripple implementation " +
+        "that queries your own theme values. For a migration guide and background " +
+        "information, please visit developer.android.com",
+    level = DeprecationLevel.ERROR
+)
+@Suppress("DEPRECATION", "TYPEALIAS_EXPANSION_DEPRECATION")
 @Composable
 public fun rememberRipple(
     bounded: Boolean = true,
@@ -83,6 +138,17 @@ public fun rememberRipple(
         PlatformRipple(bounded, radius, colorState)
     }
 }
+
+/**
+ * Creates the platform specific [RippleNode] implementation.
+ */
+internal expect fun createPlatformRippleNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+): DelegatableNode
 
 /**
  * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
@@ -103,6 +169,8 @@ public fun rememberRipple(
  *
  * Ripple is provided on different platforms using [PlatformRipple].
  */
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 @Stable
 internal abstract class Ripple(
     private val bounded: Boolean,
@@ -120,9 +188,11 @@ internal abstract class Ripple(
             if (color.value.isSpecified) {
                 color.value
             } else {
+                @Suppress("DEPRECATION_ERROR")
                 theme.defaultColor()
             }
         )
+        @Suppress("DEPRECATION_ERROR")
         val rippleAlpha = rememberUpdatedState(theme.rippleAlpha())
 
         val instance = rememberUpdatedRippleInstance(
@@ -181,6 +251,8 @@ internal abstract class Ripple(
  * Platform-specific implementation of [Ripple]. This is needed as expect classes cannot
  * (currently) have default implementations, otherwise we would make [Ripple] the expect class.
  */
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 @Stable
 internal expect class PlatformRipple(
     bounded: Boolean,
@@ -204,11 +276,12 @@ internal expect class PlatformRipple(
  * not other [Interaction]s.
  */
 @Suppress("DEPRECATION_ERROR")
+@Deprecated("Replaced by the new RippleNode implementation")
 internal abstract class RippleIndicationInstance(
-    bounded: Boolean,
+    private val bounded: Boolean,
     rippleAlpha: State<RippleAlpha>
 ) : androidx.compose.foundation.IndicationInstance {
-    private val stateLayer = StateLayer(bounded, rippleAlpha)
+    private val stateLayer = StateLayer(bounded) { rippleAlpha.value }
 
     abstract fun addRipple(interaction: PressInteraction.Press, scope: CoroutineScope)
 
@@ -220,8 +293,79 @@ internal abstract class RippleIndicationInstance(
 
     fun DrawScope.drawStateLayer(radius: Dp, color: Color) {
         with(stateLayer) {
-            drawStateLayer(radius, color)
+            val targetRadius = if (radius.isUnspecified) {
+                getRippleEndRadius(bounded, size)
+            } else {
+                radius.toPx()
+            }
+            drawStateLayer(targetRadius, color)
         }
+    }
+}
+
+/**
+ * Abstract [Modifier.Node] that provides common functionality used by ripple node implementations.
+ * Implementing classes should use [stateLayer] to draw the [StateLayer], so they only need to
+ * handle showing the ripple effect when pressed, and not other [Interaction]s.
+ */
+internal abstract class RippleNode(
+    private val interactionSource: InteractionSource,
+    protected val bounded: Boolean,
+    private val radius: Dp,
+    private val color: ColorProducer,
+    protected val rippleAlpha: () -> RippleAlpha
+) : Modifier.Node(), CompositionLocalConsumerModifierNode, DrawModifierNode {
+    final override val shouldAutoInvalidate: Boolean = false
+
+    private var stateLayer: StateLayer? = null
+
+    // Calculated inside draw(). This won't happen in Robolectric, so default to 0f to avoid crashes
+    var targetRadius: Float = 0f
+        private set
+
+    val rippleColor: Color
+        get() = color()
+
+    final override fun onAttach() {
+        coroutineScope.launch {
+            interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> addRipple(interaction)
+                    is PressInteraction.Release -> removeRipple(interaction.press)
+                    is PressInteraction.Cancel -> removeRipple(interaction.press)
+                    else -> updateStateLayer(interaction, this)
+                }
+            }
+        }
+    }
+
+    override fun ContentDrawScope.draw() {
+        targetRadius = if (radius.isUnspecified) {
+            // Explicitly calculate the radius instead of using RippleDrawable.RADIUS_AUTO on
+            // Android since the latest spec does not match with the existing radius calculation in
+            // the framework.
+            getRippleEndRadius(bounded, size)
+        } else {
+            radius.toPx()
+        }
+        drawContent()
+        stateLayer?.run {
+            drawStateLayer(targetRadius, rippleColor)
+        }
+        drawRipples()
+    }
+
+    abstract fun DrawScope.drawRipples()
+
+    abstract fun addRipple(interaction: PressInteraction.Press)
+    abstract fun removeRipple(interaction: PressInteraction.Press)
+    private fun updateStateLayer(interaction: Interaction, scope: CoroutineScope) {
+        val stateLayer = stateLayer ?: StateLayer(bounded, rippleAlpha).also { instance ->
+            // Invalidate when adding the state layer so we can start drawing it
+            invalidateDraw()
+            stateLayer = instance
+        }
+        stateLayer.handleInteraction(interaction, scope)
     }
 }
 
@@ -250,16 +394,14 @@ internal abstract class RippleIndicationInstance(
  */
 private class StateLayer(
     private val bounded: Boolean,
-    // TODO: consider dynamically updating the alpha for existing interactions when rippleAlpha
-    // changes
-    private val rippleAlpha: State<RippleAlpha>
+    private val rippleAlpha: () -> RippleAlpha
 ) {
     private val animatedAlpha = Animatable(0f)
 
     private val interactions: MutableList<Interaction> = mutableListOf()
     private var currentInteraction: Interaction? = null
 
-    fun handleInteraction(interaction: Interaction, scope: CoroutineScope) {
+    internal fun handleInteraction(interaction: Interaction, scope: CoroutineScope) {
         when (interaction) {
             is HoverInteraction.Enter -> {
                 interactions.add(interaction)
@@ -290,10 +432,11 @@ private class StateLayer(
 
         if (currentInteraction != newInteraction) {
             if (newInteraction != null) {
+                val rippleAlpha = rippleAlpha()
                 val targetAlpha = when (interaction) {
-                    is HoverInteraction.Enter -> rippleAlpha.value.hoveredAlpha
-                    is FocusInteraction.Focus -> rippleAlpha.value.focusedAlpha
-                    is DragInteraction.Start -> rippleAlpha.value.draggedAlpha
+                    is HoverInteraction.Enter -> rippleAlpha.hoveredAlpha
+                    is FocusInteraction.Focus -> rippleAlpha.focusedAlpha
+                    is DragInteraction.Start -> rippleAlpha.draggedAlpha
                     else -> 0f
                 }
                 val incomingAnimationSpec = incomingStateLayerAnimationSpecFor(newInteraction)
@@ -312,13 +455,7 @@ private class StateLayer(
         }
     }
 
-    fun DrawScope.drawStateLayer(radius: Dp, color: Color) {
-        val targetRadius = if (radius.isUnspecified) {
-            getRippleEndRadius(bounded, size)
-        } else {
-            radius.toPx()
-        }
-
+    fun DrawScope.drawStateLayer(radius: Float, color: Color) {
         val alpha = animatedAlpha.value
 
         if (alpha > 0f) {
@@ -326,10 +463,10 @@ private class StateLayer(
 
             if (bounded) {
                 clipRect {
-                    drawCircle(modulatedColor, targetRadius)
+                    drawCircle(modulatedColor, radius)
                 }
             } else {
-                drawCircle(modulatedColor, targetRadius)
+                drawCircle(modulatedColor, radius)
             }
         }
     }
