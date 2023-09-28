@@ -1379,16 +1379,26 @@ private fun DatePickerContent(
             ) ?: "-",
             onNextClicked = {
                 coroutineScope.launch {
-                    monthsListState.animateScrollToItem(
-                        monthsListState.firstVisibleItemIndex + 1
-                    )
+                    try {
+                        monthsListState.animateScrollToItem(
+                            monthsListState.firstVisibleItemIndex + 1
+                        )
+                    } catch (_: IllegalArgumentException) {
+                        // Ignore. This may happen if the user clicked the "next" arrow fast while
+                        // the list was still animating to the next item.
+                    }
                 }
             },
             onPreviousClicked = {
                 coroutineScope.launch {
-                    monthsListState.animateScrollToItem(
-                        monthsListState.firstVisibleItemIndex - 1
-                    )
+                    try {
+                        monthsListState.animateScrollToItem(
+                            monthsListState.firstVisibleItemIndex - 1
+                        )
+                    } catch (_: IllegalArgumentException) {
+                        // Ignore. This may happen if the user clicked the "previous" arrow fast
+                        // while  the list was still animating to the previous item.
+                    }
                 }
             },
             onYearPickerButtonClicked = { yearPickerVisible = !yearPickerVisible },
