@@ -28,11 +28,6 @@ playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
         if (name.startsWith(":activity")) return true
-        if (name.startsWith(":lifecycle") && !name.contains("integration-tests")) return true
-        if (name.startsWith(":annotation")) return true
-        if (name == ":internal-testutils-runtime") return true
-        if (name == ":internal-testutils-truth") return true
-        if (isNeededForComposePlayground(name)) return true
         return false
     })
 }

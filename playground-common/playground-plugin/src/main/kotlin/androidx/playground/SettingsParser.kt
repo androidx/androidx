@@ -49,6 +49,10 @@ object SettingsParser {
         val matcher = includeProjectPattern.matcher(fileContents)
         val includedProjects = mutableListOf<IncludedProject>()
         while (matcher.find()) {
+            if (matcher.group().contains("new File")) {
+                // we don't support explicit project paths in playground
+                continue
+            }
             // check if is an include project line, if so, extract project gradle path and
             // file system path and call the filter
             val projectGradlePath =

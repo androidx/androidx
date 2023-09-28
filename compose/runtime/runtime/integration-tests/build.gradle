@@ -84,7 +84,7 @@ androidXMultiplatform {
                 implementation(projectOrArtifact(":compose:ui:ui"))
                 implementation(projectOrArtifact(":compose:material:material"))
                 implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-                implementation(projectOrArtifact(":compose:test-utils"))
+                implementation(project(":compose:test-utils"))
                 implementation(projectOrArtifact(":activity:activity-compose"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
