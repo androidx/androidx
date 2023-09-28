@@ -21,6 +21,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
@@ -274,6 +275,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable {
          * Creates a new {@link GenericDocumentParcel.Builder} from the given
          * {@link GenericDocumentParcel}.
          */
+        @VisibleForTesting
         public Builder(@NonNull GenericDocumentParcel documentSafeParcel) {
             Objects.requireNonNull(documentSafeParcel);
 
