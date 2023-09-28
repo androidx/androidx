@@ -21,7 +21,6 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
 
 import java.util.ArrayList;
@@ -101,9 +100,8 @@ public class ActivityStack {
 
     /**
      * Returns a token uniquely identifying the container.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public IBinder getToken() {
         return mToken;
