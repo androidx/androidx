@@ -30,12 +30,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.ViewTreeObserver
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Active
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Idle
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Loading
-import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
@@ -96,8 +96,6 @@ sealed class SandboxedSdkUiSessionState private constructor() {
     class Error(val throwable: Throwable) : SandboxedSdkUiSessionState()
 }
 
-// TODO(b/268014171): Remove API requirements once S- support is added
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     ViewGroup(context, attrs) {
 
@@ -109,7 +107,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     // This will only be invoked when the content view has been set and the window is attached.
     private val surfaceChangedCallback = object : SurfaceHolder.Callback {
         override fun surfaceCreated(p0: SurfaceHolder) {
-            setClippingBounds(true)
+            setClippingBounds()
             viewTreeObserver.addOnGlobalLayoutListener(globalLayoutChangeListener)
         }
 
@@ -122,7 +120,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     // This will only be invoked when the content view has been set and the window is attached.
     private val globalLayoutChangeListener =
-        ViewTreeObserver.OnGlobalLayoutListener { setClippingBounds() }
+        ViewTreeObserver.OnGlobalLayoutListener {
+            if (getBoundingParent(currentClippingBounds)) {
+                setClippingBounds()
+            }
+        }
 
     private var adapter: SandboxedUiAdapter? = null
     private var client: Client? = null
@@ -181,37 +183,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         checkClientOpenSession()
     }
 
-    internal fun setClippingBounds(forceUpdate: Boolean = false) {
-        checkNotNull(contentView)
-        check(isAttachedToWindow)
-
-        val updateRequired = getBoundingParent(currentClippingBounds) || forceUpdate
-        if (!updateRequired) {
-            return
-        }
-
-        val sv: SurfaceView = contentView as SurfaceView
-        val attachedSurfaceControl = checkNotNull(sv.rootSurfaceControl) {
-            "attachedSurfaceControl should be non-null if the window is attached"
-        }
-        val name = "clippingBounds-${System.currentTimeMillis()}"
-        val clippingBoundsSurfaceControl =
-            SurfaceControl.Builder().setName(name)
-                .build()
-        val reparentSurfaceControlTransaction = SurfaceControl.Transaction()
-            .reparent(sv.surfaceControl, clippingBoundsSurfaceControl)
-
-        val reparentClippingBoundsTransaction =
-            checkNotNull(
-                attachedSurfaceControl.buildReparentTransaction(clippingBoundsSurfaceControl)) {
-                "Reparent transaction should be non-null if the window is attached"
-            }
-        reparentClippingBoundsTransaction.setCrop(
-            clippingBoundsSurfaceControl, currentClippingBounds)
-        reparentClippingBoundsTransaction.setVisibility(
-            clippingBoundsSurfaceControl, true)
-        reparentSurfaceControlTransaction.merge(reparentClippingBoundsTransaction)
-        attachedSurfaceControl.applyTransactionOnDraw(reparentSurfaceControlTransaction)
+    internal fun setClippingBounds() {
+        CompatImpl.setClippingBounds(contentView, isAttachedToWindow, currentClippingBounds)
     }
 
     /**
@@ -275,12 +248,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     internal fun removeSurfaceViewAndOpenSession() {
-        windowInputToken = if (BackwardCompatUtil.canProviderBeRemote()) {
-            surfaceView.hostToken
-        } else {
-            // Input token is only needed when provider can be located on a separate process.
-            Binder()
-        }
+        windowInputToken = CompatImpl.getHostToken(surfaceView)
         super.removeView(surfaceView)
         checkClientOpenSession()
     }
@@ -318,15 +286,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             super.addView(contentView, 0, contentView.layoutParams)
         }
 
-        // TODO(b/301605964): registerFrameCommitCallback not supported below API 29
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Wait for the next frame commit before sending an ACTIVE state change to listeners.
-            viewTreeObserver.registerFrameCommitCallback {
-                stateListenerManager.currentUiSessionState =
-                    SandboxedSdkUiSessionState.Active
-            }
-        } else {
-            stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Active
+        // Wait for the next frame commit before sending an ACTIVE state change to listeners.
+        CompatImpl.registerFrameCommitCallback(viewTreeObserver) {
+            stateListenerManager.currentUiSessionState = Active
         }
 
         if (contentView is SurfaceView) {
@@ -588,6 +550,95 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         fun removeStateChangedListener(listener: SandboxedSdkUiSessionStateChangedListener) {
             stateChangedListeners.remove(listener)
+        }
+    }
+
+    /**
+     * Provides backward compat support for APIs.
+     *
+     * If the API is available, it's called from a version-specific static inner class gated with
+     * version check, otherwise a fallback action is taken depending on the situation.
+     */
+     private object CompatImpl {
+
+        fun getHostToken(surfaceView: SurfaceView): IBinder? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Api34PlusImpl.getHostToken(surfaceView)
+            } else {
+                // Input token is only needed when provider can be located on a separate process.
+                Binder()
+            }
+        }
+
+        fun setClippingBounds(
+            contentView: View?,
+            isAttachedToWindow: Boolean,
+            currentClippingBounds: Rect
+        ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Api34PlusImpl.setClippingBounds(
+                    contentView, isAttachedToWindow, currentClippingBounds)
+            }
+        }
+
+        fun registerFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Api29PlusImpl.registerFrameCommitCallback(observer, callback)
+            } else {
+                callback.run()
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private object Api34PlusImpl {
+
+            @JvmStatic
+            @DoNotInline
+            fun getHostToken(surfaceView: SurfaceView): IBinder? {
+                return surfaceView.hostToken
+            }
+
+            @JvmStatic
+            @DoNotInline
+            fun setClippingBounds(
+                contentView: View?,
+                isAttachedToWindow: Boolean,
+                currentClippingBounds: Rect
+            ) {
+                checkNotNull(contentView)
+                check(isAttachedToWindow)
+
+                val surfaceView: SurfaceView = contentView as SurfaceView
+                val attachedSurfaceControl = checkNotNull(surfaceView.rootSurfaceControl) {
+                    "attachedSurfaceControl should be non-null if the window is attached"
+                }
+                val name = "clippingBounds-${System.currentTimeMillis()}"
+                val clippingBoundsSurfaceControl =
+                    SurfaceControl.Builder().setName(name)
+                        .build()
+                val reparentSurfaceControlTransaction = SurfaceControl.Transaction()
+                    .reparent(surfaceView.surfaceControl, clippingBoundsSurfaceControl)
+
+                val reparentClippingBoundsTransaction = checkNotNull(
+                    attachedSurfaceControl.buildReparentTransaction(clippingBoundsSurfaceControl)) {
+                        "Reparent transaction should be non-null if the window is attached"
+                    }
+                reparentClippingBoundsTransaction.setCrop(
+                    clippingBoundsSurfaceControl, currentClippingBounds)
+                reparentClippingBoundsTransaction.setVisibility(clippingBoundsSurfaceControl, true)
+                reparentSurfaceControlTransaction.merge(reparentClippingBoundsTransaction)
+                attachedSurfaceControl.applyTransactionOnDraw(reparentSurfaceControlTransaction)
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private object Api29PlusImpl {
+
+            @JvmStatic
+            @DoNotInline
+            fun registerFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
+                observer.registerFrameCommitCallback(callback)
+            }
         }
     }
 }

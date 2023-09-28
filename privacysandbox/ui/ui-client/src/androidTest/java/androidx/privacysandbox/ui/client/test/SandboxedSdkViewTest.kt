@@ -16,11 +16,11 @@
 
 package androidx.privacysandbox.ui.client.test
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
-import android.os.Build
 import android.os.IBinder
 import android.view.SurfaceView
 import android.view.View
@@ -28,7 +28,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
@@ -57,8 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// TODO(b/268014171): Remove API requirements once S- support is added
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SandboxedSdkViewTest {
@@ -456,6 +453,7 @@ class SandboxedSdkViewTest {
      * Ensures that the input token passed when opening a session is non-null and is the same host
      * token as another [SurfaceView] in the same activity.
      */
+    @SuppressLint("NewApi") // Test runs on U+ devices
     @Test
     fun inputTokenIsCorrect() {
         // Input token is only needed when provider can be located on a separate process.
