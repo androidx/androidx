@@ -43,6 +43,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -51,31 +53,6 @@ import androidx.compose.ui.unit.offset
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
-
-internal fun Modifier.increaseSemanticsBounds(): Modifier {
-    val padding = 10.dp
-    return this
-        .layout { measurable, constraints ->
-            val paddingPx = padding.roundToPx()
-            // We need to add vertical padding to the semantics bounds in other to meet
-            // screenreader green box minimum size, but we also want to
-            // preserve a visual appearance and layout size below that minimum
-            // in order to maintain backwards compatibility. This custom
-            // layout effectively implements "negative padding".
-            val newConstraint = constraints.offset(0, paddingPx * 2)
-            val placeable = measurable.measure(newConstraint)
-
-            // But when actually placing the placeable, create the layout without additional
-            // space. Place the placeable where it would've been without any extra padding.
-            val height = placeable.height - paddingPx * 2
-            val width = placeable.width
-            layout(width, height) {
-                placeable.place(0, -paddingPx)
-            }
-        }
-        .semantics(mergeDescendants = true) {}
-        .padding(vertical = padding)
-}
 
 /**
  * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Determinate Material Design linear progress indicator</a>.
@@ -98,24 +75,27 @@ internal fun Modifier.increaseSemanticsBounds(): Modifier {
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
+@Suppress("PrimitiveInLambda")
 @Composable
 fun LinearProgressIndicator(
-    progress: Float,
+    progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.linearColor,
     trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
 ) {
-    val coercedProgress = progress.coerceIn(0f, 1f)
+    val coercedProgress = { progress().coerceIn(0f, 1f) }
     Canvas(
         modifier
-            .increaseSemanticsBounds()
-            .progressSemantics(coercedProgress)
+            .then(IncreaseSemanticsBounds)
+            .semantics(mergeDescendants = true) {
+                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+            }
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
         val strokeWidth = size.height
         drawLinearIndicatorTrack(trackColor, strokeWidth, strokeCap)
-        drawLinearIndicator(0f, coercedProgress, color, strokeWidth, strokeCap)
+        drawLinearIndicator(0f, coercedProgress(), color, strokeWidth, strokeCap)
     }
 }
 
@@ -191,7 +171,7 @@ fun LinearProgressIndicator(
     )
     Canvas(
         modifier
-            .increaseSemanticsBounds()
+            .then(IncreaseSemanticsBounds)
             .progressSemantics()
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -218,6 +198,32 @@ fun LinearProgressIndicator(
     }
 }
 
+@Deprecated(
+    message = "Use the overload that takes `progress` as a lambda",
+    replaceWith = ReplaceWith("LinearProgressIndicator(\n" +
+        "progress = { progress },\n" +
+        "modifier = modifier,\n" +
+        "color = color,\n" +
+        "trackColor = trackColor,\n" +
+        "strokeCap = strokeCap,\n" +
+        ")")
+)
+@Composable
+fun LinearProgressIndicator(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.linearColor,
+    trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
+    strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
+) = LinearProgressIndicator(
+    progress = { progress },
+    modifier = modifier,
+    color = color,
+    trackColor = trackColor,
+    strokeCap = strokeCap,
+)
+
+@Suppress("DEPRECATION")
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun LinearProgressIndicator(
@@ -292,6 +298,29 @@ private fun DrawScope.drawLinearIndicatorTrack(
     strokeCap: StrokeCap,
 ) = drawLinearIndicator(0f, 1f, color, strokeWidth, strokeCap)
 
+private val SemanticsBoundsPadding: Dp = 10.dp
+private val IncreaseSemanticsBounds: Modifier = Modifier
+    .layout { measurable, constraints ->
+        val paddingPx = SemanticsBoundsPadding.roundToPx()
+        // We need to add vertical padding to the semantics bounds in other to meet
+        // screenreader green box minimum size, but we also want to
+        // preserve a visual appearance and layout size below that minimum
+        // in order to maintain backwards compatibility. This custom
+        // layout effectively implements "negative padding".
+        val newConstraint = constraints.offset(0, paddingPx * 2)
+        val placeable = measurable.measure(newConstraint)
+
+        // But when actually placing the placeable, create the layout without additional
+        // space. Place the placeable where it would've been without any extra padding.
+        val height = placeable.height - paddingPx * 2
+        val width = placeable.width
+        layout(width, height) {
+            placeable.place(0, -paddingPx)
+        }
+    }
+    .semantics(mergeDescendants = true) {}
+    .padding(vertical = SemanticsBoundsPadding)
+
 /**
  * <a href="https://m3.material.io/components/progress-indicators/overview" class="external" target="_blank">Determinate Material Design circular progress indicator</a>.
  *
@@ -314,27 +343,30 @@ private fun DrawScope.drawLinearIndicatorTrack(
  * reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
+@Suppress("PrimitiveInLambda")
 @Composable
 fun CircularProgressIndicator(
-    progress: Float,
+    progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.circularColor,
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
     trackColor: Color = ProgressIndicatorDefaults.circularTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
 ) {
-    val coercedProgress = progress.coerceIn(0f, 1f)
+    val coercedProgress = { progress().coerceIn(0f, 1f) }
     val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = strokeCap)
     }
     Canvas(
         modifier
-            .progressSemantics(coercedProgress)
+            .semantics(mergeDescendants = true) {
+                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+            }
             .size(CircularIndicatorDiameter)
     ) {
         // Start at 12 o'clock
         val startAngle = 270f
-        val sweep = coercedProgress * 360f
+        val sweep = coercedProgress() * 360f
         drawCircularIndicatorTrack(trackColor, stroke)
         drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
     }
@@ -439,6 +471,36 @@ fun CircularProgressIndicator(
     }
 }
 
+@Deprecated(
+    message = "Use the overload that takes `progress` as a lambda",
+    replaceWith = ReplaceWith(
+        "CircularProgressIndicator(\n" +
+            "progress = { progress },\n" +
+            "modifier = modifier,\n" +
+            "color = color,\n" +
+            "strokeWidth = strokeWidth,\n" +
+            "trackColor = trackColor,\n" +
+            "strokeCap = strokeCap,\n" +
+            ")")
+)
+@Composable
+fun CircularProgressIndicator(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    color: Color = ProgressIndicatorDefaults.circularColor,
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
+    trackColor: Color = ProgressIndicatorDefaults.circularTrackColor,
+    strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
+) = CircularProgressIndicator(
+    progress = { progress },
+    modifier = modifier,
+    color = color,
+    strokeWidth = strokeWidth,
+    trackColor = trackColor,
+    strokeCap = strokeCap,
+)
+
+@Suppress("DEPRECATION")
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun CircularProgressIndicator(
