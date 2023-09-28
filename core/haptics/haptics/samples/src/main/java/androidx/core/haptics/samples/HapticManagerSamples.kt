@@ -18,6 +18,7 @@ package androidx.core.haptics.samples
 
 import android.content.Context
 import androidx.annotation.Sampled
+import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.HapticManager
 import androidx.core.haptics.signal.CompositionSignal.Companion.compositionOf
 import androidx.core.haptics.signal.CompositionSignal.Companion.off
@@ -32,7 +33,7 @@ import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedC
 @Sampled
 fun PlaySystemStandardClick(context: Context) {
     val hapticManager = HapticManager.create(context)
-    hapticManager.play(predefinedClick())
+    hapticManager.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
 }
 
 /**
@@ -46,6 +47,7 @@ fun PlayHapticSignal(hapticManager: HapticManager) {
             quickFall(),
             off(durationMillis = 50),
             thud(),
-        )
+        ),
+        HapticAttributes(HapticAttributes.USAGE_TOUCH),
     )
 }

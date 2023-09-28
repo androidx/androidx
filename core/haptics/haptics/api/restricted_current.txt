@@ -1,14 +1,59 @@
 // Signature format: 4.0
 package androidx.core.haptics {
 
+  public final class HapticAttributes {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public HapticAttributes(android.media.AudioAttributes attrs);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public HapticAttributes(android.os.VibrationAttributes attrs);
+    ctor public HapticAttributes(int usage);
+    ctor public HapticAttributes(int usage, optional int flags);
+    method public int getFlags();
+    method public int getUsage();
+    property public final int flags;
+    property public final int usage;
+    field public static final androidx.core.haptics.HapticAttributes.Companion Companion;
+    field public static final int FLAG_BYPASS_INTERRUPTION_POLICY = 1; // 0x1
+    field public static final int USAGE_ACCESSIBILITY = 66; // 0x42
+    field public static final int USAGE_ALARM = 1; // 0x1
+    field public static final int USAGE_COMMUNICATION_REQUEST = 65; // 0x41
+    field public static final int USAGE_HARDWARE_FEEDBACK = 50; // 0x32
+    field public static final int USAGE_MEDIA = 19; // 0x13
+    field public static final int USAGE_NOTIFICATION = 49; // 0x31
+    field public static final int USAGE_PHYSICAL_EMULATION = 34; // 0x22
+    field public static final int USAGE_RINGTONE = 33; // 0x21
+    field public static final int USAGE_TOUCH = 18; // 0x12
+    field public static final int USAGE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class HapticAttributes.Builder {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public HapticAttributes.Builder(android.media.AudioAttributes attrs);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public HapticAttributes.Builder(android.os.VibrationAttributes attrs);
+    ctor public HapticAttributes.Builder(androidx.core.haptics.HapticAttributes attrs);
+    ctor public HapticAttributes.Builder(int usage);
+    method public androidx.core.haptics.HapticAttributes build();
+    method public androidx.core.haptics.HapticAttributes.Builder setFlags(int flags);
+    method public androidx.core.haptics.HapticAttributes.Builder setUsage(int usage);
+  }
+
+  public static final class HapticAttributes.Companion {
+  }
+
   public interface HapticManager {
     method public static androidx.core.haptics.HapticManager create(android.content.Context context);
-    method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.HapticSignal signal);
+    method @RequiresPermission(android.Manifest.permission.VIBRATE) public void play(androidx.core.haptics.signal.HapticSignal signal, androidx.core.haptics.HapticAttributes attrs);
     field public static final androidx.core.haptics.HapticManager.Companion Companion;
   }
 
   public static final class HapticManager.Companion {
     method public androidx.core.haptics.HapticManager create(android.content.Context context);
+  }
+
+}
+
+package androidx.core.haptics.extensions {
+
+  public final class HapticAttributesUtils {
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static android.media.AudioAttributes toAudioAttributes(androidx.core.haptics.HapticAttributes);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public static android.os.VibrationAttributes toVibrationAttributes(androidx.core.haptics.HapticAttributes);
   }
 
 }

@@ -18,6 +18,6 @@
     <string name="app_name">Haptic Demos</string>
     <string name="standard_click">Standard Click</string>
     <string name="scaled_click">Scaled Click</string>
-    <string name="on_off_pattern">On/Off Pattern</string>
-    <string name="repeating_waveform">Repeating Waveform</string>
+    <string name="on_off_pattern">On/Off Notification Pattern</string>
+    <string name="repeating_waveform">Repeating Ringtone Waveform</string>
 </resources>

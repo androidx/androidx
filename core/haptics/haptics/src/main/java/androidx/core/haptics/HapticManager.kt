@@ -66,7 +66,10 @@ interface HapticManager {
      * @sample androidx.core.haptics.samples.PlayHapticSignal
      *
      * @param signal The haptic signal to be played.
+     * @param attrs The attributes corresponding to the haptic signal. For example, specify
+     *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
+     *   [HapticAttributes.USAGE_TOUCH] for touch feedback haptics.
      */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
-    fun play(signal: HapticSignal)
+    fun play(signal: HapticSignal, attrs: HapticAttributes)
 }
