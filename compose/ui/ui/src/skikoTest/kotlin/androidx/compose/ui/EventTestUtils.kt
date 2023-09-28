@@ -228,7 +228,8 @@ internal fun event(
             pointer.pressed,
             pointer.pressure,
             pointer.type,
-            scrollDelta = Offset.Zero
+            scrollDelta = Offset.Zero,
+            historical = emptyList()
         )
     },
 )
@@ -251,7 +252,8 @@ internal fun mouseEvent(
             down = pressed,
             pressure = 1f,
             type = PointerType.Mouse,
-            scrollDelta = Offset.Zero
+            scrollDelta = Offset.Zero,
+            historical = emptyList()
         )
     ),
     buttons = PointerButtons(isPrimaryPressed = pressed)

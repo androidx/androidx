@@ -158,9 +158,10 @@ public final class androidx/compose/ui/ComposeScene {
 
 public final class androidx/compose/ui/ComposeScene$Pointer {
 	public static final field $stable I
-	public synthetic fun <init> (JJZIFILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (JJZIFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJZIFLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJZIFLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHistorical ()Ljava/util/List;
 	public final fun getId-J3iCeTQ ()J
 	public final fun getPosition-F1C5BW0 ()J
 	public final fun getPressed ()Z

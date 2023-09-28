@@ -889,6 +889,15 @@ class ComposeScene internal constructor(
          */
         val pressure: Float = 1.0f,
 
+        /**
+         * High-frequency pointer moves in between the current event and the last event.
+         * can be used for extra accuracy when touchscreen rate exceeds framerate.
+         *
+         * Can be empty, if a platform doesn't provide any.
+         *
+         * For example, on iOS this list is populated using the data of.
+         * https://developer.apple.com/documentation/uikit/uievent/1613808-coalescedtouchesfortouch?language=objc
+         */
         val historical: List<HistoricalChange> = emptyList()
     ) {
         override fun equals(other: Any?): Boolean {
