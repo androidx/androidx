@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -190,16 +191,16 @@ class BottomNavigationTest {
         rule.runOnIdleWithDensity {
             val totalWidth = parentCoords.size.width
 
-            val expectedItemWidth = totalWidth / 4
-            val expectedItemHeight = 56.dp.roundToPx()
+            val expectedItemWidth = totalWidth.toFloat() / 4
+            val expectedItemHeight = 56.dp.toPx()
 
             Truth.assertThat(itemCoords.size).isEqualTo(4)
 
             itemCoords.forEach { (index, coord) ->
-                Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
-                Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
+                Truth.assertThat(coord.size.width.toFloat()).isWithin(1f).of(expectedItemWidth)
+                Truth.assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
                 Truth.assertThat(coord.positionInWindow().x)
-                    .isEqualTo((expectedItemWidth * index).toFloat())
+                    .isWithin(1f).of(expectedItemWidth * index)
             }
         }
     }
@@ -236,20 +237,39 @@ class BottomNavigationTest {
         rule.runOnIdleWithDensity {
             val totalWidth = parentCoords.size.width
 
-            val expectedItemWidth = (totalWidth - fakeInset.roundToPx() * 2) / 4
-            val expectedItemHeight = 56.dp.roundToPx()
+            val expectedItemWidth = (totalWidth - fakeInset.toPx() * 2) / 4
+            val expectedItemHeight = 56.dp.toPx()
 
             Truth.assertThat(itemCoords.size).isEqualTo(4)
 
             itemCoords.forEach { (index, coord) ->
-                Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
-                Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
+                Truth.assertThat(coord.size.width.toFloat()).isWithin(1f).of(expectedItemWidth)
+                Truth.assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
                 Truth.assertThat(coord.positionInWindow().x)
-                    .isEqualTo((expectedItemWidth * index + fakeInset.roundToPx()).toFloat())
+                    .isWithin(1f).of(expectedItemWidth * index + fakeInset.toPx())
                 Truth.assertThat(coord.positionInWindow().y)
-                    .isEqualTo(fakeInset.roundToPx().toFloat())
+                    .isWithin(1f).of(fakeInset.toPx())
             }
         }
+    }
+
+    @Test
+    fun bottomNavigationItem_withLongLabel_automaticallyResizesHeight() {
+        val defaultHeight = 56.dp
+        rule.setMaterialContent {
+            BottomNavigation {
+                BottomNavigationItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("Long\nLabel\nMultiple\nLines") },
+                    selected = true,
+                    onClick = {},
+                )
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("item").getUnclippedBoundsInRoot().height)
+            .isGreaterThan(defaultHeight)
     }
 
     @Test
