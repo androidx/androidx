@@ -993,15 +993,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;motionFromChange&apos; with type Function1&lt;? super PointerInputChange, ? extends Float>."
-        errorLine1="    val motionFromChange: (PointerInputChange) -> Float = if (orientation == Orientation.Vertical) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DefaultDraggableState has parameter &apos;onDelta&apos; with type Function1&lt;? super Float, Unit>."
         errorLine1="private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~">
@@ -2361,24 +2352,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method shortSnap has parameter &apos;onRemainingScrollOffsetUpdate&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onRemainingScrollOffsetUpdate: (Float) -> Unit"
-        errorLine2="                                       ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method longSnap has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="        onAnimationStep: (remainingScrollOffset: Float) -> Unit"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method runApproach has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
         errorLine1="        onAnimationStep: (delta: Float) -> Unit"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
@@ -2409,15 +2382,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;consumeDelta&apos; with type Function2&lt;? super AnimationScope&lt;Float, AnimationVector1D>, ? super Float, ? extends Unit>."
         errorLine1="    fun AnimationScope&lt;Float, AnimationVector1D>.consumeDelta(delta: Float) {"
         errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method animateSnap has parameter &apos;onAnimationStep&apos; with type Function1&lt;? super Float, Unit>."
-        errorLine1="    onAnimationStep: (delta: Float) -> Unit"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/snapping/SnapFlingBehavior.kt"/>
     </issue>

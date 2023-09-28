@@ -237,15 +237,6 @@
 
     <issue
         id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;appendWithColor&apos; with type Function2&lt;? super Color, ? super String, ? extends Unit>."
-        errorLine1="                    fun appendWithColor(color: Color, text: String) {"
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/text/ComposeTextSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method rememberDragDropState has parameter &apos;onMove&apos; with type Function2&lt;? super Integer, ? super Integer, Unit>."
         errorLine1="    onMove: (Int, Int) -> Unit"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
