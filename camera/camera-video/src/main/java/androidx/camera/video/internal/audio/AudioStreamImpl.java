@@ -23,6 +23,8 @@ import static androidx.camera.video.internal.audio.AudioUtils.sizeToFrameCount;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -61,6 +63,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioStreamImpl implements AudioStream {
     private static final String TAG = "AudioStreamImpl";
+    private static final long DIFF_LIMIT_FROM_SYSTEM_TIME_NS = MILLISECONDS.toNanos(500L);
 
     @NonNull
     private AudioRecord mAudioRecord;
@@ -77,6 +80,7 @@ public class AudioStreamImpl implements AudioStream {
     private long mTotalFramesRead;
     @Nullable
     private AudioManager.AudioRecordingCallback mAudioRecordingCallback;
+    private boolean mShouldFallbackToSystemTime = false;
 
     /**
      * Creates an AudioStreamImpl for the given settings.
@@ -144,6 +148,7 @@ public class AudioStreamImpl implements AudioStream {
                     + mAudioRecord.getRecordingState());
         }
         mTotalFramesRead = 0;
+        mShouldFallbackToSystemTime = false;
         mNotifiedSilenceState.set(null);
         boolean isSilenced = false;
         if (Build.VERSION.SDK_INT >= 29) {
@@ -251,12 +256,19 @@ public class AudioStreamImpl implements AudioStream {
 
     private long generatePresentationTimeNs() {
         long presentationTimeNs = -1;
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= 24 && !mShouldFallbackToSystemTime) {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
             if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
                     AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
                 presentationTimeNs = computeInterpolatedTimeNs(mSettings.getSampleRate(),
                         mTotalFramesRead, audioTimestamp);
+
+                // Once timestamp difference is out of limit, fallback to system time.
+                long timestampDiff = Math.abs(presentationTimeNs - System.nanoTime());
+                if (timestampDiff > DIFF_LIMIT_FROM_SYSTEM_TIME_NS) {
+                    mShouldFallbackToSystemTime = true;
+                    presentationTimeNs = -1;
+                }
             } else {
                 Logger.w(TAG, "Unable to get audio timestamp");
             }
