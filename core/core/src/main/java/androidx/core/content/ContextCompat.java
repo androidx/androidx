@@ -189,23 +189,6 @@ public class ContextCompat {
         // Not publicly instantiable, but may be extended.
     }
 
-    /**
-     * <p>Attribution can be used in complex apps to logically separate parts of the app. E.g. a
-     * blogging app might also have a instant messaging app built in. In this case two separate tags
-     * can for used each sub-feature.
-     *
-     * @return the attribution tag this context is for or {@code null} if this is the default.
-     */
-    @Nullable
-    public static String getAttributionTag(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getAttributionTag(context);
-        }
-
-        return null;
-    }
-
-
     private static final String DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION_SUFFIX =
             ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
 
@@ -963,6 +946,54 @@ public class ContextCompat {
     }
 
     /**
+     * Attribution can be used in complex apps to logically separate parts of the app. E.g. a
+     * blogging app might also have a instant messaging app built in. In this case two separate tags
+     * can for used each sub-feature.
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 30 and above, returns the attribution tag or {@code null}
+     *     <li>API 29 and earlier, returns {@code null}
+     * </ul>
+     *
+     * @return the attribution tag this context is for or {@code null} if this is the default.
+     */
+    @Nullable
+    public static String getAttributionTag(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getAttributionTag(context);
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a new Context object for the current Context but attribute to a different tag.
+     * In complex apps attribution tagging can be used to distinguish between separate logical
+     * parts.
+     * <p>
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 30 and above, returns a new Context object with the specified attribution tag
+     *     <li>API 29 and earlier, returns the original {@code context} with no attribution tag
+     * </ul>
+     *
+     * @param context The current context.
+     * @param attributionTag The tag or {@code null} to create a context for the default.
+     * @return A {@link Context} that is tagged for the new attribution
+     * @see #getAttributionTag(Context)
+     */
+    @NonNull
+    public static Context createAttributionContext(@NonNull Context context,
+            @NonNull String attributionTag) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.createAttributionContext(context, attributionTag);
+        }
+
+        return context;
+    }
+
+    /**
      * Gets the name of the permission required to unexport receivers on pre Tiramisu versions of
      * Android, and then asserts that the app registering the receiver also has that permission
      * so it can receiver its own broadcasts.
@@ -1228,6 +1259,13 @@ public class ContextCompat {
                 return obj.getSystemService(DisplayManager.class)
                         .getDisplay(Display.DEFAULT_DISPLAY);
             }
+        }
+
+        @DoNotInline
+        @NonNull
+        static Context createAttributionContext(@NonNull Context context,
+                @Nullable String attributionTag) {
+            return context.createAttributionContext(attributionTag);
         }
     }
 
