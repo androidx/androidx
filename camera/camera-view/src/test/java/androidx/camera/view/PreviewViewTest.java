@@ -18,11 +18,14 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.os.Build;
 import android.util.Size;
+import android.view.Window;
 import android.widget.FrameLayout;
 
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -33,16 +36,32 @@ import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowWindow;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class PreviewViewTest {
+    private final Context mAppContext = ApplicationProvider.getApplicationContext();
+    private PreviewView mPreviewView;
+    private Window mWindow;
+
+    @Before
+    public void setUp() {
+        mPreviewView = new PreviewView(mAppContext);
+        try {
+            mWindow = ShadowWindow.create(mAppContext);
+        } catch (ClassNotFoundException e) {
+            Assume.assumeTrue("Failed to create shadow window", false);
+        }
+    }
 
     @After
     public void tearDown() {
@@ -135,10 +154,64 @@ public class PreviewViewTest {
         previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
     }
 
+    @Test
+    public void canCreateValidScreenFlashUiControlImpl() {
+        ScreenFlashUiControl uiControl = createScreenFlashUiControl(false);
+        assertThat(uiControl).isNotNull();
+    }
+
+    @Test
+    public void validScreenFlashUiControlSetToCameraController_whenWindowSetAndThenControllerSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+
+        mPreviewView.setScreenFlashWindow(mWindow);
+        mPreviewView.setController(cameraController);
+
+        assertThat(cameraController.getScreenFlashUiInfoByPriority()).isNotNull();
+        assertThat(
+                cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+        ).isNotNull();
+    }
+
+    @Test
+    public void validScreenFlashUiControlSetToCameraController_whenControllerSetAndThenWindowSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+
+        mPreviewView.setController(cameraController);
+        mPreviewView.setScreenFlashWindow(mWindow);
+
+        assertThat(cameraController.getScreenFlashUiInfoByPriority()).isNotNull();
+        assertThat(
+                cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+        ).isNotNull();
+    }
+
+    @Test
+    public void nullScreenFlashUiControlSetToCameraController_whenControllerSetButNoWindowSet() {
+        CameraController cameraController = new LifecycleCameraController(mAppContext);
+
+        mPreviewView.setController(cameraController);
+
+        if (cameraController.getScreenFlashUiInfoByPriority() != null) {
+            assertThat(
+                    cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+            ).isNull();
+        }
+    }
+
     private SurfaceRequest createSurfaceRequestCompatibleWithSurfaceView() {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
         cameraInfoInternal.setImplementationType(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         return new SurfaceRequest(new Size(800, 600),
                 new FakeCamera(null, cameraInfoInternal), () -> {});
+    }
+
+    private ScreenFlashUiControl createScreenFlashUiControl(boolean assumeNoFailure) {
+        mPreviewView.setScreenFlashWindow(mWindow);
+        ScreenFlashUiControl uiControl = mPreviewView.getScreenFlashUiControl();
+        if (assumeNoFailure) {
+            Assume.assumeTrue("Failed to create ScreenFlashUiControl", uiControl != null);
+        }
+        return uiControl;
     }
 }

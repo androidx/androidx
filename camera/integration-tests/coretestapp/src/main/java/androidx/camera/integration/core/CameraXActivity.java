@@ -41,9 +41,6 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACT
 import static java.util.Objects.requireNonNull;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -75,7 +72,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -140,6 +136,7 @@ import androidx.camera.video.RecordingStats;
 import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
+import androidx.camera.view.ScreenFlashView;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -321,7 +318,7 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mTakePicture;
     private ImageButton mCameraDirectionButton;
     private ImageButton mFlashButton;
-    private View mWhiteColorOverlay;
+    private ScreenFlashView mScreenFlashView;
     private TextView mTextView;
     private ImageButton mTorchButton;
     private ToggleButton mCaptureQualityToggle;
@@ -619,51 +616,9 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void setUpScreenFlash() {
-        getImageCapture().setScreenFlashUiControl(new ImageCapture.ScreenFlashUiControl() {
-            private Float mPreviousBrightness;
-
-            @Override
-            public void applyScreenFlashUi(
-                    @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
-                ValueAnimator animation = ValueAnimator.ofFloat(0f, 1f);
-                animation.setDuration(1000);
-
-                animation.addUpdateListener(updatedAnimation -> {
-                    float animatedValue = (float) updatedAnimation.getAnimatedValue();
-
-                    mWhiteColorOverlay.setAlpha(animatedValue);
-
-                    // Gradually maximize screen brightness
-                    Window window = getWindow();
-                    WindowManager.LayoutParams layoutParam = window.getAttributes();
-                    mPreviousBrightness = layoutParam.screenBrightness;
-                    layoutParam.screenBrightness =
-                            mPreviousBrightness + (1f - mPreviousBrightness) * animatedValue;
-                    window.setAttributes(layoutParam);
-
-                });
-
-                animation.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        screenFlashUiCompleter.complete();
-                    }
-                });
-                animation.start();
-            }
-
-            @Override
-            public void clearScreenFlashUi() {
-                mWhiteColorOverlay.setAlpha(0f);
-
-                // Restore screen brightness
-                Window window = getWindow();
-                WindowManager.LayoutParams layoutParam = window.getAttributes();
-                layoutParam.screenBrightness = mPreviousBrightness;
-                window.setAttributes(layoutParam);
-            }
-        });
-
+        mScreenFlashView.setScreenFlashWindow(getWindow());
+        getImageCapture().setScreenFlashUiControl(
+                mScreenFlashView.getScreenFlashUiControl());
         getImageCapture().setFlashMode(FLASH_MODE_SCREEN);
     }
 
@@ -1361,7 +1316,7 @@ public class CameraXActivity extends AppCompatActivity {
 
         mTakePicture = findViewById(R.id.Picture);
         mFlashButton = findViewById(R.id.flash_toggle);
-        mWhiteColorOverlay = findViewById(R.id.white_color_overlay);
+        mScreenFlashView = findViewById(R.id.screen_flash_view);
         mCameraDirectionButton = findViewById(R.id.direction_toggle);
         mTorchButton = findViewById(R.id.torch_toggle);
         mCaptureQualityToggle = findViewById(R.id.capture_quality);

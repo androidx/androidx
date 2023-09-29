@@ -198,6 +198,7 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
+        mPreviewView.setScreenFlashWindow(requireActivity().getWindow());
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
@@ -220,9 +221,17 @@ public class CameraControllerFragment extends Fragment {
         mCameraToggle = view.findViewById(R.id.camera_toggle);
         mCameraToggle.setOnCheckedChangeListener(
                 (compoundButton, value) ->
-                        runSafely(() -> mCameraController.setCameraSelector(value
-                                ? CameraSelector.DEFAULT_BACK_CAMERA
-                                : CameraSelector.DEFAULT_FRONT_CAMERA)));
+                        runSafely(() -> {
+                            if (value) {
+                                mCameraController.setImageCaptureFlashMode(
+                                        ImageCapture.FLASH_MODE_OFF);
+                                updateUiText();
+                            }
+
+                            mCameraController.setCameraSelector(value
+                                    ? CameraSelector.DEFAULT_BACK_CAMERA
+                                    : CameraSelector.DEFAULT_FRONT_CAMERA);
+                        }));
 
         // Image Capture enable switch.
         mCaptureEnabledToggle = view.findViewById(R.id.capture_enabled);
@@ -237,6 +246,13 @@ public class CameraControllerFragment extends Fragment {
                     mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_ON);
                     break;
                 case ImageCapture.FLASH_MODE_ON:
+                    if (!mCameraToggle.isChecked()) {
+                        mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+                    } else {
+                        mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_OFF);
+                    }
+                    break;
+                case ImageCapture.FLASH_MODE_SCREEN:
                     mCameraController.setImageCaptureFlashMode(ImageCapture.FLASH_MODE_OFF);
                     break;
                 case ImageCapture.FLASH_MODE_OFF:
@@ -444,6 +460,8 @@ public class CameraControllerFragment extends Fragment {
                 return R.string.flash_mode_auto;
             case ImageCapture.FLASH_MODE_ON:
                 return R.string.flash_mode_on;
+            case ImageCapture.FLASH_MODE_SCREEN:
+                return R.string.flash_mode_screen;
             case ImageCapture.FLASH_MODE_OFF:
                 return R.string.flash_mode_off;
             default:
