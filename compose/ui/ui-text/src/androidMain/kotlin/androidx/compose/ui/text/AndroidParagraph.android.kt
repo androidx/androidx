@@ -21,6 +21,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -345,7 +346,7 @@ internal class AndroidParagraph(
     override fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
-        arrayStart: Int
+        @IntRange(from = 0) arrayStart: Int
     ) {
         layout.fillBoundingBoxes(range.min, range.max, array, arrayStart)
     }
