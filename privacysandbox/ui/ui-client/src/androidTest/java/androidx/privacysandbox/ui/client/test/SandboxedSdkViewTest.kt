@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -51,7 +52,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -189,7 +190,6 @@ class SandboxedSdkViewTest {
 
     @Before
     fun setup() {
-        Assume.assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         activity = activityScenarioRule.withActivity { this }
         view = SandboxedSdkView(activity)
@@ -459,6 +459,9 @@ class SandboxedSdkViewTest {
      */
     @Test
     fun inputTokenIsCorrect() {
+        // Input token is only needed when provider can be located on a separate process.
+        assumeTrue(BackwardCompatUtil.canProviderBeRemote())
+
         lateinit var layout: LinearLayout
         val surfaceView = SurfaceView(context)
         val surfaceViewLatch = CountDownLatch(1)
