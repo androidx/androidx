@@ -49,6 +49,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -86,7 +87,7 @@ class TextFieldCursorTest {
         fontSize = 10.sp
     )
 
-    private val textFieldWidth = 10.dp
+    private val textFieldWidth = 40.dp
     private val textFieldHeight = 20.dp
     private val textFieldBgColor = Color.White
     private var isFocused = false
@@ -173,6 +174,177 @@ class TextFieldCursorTest {
         val cursorBottom = floor(cursorRect.bottom).toInt() - 1
         bitmap.assertPixelColor(Color.Blue, x = cursorLeft, y = cursorTop)
         bitmap.assertPixelColor(Color.Green, x = cursorLeft, y = cursorBottom)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorPosition() = with(rule.density) {
+        val cursorOffset = 4
+        val textValue = mutableStateOf(TextFieldValue("test", selection = TextRange(cursorOffset)))
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField(
+                    value = textValue.value,
+                    onValueChange = {},
+                    textStyle = textStyle,
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = { cursorRect = it.getCursorRect(cursorOffset) }
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        assertThat(cursorRect.left).isGreaterThan(0f)
+        assertThat(cursorRect.left).isLessThan(textFieldWidth.toPx())
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(2.dp, this, cursorRect)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorPosition_rtl() = with(rule.density) {
+        val cursorOffset = 2
+        val textValue = mutableStateOf(
+            TextFieldValue(
+                "\u05D0\u05D1\u05D2",
+                selection = TextRange(cursorOffset)
+            )
+        )
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField(
+                    value = textValue.value,
+                    onValueChange = {},
+                    textStyle = textStyle.copy(textDirection = TextDirection.Rtl),
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = { cursorRect = it.getCursorRect(cursorOffset) }
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        assertThat(cursorRect.left).isGreaterThan(0f)
+        assertThat(cursorRect.left).isLessThan(textFieldWidth.toPx())
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(2.dp, this, cursorRect)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorPosition_clamped() = with(rule.density) {
+        val cursorOffset = 20
+        val textValue = mutableStateOf(
+            TextFieldValue(
+                "test                      ",
+                selection = TextRange(cursorOffset)
+            )
+        )
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField(
+                    value = textValue.value,
+                    onValueChange = {},
+                    textStyle = textStyle,
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = { cursorRect = it.getCursorRect(cursorOffset) }
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        // Cursor is beyond the right edge of the text field
+        assertThat(cursorRect.left).isGreaterThan(textFieldWidth.toPx())
+        val cursorWidth = 2.dp
+        val clampedCursorHorizontal = (textFieldWidth - cursorWidth).toPx()
+        val clampedCursorRect = Rect(
+            clampedCursorHorizontal,
+            cursorRect.top,
+            clampedCursorHorizontal,
+            cursorRect.bottom
+        )
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorWidth, this, clampedCursorRect)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorPosition_rtl_clamped() = with(rule.density) {
+        val cursorOffset = 20
+        val textValue = mutableStateOf(
+            TextFieldValue(
+                "\u05D0\u05D1\u05D2                      ",
+                selection = TextRange(cursorOffset)
+            )
+        )
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField(
+                    value = textValue.value,
+                    onValueChange = {},
+                    textStyle = textStyle.copy(textDirection = TextDirection.Rtl),
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = { cursorRect = it.getCursorRect(cursorOffset) }
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        // Cursor is beyond the left edge of the text field
+        assertThat(cursorRect.left).isLessThan(0f)
+        val clampedCursorRect = Rect(0f, cursorRect.top, 0f, cursorRect.bottom)
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(2.dp, this, clampedCursorRect)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorPosition_textFieldThinnerThanCursor() = with(rule.density) {
+        val cursorWidth = 2.dp
+        val thinSizeModifier = Modifier.size(cursorWidth - 0.5.dp, textFieldHeight)
+        val thinTextFieldModifier = thinSizeModifier
+            .then(bgModifier)
+            .then(focusModifier)
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField(
+                    value = "",
+                    onValueChange = {},
+                    textStyle = textStyle,
+                    modifier = thinTextFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+
+        assertThat(cursorRect.left).isEqualTo(0f)
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(2.dp, this, cursorRect)
     }
 
     @Test
