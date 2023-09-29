@@ -30,7 +30,6 @@ import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
@@ -70,37 +69,37 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         const val INITIAL_WIDTH = 20
 
         @JvmStatic
-        @Parameterized.Parameters(name = "{index}: invokeBackwardsCompatFlow={0}")
+        @Parameterized.Parameters(name = "invokeBackwardsCompatFlow={0}")
         fun data(): Array<Any> = arrayOf(
             arrayOf(true),
             arrayOf(false),
         )
     }
 
-    private lateinit var context: Context
-    private lateinit var activity: AppCompatActivity
+    private val context = InstrumentationRegistry.getInstrumentation().context
+
     private lateinit var view: SandboxedSdkView
     private lateinit var stateChangeListener: TestStateChangeListener
     private lateinit var errorLatch: CountDownLatch
 
     @Before
     fun setup() {
-        // TODO(b/300397160): Enable backward compat test on S- devices
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        if (!invokeBackwardsCompatFlow) {
+            // SdkSandbox is only supported on U+ devices
+            assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        }
 
-        context = InstrumentationRegistry.getInstrumentation().context
-        activity = activityScenarioRule.withActivity { this }
-        view = SandboxedSdkView(context)
-        errorLatch = CountDownLatch(1)
-        stateChangeListener = TestStateChangeListener(errorLatch)
-        view.addStateChangedListener(stateChangeListener)
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
+            view = SandboxedSdkView(context)
+            errorLatch = CountDownLatch(1)
+            stateChangeListener = TestStateChangeListener(errorLatch)
+            view.addStateChangedListener(stateChangeListener)
             val linearLayout = LinearLayout(context)
             linearLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
-            activity.setContentView(linearLayout)
+            setContentView(linearLayout)
             view.layoutParams = LinearLayout.LayoutParams(100, 100)
             linearLayout.addView(view)
         }
@@ -167,8 +166,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     fun testConfigurationChanged() {
         val sdkAdapter = createAdapterAndEstablishSession()
 
-        activity.runOnUiThread {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        activityScenarioRule.withActivity {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
 
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
@@ -352,7 +351,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     private fun injectInputEventOnView() {
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             val location = IntArray(2)
             view.getLocationOnScreen(location)
             InstrumentationRegistry.getInstrumentation().uiAutomation.injectInputEvent(
