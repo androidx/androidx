@@ -32,12 +32,16 @@ internal actual fun platformInsets(): PlatformInsets {
 
 @OptIn(InternalComposeApi::class)
 @Composable
-internal actual fun platformOwnerContent(content: @Composable () -> Unit) {
-    val safeArea = LocalSafeArea.current
-    val layoutMargins = LocalLayoutMargins.current
-    CompositionLocalProvider(
-        LocalSafeArea provides PlatformInsets(),
-        LocalLayoutMargins provides layoutMargins.exclude(safeArea),
-        content = content
-    )
+internal actual fun platformOwnerContent(overrideInsets: Boolean, content: @Composable () -> Unit) {
+    if (overrideInsets) {
+        val safeArea = LocalSafeArea.current
+        val layoutMargins = LocalLayoutMargins.current
+        CompositionLocalProvider(
+            LocalSafeArea provides PlatformInsets(),
+            LocalLayoutMargins provides layoutMargins.exclude(safeArea),
+            content = content
+        )
+    } else {
+        content()
+    }
 }

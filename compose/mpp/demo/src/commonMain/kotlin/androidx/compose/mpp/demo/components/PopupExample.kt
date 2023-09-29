@@ -101,18 +101,24 @@ fun PopupExample() {
                 onDismissRequest = { open = false },
                 properties = properties
             ) {
-                var modifier = if (fillMaxSize) {
+                val modifier = if (fillMaxSize) {
                     Modifier.fillMaxSize()
                 } else {
                     Modifier.size(400.dp, 300.dp)
                 }
-                if (windowInsets) {
-                    modifier = modifier.windowInsetsPadding(WindowInsets.systemBars)
-                }
                 Box(modifier
                     .background(Color.Yellow)
                     .clickable { open = false }
-                )
+                ) {
+                    val contentModifier = if (windowInsets) {
+                        Modifier.windowInsetsPadding(WindowInsets.systemBars)
+                    } else {
+                        Modifier
+                    }
+                    Box(contentModifier) {
+                        Text("Example Popup content. Click to close")
+                    }
+                }
             }
         }
 

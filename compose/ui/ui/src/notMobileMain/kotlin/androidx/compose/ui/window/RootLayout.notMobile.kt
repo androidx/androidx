@@ -26,6 +26,6 @@ internal actual fun platformInsets(): PlatformInsets =
     PlatformInsets.Zero
 
 @Composable
-internal actual fun platformOwnerContent(content: @Composable () -> Unit) {
+internal actual fun platformOwnerContent(overrideInsets: Boolean, content: @Composable () -> Unit) {
     content()
 }

@@ -73,9 +73,7 @@ internal fun RootLayout(
         )
         scene.attach(owner)
         owner to owner.setContent(parent = parentComposition) {
-            platformOwnerContent {
-                content(owner)
-            }
+            content(owner)
         }
     }
     DisposableEffect(Unit) {
@@ -164,7 +162,7 @@ internal fun MeasureScope.positionWithInsets(
 internal expect fun platformInsets(): PlatformInsets
 
 @Composable
-internal expect fun platformOwnerContent(content: @Composable () -> Unit)
+internal expect fun platformOwnerContent(overrideInsets: Boolean, content: @Composable () -> Unit)
 
 private fun Density.platformDefaultConstrains(
     constraints: Constraints

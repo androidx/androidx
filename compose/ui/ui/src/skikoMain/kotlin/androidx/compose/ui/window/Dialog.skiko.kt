@@ -193,10 +193,12 @@ private fun DialogLayout(
         ) {
             owner.bounds = it
         }
-        Layout(
-            content = content,
-            measurePolicy = measurePolicy
-        )
+        platformOwnerContent(overrideInsets = properties.usePlatformInsets) {
+            Layout(
+                content = content,
+                measurePolicy = measurePolicy
+            )
+        }
     }
 }
 
