@@ -35,11 +35,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.isActive
-import org.w3c.dom.HTMLCanvasElement
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
 
@@ -164,7 +164,11 @@ fun CanvasBasedWindow(
         document.head!!.appendChild(
             (document.createElement("style") as HTMLStyleElement).apply {
                 type = "text/css"
-                appendChild(document.createTextNode("body { margin: 0; overflow: hidden; }"))
+                appendChild(
+                    document.createTextNode(
+                        "body { margin: 0; overflow: hidden; } #$canvasElementId { outline: none; }"
+                    )
+                )
             }
         )
     }
