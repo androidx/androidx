@@ -169,16 +169,12 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class Posture {
-    ctor public Posture(optional boolean hasVerticalHinge, optional boolean isTabletop, optional boolean hasSeparatingHinge, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds);
+    ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getAllHingeBounds();
-    method public boolean getHasSeparatingHinge();
-    method public boolean getHasVerticalHinge();
     method public java.util.List<androidx.compose.ui.geometry.Rect> getOccludingHingeBounds();
     method public java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingHingeBounds();
     method public boolean isTabletop();
     property public final java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds;
-    property public final boolean hasSeparatingHinge;
-    property public final boolean hasVerticalHinge;
     property public final boolean isTabletop;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds;
