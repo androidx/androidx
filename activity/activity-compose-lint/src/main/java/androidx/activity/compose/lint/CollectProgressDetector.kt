@@ -78,7 +78,9 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
                         ?.collectDescendantsOfType<KtSimpleNameExpression>()
                 // Make sure one of the references calls collect
                 val matchingReferences = references?.filter {
-                    it.getReferencedName() == Collect.shortName
+                    it.getReferencedName() == Collect.shortName ||
+                        it.getReferencedName() == CollectIndexed.shortName ||
+                        it.getReferencedName() == CollectLatest.shortName
                 }.orEmpty()
                 // If no references call collect(), trigger the warning
                 if (matchingReferences.isEmpty()) {
@@ -119,3 +121,5 @@ private val PackageName = Package("androidx.activity.compose")
 private val PredictiveBackHandler = Name(PackageName, "PredictiveBackHandler")
 private val CoroutinesPackage = Package("kotlinx.coroutines.flow.collect")
 private val Collect = Name(CoroutinesPackage, "collect")
+private val CollectIndexed = Name(CoroutinesPackage, "collectIndexed")
+private val CollectLatest = Name(CoroutinesPackage, "collectLatest")

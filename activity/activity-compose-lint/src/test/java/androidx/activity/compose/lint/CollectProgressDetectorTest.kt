@@ -249,4 +249,140 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
             .run()
             .expectClean()
     }
+
+    @Test
+    fun noErrorsCollectIndexed() {
+        lint().files(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.compose.runtime.Composable
+                import androidx.activity.compose.PredictiveBackHandler
+
+                @Composable
+                fun Test() {
+                    PredictiveBackHandler { progress ->
+                        progress.collectIndexed()
+                    }
+                }
+
+                val lambda = @Composable {
+                    PredictiveBackHandler { progress ->
+                        progress.collectIndexed()
+                    }
+                }
+
+                val lambda2: @Composable () -> Unit = {
+                    PredictiveBackHandler { progress ->
+                        progress.collectIndexed()
+                    }
+                }
+
+                @Composable
+                fun LambdaParameter(content: @Composable () -> Unit) {}
+
+                @Composable
+                fun Test2() {
+                    LambdaParameter(content = {
+                        PredictiveBackHandler { progress ->
+                            progress.collectIndexed()
+                        }
+                    })
+                    LambdaParameter {
+                        PredictiveBackHandler { progress ->
+                            progress.collectIndexed()
+                        }
+                    }
+                }
+
+                fun test3() {
+                    val localLambda1 = @Composable {
+                        PredictiveBackHandler { progress ->
+                            progress.collectIndexed()
+                        }
+                    }
+
+                    val localLambda2: @Composable () -> Unit = {
+                        PredictiveBackHandler { progress ->
+                            progress.collectIndexed()
+                        }
+                    }
+                }
+            """
+            ),
+            Stubs.Composable,
+            PREDICTIVE_BACK_HANDLER
+        )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun noErrorsCollectLatest() {
+        lint().files(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.compose.runtime.Composable
+                import androidx.activity.compose.PredictiveBackHandler
+
+                @Composable
+                fun Test() {
+                    PredictiveBackHandler { progress ->
+                        progress.collectLatest()
+                    }
+                }
+
+                val lambda = @Composable {
+                    PredictiveBackHandler { progress ->
+                        progress.collectLatest()
+                    }
+                }
+
+                val lambda2: @Composable () -> Unit = {
+                    PredictiveBackHandler { progress ->
+                        progress.collectLatest()
+                    }
+                }
+
+                @Composable
+                fun LambdaParameter(content: @Composable () -> Unit) {}
+
+                @Composable
+                fun Test2() {
+                    LambdaParameter(content = {
+                        PredictiveBackHandler { progress ->
+                            progress.collectLatest()
+                        }
+                    })
+                    LambdaParameter {
+                        PredictiveBackHandler { progress ->
+                            progress.collectLatest()
+                        }
+                    }
+                }
+
+                fun test3() {
+                    val localLambda1 = @Composable {
+                        PredictiveBackHandler { progress ->
+                            progress.collectLatest()
+                        }
+                    }
+
+                    val localLambda2: @Composable () -> Unit = {
+                        PredictiveBackHandler { progress ->
+                            progress.collectLatest()
+                        }
+                    }
+                }
+            """
+            ),
+            Stubs.Composable,
+            PREDICTIVE_BACK_HANDLER
+        )
+            .run()
+            .expectClean()
+    }
 }
