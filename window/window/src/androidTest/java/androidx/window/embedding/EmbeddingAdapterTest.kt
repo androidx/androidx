@@ -59,8 +59,8 @@ class EmbeddingAdapterTest {
             OEMSplitAttributes.Builder().build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
@@ -82,8 +82,8 @@ class EmbeddingAdapterTest {
                 .build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
@@ -107,8 +107,8 @@ class EmbeddingAdapterTest {
         }
 
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SplitType.ratio(expectedSplitRatio))
                 // OEMSplitInfo with Vendor API level 1 doesn't provide layoutDirection.
@@ -132,8 +132,8 @@ class EmbeddingAdapterTest {
                 .build(),
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
-            ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
@@ -158,8 +158,8 @@ class EmbeddingAdapterTest {
             testSplitInfoToken,
         )
         val expectedSplitInfo = SplitInfo(
-            ActivityStack(ArrayList(), isEmpty = true, testStackToken),
-            ActivityStack(ArrayList(), isEmpty = true, testStackToken),
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
