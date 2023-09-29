@@ -15,13 +15,9 @@
  */
 package androidx.appactions.builtintypes.properties
 
-import androidx.appactions.builtintypes.serializers.InstantAsEpochMilliSerializer
 import androidx.appactions.builtintypes.serializers.LocalDateAsEpochDaySerializer
-import androidx.appactions.builtintypes.serializers.LocalDateTimeAsUtcEpochSecondSerializer
 import androidx.appsearch.`annotation`.Document
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Objects
 import kotlin.Any
 import kotlin.Boolean
@@ -37,8 +33,6 @@ import kotlin.jvm.JvmName
  *
  * Holds one of:
  * * Date i.e. [LocalDate]
- * * [LocalDateTime]
- * * [Instant]
  *
  * May hold more types over time.
  */
@@ -49,14 +43,6 @@ internal constructor(
   @get:JvmName("asDate")
   @get:Document.LongProperty(serializer = LocalDateAsEpochDaySerializer::class)
   public val asDate: LocalDate? = null,
-  /** The [LocalDateTime] variant, or null if constructed using a different variant. */
-  @get:JvmName("asLocalDateTime")
-  @get:Document.LongProperty(serializer = LocalDateTimeAsUtcEpochSecondSerializer::class)
-  public val asLocalDateTime: LocalDateTime? = null,
-  /** The [Instant] variant, or null if constructed using a different variant. */
-  @get:JvmName("asInstant")
-  @get:Document.LongProperty(serializer = InstantAsEpochMilliSerializer::class)
-  public val asInstant: Instant? = null,
   /** Required ctor param for the AppSearch compiler. */
   @get:Document.Id @get:JvmName("getIdentifier") internal val identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
@@ -64,28 +50,6 @@ internal constructor(
 ) {
   /** Constructor for the [LocalDate] variant. */
   public constructor(date: LocalDate) : this(asDate = date)
-
-  /** Constructor for the [LocalDateTime] variant. */
-  public constructor(localDateTime: LocalDateTime) : this(asLocalDateTime = localDateTime)
-
-  /** Constructor for the [Instant] variant. */
-  public constructor(instant: Instant) : this(asInstant = instant)
-
-  /**
-   * Maps each of the possible underlying variants to some [R].
-   *
-   * A visitor can be provided to handle the possible variants. A catch-all default case must be
-   * provided in case a new type is added in a future release of this library.
-   *
-   * @sample [androidx.appactions.builtintypes.samples.properties.startDateMapWhenUsage]
-   */
-  public fun <R> mapWhen(mapper: Mapper<R>): R =
-    when {
-      asDate != null -> mapper.date(asDate)
-      asLocalDateTime != null -> mapper.localDateTime(asLocalDateTime)
-      asInstant != null -> mapper.instant(asInstant)
-      else -> error("No variant present in StartDate")
-    }
 
   public override fun toString(): String = toString(includeWrapperName = true)
 
@@ -97,18 +61,6 @@ internal constructor(
         } else {
           asDate.toString()
         }
-      asLocalDateTime != null ->
-        if (includeWrapperName) {
-          """StartDate($asLocalDateTime)"""
-        } else {
-          asLocalDateTime.toString()
-        }
-      asInstant != null ->
-        if (includeWrapperName) {
-          """StartDate($asInstant)"""
-        } else {
-          asInstant.toString()
-        }
       else -> error("No variant present in StartDate")
     }
 
@@ -116,25 +68,8 @@ internal constructor(
     if (this === other) return true
     if (other !is StartDate) return false
     if (asDate != other.asDate) return false
-    if (asLocalDateTime != other.asLocalDateTime) return false
-    if (asInstant != other.asInstant) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asDate, asLocalDateTime, asInstant)
-
-  /** Maps each of the possible variants of [StartDate] to some [R]. */
-  public interface Mapper<R> {
-    /** Returns some [R] when the [StartDate] holds some [LocalDate] instance. */
-    public fun date(instance: LocalDate): R = orElse()
-
-    /** Returns some [R] when the [StartDate] holds some [LocalDateTime] instance. */
-    public fun localDateTime(instance: LocalDateTime): R = orElse()
-
-    /** Returns some [R] when the [StartDate] holds some [Instant] instance. */
-    public fun instant(instance: Instant): R = orElse()
-
-    /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
-    public fun orElse(): R
-  }
+  public override fun hashCode(): Int = Objects.hash(asDate)
 }

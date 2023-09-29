@@ -34,7 +34,6 @@ import kotlin.jvm.JvmName
  *
  * Holds one of:
  * * [Duration]
- * * Text i.e. [String]
  *
  * May hold more types over time.
  */
@@ -45,8 +44,6 @@ internal constructor(
   @get:JvmName("asDuration")
   @get:Document.LongProperty(serializer = DurationAsNanosSerializer::class)
   public val asDuration: Duration? = null,
-  /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") @get:Document.StringProperty public val asText: String? = null,
   /** Required ctor param for the AppSearch compiler. */
   @get:Document.Id @get:JvmName("getIdentifier") internal val identifier: String = "",
   /** Required ctor param for the AppSearch compiler. */
@@ -54,24 +51,6 @@ internal constructor(
 ) {
   /** Constructor for the [Duration] variant. */
   public constructor(duration: Duration) : this(asDuration = duration)
-
-  /** Constructor for the [String] variant. */
-  public constructor(text: String) : this(asText = text)
-
-  /**
-   * Maps each of the possible underlying variants to some [R].
-   *
-   * A visitor can be provided to handle the possible variants. A catch-all default case must be
-   * provided in case a new type is added in a future release of this library.
-   *
-   * @sample [androidx.appactions.builtintypes.samples.properties.repeatFrequencyMapWhenUsage]
-   */
-  public fun <R> mapWhen(mapper: Mapper<R>): R =
-    when {
-      asDuration != null -> mapper.duration(asDuration)
-      asText != null -> mapper.text(asText)
-      else -> error("No variant present in RepeatFrequency")
-    }
 
   public override fun toString(): String = toString(includeWrapperName = true)
 
@@ -83,12 +62,6 @@ internal constructor(
         } else {
           asDuration.toString()
         }
-      asText != null ->
-        if (includeWrapperName) {
-          """RepeatFrequency($asText)"""
-        } else {
-          asText
-        }
       else -> error("No variant present in RepeatFrequency")
     }
 
@@ -96,21 +69,8 @@ internal constructor(
     if (this === other) return true
     if (other !is RepeatFrequency) return false
     if (asDuration != other.asDuration) return false
-    if (asText != other.asText) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asDuration, asText)
-
-  /** Maps each of the possible variants of [RepeatFrequency] to some [R]. */
-  public interface Mapper<R> {
-    /** Returns some [R] when the [RepeatFrequency] holds some [Duration] instance. */
-    public fun duration(instance: Duration): R = orElse()
-
-    /** Returns some [R] when the [RepeatFrequency] holds some [String] instance. */
-    public fun text(instance: String): R = orElse()
-
-    /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
-    public fun orElse(): R
-  }
+  public override fun hashCode(): Int = Objects.hash(asDuration)
 }

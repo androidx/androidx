@@ -16,7 +16,6 @@
 package androidx.appactions.builtintypes.types
 
 import androidx.appactions.builtintypes.properties.ByDay
-import androidx.appactions.builtintypes.properties.DisambiguatingDescription
 import androidx.appactions.builtintypes.properties.EndDate
 import androidx.appactions.builtintypes.properties.EndTime
 import androidx.appactions.builtintypes.properties.ExceptDate
@@ -219,9 +218,6 @@ public interface Schedule : Intangible {
     /** Returns a built [Schedule]. */
     public override fun build(): Schedule
 
-    /** Appends [String] as a value to `byDays`. */
-    public fun addByDay(text: String): Self = addByDay(ByDay(text))
-
     /** Appends [DayOfWeek] as a value to `byDays`. */
     public fun addByDay(dayOfWeek: DayOfWeek): Self = addByDay(ByDay(dayOfWeek))
 
@@ -274,24 +270,12 @@ public interface Schedule : Intangible {
     /** Sets the `endDate` to [LocalDate]. */
     public fun setEndDate(date: LocalDate): Self = setEndDate(EndDate(date))
 
-    /** Sets the `endDate` to [LocalDateTime]. */
-    public fun setEndDate(localDateTime: LocalDateTime): Self = setEndDate(EndDate(localDateTime))
-
-    /** Sets the `endDate` to [Instant]. */
-    public fun setEndDate(instant: Instant): Self = setEndDate(EndDate(instant))
-
     /** Sets the `endDate`. */
     @Suppress("DocumentExceptions")
     public fun setEndDate(endDate: EndDate?): Self = throw NotImplementedError()
 
     /** Sets the `endTime` to [LocalTime]. */
     public fun setEndTime(time: LocalTime): Self = setEndTime(EndTime(time))
-
-    /** Sets the `endTime` to [LocalDateTime]. */
-    public fun setEndTime(localDateTime: LocalDateTime): Self = setEndTime(EndTime(localDateTime))
-
-    /** Sets the `endTime` to [Instant]. */
-    public fun setEndTime(instant: Instant): Self = setEndTime(EndTime(instant))
 
     /** Sets the `endTime`. */
     @Suppress("DocumentExceptions")
@@ -320,9 +304,6 @@ public interface Schedule : Intangible {
     public fun setRepeatFrequency(duration: Duration): Self =
       setRepeatFrequency(RepeatFrequency(duration))
 
-    /** Sets the `repeatFrequency` to [String]. */
-    public fun setRepeatFrequency(text: String): Self = setRepeatFrequency(RepeatFrequency(text))
-
     /** Sets the `repeatFrequency`. */
     @Suppress("DocumentExceptions")
     public fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self =
@@ -335,26 +316,12 @@ public interface Schedule : Intangible {
     /** Sets the `startDate` to [LocalDate]. */
     public fun setStartDate(date: LocalDate): Self = setStartDate(StartDate(date))
 
-    /** Sets the `startDate` to [LocalDateTime]. */
-    public fun setStartDate(localDateTime: LocalDateTime): Self =
-      setStartDate(StartDate(localDateTime))
-
-    /** Sets the `startDate` to [Instant]. */
-    public fun setStartDate(instant: Instant): Self = setStartDate(StartDate(instant))
-
     /** Sets the `startDate`. */
     @Suppress("DocumentExceptions")
     public fun setStartDate(startDate: StartDate?): Self = throw NotImplementedError()
 
     /** Sets the `startTime` to [LocalTime]. */
     public fun setStartTime(time: LocalTime): Self = setStartTime(StartTime(time))
-
-    /** Sets the `startTime` to [LocalDateTime]. */
-    public fun setStartTime(localDateTime: LocalDateTime): Self =
-      setStartTime(StartTime(localDateTime))
-
-    /** Sets the `startTime` to [Instant]. */
-    public fun setStartTime(instant: Instant): Self = setStartTime(StartTime(instant))
 
     /** Sets the `startTime`. */
     @Suppress("DocumentExceptions")
@@ -405,7 +372,9 @@ public interface Schedule : Intangible {
  */
 @Suppress("UNCHECKED_CAST")
 public abstract class AbstractSchedule<
-  Self : AbstractSchedule<Self, Builder>, Builder : AbstractSchedule.Builder<Builder, Self>>
+  Self : AbstractSchedule<Self, Builder>,
+  Builder : AbstractSchedule.Builder<Builder, Self>
+>
 internal constructor(
   public final override val namespace: String,
   public final override val byDays: List<ByDay>,
@@ -420,7 +389,6 @@ internal constructor(
   public final override val scheduleTimezone: String?,
   public final override val startDate: StartDate?,
   public final override val startTime: StartTime?,
-  public final override val disambiguatingDescription: DisambiguatingDescription?,
   public final override val identifier: String,
   public final override val name: Name?,
 ) : Schedule {
@@ -455,7 +423,6 @@ internal constructor(
     schedule.scheduleTimezone,
     schedule.startDate,
     schedule.startTime,
-    schedule.disambiguatingDescription,
     schedule.identifier,
     schedule.name
   )
@@ -478,7 +445,6 @@ internal constructor(
       .setScheduleTimezone(scheduleTimezone)
       .setStartDate(startDate)
       .setStartTime(startTime)
-      .setDisambiguatingDescription(disambiguatingDescription)
       .setIdentifier(identifier)
       .setName(name)
 
@@ -499,7 +465,6 @@ internal constructor(
     if (scheduleTimezone != other.scheduleTimezone) return false
     if (startDate != other.startDate) return false
     if (startTime != other.startTime) return false
-    if (disambiguatingDescription != other.disambiguatingDescription) return false
     if (identifier != other.identifier) return false
     if (name != other.name) return false
     if (additionalProperties != other.additionalProperties) return false
@@ -521,7 +486,6 @@ internal constructor(
       scheduleTimezone,
       startDate,
       startTime,
-      disambiguatingDescription,
       identifier,
       name,
       additionalProperties
@@ -567,10 +531,6 @@ internal constructor(
     }
     if (startTime != null) {
       attributes["startTime"] = startTime.toString(includeWrapperName = false)
-    }
-    if (disambiguatingDescription != null) {
-      attributes["disambiguatingDescription"] =
-        disambiguatingDescription.toString(includeWrapperName = false)
     }
     if (identifier.isNotEmpty()) {
       attributes["identifier"] = identifier
@@ -639,7 +599,9 @@ internal constructor(
    */
   @Suppress("StaticFinalBuilder")
   public abstract class Builder<
-    Self : Builder<Self, Built>, Built : AbstractSchedule<Built, Self>> : Schedule.Builder<Self> {
+    Self : Builder<Self, Built>,
+    Built : AbstractSchedule<Built, Self>
+  > : Schedule.Builder<Self> {
     /**
      * Human readable name for the concrete [Self] class.
      *
@@ -680,8 +642,6 @@ internal constructor(
 
     private var startTime: StartTime? = null
 
-    private var disambiguatingDescription: DisambiguatingDescription? = null
-
     private var identifier: String = ""
 
     private var name: Name? = null
@@ -712,7 +672,6 @@ internal constructor(
           scheduleTimezone,
           startDate,
           startTime,
-          disambiguatingDescription,
           identifier,
           name
         )
@@ -823,13 +782,6 @@ internal constructor(
       return this as Self
     }
 
-    public final override fun setDisambiguatingDescription(
-      disambiguatingDescription: DisambiguatingDescription?
-    ): Self {
-      this.disambiguatingDescription = disambiguatingDescription
-      return this as Self
-    }
-
     public final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
@@ -858,7 +810,6 @@ internal constructor(
       if (scheduleTimezone != other.scheduleTimezone) return false
       if (startDate != other.startDate) return false
       if (startTime != other.startTime) return false
-      if (disambiguatingDescription != other.disambiguatingDescription) return false
       if (identifier != other.identifier) return false
       if (name != other.name) return false
       if (additionalProperties != other.additionalProperties) return false
@@ -881,7 +832,6 @@ internal constructor(
         scheduleTimezone,
         startDate,
         startTime,
-        disambiguatingDescription,
         identifier,
         name,
         additionalProperties
@@ -929,10 +879,6 @@ internal constructor(
       if (startTime != null) {
         attributes["startTime"] = startTime!!.toString(includeWrapperName = false)
       }
-      if (disambiguatingDescription != null) {
-        attributes["disambiguatingDescription"] =
-          disambiguatingDescription!!.toString(includeWrapperName = false)
-      }
       if (identifier.isNotEmpty()) {
         attributes["identifier"] = identifier
       }
@@ -968,7 +914,6 @@ private class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder
     scheduleTimezone: String?,
     startDate: StartDate?,
     startTime: StartTime?,
-    disambiguatingDescription: DisambiguatingDescription?,
     identifier: String,
     name: Name?,
   ) : super(
@@ -985,7 +930,6 @@ private class ScheduleImpl : AbstractSchedule<ScheduleImpl, ScheduleImpl.Builder
     scheduleTimezone,
     startDate,
     startTime,
-    disambiguatingDescription,
     identifier,
     name
   )

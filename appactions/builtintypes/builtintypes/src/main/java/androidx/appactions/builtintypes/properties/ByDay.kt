@@ -32,7 +32,6 @@ import kotlin.jvm.JvmName
  * See https://schema.org/byDay for context.
  *
  * Holds one of:
- * * Text i.e. [String]
  * * [DayOfWeek]
  *
  * May hold more types over time.
@@ -40,8 +39,6 @@ import kotlin.jvm.JvmName
 @Document(name = "bitprop:ByDay")
 public class ByDay
 internal constructor(
-  /** The [String] variant, or null if constructed using a different variant. */
-  @get:JvmName("asText") @get:Document.StringProperty public val asText: String? = null,
   /** The [DayOfWeek] variant, or null if constructed using a different variant. */
   @get:JvmName("asDayOfWeek")
   @get:Document.StringProperty(serializer = DayOfWeekAsCanonicalUrlSerializer::class)
@@ -51,37 +48,13 @@ internal constructor(
   /** Required ctor param for the AppSearch compiler. */
   @get:Document.Namespace @get:JvmName("getNamespace") internal val namespace: String = "",
 ) {
-  /** Constructor for the [String] variant. */
-  public constructor(text: String) : this(asText = text)
-
   /** Constructor for the [DayOfWeek] variant. */
   public constructor(dayOfWeek: DayOfWeek) : this(asDayOfWeek = dayOfWeek)
-
-  /**
-   * Maps each of the possible underlying variants to some [R].
-   *
-   * A visitor can be provided to handle the possible variants. A catch-all default case must be
-   * provided in case a new type is added in a future release of this library.
-   *
-   * @sample [androidx.appactions.builtintypes.samples.properties.byDayMapWhenUsage]
-   */
-  public fun <R> mapWhen(mapper: Mapper<R>): R =
-    when {
-      asText != null -> mapper.text(asText)
-      asDayOfWeek != null -> mapper.dayOfWeek(asDayOfWeek)
-      else -> error("No variant present in ByDay")
-    }
 
   public override fun toString(): String = toString(includeWrapperName = true)
 
   internal fun toString(includeWrapperName: Boolean): String =
     when {
-      asText != null ->
-        if (includeWrapperName) {
-          """ByDay($asText)"""
-        } else {
-          asText
-        }
       asDayOfWeek != null ->
         if (includeWrapperName) {
           """ByDay($asDayOfWeek)"""
@@ -94,22 +67,9 @@ internal constructor(
   public override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ByDay) return false
-    if (asText != other.asText) return false
     if (asDayOfWeek != other.asDayOfWeek) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asText, asDayOfWeek)
-
-  /** Maps each of the possible variants of [ByDay] to some [R]. */
-  public interface Mapper<R> {
-    /** Returns some [R] when the [ByDay] holds some [String] instance. */
-    public fun text(instance: String): R = orElse()
-
-    /** Returns some [R] when the [ByDay] holds some [DayOfWeek] instance. */
-    public fun dayOfWeek(instance: DayOfWeek): R = orElse()
-
-    /** The catch-all handler that is invoked when a particular variant isn't explicitly handled. */
-    public fun orElse(): R
-  }
+  public override fun hashCode(): Int = Objects.hash(asDayOfWeek)
 }

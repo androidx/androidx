@@ -24,12 +24,4 @@ val END_TIME_TYPE_SPEC = UnionTypeSpec.Builder<EndTime>().bindMemberType(
   memberGetter = EndTime::asTime,
   ctor = { EndTime(it) },
   typeSpec = TypeSpec.LOCAL_TIME_TYPE_SPEC
-).bindMemberType(
-  memberGetter = EndTime::asLocalDateTime,
-  ctor = { EndTime(it) },
-  typeSpec = TypeSpec.LOCAL_DATE_TIME_TYPE_SPEC
-).bindMemberType(
-  memberGetter = EndTime::asInstant,
-  ctor = { EndTime(it) },
-  typeSpec = TypeSpec.INSTANT_TYPE_SPEC
 ).build()
