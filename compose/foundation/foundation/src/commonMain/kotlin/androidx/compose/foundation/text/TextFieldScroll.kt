@@ -64,7 +64,8 @@ internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
 internal fun Modifier.textFieldScrollable(
     scrollerPosition: TextFieldScrollerPosition,
     interactionSource: MutableInteractionSource? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = null
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "textFieldScrollable"
@@ -93,8 +94,6 @@ internal fun Modifier.textFieldScrollable(
         createScrollableState(scrollableState, scrollerPosition)
     }
 
-    val overscrollEffect = rememberTextFieldOverscrollEffect()
-
     val scroll = Modifier.scrollable(
         orientation = scrollerPosition.orientation,
         reverseDirection = reverseDirection,
@@ -104,11 +103,7 @@ internal fun Modifier.textFieldScrollable(
         enabled = enabled && scrollerPosition.maximum != 0f
     )
 
-    overscrollEffect?.effectModifier?.let { overscrollModifer ->
-        // Just like LazyList does, we need to apply clipScrollableContainer
-        // to avoid situation where overscroll modifier causes text to clip through the container
-        Modifier.clipScrollableContainer(scrollerPosition.orientation) then overscrollModifer then scroll
-    } ?: scroll
+    scroll
 
 }
 
