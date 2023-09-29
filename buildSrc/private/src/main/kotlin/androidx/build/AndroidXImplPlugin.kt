@@ -150,6 +150,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory)
+        project.publishInspectionArtifacts()
         project.configureExternalDependencyLicenseCheck()
         project.configureProjectStructureValidation(extension)
         project.configureProjectVersionValidation(extension)
