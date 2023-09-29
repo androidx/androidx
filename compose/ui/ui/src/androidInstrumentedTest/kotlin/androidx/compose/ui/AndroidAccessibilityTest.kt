@@ -1420,55 +1420,94 @@ class AndroidAccessibilityTest {
     }
 
     @Composable
-    fun ScrollColumn(testTag: String) {
+    fun ScrollColumn(
+        padding: PaddingValues,
+        firstElement: String,
+        lastElement: String
+    ) {
         var counter = 0
         var sampleText = "Sample text in column"
         Column(
             Modifier
                 .verticalScroll(rememberScrollState())
-                .testTag(testTag)
+                .padding(padding)
         ) {
+            Text(text = firstElement, modifier = Modifier.testTag(firstElement))
             repeat(100) {
                 Text(sampleText + counter++)
             }
+            Text(text = lastElement, modifier = Modifier.testTag(lastElement))
+        }
+    }
+
+    @Composable
+    fun ScrollColumnNoPadding(
+        firstElement: String,
+        lastElement: String
+    ) {
+        var counter = 0
+        var sampleText = "Sample text in column"
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(text = firstElement, modifier = Modifier.testTag(firstElement))
+            repeat(30) {
+                Text(sampleText + counter++)
+            }
+            Text(text = lastElement, modifier = Modifier.testTag(lastElement))
         }
     }
 
     @Test
     fun testSortedAccessibilityNodeInfo_ScaffoldScrollingTopBar() {
         val topAppBarText = "Top App Bar"
-        val contentText = "Content"
+        val firstContentText = "First content text"
+        val lastContentText = "Last content text"
         val bottomAppBarText = "Bottom App Bar"
-        val fabIconDescription = "fab icon"
 
         container.setContent {
-            val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
-            Scaffold(
-                scaffoldState = scaffoldState,
-                topBar = { TopAppBar(title = { Text(topAppBarText) }) },
-                floatingActionButtonPosition = FabPosition.End,
-                floatingActionButton = { FloatingActionButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = fabIconDescription)
-                } },
-                drawerContent = { Text(text = "Drawer Menu 1") },
-                content = { ScrollColumn(contentText) },
-                bottomBar = { BottomAppBar {
-                    Text(bottomAppBarText) } }
+            ScaffoldedSubcomposeLayout(
+                modifier = Modifier,
+                topBar = {
+                    TopAppBar(
+                        title = { Text(text = topAppBarText) }
+                    )
+                },
+                content = { ScrollColumnNoPadding(firstContentText, lastContentText) },
+                bottomBar = {
+                    BottomAppBar {
+                        Text(bottomAppBarText)
+                    }
+                }
             )
         }
 
-        val topAppBarNode = rule.onNodeWithText(topAppBarText).fetchSemanticsNode()
-        val contentNode = rule.onNodeWithTag(contentText).fetchSemanticsNode()
-        val bottomAppBarNode = rule.onNodeWithText(bottomAppBarText).fetchSemanticsNode()
+        val topAppBarNode = rule.onNodeWithText(topAppBarText)
+            .fetchSemanticsNode("couldn't find node with text $topAppBarText")
+        val firstContentNode = rule.onNodeWithTag(firstContentText)
+            .fetchSemanticsNode("couldn't find node with tag $firstContentText")
+        val lastContentNode = rule.onNodeWithTag(lastContentText)
+            .fetchSemanticsNode("couldn't find node with tag $lastContentText")
 
         val topAppBarANI = provider.createAccessibilityNodeInfo(topAppBarNode.id)
-        val contentANI = provider.createAccessibilityNodeInfo(contentNode.id)
+        val firstContentANI = provider.createAccessibilityNodeInfo(firstContentNode.id)
 
-        val topAppTraverseBefore = topAppBarANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
-        val contentTraverseBefore = contentANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val topAppTraverseBefore =
+            topAppBarANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val firstContentBefore =
+            firstContentANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
-        assertThat(topAppTraverseBefore).isLessThan(contentNode.id)
-        assertThat(contentTraverseBefore).isLessThan(bottomAppBarNode.id)
+        // First content comes right after the top bar, so the `before` value equals the first
+        // content node id.
+        assertThat(topAppTraverseBefore).isNotEqualTo(0)
+        assertThat(topAppTraverseBefore).isEqualTo(firstContentNode.id)
+
+        // The scrolling content comes in between the first text element and the last, so
+        // check that the traversal value is not 0, then assert the first text comes before the
+        // last text.
+        assertThat(firstContentBefore).isNotEqualTo(0)
+        assertThat(firstContentBefore).isLessThan(lastContentNode.id)
     }
 
     @Test
@@ -4941,4 +4980,50 @@ private fun SimpleSubcomposeLayout(
     }
 }
 
+/**
+ * A simple layout which lays the first placeable in a top bar position, the last placeable in a
+ * bottom bar position, and all the content in between.
+ */
+@Composable
+fun ScaffoldedSubcomposeLayout(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit,
+    content: @Composable () -> Unit,
+    bottomBar: @Composable () -> Unit
+) {
+    var yPosition = 0
+    SubcomposeLayout(modifier) { constraints ->
+        val layoutWidth = constraints.maxWidth
+        val layoutHeight = constraints.maxHeight
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        layout(layoutWidth, layoutHeight) {
+            val topPlaceables = subcompose(ScaffoldedSlots.Top, topBar).fastMap {
+                it.measure(looseConstraints)
+            }
+
+            val contentPlaceables = subcompose(ScaffoldedSlots.Content, content).fastMap {
+                it.measure(looseConstraints)
+            }
+
+            val bottomPlaceables = subcompose(ScaffoldedSlots.Bottom, bottomBar).fastMap {
+                it.measure(looseConstraints)
+            }
+
+            topPlaceables.fastForEach {
+                it.place(0, yPosition)
+                yPosition += it.height
+            }
+            contentPlaceables.fastForEach {
+                it.place(0, yPosition)
+                yPosition += it.height
+            }
+            bottomPlaceables.fastForEach {
+                it.place(0, yPosition)
+                yPosition += it.height
+            }
+        }
+    }
+}
+
 private enum class TestSlot { First, Second }
+private enum class ScaffoldedSlots { Top, Content, Bottom }
