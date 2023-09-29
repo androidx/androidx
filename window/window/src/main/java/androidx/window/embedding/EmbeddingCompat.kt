@@ -29,7 +29,6 @@ import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
-import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
@@ -72,7 +71,7 @@ internal class EmbeddingCompat(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (ExtensionsUtil.safeVendorApiLevel < VENDOR_API_LEVEL_2) {
+        if (ExtensionsUtil.safeVendorApiLevel < 2) {
             consumerAdapter.addConsumer(
                 embeddingExtension,
                 List::class,
@@ -109,14 +108,6 @@ internal class EmbeddingCompat(
         WindowSdkExtensions.getInstance().requireExtensionVersion(2)
 
         embeddingExtension.clearSplitAttributesCalculator()
-    }
-
-    @RequiresWindowSdkExtension(3)
-    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
-
-        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
-        embeddingExtension.finishActivityStacks(stackTokens)
     }
 
     @RequiresWindowSdkExtension(3)
