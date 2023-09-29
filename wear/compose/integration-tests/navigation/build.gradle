@@ -59,5 +59,5 @@ dependencies {
     // See aosp/1804059
     androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.4.0"
     // Uses project dependency to match collections/compose-runtime
-    androidTestImplementation project(":annotation:annotation")
+    androidTestImplementation api("androidx.annotation:annotation:1.7.0")
 }
