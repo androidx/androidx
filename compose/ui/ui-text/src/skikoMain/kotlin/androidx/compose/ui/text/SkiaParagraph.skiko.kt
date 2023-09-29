@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -282,7 +283,7 @@ internal class SkiaParagraph(
     override fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
-        arrayStart: Int
+        @IntRange(from = 0) arrayStart: Int
     ) {
         // TODO(siyamed) needs fillBoundingBoxes
     }
