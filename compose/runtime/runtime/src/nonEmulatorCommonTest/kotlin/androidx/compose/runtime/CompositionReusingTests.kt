@@ -857,7 +857,7 @@ class CompositionReusingTests {
         assertEquals(1, rememberedState.rememberCount)
         assertEquals(0, rememberedState.forgottenCount)
 
-        (composition as CompositionImpl).setContent(reusing = true, content)
+        (composition as CompositionImpl).setContentWithReuse(content)
 
         revalidate()
 
@@ -910,7 +910,7 @@ class CompositionReusingTests {
         assertEquals(1, rememberedState.rememberCount)
         assertEquals(1, rememberedState.forgottenCount)
 
-        (composition as CompositionImpl).setContent(reusing = true, content)
+        (composition as CompositionImpl).setContentWithReuse(content)
 
         revalidate()
 
