@@ -59,16 +59,15 @@ public interface TransitionSeekController {
     /**
      * Runs the animation backwards toward the start. {@link #setCurrentPlayTimeMillis(long)}
      * will not be allowed after executing this. When the animation completes,
+     * {@code resetToStart} will be executed to set the state back to the starting state and
      * {@link androidx.transition.Transition.TransitionListener#onTransitionEnd(Transition)}
      * will be called with the {@code isReverse} parameter {@code true}.
      *
-     * The developer will likely want to run
-     * {@link TransitionManager#beginDelayedTransition(ViewGroup, Transition)} to set the state
-     * back to the beginning state after it ends.
-     *
-     * After calling this, {@link #setCurrentPlayTimeMillis(long)} may not be called.
+     * If {@code resetToStartState} does not properly set the state back to starting state,
+     * {@link androidx.transition.Transition.TransitionListener#onTransitionEnd(Transition)}
+     * will still be called, but the UI will jump to the end state instead of the start state.
      */
-    void animateToStart();
+    void animateToStart(@NonNull Runnable resetToStartState);
 
     /**
      * Runs the animation forwards toward the end. {@link #setCurrentPlayTimeMillis(long)}
@@ -126,7 +125,7 @@ public interface TransitionSeekController {
      * Add a listener for whenever the progress of the transition is changed. This will be called
      * when {@link #setCurrentPlayTimeMillis(long)} or {@link #setCurrentFraction(float)} are
      * called as well as when the animation from {@link #animateToEnd()} or
-     * {@link #animateToStart()} changes the progress.
+     * {@link #animateToStart(Runnable)} changes the progress.
      * @param consumer A method that accepts this TransitionSeekController.
      */
     void addOnProgressChangedListener(@NonNull Consumer<TransitionSeekController> consumer);

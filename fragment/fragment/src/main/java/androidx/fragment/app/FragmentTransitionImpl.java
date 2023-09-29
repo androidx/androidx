@@ -191,9 +191,9 @@ public abstract class FragmentTransitionImpl {
     /**
      * Animate the transition to start.
      */
-    public Runnable animateToStart(@NonNull Object transitionController,
-            @NonNull ViewGroup sceneRoot, @NonNull Runnable completeRunnable) {
-        return () -> { };
+    public void animateToStart(
+            @NonNull Object transitionController,
+            @NonNull Runnable completeRunnable) {
     }
 
     /**

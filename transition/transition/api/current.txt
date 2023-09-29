@@ -229,7 +229,7 @@ package androidx.transition {
     method public void addOnProgressChangedListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
     method public void addOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
     method public void animateToEnd();
-    method public void animateToStart();
+    method public void animateToStart(Runnable);
     method @FloatRange(from=0.0, to=1.0) public float getCurrentFraction();
     method @IntRange(from=0) public long getCurrentPlayTimeMillis();
     method @IntRange(from=0) public long getDurationMillis();

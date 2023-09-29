@@ -435,7 +435,9 @@ class SeekTransitionTest : BaseTest() {
 
         rule.runOnUiThread {
             seekController.currentPlayTimeMillis = 150
-            seekController.animateToStart()
+            seekController.animateToStart {
+                view.visibility = View.VISIBLE
+            }
         }
 
         verify(listener, timeout(3000)).onTransitionEnd(any())
@@ -444,20 +446,40 @@ class SeekTransitionTest : BaseTest() {
             assertThat(view.visibility).isEqualTo(View.VISIBLE)
             assertThat(view.transitionAlpha).isEqualTo(1f)
 
-            // Now set it back to the original state with a fast transition
-            transition.removeListener(listener)
-            transition.addListener(listener2)
-            transition.duration = 0
-            TransitionManager.beginDelayedTransition(root, transition)
+            // Now set it back to the original state -- no transition should happen
+            val fade = Fade().also { it.addListener(listener2) }
+            TransitionManager.beginDelayedTransition(root, fade)
             view.visibility = View.VISIBLE
             root.invalidate()
         }
-        verify(listener2, timeout(3000)).onTransitionStart(any())
+
         rule.runOnUiThread {
-            verify(listener2, times(2)).onTransitionEnd(any())
-            // All transitions should be ended
-            val runningTransitions = TransitionManager.getRunningTransitions()
-            assertThat(runningTransitions[root]).isEmpty()
+            verify(listener2, times(1)).onTransitionStart(any(), eq(false))
+            verify(listener2, times(1)).onTransitionEnd(any(), eq(false))
+        }
+    }
+
+    @Test
+    fun animateToStartNoReset() {
+        lateinit var seekController: TransitionSeekController
+
+        val listener = spy(TransitionListenerAdapter())
+        transition.addListener(listener)
+
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, transition)!!
+            view.visibility = View.GONE
+        }
+
+        rule.runOnUiThread {
+            seekController.currentPlayTimeMillis = 150
+            seekController.animateToStart { }
+        }
+
+        verify(listener, timeout(3000)).onTransitionEnd(any())
+        rule.runOnUiThread {
+            assertThat(view.visibility).isEqualTo(View.GONE)
+            assertThat(view.transitionAlpha).isEqualTo(1f)
         }
     }
 
@@ -479,7 +501,9 @@ class SeekTransitionTest : BaseTest() {
         }
 
         rule.runOnUiThread {
-            seekController.animateToStart()
+            seekController.animateToStart {
+                view.visibility = View.VISIBLE
+            }
         }
 
         verify(listener, timeout(3000)).onTransitionEnd(any(), eq(true))
@@ -504,7 +528,9 @@ class SeekTransitionTest : BaseTest() {
 
         rule.runOnUiThread {
             seekController.currentPlayTimeMillis = 150
-            seekController.animateToStart()
+            seekController.animateToStart {
+                view.visibility = View.VISIBLE
+            }
         }
 
         rule.runOnUiThread {
@@ -711,7 +737,10 @@ class SeekTransitionTest : BaseTest() {
             // seek to near the end of the fade out
             seekController.currentPlayTimeMillis = 299
 
-            seekController.animateToStart()
+            seekController.animateToStart {
+                view.visibility = View.VISIBLE
+                view2.visibility = View.GONE
+            }
         }
         verify(listener, timeout(3000)).onTransitionEnd(any(), eq(true))
         verify(listener, never()).onTransitionEnd(any(), eq(false))
@@ -730,13 +759,13 @@ class SeekTransitionTest : BaseTest() {
             TransitionManager.beginDelayedTransition(root, transition2)
             view.visibility = View.VISIBLE
             view2.visibility = View.GONE
+            root.invalidate()
         }
-        verify(listener2, timeout(3000)).onTransitionStart(any(), eq(false))
 
         rule.runOnUiThread {
-            verify(listener, times(1)).onTransitionCancel(any())
-            verify(listener, times(1)).onTransitionEnd(any(), eq(false))
-            verify(listener2, times(1)).onTransitionEnd(any())
+            // It should start and end in the same frame
+            verify(listener2, times(1)).onTransitionStart(any(), eq(false))
+            verify(listener2, times(1)).onTransitionEnd(any(), eq(false))
             val runningTransitions = TransitionManager.getRunningTransitions()
             assertThat(runningTransitions[root]).isEmpty()
         }
