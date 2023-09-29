@@ -217,10 +217,7 @@ internal fun Color.setLuminance(
     if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {
         // aRGBFromLstar() from monet ColorUtil.java
         val y = 100 * labInvf((newLuminance + 16) / 116)
-        println("y: $y")
         val component = delinearized(y)
-        println("component: $component")
-
         return Color(
             /* red = */component,
             /* green = */component,
