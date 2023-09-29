@@ -452,7 +452,7 @@ package androidx.fragment.app {
     method public abstract void addTarget(Object, android.view.View);
     method public abstract void addTargets(Object, java.util.ArrayList<android.view.View!>);
     method public void animateToEnd(Object);
-    method public Runnable! animateToStart(Object, android.view.ViewGroup, Runnable);
+    method public void animateToStart(Object, Runnable);
     method public abstract void beginDelayedTransition(android.view.ViewGroup, Object?);
     method protected static void bfsAddViewChildren(java.util.List<android.view.View!>!, android.view.View!);
     method public abstract boolean canHandle(Object);
