@@ -1746,6 +1746,22 @@ package androidx.core.graphics {
     method public static boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
   }
 
+  public class PathParser {
+    method public static boolean canMorph(androidx.core.graphics.PathParser.PathDataNode![]?, androidx.core.graphics.PathParser.PathDataNode![]?);
+    method public static androidx.core.graphics.PathParser.PathDataNode![] createNodesFromPathData(String);
+    method public static android.graphics.Path createPathFromPathData(String);
+    method public static androidx.core.graphics.PathParser.PathDataNode![] deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode![]);
+    method public static boolean interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode![], androidx.core.graphics.PathParser.PathDataNode![], androidx.core.graphics.PathParser.PathDataNode![], float);
+    method public static void updateNodes(androidx.core.graphics.PathParser.PathDataNode![], androidx.core.graphics.PathParser.PathDataNode![]);
+  }
+
+  public static class PathParser.PathDataNode {
+    method public float[] getParams();
+    method public char getType();
+    method public void interpolatePathDataNode(androidx.core.graphics.PathParser.PathDataNode, androidx.core.graphics.PathParser.PathDataNode, float);
+    method public static void nodesToPath(androidx.core.graphics.PathParser.PathDataNode![], android.graphics.Path);
+  }
+
   public final class PathSegment {
     ctor public PathSegment(android.graphics.PointF, float, android.graphics.PointF, float);
     method public android.graphics.PointF getEnd();
