@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
@@ -205,6 +206,35 @@ class NavigationRailScreenshotTest {
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 100f)),
             goldenIdentifier = "navigationRail_lightTheme_defaultColors_withFab_pressed"
+        )
+    }
+
+    @Test
+    fun lightTheme_transparentIndicator() {
+        val interactionSource = MutableInteractionSource()
+        var scope: CoroutineScope? = null
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
+                NavigationRail {
+                    NavigationRailItem(
+                        selected = true,
+                        onClick = {},
+                        icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                        colors = NavigationRailItemDefaults.colors(
+                            indicatorColor = Color.Transparent
+                        )
+                    )
+                }
+            }
+        }
+
+        assertNavigationRailMatches(
+            scope = scope!!,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "navigationRail_lightTheme_transparentIndicator"
         )
     }
 
