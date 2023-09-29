@@ -15,7 +15,9 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.material)
+    androidTestImplementation(libs.material, {
+        exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
+    })
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)

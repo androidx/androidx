@@ -17,6 +17,7 @@
 package com.android.build.gradle.internal.fixtures
 
 import java.util.function.BiFunction
+import java.util.function.Predicate
 import org.gradle.api.Transformer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -46,6 +47,10 @@ class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
         value ?: valueProvider?.get() ?: convention ?: throw IllegalStateException("Value not set")
 
     override fun getOrNull() = value ?: valueProvider?.get() ?: convention
+
+    override fun filter(predicate: Predicate<in T>): Provider<T> {
+        throw NotImplementedError()
+    }
 
     override fun value(value: T?): Property<T> {
         this.value = value
