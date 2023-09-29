@@ -78,7 +78,8 @@ internal class OutlineResolver(private var density: Density) {
      * True when there's been an update that caused a change in the path and the Outline
      * has to be reevaluated.
      */
-    private var cacheIsDirty = false
+    internal var cacheIsDirty = false
+        private set
 
     /**
      * True when Outline cannot clip the content and the path should be used instead.

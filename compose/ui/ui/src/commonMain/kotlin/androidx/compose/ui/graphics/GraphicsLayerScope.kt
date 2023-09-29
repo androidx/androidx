@@ -239,12 +239,7 @@ internal object Fields {
     const val Shape: Int = 0b1 shl 13
     const val Clip: Int = 0b1 shl 14
     const val CompositingStrategy: Int = 0b1 shl 15
-    const val Size: Int = 0b1 shl 16
     const val RenderEffect: Int = 0b1 shl 17
-
-    const val OutlineAffectingFields = Clip or
-        Shape or
-        Alpha
 
     const val MatrixAffectingFields = ScaleX or
         ScaleY or
@@ -262,89 +257,117 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
 
     override var scaleX: Float = 1f
         set(value) {
-            mutatedFields = mutatedFields or Fields.ScaleX
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.ScaleX
+                field = value
+            }
         }
     override var scaleY: Float = 1f
         set(value) {
-            mutatedFields = mutatedFields or Fields.ScaleY
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.ScaleY
+                field = value
+            }
         }
     override var alpha: Float = 1f
         set(value) {
-            mutatedFields = mutatedFields or Fields.Alpha
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.Alpha
+                field = value
+            }
         }
     override var translationX: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.TranslationX
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.TranslationX
+                field = value
+            }
         }
     override var translationY: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.TranslationY
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.TranslationY
+                field = value
+            }
         }
     override var shadowElevation: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.ShadowElevation
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.ShadowElevation
+                field = value
+            }
         }
     override var ambientShadowColor: Color = DefaultShadowColor
         set(value) {
-            mutatedFields = mutatedFields or Fields.AmbientShadowColor
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.AmbientShadowColor
+                field = value
+            }
         }
     override var spotShadowColor: Color = DefaultShadowColor
         set(value) {
-            mutatedFields = mutatedFields or Fields.SpotShadowColor
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.SpotShadowColor
+                field = value
+            }
         }
     override var rotationX: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.RotationX
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.RotationX
+                field = value
+            }
         }
     override var rotationY: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.RotationY
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.RotationY
+                field = value
+            }
         }
     override var rotationZ: Float = 0f
         set(value) {
-            mutatedFields = mutatedFields or Fields.RotationZ
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.RotationZ
+                field = value
+            }
         }
     override var cameraDistance: Float = DefaultCameraDistance
         set(value) {
-            mutatedFields = mutatedFields or Fields.CameraDistance
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.CameraDistance
+                field = value
+            }
         }
     override var transformOrigin: TransformOrigin = TransformOrigin.Center
         set(value) {
-            mutatedFields = mutatedFields or Fields.TransformOrigin
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.TransformOrigin
+                field = value
+            }
         }
     override var shape: Shape = RectangleShape
         set(value) {
-            mutatedFields = mutatedFields or Fields.Shape
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.Shape
+                field = value
+            }
         }
     override var clip: Boolean = false
         set(value) {
-            mutatedFields = mutatedFields or Fields.Clip
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.Clip
+                field = value
+            }
         }
     override var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
         set(value) {
-            mutatedFields = mutatedFields or Fields.CompositingStrategy
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.CompositingStrategy
+                field = value
+            }
         }
     override var size: Size = Size.Unspecified
-        set(value) {
-            mutatedFields = mutatedFields or Fields.Size
-            field = value
-        }
 
     internal var graphicsDensity: Density = Density(1.0f)
 
@@ -356,12 +379,13 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
 
     override var renderEffect: RenderEffect? = null
         set(value) {
-            mutatedFields = mutatedFields or Fields.RenderEffect
-            field = value
+            if (field != value) {
+                mutatedFields = mutatedFields or Fields.RenderEffect
+                field = value
+            }
         }
 
     fun reset() {
-        mutatedFields = 0
         scaleX = 1f
         scaleY = 1f
         alpha = 1f
@@ -380,5 +404,7 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         renderEffect = null
         compositingStrategy = CompositingStrategy.Auto
         size = Size.Unspecified
+        // mutatedFields should be reset last as all the setters above modify it.
+        mutatedFields = 0
     }
 }
