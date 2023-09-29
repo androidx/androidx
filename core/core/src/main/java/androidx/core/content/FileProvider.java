@@ -857,7 +857,7 @@ public class FileProvider extends ContentProvider {
             Map.Entry<String, File> mostSpecific = null;
             for (Map.Entry<String, File> root : mRoots.entrySet()) {
                 final String rootPath = root.getValue().getPath();
-                if (path.startsWith(rootPath) && (mostSpecific == null
+                if (belongsToRoot(path, rootPath) && (mostSpecific == null
                         || rootPath.length() > mostSpecific.getValue().getPath().length())) {
                     mostSpecific = root;
                 }
@@ -902,11 +902,29 @@ public class FileProvider extends ContentProvider {
                 throw new IllegalArgumentException("Failed to resolve canonical path for " + file);
             }
 
-            if (!file.getPath().startsWith(root.getPath())) {
+            if (!belongsToRoot(file.getPath(), root.getPath())) {
                 throw new SecurityException("Resolved path jumped beyond configured root");
             }
 
             return file;
+        }
+
+        /**
+         * Check if the given file is located "under" the given root.
+         */
+        private boolean belongsToRoot(@NonNull String filePath, @NonNull String rootPath) {
+            // If we naively did the
+            //    filePath.startsWith(rootPath)
+            // check, we would miss cases such as the following:
+            //    rootPath="files/data"
+            //    filePath="files/data2"
+            // Thus we'll have to do more here.
+
+            // Remove trailing '/'s (if any) first.
+            filePath = removeTrailingSlash(filePath);
+            rootPath = removeTrailingSlash(rootPath);
+
+            return filePath.equals(rootPath) || filePath.startsWith(rootPath + '/');
         }
     }
 
@@ -958,6 +976,15 @@ public class FileProvider extends ContentProvider {
         final Object[] result = new Object[newLength];
         System.arraycopy(original, 0, result, 0, newLength);
         return result;
+    }
+
+    @NonNull
+    private static String removeTrailingSlash(@NonNull String path) {
+        if (path.length() > 0 && path.charAt(path.length() - 1) == '/') {
+            return path.substring(0, path.length() - 1);
+        } else {
+            return path;
+        }
     }
 
     @RequiresApi(21)
