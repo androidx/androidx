@@ -90,16 +90,17 @@ sealed interface ReusableComposition : Composition {
      * After this has been called the changes to produce the initial composition has been calculated
      * and applied to the composition.
      *
+     * This method forces this composition into "reusing" state before setting content. In reusing
+     * state, all remembered content is discarded, and nodes emitted by [ReusableComposeNode] are
+     * re-used for the new content. The nodes are only reused if the group structure containing
+     * the node matches new content.
+     *
      * Will throw an [IllegalStateException] if the composition has been disposed.
      *
      * @param content A composable function that describes the content of the composition.
-     * @param reusing Whether to force this composition into "reusing" state. In reusing state,
-     *     all remembered content is discarded, and nodes emitted by [ReusableComposeNode] are
-     *     re-used for the new content. The nodes are only reused if the group structure containing
-     *     the node matches new content.
      * @exception IllegalStateException thrown in the composition has been [dispose]d.
      */
-    fun setContent(reusing: Boolean, content: @Composable () -> Unit)
+    fun setContentWithReuse(content: @Composable () -> Unit)
 
     /**
      * Deactivate all observation scopes in composition and remove all remembered slots while
@@ -614,16 +615,12 @@ internal class CompositionImpl(
         composeInitial(content)
     }
 
-    override fun setContent(reusing: Boolean, content: @Composable () -> Unit) {
-        if (reusing) {
-            composer.startReuseFromRoot()
-        }
+    override fun setContentWithReuse(content: @Composable () -> Unit) {
+        composer.startReuseFromRoot()
 
         composeInitial(content)
 
-        if (reusing) {
-            composer.endReuseFromRoot()
-        }
+        composer.endReuseFromRoot()
     }
 
     private fun composeInitial(content: @Composable () -> Unit) {

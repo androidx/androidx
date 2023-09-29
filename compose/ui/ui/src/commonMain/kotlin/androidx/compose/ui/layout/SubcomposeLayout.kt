@@ -495,7 +495,11 @@ internal class LayoutNodeSubcompositionsState(
             existing
         }
             .apply {
-                setContent(reuseContent, composable)
+                if (!reuseContent) {
+                    setContent(composable)
+                } else {
+                    setContentWithReuse(composable)
+                }
             }
     }
 

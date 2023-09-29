@@ -573,7 +573,7 @@ package androidx.compose.runtime {
 
   public sealed interface ReusableComposition extends androidx.compose.runtime.Composition {
     method public void deactivate();
-    method public void setContent(boolean reusing, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public void setContentWithReuse(kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.ComposeCompilerApi public interface ScopeUpdateScope {
