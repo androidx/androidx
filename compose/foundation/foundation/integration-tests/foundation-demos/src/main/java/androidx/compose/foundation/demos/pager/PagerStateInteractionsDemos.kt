@@ -82,12 +82,12 @@ private fun StateMonitoringPager() {
     val pagerState = rememberPagerState { PagesCount }
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
-            modifier = Modifier.weight(0.9f),
+            modifier = Modifier.weight(0.8f),
             state = pagerState
         ) {
             PagerItem(it)
         }
-        PageMonitor(Modifier.weight(0.1f), pagerState)
+        PageMonitor(Modifier.weight(0.2f), pagerState)
     }
 }
 
@@ -98,6 +98,9 @@ private fun PageMonitor(modifier: Modifier, pagerState: PagerState) {
         Text(text = "Current Page: ${pagerState.currentPage}")
         Text(text = "Target Page: ${pagerState.targetPage}")
         Text(text = "Settled Page Offset: ${pagerState.settledPage}")
+        // This is to visualize the changing of this value during scroll.
+        // Reading scroll-related backed properties in composition will have performance impacts.
+        Text(text = "Current Page Offset Fraction: ${pagerState.currentPageOffsetFraction}")
     }
 }
 

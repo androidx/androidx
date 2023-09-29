@@ -143,7 +143,8 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 pagerState.animateScrollToPage(nextPage)
             }
-            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
+            rule.waitForIdle()
+            assertTrue { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -156,16 +157,17 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 pagerState.animateScrollToPage(page, offset)
             }
+            rule.waitForIdle()
         }
 
         // Arrange
         createPager(modifier = Modifier.fillMaxSize())
 
         // Act
-        animateScrollToPageWithOffset(10, 0.5f)
+        animateScrollToPageWithOffset(10, 0.49f)
 
         // Assert
-        confirmPageIsInCorrectPosition(pagerState.currentPage, 10, pageOffset = 0.5f)
+        confirmPageIsInCorrectPosition(pagerState.currentPage, 10, pageOffset = 0.49f)
 
         // Act
         animateScrollToPageWithOffset(4, 0.2f)
@@ -296,7 +298,8 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
                     animationSpec = differentAnimation
                 )
             }
-            rule.mainClock.advanceTimeUntil { pagerState.currentPage == nextPage }
+            rule.waitForIdle()
+            assertTrue { pagerState.currentPage == nextPage }
             confirmPageIsInCorrectPosition(pagerState.currentPage)
         }
     }
@@ -422,15 +425,19 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         // Assert
-        assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage + 1)
-        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        rule.runOnIdle {
+            assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage + 1)
+            assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        }
 
         // Reset
         rule.mainClock.autoAdvance = true
         onPager().performTouchInput { up() }
         rule.runOnIdle { assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage) }
         rule.runOnIdle {
-            runBlocking { pagerState.scrollToPage(5) }
+            scope.launch {
+                pagerState.scrollToPage(5)
+            }
         }
 
         rule.mainClock.autoAdvance = false
@@ -443,8 +450,10 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         // Assert
-        assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage - 1)
-        assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        rule.runOnIdle {
+            assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage - 1)
+            assertThat(pagerState.targetPage).isNotEqualTo(pagerState.currentPage)
+        }
 
         rule.mainClock.autoAdvance = true
         onPager().performTouchInput { up() }
