@@ -17,7 +17,6 @@
 package androidx.appactions.interaction.capabilities.serializers.properties
 
 import androidx.appactions.builtintypes.properties.ByDay
-import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.serializers.types.DAY_OF_WEEK_TYPE_SPEC
 
@@ -25,8 +24,4 @@ val BY_DAY_TYPE_SPEC = UnionTypeSpec.Builder<ByDay>().bindMemberType(
   memberGetter = ByDay::asDayOfWeek,
   ctor = { ByDay(it) },
   typeSpec = DAY_OF_WEEK_TYPE_SPEC,
-).bindMemberType(
-  memberGetter = ByDay::asText,
-  ctor = { ByDay(it) },
-  typeSpec = TypeSpec.STRING_TYPE_SPEC,
 ).build()
