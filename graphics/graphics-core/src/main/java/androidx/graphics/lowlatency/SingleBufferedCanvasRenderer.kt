@@ -68,7 +68,7 @@ internal interface SingleBufferedCanvasRenderer<T> {
     /**
      * Clear the contents of the [HardwareBuffer]
      */
-    fun clear()
+    fun clear(clearComplete: (() -> Unit)? = null)
 
     /**
      * Cancel all pending render requests

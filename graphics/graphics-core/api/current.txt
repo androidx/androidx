@@ -64,6 +64,24 @@ package androidx.graphics.lowlatency {
     method @WorkerThread public default void onMultiBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat multiBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class LowLatencyCanvasView extends android.view.ViewGroup {
+    ctor public LowLatencyCanvasView(android.content.Context context);
+    ctor public LowLatencyCanvasView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public LowLatencyCanvasView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    method public void cancel();
+    method public void clear();
+    method public void commit();
+    method public void execute(Runnable runnable);
+    method public void renderFrontBufferedLayer();
+    method public void setRenderCallback(androidx.graphics.lowlatency.LowLatencyCanvasView.Callback? callback);
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public static interface LowLatencyCanvasView.Callback {
+    method @WorkerThread public void onDrawFrontBufferedLayer(android.graphics.Canvas canvas, int width, int height);
+    method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public void onRedrawRequested(android.graphics.Canvas canvas, int width, int height);
+  }
+
 }
 
 package androidx.graphics.opengl {

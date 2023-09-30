@@ -39,6 +39,10 @@
             android:label="WetDryRendererTest"
             android:exported="true"/>
 
+        <activity android:name="androidx.graphics.lowlatency.LowLatencyActivity"
+            android:label="LowLatencyActivity"
+            android:exported="true"/>
+
         <activity android:name="androidx.graphics.lowlatency.SampleInkViewActivity"
             android:label="GLFrontBufferRenderer Sample"
             android:theme="@android:style/Theme.NoTitleBar"
