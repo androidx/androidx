@@ -317,6 +317,7 @@ package androidx.test.uiautomator {
     method public String! getClassName();
     method public String! getContentDescription();
     method public int getDisplayId();
+    method @RequiresApi(24) public int getDrawingOrder();
     method @RequiresApi(26) public String? getHint();
     method public androidx.test.uiautomator.UiObject2! getParent();
     method public String! getResourceName();
