@@ -34,7 +34,6 @@ import androidx.annotation.RequiresApi
 import androidx.graphics.BufferedRendererImpl.Companion.DefaultColorSpace
 import androidx.graphics.lowlatency.BufferTransformHintResolver
 import androidx.graphics.lowlatency.BufferTransformer
-import androidx.graphics.surface.SurfaceControlCompat
 import androidx.hardware.BufferPool
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV33
@@ -44,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+@RequiresApi(Build.VERSION_CODES.Q)
 internal fun defaultBufferTransformer(width: Int, height: Int) =
     BufferTransformer().apply {
         computeTransform(width, height, BufferTransformHintResolver.UNKNOWN_TRANSFORM)
@@ -75,8 +75,6 @@ internal class MultiBufferedCanvasRenderer(
             )
         } else {
             BufferedRendererV29(
-                width,
-                height,
                 bufferTransformer,
                 format,
                 usage,
@@ -254,8 +252,6 @@ private class BufferedRendererV34(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private class BufferedRendererV29(
-    width: Int,
-    height: Int,
     bufferTransformer: BufferTransformer,
     format: Int,
     usage: Long,
@@ -272,28 +268,18 @@ private class BufferedRendererV29(
     }
 
     private val mTransform = android.graphics.Matrix().apply {
-        when (bufferTransformer.computedTransform) {
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
-                setRotate(270f)
-                postTranslate(0f, width.toFloat())
-            }
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
-                setRotate(180f)
-                postTranslate(width.toFloat(), height.toFloat())
-            }
-            SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
-                setRotate(90f)
-                postTranslate(height.toFloat(), 0f)
-            }
-            else -> {
-                reset()
-            }
-        }
+        bufferTransformer.configureMatrix(this)
     }
 
     // PixelFormat.RGBA_8888 should be accepted here but Android Studio flags as a warning
     @SuppressLint("WrongConstant")
-    private val mImageReader = ImageReader.newInstance(width, height, format, maxImages, usage)
+    private val mImageReader = ImageReader.newInstance(
+        bufferTransformer.glWidth,
+        bufferTransformer.glHeight,
+        format,
+        maxImages,
+        usage
+    )
     private var mHardwareRenderer: HardwareRenderer? = HardwareRenderer().apply {
         // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
         // otherwise it will clear contents across subsequent renders

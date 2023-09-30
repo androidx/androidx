@@ -78,6 +78,18 @@ internal class RenderQueue(
         fun execute()
 
         /**
+         * Callback invoked when the request is completed
+         */
+        @WorkerThread
+        fun onComplete()
+
+        /**
+         * Flag to determine if multiple requests of the same type can be merged together.
+         * If a request is mergeable and the [id] mattches then subsequent
+         */
+        fun isMergeable(): Boolean = true
+
+        /**
          * Identifier for a request type to determine if the request can be batched
          */
         val id: Int
@@ -179,7 +191,7 @@ internal class RenderQueue(
                 } else {
                     frameCallback.onFrameCancelled(hardwareBuffer, syncFenceCompat)
                 }
-
+                request.onComplete()
                 if (mRequests.isNotEmpty()) {
                     // Execute any pending requests that were queued while waiting for the
                     // previous frame to render
@@ -192,7 +204,10 @@ internal class RenderQueue(
             // If the last request matches the type that we are adding, then batch the request
             // i.e. don't add it to the queue as the previous request will handle batching.
             val pendingRequest = mRequests.lastOrNull()
-            if (pendingRequest == null || pendingRequest.id != request.id) {
+            if (!request.isMergeable() ||
+                pendingRequest == null ||
+                pendingRequest.id != request.id
+            ) {
                 mRequests.add(request)
             }
         }

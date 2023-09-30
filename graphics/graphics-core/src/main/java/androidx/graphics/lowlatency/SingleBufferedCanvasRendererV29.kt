@@ -66,8 +66,8 @@ internal class SingleBufferedCanvasRendererV29<T>(
         )
 
     private val mBufferedRenderer = MultiBufferedCanvasRenderer(
-        bufferTransformer.glWidth,
-        bufferTransformer.glHeight,
+        width,
+        height,
         bufferTransformer,
         usage = FrontBufferUtils.obtainHardwareBufferUsageFlags(),
         maxImages = 1
@@ -90,16 +90,28 @@ internal class SingleBufferedCanvasRendererV29<T>(
             }
         }
 
+        override fun onComplete() {
+            // NO-OP
+        }
+
         override val id: Int = RENDER
     }
 
-    private val clearRequest = object : RenderQueue.Request {
+    private inner class ClearRequest(val clearComplete: (() -> Unit)?) : RenderQueue.Request {
         override fun execute() {
             mBufferedRenderer.record { canvas -> canvas.drawColor(Color.BLACK, BlendMode.CLEAR) }
         }
 
+        override fun onComplete() {
+            clearComplete?.invoke()
+        }
+
+        override fun isMergeable(): Boolean = clearComplete == null
+
         override val id: Int = CLEAR
     }
+
+    private val defaultClearRequest = ClearRequest(null)
 
     override var isVisible: Boolean = false
         set(value) {
@@ -123,7 +135,12 @@ internal class SingleBufferedCanvasRendererV29<T>(
         }
     }
 
-    override fun clear() {
+    override fun clear(clearComplete: (() -> Unit)?) {
+        val clearRequest = if (clearComplete == null) {
+            defaultClearRequest
+        } else {
+            ClearRequest(clearComplete)
+        }
         mRenderQueue.enqueue(clearRequest)
     }
 
