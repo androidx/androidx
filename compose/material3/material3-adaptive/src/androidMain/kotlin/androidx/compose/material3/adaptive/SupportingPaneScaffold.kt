@@ -1,19 +1,3 @@
-/*
- * Copyright 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package androidx.compose.material3.adaptive
 
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,83 +9,84 @@ import androidx.compose.ui.util.fastMap
 
 /**
  * A Material opinionated implementation of [ThreePaneScaffold] that will display the provided three
- * panes in a canonical list-detail layout.
+ * panes in a canonical supporting-pane layout.
  *
- * @param layoutState the state of the scaffold, which will decide the current layout directive
+ * @param scaffoldState the state of the scaffold, which will decide the current layout directive
  *        and scaffold layout value, and perform navigation within the scaffold.
- * @param listPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.List].
+ * @param supportingPane the supporting pane of the scaffold.
+ *        See [SupportingPaneScaffoldRole.Supporting].
  * @param modifier [Modifier] of the scaffold layout.
- * @param extraPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.Extra].
- * @param detailPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.Detail].
+ * @param extraPane the extra pane of the scaffold. See [SupportingPaneScaffoldRole.Extra].
+ * @param mainPane the main pane of the scaffold. See [SupportingPaneScaffoldRole.Main].
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun ListDetailPaneScaffold(
-    layoutState: ListDetailPaneScaffoldState,
-    listPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
+fun SupportingPaneScaffold(
+    scaffoldState: SupportingPaneScaffoldState,
+    supportingPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)? = null,
-    detailPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit
+    mainPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
-        layoutDirective = layoutState.layoutDirective,
-        scaffoldValue = layoutState.layoutValue,
-        arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
-        secondaryPane = listPane,
+        layoutDirective = scaffoldState.layoutDirective,
+        scaffoldValue = scaffoldState.layoutValue,
+        arrangement = ThreePaneScaffoldDefaults.SupportingPaneLayoutArrangement,
+        secondaryPane = supportingPane,
         tertiaryPane = extraPane,
-        primaryPane = detailPane
+        primaryPane = mainPane
     )
 }
 
 /**
- * Provides default values of [ListDetailPaneScaffold].
+ * Provides default values of [SupportingPaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-object ListDetailPaneScaffoldDefaults {
+object SupportingPaneScaffoldDefaults {
     /**
-     * Creates a default [ThreePaneScaffoldAdaptStrategies] for [ListDetailPaneScaffold].
+     * Creates a default [ThreePaneScaffoldAdaptStrategies] for [SupportingPaneScaffold].
      *
-     * @param detailPaneAdaptStrategy the adapt strategy of the primary pane
-     * @param listPaneAdaptStrategy the adapt strategy of the secondary pane
-     * @param extraPaneAdaptStrategy the adapt strategy of the tertiary pane
+     * @param mainPaneAdaptStrategy the adapt strategy of the main pane
+     * @param supportingPaneAdaptStrategy the adapt strategy of the supporting pane
+     * @param extraPaneAdaptStrategy the adapt strategy of the extra pane
      */
     fun adaptStrategies(
-        detailPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
-        listPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
+        mainPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
+        supportingPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         extraPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
     ): ThreePaneScaffoldAdaptStrategies =
         ThreePaneScaffoldAdaptStrategies(
-            detailPaneAdaptStrategy,
-            listPaneAdaptStrategy,
+            mainPaneAdaptStrategy,
+            supportingPaneAdaptStrategy,
             extraPaneAdaptStrategy
         )
 }
 
 /**
- * The state of [ListDetailPaneScaffold]. It provides the layout directive and value state that will
+ * The state of [SupportingPaneScaffold]. It provides the layout directive and value state that will
  * be updated directly. It also provides functions to perform navigation.
  *
- * Use [rememberListDetailPaneScaffoldState] to get a remembered default instance of this interface,
+ * Use [rememberSupportingPaneScaffoldState] to get a remembered default instance of this interface,
  * which works independently from any navigation frameworks. Developers can also integrate with
  * other navigation frameworks by implementing this interface.
  *
  * @property layoutDirective the current layout directives that the associated
- *           [ListDetailPaneScaffold] needs to follow. It's supposed to be automatically updated
+ *           [SupportingPaneScaffold] needs to follow. It's supposed to be automatically updated
  *           when the window configuration changes.
- * @property layoutValue the current layout value of the associated [ListDetailPaneScaffold], which
+ * @property layoutValue the current layout value of the associated [SupportingPaneScaffold], which
  *           represents unique layout states of the scaffold.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-interface ListDetailPaneScaffoldState {
+interface SupportingPaneScaffoldState {
     val layoutDirective: AdaptiveLayoutDirective
     val layoutValue: ThreePaneScaffoldValue
 
     /**
      * Navigates to a new focus.
      */
-    fun navigateTo(pane: ListDetailPaneScaffoldRole)
+    fun navigateTo(pane: SupportingPaneScaffoldRole)
 
     /**
      * Returns `true` if there is a previous focus to navigate back to.
@@ -121,13 +106,13 @@ interface ListDetailPaneScaffoldState {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private class DefaultListDetailPaneScaffoldState(
+private class DefaultSupportingPaneScaffoldState(
     val internalState: DefaultThreePaneScaffoldState
-) : ListDetailPaneScaffoldState {
+) : SupportingPaneScaffoldState {
     override val layoutDirective get() = internalState.layoutDirective
     override val layoutValue get() = internalState.layoutValue
 
-    override fun navigateTo(pane: ListDetailPaneScaffoldRole) {
+    override fun navigateTo(pane: SupportingPaneScaffoldRole) {
         internalState.navigateTo(pane.threePaneScaffoldRole)
     }
 
@@ -139,10 +124,10 @@ private class DefaultListDetailPaneScaffoldState(
 }
 
 /**
- * Returns a remembered default implementation of [ListDetailPaneScaffoldState], which will
+ * Returns a remembered default implementation of [SupportingPaneScaffoldState], which will
  * be updated automatically when the input values change. The default state is supposed to be
  * used independently from any navigation frameworks and it will address the navigation purely
- * inside the [ListDetailPaneScaffold].
+ * inside the [SupportingPaneScaffold].
  *
  * @param layoutDirectives the current layout directives to follow. The default value will be
  *        Calculated with [calculateStandardAdaptiveLayoutDirective] using [WindowAdaptiveInfo]
@@ -153,38 +138,39 @@ private class DefaultListDetailPaneScaffoldState(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun rememberListDetailPaneScaffoldState(
+fun rememberSupportingPaneScaffoldState(
     layoutDirectives: AdaptiveLayoutDirective =
         calculateStandardAdaptiveLayoutDirective(calculateWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
-        ListDetailPaneScaffoldDefaults.adaptStrategies(),
-    initialFocusHistory: List<ListDetailPaneScaffoldRole> = listOf(ListDetailPaneScaffoldRole.List)
-): ListDetailPaneScaffoldState {
+        SupportingPaneScaffoldDefaults.adaptStrategies(),
+    initialFocusHistory: List<SupportingPaneScaffoldRole> = listOf(SupportingPaneScaffoldRole.Main)
+): SupportingPaneScaffoldState {
     val internalState = rememberDefaultThreePaneScaffoldState(
         layoutDirectives,
         adaptStrategies,
         initialFocusHistory.fastMap { it.threePaneScaffoldRole }
     )
     return remember(internalState) {
-        DefaultListDetailPaneScaffoldState(internalState)
+        DefaultSupportingPaneScaffoldState(internalState)
     }
 }
 
 /**
- * The set of the available pane roles of [ListDetailPaneScaffold].
+ * The set of the available pane roles of [SupportingPaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-enum class ListDetailPaneScaffoldRole(internal val threePaneScaffoldRole: ThreePaneScaffoldRole) {
+enum class SupportingPaneScaffoldRole(internal val threePaneScaffoldRole: ThreePaneScaffoldRole) {
     /**
-     * The list pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Secondary].
+     * The main pane of [SupportingPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Primary].
      */
-    List(ThreePaneScaffoldRole.Secondary),
+    Main(ThreePaneScaffoldRole.Primary),
     /**
-     * The detail pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Primary].
+     * The supporting pane of [SupportingPaneScaffold]. It is mapped to
+     * [ThreePaneScaffoldRole.Secondary].
      */
-    Detail(ThreePaneScaffoldRole.Primary),
+    Supporting(ThreePaneScaffoldRole.Secondary),
     /**
-     * The extra pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Tertiary].
+     * The extra pane of [SupportingPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Tertiary].
      */
     Extra(ThreePaneScaffoldRole.Tertiary)
 }

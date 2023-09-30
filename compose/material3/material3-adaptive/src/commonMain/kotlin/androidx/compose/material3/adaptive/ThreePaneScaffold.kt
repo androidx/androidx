@@ -312,6 +312,16 @@ object ThreePaneScaffoldDefaults {
         ThreePaneScaffoldRole.Tertiary
     )
 
+    /**
+     * Denotes [ThreePaneScaffold] to use the supporting-pane arrangement to arrange its panes,
+     * which allocates panes in the order of secondary, primary, and tertiary form start to end.
+     */
+    val SupportingPaneLayoutArrangement = ThreePaneScaffoldArrangement(
+        ThreePaneScaffoldRole.Primary,
+        ThreePaneScaffoldRole.Secondary,
+        ThreePaneScaffoldRole.Tertiary
+    )
+
     // TODO(conradchen): confirm with designers before we make these values public
     internal val PrimaryPanePreferredWidth = 360.dp
     internal val SecondaryPanePreferredWidth = 360.dp
