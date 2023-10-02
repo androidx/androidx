@@ -103,7 +103,6 @@ import androidx.camera.video.Quality.LOWEST
 import androidx.camera.video.Quality.NONE
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
-import androidx.camera.video.RecorderVideoCapabilities.CapabilitiesByQuality
 import androidx.camera.video.StreamInfo.StreamState
 import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
@@ -1727,20 +1726,20 @@ class VideoCaptureTest {
                     return videoCapabilitiesMap[dynamicRange]?.getProfiles(quality)
                 }
 
-                override fun findHighestSupportedEncoderProfilesFor(
+                override fun findNearestHigherSupportedEncoderProfilesFor(
                     size: Size,
                     dynamicRange: DynamicRange
                 ): VideoValidatedEncoderProfilesProxy? {
                     return videoCapabilitiesMap[dynamicRange]
-                        ?.findHighestSupportedEncoderProfilesFor(size)
+                        ?.findNearestHigherSupportedEncoderProfilesFor(size)
                 }
 
-                override fun findHighestSupportedQualityFor(
+                override fun findNearestHigherSupportedQualityFor(
                     size: Size,
                     dynamicRange: DynamicRange
                 ): Quality {
                     return videoCapabilitiesMap[dynamicRange]
-                        ?.findHighestSupportedQualityFor(size) ?: NONE
+                        ?.findNearestHigherSupportedQualityFor(size) ?: NONE
                 }
             }
         }
