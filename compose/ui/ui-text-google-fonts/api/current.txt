@@ -19,5 +19,9 @@ package androidx.compose.ui.text.googlefonts {
     method @WorkerThread public static boolean isAvailableOnDevice(androidx.compose.ui.text.googlefonts.GoogleFont.Provider, android.content.Context context);
   }
 
+  public final class XmlLoaderKt {
+    method public static androidx.compose.ui.text.googlefonts.GoogleFont GoogleFont(android.content.Context context, @FontRes int fontXml);
+  }
+
 }
 
