@@ -479,6 +479,7 @@ includeProject(":compose:compiler:compiler:integration-tests", [BuildType.COMPOS
 includeProject(":compose:compiler:compiler-hosted", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged", [BuildType.COMPOSE])
+includeProject(":compose:compiler:compiler-hosted:integration-tests:protobuf-test-classes", [BuildType.COMPOSE])
 includeProject(":compose:desktop", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:desktop:desktop", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE, BuildType.KMP])
