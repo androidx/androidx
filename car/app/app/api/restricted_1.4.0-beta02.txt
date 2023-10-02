@@ -70,6 +70,7 @@ package androidx.car.app {
     field @androidx.car.app.annotations.RequiresCarApi(2) public static final String CONSTRAINT_SERVICE = "constraints";
     field public static final String EXTRA_START_CAR_APP_BINDER_KEY = "androidx.car.app.extra.START_CAR_APP_BINDER_KEY";
     field @androidx.car.app.annotations.RequiresCarApi(3) public static final String HARDWARE_SERVICE = "hardware";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final String MEDIA_PLAYBACK_SERVICE = "media_playback";
     field public static final String NAVIGATION_SERVICE = "navigation";
     field public static final String SCREEN_SERVICE = "screen";
     field public static final String SUGGESTION_SERVICE = "suggestion";
@@ -823,6 +824,10 @@ package androidx.car.app.media {
     field public static final int AUDIO_CONTENT_BUFFER_SIZE = 512; // 0x200
     field public static final String AUDIO_CONTENT_MIME = "audio/l16";
     field public static final int AUDIO_CONTENT_SAMPLING_RATE = 16000; // 0x3e80
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public class MediaPlaybackManager implements androidx.car.app.managers.Manager {
+    method @MainThread public void registerMediaPlaybackToken(android.support.v4.media.session.MediaSessionCompat.Token);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class OpenMicrophoneRequest {
