@@ -572,6 +572,18 @@ public class WebViewFeatureInternal {
                     return false;
                 }
             };
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework ATTRIBUTION_REGISTRATION_BEHAVIOR =
+            new ApiFeature.NoFramework(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
+                    Features.ATTRIBUTION_BEHAVIOR);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
