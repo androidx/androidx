@@ -322,10 +322,19 @@ object ThreePaneScaffoldDefaults {
         ThreePaneScaffoldRole.Tertiary
     )
 
-    // TODO(conradchen): confirm with designers before we make these values public
-    internal val PrimaryPanePreferredWidth = 360.dp
-    internal val SecondaryPanePreferredWidth = 360.dp
-    internal val TertiaryPanePreferredWidth = 360.dp
+    /**
+     * The default preferred width of [ThreePaneScaffoldRole.Secondary]. See more details in
+     * [ThreePaneScaffoldScope.preferredWidth].
+     */
+    val SecondaryPanePreferredWidth = 412.dp
+    /**
+     * The default preferred width of [ThreePaneScaffoldRole.Tertiary]. See more details in
+     * [ThreePaneScaffoldScope.preferredWidth].
+     */
+    val TertiaryPanePreferredWidth = 412.dp
+
+    // TODO(conradchen): maybe remove this after addressing unspecified preferred width issue
+    internal val PrimaryPanePreferredWidth = 600.dp
 
     // TODO(conradchen): consider declaring a value class for priority
     internal const val PrimaryPanePriority = 10
