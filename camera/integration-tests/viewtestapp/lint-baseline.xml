@@ -39,15 +39,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="PreviewView.setScreenFlashWindow can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        mPreviewView.setScreenFlashWindow(requireActivity().getWindow());"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Futures.addCallback can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        Futures.addCallback(voidFuture, new FutureCallback&lt;Void>() {"
         errorLine2="                ~~~~~~~~~~~">

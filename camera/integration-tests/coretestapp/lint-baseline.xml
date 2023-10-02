@@ -12,33 +12,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="ScreenFlashView.setScreenFlashWindow can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        mScreenFlashView.setScreenFlashWindow(getWindow());"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashView.setScreenFlashWindow can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        mScreenFlashView.setScreenFlashWindow(getWindow());"
-        errorLine2="                                              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashView.getScreenFlashUiControl can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                mScreenFlashView.getScreenFlashUiControl());"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    if (canDeviceWriteToMediaStore()) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">

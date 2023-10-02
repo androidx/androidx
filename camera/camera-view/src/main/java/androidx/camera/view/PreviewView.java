@@ -1136,7 +1136,6 @@ public final class PreviewView extends FrameLayout {
      *                          during screen flash photo capture.
      */
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setScreenFlashWindow(@Nullable Window screenFlashWindow) {
         checkMainThread();
         mScreenFlashView.setScreenFlashWindow(screenFlashWindow);
