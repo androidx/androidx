@@ -51,6 +51,14 @@
             tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <activity android:name=".ListClickDestinationActivity" android:exported="false" />
+        <activity android:name=".ErrorUiAppWidgetConfigurationActivity"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
@@ -132,7 +140,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/error_ui_demo_app_widget_info" />
         </receiver>
 
         <receiver
