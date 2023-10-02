@@ -565,6 +565,16 @@ public class WebViewFeature {
     public static final String MULTI_PROFILE = "MULTI_PROFILE";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR =
+            "ATTRIBUTION_REGISTRATION_BEHAVIOR";
+
+    /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
      * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a feature is
      * supported, depending on the combination of the desired feature, the Android version of
