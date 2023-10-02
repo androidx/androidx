@@ -847,6 +847,9 @@ internal class LayoutNode(
             require(!isVirtual || modifier === Modifier) {
                 "Modifiers are not supported on virtual LayoutNodes"
             }
+            require(!deactivated) {
+                "modifier is updated when deactivated"
+            }
             field = value
             nodes.updateFrom(value)
             layoutDelegate.updateParentData()

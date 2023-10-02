@@ -1563,13 +1563,17 @@ internal class ComposerImpl(
     internal fun dispose() {
         trace("Compose:Composer.dispose") {
             parentContext.unregisterComposer(this)
-            invalidateStack.clear()
-            invalidations.clear()
-            changes.clear()
-            providerUpdates.clear()
+            deactivate()
             applier.clear()
             isDisposed = true
         }
+    }
+
+    internal fun deactivate() {
+        invalidateStack.clear()
+        invalidations.clear()
+        changes.clear()
+        providerUpdates.clear()
     }
 
     internal fun forceRecomposeScopes(): Boolean {
