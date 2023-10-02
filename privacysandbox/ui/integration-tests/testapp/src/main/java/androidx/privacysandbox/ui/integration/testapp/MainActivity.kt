@@ -25,10 +25,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.marginBottom
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.core.view.marginTop
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
@@ -51,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mSandboxedSdkView3: SandboxedSdkView
     private lateinit var mNewAdButton: Button
     private lateinit var mResizeButton: Button
+    private lateinit var mResizeSdkButton: Button
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -113,17 +110,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         mResizeButton = findViewById(R.id.resize_button)
-        val sizeIncrementPixels = 150
+        var widthIncrementPixels: Int
+        var heightIncrementPixels: Int
         mResizeButton.setOnClickListener {
-            var newHeight = (mSandboxedSdkView3.height + sizeIncrementPixels) % 1000
-            var newWidth = (mSandboxedSdkView3.width + sizeIncrementPixels) % 1000
-            val marginLeft = mSandboxedSdkView3.marginLeft
-            val marginRight = mSandboxedSdkView3.marginRight
-            val marginTop = mSandboxedSdkView3.marginTop
-            val marginBottom = mSandboxedSdkView3.marginBottom
-            val layoutParams = LinearLayout.LayoutParams(newHeight, newWidth)
-            layoutParams.setMargins(marginLeft, marginTop, marginRight, marginBottom)
-            mSandboxedSdkView3.layoutParams = layoutParams
+            widthIncrementPixels = (1..255).random()
+            heightIncrementPixels = (1..255).random()
+            var newWidth = (mSandboxedSdkView3.width + widthIncrementPixels) % 1000
+            var newHeight = (mSandboxedSdkView3.height + heightIncrementPixels) % 1000
+            mSandboxedSdkView3.layoutParams = mSandboxedSdkView3.layoutParams.apply {
+                width = newWidth
+                height = newHeight
+            }
+        }
+
+        mResizeSdkButton = findViewById(R.id.resize_sdk_button)
+        mResizeSdkButton.setOnClickListener {
+            widthIncrementPixels = (1..255).random()
+            heightIncrementPixels = (1..255).random()
+            var newHeight = (mSandboxedSdkView3.height + widthIncrementPixels) % 1000
+            var newWidth = (mSandboxedSdkView3.width + heightIncrementPixels) % 1000
+            sdkApi.requestResize(newWidth, newHeight)
         }
     }
 
