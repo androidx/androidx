@@ -168,6 +168,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
      * will be sent to the UI provider. When [providerUiOnTop] is false, every
      * [android.view.MotionEvent] will be sent to the client. By default, motion events are sent to
      * the UI provider.
+     *
+     * When [providerUiOnTop] is true, the UI provider's surface will be placed above the client's
+     * window. In this case, none of the contents of the client's window beneath the provider's
+     * surface will be visible.
      */
     fun orderProviderUiAboveClientUi(providerUiOnTop: Boolean) {
         if (providerUiOnTop == isZOrderOnTop) return
