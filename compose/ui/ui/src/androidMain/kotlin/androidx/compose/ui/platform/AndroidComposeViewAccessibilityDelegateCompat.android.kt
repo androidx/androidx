@@ -3493,8 +3493,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     node.id.toLong()
                 )
 
-                val text = node.unmergedConfig.getOrNull(SemanticsProperties.OriginalText)
-                    ?: AnnotatedString(node.getTextForTranslation() ?: return@forEach)
+                val text = AnnotatedString(node.getTextForTranslation() ?: return@forEach)
 
                 requestBuilder.setValue(ViewTranslationRequest.ID_TEXT,
                     TranslationRequestValue.forText(text))
