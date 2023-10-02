@@ -108,7 +108,7 @@ public class Metadata(
         return result
     }
 
-    internal companion object {
+    companion object {
         internal const val EMPTY_ID: String = ""
 
         /** A default instance of metadata with no fields initialised. */

@@ -1371,10 +1371,14 @@ package androidx.health.connect.client.records.metadata {
     property public final String id;
     property public final java.time.Instant lastModifiedTime;
     property public final int recordingMethod;
+    field public static final androidx.health.connect.client.records.metadata.Metadata.Companion Companion;
     field public static final int RECORDING_METHOD_ACTIVELY_RECORDED = 1; // 0x1
     field public static final int RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2; // 0x2
     field public static final int RECORDING_METHOD_MANUAL_ENTRY = 3; // 0x3
     field public static final int RECORDING_METHOD_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Metadata.Companion {
   }
 
 }
