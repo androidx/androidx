@@ -53,7 +53,7 @@ public interface Profile {
     /**
      * Returns the profile's cookie manager.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -66,7 +66,7 @@ public interface Profile {
     /**
      * Returns the profile's web storage.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -79,7 +79,7 @@ public interface Profile {
     /**
      * Returns the geolocation permissions of the profile.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
@@ -92,7 +92,7 @@ public interface Profile {
     /**
      * Returns the service worker controller of the profile.
      * <p>
-     * Can be called from any thread. It is not recommended to hold onto references of this.
+     * Can be called from any thread.
      *
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
