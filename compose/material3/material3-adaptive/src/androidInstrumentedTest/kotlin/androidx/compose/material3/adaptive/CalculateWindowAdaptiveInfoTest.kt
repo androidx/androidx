@@ -80,7 +80,10 @@ class CalculateWindowAdaptiveInfoTest {
 
         composeRule.runOnIdle {
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.calculateFromSize(MockWindowSize1.toSize(), MockDensity))
+                WindowSizeClass.calculateFromSize(
+                    with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
+                )
+            )
             assertThat(actualAdaptiveInfo.posture).isEqualTo(calculatePosture(MockFoldingFeatures1))
         }
 
@@ -91,7 +94,10 @@ class CalculateWindowAdaptiveInfoTest {
 
         composeRule.runOnIdle {
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.calculateFromSize(MockWindowSize2.toSize(), MockDensity))
+                WindowSizeClass.calculateFromSize(
+                    with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
+                )
+            )
             assertThat(actualAdaptiveInfo.posture).isEqualTo(calculatePosture(MockFoldingFeatures2))
         }
     }
