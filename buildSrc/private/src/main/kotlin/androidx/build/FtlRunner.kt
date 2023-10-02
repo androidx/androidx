@@ -26,6 +26,7 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -87,7 +88,7 @@ abstract class FtlRunner : DefaultTask() {
     )
     abstract val instrumentationArgs: Property<String>
 
-    @get:Input abstract val device: Property<String>
+    @get:Input abstract val device: ListProperty<String>
 
     @TaskAction
     fun execThings() {
@@ -142,8 +143,6 @@ abstract class FtlRunner : DefaultTask() {
                     "instrumentation",
                     "--no-performance-metrics",
                     "--no-auto-google-login",
-                    "--device",
-                    "model=${device.get()},locale=en_US,orientation=portrait",
                     "--app",
                     appApkPath,
                     "--test",
@@ -156,19 +155,40 @@ abstract class FtlRunner : DefaultTask() {
                     } else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
-                )
+                ) +
+                    getDeviceArguments(device.get())
             )
         }
     }
+
+    private fun getDeviceArguments(devices: List<String>): List<String> {
+        val deviceArguments = mutableListOf<String>()
+        devices.forEach { device ->
+            deviceArguments.addAll(
+                listOf(
+                    "--device",
+                    "model=$device,locale=en_US,orientation=portrait"
+                )
+            )
+        }
+        return deviceArguments
+    }
 }
+
+private const val NEXUS_6P = "Nexus6P,version=27"
+private const val A10 = "a10,version=29"
+private const val PETTYL = "pettyl,version=27"
+private const val HWCOR = "HWCOR,version=27"
+private const val Q2Q = "q2q,version=31"
 
 private val devicesToRunOn =
     listOf(
-        "ftlpixel2api33" to "Pixel2.arm,version=33",
-        "ftlpixel2api30" to "Pixel2.arm,version=30",
-        "ftlpixel2api28" to "Pixel2.arm,version=28",
-        "ftlpixel2api26" to "Pixel2.arm,version=26",
-        "ftlnexus4api21" to "Nexus4,version=21",
+        "ftlpixel2api33" to listOf("Pixel2.arm,version=33"),
+        "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
+        "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
+        "ftlpixel2api26" to listOf("Pixel2.arm,version=26"),
+        "ftlnexus4api21" to listOf("Nexus4,version=21"),
+        "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
 fun Project.configureFtlRunner() {
