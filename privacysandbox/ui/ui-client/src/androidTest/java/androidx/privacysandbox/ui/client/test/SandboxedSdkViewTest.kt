@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ui.client.test
 
-import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -71,7 +70,6 @@ class SandboxedSdkViewTest {
     }
 
     private lateinit var context: Context
-    private lateinit var activity: Activity
     private lateinit var view: SandboxedSdkView
     private lateinit var layoutParams: ViewGroup.LayoutParams
     private lateinit var testSandboxedUiAdapter: TestSandboxedUiAdapter
@@ -191,23 +189,23 @@ class SandboxedSdkViewTest {
     @Before
     fun setup() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        activity = activityScenarioRule.withActivity { this }
-        view = SandboxedSdkView(activity)
-        stateChangedListener = StateChangedListener()
-        view.addStateChangedListener(stateChangedListener)
-
-        layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        view.layoutParams = layoutParams
-        openSessionLatch = CountDownLatch(1)
-        resizeLatch = CountDownLatch(1)
-        configChangedLatch = CountDownLatch(1)
-        testSandboxedUiAdapter = TestSandboxedUiAdapter(
-            openSessionLatch, resizeLatch, configChangedLatch
-        )
-        view.setAdapter(testSandboxedUiAdapter)
+        activityScenarioRule.withActivity {
+            view = SandboxedSdkView(this)
+            stateChangedListener = StateChangedListener()
+            view.addStateChangedListener(stateChangedListener)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            view.layoutParams = layoutParams
+            openSessionLatch = CountDownLatch(1)
+            resizeLatch = CountDownLatch(1)
+            configChangedLatch = CountDownLatch(1)
+            testSandboxedUiAdapter = TestSandboxedUiAdapter(
+                openSessionLatch, resizeLatch, configChangedLatch
+            )
+            view.setAdapter(testSandboxedUiAdapter)
+        }
     }
 
     @Test
@@ -270,10 +268,10 @@ class SandboxedSdkViewTest {
         assertTrue(view.childCount == 1)
         assertTrue(view.layoutParams == layoutParams)
 
-        activity.runOnUiThread(Runnable {
+        activityScenarioRule.withActivity {
             testSandboxedUiAdapter.internalClient!!.onSessionError(Exception())
             assertTrue(view.childCount == 0)
-        })
+        }
     }
 
     @Test
@@ -336,7 +334,7 @@ class SandboxedSdkViewTest {
         view.orderProviderUiAboveClientUi(false)
         val session = testSandboxedUiAdapter.testSession!!
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             testSandboxedUiAdapter.sendOnSessionOpened()
         }
 
@@ -366,8 +364,8 @@ class SandboxedSdkViewTest {
     fun onConfigurationChangedTestSameConfiguration() {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        activity.runOnUiThread {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        activityScenarioRule.withActivity {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         assertThat(configChangedLatch.await(UI_INTENSIVE_TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
@@ -376,7 +374,7 @@ class SandboxedSdkViewTest {
     fun onLayoutTestWithSizeChange() {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             view.layoutParams = LinearLayout.LayoutParams(100, 200)
         }
         assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -387,7 +385,7 @@ class SandboxedSdkViewTest {
     fun onLayoutTestNoSizeChange() {
         addViewToLayout()
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             view.layout(view.left, view.top, view.right, view.bottom)
         }
         assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
@@ -399,7 +397,7 @@ class SandboxedSdkViewTest {
         assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         val rightShift = 10
         val upperShift = 30
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             view.layout(view.left + rightShift, view.top - upperShift,
                 view.right + rightShift, view.bottom - upperShift)
         }
@@ -410,17 +408,15 @@ class SandboxedSdkViewTest {
     fun onSdkRequestsResizeTest() {
         val globalLayoutLatch = CountDownLatch(1)
         lateinit var layout: LinearLayout
-        activity.runOnUiThread(Runnable {
-            layout = activity.findViewById<LinearLayout>(
+        activityScenarioRule.withActivity {
+            layout = findViewById<LinearLayout>(
                 R.id.mainlayout
             )
             layout.addView(view)
-        })
+        }
         openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(openSessionLatch.count == 0.toLong())
-        activity.runOnUiThread(Runnable {
-            testSandboxedUiAdapter.testSession?.requestSizeChange(layout.width, layout.height)
-        })
+        testSandboxedUiAdapter.testSession?.requestSizeChange(layout.width, layout.height)
         val observer = view.viewTreeObserver
         observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -436,21 +432,24 @@ class SandboxedSdkViewTest {
 
     @Test
     fun sandboxedSdkViewIsTransitionGroup() {
-        val view = SandboxedSdkView(context)
-        assertTrue("SandboxedSdkView isTransitionGroup by default", view.isTransitionGroup)
+        activityScenarioRule.withActivity {
+            val view = SandboxedSdkView(context)
+            assertTrue("SandboxedSdkView isTransitionGroup by default", view.isTransitionGroup)
+        }
     }
 
     @Test
     fun sandboxedSdkViewInflatesTransitionGroup() {
-        val activity = activityScenarioRule.withActivity { this }
-        val view = activity.layoutInflater.inflate(
-            R.layout.sandboxedsdkview_transition_group_false,
-            null,
-            false
-        ) as ViewGroup
-        assertFalse(
-            "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
-        )
+        activityScenarioRule.withActivity {
+            val view = layoutInflater.inflate(
+                R.layout.sandboxedsdkview_transition_group_false,
+                null,
+                false
+            ) as ViewGroup
+            assertFalse(
+                "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
+            )
+        }
     }
 
     /**
@@ -467,8 +466,8 @@ class SandboxedSdkViewTest {
         val surfaceViewLatch = CountDownLatch(1)
 
         // Attach SurfaceView
-        activity.runOnUiThread {
-            layout = activity.findViewById(
+        activityScenarioRule.withActivity {
+            layout = findViewById(
                 R.id.mainlayout
             )
             layout.addView(surfaceView)
@@ -489,7 +488,7 @@ class SandboxedSdkViewTest {
         // Verify SurfaceView has a non-null token when attached.
         assertThat(surfaceViewLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(surfaceView.hostToken).isNotNull()
-        activity.runOnUiThread {
+        activityScenarioRule.withActivity {
             layout.removeView(surfaceView)
         }
 
@@ -503,23 +502,27 @@ class SandboxedSdkViewTest {
     fun getBoundingParent_withoutScrollParent() {
         addViewToLayout()
         onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
-        val boundingRect = Rect()
-        assertThat(view.getBoundingParent(boundingRect)).isTrue()
-        val rootView: ViewGroup = activity.findViewById(android.R.id.content)
-        val rootRect = Rect()
-        rootView.getGlobalVisibleRect(rootRect)
-        assertThat(boundingRect).isEqualTo(rootRect)
+        activityScenarioRule.withActivity {
+            val boundingRect = Rect()
+            assertThat(view.getBoundingParent(boundingRect)).isTrue()
+            val rootView: ViewGroup = findViewById(android.R.id.content)
+            val rootRect = Rect()
+            rootView.getGlobalVisibleRect(rootRect)
+            assertThat(boundingRect).isEqualTo(rootRect)
+        }
     }
 
     @Test
     fun getBoundingParent_withScrollParent() {
-        val scrollViewRect = Rect()
-        val scrollView = activity.findViewById<ScrollView>(R.id.scroll_view)
-        activity.runOnUiThread {
+        lateinit var scrollView: ScrollView
+        activityScenarioRule.withActivity {
+            scrollView = findViewById<ScrollView>(R.id.scroll_view)
             scrollView.visibility = View.VISIBLE
             scrollView.addView(view)
         }
         onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
+
+        val scrollViewRect = Rect()
         assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
         val boundingRect = Rect()
         assertThat(view.getBoundingParent(boundingRect)).isTrue()
@@ -549,8 +552,8 @@ class SandboxedSdkViewTest {
     }
 
     private fun addViewToLayout() {
-        activity.runOnUiThread {
-            activity.findViewById<LinearLayout>(
+        activityScenarioRule.withActivity {
+            findViewById<LinearLayout>(
                 R.id.mainlayout
             ).addView(view)
         }
