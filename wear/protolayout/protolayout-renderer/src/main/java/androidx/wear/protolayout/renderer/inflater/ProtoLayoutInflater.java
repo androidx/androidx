@@ -1155,8 +1155,11 @@ public final class ProtoLayoutInflater {
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
-        if (style.hasSize()) {
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.getSize().getValue());
+        if (fontStyleHasSize(style)) {
+            // TODO(b/302531969): Use all sizes for autosizing.
+            textView.setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    style.getSize(style.getSizeCount() - 1).getValue());
         }
 
         if (style.hasLetterSpacing()) {
@@ -1176,10 +1179,16 @@ public final class ProtoLayoutInflater {
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
-        // underline. We can implement this later by drawing a line under the text ourselves though.
-
-        if (style.hasSize()) {
-            textView.setTextSize(toPx(style.getSize()));
+        if (fontStyleHasSize(style)) {
+            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // autosizing. This is the same behaviour as it was before size has made repeated.
+            if (style.getSizeList().size() > 1) {
+                Log.w(
+                        TAG,
+                        "Font size with multiple values has been used on Arc Text. Ignoring "
+                                + "all size except the first one.");
+            }
+            textView.setTextSize(toPx(style.getSize(style.getSizeCount() - 1)));
         }
     }
 
@@ -2828,8 +2837,17 @@ public final class ProtoLayoutInflater {
 
     private void applyStylesToSpan(
             SpannableStringBuilder builder, int start, int end, FontStyle fontStyle) {
-        if (fontStyle.hasSize()) {
-            AbsoluteSizeSpan span = new AbsoluteSizeSpan(round(toPx(fontStyle.getSize())));
+        if (fontStyleHasSize(fontStyle)) {
+            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // autosizing. This is the same behaviour as it was before size has made repeated.
+            if (fontStyle.getSizeList().size() > 1) {
+                Log.w(
+                        TAG,
+                        "Font size with multiple values has been used on Span Text. Ignoring "
+                        + "all size except the first one.");
+            }
+            AbsoluteSizeSpan span = new AbsoluteSizeSpan(round(toPx(
+                    fontStyle.getSize(fontStyle.getSizeCount() - 1))));
             builder.setSpan(span, start, end, Spanned.SPAN_MARK_MARK);
         }
 
@@ -2856,6 +2874,10 @@ public final class ProtoLayoutInflater {
         ForegroundColorSpan colorSpan = new ForegroundColorSpan(extractTextColorArgb(fontStyle));
 
         builder.setSpan(colorSpan, start, end, Spanned.SPAN_MARK_MARK);
+    }
+
+    private static boolean fontStyleHasSize(FontStyle fontStyle) {
+        return !fontStyle.getSizeList().isEmpty();
     }
 
     private void applyModifiersToSpan(

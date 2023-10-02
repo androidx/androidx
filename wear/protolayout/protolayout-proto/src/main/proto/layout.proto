@@ -83,9 +83,29 @@ message SpanVerticalAlignmentProp {
 
 // The styling of a font (e.g. font size, and metrics).
 message FontStyle {
-  // The size of the font, in scaled pixels (sp). If not specified, defaults to
-  // the size of the system's "body" font.
-  SpProp size = 1;
+  // The available sizes of the font, in scaled pixels (sp). If not specified, defaults to the size
+  // of the system's "body" font.
+  //
+  // If more than one size is specified and this FontStyle is applied to a Text element with static
+  // text, the text size will be automatically picked from the provided sizes to try to perfectly
+  // fit within its parent bounds. In other words, the largest size from the specified preset sizes
+  // that can fit the most text within the parent bounds will be used.
+  //
+  // The specified sizes don't have to be sorted. The maximum number of sizes used is limited to 10.
+  //
+  // Note that, if multiple sizes are set, the parent of the Text element this corresponds to
+  // shouldn't have its width and height set to wrapped, as it can lead to unexpected results.
+  //
+  // If this FontStyle is set to any other element besides Text, or that Text element has dynamic
+  // field, only the last added size will be use.
+  //
+  // Any previously added values with this method or #setSize will be cleared.
+  //
+  // While this field is accessible from 1.0 as singular, it only accepts multiple values since
+  // version 1.3 and renderers supporting version 1.3 will use the multiple values to automatically
+  // scale text. Renderers who don't support this version will use the first size among multiple
+  // values.
+  repeated SpProp size = 1;
 
   // Whether the text should be rendered in a italic typeface. If not specified,
   // defaults to "false".

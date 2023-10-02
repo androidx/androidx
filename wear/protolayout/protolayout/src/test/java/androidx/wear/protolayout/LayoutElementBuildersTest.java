@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.DimensionBuilders.sp;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -200,6 +202,84 @@ public class LayoutElementBuildersTest {
                 .isEqualTo(STRING_LAYOUT_CONSTRAINT.getPatternForLayout());
         assertThat(textProto.getTextAlignmentForLayoutValue())
                 .isEqualTo(STRING_LAYOUT_CONSTRAINT.getAlignment());
+    }
+
+    @Test
+    public void testFontStyleSetMultipleSizes() {
+        int size1 = 12;
+        int size2 = 30;
+        int lastSize = 20;
+        int[] expectedSizes = {size1, size2, lastSize};
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSizes(sp(size1), sp(size2), sp(lastSize))
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(
+                fontStyleProto.getSizeList().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                .isEqualTo(expectedSizes);
+        // Make sure that if 1 size is used than it's the last one.
+        assertThat(fontStyle.getSize().getValue()).isEqualTo(lastSize);
+        assertThat(
+                fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                .isEqualTo(expectedSizes);
+    }
+
+    @Test
+    public void testFontStyleSetSize_moreTimes_usesLastOne() {
+        int lastSize = 20;
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSize(sp(12))
+                        .setSize(sp(30))
+                        .setSize(sp(lastSize))
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(fontStyleProto.getSizeList().size()).isEqualTo(1);
+        assertThat(fontStyleProto.getSizeList().get(0).getValue()).isEqualTo(lastSize);
+        // Make sure that if 1 size is used than it's the last one.
+        assertThat(fontStyle.getSize().getValue()).isEqualTo(lastSize);
+        assertThat(fontStyle.getSizes().size()).isEqualTo(1);
+        assertThat(fontStyle.getSizes().get(0).getValue()).isEqualTo(lastSize);
+    }
+
+    @Test
+    public void testFontStyleSetSize_setSizes_overrides() {
+        int size1 = 12;
+        int size2 = 30;
+        int[] expectedSizes = {size1, size2};
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSize(sp(20))
+                        .setSizes(sp(size1), sp(size2))
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(
+                fontStyleProto.getSizeList().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                .isEqualTo(expectedSizes);
+        // Make sure that if 1 size is used than it's the last one.
+        assertThat(fontStyle.getSize().getValue()).isEqualTo(size2);
+        assertThat(
+                fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                .isEqualTo(expectedSizes);
+    }
+
+    @Test
+    public void testFontStyleSetSize_tooManySizes_throws() {
+        DimensionBuilders.SpProp[] sizes =
+                new DimensionBuilders.SpProp[
+                        LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.FontStyle.Builder()
+                        .setSizes(sizes)
+                        .build());
     }
 
     @Test
