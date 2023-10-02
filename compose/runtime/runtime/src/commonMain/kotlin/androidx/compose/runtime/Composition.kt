@@ -1337,6 +1337,9 @@ internal class CompositionImpl(
         }
         observations.clear()
         derivedStates.clear()
+        invalidations.clear()
+        changes.clear()
+        composer.deactivate()
     }
 }
 

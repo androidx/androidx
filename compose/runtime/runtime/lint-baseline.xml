@@ -93,7 +93,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable var6316285d with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
+        message="variable var6316300d with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
         errorLine1="                val virtualCounts = nodeCountVirtualOverrides ?: run {"
         errorLine2="                                    ^">
         <location
