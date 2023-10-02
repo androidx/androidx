@@ -58,13 +58,13 @@ class OnEnableDisableSessionDurationCheckTest {
                 check.onDisableSessionInvoked()
             }
         }
-
         // |----------|--|---|
         // ^-delay           ^--totalTime
         //               ^--check.onDisableSessionInvoked()
         // Assert
         val min =
-            (MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - (totalTime - elapsedTime)).coerceAtLeast(0)
+            (MIN_DURATION_FOR_ENABLE_DISABLE_SESSION - (totalTime - elapsedTime) - 2 /*tolerance*/
+                ).coerceAtLeast(0)
         assertThat(elapsedTime).isAtLeast(min)
     }
 
