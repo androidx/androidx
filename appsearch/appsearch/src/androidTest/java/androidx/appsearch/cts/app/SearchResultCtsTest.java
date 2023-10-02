@@ -17,6 +17,7 @@
 package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.PropertyPath;
@@ -106,7 +107,6 @@ public class SearchResultCtsTest {
     }
 
     @Test
-    /*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
     public void testJoinedDocument() {
         AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
                 .setBody("Hello World.")
