@@ -17,6 +17,7 @@
 package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.app.PropertyPath.PathSegment.NON_REPEATED_CARDINALITY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.PropertyPath;
@@ -29,7 +30,6 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.List;
 
-/*@exportToFramework:SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)*/
 public class PropertyPathCtsTest {
     @Test
     public void testPropertyPathInvalid() {
