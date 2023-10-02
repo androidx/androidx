@@ -25,7 +25,9 @@ import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.media.AudioFormat;
+import android.media.AudioTimestamp;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.TimeUnit;
@@ -141,5 +143,25 @@ public final class AudioUtils {
     public static long frameCountToDurationNs(long frameCount, int sampleRate) {
         checkArgument(sampleRate > 0L, "sampleRate must be greater than 0.");
         return TimeUnit.SECONDS.toNanos(1) * frameCount / sampleRate;
+    }
+
+    /**
+     * Computes the interpolated timestamp.
+     *
+     * @param sampleRate    the sample rate. Must be greater than 0.
+     * @param framePosition the frame count. Must be no less than 0.
+     * @param timestamp     the audio timestamp object.
+     * @return interpolated timestamp in nanoseconds.
+     * @throws IllegalArgumentException if sampleRate is not greater than 0 or framePosition is
+     *                                  less than 0.
+     */
+    public static long computeInterpolatedTimeNs(int sampleRate, long framePosition,
+            @NonNull AudioTimestamp timestamp) {
+        checkArgument(sampleRate > 0L, "sampleRate must be greater than 0.");
+        checkArgument(framePosition >= 0L, "framePosition must be no less than 0.");
+        long frameDiff = framePosition - timestamp.framePosition;
+        long compensateTimeInNanoSec = frameCountToDurationNs(frameDiff, sampleRate);
+        long resultInNanoSec = timestamp.nanoTime + compensateTimeInNanoSec;
+        return resultInNanoSec < 0 ? 0 : resultInNanoSec;
     }
 }
