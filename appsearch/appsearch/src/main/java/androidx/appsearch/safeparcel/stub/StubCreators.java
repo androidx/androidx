@@ -16,6 +16,7 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.safeparcel.GenericDocumentParcel;
@@ -97,5 +98,10 @@ public class StubCreators {
 
     /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */
     public static class SchemaMigrationStatsCreator extends AbstractCreator<SchemaMigrationStats> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchSuggestionResult}. */
+    public static class SearchSuggestionResultCreator extends
+            AbstractCreator<SearchSuggestionResult> {
     }
 }
