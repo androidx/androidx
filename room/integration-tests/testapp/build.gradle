@@ -74,10 +74,14 @@ android {
             }
         }
     }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
     namespace "androidx.room.integration.testapp"
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
     implementation("androidx.arch.core:core-runtime:2.2.0")
@@ -129,8 +133,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-truth"))
 
 
