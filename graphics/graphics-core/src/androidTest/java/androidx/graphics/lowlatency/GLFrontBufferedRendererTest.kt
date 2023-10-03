@@ -139,11 +139,9 @@ class GLFrontBufferedRendererTest {
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, surfaceView ->
+            _, renderer, surfaceView ->
 
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Any())
-            }
+            renderer.renderFrontBufferedLayer(Any())
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
@@ -287,7 +285,6 @@ class GLFrontBufferedRendererTest {
     @Test
     fun testRenderDoubleBufferLayer() {
         val squareSize = 100f
-        val firstRenderLatch = CountDownLatch(1)
         val renderLatch = AtomicReference<CountDownLatch?>()
         val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
 
@@ -357,23 +354,18 @@ class GLFrontBufferedRendererTest {
                         executor,
                         object : SurfaceControlCompat.TransactionCommittedListener {
                             override fun onTransactionCommitted() {
-                                firstRenderLatch.countDown()
                                 renderLatch.get()?.countDown()
                             }
                         })
                 } else {
-                    firstRenderLatch.countDown()
                     renderLatch.get()?.countDown()
                 }
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            _, renderer, surfaceView ->
 
-            assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
             renderLatch.set(CountDownLatch(1))
-
             val colors = listOf(Color.RED, Color.BLACK, Color.YELLOW, Color.BLUE)
             renderer.renderMultiBufferedLayer(colors)
 
@@ -526,10 +518,9 @@ class GLFrontBufferedRendererTest {
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Color.BLUE)
-            }
+            _, renderer, surfaceView ->
+
+            renderer.renderFrontBufferedLayer(Color.BLUE)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
@@ -689,12 +680,11 @@ class GLFrontBufferedRendererTest {
         }
 
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Color.BLUE)
-                commitLatch.set(CountDownLatch(1))
-                renderer.commit()
-            }
+            _, renderer, surfaceView ->
+
+            renderer.renderFrontBufferedLayer(Color.BLUE)
+            commitLatch.set(CountDownLatch(1))
+            renderer.commit()
 
             assertTrue(commitLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
@@ -715,7 +705,6 @@ class GLFrontBufferedRendererTest {
     @Test
     fun testCancelFrontBufferLayerRender() {
         val squareSize = 100f
-        val firstRenderLatch = CountDownLatch(1)
         val commitLatch = AtomicReference<CountDownLatch?>()
         val cancelLatch = AtomicReference<CountDownLatch?>()
         val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
@@ -799,21 +788,17 @@ class GLFrontBufferedRendererTest {
                         executor,
                         object : SurfaceControlCompat.TransactionCommittedListener {
                             override fun onTransactionCommitted() {
-                                firstRenderLatch.countDown()
                                 commitLatch.get()?.countDown()
                             }
                         })
                 } else {
-                    firstRenderLatch.countDown()
                     commitLatch.get()?.countDown()
                 }
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            _, renderer, surfaceView ->
 
-            assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
             renderer.renderFrontBufferedLayer(Color.BLUE)
             commitLatch.set(CountDownLatch(1))
             renderer.commit()
@@ -867,11 +852,9 @@ class GLFrontBufferedRendererTest {
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, _ ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.execute {
-                    executeLatch.countDown()
-                }
+            _, renderer, _ ->
+            renderer.execute {
+                executeLatch.countDown()
             }
 
             assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -982,12 +965,10 @@ class GLFrontBufferedRendererTest {
             }
         }
         verifyGLFrontBufferedRenderer(callbacks) {
-            scenario, renderer, _ ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                val param = Any()
-                repeat(500) {
-                    renderer.renderFrontBufferedLayer(param)
-                }
+            _, renderer, _ ->
+            val param = Any()
+            repeat(500) {
+                renderer.renderFrontBufferedLayer(param)
             }
         }
     }
@@ -1066,8 +1047,7 @@ class GLFrontBufferedRendererTest {
             callbacks,
             { surfaceView -> surfaceView.setZOrderOnTop(true) }
         ) {
-            scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            _, renderer, surfaceView ->
 
             renderer.renderFrontBufferedLayer(0f)
             renderLatch.set(CountDownLatch(1))
@@ -1175,9 +1155,8 @@ class GLFrontBufferedRendererTest {
         }
         verifyGLFrontBufferedRenderer(callbacks) {
             scenario, renderer, surfaceView ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Any())
-            }
+
+            renderer.renderFrontBufferedLayer(Any())
             // Navigate to stopped and resumed state to simulate returning to the application
             scenario.moveToState(Lifecycle.State.CREATED)
                 .moveToState(Lifecycle.State.RESUMED)
@@ -1306,10 +1285,9 @@ class GLFrontBufferedRendererTest {
                 surfaceView = targetSurfaceView
             }
         ) {
-            scenario, renderer, _ ->
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Any())
-            }
+            _, renderer, _ ->
+
+            renderer.renderFrontBufferedLayer(Any())
 
             assertTrue(initialFrontBufferLatch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -1882,6 +1860,77 @@ class GLFrontBufferedRendererTest {
         configureSurfaceView: (SurfaceView) -> Unit = {},
         block: FrontBufferTestCallback<T>
     ) {
+        val firstRenderLatch = CountDownLatch(1)
+        val wrappedCallbacks = object : GLFrontBufferedRenderer.Callback<T> {
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                width: Int,
+                height: Int,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: T
+            ) {
+                callbacks.onDrawFrontBufferedLayer(
+                    eglManager,
+                    width,
+                    height,
+                    bufferInfo,
+                    transform,
+                    param
+                )
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                width: Int,
+                height: Int,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<T>
+            ) {
+                callbacks.onDrawMultiBufferedLayer(
+                    eglManager,
+                    width,
+                    height,
+                    bufferInfo,
+                    transform,
+                    params
+                )
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                callbacks.onFrontBufferedLayerRenderComplete(
+                    frontBufferedLayerSurfaceControl,
+                    transaction
+                )
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                multiBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                callbacks.onMultiBufferedLayerRenderComplete(
+                    frontBufferedLayerSurfaceControl,
+                    multiBufferedLayerSurfaceControl,
+                    transaction
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                firstRenderLatch.countDown()
+                            }
+                        })
+                } else {
+                    firstRenderLatch.countDown()
+                }
+            }
+        }
         var renderer: GLFrontBufferedRenderer<T>? = null
         var surfaceView: SurfaceView? = null
         val destroyLatch = CountDownLatch(1)
@@ -1892,9 +1941,12 @@ class GLFrontBufferedRendererTest {
                 .onActivity {
                     surfaceView = it.getSurfaceView()
                     configureSurfaceView(surfaceView!!)
-                    renderer = GLFrontBufferedRenderer<T>(surfaceView!!, callbacks)
+                    renderer = GLFrontBufferedRenderer<T>(surfaceView!!, wrappedCallbacks)
                     it.setOnDestroyCallback { destroyLatch.countDown() }
                 }
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             block(scenario, renderer!!, surfaceView!!)
         } finally {
