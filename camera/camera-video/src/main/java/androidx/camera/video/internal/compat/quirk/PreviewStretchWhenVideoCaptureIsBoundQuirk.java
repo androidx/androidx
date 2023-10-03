@@ -21,11 +21,9 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
-import java.util.Arrays;
-
 /**
  * <p>QuirkSummary
- *     Bug Id: b/227469801, b/274738266, b/298402933
+ *     Bug Id: b/227469801, b/274738266
  *     Description: Quirk indicates Preview is stretched when VideoCapture is bound.
  *     Device(s): Samsung J3, Samsung J5, Samsung J7, Samsung J1 Ace neo and Oppo A37F
  */
@@ -49,12 +47,12 @@ public class PreviewStretchWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     private static boolean isSamsungJ5() {
         return "Samsung".equalsIgnoreCase(Build.MANUFACTURER)
-                && Arrays.asList("sm-j510fn", "sm-j530f").contains(Build.MODEL.toLowerCase());
+                && "sm-j510fn".equalsIgnoreCase(Build.MODEL);
     }
 
     private static boolean isSamsungJ7() {
         return "Samsung".equalsIgnoreCase(Build.MANUFACTURER)
-                && Arrays.asList("sm-j700f", "sm-j701f").contains(Build.MODEL.toLowerCase());
+                && "sm-j700f".equalsIgnoreCase(Build.MODEL);
     }
 
     private static boolean isSamsungJ1AceNeo() {
