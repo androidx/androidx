@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Calculates the standard [AdaptiveLayoutDirective] from a given [WindowAdaptiveInfo]. Use this
+ * Calculates the standard [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
  * method with [calculateWindowAdaptiveInfo] to acquire Material-recommended adaptive layout
  * settings of the current activity window.
  *
@@ -33,14 +33,14 @@ import androidx.compose.ui.unit.dp
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
  *                           layout adaptation decisions like [WindowSizeClass].
  * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
- * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
+ * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
-fun calculateStandardAdaptiveLayoutDirective(
+fun calculateStandardPaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
-): AdaptiveLayoutDirective {
+): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
     val gutterOuterVertical: Dp
     val gutterInnerVertical: Dp
@@ -73,7 +73,7 @@ fun calculateStandardAdaptiveLayoutDirective(
         gutterInnerHorizontal = 0.dp
     }
 
-    return AdaptiveLayoutDirective(
+    return PaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(
             gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
@@ -84,7 +84,7 @@ fun calculateStandardAdaptiveLayoutDirective(
 }
 
 /**
- * Calculates the dense-mode [AdaptiveLayoutDirective] from a given [WindowAdaptiveInfo]. Use this
+ * Calculates the dense-mode [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
  * method with [calculateWindowAdaptiveInfo] to acquire Material-recommended dense-mode adaptive
  * layout settings of the current activity window.
  *
@@ -94,14 +94,14 @@ fun calculateStandardAdaptiveLayoutDirective(
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
  *                           layout adaptation decisions like [WindowSizeClass].
  * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
- * @return an [AdaptiveLayoutDirective] to be used to decide adaptive layout states.
+ * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
-fun calculateDenseAdaptiveLayoutDirective(
+fun calculateDensePaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
-): AdaptiveLayoutDirective {
+): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
     val gutterOuterVertical: Dp
     val gutterInnerVertical: Dp
@@ -134,7 +134,7 @@ fun calculateDenseAdaptiveLayoutDirective(
         gutterInnerHorizontal = 0.dp
     }
 
-    return AdaptiveLayoutDirective(
+    return PaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(
             gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
@@ -155,10 +155,10 @@ private fun getExcludedBounds(posture: Posture, hingePolicy: HingePolicy): List<
 }
 
 /**
- * Top-level directives about how an adaptive layout should be arranged and spaced, like how many
+ * Top-level directives about how a pane scaffold should be arranged and spaced, like how many
  * partitions the layout can be split into and what should be the gutter size.
  *
- * @constructor create an instance of [AdaptiveLayoutDirective]
+ * @constructor create an instance of [PaneScaffoldDirective]
  * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the layout
  *        can be split into.
  * @param gutterSizes the gutter sizes between panes the layout should preserve.
@@ -169,7 +169,7 @@ private fun getExcludedBounds(posture: Posture, hingePolicy: HingePolicy): List<
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-class AdaptiveLayoutDirective(
+class PaneScaffoldDirective(
     val maxHorizontalPartitions: Int,
     val gutterSizes: GutterSizes,
     val maxVerticalPartitions: Int,
@@ -177,7 +177,7 @@ class AdaptiveLayoutDirective(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AdaptiveLayoutDirective) return false
+        if (other !is PaneScaffoldDirective) return false
         if (maxHorizontalPartitions != other.maxHorizontalPartitions) return false
         if (gutterSizes != other.gutterSizes) return false
         if (maxVerticalPartitions != other.maxVerticalPartitions) return false

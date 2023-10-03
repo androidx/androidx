@@ -43,14 +43,14 @@ class ThreePaneScaffoldScreenshotTest {
     @Test
     fun threePaneScaffold_listDetailArrangement_standard() {
         rule.setContent {
-            val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+            val scaffoldDirective = calculateStandardPaneScaffoldDirective(
                 calculateWindowAdaptiveInfo()
             )
             val scaffoldValue = calculateThreePaneScaffoldValue(
-                layoutDirective.maxHorizontalPartitions
+                scaffoldDirective.maxHorizontalPartitions
             )
             SampleThreePaneScaffold(
-                layoutDirective,
+                scaffoldDirective,
                 scaffoldValue,
                 ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
             )
@@ -64,14 +64,14 @@ class ThreePaneScaffoldScreenshotTest {
     @Test
     fun threePaneScaffold_listDetailArrangement_dense() {
         rule.setContent {
-            val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+            val scaffoldDirective = calculateDensePaneScaffoldDirective(
                 calculateWindowAdaptiveInfo()
             )
             val scaffoldValue = calculateThreePaneScaffoldValue(
-                layoutDirective.maxHorizontalPartitions
+                scaffoldDirective.maxHorizontalPartitions
             )
             SampleThreePaneScaffold(
-                layoutDirective,
+                scaffoldDirective,
                 scaffoldValue,
                 ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
             )

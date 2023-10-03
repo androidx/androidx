@@ -54,18 +54,18 @@ import kotlin.math.min
 /**
  * A pane scaffold composable that can display up to three panes according to the instructions
  * provided by [ThreePaneScaffoldValue] in the order that [ThreePaneScaffoldArrangement] specifies,
- * and allocate margins and spacers according to [AdaptiveLayoutDirective].
+ * and allocate margins and spacers according to [PaneScaffoldDirective].
  *
  * [ThreePaneScaffold] is the base composable functions of adaptive programming. Developers can
  * freely pipeline the relevant adaptive signals and use them as input of the scaffold function
  * to render the final adaptive layout.
  *
- * It's recommended to use [ThreePaneScaffold] with [calculateStandardAdaptiveLayoutDirective],
+ * It's recommended to use [ThreePaneScaffold] with [calculateStandardPaneScaffoldDirective],
  * [calculateThreePaneScaffoldValue] to follow the Material design guidelines on adaptive
  * programming.
  *
  * @param modifier The modifier to be applied to the layout.
- * @param layoutDirective The top-level directives about how the scaffold should arrange its panes.
+ * @param scaffoldDirective The top-level directives about how the scaffold should arrange its panes.
  * @param scaffoldValue The current adapted value of the scaffold.
  * @param arrangement The arrangement of the panes in the scaffold.
  * @param secondaryPane The content of the secondary pane that has a priority lower then the primary
@@ -77,7 +77,7 @@ import kotlin.math.min
 @Composable
 fun ThreePaneScaffold(
     modifier: Modifier,
-    layoutDirective: AdaptiveLayoutDirective,
+    scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
     arrangement: ThreePaneScaffoldArrangement,
     secondaryPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
@@ -146,8 +146,8 @@ fun ThreePaneScaffold(
     )
 
     val measurePolicy =
-        remember { ThreePaneContentMeasurePolicy(layoutDirective, scaffoldValue, arrangement) }
-    measurePolicy.layoutDirective = layoutDirective
+        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, arrangement) }
+    measurePolicy.scaffoldDirective = scaffoldDirective
     measurePolicy.scaffoldValue = scaffoldValue
     measurePolicy.arrangement = arrangement
 
@@ -320,7 +320,7 @@ private fun getExpandedCount(scaffoldValue: ThreePaneScaffoldValue): Int {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class ThreePaneContentMeasurePolicy(
-    var layoutDirective: AdaptiveLayoutDirective,
+    var scaffoldDirective: PaneScaffoldDirective,
     var scaffoldValue: ThreePaneScaffoldValue,
     var arrangement: ThreePaneScaffoldArrangement
 ) : MultiContentMeasurePolicy {
@@ -368,10 +368,10 @@ private class ThreePaneContentMeasurePolicy(
                 it == PaneAdaptedValue.Hidden
             }
 
-            val outerVerticalGutterSize = layoutDirective.gutterSizes.outerVertical.roundToPx()
-            val innerVerticalGutterSize = layoutDirective.gutterSizes.innerVertical.roundToPx()
+            val outerVerticalGutterSize = scaffoldDirective.gutterSizes.outerVertical.roundToPx()
+            val innerVerticalGutterSize = scaffoldDirective.gutterSizes.innerVertical.roundToPx()
             val outerHorizontalGutterSize =
-                layoutDirective.gutterSizes.outerHorizontal.roundToPx()
+                scaffoldDirective.gutterSizes.outerHorizontal.roundToPx()
             val outerBounds = IntRect(
                 outerVerticalGutterSize,
                 outerHorizontalGutterSize,
@@ -379,7 +379,7 @@ private class ThreePaneContentMeasurePolicy(
                 constraints.maxHeight - outerHorizontalGutterSize
             )
 
-            if (layoutDirective.excludedBounds.isNotEmpty()) {
+            if (scaffoldDirective.excludedBounds.isNotEmpty()) {
                 val layoutBounds = coordinates!!.boundsInWindow()
                 val layoutPhysicalPartitions = mutableListOf<Rect>()
                 var actualLeft = layoutBounds.left + outerVerticalGutterSize
@@ -387,7 +387,7 @@ private class ThreePaneContentMeasurePolicy(
                 val actualTop = layoutBounds.top + outerHorizontalGutterSize
                 val actualBottom = layoutBounds.bottom - outerHorizontalGutterSize
                 // Assume hinge bounds are sorted from left to right, non-overlapped.
-                layoutDirective.excludedBounds.fastForEach { hingeBound ->
+                scaffoldDirective.excludedBounds.fastForEach { hingeBound ->
                     if (hingeBound.left <= actualLeft) {
                         // The hinge is at the left of the layout, adjust the left edge of
                         // the current partition to the actual displayable bounds.

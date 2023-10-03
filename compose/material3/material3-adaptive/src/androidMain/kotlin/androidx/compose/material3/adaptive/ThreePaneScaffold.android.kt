@@ -12,7 +12,7 @@ import androidx.compose.runtime.setValue
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal class DefaultThreePaneScaffoldState(
     initialFocusHistory: List<ThreePaneScaffoldRole>,
-    initialLayoutDirective: AdaptiveLayoutDirective,
+    initialScaffoldDirective: PaneScaffoldDirective,
     initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
 ) {
 
@@ -20,7 +20,7 @@ internal class DefaultThreePaneScaffoldState(
         addAll(initialFocusHistory)
     }
 
-    var layoutDirective by mutableStateOf(initialLayoutDirective)
+    var scaffoldDirective by mutableStateOf(initialScaffoldDirective)
     var adaptStrategies by mutableStateOf(initialAdaptStrategies)
 
     val currentFocus: ThreePaneScaffoldRole?
@@ -69,7 +69,7 @@ internal class DefaultThreePaneScaffoldState(
         focus: ThreePaneScaffoldRole?
     ): ThreePaneScaffoldValue =
         calculateThreePaneScaffoldValue(
-            layoutDirective.maxHorizontalPartitions,
+            scaffoldDirective.maxHorizontalPartitions,
             adaptStrategies,
             focus
         )
@@ -79,7 +79,7 @@ internal class DefaultThreePaneScaffoldState(
          * To keep focus history saved
          */
         fun saver(
-            initialLayoutDirective: AdaptiveLayoutDirective,
+            initialScaffoldDirective: PaneScaffoldDirective,
             initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies
         ): Saver<DefaultThreePaneScaffoldState, *> = listSaver(
             save = {
@@ -88,7 +88,7 @@ internal class DefaultThreePaneScaffoldState(
             restore = {
                 DefaultThreePaneScaffoldState(
                     initialFocusHistory = it,
-                    initialLayoutDirective = initialLayoutDirective,
+                    initialScaffoldDirective = initialScaffoldDirective,
                     initialAdaptStrategies = initialAdaptStrategies
                 )
             }
@@ -99,22 +99,22 @@ internal class DefaultThreePaneScaffoldState(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 internal fun rememberDefaultThreePaneScaffoldState(
-    layoutDirectives: AdaptiveLayoutDirective,
+    scaffoldDirective: PaneScaffoldDirective,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     initialFocusHistory: List<ThreePaneScaffoldRole>
 ): DefaultThreePaneScaffoldState =
     rememberSaveable(
         saver = DefaultThreePaneScaffoldState.saver(
-            layoutDirectives,
+            scaffoldDirective,
             adaptStrategies,
         )
     ) {
         DefaultThreePaneScaffoldState(
             initialFocusHistory = initialFocusHistory,
-            initialLayoutDirective = layoutDirectives,
+            initialScaffoldDirective = scaffoldDirective,
             initialAdaptStrategies = adaptStrategies
         )
     }.apply {
-        this.layoutDirective = layoutDirectives
+        this.scaffoldDirective = scaffoldDirective
         this.adaptStrategies = adaptStrategies
     }
