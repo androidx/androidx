@@ -21,7 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
@@ -298,13 +298,7 @@ internal interface Owner : PlatformTextInputSessionHandler {
      */
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
 
-    /**
-     * Initiates a drag-and-drop operation containing the data in [DragAndDropInfo].
-     * @return true if the method completes successfully, or false if it fails anywhere.
-     * Returning false means the system was unable to do a drag because of another
-     * ongoing operation or some other reasons.
-     */
-    fun drag(dragAndDropInfo: DragAndDropInfo): Boolean
+    val dragAndDropManager: DragAndDropManager
 
     companion object {
         /**

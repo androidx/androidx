@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.draganddrop
 
-import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -90,15 +89,7 @@ value class DragAndDropEventType private constructor(private val value: Int) {
 /**
  * A representation of an event sent by the platform during a drag and drop operation.
  */
-expect class DragAndDropEvent {
-    // TODO: Move this to the Owner interface
-    /**
-     * A collection [DragAndDropModifierNode] instances that registered interested in a
-     * drag and drop session by returning true in [DragAndDropModifierNode.onDragAndDropEvent]
-     * with a [DragAndDropEventType.Started] type.
-     */
-    internal val interestedNodes: ArraySet<DragAndDropModifierNode>
-}
+expect class DragAndDropEvent
 
 /**
  * Returns the position of this [DragAndDropEvent] relative to the root Compose View in the
@@ -113,7 +104,7 @@ class DragAndDropInfo(
     /**
      * The size of the drag shadow for the item that was dragged
      */
-    val size: Size,
+    val dragDecorationSize: Size,
     /**
      * The data to transfer after the drag and drop event completes
      */
@@ -121,7 +112,7 @@ class DragAndDropInfo(
     /**
      * A [DrawScope] receiving lambda to draw the drag shadow for the drag and drop operation
      */
-    val onDrawDragShadow: DrawScope.() -> Unit,
+    val drawDragDecoration: DrawScope.() -> Unit,
 )
 
 /**

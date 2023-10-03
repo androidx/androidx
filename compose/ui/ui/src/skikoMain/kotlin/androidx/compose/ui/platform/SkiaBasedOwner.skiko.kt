@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.PrimaryPressedPointerButtons
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.In
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
@@ -230,6 +230,8 @@ internal class SkiaBasedOwner(
     override val textToolbar = DefaultTextToolbar()
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
+
+    override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
 
     override val autofillTree = AutofillTree()
 
@@ -507,10 +509,6 @@ internal class SkiaBasedOwner(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing {
         component.textInputSession(session)
-    }
-
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean {
-        TODO("Not yet implemented")
     }
 
     // A Stub for the PointerIconService required in Owner.kt
