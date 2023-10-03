@@ -664,21 +664,23 @@ package androidx.wear.compose.material {
   }
 
   public final class SwipeToDismissBoxKt {
-    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(androidx.wear.compose.material.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToDismissBoxState state, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
-    method public static androidx.compose.ui.Modifier edgeSwipeToDismiss(androidx.compose.ui.Modifier, androidx.wear.compose.material.SwipeToDismissBoxState swipeToDismissBoxState, optional float edgeWidth);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
+    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public static void SwipeToDismissBox(androidx.wear.compose.material.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.SwipeToDismissBoxState state, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean hasBackground, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @Deprecated public static androidx.compose.ui.Modifier edgeSwipeToDismiss(androidx.compose.ui.Modifier, androidx.wear.compose.material.SwipeToDismissBoxState swipeToDismissBoxState, optional float edgeWidth);
+    method @Deprecated @androidx.compose.runtime.Composable public static androidx.wear.compose.material.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
   }
 
-  @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
-    ctor public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
-    method public androidx.wear.compose.material.SwipeToDismissValue getCurrentValue();
-    method public androidx.wear.compose.material.SwipeToDismissValue getTargetValue();
-    method public boolean isAnimationRunning();
-    method public suspend Object? snapTo(androidx.wear.compose.material.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final androidx.wear.compose.material.SwipeToDismissValue currentValue;
-    property public final boolean isAnimationRunning;
-    property public final androidx.wear.compose.material.SwipeToDismissValue targetValue;
+  @Deprecated @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
+    ctor @Deprecated public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
+    method @Deprecated public androidx.wear.compose.material.SwipeToDismissValue getCurrentValue();
+    method @Deprecated public androidx.wear.compose.material.SwipeToDismissValue getTargetValue();
+    method @Deprecated public boolean isAnimationRunning();
+    method @Deprecated public suspend Object? snapTo(androidx.wear.compose.material.SwipeToDismissValue targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property @Deprecated public final androidx.wear.compose.material.SwipeToDismissValue currentValue;
+    property @Deprecated public final boolean isAnimationRunning;
+    property @Deprecated public final androidx.wear.compose.material.SwipeToDismissValue targetValue;
   }
 
   public enum SwipeToDismissKeys {
@@ -688,11 +690,11 @@ package androidx.wear.compose.material {
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Content;
   }
 
-  public enum SwipeToDismissValue {
-    method public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.compose.material.SwipeToDismissValue[] values();
-    enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Default;
-    enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
+  @Deprecated public enum SwipeToDismissValue {
+    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue[] values();
+    enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Default;
+    enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
   }
 
   @SuppressCompatibility @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class SwipeToRevealAction {

@@ -48,6 +48,10 @@ import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeWithVelocity
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import com.google.common.truth.Truth.assertThat
 import java.lang.Math.sin
 import org.junit.Assert.assertEquals
@@ -579,7 +583,6 @@ class SwipeToDismissBoxTest {
 
 private const val BACKGROUND_MESSAGE = "The Background"
 private const val CONTENT_MESSAGE = "The Content"
-private const val LONG_SWIPE = 1000L
 private const val TOGGLE_SCREEN = "Toggle"
 private const val COUNTER_SCREEN = "Counter"
 private const val TOGGLE_ON = "On"
