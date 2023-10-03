@@ -108,6 +108,7 @@ constraintLayout = { module = "androidx.constraintlayout:constraintlayout", vers
 dackka = { module = "com.google.devsite:dackka", version = "1.4.0" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version = "2.0.3" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
 dexmakerMockitoInlineExtended = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline-extended", version.ref = "dexmaker" }
