@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
 pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
         google()
-
-        if (settings.extra.get("androidx.allowJetbrainsDev") == "true") {
+        val allowJetbrains = "androidx.allowJetbrainsDev"
+        if (settings.extra.has(allowJetbrains) && settings.extra.get(allowJetbrains) == "true") {
             maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/")
         }
     }
@@ -31,8 +32,8 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
-
-        if (settings.extra.get("androidx.allowJetbrainsDev") == "true") {
+        val allowJetbrains = "androidx.allowJetbrainsDev"
+        if (settings.extra.has(allowJetbrains) && settings.extra.get(allowJetbrains) == "true") {
             maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/")
         }
     }
