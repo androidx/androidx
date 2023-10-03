@@ -75,7 +75,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,7 +82,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.flow.drop
 import org.junit.Ignore
 import org.junit.Rule
@@ -172,27 +170,6 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             assertThat(state).isEqualTo("Hello World!")
-        }
-    }
-
-    @Test
-    fun textFieldValue_textChange_updatesState() {
-        var state by mutableStateOf(TextFieldValue("Hello ", selection = TextRange(Int.MAX_VALUE)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = state,
-                onValueChange = { state = it },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag)
-            )
-        }
-
-        rule.onNodeWithTag(Tag).performTextInput("World!")
-
-        rule.runOnIdle {
-            assertThat(state.text).isEqualTo("Hello World!")
-            assertThat(state.selection).isEqualTo(TextRange(12))
         }
     }
 
@@ -1010,42 +987,6 @@ internal class BasicTextField2Test {
     }
 
     @Test
-    fun textFieldValue_updatesFieldText_whenTextChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf(TextFieldValue("hello"))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.runOnIdle {
-            text = text.copy(text = "world")
-        }
-
-        rule.onNodeWithTag(Tag).assertTextEquals("world")
-    }
-
-    @Test
-    fun textFieldValue_updatesFieldSelection_whenSelectionChangedFromCode_whileUnfocused() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.runOnIdle {
-            text = text.copy(selection = TextRange(2))
-        }
-
-        assertTextSelection(TextRange(2))
-    }
-
-    @Test
     fun stringValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
         var text by mutableStateOf("hello")
         inputMethodInterceptor.setContent {
@@ -1059,25 +1000,6 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             text = "world"
-        }
-
-        rule.onNodeWithTag(Tag).assertTextEquals("hello")
-    }
-
-    @Test
-    fun textFieldValue_doesNotUpdateField_whenTextChangedFromCode_whileFocused() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-
-        rule.runOnIdle {
-            text = TextFieldValue(text = "world", selection = TextRange(2))
         }
 
         rule.onNodeWithTag(Tag).assertTextEquals("hello")
@@ -1206,65 +1128,6 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             assertThat(onValueChangedCount).isEqualTo(0)
-        }
-    }
-
-    @Test
-    fun textFieldValue_usesInitialSelectionFromValue() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(2)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        assertTextSelection(TextRange(2))
-    }
-
-    @Test
-    fun textFieldValue_reportsSelectionChangesInCallback() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
-
-        rule.runOnIdle {
-            assertThat(text.selection).isEqualTo(TextRange(2))
-        }
-    }
-
-    @Test
-    fun textFieldValue_reportsCompositionChangesInCallback() {
-        var text by mutableStateOf(TextFieldValue("hello", selection = TextRange(1)))
-        inputMethodInterceptor.setContent {
-            BasicTextField2(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-        requestFocus(Tag)
-
-        inputMethodInterceptor.withInputConnection { setComposingRegion(0, 0) }
-        rule.runOnIdle {
-            assertWithMessage(
-                "After setting composing region to 0, 0, TextFieldState's composition is:"
-            ).that(text.composition).isNull()
-        }
-
-        inputMethodInterceptor.withInputConnection { setComposingRegion(1, 4) }
-        rule.runOnIdle {
-            assertWithMessage(
-                "After setting composing region to 1, 4, TextFieldState's composition is:"
-            ).that(text.composition).isEqualTo(TextRange(1, 4))
         }
     }
 
