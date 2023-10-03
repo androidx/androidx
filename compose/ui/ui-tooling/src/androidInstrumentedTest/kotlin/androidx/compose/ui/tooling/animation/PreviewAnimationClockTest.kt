@@ -504,7 +504,7 @@ class PreviewAnimationClockTest {
 
     @Test
     fun clockWithInfiniteTransition() {
-        val search = AnimationSearch({ testClock }) {}
+        val search = AnimationSearch({ testClock }, false) {}
         composeRule.searchAndTrackAllAnimations(search) {
             // Transition with duration 1000
             val transition = updateTransition(targetState = 10, label = "updateTransition")
