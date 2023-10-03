@@ -16,15 +16,22 @@
 
 package androidx.camera.video;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
+
 import android.media.CamcorderProfile;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,51 +50,56 @@ public class Quality {
     /**
      * Standard Definition (SD) 480p video quality.
      *
-     * <p>This video quality usually corresponds to a resolution of 720 x 480 (480p) pixels.
+     * <p>This video quality usually corresponds to a resolution of 720 x 480 or 640 x 480 (480p)
+     * pixels.
      */
-    public static final Quality SD = ConstantQuality.of(CamcorderProfile.QUALITY_480P, "SD");
+    public static final Quality SD = ConstantQuality.of(CamcorderProfile.QUALITY_480P, "SD",
+            unmodifiableList(asList(new Size(720, 480), new Size(640, 480))));
 
     /**
      * High Definition (HD) video quality.
      *
      * <p>This video quality usually corresponds to a resolution of 1280 x 720 (720p) pixels.
      */
-    public static final Quality HD = ConstantQuality.of(CamcorderProfile.QUALITY_720P, "HD");
+    public static final Quality HD = ConstantQuality.of(CamcorderProfile.QUALITY_720P, "HD",
+            singletonList(new Size(1280, 720)));
 
     /**
      * Full High Definition (FHD) 1080p video quality.
      *
      * <p>This video quality usually corresponds to a resolution of 1920 x 1080 (1080p) pixels.
      */
-    public static final Quality FHD = ConstantQuality.of(CamcorderProfile.QUALITY_1080P, "FHD");
+    public static final Quality FHD = ConstantQuality.of(CamcorderProfile.QUALITY_1080P, "FHD",
+            singletonList(new Size(1920, 1080)));
 
     /**
      * Ultra High Definition (UHD) 2160p video quality.
      *
      * <p>This video quality usually corresponds to a resolution of 3840 x 2160 (2160p) pixels.
      */
-    public static final Quality UHD = ConstantQuality.of(CamcorderProfile.QUALITY_2160P, "UHD");
+    public static final Quality UHD = ConstantQuality.of(CamcorderProfile.QUALITY_2160P, "UHD",
+            singletonList(new Size(3840, 2160)));
 
     /**
      * The lowest video quality supported by the video frame producer.
      */
-    public static final Quality LOWEST = ConstantQuality.of(CamcorderProfile.QUALITY_LOW, "LOWEST");
+    public static final Quality LOWEST = ConstantQuality.of(CamcorderProfile.QUALITY_LOW, "LOWEST",
+            emptyList());
 
     /**
      * The highest video quality supported by the video frame producer.
      */
     public static final Quality HIGHEST = ConstantQuality.of(CamcorderProfile.QUALITY_HIGH,
-            "HIGHEST");
+            "HIGHEST", emptyList());
 
-    static final Quality NONE = ConstantQuality.of(-1, "NONE");
+    static final Quality NONE = ConstantQuality.of(-1, "NONE", emptyList());
 
     /** All quality constants. */
     private static final Set<Quality> QUALITIES =
-            new HashSet<>(Arrays.asList(LOWEST, HIGHEST, SD, HD, FHD, UHD));
+            new HashSet<>(asList(LOWEST, HIGHEST, SD, HD, FHD, UHD));
 
     /** Quality constants with size from large to small. */
-    private static final List<Quality> QUALITIES_ORDER_BY_SIZE =
-            Arrays.asList(UHD, FHD, HD, SD);
+    private static final List<Quality> QUALITIES_ORDER_BY_SIZE = asList(UHD, FHD, HD, SD);
 
     static boolean containsQuality(@NonNull Quality quality) {
         return QUALITIES.contains(quality);
@@ -98,21 +110,32 @@ public class Quality {
      *
      * <p>{@link #HIGHEST} and {@link #LOWEST} are not included.
      */
+    @RestrictTo(Scope.LIBRARY)
     @NonNull
-    static List<Quality> getSortedQualities() {
+    public static List<Quality> getSortedQualities() {
         return new ArrayList<>(QUALITIES_ORDER_BY_SIZE);
     }
 
+    @RequiresApi(21)
+    @RestrictTo(Scope.LIBRARY)
     @AutoValue
-    abstract static class ConstantQuality extends Quality {
+    public abstract static class ConstantQuality extends Quality {
         @NonNull
-        static ConstantQuality of(int value, @NonNull String name) {
-            return new AutoValue_Quality_ConstantQuality(value, name);
+        static ConstantQuality of(int value, @NonNull String name,
+                @NonNull List<Size> typicalSizes) {
+            return new AutoValue_Quality_ConstantQuality(value, name, typicalSizes);
         }
 
-        abstract int getValue();
+        /** Gets the quality value corresponding to CamcorderProfile quality constant. */
+        public abstract int getValue();
 
+        /** Gets the quality name. */
         @NonNull
-        abstract String getName();
+        public abstract String getName();
+
+        /** Gets the typical sizes of the quality. */
+        @SuppressWarnings("AutoValueImmutableFields")
+        @NonNull
+        public abstract List<Size> getTypicalSizes();
     }
 }
