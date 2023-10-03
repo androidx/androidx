@@ -122,6 +122,7 @@ class VersionChecker(val context: IrPluginContext) {
             10403 to "1.5.1",
             10404 to "1.5.2",
             10405 to "1.5.3",
+            10406 to "1.5.4",
         )
 
         /**
