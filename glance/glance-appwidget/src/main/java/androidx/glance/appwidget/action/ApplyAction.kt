@@ -205,12 +205,16 @@ private fun getFillInIntentForAction(
             action = action,
             translationContext = translationContext,
             params = editParams(action.parameters)
-        ).applyTrampolineIntent(
-            translationContext,
-            viewId = viewId,
-            type = ActionTrampolineType.ACTIVITY,
-            activityOptions = action.activityOptions,
-        )
+        ).apply {
+            if (data == null) {
+                data =
+                    createUniqueUri(
+                        translationContext,
+                        viewId,
+                        ActionTrampolineType.CALLBACK,
+                    )
+            }
+        }
     }
     is StartServiceAction -> {
         getServiceIntent(
