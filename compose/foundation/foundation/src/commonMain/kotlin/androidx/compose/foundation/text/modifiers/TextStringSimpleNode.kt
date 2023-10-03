@@ -199,7 +199,6 @@ internal class TextStringSimpleNode(
                     textLayoutResult.add(it)
                 }
                 layout != null
-                false
             }
             semanticsTextLayoutResult = localSemanticsTextLayoutResult
         }
