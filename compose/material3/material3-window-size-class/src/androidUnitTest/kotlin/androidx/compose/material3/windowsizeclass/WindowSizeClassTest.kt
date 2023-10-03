@@ -16,7 +16,7 @@
 
 package androidx.compose.material3.windowsizeclass
 
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -29,134 +29,60 @@ class WindowSizeClassTest {
     @Test
     fun calculateWidthSizeClass_forNegativeWidth_throws() {
         assertFailsWith(IllegalArgumentException::class) {
-            WindowWidthSizeClass.fromWidth((-10).dp)
+            WindowWidthSizeClass.fromWidth((-10).dp, WindowWidthSizeClass.DefaultSizeClasses)
         }
     }
 
     @Test
     fun calculateHeightSizeClass_forNegativeHeight_throws() {
         assertFailsWith(IllegalArgumentException::class) {
-            WindowHeightSizeClass.fromHeight((-10).dp)
-        }
-    }
-
-    @Test
-    fun calculateWidthSizeClass_forNegativeWidthInPx_throws() {
-        assertFailsWith(IllegalArgumentException::class) {
-            WindowWidthSizeClass.fromWidth(
-                -10F, DefaultDensity, WindowWidthSizeClass.DefaultSizeClasses
-            )
-        }
-    }
-
-    @Test
-    fun calculateHeightSizeClass_forNegativeHeightInPx_throws() {
-        assertFailsWith(IllegalArgumentException::class) {
-            WindowHeightSizeClass.fromHeight(
-                -10F, DefaultDensity, WindowHeightSizeClass.DefaultSizeClasses
-            )
+            WindowHeightSizeClass.fromHeight((-10).dp, WindowHeightSizeClass.DefaultSizeClasses)
         }
     }
 
     @Test
     fun calculateWidthSizeClass_noSupportedSizeClass_throws() {
         assertFailsWith(IllegalArgumentException::class) {
-            WindowWidthSizeClass.fromWidth(10F, DefaultDensity, emptySet())
+            WindowWidthSizeClass.fromWidth(10.dp, emptySet())
         }
     }
 
     @Test
     fun calculateHeightSizeClass_noSupportedSizeClass_throws() {
         assertFailsWith(IllegalArgumentException::class) {
-            WindowHeightSizeClass.fromHeight(10F, DefaultDensity, emptySet())
+            WindowHeightSizeClass.fromHeight(10.dp, emptySet())
         }
     }
 
     @Test
     fun calculateWidthSizeClass() {
-        assertThat(WindowWidthSizeClass.fromWidth(0.dp)).isEqualTo(WindowWidthSizeClass.Compact)
-        assertThat(WindowWidthSizeClass.fromWidth(200.dp)).isEqualTo(WindowWidthSizeClass.Compact)
+        assertWidthClass(WindowWidthSizeClass.Compact, 0.dp)
+        assertWidthClass(WindowWidthSizeClass.Compact, 200.dp)
 
-        assertThat(WindowWidthSizeClass.fromWidth(600.dp)).isEqualTo(WindowWidthSizeClass.Medium)
-        assertThat(WindowWidthSizeClass.fromWidth(700.dp)).isEqualTo(WindowWidthSizeClass.Medium)
+        assertWidthClass(WindowWidthSizeClass.Medium, 600.dp)
+        assertWidthClass(WindowWidthSizeClass.Medium, 700.dp)
 
-        assertThat(WindowWidthSizeClass.fromWidth(840.dp)).isEqualTo(WindowWidthSizeClass.Expanded)
-        assertThat(WindowWidthSizeClass.fromWidth(1000.dp)).isEqualTo(WindowWidthSizeClass.Expanded)
+        assertWidthClass(WindowWidthSizeClass.Expanded, 840.dp)
+        assertWidthClass(WindowWidthSizeClass.Expanded, 1000.dp)
     }
 
     @Test
     fun calculateHeightSizeClass() {
-        assertThat(WindowHeightSizeClass.fromHeight(0.dp)).isEqualTo(WindowHeightSizeClass.Compact)
-        assertThat(WindowHeightSizeClass.fromHeight(200.dp))
-            .isEqualTo(WindowHeightSizeClass.Compact)
+        assertHeightClass(WindowHeightSizeClass.Compact, 0.dp)
+        assertHeightClass(WindowHeightSizeClass.Compact, 200.dp)
 
-        assertThat(WindowHeightSizeClass.fromHeight(480.dp)).isEqualTo(WindowHeightSizeClass.Medium)
-        assertThat(WindowHeightSizeClass.fromHeight(700.dp))
-            .isEqualTo(WindowHeightSizeClass.Medium)
+        assertHeightClass(WindowHeightSizeClass.Medium, 480.dp)
+        assertHeightClass(WindowHeightSizeClass.Medium, 700.dp)
 
-        assertThat(WindowHeightSizeClass.fromHeight(900.dp))
-            .isEqualTo(WindowHeightSizeClass.Expanded)
-        assertThat(WindowHeightSizeClass.fromHeight(1000.dp))
-            .isEqualTo(WindowHeightSizeClass.Expanded)
-    }
-
-    @Test
-    fun calculateWidthSizeClass_withDefaultDensity() {
-        assertWidthClass(WindowWidthSizeClass.Compact, 0F)
-        assertWidthClass(WindowWidthSizeClass.Compact, 200F)
-
-        assertWidthClass(WindowWidthSizeClass.Medium, 600F)
-        assertWidthClass(WindowWidthSizeClass.Medium, 700F)
-
-        assertWidthClass(WindowWidthSizeClass.Expanded, 840F)
-        assertWidthClass(WindowWidthSizeClass.Expanded, 1000F)
-    }
-
-    @Test
-    fun calculateHeightSizeClass_withDefaultDensity() {
-        assertHeightClass(WindowHeightSizeClass.Compact, 0F)
-        assertHeightClass(WindowHeightSizeClass.Compact, 200F)
-
-        assertHeightClass(WindowHeightSizeClass.Medium, 480F)
-        assertHeightClass(WindowHeightSizeClass.Medium, 700F)
-
-        assertHeightClass(WindowHeightSizeClass.Expanded, 900F)
-        assertHeightClass(WindowHeightSizeClass.Expanded, 1000F)
-    }
-
-    @Test
-    fun calculateWidthSizeClass_withMockDensity() {
-        val mockDensity = Density(2F, 2F)
-
-        assertWidthClass(WindowWidthSizeClass.Compact, 0F, mockDensity)
-        assertWidthClass(WindowWidthSizeClass.Compact, 400F, mockDensity)
-
-        assertWidthClass(WindowWidthSizeClass.Medium, 1200F, mockDensity)
-        assertWidthClass(WindowWidthSizeClass.Medium, 1400F, mockDensity)
-
-        assertWidthClass(WindowWidthSizeClass.Expanded, 1680F, mockDensity)
-        assertWidthClass(WindowWidthSizeClass.Expanded, 2000F, mockDensity)
-    }
-
-    @Test
-    fun calculateHeightSizeClass_withMockDensity() {
-        val mockDensity = Density(2F, 2F)
-
-        assertHeightClass(WindowHeightSizeClass.Compact, 0F, mockDensity)
-        assertHeightClass(WindowHeightSizeClass.Compact, 400F, mockDensity)
-
-        assertHeightClass(WindowHeightSizeClass.Medium, 960F, mockDensity)
-        assertHeightClass(WindowHeightSizeClass.Medium, 1400F, mockDensity)
-
-        assertHeightClass(WindowHeightSizeClass.Expanded, 1800F, mockDensity)
-        assertHeightClass(WindowHeightSizeClass.Expanded, 2000F, mockDensity)
+        assertHeightClass(WindowHeightSizeClass.Expanded, 900.dp)
+        assertHeightClass(WindowHeightSizeClass.Expanded, 1000.dp)
     }
 
     @Test
     fun calculateWidthSizeClass_useBestMatchedSupportedSizeClasses() {
         assertWidthClass(
             WindowWidthSizeClass.Compact,
-            700F,
+            700.dp,
             supportedSizeClasses = setOf(
                 WindowWidthSizeClass.Compact, WindowWidthSizeClass.Expanded
             )
@@ -164,7 +90,7 @@ class WindowSizeClassTest {
 
         assertWidthClass(
             WindowWidthSizeClass.Medium,
-            1000F,
+            1000.dp,
             supportedSizeClasses = setOf(
                 WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium
             )
@@ -175,7 +101,7 @@ class WindowSizeClassTest {
     fun calculateHeightSizeClass_useBestMatchedSupportedSizeClasses() {
         assertHeightClass(
             WindowHeightSizeClass.Compact,
-            700F,
+            700.dp,
             supportedSizeClasses = setOf(
                 WindowHeightSizeClass.Compact, WindowHeightSizeClass.Expanded
             )
@@ -183,7 +109,7 @@ class WindowSizeClassTest {
 
         assertHeightClass(
             WindowHeightSizeClass.Medium,
-            1000F,
+            1000.dp,
             supportedSizeClasses = setOf(
                 WindowHeightSizeClass.Compact, WindowHeightSizeClass.Medium
             )
@@ -194,7 +120,7 @@ class WindowSizeClassTest {
     fun calculateWidthSizeClass_fallbackToTheSmallestSizeClasses() {
         assertWidthClass(
             WindowWidthSizeClass.Medium,
-            200F,
+            200.dp,
             supportedSizeClasses = setOf(
                 WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded
             )
@@ -205,7 +131,7 @@ class WindowSizeClassTest {
     fun calculateHeightSizeClass_fallbackToTheSmallestSizeClasses() {
         assertHeightClass(
             WindowHeightSizeClass.Medium,
-            200F,
+            200.dp,
             supportedSizeClasses = setOf(
                 WindowHeightSizeClass.Medium, WindowHeightSizeClass.Expanded
             )
@@ -340,27 +266,21 @@ class WindowSizeClassTest {
 
     private fun assertWidthClass(
         expectedSizeClass: WindowWidthSizeClass,
-        width: Float,
-        density: Density = DefaultDensity,
+        width: Dp,
         supportedSizeClasses: Set<WindowWidthSizeClass> = WindowWidthSizeClass.DefaultSizeClasses
     ) {
         assertThat(
-            WindowWidthSizeClass.fromWidth(width, density, supportedSizeClasses)
+            WindowWidthSizeClass.fromWidth(width, supportedSizeClasses)
         ).isEqualTo(expectedSizeClass)
     }
 
     private fun assertHeightClass(
         expectedSizeClass: WindowHeightSizeClass,
-        height: Float,
-        density: Density = DefaultDensity,
+        height: Dp,
         supportedSizeClasses: Set<WindowHeightSizeClass> = WindowHeightSizeClass.DefaultSizeClasses
     ) {
         assertThat(
-            WindowHeightSizeClass.fromHeight(height, density, supportedSizeClasses)
+            WindowHeightSizeClass.fromHeight(height, supportedSizeClasses)
         ).isEqualTo(expectedSizeClass)
-    }
-
-    companion object {
-        private val DefaultDensity = Density(1F, 1F)
     }
 }

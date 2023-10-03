@@ -111,8 +111,9 @@ fun foldingFeaturesAsState(
 internal fun Context.windowAdaptiveInfo() =
     WindowAdaptiveInfo(
         WindowSizeClass.calculateFromSize(
-            windowSizeAsState(this).value.toSize(),
-            LocalDensity.current
+            with(LocalDensity.current) {
+                windowSizeAsState(this@windowAdaptiveInfo).value.toSize().toDpSize()
+            }
         ),
         calculatePosture(foldingFeaturesAsState(this).value)
     )
