@@ -290,9 +290,12 @@ public class CameraXService extends LifecycleService {
             RemoteViews videoView = new RemoteViews(getPackageName(),
                     R.layout.notification_video_widget);
             if (mActiveRecording == null) {
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+                if (Build.VERSION.SDK_INT >= 23) {
+                    flags |= PendingIntent.FLAG_IMMUTABLE;
+                }
                 recordingIntent = PendingIntent.getService(this, 0,
-                        new Intent(ACTION_START_RECORDING),
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        new Intent(ACTION_START_RECORDING), flags);
                 recordingIconResId = android.R.drawable.ic_media_play;
                 recordingStateVisibility = View.GONE;
             } else {
