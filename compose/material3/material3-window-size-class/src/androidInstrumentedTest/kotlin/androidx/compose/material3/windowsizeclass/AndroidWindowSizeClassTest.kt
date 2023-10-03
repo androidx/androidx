@@ -51,7 +51,10 @@ class AndroidWindowSizeClassTest {
 
             val width = getWindowBounds().width()
             val expectedWindowWidthSizeClass = with(rule.density) {
-                WindowWidthSizeClass.fromWidth(width.toDp())
+                WindowWidthSizeClass.fromWidth(
+                    width.toDp(),
+                    WindowWidthSizeClass.DefaultSizeClasses
+                )
             }
             assertThat(expectedWindowWidthSizeClass).isEqualTo(actualWindowWidthSizeClass)
         }
@@ -69,7 +72,10 @@ class AndroidWindowSizeClassTest {
 
             val height = getWindowBounds().height()
             val expectedWindowHeightSizeClass = with(rule.density) {
-                WindowHeightSizeClass.fromHeight(height.toDp())
+                WindowHeightSizeClass.fromHeight(
+                    height.toDp(),
+                    WindowHeightSizeClass.DefaultSizeClasses
+                )
             }
             assertThat(expectedWindowHeightSizeClass).isEqualTo(actualWindowHeightSizeClass)
         }

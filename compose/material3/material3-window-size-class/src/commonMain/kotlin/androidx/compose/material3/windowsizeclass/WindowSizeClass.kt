@@ -17,7 +17,6 @@
 package androidx.compose.material3.windowsizeclass
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -44,44 +43,30 @@ class WindowSizeClass private constructor(
 ) {
     companion object {
         /**
-         * Calculates [WindowSizeClass] for a given [size]. Should be used for testing purposes only
-         * - to calculate a [WindowSizeClass] for the Activity's current window see
-         * [calculateWindowSizeClass].
+         * Calculates the best matched [WindowSizeClass] for a given [size] according to
+         * the provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
          *
          * @param size of the window
-         * @return [WindowSizeClass] corresponding to the given width and height
-         */
-        @ExperimentalMaterial3WindowSizeClassApi
-        @TestOnly
-        fun calculateFromSize(size: DpSize): WindowSizeClass {
-            val windowWidthSizeClass = WindowWidthSizeClass.fromWidth(size.width)
-            val windowHeightSizeClass = WindowHeightSizeClass.fromHeight(size.height)
-            return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
-        }
-
-        /**
-         * Calculates the best matched [WindowSizeClass] for a given [size] and [Density] according
-         * to the provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
-         *
-         * @param size of the window
-         * @param density of the window
          * @param supportedWidthSizeClasses the set of width size classes that are supported
          * @param supportedHeightSizeClasses the set of height size classes that are supported
          * @return [WindowSizeClass] corresponding to the given width and height
          */
         @ExperimentalMaterial3WindowSizeClassApi
         fun calculateFromSize(
-            size: Size,
-            density: Density,
+            size: DpSize,
             supportedWidthSizeClasses: Set<WindowWidthSizeClass> =
                 WindowWidthSizeClass.DefaultSizeClasses,
             supportedHeightSizeClasses: Set<WindowHeightSizeClass> =
                 WindowHeightSizeClass.DefaultSizeClasses
         ): WindowSizeClass {
-            val windowWidthSizeClass =
-                WindowWidthSizeClass.fromWidth(size.width, density, supportedWidthSizeClasses)
-            val windowHeightSizeClass =
-                WindowHeightSizeClass.fromHeight(size.height, density, supportedHeightSizeClasses)
+            val windowWidthSizeClass = WindowWidthSizeClass.fromWidth(
+                size.width,
+                supportedWidthSizeClasses
+            )
+            val windowHeightSizeClass = WindowHeightSizeClass.fromHeight(
+                size.height,
+                supportedHeightSizeClasses
+            )
             return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
         }
     }
@@ -180,28 +165,20 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
             }
         }
 
-        /** Calculates the [WindowWidthSizeClass] for a given [width] */
-        internal fun fromWidth(width: Dp): WindowWidthSizeClass {
-            return fromWidth(
-                with(defaultDensity) { width.toPx() }, defaultDensity, DefaultSizeClasses
-            )
-        }
-
         /**
          * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and
          * a given [Density] from [supportedSizeClasses].
          */
         internal fun fromWidth(
-            width: Float,
-            density: Density,
+            width: Dp,
             supportedSizeClasses: Set<WindowWidthSizeClass>
         ): WindowWidthSizeClass {
-            require(width >= 0) { "Width must not be negative" }
+            require(width >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
             val sortedSizeClasses = supportedSizeClasses.sortedDescending()
             // Find the largest supported size class that matches the width
             sortedSizeClasses.fastForEach {
-                if (width >= with(density) { it.breakpoint().toPx() }) {
+                if (width >= it.breakpoint()) {
                     return it
                 }
             }
@@ -278,28 +255,20 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
             }
         }
 
-        /** Calculates the [WindowHeightSizeClass] for a given [height] */
-        internal fun fromHeight(height: Dp): WindowHeightSizeClass {
-            return fromHeight(
-                with(defaultDensity) { height.toPx() }, defaultDensity, DefaultSizeClasses
-            )
-        }
-
         /**
          * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and
          * a given [Density] from [supportedSizeClasses].
          */
         internal fun fromHeight(
-            height: Float,
-            density: Density,
+            height: Dp,
             supportedSizeClasses: Set<WindowHeightSizeClass>
         ): WindowHeightSizeClass {
-            require(height >= 0) { "Width must not be negative" }
+            require(height >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
             val sortedSizeClasses = supportedSizeClasses.sortedDescending()
             // Find the largest supported size class that matches the width
             sortedSizeClasses.fastForEach {
-                if (height >= with(density) { it.breakpoint().toPx() }) {
+                if (height >= it.breakpoint()) {
                     return it
                 }
             }
@@ -308,5 +277,3 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
         }
     }
 }
-
-private val defaultDensity = Density(1F, 1F)
