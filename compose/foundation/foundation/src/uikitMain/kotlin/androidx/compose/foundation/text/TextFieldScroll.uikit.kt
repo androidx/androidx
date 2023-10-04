@@ -41,7 +41,7 @@ import kotlin.math.roundToInt
 @ExperimentalFoundationApi
 @Composable
 internal actual fun rememberTextFieldOverscrollEffect(): OverscrollEffect? =
-    rememberOverscrollEffect()
+    rememberOverscrollEffect(applyClip = true)
 
 internal actual fun Modifier.textFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,

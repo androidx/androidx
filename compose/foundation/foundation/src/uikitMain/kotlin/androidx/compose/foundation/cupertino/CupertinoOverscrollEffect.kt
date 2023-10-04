@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -60,14 +61,20 @@ private data class CupertinoOverscrollAvailableDelta(
     val newOverscrollValue: Float
 )
 
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * CupertinoOverscrollEffect
+ *
+ * @param density to be taken into consideration during computations;
+ * Cupertino formulas use DPs, and scroll machinery uses raw values.
+ *
+ * @param applyClip Some consumers of overscroll effect apply clip by themselves and some don't,
+ * thus this flag is needed to update our modifier chain and make the clipping correct in every case while avoiding redundancy
+ */
+@ExperimentalFoundationApi
 class CupertinoOverscrollEffect(
-    /*
-     * Density to be taken into consideration during computations; Cupertino formulas use
-     * DPs, and scroll machinery uses raw values.
-     */
     private val density: Float,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
+    val applyClip: Boolean
 ) : OverscrollEffect {
     /*
      * Direction of scrolling for this overscroll effect, derived from arguments during
@@ -117,8 +124,16 @@ class CupertinoOverscrollEffect(
         .onPlaced {
             scrollSize = it.size.toSize()
         }
+        .clipIfNeeded()
         .offset {
             visibleOverscrollOffset
+        }
+
+    private fun Modifier.clipIfNeeded(): Modifier =
+        if (applyClip) {
+            clipToBounds() then this
+        } else {
+            this
         }
 
     private fun NestedScrollSource.toCupertinoScrollSource(): CupertinoScrollSource? =

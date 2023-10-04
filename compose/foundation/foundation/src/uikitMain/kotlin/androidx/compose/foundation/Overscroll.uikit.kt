@@ -26,12 +26,17 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal actual fun rememberOverscrollEffect(): OverscrollEffect =
+    rememberOverscrollEffect(applyClip = false)
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun rememberOverscrollEffect(applyClip: Boolean): OverscrollEffect =
     if (UiKitScrollConfig.isRubberBandingOverscrollEnabled) {
         val density = LocalDensity.current.density
         val layoutDirection = LocalLayoutDirection.current
 
         remember(density, layoutDirection) {
-            CupertinoOverscrollEffect(density, layoutDirection)
+            CupertinoOverscrollEffect(density, layoutDirection, applyClip)
         }
     } else {
         NoOpOverscrollEffect
