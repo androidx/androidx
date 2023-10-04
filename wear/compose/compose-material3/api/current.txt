@@ -208,7 +208,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class HorizontalPageIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material3.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional int indicatorStyle, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing);
+    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material3.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static androidx.wear.compose.material3.PageIndicatorState rememberPageIndicatorState(int maxPages, kotlin.jvm.functions.Function0<java.lang.Float> selectedPageWithOffset);
   }
 
@@ -332,27 +332,11 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.wear.compose.material3.ColorScheme colorScheme, optional androidx.wear.compose.material3.Typography typography, optional androidx.wear.compose.material3.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  public final class PageIndicatorDefaults {
-    method @androidx.compose.runtime.Composable public int style();
-    field public static final androidx.wear.compose.material3.PageIndicatorDefaults INSTANCE;
-  }
-
   public interface PageIndicatorState {
     method @IntRange(from=0L) public int getPageCount();
     method @FloatRange(from=0.0) public kotlin.jvm.functions.Function0<java.lang.Float> getSelectedPageWithOffset();
     property @IntRange(from=0L) public abstract int pageCount;
     property @FloatRange(from=0.0) public abstract kotlin.jvm.functions.Function0<java.lang.Float> selectedPageWithOffset;
-  }
-
-  @kotlin.jvm.JvmInline public final value class PageIndicatorStyle {
-    field public static final androidx.wear.compose.material3.PageIndicatorStyle.Companion Companion;
-  }
-
-  public static final class PageIndicatorStyle.Companion {
-    method public int getCurved();
-    method public int getLinear();
-    property public final int Curved;
-    property public final int Linear;
   }
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
