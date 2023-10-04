@@ -50,7 +50,7 @@ ksp = "1.9.0-1.0.13"
 ktfmt = "0.45"
 ktlint = "0.49.1"
 leakcanary = "2.8.1"
-media3 = "1.0.0-beta03"
+media3 = "1.1.0"
 metalava = "1.0.0-alpha10"
 mockito = "2.25.0"
 moshi = "1.13.0"
@@ -207,7 +207,8 @@ kxml2 = { module = "net.sf.kxml:kxml2", version = "2.3.0" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 leakcanaryInstrumentation = { module = "com.squareup.leakcanary:leakcanary-android-instrumentation", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version = "1.2.1" }
-media3Common = { module = "androidx.media3:media3-cast", version.ref = "media3" }
+media3Common = { module = "androidx.media3:media3-common", version.ref = "media3" }
+media3Cast = { module = "androidx.media3:media3-cast", version.ref = "media3" }
 media3Decoder = { module = "androidx.media3:media3-decoder", version.ref = "media3" }
 media3Effect = { module = "androidx.media3:media3-effect", version.ref = "media3" }
 media3Exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
