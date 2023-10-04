@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion.Compact
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Expanded
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion.Medium
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collection.MutableVector
@@ -362,7 +363,9 @@ object NavigationSuiteScaffoldDefaults {
         return with(adaptiveInfo) {
             if (posture.isTabletop || windowSizeClass.heightSizeClass == Compact) {
                 NavigationSuiteType.NavigationBar
-            } else if (windowSizeClass.widthSizeClass == Expanded) {
+            } else if (windowSizeClass.widthSizeClass == Expanded ||
+                windowSizeClass.widthSizeClass == Medium
+            ) {
                 NavigationSuiteType.NavigationRail
             } else {
                 NavigationSuiteType.NavigationBar
