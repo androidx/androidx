@@ -18,6 +18,7 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.UiThread;
 
@@ -28,8 +29,11 @@ import java.util.List;
  * evaluation.
  */
 class BoundDynamicTypeImpl implements BoundDynamicType {
+    private static final String TAG = "BoundDynamicTypeImpl";
+
     private final List<DynamicDataNode<?>> mNodes;
     private final QuotaManager mDynamicDataNodesQuotaManager;
+    private boolean mIsClosed = false;
 
     BoundDynamicTypeImpl(
             List<DynamicDataNode<?>> nodes, QuotaManager dynamicDataNodesQuotaManager) {
@@ -88,8 +92,17 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
         }
     }
 
+    /**
+     * Closes this {@link BoundDynamicTypeImpl} instance and releases any allocated quota. This
+     * method must be called only once on each {@link BoundDynamicTypeImpl} instance.
+     */
     @UiThread
     private void closeInternal() {
+        if (mIsClosed) {
+            Log.w(TAG, "close() method was called more than once.");
+            return;
+        }
+        mIsClosed = true;
         mNodes.stream()
                 .filter(n -> n instanceof DynamicDataSourceNode)
                 .forEach(n -> ((DynamicDataSourceNode<?>) n).destroy());

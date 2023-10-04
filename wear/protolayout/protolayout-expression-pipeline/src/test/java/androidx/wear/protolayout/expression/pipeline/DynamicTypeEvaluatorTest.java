@@ -125,6 +125,22 @@ public class DynamicTypeEvaluatorTest {
         verify(provider).clearReceiver();
     }
 
+    @Test
+    public void closeCalledMultipleTimesOnBoundDynamicType_doesNotThrow()
+            throws EvaluationException {
+        DynamicTypeEvaluator evaluator =
+                createEvaluatorWithQuota(
+                        /* animationQuota= */ unlimitedQuota(),
+                        /* dynamicTypesQuota= */ new FixedQuotaManagerImpl(1));
+        ArrayList<Boolean> results = new ArrayList<>();
+        BoundDynamicType boundDynamicType = evaluator.bind(
+                createSingleNodeDynamicBoolRequest(results));
+
+        for (int i = 0; i < 10; i++) {
+            boundDynamicType.close();
+        }
+    }
+
     @NonNull
     private static DynamicTypeBindingRequest createSingleNodeDynamicBoolRequest(
             ArrayList<Boolean> results) {
