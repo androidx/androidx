@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -591,6 +591,159 @@
         message="Builder.hasDynamicValue can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="                if (mImpl.hasDynamicValue() &amp;&amp; !mImpl.hasArgb()) {"
         errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorStop.hasColor can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            if (mImpl.hasColor()) {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorStop.getColor can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                return ColorProp.fromProto(mImpl.getColor());"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorStop.hasOffset can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            if (mImpl.hasOffset()) {"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorStop.getOffset can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                return FloatProp.fromProto(mImpl.getOffset());"
+        errorLine2="                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorStop.newBuilder can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            private final ColorProto.ColorStop.Builder mImpl = ColorProto.ColorStop.newBuilder();"
+        errorLine2="                                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setColor can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                mImpl.setColor(color.toProto());"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setOffset can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                mImpl.setOffset(offset.toProto());"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SweepGradient.getColorStopsList can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            for (ColorProto.ColorStop item : mImpl.getColorStopsList()) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SweepGradient.hasAngularShift can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            if (mImpl.hasAngularShift()) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SweepGradient.getAngularShift can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                return DegreesProp.fromProto(mImpl.getAngularShift());"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Brush.newBuilder can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            return ColorProto.Brush.newBuilder().setSweepGradient(mImpl).build();"
+        errorLine2="                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setSweepGradient can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            return ColorProto.Brush.newBuilder().setSweepGradient(mImpl).build();"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SweepGradient.newBuilder can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                    ColorProto.SweepGradient.newBuilder();"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addColorStops can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                mImpl.addColorStops(colorStop.toProto());"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setAngularShift can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                mImpl.setAngularShift(angularShift.toProto());"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Brush.hasSweepGradient can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="        if (proto.hasSweepGradient()) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Brush.getSweepGradient can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            return SweepGradient.fromProto(proto.getSweepGradient(), fingerprint);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/ColorBuilders.java"/>
     </issue>
@@ -4395,6 +4548,24 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="ArcLine.hasBrush can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="            if (mImpl.hasBrush()) {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/LayoutElementBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ArcLine.getBrush can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                return ColorBuilders.brushFromProto(mImpl.getBrush());"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/LayoutElementBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="ArcLine.hasModifiers can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="            if (mImpl.hasModifiers()) {"
         errorLine2="                      ~~~~~~~~~~~~">
@@ -4487,6 +4658,15 @@
         id="RestrictedApiAndroidX"
         message="Builder.setColor can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
         errorLine1="                mImpl.setColor(color.toProto());"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/LayoutElementBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.setBrush can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.protolayout`)"
+        errorLine1="                mImpl.setBrush(brush.toBrushProto());"
         errorLine2="                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/protolayout/LayoutElementBuilders.java"/>
