@@ -985,7 +985,7 @@ public class ContextCompat {
      */
     @NonNull
     public static Context createAttributionContext(@NonNull Context context,
-            @NonNull String attributionTag) {
+            @Nullable String attributionTag) {
         if (Build.VERSION.SDK_INT >= 30) {
             return Api30Impl.createAttributionContext(context, attributionTag);
         }
