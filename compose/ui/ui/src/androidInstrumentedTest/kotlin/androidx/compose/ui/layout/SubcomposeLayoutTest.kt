@@ -2582,6 +2582,21 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    fun subcomposeCoordinates() {
+        var coords: LayoutCoordinates? = null
+        rule.setContent {
+            SubcomposeLayout { constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    coords = coordinates
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(coords).isNotNull()
+        }
+    }
+
+    @Test
     fun updatingModifierOnDetachedSubcomposition() {
         var active by mutableStateOf(true)
 

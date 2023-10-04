@@ -864,6 +864,33 @@ internal class LayoutNodeSubcompositionsState(
 
         override fun subcompose(slotId: Any?, content: @Composable () -> Unit) =
             this@LayoutNodeSubcompositionsState.subcompose(slotId, content)
+
+        override fun layout(
+            width: Int,
+            height: Int,
+            alignmentLines: Map<AlignmentLine, Int>,
+            placementBlock: Placeable.PlacementScope.() -> Unit
+        ): MeasureResult {
+            return object : MeasureResult {
+                override val width: Int
+                    get() = width
+                override val height: Int
+                    get() = height
+                override val alignmentLines: Map<AlignmentLine, Int>
+                    get() = alignmentLines
+
+                override fun placeChildren() {
+                    if (isLookingAhead) {
+                        val delegate = root.innerCoordinator.lookaheadDelegate
+                        if (delegate != null) {
+                            delegate.placementScope.placementBlock()
+                            return
+                        }
+                    }
+                    root.innerCoordinator.placementScope.placementBlock()
+                }
+            }
+        }
     }
 
     private inner class PostLookaheadMeasureScopeImpl :

@@ -179,7 +179,7 @@ private class FakeOwner(
     override val fontFamilyResolver: FontFamily.Resolver
         get() = TODO("Not yet implemented")
     override val layoutDirection: LayoutDirection
-        get() = TODO("Not yet implemented")
+        get() = LayoutDirection.Ltr
     override val viewConfiguration: ViewConfiguration
         get() = TODO("Not yet implemented")
     override val autofillTree: AutofillTree
