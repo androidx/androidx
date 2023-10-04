@@ -20,13 +20,8 @@ import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
-import android.os.ext.SdkExtensions
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * AdId Manager provides APIs for app and ad-SDKs to access advertising ID. The advertising ID is a
@@ -45,38 +40,6 @@ abstract class AdIdManager internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
     abstract suspend fun getAdId(): AdId
 
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    private class Api33Ext4Impl(
-        private val mAdIdManager: android.adservices.adid.AdIdManager
-    ) : AdIdManager() {
-        constructor(context: Context) : this(
-            context.getSystemService<android.adservices.adid.AdIdManager>(
-                android.adservices.adid.AdIdManager::class.java
-            )
-        )
-
-        @DoNotInline
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
-        override suspend fun getAdId(): AdId {
-            return convertResponse(getAdIdAsyncInternal())
-        }
-
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
-        private suspend fun
-            getAdIdAsyncInternal(): android.adservices.adid.AdId = suspendCancellableCoroutine {
-                continuation ->
-            mAdIdManager.getAdId(
-                Runnable::run,
-                continuation.asOutcomeReceiver()
-            )
-        }
-
-        private fun convertResponse(response: android.adservices.adid.AdId): AdId {
-            return AdId(response.adId, response.isLimitAdTrackingEnabled)
-        }
-    }
-
     companion object {
         /**
          *  Creates [AdIdManager].
@@ -87,10 +50,11 @@ abstract class AdIdManager internal constructor() {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AdIdManager? {
-            return if (AdServicesInfo.version() >= 4) {
-                Api33Ext4Impl(context)
+            return if (AdServicesInfo.adServicesVersion() >= 4) {
+                AdIdManagerApi33Ext4Impl(context)
+            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+                AdIdManagerApi31Ext9Impl(context)
             } else {
-                // TODO(b/261770989): Extend this to older versions.
                 null
             }
         }
