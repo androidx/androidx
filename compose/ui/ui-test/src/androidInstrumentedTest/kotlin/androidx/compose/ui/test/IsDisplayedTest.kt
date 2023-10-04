@@ -50,6 +50,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
@@ -83,11 +85,11 @@ class IsDisplayedTest(val config: TestConfig) {
         BoundaryNode("item$i") {
             Box(
                 modifier =
-                    with(Modifier) { width?.let { requiredWidth(it) } ?: fillMaxWidth() }
-                        .then(
-                            with(Modifier) { height?.let { requiredHeight(it) } ?: fillMaxHeight() }
-                        )
-                        .background(colors[i % colors.size])
+                with(Modifier) { width?.let { requiredWidth(it) } ?: fillMaxWidth() }
+                    .then(
+                        with(Modifier) { height?.let { requiredHeight(it) } ?: fillMaxHeight() }
+                    )
+                    .background(colors[i % colors.size])
             )
         }
     }
@@ -109,7 +111,11 @@ class IsDisplayedTest(val config: TestConfig) {
     @Test
     fun componentInScrollable_isDisplayed() {
         setContent {
-            Column(modifier = Modifier.requiredSize(100.dp).verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
@@ -121,7 +127,11 @@ class IsDisplayedTest(val config: TestConfig) {
     @Test
     fun componentInScrollable_isNotDisplayed() {
         setContent {
-            Column(modifier = Modifier.requiredSize(100.dp).verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
@@ -249,6 +259,110 @@ class IsDisplayedTest(val config: TestConfig) {
 
         onComposeView().check(matches(not(isDisplayed())))
         rule.onNodeWithTag("item0").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun isDisplayed_throws_whenMultipleNodesMatch() {
+        setContent {
+            Item(0)
+            Item(0)
+        }
+
+        val interaction = rule.onNodeWithTag("item0")
+
+        assertFailsWith<AssertionError> {
+            interaction.isDisplayed()
+        }
+    }
+
+    @Test
+    fun isNotDisplayed_throws_whenMultipleNodesMatch() {
+        setContent {
+            Item(0)
+            Item(0)
+        }
+
+        val interaction = rule.onNodeWithTag("item0")
+
+        assertFailsWith<AssertionError> {
+            interaction.isNotDisplayed()
+        }
+    }
+
+    @Test
+    fun isDisplayed_returnsFalse_whenNodeNotFound() {
+        setContent {}
+
+        assertThat(rule.onNodeWithTag("doesn't exist").isDisplayed()).isFalse()
+    }
+
+    @Test
+    fun isNotDisplayed_returnsTrue_whenNodeNotFound() {
+        setContent {}
+
+        assertThat(rule.onNodeWithTag("doesn't exist").isNotDisplayed()).isTrue()
+    }
+
+    @Test
+    fun isDisplayed_returnsFalse_whenNodeIsFullyHidden() {
+        setContent {
+            Box(Modifier.requiredSize(0.dp)) {
+                Item(0, width = 10.dp, height = 10.dp)
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isDisplayed()).isFalse()
+    }
+
+    @Test
+    fun isNotDisplayed_returnsTrue_whenNodeIsFullyHidden() {
+        setContent {
+            Box(Modifier.requiredSize(0.dp)) {
+                Item(0, width = 10.dp, height = 10.dp)
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isNotDisplayed()).isTrue()
+    }
+
+    @Test
+    fun isDisplayed_returnsTrue_whenNodeIsPartiallyVisible() {
+        setContent {
+            Box(Modifier.requiredSize(5.dp)) {
+                Item(0, width = 10.dp, height = 10.dp)
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isDisplayed()).isTrue()
+    }
+
+    @Test
+    fun isNotDisplayed_returnsFalse_whenNodeIsPartiallyVisible() {
+        setContent {
+            Box(Modifier.requiredSize(5.dp)) {
+                Item(0, width = 10.dp, height = 10.dp)
+            }
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isNotDisplayed()).isFalse()
+    }
+
+    @Test
+    fun isDisplayed_returnsTrue_whenNodeIsFullyVisible() {
+        setContent {
+            Item(0)
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isDisplayed()).isTrue()
+    }
+
+    @Test
+    fun isNotDisplayed_returnsFalse_whenNodeIsFullyVisible() {
+        setContent {
+            Item(0)
+        }
+
+        assertThat(rule.onNodeWithTag("item0").isNotDisplayed()).isFalse()
     }
 
     private fun setContent(content: @Composable () -> Unit) {
