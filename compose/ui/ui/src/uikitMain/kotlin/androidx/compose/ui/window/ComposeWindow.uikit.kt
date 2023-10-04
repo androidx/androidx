@@ -112,6 +112,7 @@ fun ComposeUIViewController(
 private class AttachedComposeContext(
     val scene: ComposeScene,
     val view: SkikoUIView,
+    val interopContext: UIKitInteropContext
 ) {
     private var constraints: List<NSLayoutConstraint> = emptyList()
         set(value) {
@@ -144,6 +145,9 @@ private class AttachedComposeContext(
 
     fun dispose() {
         scene.close()
+        // After scene is disposed all UIKit interop actions can't be deferred to be synchronized with rendering
+        // Thus they need to be executed now.
+        interopContext.retrieve().actions.forEach { it.invoke() }
         view.dispose()
     }
 }
@@ -157,11 +161,6 @@ internal actual class ComposeWindow : UIViewController {
     private var isInsideSwiftUI = false
     private var safeAreaState by mutableStateOf(PlatformInsets())
     private var layoutMarginsState by mutableStateOf(PlatformInsets())
-    private val interopContext = UIKitInteropContext(
-        requestRedraw = {
-            attachedComposeContext?.view?.needRedraw()
-        }
-    )
 
     /*
      * Initial value is arbitarily chosen to avoid propagating invalid value logic
@@ -520,6 +519,8 @@ internal actual class ComposeWindow : UIViewController {
 
         val skikoUIView = SkikoUIView()
 
+        val interopContext = UIKitInteropContext(requestRedraw = skikoUIView::needRedraw)
+
         skikoUIView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(skikoUIView)
 
@@ -685,7 +686,7 @@ internal actual class ComposeWindow : UIViewController {
 
 
         attachedComposeContext =
-            AttachedComposeContext(scene, skikoUIView).also {
+            AttachedComposeContext(scene, skikoUIView, interopContext).also {
                 it.setConstraintsToFillView(view)
                 updateLayout(it)
             }

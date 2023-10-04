@@ -3,17 +3,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.mpp.demo.Screen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.LocalUIViewController
+import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
-import platform.UIKit.UINavigationController
-import platform.UIKit.navigationController
+import platform.UIKit.*
+import platform.Foundation.*
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 /*
  * Copyright 2023 The Android Open Source Project
@@ -63,6 +75,41 @@ private fun NativeNavigationPage() {
             )
         }) {
             Text("Push")
+        }
+
+        LazyVerticalGrid(GridCells.Fixed(2)) {
+            items(10) { index ->
+                var image by remember { mutableStateOf<UIImage?>(null) }
+
+                DisposableEffect(Unit) {
+                    val url = NSURL(string = "https://cataas.com/cat/says/$index")
+                    val task = NSURLSession.sharedSession.dataTaskWithURL(url, completionHandler = { data, response, error ->
+                        if (data == null) {
+                            return@dataTaskWithURL
+                        }
+
+                        image = UIImage(data = data)
+                    })
+                    task.resume()
+
+                    onDispose {
+                        task.cancel()
+                    }
+                }
+
+                UIKitView(
+                    factory = {
+                        val view = UIImageView()
+                        view.contentMode = UIViewContentMode.UIViewContentModeScaleAspectFill
+                        view.clipsToBounds = true
+                        view
+                    },
+                    Modifier.height(80.dp),
+                    update = {
+                        it.image = image
+                    }
+                )
+            }
         }
     }
 }
