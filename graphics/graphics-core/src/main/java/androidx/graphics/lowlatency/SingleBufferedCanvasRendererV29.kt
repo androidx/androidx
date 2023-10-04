@@ -115,7 +115,7 @@ internal class SingleBufferedCanvasRendererV29<T>(
 
     override var isVisible: Boolean = false
         set(value) {
-            mBufferedRenderer.preserveContents = isVisible
+            mBufferedRenderer.preserveContents = value
             field = value
         }
 

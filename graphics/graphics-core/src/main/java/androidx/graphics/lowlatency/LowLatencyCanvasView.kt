@@ -190,6 +190,11 @@ class LowLatencyCanvasView @JvmOverloads constructor(
      */
     private var mSceneBitmapDrawn = false
 
+    /**
+     * Configured ColorSpace
+     */
+    private var mColorSpace = BufferedRendererImpl.DefaultColorSpace
+
     private val mSurfaceHolderCallbacks = object : SurfaceHolder.Callback2 {
         override fun surfaceCreated(holder: SurfaceHolder) {
             // NO-OP wait for surfaceChanged
@@ -252,7 +257,6 @@ class LowLatencyCanvasView @JvmOverloads constructor(
             .setName("FrontBufferedLayer")
             .build()
 
-        var frontBufferRenderer: SingleBufferedCanvasRenderer<Unit>? = null
         val dataSpace: Int
         val colorSpace: ColorSpace
         if (isAndroidUPlus() && supportsWideColorGamut()) {
@@ -266,7 +270,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
             dataSpace = DataSpace.DATASPACE_SRGB
             colorSpace = BufferedRendererImpl.DefaultColorSpace
         }
-        frontBufferRenderer = SingleBufferedCanvasRenderer.create(
+        val frontBufferRenderer = SingleBufferedCanvasRenderer.create(
             width,
             height,
             bufferTransformer,
@@ -301,7 +305,6 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                         pendingRenders = true
                     }
                     if (mFrontBufferTarget.get() || pendingRenders) {
-                        frontBufferRenderer?.isVisible = true
                         val transaction = SurfaceControlCompat.Transaction()
                             .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
                             .setBuffer(
@@ -324,7 +327,6 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                         transaction.commit()
                         syncFenceCompat?.close()
                     } else {
-                        frontBufferRenderer?.isVisible = false
                         syncFenceCompat?.awaitForever()
                         val bitmap = if (!hardwareBitmapConfigured) {
                             hardwareBitmapConfigured = true
@@ -347,8 +349,10 @@ class LowLatencyCanvasView @JvmOverloads constructor(
             }
         ).apply {
             this.colorSpace = colorSpace
+            this.isVisible = true
         }
 
+        mColorSpace = colorSpace
         mFrontBufferedRenderer = frontBufferRenderer
         mFrontBufferedSurfaceControl = frontBufferSurfaceControl
         mWidth = width
@@ -440,7 +444,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                     val buffer = mHardwareBuffer
                     if (buffer != null) {
                         mBufferFence?.awaitForever()
-                        val bitmap = Bitmap.wrapHardwareBuffer(buffer, null)
+                        val bitmap = Bitmap.wrapHardwareBuffer(buffer, mColorSpace)
                         post {
                             mSceneBitmap = bitmap
                             hideFrontBuffer()
