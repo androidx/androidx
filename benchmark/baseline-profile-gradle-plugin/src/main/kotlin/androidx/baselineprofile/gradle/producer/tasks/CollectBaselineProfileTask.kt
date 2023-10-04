@@ -155,6 +155,9 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                         }
                         .map { File(it.sourcePath.path) }
                         .filter {
+                            // NOTE: If the below logic must be changed, be sure to update
+                            // OutputsTest#sanitizeFilename_baselineProfileGradlePlugin
+                            // as that covers library -> plugin file handoff testing
                             it.extension == "txt" &&
                                 ("-baseline-prof-" in it.name || "-startup-prof-" in it.name)
                         }
