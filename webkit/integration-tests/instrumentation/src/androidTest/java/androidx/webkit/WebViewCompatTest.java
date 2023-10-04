@@ -106,7 +106,8 @@ public class WebViewCompatTest {
         WebkitUtils.checkFeature(WebViewFeature.VISUAL_STATE_CALLBACK);
         try {
             WebViewCompat.postVisualStateCallback(
-                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {});
+                    mWebViewOnUiThread.getWebViewOnCurrentThread(), 5, requestId -> {
+                    });
         } catch (RuntimeException e) {
             return;
         }
@@ -410,9 +411,9 @@ public class WebViewCompatTest {
 
 
     /**
-     *  ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
+     * ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
      *
-     *  @noinspection NewClassNamingConvention
+     * @noinspection NewClassNamingConvention
      */
     @RequiresApi(Build.VERSION_CODES.N)
     private static class ApiHelperForN {
@@ -427,4 +428,50 @@ public class WebViewCompatTest {
         }
     }
 
+    /**
+     * Test getting profile that was previously set should return the correct object.
+     */
+    @Test
+    public void testSetGetProfile() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
+
+        Profile testProfile =
+                WebkitUtils.onMainThreadSync(() -> ProfileStore.getInstance().getOrCreateProfile(
+                        "test"));
+        WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            WebkitUtils.onMainThreadSync(() -> WebViewCompat.setProfile(webView,
+                    testProfile.getName()));
+
+            Profile expectedProfile = WebkitUtils.onMainThreadSync(
+                    () -> WebViewCompat.getProfile(webView));
+
+            assertSame(testProfile.getName(), expectedProfile.getName());
+            assertSame(testProfile.getCookieManager(), expectedProfile.getCookieManager());
+            assertSame(testProfile.getWebStorage(), expectedProfile.getWebStorage());
+        } finally {
+            WebViewOnUiThread.destroy(webView);
+        }
+
+    }
+
+    /**
+     * Test getting profile returns the Default profile by default.
+     */
+    @Test
+    public void testGetProfileReturnsDefault() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
+
+        WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            Profile expectedProfile = WebkitUtils.onMainThreadSync(
+                    () -> WebViewCompat.getProfile(webView));
+
+            assertNotNull(expectedProfile);
+            assertEquals(Profile.DEFAULT_PROFILE_NAME, expectedProfile.getName());
+        } finally {
+            WebViewOnUiThread.destroy(webView);
+        }
+
+    }
 }
