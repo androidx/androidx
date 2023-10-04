@@ -1177,7 +1177,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         if (hitScrollBarrier && (touchType == ViewCompat.TYPE_TOUCH)) {
             // Break our velocity if we hit a scroll barrier.
-            mVelocityTracker.clear();
+            if (mVelocityTracker != null) {
+                mVelocityTracker.clear();
+            }
         }
 
         /*
