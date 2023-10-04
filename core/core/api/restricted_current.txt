@@ -1210,7 +1210,7 @@ package androidx.core.content {
   public class ContextCompat {
     ctor protected ContextCompat();
     method public static int checkSelfPermission(android.content.Context, String);
-    method public static android.content.Context createAttributionContext(android.content.Context, String);
+    method public static android.content.Context createAttributionContext(android.content.Context, String?);
     method public static android.content.Context? createDeviceProtectedStorageContext(android.content.Context);
     method public static String? getAttributionTag(android.content.Context);
     method public static java.io.File getCodeCacheDir(android.content.Context);

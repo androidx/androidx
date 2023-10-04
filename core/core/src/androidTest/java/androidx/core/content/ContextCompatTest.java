@@ -694,5 +694,8 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     public void testCreateAttributionContext() {
         Context attributionContext = ContextCompat.createAttributionContext(mContext, "tag");
         assertEquals("tag", attributionContext.getAttributionTag());
+
+        Context attributionContextNull = ContextCompat.createAttributionContext(mContext, null);
+        assertNull(attributionContextNull.getAttributionTag());
     }
 }
