@@ -19,6 +19,7 @@ import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -120,6 +121,10 @@ androidx {
     publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 // Screenshot tests related setup
