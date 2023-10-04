@@ -20,6 +20,7 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
@@ -40,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -78,7 +78,7 @@ class DocumentModel {
     // The name of the original class annotated with @Document
     private final String mQualifiedDocumentClassName;
     private String mSchemaName;
-    private final Set<TypeElement> mParentTypes = new LinkedHashSet<>();
+    private final Set<TypeElement> mParentTypes;
     // All methods in the current @Document annotated class/interface, or in the generated class
     // for AutoValue document.
     // Warning: if you change this to a HashSet, we may choose different getters or setters from
@@ -139,6 +139,7 @@ class DocumentModel {
         mQualifiedDocumentClassName = generatedAutoValueElement != null
                 ? generatedAutoValueElement.getQualifiedName().toString()
                 : clazz.getQualifiedName().toString();
+        mParentTypes = getParentSchemaTypes(clazz);
         mAnnotatedGettersAndFields = scanAnnotatedGettersAndFields(clazz, env);
 
         requireNoDuplicateMetadataProperties();
@@ -466,7 +467,7 @@ class DocumentModel {
     @NonNull
     public AnnotationMirror getPropertyAnnotation(@NonNull Element element)
             throws ProcessingException {
-        Objects.requireNonNull(element);
+        requireNonNull(element);
         Set<String> propertyClassPaths = new HashSet<>();
         for (PropertyClass propertyClass : PropertyClass.values()) {
             propertyClassPaths.add(propertyClass.getClassFullPath());
@@ -513,6 +514,32 @@ class DocumentModel {
                     PropertyAccessor.infer(getterOrField, allMethods, helper));
         }
         return accessors;
+    }
+
+    /**
+     * Returns the parent types mentioned within the {@code @Document} annotation.
+     */
+    @NonNull
+    private LinkedHashSet<TypeElement> getParentSchemaTypes(
+            @NonNull TypeElement documentClass) throws ProcessingException {
+        AnnotationMirror documentAnnotation = requireNonNull(getDocumentAnnotation(documentClass));
+        Map<String, Object> params = mHelper.getAnnotationParams(documentAnnotation);
+        LinkedHashSet<TypeElement> parentsSchemaTypes = new LinkedHashSet<>();
+        Object parentsParam = params.get("parent");
+        if (parentsParam instanceof List) {
+            for (Object parent : (List<?>) parentsParam) {
+                String parentClassName = parent.toString();
+                parentClassName = parentClassName.substring(0,
+                        parentClassName.length() - CLASS_SUFFIX.length());
+                parentsSchemaTypes.add(mElementUtil.getTypeElement(parentClassName));
+            }
+        }
+        if (!parentsSchemaTypes.isEmpty() && params.get("name").toString().isEmpty()) {
+            throw new ProcessingException(
+                    "All @Document classes with a parent must explicitly provide a name",
+                    mClass);
+        }
+        return parentsSchemaTypes;
     }
 
     private boolean isFactoryMethod(ExecutableElement method) {
@@ -635,25 +662,6 @@ class DocumentModel {
      * @param element the class to scan
      */
     private void scanFields(@NonNull TypeElement element) throws ProcessingException {
-        AnnotationMirror documentAnnotation = getDocumentAnnotation(element);
-        if (documentAnnotation != null) {
-            Map<String, Object> params = mHelper.getAnnotationParams(documentAnnotation);
-            Object parents = params.get("parent");
-            if (parents instanceof List) {
-                for (Object parent : (List<?>) parents) {
-                    String parentClassName = parent.toString();
-                    parentClassName = parentClassName.substring(0,
-                            parentClassName.length() - CLASS_SUFFIX.length());
-                    mParentTypes.add(mElementUtil.getTypeElement(parentClassName));
-                }
-            }
-            if (!mParentTypes.isEmpty() && params.get("name").toString().isEmpty()) {
-                throw new ProcessingException(
-                        "All @Document classes with a parent must explicitly provide a name",
-                        mClass);
-            }
-        }
-
         List<TypeElement> hierarchy = generateClassHierarchy(element);
 
         for (TypeElement clazz : hierarchy) {
