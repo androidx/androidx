@@ -21,6 +21,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
@@ -33,8 +34,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,8 +76,11 @@ import kotlin.math.asin
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -656,8 +662,8 @@ public fun PositionIndicator(
     val leftyMode = isLeftyModeEnabled()
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val alphaAnimatable = remember { Animatable(0f) }
-    var showIndicator by remember { mutableStateOf(false) }
+    val alphaValue = remember { mutableFloatStateOf(0f) }
+    val animateAlphaChannel = remember { Channel<Float>(2, BufferOverflow.DROP_OLDEST) }
 
     val positionFractionAnimatable = remember { Animatable(0f) }
     val sizeFractionAnimatable = remember { Animatable(0f) }
@@ -709,6 +715,10 @@ public fun PositionIndicator(
     LaunchedEffect(state, showFadeInAnimation, showPositionAnimation, showFadeOutAnimation) {
         var beforeFirstAnimation = true
 
+        // Skip first alpha animation only when initial visibility is not Hide
+        var skipFirstAlphaAnimation = state.visibility(containerSize.height.toFloat()) !=
+            PositionIndicatorVisibility.Hide
+
         launch {
             // This snapshotFlow listens to changes in position, size and visibility
             // of PositionIndicatorState and starts necessary animations if needed
@@ -741,48 +751,45 @@ public fun PositionIndicator(
                 }
 
                 when (it.visibility) {
-                    // Visibility cases are handled in another snapshot flow
-                    // by checking showIndicator value.
-                    PositionIndicatorVisibility.Show -> showIndicator = true
-                    PositionIndicatorVisibility.Hide -> showIndicator = false
+                    PositionIndicatorVisibility.Hide -> {
+                        handleFadeOut(showFadeOutAnimation, animateAlphaChannel, alphaValue)
+                    }
+
+                    // PositionIndicatorVisibility.Hide and
+                    // PositionIndicatorVisibility.AutoHide cases
                     else -> {
-                        showIndicator = true
-                        // Waiting for 2000ms and starting alpha animation to 0f
-                        delay(2000)
-                        showIndicator = false
+                        // If showFadeInAnimation is true and we don't skip the first animation,
+                        // then we send event to animation channel
+                        if (showFadeInAnimation && !skipFirstAlphaAnimation) {
+                            // Otherwise we change alphaValue directly here
+                            animateAlphaChannel.trySend(1f)
+                        } else {
+                            alphaValue.floatValue = 1f
+                            skipFirstAlphaAnimation = false
+                        }
+
+                        if (it.visibility == PositionIndicatorVisibility.AutoHide) {
+                            // Waiting for 2000ms and changing alpha value to 0f
+                            delay(2000)
+                            handleFadeOut(showFadeOutAnimation, animateAlphaChannel, alphaValue)
+                        }
                     }
                 }
             }
         }
+    }
 
-        // Skip first alpha animation only when initial visibility is SHOW
-        var skipFirstAlphaAnimation =
-            state.visibility(containerSize.height.toFloat()) == PositionIndicatorVisibility.Show
-
-        // This snapshotFlow listens to changes of [showIndicator] flag and triggers
-        // show or hide animations if necessary.
-        launch {
-            snapshotFlow { showIndicator }
-                .collectLatest {
-                    if (showIndicator) {
-                        if (skipFirstAlphaAnimation || !showFadeInAnimation) {
-                            alphaAnimatable.snapTo(1f)
-                            skipFirstAlphaAnimation = false
-                        } else {
-                            launch {
-                                alphaAnimatable.animateTo(1f, alphaChangeAnimationSpec)
-                            }
-                        }
-                    } else {
-                        if (showFadeOutAnimation) {
-                            launch {
-                                alphaAnimatable.animateTo(0f, alphaChangeAnimationSpec)
-                            }
-                        } else {
-                            alphaAnimatable.snapTo(0f)
-                        }
-                    }
-                }
+    LaunchedEffect(Unit) {
+        // Listens to events in [animateAlphaChannel] and triggers
+        // alpha animations to specified value.
+        animateAlphaChannel.receiveAsFlow().collectLatest { targetValue ->
+            animate(
+                alphaValue.floatValue,
+                targetValue,
+                animationSpec = alphaChangeAnimationSpec
+            ) { value, _ ->
+                alphaValue.floatValue = value
+            }
         }
     }
 
@@ -793,7 +800,7 @@ public fun PositionIndicator(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    alpha = alphaAnimatable.value
+                    alpha = alphaValue.floatValue
                 }
                 .drawWithCache {
                     // We need to invert reverseDirection when the screen is round and we are on
@@ -918,6 +925,19 @@ public fun PositionIndicator(
         showFadeOutAnimation = true,
         showPositionAnimation = true
     )
+}
+
+internal fun handleFadeOut(
+    showFadeOutAnimation: Boolean,
+    animateAlphaChannel: Channel<Float>,
+    alphaValue: MutableFloatState
+) {
+    // Sending 0f to the channel, or changing alphaValue directly here
+    if (showFadeOutAnimation) {
+        animateAlphaChannel.trySend(0f)
+    } else {
+        alphaValue.floatValue = 0f
+    }
 }
 
 @Immutable
