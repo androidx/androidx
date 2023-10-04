@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.os.Build
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -385,7 +386,12 @@ internal fun ModalBottomSheetPopup(
                         Modifier
                             .semantics { this.popup() }
                             .windowInsetsPadding(windowInsets)
-                            .imePadding()
+                            .then(
+                                // TODO(b/290893168): Figure out a solution for APIs < 30.
+                                if (Build.VERSION.SDK_INT >= 33)
+                                    Modifier.imePadding()
+                                else Modifier
+                            )
                     ) {
                         currentContent()
                     }
