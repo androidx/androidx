@@ -511,6 +511,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Log.d(TAG, "Permissions denied.");
             return;
         }
+        if (isDestroyed()) {
+            Log.d(TAG, "Activity is destroyed, not to create LifecycleCamera.");
+            return;
+        }
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
         ListenableFuture<ExtensionsManager> extensionsManagerFuture =
