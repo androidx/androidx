@@ -24,16 +24,15 @@ import android.graphics.Path
  *
  * @param matrix The matrix by which the polygon is to be transformed
  */
-fun RoundedPolygon.transformed(matrix: Matrix):
-    RoundedPolygon = transformed {
-        val tempArray = FloatArray(2)
-        // TODO: Should we have a fast path for when the MutablePoint is array-backed?
+fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon {
+    val tempArray = FloatArray(2)
+    return transformed { x, y ->
         tempArray[0] = x
         tempArray[1] = y
         matrix.mapPoints(tempArray)
-        x = tempArray[0]
-        y = tempArray[1]
+        TransformResult(tempArray[0], tempArray[1])
     }
+}
 
 /**
  * Gets a [Path] representation for a [RoundedPolygon] shape.

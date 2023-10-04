@@ -82,10 +82,7 @@ class RoundedPolygon internal constructor(
         // Center the shape if bounds are not a square
         val offsetX = (side - width) / 2 - bounds[0] /* left */
         val offsetY = (side - height) / 2 - bounds[1] /* top */
-        return transformed {
-            x = (x + offsetX) / side
-            y = (y + offsetY) / side
-        }
+        return transformed { x, y -> TransformResult((x + offsetX) / side, (y + offsetY) / side) }
     }
 
     override fun toString(): String = "[RoundedPolygon." +
@@ -413,7 +410,7 @@ private class RoundedCorner(
         get() = ((1 + smoothing) * expectedRoundCut)
     // the center of the circle approximated by the rounding curve (or the middle of the three
     // curves if smoothing is requested). The center is the same as p0 if there is no rounding.
-    var center: Point = Point()
+    var center: Point = Point(0f, 0f)
 
     @JvmOverloads
     fun getCubics(allowedCut0: Float, allowedCut1: Float = allowedCut0):

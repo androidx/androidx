@@ -38,10 +38,16 @@ class Morph(
     start: RoundedPolygon,
     end: RoundedPolygon
 ) {
-    // morphMatch is the structure which holds the actual shape being morphed. It contains
-    // all cubics necessary to represent the start and end shapes (the original cubics in the
-    // shapes may be cut to align the start/end shapes)
-    private var morphMatch = match(start, end)
+    /**
+     * The structure which holds the actual shape being morphed. It contains
+     * all cubics necessary to represent the start and end shapes (the original cubics in the
+     * shapes may be cut to align the start/end shapes), matched one to one in each Pair.
+     */
+    @PublishedApi
+    internal val morphMatch: List<Pair<Cubic, Cubic>>
+        get() = _morphMatch
+
+    private val _morphMatch: List<Pair<Cubic, Cubic>> = match(start, end)
 
     /**
      * Returns a representation of the morph object at a given [progress] value as a list of Cubics.
@@ -56,7 +62,7 @@ class Morph(
      * values close to (but outside) the range can be used to get an exaggerated effect
      * (e.g., for a bounce or overshoot animation).
      */
-    fun asCubics(progress: Float) = morphMatch.map { match ->
+    fun asCubics(progress: Float) = _morphMatch.map { match ->
         Cubic(FloatArray(8) {
             interpolate(
                 match.first.points[it],
@@ -67,8 +73,9 @@ class Morph(
     }
 
     /**
-     * Returns a representation of the morph object at a given [progress] value as an Iterator of
-     * [MutableCubic]. This function is faster than [asCubics], since it doesn't allocate new
+     * Returns a representation of the morph object at a given [progress] value, iterating over
+     * the cubics and calling the callback.
+     * This function is faster than [asCubics], since it doesn't allocate new
      * [Cubic] instances, but to do this it reuses the same [MutableCubic] instance during
      * iteration.
      *
@@ -81,19 +88,19 @@ class Morph(
      * (e.g., for a bounce or overshoot animation).
      * @param mutableCubic An instance of [MutableCubic] that will be used to set each cubic in
      * time.
+     * @param callback The function to be called for each Cubic
      */
     @JvmOverloads
-    fun asMutableCubics(progress: Float, mutableCubic: MutableCubic = MutableCubic()):
-        Sequence<MutableCubic> = morphMatch.asSequence().map { match ->
-            repeat(8) {
-                mutableCubic.points[it] = interpolate(
-                    match.first.points[it],
-                    match.second.points[it],
-                    progress
-                )
-            }
-            mutableCubic
+    inline fun forEachCubic(
+        progress: Float,
+        mutableCubic: MutableCubic = MutableCubic(),
+        callback: (MutableCubic) -> Unit
+        ) {
+        morphMatch.forEach { match ->
+            mutableCubic.interpolate(match.first, match.second, progress)
+            callback(mutableCubic)
         }
+    }
 
     internal companion object {
         /**
