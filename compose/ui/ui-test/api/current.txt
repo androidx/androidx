@@ -49,6 +49,8 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String![] values, optional boolean includeEditableText);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value);
+    method public static boolean isDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method public static boolean isNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
   public final class BoundsAssertionsKt {
