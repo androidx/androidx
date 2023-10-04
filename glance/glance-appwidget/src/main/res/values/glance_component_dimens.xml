@@ -17,5 +17,5 @@
 <resources>
     <dimen name="glance_component_button_corners">24dp</dimen>
     <dimen name="glance_component_square_icon_button_corners">16dp</dimen>
-    <dimen name="glance_component_circle_icon_button_corners">9999.dp</dimen>
+    <dimen name="glance_component_circle_icon_button_corners">9999dp</dimen>
 </resources>
