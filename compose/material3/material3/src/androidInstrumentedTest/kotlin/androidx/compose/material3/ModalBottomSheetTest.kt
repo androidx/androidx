@@ -1336,7 +1336,8 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
             ModalBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = {},
-                windowInsets = windowInsets
+                windowInsets = windowInsets,
+                properties = ModalBottomSheetDefaults.properties(isFocusable = true)
             ) {
                 Box(Modifier.testTag(sheetTag)) {
                     TextField(
