@@ -126,7 +126,6 @@ class LowLatencyCanvasViewTest {
                     view.post {
                         drawLatch.countDown()
                     }
-                    it.getLowLatencyCanvasView().clear()
                 }
                 assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
             },
