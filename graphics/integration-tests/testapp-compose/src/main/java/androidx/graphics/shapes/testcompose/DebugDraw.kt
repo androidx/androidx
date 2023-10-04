@@ -22,24 +22,20 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.graphics.shapes.Cubic
 
-internal fun DrawScope.debugDraw(shape: Sequence<Cubic>) {
-    drawPath(shape.toPath(), Color.Green, style = Stroke(2f))
+internal fun DrawScope.debugDraw(bezier: Cubic) {
+    // Draw red circles for start and end.
+    drawCircle(Color.Red, radius = 6f, center = bezier.anchor0(), style = Stroke(2f))
+    drawCircle(Color.Magenta, radius = 8f, center = bezier.anchor1(), style = Stroke(2f))
 
-    for (bezier in shape) {
-        // Draw red circles for start and end.
-        drawCircle(Color.Red, radius = 6f, center = bezier.anchor0(), style = Stroke(2f))
-        drawCircle(Color.Magenta, radius = 8f, center = bezier.anchor1(), style = Stroke(2f))
+    // Draw a circle for the first control point, and a line from start to it.
+    // The curve will start in this direction
+    drawLine(Color.Yellow, bezier.anchor0(), bezier.control0(), strokeWidth = 0f)
+    drawCircle(Color.Yellow, radius = 4f, center = bezier.control0(), style = Stroke(2f))
 
-        // Draw a circle for the first control point, and a line from start to it.
-        // The curve will start in this direction
-        drawLine(Color.Yellow, bezier.anchor0(), bezier.control0(), strokeWidth = 0f)
-        drawCircle(Color.Yellow, radius = 4f, center = bezier.control0(), style = Stroke(2f))
-
-        // Draw a circle for the second control point, and a line from it to the end.
-        // The curve will end in this direction
-        drawLine(Color.Yellow, bezier.control1(), bezier.anchor1(), strokeWidth = 0f)
-        drawCircle(Color.Yellow, radius = 4f, center = bezier.control1(), style = Stroke(2f))
-    }
+    // Draw a circle for the second control point, and a line from it to the end.
+    // The curve will end in this direction
+    drawLine(Color.Yellow, bezier.control1(), bezier.anchor1(), strokeWidth = 0f)
+    drawCircle(Color.Yellow, radius = 4f, center = bezier.control1(), style = Stroke(2f))
 }
 
 private fun Cubic.anchor0() = Offset(anchor0X, anchor0Y)

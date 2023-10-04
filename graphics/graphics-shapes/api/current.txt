@@ -63,11 +63,13 @@ package androidx.graphics.shapes {
   public final class Morph {
     ctor public Morph(androidx.graphics.shapes.RoundedPolygon start, androidx.graphics.shapes.RoundedPolygon end);
     method public java.util.List<androidx.graphics.shapes.Cubic> asCubics(float progress);
-    method public kotlin.sequences.Sequence<androidx.graphics.shapes.MutableCubic> asMutableCubics(float progress);
-    method public kotlin.sequences.Sequence<androidx.graphics.shapes.MutableCubic> asMutableCubics(float progress, optional androidx.graphics.shapes.MutableCubic mutableCubic);
+    method public inline void forEachCubic(float progress, optional androidx.graphics.shapes.MutableCubic mutableCubic, kotlin.jvm.functions.Function1<? super androidx.graphics.shapes.MutableCubic,kotlin.Unit> callback);
+    method public inline void forEachCubic(float progress, kotlin.jvm.functions.Function1<? super androidx.graphics.shapes.MutableCubic,kotlin.Unit> callback);
   }
 
   public final class MutableCubic extends androidx.graphics.shapes.Cubic {
+    ctor public MutableCubic();
+    method public void interpolate(androidx.graphics.shapes.Cubic c1, androidx.graphics.shapes.Cubic c2, float progress);
     method public void transform(androidx.graphics.shapes.PointTransformer f);
   }
 
@@ -81,7 +83,7 @@ package androidx.graphics.shapes {
   }
 
   public fun interface PointTransformer {
-    method public void transform(androidx.graphics.shapes.MutablePoint);
+    method public long transform(float x, float y);
   }
 
   public final class RoundedPolygon {
