@@ -30,8 +30,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE_NO_RESPONSE
+import androidx.bluetooth.GattCommon.UUID_CCCD
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -98,7 +100,6 @@ class GattClient(private val context: Context) {
         private const val GATT_MAX_MTU = GATT_MAX_ATTR_LENGTH + 3
 
         private const val CONNECT_TIMEOUT_MS = 30_000L
-        private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -312,10 +313,10 @@ class GattClient(private val context: Context) {
 
             override fun subscribeToCharacteristic(characteristic: GattCharacteristic):
                 Flow<ByteArray> {
-                if (characteristic.properties and GattCharacteristic.PROPERTY_NOTIFY == 0) {
+                if (!characteristic.isSubscribable) {
                     return emptyFlow()
                 }
-                val cccd = characteristic.fwkCharacteristic.getDescriptor(CCCD_UID)
+                val cccd = characteristic.fwkCharacteristic.getDescriptor(UUID_CCCD)
                     ?: return emptyFlow()
 
                 return callbackFlow {
@@ -337,7 +338,13 @@ class GattClient(private val context: Context) {
                             characteristic.fwkCharacteristic, /*enable=*/true
                         )
 
-                        fwkAdapter.writeDescriptor(cccd, FwkDescriptor.ENABLE_NOTIFICATION_VALUE)
+                        val cccdValue =
+                            // Prefer notification over indication
+                            if ((characteristic.properties and PROPERTY_NOTIFY) != 0)
+                                FwkDescriptor.ENABLE_NOTIFICATION_VALUE
+                            else FwkDescriptor.ENABLE_INDICATION_VALUE
+
+                        fwkAdapter.writeDescriptor(cccd, cccdValue)
                         val res = takeMatchingResult<CallbackResult.OnDescriptorWrite>(
                             callbackResultsFlow
                         ) {

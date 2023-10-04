@@ -370,6 +370,17 @@ class BluetoothLe(private val context: Context) {
         val requests: Flow<GattServerRequest>
 
         /**
+         * A [StateFlow] of the set of characteristics that the client has requested to be
+         * notified of.
+         *
+         * The set will be updated whenever the client subscribes to or unsubscribes
+         * a characteristic.
+         *
+         * @see [GattServerSessionScope.notify]
+         */
+        val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>>
+
+        /**
          * Notifies a client of a characteristic value change.
          *
          * @param characteristic the updated characteristic
@@ -415,7 +426,6 @@ class BluetoothLe(private val context: Context) {
 
     /**
      * Opens a GATT server.
-     *
      *
      * Only one server at a time can be opened.
      *

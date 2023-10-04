@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.testing
+package androidx.bluetooth
 
-import java.nio.ByteBuffer
+import java.util.UUID
 
-fun Int.toByteArray(): ByteArray {
-    return ByteBuffer.allocate(Int.SIZE_BYTES).putInt(this).array()
-}
-
-fun ByteArray.toInt(): Int {
-    return ByteBuffer.wrap(this).int
+internal object GattCommon {
+    // UUID for client characteristic configuration descriptor.
+    val UUID_CCCD: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 }
