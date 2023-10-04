@@ -50,9 +50,9 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String namespaceConv = genericDoc.getNamespace();
     String idConv = genericDoc.getId();
-    long creationTsConv = genericDoc.getCreationTimestampMillis();
-    long ttlMsConv = genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
+    long creationTsConv = genericDoc.getCreationTimestampMillis();
+    int ttlMsConv = (int) genericDoc.getTtlMillis();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift document = new Gift();
     document.namespace = namespaceConv;

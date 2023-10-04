@@ -45,8 +45,8 @@ public final class $$__AppSearch__AutoValue_Gift implements DocumentClassFactory
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String namespaceConv = genericDoc.getNamespace();
     String idConv = genericDoc.getId();
+    String namespaceConv = genericDoc.getNamespace();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     GiftBuilder builder = Gift.getBuilder();
     builder.setId(idConv);

@@ -20,24 +20,39 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.squareup.javapoet.ClassName;
 
 import java.util.Arrays;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An annotation for a metadata property e.g. {@code @Document.Id}.
  */
 public enum MetadataPropertyAnnotation implements PropertyAnnotation {
-    ID(/* simpleClassName= */"Id", /* genericDocSetterName= */"setId"),
-    NAMESPACE(/* simpleClassName= */"Namespace", /* genericDocSetterName= */"setNamespace"),
+    ID(
+            /* simpleClassName= */"Id",
+            /* genericDocGetterName= */ "getId",
+            /* genericDocSetterName= */"setId"),
+    NAMESPACE(
+            /* simpleClassName= */"Namespace",
+            /* genericDocGetterName= */ "getNamespace",
+            /* genericDocSetterName= */"setNamespace"),
     CREATION_TIMESTAMP_MILLIS(
             /* simpleClassName= */"CreationTimestampMillis",
+            /* genericDocGetterName= */ "getCreationTimestampMillis",
             /* genericDocSetterName= */"setCreationTimestampMillis"),
-    TTL_MILLIS(/* simpleClassName= */"TtlMillis", /* genericDocSetterName= */"setTtlMillis"),
-    SCORE(/* simpleClassName= */"Score", /* genericDocSetterName= */"setScore");
+    TTL_MILLIS(
+            /* simpleClassName= */"TtlMillis",
+            /* genericDocGetterName= */ "getTtlMillis",
+            /* genericDocSetterName= */"setTtlMillis"),
+    SCORE(
+            /* simpleClassName= */"Score",
+            /* genericDocGetterName= */ "getScore",
+            /* genericDocSetterName= */"setScore");
 
     /**
      * Attempts to parse an {@link AnnotationMirror} into a {@link MetadataPropertyAnnotation},
@@ -57,11 +72,17 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     private final ClassName mClassName;
 
     @NonNull
+    private final String mGenericDocGetterName;
+
+    @NonNull
     private final String mGenericDocSetterName;
 
     MetadataPropertyAnnotation(
-            @NonNull String simpleClassName, @NonNull String genericDocSetterName) {
+            @NonNull String simpleClassName,
+            @NonNull String genericDocGetterName,
+            @NonNull String genericDocSetterName) {
         mClassName = DOCUMENT_ANNOTATION_CLASS.nestedClass(simpleClassName);
+        mGenericDocGetterName = genericDocGetterName;
         mGenericDocSetterName = genericDocSetterName;
     }
 
@@ -72,12 +93,35 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
     }
 
 
-
     @Override
     @NonNull
     public PropertyAnnotation.Kind getPropertyKind() {
         return Kind.METADATA_PROPERTY;
     }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        switch (this) {
+            case ID: // fall-through
+            case NAMESPACE:
+                return helper.mStringType;
+            case CREATION_TIMESTAMP_MILLIS: // fall-through
+            case TTL_MILLIS:
+                return helper.mLongPrimitiveType;
+            case SCORE:
+                return helper.mIntPrimitiveType;
+            default:
+                throw new IllegalStateException("Unhandled metadata property annotation: " + this);
+        }
+    }
+
+    @NonNull
+    @Override
+    public String getGenericDocGetterName() {
+        return mGenericDocGetterName;
+    }
+
 
     @NonNull
     @Override

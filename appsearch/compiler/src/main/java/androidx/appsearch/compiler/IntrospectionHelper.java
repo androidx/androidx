@@ -89,23 +89,24 @@ public class IntrospectionHelper {
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
 
+    public final TypeMirror mStringType;
+    public final TypeMirror mLongPrimitiveType;
+    public final TypeMirror mIntPrimitiveType;
+    public final TypeMirror mBooleanPrimitiveType;
+    public final TypeMirror mBytePrimitiveArrayType;
+    public final TypeMirror mGenericDocumentType;
+    public final TypeMirror mDoublePrimitiveType;
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
-    final TypeMirror mStringType;
     final TypeMirror mIntegerBoxType;
-    final TypeMirror mIntPrimitiveType;
     final TypeMirror mLongBoxType;
-    final TypeMirror mLongPrimitiveType;
     final TypeMirror mFloatBoxType;
     final TypeMirror mFloatPrimitiveType;
     final TypeMirror mDoubleBoxType;
-    final TypeMirror mDoublePrimitiveType;
     final TypeMirror mBooleanBoxType;
-    final TypeMirror mBooleanPrimitiveType;
     final TypeMirror mByteBoxType;
     final TypeMirror mByteBoxArrayType;
     final TypeMirror mBytePrimitiveType;
-    final TypeMirror mBytePrimitiveArrayType;
     private final ProcessingEnvironment mEnv;
     private final Types mTypeUtils;
 
@@ -134,6 +135,8 @@ public class IntrospectionHelper {
         mByteBoxArrayType = mTypeUtils.getArrayType(mByteBoxType);
         mBytePrimitiveType = mTypeUtils.unboxedType(mByteBoxType);
         mBytePrimitiveArrayType = mTypeUtils.getArrayType(mBytePrimitiveType);
+        mGenericDocumentType =
+                elementUtil.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
     }
 
     /**
@@ -367,6 +370,39 @@ public class IntrospectionHelper {
         TypeMirror target = method.getKind() == ElementKind.CONSTRUCTOR
                 ? method.getEnclosingElement().asType() : method.getReturnType();
         return mTypeUtils.isSameType(type, target);
+    }
+
+    /**
+     * Returns a type that the source type should be casted to coerce it to the target type.
+     *
+     * <p>Handles the following cases:
+     * <pre>
+     * {@code
+     * long|Long -> int|Integer = (int) ...
+     * double|Double -> float|Float = (float) ...
+     * }
+     * </pre>
+     *
+     * <p>Returns null if no cast is necessary.
+     */
+    @Nullable
+    public TypeMirror getNarrowingCastType(
+            @NonNull TypeMirror sourceType, @NonNull TypeMirror targetType) {
+        if (mTypeUtils.isSameType(targetType, mIntPrimitiveType)
+                || mTypeUtils.isSameType(targetType, mIntegerBoxType)) {
+            if (mTypeUtils.isSameType(sourceType, mLongPrimitiveType)
+                    || mTypeUtils.isSameType(sourceType, mLongBoxType)) {
+                return mIntPrimitiveType;
+            }
+        }
+        if (mTypeUtils.isSameType(targetType, mFloatPrimitiveType)
+                || mTypeUtils.isSameType(targetType, mFloatBoxType)) {
+            if (mTypeUtils.isSameType(sourceType, mDoublePrimitiveType)
+                    || mTypeUtils.isSameType(sourceType, mDoubleBoxType)) {
+                return mFloatPrimitiveType;
+            }
+        }
+        return null;
     }
 
     /**

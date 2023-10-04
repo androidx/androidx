@@ -20,11 +20,14 @@ import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
 import java.util.Map;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of the {@code @Document.LongProperty} annotation.
@@ -38,7 +41,12 @@ public abstract class LongPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("LongPropertyConfig");
 
     public LongPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyLong");
+        super(
+                CLASS_NAME,
+                CONFIG_CLASS,
+                /* genericDocGetterName= */"getPropertyLong",
+                /* genericDocArrayGetterName= */"getPropertyLongArray",
+                /* genericDocSetterName= */"setPropertyLong");
     }
 
     /**
@@ -64,5 +72,11 @@ public abstract class LongPropertyAnnotation extends DataPropertyAnnotation {
     @Override
     public final Kind getDataPropertyKind() {
         return Kind.LONG_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        return helper.mLongPrimitiveType;
     }
 }

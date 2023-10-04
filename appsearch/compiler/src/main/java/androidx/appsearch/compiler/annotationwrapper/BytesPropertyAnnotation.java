@@ -20,11 +20,14 @@ import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_C
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
 import java.util.Map;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of the {@code @Document.BytesProperty} annotation.
@@ -38,7 +41,12 @@ public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
             APPSEARCH_SCHEMA_CLASS.nestedClass("BytesPropertyConfig");
 
     public BytesPropertyAnnotation() {
-        super(CLASS_NAME, CONFIG_CLASS, /* genericDocSetterName= */"setPropertyBytes");
+        super(
+                CLASS_NAME,
+                CONFIG_CLASS,
+                /* genericDocGetterName= */"getPropertyBytes",
+                /* genericDocArrayGetterName= */"getPropertyBytesArray",
+                /* genericDocSetterName= */"setPropertyBytes");
     }
 
     /**
@@ -57,5 +65,11 @@ public abstract class BytesPropertyAnnotation extends DataPropertyAnnotation {
     @Override
     public final Kind getDataPropertyKind() {
         return Kind.BYTES_PROPERTY;
+    }
+
+    @NonNull
+    @Override
+    public TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper) {
+        return helper.mBytePrimitiveArrayType;
     }
 }

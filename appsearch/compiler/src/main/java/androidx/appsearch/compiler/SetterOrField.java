@@ -35,6 +35,14 @@ public abstract class SetterOrField {
     public abstract Element getElement();
 
     /**
+     * The setter/field element's name.
+     */
+    @NonNull
+    public String getJvmName() {
+        return getElement().getSimpleName().toString();
+    }
+
+    /**
      * Whether it is a setter.
      */
     public boolean isSetter() {
