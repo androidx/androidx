@@ -1143,7 +1143,7 @@ package androidx.compose.ui.text.input {
   }
 
   public fun interface PlatformTextInputMethodRequest {
-    method public android.view.inputmethod.InputConnection createInputConnection(android.view.inputmethod.EditorInfo outAttrs);
+    method public android.view.inputmethod.InputConnection createInputConnection(android.view.inputmethod.EditorInfo outAttributes);
   }
 
   public interface PlatformTextInputService {
