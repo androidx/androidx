@@ -35,6 +35,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Active
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Idle
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Loading
+import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
@@ -274,11 +275,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     internal fun removeSurfaceViewAndOpenSession() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            windowInputToken = surfaceView.hostToken
+        windowInputToken = if (BackwardCompatUtil.canProviderBeRemote()) {
+            surfaceView.hostToken
         } else {
-            // Since there is no SdkSandbox, we don't need windowInputToken for creating SCVH
-            windowInputToken = Binder()
+            // Input token is only needed when provider can be located on a separate process.
+            Binder()
         }
         super.removeView(surfaceView)
         checkClientOpenSession()
