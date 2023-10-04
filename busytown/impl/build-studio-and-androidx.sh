@@ -92,8 +92,10 @@ listJavaProcesses
 # the release flag
 versionProperties="$STUDIO_DIR/out/build/base/builder-model/build/resources/main/com/android/builder/model/version.properties"
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
-export GRADLE_PLUGIN_VERSION=`perl -nle'print $& while m{(?<=buildVersion=).*}g' $versionProperties`
+export GRADLE_PLUGIN_VERSION=$(perl -nle'print $& while m{(?<=buildVersion=).*}g' "$versionProperties")
 echo "GRADLE_PLUGIN_VERSION=$GRADLE_PLUGIN_VERSION"
+export LINT_VERSION=$(perl -nle'print $& while m{(?<=baseVersion=).*}g' "$versionProperties")
+echo "LINT_VERSION=$LINT_VERSION"
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk17/$PREBUILT_JDK/"
 export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
