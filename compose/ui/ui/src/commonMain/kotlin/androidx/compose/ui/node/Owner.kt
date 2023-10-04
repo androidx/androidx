@@ -30,6 +30,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
@@ -279,6 +281,12 @@ internal interface Owner : PlatformTextInputSessionHandler {
      * CoroutineContext for launching coroutines in Modifier Nodes.
      */
     val coroutineContext: CoroutineContext
+
+    /**
+     * The scope used to place the outermost layout.
+     */
+    val placementScope: Placeable.PlacementScope
+        get() = PlacementScope(this) // default implementation for test owners
 
     /**
      * Registers a call to be made when the [Applier.onEndChanges] is called. [listener]

@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.LookaheadLayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -70,6 +71,11 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
      */
     internal var isPlacingForAlignment = false
 
+    /**
+     * [PlacementScope] used to place children.
+     */
+    val placementScope = PlacementScope(this)
+
     protected fun NodeCoordinator.invalidateAlignmentLinesFromPositionChange() {
         if (wrapped?.layoutNode != layoutNode) {
             alignmentLinesOwner.alignmentLines.onAlignmentsChanged()
@@ -81,6 +87,22 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
     @OptIn(ExperimentalComposeUiApi::class)
     override val isLookingAhead: Boolean
         get() = false
+
+    override fun layout(
+        width: Int,
+        height: Int,
+        alignmentLines: Map<AlignmentLine, Int>,
+        placementBlock: PlacementScope.() -> Unit
+    ): MeasureResult = object : MeasureResult {
+        override val width: Int
+            get() = width
+        override val height: Int
+            get() = height
+        override val alignmentLines: Map<AlignmentLine, Int>
+            get() = alignmentLines
+
+        override fun placeChildren() = placementScope.placementBlock()
+    }
 }
 
 internal abstract class LookaheadDelegate(
@@ -128,6 +150,7 @@ internal abstract class LookaheadDelegate(
                 ) {
                     alignmentLinesOwner.alignmentLines.onAlignmentsChanged()
 
+                    @Suppress("PrimitiveInCollection")
                     val oldLines = oldAlignmentLines
                         ?: (mutableMapOf<AlignmentLine, Int>().also { oldAlignmentLines = it })
                     oldLines.clear()
@@ -170,13 +193,7 @@ internal abstract class LookaheadDelegate(
     }
 
     protected open fun placeChildren() {
-        PlacementScope.executeWithRtlMirroringValues(
-            measureResult.width,
-            coordinator.layoutDirection,
-            this
-        ) {
-            measureResult.placeChildren()
-        }
+        measureResult.placeChildren()
     }
 
     inline fun performingMeasure(
