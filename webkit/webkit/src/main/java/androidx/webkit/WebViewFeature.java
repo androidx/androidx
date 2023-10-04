@@ -561,7 +561,6 @@ public class WebViewFeature {
      * {@link ProfileStore#deleteProfile(String)}.
      * {@link ProfileStore#getInstance()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String MULTI_PROFILE = "MULTI_PROFILE";
 
     /**
