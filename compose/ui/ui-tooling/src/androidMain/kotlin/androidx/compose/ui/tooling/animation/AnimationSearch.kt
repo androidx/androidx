@@ -74,7 +74,8 @@ private inline fun <reified T> Group.findData(includeGrandchildren: Boolean = fa
 @OptIn(UiToolingDataApi::class)
 internal class AnimationSearch(
     private val clock: () -> PreviewAnimationClock,
-    private val onSeek: () -> Unit
+    private val isAnimationPreview: Boolean,
+    private val onSeek: () -> Unit,
 ) {
     private val transitionSearch = TransitionSearch { clock().trackTransition(it) }
     private val animatedContentSearch =
@@ -85,12 +86,12 @@ internal class AnimationSearch(
 
     private fun animateXAsStateSearch() =
         if (AnimateXAsStateComposeAnimation.apiAvailable)
-            setOf(AnimateXAsStateSearch { clock().trackAnimateXAsState(it) })
+            setOf(AnimateXAsStateSearch(isAnimationPreview) { clock().trackAnimateXAsState(it) })
         else emptyList()
 
     private fun infiniteTransitionSearch() =
         if (InfiniteTransitionComposeAnimation.apiAvailable)
-            setOf(InfiniteTransitionSearch {
+            setOf(InfiniteTransitionSearch(isAnimationPreview) {
                 clock().trackInfiniteTransition(it)
             })
         else emptySet()
@@ -124,6 +125,9 @@ internal class AnimationSearch(
     /**
      * If non of supported animations are detected, unsupported animations should not be
      * available either.
+     *
+     * TODO(b/303254098): We only need to search all animations when we're in Animation Preview.
+     *                    Otherwise, stopping after finding the first one should be enough.
      */
     val hasAnimations: Boolean
         get() = supportedSearch.any { it.hasAnimations() }
@@ -198,8 +202,10 @@ internal class AnimationSearch(
         val toolingState: ToolingState<Long>
     )
 
-    class InfiniteTransitionSearch(trackAnimation: (InfiniteTransitionSearchInfo) -> Unit) :
-        Search<InfiniteTransitionSearchInfo>(trackAnimation) {
+    class InfiniteTransitionSearch(
+        private val isAnimationPreview: Boolean,
+        trackAnimation: (InfiniteTransitionSearchInfo) -> Unit
+    ) : Search<InfiniteTransitionSearchInfo>(trackAnimation) {
 
         override fun addAnimations(groups: Collection<Group>) {
             val groupsWithLocation = groups.filter { it.location != null }
@@ -216,12 +222,12 @@ internal class AnimationSearch(
                 val infiniteTransition = it.findData<InfiniteTransition>()
                 val toolingOverride = it.findData<MutableState<State<Long>?>>(true)
                 if (infiniteTransition != null && toolingOverride != null) {
-                    if (toolingOverride.value == null) {
+                    if (toolingOverride.value == null && isAnimationPreview) {
                         toolingOverride.value = ToolingState(0L)
                     }
                     InfiniteTransitionSearchInfo(
                         infiniteTransition,
-                        toolingOverride.value as ToolingState<Long>
+                        (toolingOverride.value as? ToolingState<Long>) ?: ToolingState(0L)
                     )
                 } else null
             }
@@ -235,8 +241,10 @@ internal class AnimationSearch(
     )
 
     /** Search for animateXAsState() and animateValueAsState() animations. */
-    class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
-        Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
+    class AnimateXAsStateSearch(
+        private val isAnimationPreview: Boolean,
+        trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit
+    ) : Search<AnimateXAsStateSearchInfo<*, *>>(trackAnimation) {
         override fun addAnimations(groups: Collection<Group>) {
             val groupsWithLocation = groups.filter { it.location != null }
             animations.addAll(findAnimations<Any?>(groupsWithLocation))
@@ -259,16 +267,24 @@ internal class AnimationSearch(
             return groups.mapNotNull {
                 val animatable = findAnimatable<T>(it)
                 val spec = findAnimationSpec<T>(it)
+                // animateValueAsState declares a mutableStateOf<State<T>?>, starting as null, that
+                // we can use to override the animatable value in Animation Preview. We do that by
+                // getting the MutableState from the slot table and directly setting its value.
+                // animateValueAsState will use the tooling override if this value is not null.
+                // For that reason, it's important that we only override if we're in Animation
+                // Preview, otherwise other tools (e.g. Interactive Preview) might not render
+                // animations correctly.
                 val toolingOverride =
                     it.children.findRememberedData<MutableState<State<T>?>>().firstOrNull()
                 if (animatable != null && spec != null && toolingOverride != null) {
-                    if (toolingOverride.value == null) {
+                    if (toolingOverride.value == null && isAnimationPreview) {
                         toolingOverride.value = ToolingState(animatable.value)
                     }
                     AnimateXAsStateSearchInfo(
                         animatable,
                         spec,
-                        toolingOverride.value as ToolingState<T>
+                        (toolingOverride.value as? ToolingState<T>)
+                            ?: ToolingState(animatable.value)
                     )
                 } else null
             }
