@@ -80,7 +80,7 @@ internal class DefaultThreePaneScaffoldState(
          */
         fun saver(
             initialLayoutDirective: AdaptiveLayoutDirective,
-            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
+            initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies
         ): Saver<DefaultThreePaneScaffoldState, *> = listSaver(
             save = {
                 it.focusHistory.toList()
@@ -89,7 +89,7 @@ internal class DefaultThreePaneScaffoldState(
                 DefaultThreePaneScaffoldState(
                     initialFocusHistory = it,
                     initialLayoutDirective = initialLayoutDirective,
-                    initialAdaptStrategies = initialAdaptStrategies,
+                    initialAdaptStrategies = initialAdaptStrategies
                 )
             }
         )

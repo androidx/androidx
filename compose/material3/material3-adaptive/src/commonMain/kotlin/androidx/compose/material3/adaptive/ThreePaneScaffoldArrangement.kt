@@ -75,6 +75,17 @@ internal inline fun ThreePaneScaffoldArrangement.forEachIndexed(
     action(2, thirdPane)
 }
 
+@ExperimentalMaterial3AdaptiveApi
+internal fun ThreePaneScaffoldArrangement.indexOf(role: ThreePaneScaffoldRole): Int {
+    forEachIndexed { i, r ->
+        if (r == role) {
+            return i
+        }
+    }
+    // should never reach this far
+    return 0
+}
+
 /**
  * The set of the available pane roles of [ThreePaneScaffold].
  */
@@ -86,12 +97,14 @@ enum class ThreePaneScaffoldRole {
      * details in a list-detail settings.
      */
     Primary,
+
     /**
      * The secondary pane of [ThreePaneScaffold]. It is supposed to have the second highest priority
      * during layout adaptation and usually contains the supplement content of the screen, like
      * content list in a list-detail settings.
      */
     Secondary,
+
     /**
      * The tertiary pane of [ThreePaneScaffold]. It is supposed to have the lowest priority during
      * layout adaptation and usually contains the additional info which will only be shown under

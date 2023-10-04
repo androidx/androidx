@@ -179,12 +179,14 @@ enum class ListDetailPaneScaffoldRole(internal val threePaneScaffoldRole: ThreeP
      * The list pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Secondary].
      */
     List(ThreePaneScaffoldRole.Secondary),
+
     /**
      * The detail pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Primary].
      */
     Detail(ThreePaneScaffoldRole.Primary),
+
     /**
      * The extra pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Tertiary].
      */
-    Extra(ThreePaneScaffoldRole.Tertiary)
+    Extra(ThreePaneScaffoldRole.Tertiary);
 }
