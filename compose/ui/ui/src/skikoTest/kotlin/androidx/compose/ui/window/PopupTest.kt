@@ -17,7 +17,10 @@
 package androidx.compose.ui.window
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -37,25 +40,56 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.isEqualTo
+import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.PlatformInsets
+import androidx.compose.ui.platform.PlatformInsetsConfig
+import androidx.compose.ui.platform.ZeroInsetsConfig
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.fail
 
 @OptIn(ExperimentalTestApi::class)
 class PopupTest {
+
+    private fun setPlatformInsets(insets: PlatformInsets) {
+        PlatformInsetsConfig = object : InsetsConfig {
+            override val safeInsets: PlatformInsets
+                @Composable get() = insets
+
+            @Composable
+            override fun excludeSafeInsets(content: @Composable () -> Unit) {
+                content()
+            }
+        }
+    }
+
+    @BeforeTest
+    fun before() {
+        PlatformInsetsConfig = ZeroInsetsConfig
+    }
+
+    @AfterTest
+    fun after() {
+        PlatformInsetsConfig = ZeroInsetsConfig
+    }
 
     @Test
     fun passCompositionLocalsToPopup() = runSkikoComposeUiTest {
@@ -553,5 +587,38 @@ class PopupTest {
         }
         onNodeWithTag("box1").assertPositionInRootIsEqualTo(80.dp, 80.dp)
         onNodeWithTag("box2").assertPositionInRootIsEqualTo((-30).dp, (-30).dp)
+    }
+
+    // https://github.com/JetBrains/compose-multiplatform-core/pull/847
+    @Test
+    fun popupBoundsWithPlatformInsets() = runSkikoComposeUiTest(
+        size = Size(200f, 200f)
+    ) {
+        setPlatformInsets(PlatformInsets(left = 5.dp, top = 50.dp, right = 5.dp, bottom = 10.dp))
+        setContent {
+            Popup(
+                popupPositionProvider = object : PopupPositionProvider {
+                    override fun calculatePosition(
+                        anchorBounds: IntRect,
+                        windowSize: IntSize,
+                        layoutDirection: LayoutDirection,
+                        popupContentSize: IntSize
+                    ): IntOffset = IntOffset.Zero
+                }
+            ) {
+                Box(Modifier.fillMaxSize().testTag("box1"))
+            }
+            Box(Modifier.offset(30.dp, 100.dp)) {
+                Popup {
+                    Box(Modifier.size(50.dp).testTag("box2"))
+                }
+            }
+        }
+        onNodeWithTag("box1")
+            .assertPositionInRootIsEqualTo(5.dp, 50.dp)
+            .assertWidthIsEqualTo(190.dp)
+            .assertHeightIsEqualTo(140.dp)
+        onNodeWithTag("box2")
+            .assertPositionInRootIsEqualTo(30.dp, 100.dp) // Matches parent position (if inside bounds)
     }
 }

@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -34,3 +36,22 @@ val LocalSafeArea = staticCompositionLocalOf<PlatformInsets> {
 val LocalLayoutMargins = staticCompositionLocalOf<PlatformInsets> {
     error("CompositionLocal LocalLayoutMargins not present")
 }
+
+@OptIn(InternalComposeApi::class)
+private object SafeAreaInsetsConfig : InsetsConfig {
+    override val safeInsets: PlatformInsets
+        @Composable get() = LocalSafeArea.current
+
+    @Composable
+    override fun excludeSafeInsets(content: @Composable () -> Unit) {
+        val safeArea = LocalSafeArea.current
+        val layoutMargins = LocalLayoutMargins.current
+        CompositionLocalProvider(
+            LocalSafeArea provides PlatformInsets(),
+            LocalLayoutMargins provides layoutMargins.exclude(safeArea),
+            content = content
+        )
+    }
+}
+
+internal actual var PlatformInsetsConfig: InsetsConfig = SafeAreaInsetsConfig

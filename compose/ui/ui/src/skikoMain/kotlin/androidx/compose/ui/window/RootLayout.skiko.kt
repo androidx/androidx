@@ -158,12 +158,6 @@ internal fun MeasureScope.positionWithInsets(
     return position + offset
 }
 
-@Composable
-internal expect fun platformInsets(): PlatformInsets
-
-@Composable
-internal expect fun platformOwnerContent(overrideInsets: Boolean, content: @Composable () -> Unit)
-
 private fun Density.platformDefaultConstrains(
     constraints: Constraints
 ): Constraints = constraints.copy(

@@ -307,18 +307,18 @@ internal actual class ComposeWindow : UIViewController {
         // super.viewSafeAreaInsetsDidChange() // TODO: call super after Kotlin 1.8.20
         view.safeAreaInsets.useContents {
             safeAreaState = PlatformInsets(
-                top = top.dp,
-                bottom = bottom.dp,
                 left = left.dp,
+                top = top.dp,
                 right = right.dp,
+                bottom = bottom.dp,
             )
         }
         view.directionalLayoutMargins.useContents {
             layoutMarginsState = PlatformInsets(
+                left = leading.dp, // TODO: Check RTL support
                 top = top.dp,
+                right = trailing.dp, // TODO: Check RTL support
                 bottom = bottom.dp,
-                left = leading.dp,
-                right = trailing.dp,
             )
         }
     }

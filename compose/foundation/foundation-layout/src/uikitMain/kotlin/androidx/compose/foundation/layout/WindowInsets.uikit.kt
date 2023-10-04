@@ -29,10 +29,10 @@ private val ZeroInsets = WindowInsets(0, 0, 0, 0)
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun PlatformInsets.toWindowInsets() = WindowInsets(
-    top = top,
-    bottom = bottom,
     left = left,
+    top = top,
     right = right,
+    bottom = bottom,
 )
 
 /**
