@@ -27,11 +27,13 @@ import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothStatusCodes
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
@@ -58,7 +60,7 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        )
+        ): Int?
         fun sendResponse(
             device: FwkDevice,
             requestId: Int,
@@ -286,7 +288,7 @@ class GattServer(private val context: Context) {
                         override suspend fun notify(
                             characteristic: GattCharacteristic,
                             value: ByteArray
-                        ): Boolean {
+                        ) {
                             notifyMutex.withLock {
                                 CompletableDeferred<Boolean>().also {
                                     notifyJob = it
@@ -295,8 +297,13 @@ class GattServer(private val context: Context) {
                                         characteristic.fwkCharacteristic,
                                         false,
                                         value
-                                    )
-                                    return it.await()
+                                    ).let { notifyResult ->
+                                        if (notifyResult != BluetoothStatusCodes.SUCCESS) {
+                                            throw CancellationException("notify failed with " +
+                                                "error: {$notifyResult}")
+                                        }
+                                    }
+                                    it.await()
                                 }
                             }
                         }
@@ -361,9 +368,11 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        ) {
+        ): Int? {
             characteristic.value = value
-            gattServer?.notifyCharacteristicChanged(device, characteristic, confirm)
+            return gattServer?.notifyCharacteristicChanged(device, characteristic, confirm)?.let {
+                if (it) BluetoothStatusCodes.SUCCESS else BluetoothStatusCodes.ERROR_UNKNOWN
+            }
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
@@ -385,8 +394,8 @@ class GattServer(private val context: Context) {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        ) {
-            gattServer?.notifyCharacteristicChanged(device, characteristic, confirm, value)
+        ): Int? {
+            return gattServer?.notifyCharacteristicChanged(device, characteristic, confirm, value)
         }
     }
 }

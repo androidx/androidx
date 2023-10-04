@@ -438,7 +438,7 @@ class RobolectricGattServerTest {
             bluetoothLe.openGattServer(services) {
                 connectRequests.collect {
                     it.accept {
-                        assertTrue(notify(notifyCharacteristic, valueToNotify.toByteArray()))
+                        notify(notifyCharacteristic, valueToNotify.toByteArray())
                         // Close the server
                         this@launch.cancel()
                     }
@@ -589,10 +589,12 @@ class RobolectricGattServerTest {
             characteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
-        ) {
-            baseAdapter.notifyCharacteristicChanged(device, characteristic, confirm, value)
-            onNotifyCharacteristicChangedListener
-                ?.onNotifyCharacteristicChanged(device, characteristic, confirm, value)
+        ): Int? {
+            baseAdapter.notifyCharacteristicChanged(device, characteristic, confirm, value).let {
+                onNotifyCharacteristicChangedListener
+                    ?.onNotifyCharacteristicChanged(device, characteristic, confirm, value)
+                return it
+            }
         }
 
         override fun sendResponse(
