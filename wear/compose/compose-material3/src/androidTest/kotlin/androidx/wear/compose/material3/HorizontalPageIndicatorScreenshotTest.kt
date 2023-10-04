@@ -56,41 +56,41 @@ class HorizontalPageIndicatorScreenshotTest {
 
     @Test
     fun horizontalPageIndicator_circular_selected_page() {
-        selected_page(PageIndicatorStyle.Curved, LayoutDirection.Ltr)
+        selected_page(true, LayoutDirection.Ltr)
     }
 
     @Test
     fun horizontalPageIndicator_linear_selected_page() {
-        selected_page(PageIndicatorStyle.Linear, LayoutDirection.Ltr)
+        selected_page(false, LayoutDirection.Ltr)
     }
 
     @Test
     fun horizontalPageIndicator_circular_selected_page_rtl() {
-        selected_page(PageIndicatorStyle.Curved, LayoutDirection.Rtl)
+        selected_page(true, LayoutDirection.Rtl)
     }
 
     @Test
     fun horizontalPageIndicator_linear_selected_page_rtl() {
-        selected_page(PageIndicatorStyle.Linear, LayoutDirection.Rtl)
+        selected_page(false, LayoutDirection.Rtl)
     }
 
     @Test
     fun horizontalPageIndicator_circular_between_pages() {
-        between_pages(PageIndicatorStyle.Curved)
+        between_pages(true)
     }
 
     @Test
     fun horizontalPageIndicator_linear_between_pages() {
-        between_pages(PageIndicatorStyle.Linear)
+        between_pages(false)
     }
 
     private fun selected_page(
-        indicatorStyle: PageIndicatorStyle,
+        isRound: Boolean,
         layoutDirection: LayoutDirection
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                defaultHorizontalPageIndicator(indicatorStyle)
+                defaultHorizontalPageIndicator(isRound)
             }
         }
         rule.waitForIdle()
@@ -100,18 +100,19 @@ class HorizontalPageIndicatorScreenshotTest {
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
 
-    private fun between_pages(indicatorStyle: PageIndicatorStyle) {
+    private fun between_pages(isRound: Boolean) {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(200.dp),
-                indicatorStyle = indicatorStyle,
-                pageIndicatorState = pageIndicatorState(0.5f),
-                selectedColor = Color.Yellow,
-                unselectedColor = Color.Red,
-                indicatorSize = 15.dp
-            )
+            ConfiguredShapeScreen(isRound) {
+                HorizontalPageIndicator(
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
+                        .size(200.dp),
+                    pageIndicatorState = pageIndicatorState(0.5f),
+                    selectedColor = Color.Yellow,
+                    unselectedColor = Color.Red,
+                    indicatorSize = 15.dp
+                )
+            }
         }
         rule.waitForIdle()
 
@@ -121,16 +122,17 @@ class HorizontalPageIndicatorScreenshotTest {
     }
 
     @Composable
-    private fun defaultHorizontalPageIndicator(indicatorStyle: PageIndicatorStyle) {
-        HorizontalPageIndicator(
-            modifier = Modifier
-                .testTag(TEST_TAG)
-                .size(200.dp),
-            indicatorStyle = indicatorStyle,
-            pageIndicatorState = pageIndicatorState(),
-            selectedColor = Color.Yellow,
-            unselectedColor = Color.Red,
-            indicatorSize = 15.dp
-        )
+    private fun defaultHorizontalPageIndicator(isRound: Boolean) {
+        ConfiguredShapeScreen(isRound) {
+            HorizontalPageIndicator(
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .size(200.dp),
+                pageIndicatorState = pageIndicatorState(),
+                selectedColor = Color.Yellow,
+                unselectedColor = Color.Red,
+                indicatorSize = 15.dp
+            )
+        }
     }
 }
