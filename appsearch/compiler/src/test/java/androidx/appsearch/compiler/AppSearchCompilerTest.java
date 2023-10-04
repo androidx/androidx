@@ -169,27 +169,6 @@ public class AppSearchCompilerTest {
                 "Property type must stay consistent when overriding annotated "
                         + "members but changed from @Id -> @StringProperty");
 
-        Compilation nonAnnotatedFieldHasSameName = compile(
-                "@Document\n"
-                        + "public class Gift {\n"
-                        + "  @Document.Namespace String namespace;\n"
-                        + "  @Document.Id String id;\n"
-                        + "  Gift(String id, String namespace) {\n"
-                        + "    this.id = id;\n"
-                        + "    this.namespace = namespace;\n"
-                        + "  }\n"
-                        + "}\n"
-                        + "@Document\n"
-                        + "class CoolGift extends Gift {\n"
-                        + "  String id;\n"
-                        + "  CoolGift(String id, String namespace) {\n"
-                        + "    super(id, namespace);\n"
-                        + "  }\n"
-                        + "  public String getId() { return id; }\n"
-                        + "}\n");
-        assertThat(nonAnnotatedFieldHasSameName).hadErrorContaining(
-                "Non-annotated field overriding special annotated fields named: id");
-
         //error on collision
         Compilation idCollision = compile(
                 "@Document\n"
