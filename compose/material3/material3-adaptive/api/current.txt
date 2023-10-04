@@ -226,9 +226,13 @@ package androidx.compose.material3.adaptive {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldDefaults {
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies(optional androidx.compose.material3.adaptive.AdaptStrategy primaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy secondaryPaneAdaptStrategy, optional androidx.compose.material3.adaptive.AdaptStrategy tertiaryPaneAdaptStrategy);
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement getListDetailLayoutArrangement();
+    method public float getSecondaryPanePreferredWidth();
     method public androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement getSupportingPaneLayoutArrangement();
+    method public float getTertiaryPanePreferredWidth();
     property public final androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement ListDetailLayoutArrangement;
+    property public final float SecondaryPanePreferredWidth;
     property public final androidx.compose.material3.adaptive.ThreePaneScaffoldArrangement SupportingPaneLayoutArrangement;
+    property public final float TertiaryPanePreferredWidth;
     field public static final androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults INSTANCE;
   }
 
