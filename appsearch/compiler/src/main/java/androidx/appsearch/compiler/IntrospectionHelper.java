@@ -89,6 +89,9 @@ public class IntrospectionHelper {
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
 
+    static final ClassName DOCUMENT_CLASS_FACTORY_CLASS =
+            ClassName.get(APPSEARCH_PKG, "DocumentClassFactory");
+
     public final TypeMirror mStringType;
     public final TypeMirror mLongPrimitiveType;
     public final TypeMirror mIntPrimitiveType;
