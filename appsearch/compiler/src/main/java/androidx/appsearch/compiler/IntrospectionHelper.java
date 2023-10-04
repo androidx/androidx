@@ -175,7 +175,8 @@ public class IntrospectionHelper {
     }
 
     /** Checks whether the property data type is one of the valid types. */
-    public boolean isFieldOfExactType(Element property, TypeMirror... validTypes) {
+    public boolean isFieldOfExactType(
+            @NonNull Element property, @NonNull TypeMirror... validTypes) {
         TypeMirror propertyType = getPropertyType(property);
         for (TypeMirror validType : validTypes) {
             if (propertyType.getKind() == TypeKind.ARRAY) {
@@ -196,31 +197,14 @@ public class IntrospectionHelper {
     }
 
     /** Checks whether the property data type is of boolean type. */
-    public boolean isFieldOfBooleanType(Element property) {
+    public boolean isFieldOfBooleanType(@NonNull Element property) {
         return isFieldOfExactType(property, mBooleanBoxType, mBooleanPrimitiveType);
     }
 
     /**
-     * Checks whether the property data class has {@code androidx.appsearch.annotation.Document
-     * .DocumentProperty} annotation.
+     * Returns the annotation's params as a map. Includes the default values.
      */
-    public boolean isFieldOfDocumentType(Element property) {
-        TypeMirror propertyType = getPropertyType(property);
-
-        AnnotationMirror documentAnnotation = null;
-
-        if (propertyType.getKind() == TypeKind.ARRAY) {
-            documentAnnotation = getDocumentAnnotation(
-                    mTypeUtils.asElement(((ArrayType) propertyType).getComponentType()));
-        } else if (mTypeUtils.isAssignable(mTypeUtils.erasure(propertyType), mCollectionType)) {
-            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(
-                    ((DeclaredType) propertyType).getTypeArguments().get(0)));
-        } else {
-            documentAnnotation = getDocumentAnnotation(mTypeUtils.asElement(propertyType));
-        }
-        return documentAnnotation != null;
-    }
-
+    @NonNull
     public Map<String, Object> getAnnotationParams(@NonNull AnnotationMirror annotation) {
         Map<? extends ExecutableElement, ? extends AnnotationValue> values =
                 mEnv.getElementUtils().getElementValuesWithDefaults(annotation);
@@ -252,10 +236,6 @@ public class IntrospectionHelper {
     public static ClassName getDocumentClassFactoryForClass(@NonNull ClassName clazz) {
         String className = clazz.canonicalName().substring(clazz.packageName().length() + 1);
         return getDocumentClassFactoryForClass(clazz.packageName(), className);
-    }
-
-    public ClassName getAppSearchClass(String clazz, String... nested) {
-        return ClassName.get(APPSEARCH_PKG, clazz, nested);
     }
 
     /**
@@ -455,29 +435,6 @@ public class IntrospectionHelper {
         for (TypeMirror implementedInterface : currentClass.getInterfaces()) {
             generateClassHierarchyHelper(leafElement, asTypeElement(implementedInterface),
                     hierarchy, visited);
-        }
-    }
-
-    enum PropertyClass {
-        BOOLEAN_PROPERTY_CLASS("androidx.appsearch.annotation.Document.BooleanProperty"),
-        BYTES_PROPERTY_CLASS("androidx.appsearch.annotation.Document.BytesProperty"),
-        DOCUMENT_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DocumentProperty"),
-        DOUBLE_PROPERTY_CLASS("androidx.appsearch.annotation.Document.DoubleProperty"),
-        LONG_PROPERTY_CLASS("androidx.appsearch.annotation.Document.LongProperty"),
-        STRING_PROPERTY_CLASS("androidx.appsearch.annotation.Document.StringProperty");
-
-        private final String mClassFullPath;
-
-        PropertyClass(String classFullPath) {
-            mClassFullPath = classFullPath;
-        }
-
-        String getClassFullPath() {
-            return mClassFullPath;
-        }
-
-        boolean isPropertyClass(String annotationFq) {
-            return mClassFullPath.equals(annotationFq);
         }
     }
 }

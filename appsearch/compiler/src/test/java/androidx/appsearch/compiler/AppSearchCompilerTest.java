@@ -96,7 +96,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testAutoValueInheritance() throws Exception {
+    public void testAutoValueInheritance() {
         Compilation docExtendsAutoValueDoc = compile(
                 "import com.google.auto.value.AutoValue;\n"
                         + "import com.google.auto.value.AutoValue.*;\n"
@@ -144,7 +144,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testSuperClassErrors() throws Exception {
+    public void testSuperClassErrors() {
         Compilation specialFieldReassigned = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -1188,7 +1188,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testInvalidLongPropertyIndexingType() throws Exception {
+    public void testInvalidLongPropertyIndexingType() {
         // AppSearchSchema requires Android and is not available in this desktop test, so we cheat
         // by using the integer constants directly.
         Compilation compilation = compile(
@@ -1220,7 +1220,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testRepeatedPropertyJoinableType_throwsError() throws Exception {
+    public void testRepeatedPropertyJoinableType_throwsError() {
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "@Document\n"
@@ -1690,7 +1690,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testPolymorphismOverrideExtendedPropertyInvalid() throws Exception {
+    public void testPolymorphismOverrideExtendedPropertyInvalid() {
         // Overridden properties cannot change the names.
         Compilation compilation = compile(
                 "@Document\n"
@@ -1807,7 +1807,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testPolymorphismChildTypeWithoutName() throws Exception {
+    public void testPolymorphismChildTypeWithoutName() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "class Parent {\n"
@@ -1901,7 +1901,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testAnnotationOnGetterWithoutFactory() throws Exception {
+    public void testAnnotationOnGetterWithoutFactory() {
         // An interface without any factory method is not able to initialize, as interfaces do
         // not have constructors.
         Compilation compilation = compile(
@@ -2077,7 +2077,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testSameNameGetterAndFieldAnnotatingBothButGetterIsPrivate() throws Exception {
+    public void testSameNameGetterAndFieldAnnotatingBothButGetterIsPrivate() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -2147,7 +2147,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testGetterWithParameterCannotBeUsed() throws Exception {
+    public void testGetterWithParameterCannotBeUsed() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -2164,7 +2164,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testPrivateGetterCannotBeUsed() throws Exception {
+    public void testPrivateGetterCannotBeUsed() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -2203,7 +2203,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testGetterWithWrongReturnType() throws Exception {
+    public void testGetterWithWrongReturnType() {
         Compilation compilation = compile(
                 "@Document\n"
                         + "public class Gift {\n"
@@ -2550,7 +2550,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCreationByBuilderErrors() throws Exception {
+    public void testCreationByBuilderErrors() {
         // Cannot have multiple builder producer
         Compilation compilation = compile(
                 "@Document\n"
