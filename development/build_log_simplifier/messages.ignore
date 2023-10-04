@@ -360,6 +360,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material\/Scaffold\.kt:[0
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material\/ScalingLazyColumn\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction ScalingLazyColumn
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material3\/Button\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction FilledTonalButton
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material3\/Button\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction OutlinedButton
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/wear/compose/ui/tooling/preview/WearPreviewFontScales\.kt:[0-9]+ Failed to resolve See Preview\.fontScale in DAnnotation WearPreviewFontScales\. Did you mean Preview\#fontScale\?
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material3\/Button\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction ChildButton
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material3\/Button\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction Button
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/compose\/material3\/Button\.kt:[0-9]+ Missing @param tag for parameter `enabled` in DFunction outlinedButtonBorder
