@@ -51,7 +51,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     String namespaceConv = genericDoc.getNamespace();
     String idConv = genericDoc.getId();
     long creationTsConv = genericDoc.getCreationTimestampMillis();
-    long ttlMsConv = genericDoc.getTtlMillis();
+    int ttlMsConv = (int) genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
     int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift document = new Gift();

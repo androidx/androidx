@@ -17,8 +17,11 @@
 package androidx.appsearch.compiler.annotationwrapper;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.squareup.javapoet.ClassName;
+
+import javax.lang.model.type.TypeMirror;
 
 /**
  * An instance of an AppSearch property annotation.
@@ -48,6 +51,23 @@ public interface PropertyAnnotation {
      */
     @NonNull
     Kind getPropertyKind();
+
+    /**
+     * The underlying type that the property is stored as within a
+     * {@link androidx.appsearch.app.GenericDocument}.
+     *
+     * <p>For example, {@link String} for {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    TypeMirror getUnderlyingTypeWithinGenericDoc(@NonNull IntrospectionHelper helper);
+
+    /**
+     * The corresponding getter within {@link androidx.appsearch.app.GenericDocument}.
+     *
+     * <p>For example, {@code getPropertyString} for a {@link StringPropertyAnnotation}.
+     */
+    @NonNull
+    String getGenericDocGetterName();
 
     /**
      * The corresponding setter within {@link androidx.appsearch.app.GenericDocument.Builder}.
