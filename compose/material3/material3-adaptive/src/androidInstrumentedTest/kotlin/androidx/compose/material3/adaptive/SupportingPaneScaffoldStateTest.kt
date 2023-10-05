@@ -41,7 +41,7 @@ class SupportingPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = MockSinglePaneLayoutDirective
+                scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = layoutState.canNavigateBack()
         }
@@ -64,7 +64,7 @@ class SupportingPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = MockDualPaneLayoutDirective
+                scaffoldDirective = MockDualPaneScaffoldDirective
             )
             canNavigateBack = layoutState.canNavigateBack()
         }
@@ -87,7 +87,7 @@ class SupportingPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = MockSinglePaneLayoutDirective
+                scaffoldDirective = MockSinglePaneScaffoldDirective
             )
             canNavigateBack = layoutState.canNavigateBack()
         }
@@ -114,7 +114,7 @@ class SupportingPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = MockDualPaneLayoutDirective,
+                scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialFocusHistory = listOf(
                     SupportingPaneScaffoldRole.Supporting,
                     SupportingPaneScaffoldRole.Main,
@@ -133,7 +133,7 @@ class SupportingPaneScaffoldStateTest {
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = MockDualPaneLayoutDirective,
+                scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialFocusHistory = listOf(
                     SupportingPaneScaffoldRole.Supporting,
                     SupportingPaneScaffoldRole.Main,
@@ -155,11 +155,11 @@ class SupportingPaneScaffoldStateTest {
     @Test
     fun singlePaneToDualPaneLayout_enforceLayoutValueChange_cannotNavigateBack() {
         lateinit var layoutState: SupportingPaneScaffoldState
-        val mockCurrentLayoutDirective = mutableStateOf(MockSinglePaneLayoutDirective)
+        val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
             layoutState = rememberSupportingPaneScaffoldState(
-                layoutDirectives = mockCurrentLayoutDirective.value,
+                scaffoldDirective = mockCurrentScaffoldDirective.value,
                 initialFocusHistory = listOf(
                     SupportingPaneScaffoldRole.Supporting,
                     SupportingPaneScaffoldRole.Main,
@@ -169,7 +169,7 @@ class SupportingPaneScaffoldStateTest {
         composeRule.runOnIdle {
             assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             // Switches to dual pane
-            mockCurrentLayoutDirective.value = MockDualPaneLayoutDirective
+            mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
         }
 
         composeRule.runOnIdle {
@@ -179,7 +179,7 @@ class SupportingPaneScaffoldStateTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockSinglePaneLayoutDirective = AdaptiveLayoutDirective(
+private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 1,
     gutterSizes = GutterSizes(0.dp, 0.dp),
     maxVerticalPartitions = 1,
@@ -187,7 +187,7 @@ private val MockSinglePaneLayoutDirective = AdaptiveLayoutDirective(
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockDualPaneLayoutDirective = AdaptiveLayoutDirective(
+private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 2,
     gutterSizes = GutterSizes(16.dp, 16.dp),
     maxVerticalPartitions = 1,

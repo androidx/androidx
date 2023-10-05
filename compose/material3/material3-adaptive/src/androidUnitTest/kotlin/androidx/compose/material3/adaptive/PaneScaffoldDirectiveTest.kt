@@ -28,145 +28,145 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @RunWith(JUnit4::class)
-class AdaptiveLayoutDirectiveTest {
+class PaneScaffoldDirectiveTest {
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_compactWidth() {
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+    fun test_calculateStandardPaneScaffoldDirective_compactWidth() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_mediumWidth() {
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+    fun test_calculateStandardPaneScaffoldDirective_mediumWidth() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(750.dp, 900.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_expandedWidth() {
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+    fun test_calculateStandardPaneScaffoldDirective_expandedWidth() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(1200.dp, 800.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_tabletop() {
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+    fun test_calculateStandardPaneScaffoldDirective_tabletop() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(isTabletop = true)
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_compactWidth() {
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+    fun test_calculateDensePaneScaffoldDirective_compactWidth() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(16.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_mediumWidth() {
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+    fun test_calculateDensePaneScaffoldDirective_mediumWidth() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(750.dp, 900.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_expandedWidth() {
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+    fun test_calculateDensePaneScaffoldDirective_expandedWidth() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(1200.dp, 800.dp)),
                 Posture()
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(0.dp)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_tabletop() {
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+    fun test_calculateDensePaneScaffoldDirective_tabletop() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(isTabletop = true)
             )
         )
 
-        assertThat(layoutDirective.maxHorizontalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(layoutDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
-        assertThat(layoutDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
+        assertThat(scaffoldDirective.gutterSizes.outerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerVertical).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.outerHorizontal).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.gutterSizes.innerHorizontal).isEqualTo(24.dp)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_alwaysAvoidHinge() {
+    fun test_calculateStandardPaneScaffoldDirective_alwaysAvoidHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -176,7 +176,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -187,11 +187,11 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(layoutDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_avoidOccludingHinge() {
+    fun test_calculateStandardPaneScaffoldDirective_avoidOccludingHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -201,7 +201,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -212,11 +212,11 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(layoutDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
     }
 
     @Test
-    fun test_calculateStandardAdaptiveLayoutDirective_neverAvoidHinge() {
+    fun test_calculateStandardPaneScaffoldDirective_neverAvoidHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -226,7 +226,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateStandardAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -237,11 +237,11 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.NeverAvoid
         )
 
-        assertThat(layoutDirective.excludedBounds).isEmpty()
+        assertThat(scaffoldDirective.excludedBounds).isEmpty()
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_alwaysAvoidHinge() {
+    fun test_calculateDensePaneScaffoldDirective_alwaysAvoidHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -251,7 +251,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -262,11 +262,11 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(layoutDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_avoidOccludingHinge() {
+    fun test_calculateDensePaneScaffoldDirective_avoidOccludingHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -276,7 +276,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -287,11 +287,11 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(layoutDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
     }
 
     @Test
-    fun test_calculateDenseAdaptiveLayoutDirective_neverAvoidHinge() {
+    fun test_calculateDensePaneScaffoldDirective_neverAvoidHinge() {
         val occludingHingeBounds = listOf(
             Rect(0F, 0F, 1F, 1F),
             Rect(1F, 1F, 2F, 2F),
@@ -301,7 +301,7 @@ class AdaptiveLayoutDirectiveTest {
             Rect(1F, 1F, 2F, 2F),
             Rect(2F, 2F, 3F, 3F)
         )
-        val layoutDirective = calculateDenseAdaptiveLayoutDirective(
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
@@ -312,6 +312,6 @@ class AdaptiveLayoutDirectiveTest {
             HingePolicy.NeverAvoid
         )
 
-        assertThat(layoutDirective.excludedBounds).isEmpty()
+        assertThat(scaffoldDirective.excludedBounds).isEmpty()
     }
 }

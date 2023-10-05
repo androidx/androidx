@@ -33,7 +33,7 @@ import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.ThreePaneScaffold
 import androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults
-import androidx.compose.material3.adaptive.calculateStandardAdaptiveLayoutDirective
+import androidx.compose.material3.adaptive.calculateStandardPaneScaffoldDirective
 import androidx.compose.material3.adaptive.calculateThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.calculateWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldState
@@ -162,11 +162,11 @@ internal fun ListDetailExtraPaneScaffoldSample() {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun ThreePaneScaffoldSample() {
-    val layoutDirective = calculateStandardAdaptiveLayoutDirective(calculateWindowAdaptiveInfo())
+    val scaffoldDirective = calculateStandardPaneScaffoldDirective(calculateWindowAdaptiveInfo())
     ThreePaneScaffold(
         modifier = Modifier.fillMaxSize(),
-        layoutDirective = layoutDirective,
-        scaffoldValue = calculateThreePaneScaffoldValue(layoutDirective.maxHorizontalPartitions),
+        scaffoldDirective = scaffoldDirective,
+        scaffoldValue = calculateThreePaneScaffoldValue(scaffoldDirective.maxHorizontalPartitions),
         arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
         secondaryPane = {
             Surface(

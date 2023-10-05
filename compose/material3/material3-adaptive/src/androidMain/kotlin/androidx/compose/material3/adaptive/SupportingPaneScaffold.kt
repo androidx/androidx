@@ -30,7 +30,7 @@ fun SupportingPaneScaffold(
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
-        layoutDirective = scaffoldState.layoutDirective,
+        scaffoldDirective = scaffoldState.scaffoldDirective,
         scaffoldValue = scaffoldState.layoutValue,
         arrangement = ThreePaneScaffoldDefaults.SupportingPaneLayoutArrangement,
         secondaryPane = supportingPane,
@@ -71,7 +71,7 @@ object SupportingPaneScaffoldDefaults {
  * which works independently from any navigation frameworks. Developers can also integrate with
  * other navigation frameworks by implementing this interface.
  *
- * @property layoutDirective the current layout directives that the associated
+ * @property scaffoldDirective the current layout directives that the associated
  *           [SupportingPaneScaffold] needs to follow. It's supposed to be automatically updated
  *           when the window configuration changes.
  * @property layoutValue the current layout value of the associated [SupportingPaneScaffold], which
@@ -80,7 +80,7 @@ object SupportingPaneScaffoldDefaults {
 @ExperimentalMaterial3AdaptiveApi
 @Stable
 interface SupportingPaneScaffoldState {
-    val layoutDirective: AdaptiveLayoutDirective
+    val scaffoldDirective: PaneScaffoldDirective
     val layoutValue: ThreePaneScaffoldValue
 
     /**
@@ -109,7 +109,7 @@ interface SupportingPaneScaffoldState {
 private class DefaultSupportingPaneScaffoldState(
     val internalState: DefaultThreePaneScaffoldState
 ) : SupportingPaneScaffoldState {
-    override val layoutDirective get() = internalState.layoutDirective
+    override val scaffoldDirective get() = internalState.scaffoldDirective
     override val layoutValue get() = internalState.layoutValue
 
     override fun navigateTo(pane: SupportingPaneScaffoldRole) {
@@ -129,8 +129,8 @@ private class DefaultSupportingPaneScaffoldState(
  * used independently from any navigation frameworks and it will address the navigation purely
  * inside the [SupportingPaneScaffold].
  *
- * @param layoutDirectives the current layout directives to follow. The default value will be
- *        Calculated with [calculateStandardAdaptiveLayoutDirective] using [WindowAdaptiveInfo]
+ * @param scaffoldDirective the current layout directives to follow. The default value will be
+ *        Calculated with [calculateStandardPaneScaffoldDirective] using [WindowAdaptiveInfo]
  *        retrieved from the current context.
  * @param adaptStrategies adaptation strategies of each pane.
  * @param initialFocusHistory the initial focus history of the scaffold, by default it will be just
@@ -139,14 +139,14 @@ private class DefaultSupportingPaneScaffoldState(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberSupportingPaneScaffoldState(
-    layoutDirectives: AdaptiveLayoutDirective =
-        calculateStandardAdaptiveLayoutDirective(calculateWindowAdaptiveInfo()),
+    scaffoldDirective: PaneScaffoldDirective =
+        calculateStandardPaneScaffoldDirective(calculateWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     initialFocusHistory: List<SupportingPaneScaffoldRole> = listOf(SupportingPaneScaffoldRole.Main)
 ): SupportingPaneScaffoldState {
     val internalState = rememberDefaultThreePaneScaffoldState(
-        layoutDirectives,
+        scaffoldDirective,
         adaptStrategies,
         initialFocusHistory.fastMap { it.threePaneScaffoldRole }
     )
