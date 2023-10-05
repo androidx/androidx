@@ -28,8 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Information about how and why an isolate has terminated.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class TerminationInfo {
+public final class TerminationInfo {
     /**
      * Termination status code for an isolate.
      */

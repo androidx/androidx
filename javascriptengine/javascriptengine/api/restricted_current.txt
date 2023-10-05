@@ -22,6 +22,7 @@ package androidx.javascriptengine {
 
   public class IsolateTerminatedException extends androidx.javascriptengine.JavaScriptException {
     ctor public IsolateTerminatedException();
+    ctor public IsolateTerminatedException(String);
   }
 
   public interface JavaScriptConsoleCallback {
@@ -49,18 +50,21 @@ package androidx.javascriptengine {
     ctor public JavaScriptException(String);
   }
 
-  public final class JavaScriptIsolate implements java.lang.AutoCloseable {
+  @javax.annotation.concurrent.ThreadSafe public final class JavaScriptIsolate implements java.lang.AutoCloseable {
+    method public void addOnTerminatedCallback(androidx.core.util.Consumer<androidx.javascriptengine.TerminationInfo!>);
+    method public void addOnTerminatedCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.javascriptengine.TerminationInfo!>);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void clearConsoleCallback();
     method public void close();
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(android.content.res.AssetFileDescriptor);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_FROM_FD, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(android.os.ParcelFileDescriptor);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void provideNamedData(String, byte[]);
+    method public void removeOnTerminatedCallback(androidx.core.util.Consumer<androidx.javascriptengine.TerminationInfo!>);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(androidx.javascriptengine.JavaScriptConsoleCallback);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(java.util.concurrent.Executor, androidx.javascriptengine.JavaScriptConsoleCallback);
   }
 
-  public final class JavaScriptSandbox implements java.lang.AutoCloseable {
+  @javax.annotation.concurrent.ThreadSafe public final class JavaScriptSandbox implements java.lang.AutoCloseable {
     method public void close();
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JavaScriptSandbox!> createConnectedInstanceAsync(android.content.Context);
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate();
@@ -84,10 +88,20 @@ package androidx.javascriptengine {
 
   public final class SandboxDeadException extends androidx.javascriptengine.IsolateTerminatedException {
     ctor public SandboxDeadException();
+    ctor public SandboxDeadException(String);
   }
 
   public final class SandboxUnsupportedException extends java.lang.RuntimeException {
     ctor public SandboxUnsupportedException(String);
+  }
+
+  public final class TerminationInfo {
+    method public String getMessage();
+    method public int getStatus();
+    method public String getStatusString();
+    field public static final int STATUS_MEMORY_LIMIT_EXCEEDED = 3; // 0x3
+    field public static final int STATUS_SANDBOX_DEAD = 2; // 0x2
+    field public static final int STATUS_UNKNOWN_ERROR = 1; // 0x1
   }
 
 }
