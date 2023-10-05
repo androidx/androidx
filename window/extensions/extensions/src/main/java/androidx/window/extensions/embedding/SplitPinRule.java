@@ -20,7 +20,7 @@ import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Predicate;
 
 import java.util.Objects;
@@ -29,11 +29,10 @@ import java.util.Objects;
  * Split configuration rules for keeping an {@link ActivityStack} in the split in a pin state to
  * provide an isolated Activity navigation from the split. A pin state here is referring the
  * {@link ActivityStack} to be fixed on top.
- * <p>
- * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
  *
  * @see ActivityEmbeddingComponent#pinTopActivityStack
  */
+@RequiresVendorApiLevel(level = 5)
 public class SplitPinRule extends SplitRule {
     /**
      * Whether the rule should be applied whenever the parent Task satisfied the parent window

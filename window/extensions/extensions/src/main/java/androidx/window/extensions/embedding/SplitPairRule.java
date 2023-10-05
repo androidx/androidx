@@ -29,7 +29,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Predicate;
 
 import java.util.Objects;
@@ -138,10 +138,10 @@ public class SplitPairRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #Builder(Predicate, Predicate, Predicate)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #Builder(Predicate, Predicate, Predicate)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * vendor API level 2. Only used if {@link #Builder(Predicate, Predicate, Predicate)} can
+         * 't be called on vendor API level 1.
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @RequiresApi(Build.VERSION_CODES.N)
         public Builder(@NonNull java.util.function.Predicate<Pair<Activity, Activity>>
@@ -165,8 +165,8 @@ public class SplitPairRule extends SplitRule {
          * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the matched split
          *                               pair is allowed to show adjacent to each other with the
          *                               given parent {@link WindowMetrics}
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
                 @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
@@ -177,13 +177,13 @@ public class SplitPairRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}. {@code splitRatio} will be translated to
+         * vendor API level 2. Only used if {@link #setDefaultSplitAttributes(SplitAttributes)}
+         * can't be called on vendor API level 1. {@code splitRatio} will be translated to
          * {@link SplitAttributes.SplitType.ExpandContainersSplitType} for value {@code 0.0} and
          * {@code 1.0}, and {@link SplitAttributes.SplitType.RatioSplitType} for value with range
          * (0.0, 1.0).
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @NonNull
         public Builder setSplitRatio(@FloatRange(from = 0.0, to = 1.0) float splitRatio) {
@@ -193,10 +193,10 @@ public class SplitPairRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * vendor API level 2. Only used if {@link #setDefaultSplitAttributes(SplitAttributes)}
+         * can't be called on vendor API level 1.
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @NonNull
         public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
@@ -208,9 +208,8 @@ public class SplitPairRule extends SplitRule {
          * See {@link SplitPairRule#getDefaultSplitAttributes()} for reference.
          * Overrides values if set in {@link #setSplitRatio(float)} and
          * {@link #setLayoutDirection(int)}
-         *
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
             mDefaultSplitAttributes = attrs;
@@ -255,8 +254,8 @@ public class SplitPairRule extends SplitRule {
 
         /**
          * @see SplitPairRule#getTag()
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setTag(@NonNull String tag) {
             mTag = Objects.requireNonNull(tag);
