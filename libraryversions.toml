@@ -163,7 +163,7 @@ WINDOW_EXTENSIONS = "1.2.0-rc01"
 WINDOW_EXTENSIONS_CORE = "1.1.0-alpha01"
 WINDOW_SIDECAR = "1.0.0-rc01"
 # Do not remove comment
-WORK = "2.9.0-beta01"
+WORK = "2.9.0-rc01"
 
 [groups]
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
