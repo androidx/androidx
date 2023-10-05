@@ -131,7 +131,7 @@ fun LinearProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = LinearAnimationDuration
-                0f at FirstLineHeadDelay with FirstLineHeadEasing
+                0f at FirstLineHeadDelay using FirstLineHeadEasing
                 1f at FirstLineHeadDuration + FirstLineHeadDelay
             }
         )
@@ -142,7 +142,7 @@ fun LinearProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = LinearAnimationDuration
-                0f at FirstLineTailDelay with FirstLineTailEasing
+                0f at FirstLineTailDelay using FirstLineTailEasing
                 1f at FirstLineTailDuration + FirstLineTailDelay
             }
         )
@@ -153,7 +153,7 @@ fun LinearProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = LinearAnimationDuration
-                0f at SecondLineHeadDelay with SecondLineHeadEasing
+                0f at SecondLineHeadDelay using SecondLineHeadEasing
                 1f at SecondLineHeadDuration + SecondLineHeadDelay
             }
         )
@@ -164,7 +164,7 @@ fun LinearProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = LinearAnimationDuration
-                0f at SecondLineTailDelay with SecondLineTailEasing
+                0f at SecondLineTailDelay using SecondLineTailEasing
                 1f at SecondLineTailDuration + SecondLineTailDelay
             }
         )
@@ -431,7 +431,7 @@ fun CircularProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at 0 with CircularEasing
+                0f at 0 using CircularEasing
                 JumpRotationAngle at HeadAndTailAnimationDuration
             }
         )
@@ -442,7 +442,7 @@ fun CircularProgressIndicator(
         infiniteRepeatable(
             animation = keyframes {
                 durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at HeadAndTailDelayDuration with CircularEasing
+                0f at HeadAndTailDelayDuration using CircularEasing
                 JumpRotationAngle at durationMillis
             }
         )
