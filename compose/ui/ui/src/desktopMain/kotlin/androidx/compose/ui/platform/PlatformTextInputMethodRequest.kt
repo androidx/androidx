@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.ui.platform
 
 import java.awt.Component
 import java.awt.event.InputMethodListener

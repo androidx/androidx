@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import java.awt.Frame

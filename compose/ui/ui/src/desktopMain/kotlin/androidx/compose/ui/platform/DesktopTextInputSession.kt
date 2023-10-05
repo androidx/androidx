@@ -18,7 +18,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import java.awt.Component
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine

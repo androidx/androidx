@@ -1142,10 +1142,6 @@ package androidx.compose.ui.text.input {
   public sealed interface PlatformImeOptions {
   }
 
-  public fun interface PlatformTextInputMethodRequest {
-    method public android.view.inputmethod.InputConnection createInputConnection(android.view.inputmethod.EditorInfo outAttributes);
-  }
-
   public interface PlatformTextInputService {
     method public void hideSoftwareKeyboard();
     method public default void notifyFocusedRect(androidx.compose.ui.geometry.Rect rect);

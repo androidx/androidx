@@ -24,7 +24,6 @@ import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.NullableInputConnectionWrapper
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import androidx.compose.ui.text.input.TextInputService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
