@@ -27,6 +27,12 @@ fi
 mkdir -p "$DIST_DIR"
 
 export DIST_DIR="$DIST_DIR"
+if [ "$CHANGE_INFO" != "" ]; then
+  cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+if [ "$MANIFEST" == "" ]; then
+  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+fi
 
 # resolve GRADLE_USER_HOME
 export GRADLE_USER_HOME="$OUT_DIR/gradle"
