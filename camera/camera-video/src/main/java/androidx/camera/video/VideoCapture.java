@@ -1136,7 +1136,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Find the nearest EncoderProfiles
         VideoValidatedEncoderProfilesProxy encoderProfiles =
-                videoCapabilities.findHighestSupportedEncoderProfilesFor(resolution, dynamicRange);
+                videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(resolution,
+                        dynamicRange);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
                 encoderProfiles, mediaSpec, resolution, dynamicRange, expectedFrameRate);
         if (videoEncoderInfo == null) {
