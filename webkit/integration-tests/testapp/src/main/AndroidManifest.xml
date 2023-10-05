@@ -142,6 +142,9 @@
         <activity
             android:name=".ImageDragActivity"
             android:exported="false" />
+        <activity
+            android:name=".UserAgentMetadataActivity"
+            android:exported="true" />
 
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"

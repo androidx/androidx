@@ -722,12 +722,9 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#USER_AGENT_METADATA}.
      *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
      * @param metadata the WebView's user-agent metadata.
-     *
-     * TODO(b/294183509): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setUserAgentMetadata(@NonNull WebSettings settings,
@@ -752,10 +749,8 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#USER_AGENT_METADATA}.
      *
-     * TODO(b/294183509): unhide
-     * @hide
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull

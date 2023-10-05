@@ -127,6 +127,41 @@ package androidx.webkit {
     method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
   }
 
+  public final class UserAgentMetadata {
+    method public String? getArchitecture();
+    method public int getBitness();
+    method public java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!>? getBrandVersionList();
+    method public String? getFullVersion();
+    method public String? getModel();
+    method public String? getPlatform();
+    method public String? getPlatformVersion();
+    method public boolean isMobile();
+    method public boolean isWow64();
+    field public static final int BITNESS_DEFAULT = 0; // 0x0
+  }
+
+  public static final class UserAgentMetadata.BrandVersion {
+    ctor public UserAgentMetadata.BrandVersion(String, String, String);
+    method public String getBrand();
+    method public String getFullVersion();
+    method public String getMajorVersion();
+  }
+
+  public static final class UserAgentMetadata.Builder {
+    ctor public UserAgentMetadata.Builder();
+    ctor public UserAgentMetadata.Builder(androidx.webkit.UserAgentMetadata);
+    method public androidx.webkit.UserAgentMetadata build();
+    method public androidx.webkit.UserAgentMetadata.Builder setArchitecture(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setBitness(int);
+    method public androidx.webkit.UserAgentMetadata.Builder setBrandVersionList(java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!>);
+    method public androidx.webkit.UserAgentMetadata.Builder setFullVersion(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setMobile(boolean);
+    method public androidx.webkit.UserAgentMetadata.Builder setModel(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatform(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatformVersion(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setWow64(boolean);
+  }
+
   public class WebMessageCompat {
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[]);
     ctor @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat![]?);
@@ -169,6 +204,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.Set<java.lang.String!> getRequestedWithHeaderOriginAllowList(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.UserAgentMetadata getUserAgentMetadata(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAlgorithmicDarkeningAllowed(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAlgorithmicDarkeningAllowed(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
@@ -178,6 +214,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setRequestedWithHeaderOriginAllowList(android.webkit.WebSettings, java.util.Set<java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setUserAgentMetadata(android.webkit.WebSettings, androidx.webkit.UserAgentMetadata);
     field @Deprecated public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING = 2; // 0x2
     field @Deprecated public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY = 0; // 0x0
     field @Deprecated public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY = 1; // 0x1
@@ -297,6 +334,7 @@ package androidx.webkit {
     field public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS = "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS";
     field public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
     field public static final String TRACING_CONTROLLER_BASIC_USAGE = "TRACING_CONTROLLER_BASIC_USAGE";
+    field public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
     field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
