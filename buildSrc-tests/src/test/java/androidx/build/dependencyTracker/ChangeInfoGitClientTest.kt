@@ -232,7 +232,7 @@ class ChangeInfoGitClientTest {
             </manifest>
             """,
             "frameworks/support")
-        return client.findChangedFilesSince("", "", false)
+        return client.findChangedFilesSince("")
     }
 
     @Test

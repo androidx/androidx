@@ -32,20 +32,9 @@ class GitRunnerGitClient(
         RealCommandRunner(workingDir = workingDir, logger = logger)
 ) : GitClient {
 
-    /** Finds changed file paths since the given sha */
-    override fun findChangedFilesSince(
-        sha: String,
-        top: String,
-        includeUncommitted: Boolean
-    ): List<String> {
-        // use this if we don't want local changes
-        return commandRunner.executeAndParse(
-            if (includeUncommitted) {
-                "$CHANGED_FILES_CMD_PREFIX HEAD..$sha"
-            } else {
-                "$CHANGED_FILES_CMD_PREFIX $top $sha"
-            }
-        )
+    /** Finds file paths changed in a commit since the given sha */
+    override fun findChangedFilesSince(sha: String): List<String> {
+        return commandRunner.executeAndParse("$CHANGED_FILES_CMD_PREFIX HEAD $sha")
     }
 
     /** checks the history to find the first merge CL. */
@@ -58,8 +47,7 @@ class GitRunnerGitClient(
     }
 
     override fun getHeadSha(): String {
-        val gitLogCmd =
-            "git log --name-only --pretty=format:%H HEAD -n 1 -- ./"
+        val gitLogCmd = "git log --name-only --pretty=format:%H HEAD -n 1 -- ./"
         val gitLogString: String = commandRunner.execute(gitLogCmd)
         if (gitLogString.isEmpty()) {
             logger?.warn(

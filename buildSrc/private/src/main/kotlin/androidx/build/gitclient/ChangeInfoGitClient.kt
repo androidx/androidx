@@ -100,16 +100,8 @@ class ChangeInfoGitClient(
 
     /** Finds changed file paths */
     override fun findChangedFilesSince(
-        sha: String, // unused in this implementation, the data file knows what is new
-        top: String, // unused in this implementation, the data file knows what is new
-        includeUncommitted: Boolean // unused in this implementation, not needed yet
+        sha: String // unused in this implementation, the data file knows what is new
     ): List<String> {
-        if (includeUncommitted) {
-            throw UnsupportedOperationException(
-                "ChangeInfoGitClient does not support includeUncommitted == true yet"
-            )
-        }
-
         val fileList = mutableListOf<String>()
         val fileSet = mutableSetOf<String>()
         for (change in changesInThisRepo) {
