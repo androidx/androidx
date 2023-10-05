@@ -34,10 +34,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 
 /**
- * State of Draggable2d. Allows for granular control of how deltas are consumed by the user as well
+ * State of Draggable2D. Allows for granular control of how deltas are consumed by the user as well
  * as to write custom drag methods using [drag] suspend function.
  */
-internal interface Draggable2dState {
+internal interface Draggable2DState {
     /**
      * Call this function to take control of drag logic.
      *
@@ -53,7 +53,7 @@ internal interface Draggable2dState {
      */
     suspend fun drag(
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend Drag2dScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit
     )
 
     /**
@@ -61,10 +61,10 @@ internal interface Draggable2dState {
      *
      * **Note:** unlike [drag], dispatching any delta with this method will bypass scrolling of
      * any priority. This method will also ignore `reverseDirection` and other parameters set in
-     * draggable2d.
+     * draggable2D.
      *
      * This method is used internally for low level operations, allowing implementers of
-     * [Draggable2dState] influence the consumption as suits them.
+     * [Draggable2DState] influence the consumption as suits them.
      * Manually dispatching delta via this method will likely result in a bad user experience,
      * you must prefer [drag] method over this one.
      *
@@ -76,7 +76,7 @@ internal interface Draggable2dState {
 /**
  * Scope used for suspending drag blocks
  */
-internal interface Drag2dScope {
+internal interface Drag2DScope {
     /**
      * Attempts to drag by [pixels] px.
      */
@@ -84,82 +84,82 @@ internal interface Drag2dScope {
 }
 
 /**
- * Default implementation of [Draggable2dState] interface that allows to pass a simple action that
+ * Default implementation of [Draggable2DState] interface that allows to pass a simple action that
  * will be invoked when the drag occurs.
  *
- * This is the simplest way to set up a draggable2d modifier. When constructing this
- * [Draggable2dState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [Draggable2dState.drag] call) with the delta in
+ * This is the simplest way to set up a draggable2D modifier. When constructing this
+ * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever
+ * drag happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in
  * pixels.
  *
- * If you are creating [Draggable2dState] in composition, consider using [rememberDraggable2dState].
+ * If you are creating [Draggable2DState] in composition, consider using [rememberDraggable2DState].
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Suppress("PrimitiveInLambda")
-internal fun Draggable2dState(onDelta: (Offset) -> Unit): Draggable2dState =
-    DefaultDraggable2dState(onDelta)
+internal fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
+    DefaultDraggable2DState(onDelta)
 
 /**
- * Create and remember default implementation of [Draggable2dState] interface that allows to pass a
+ * Create and remember default implementation of [Draggable2DState] interface that allows to pass a
  * simple action that will be invoked when the drag occurs.
  *
  * This is the simplest way to set up a [draggable] modifier. When constructing this
- * [Draggable2dState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [Draggable2dState.drag] call) with the delta in
+ * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever
+ * drag happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in
  * pixels.
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Suppress("PrimitiveInLambda")
 @Composable
-internal fun rememberDraggable2dState(onDelta: (Offset) -> Unit): Draggable2dState {
+internal fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
     val onDeltaState = rememberUpdatedState(onDelta)
-    return remember { Draggable2dState { onDeltaState.value.invoke(it) } }
+    return remember { Draggable2DState { onDeltaState.value.invoke(it) } }
 }
 
 /**
  * Configure touch dragging for the UI element in both orientations. The drag distance
- * reported to [Draggable2dState], allowing users to react to the drag delta and update their state.
+ * reported to [Draggable2DState], allowing users to react to the drag delta and update their state.
  *
  * The common common usecase for this component is when you need to be able to drag something
  * inside the component on the screen and represent this state via one float value
  *
  * If you are implementing dragging in a single orientation, consider using [draggable].
  *
- * @param state [Draggable2dState] state of the draggable2d. Defines how drag events will be
+ * @param state [Draggable2DState] state of the draggable2D. Defines how drag events will be
  * interpreted by the user land logic.
  * @param enabled whether or not drag is enabled
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * [DragInteraction.Start] when this draggable is being dragged.
- * @param startDragImmediately when set to true, draggable2d will start dragging immediately and
+ * @param startDragImmediately when set to true, draggable2D will start dragging immediately and
  * prevent other gesture detectors from reacting to "down" events (in order to block composed
  * press-based gestures). This is intended to allow end users to "catch" an animating widget by
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
  * position, allowing user to suspend and perform preparation for drag, if desired.This suspend
- * function is invoked with the draggable2d scope, allowing for async processing, if desired. Note
- * that the scope used here is the onw provided by the draggable2d node, for long running work that
+ * function is invoked with the draggable2D scope, allowing for async processing, if desired. Note
+ * that the scope used here is the onw provided by the draggable2D node, for long running work that
  * needs to outlast the modifier being in the composition you should use a scope that fits the
  * lifecycle needed.
  * @param onDragStopped callback that will be invoked when drag is finished, allowing the
- * user to react on velocity and process it. This suspend function is invoked with the draggable2d
+ * user to react on velocity and process it. This suspend function is invoked with the draggable2D
  * scope, allowing for async processing, if desired. Note that the scope used here is the onw
- * provided by the draggable2d scope, for long running work that needs to outlast the modifier being
+ * provided by the draggable2D scope, for long running work that needs to outlast the modifier being
  * in the composition you should use a scope that fits the lifecycle needed.
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  */
 @Suppress("PrimitiveInLambda")
-internal fun Modifier.draggable2d(
-    state: Draggable2dState,
+internal fun Modifier.draggable2D(
+    state: Draggable2DState,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     startDragImmediately: Boolean = false,
     onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {},
     onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = {},
     reverseDirection: Boolean = false
-): Modifier = this then Draggable2dElement(
+): Modifier = this then Draggable2DElement(
     state = state,
     enabled = enabled,
     interactionSource = interactionSource,
@@ -171,8 +171,8 @@ internal fun Modifier.draggable2d(
 )
 
 @Suppress("PrimitiveInLambda")
-internal class Draggable2dElement(
-    private val state: Draggable2dState,
+internal class Draggable2DElement(
+    private val state: Draggable2DState,
     private val canDrag: (PointerInputChange) -> Boolean,
     private val enabled: Boolean,
     private val interactionSource: MutableInteractionSource?,
@@ -181,8 +181,8 @@ internal class Draggable2dElement(
     private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     private val reverseDirection: Boolean,
 
-    ) : ModifierNodeElement<Draggable2dNode>() {
-    override fun create(): Draggable2dNode = Draggable2dNode(
+    ) : ModifierNodeElement<Draggable2DNode>() {
+    override fun create(): Draggable2DNode = Draggable2DNode(
         state,
         canDrag,
         enabled,
@@ -193,7 +193,7 @@ internal class Draggable2dElement(
         reverseDirection
     )
 
-    override fun update(node: Draggable2dNode) {
+    override fun update(node: Draggable2DNode) {
         node.update(
             state,
             canDrag,
@@ -211,7 +211,7 @@ internal class Draggable2dElement(
         if (other === null) return false
         if (this::class != other::class) return false
 
-        other as Draggable2dElement
+        other as Draggable2DElement
 
         if (state != other.state) return false
         if (canDrag != other.canDrag) return false
@@ -238,7 +238,7 @@ internal class Draggable2dElement(
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "draggable2d"
+        name = "draggable2D"
         properties["canDrag"] = canDrag
         properties["enabled"] = enabled
         properties["interactionSource"] = interactionSource
@@ -251,8 +251,8 @@ internal class Draggable2dElement(
 }
 
 @Suppress("PrimitiveInLambda")
-internal class Draggable2dNode(
-    private var state: Draggable2dState,
+internal class Draggable2DNode(
+    private var state: Draggable2DState,
     canDrag: (PointerInputChange) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
@@ -269,17 +269,17 @@ internal class Draggable2dNode(
     onDragStopped,
     reverseDirection
 ) {
-    var drag2dScope: Drag2dScope = NoOpDrag2dScope
+    var drag2DScope: Drag2DScope = NoOpDrag2DScope
 
     private val abstractDragScope = object : AbstractDragScope {
         override fun dragBy(pixels: Offset) {
-            drag2dScope.dragBy(pixels)
+            drag2DScope.dragBy(pixels)
         }
     }
 
     override suspend fun drag(block: suspend AbstractDragScope.() -> Unit) {
         state.drag(MutatePriority.UserInput) {
-            drag2dScope = this
+            drag2DScope = this
             block.invoke(abstractDragScope)
         }
     }
@@ -292,7 +292,7 @@ internal class Draggable2dNode(
 
     @Suppress("PrimitiveInLambda")
     fun update(
-        state: Draggable2dState,
+        state: Draggable2DState,
         canDrag: (PointerInputChange) -> Boolean,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -331,23 +331,23 @@ internal class Draggable2dNode(
     }
 }
 
-private val NoOpDrag2dScope: Drag2dScope = object : Drag2dScope {
+private val NoOpDrag2DScope: Drag2DScope = object : Drag2DScope {
     override fun dragBy(pixels: Offset) {}
 }
 
 @Suppress("PrimitiveInLambda")
-private class DefaultDraggable2dState(val onDelta: (Offset) -> Unit) : Draggable2dState {
-    private val drag2dScope: Drag2dScope = object : Drag2dScope {
+private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable2DState {
+    private val drag2DScope: Drag2DScope = object : Drag2DScope {
         override fun dragBy(pixels: Offset) = onDelta(pixels)
     }
 
-    private val drag2dMutex = MutatorMutex()
+    private val drag2DMutex = MutatorMutex()
 
     override suspend fun drag(
         dragPriority: MutatePriority,
-        block: suspend Drag2dScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit
     ): Unit = coroutineScope {
-        drag2dMutex.mutateWith(drag2dScope, dragPriority, block)
+        drag2DMutex.mutateWith(drag2DScope, dragPriority, block)
     }
 
     override fun dispatchRawDelta(delta: Offset) {
