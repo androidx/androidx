@@ -465,13 +465,6 @@ class SandboxedSdkViewTest {
         val surfaceView = SurfaceView(context)
         val surfaceViewLatch = CountDownLatch(1)
 
-        // Attach SurfaceView
-        activityScenarioRule.withActivity {
-            layout = findViewById(
-                R.id.mainlayout
-            )
-            layout.addView(surfaceView)
-        }
         var token: IBinder? = null
         surfaceView.addOnAttachStateChangeListener(
             object : View.OnAttachStateChangeListener {
@@ -485,12 +478,18 @@ class SandboxedSdkViewTest {
             }
         )
 
-        // Verify SurfaceView has a non-null token when attached.
-        assertThat(surfaceViewLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-        assertThat(surfaceView.hostToken).isNotNull()
+        // Attach SurfaceView
         activityScenarioRule.withActivity {
+            layout = findViewById(
+                R.id.mainlayout
+            )
+            layout.addView(surfaceView)
             layout.removeView(surfaceView)
         }
+
+        // Verify SurfaceView has a non-null token when attached.
+        assertThat(surfaceViewLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(token).isNotNull()
 
         // Verify that the UI adapter receives the same host token object when opening a session.
         addViewToLayout()
