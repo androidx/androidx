@@ -3,6 +3,42 @@ AddedAbstractMethod: androidx.compose.ui.text.Paragraph#fillBoundingBoxes(long, 
     Added method androidx.compose.ui.text.Paragraph.fillBoundingBoxes(long,float[],int)
 
 
+ChangedType: androidx.compose.ui.text.TextStyle#getHyphens():
+    Method androidx.compose.ui.text.TextStyle.getHyphens has changed return type from androidx.compose.ui.text.style.Hyphens to int
+ChangedType: androidx.compose.ui.text.TextStyle#getLineBreak():
+    Method androidx.compose.ui.text.TextStyle.getLineBreak has changed return type from androidx.compose.ui.text.style.LineBreak to int
+ChangedType: androidx.compose.ui.text.TextStyle#getTextAlign():
+    Method androidx.compose.ui.text.TextStyle.getTextAlign has changed return type from androidx.compose.ui.text.style.TextAlign to int
+ChangedType: androidx.compose.ui.text.TextStyle#getTextDirection():
+    Method androidx.compose.ui.text.TextStyle.getTextDirection has changed return type from androidx.compose.ui.text.style.TextDirection to int
+
+
+InvalidNullConversion: Field ParagraphStyle.hyphens:
+    Attempted to remove @Nullable annotation from Field ParagraphStyle.hyphens
+InvalidNullConversion: Field ParagraphStyle.lineBreak:
+    Attempted to remove @Nullable annotation from Field ParagraphStyle.lineBreak
+InvalidNullConversion: Field ParagraphStyle.textAlign:
+    Attempted to remove @Nullable annotation from Field ParagraphStyle.textAlign
+InvalidNullConversion: Field ParagraphStyle.textDirection:
+    Attempted to remove @Nullable annotation from Field ParagraphStyle.textDirection
+InvalidNullConversion: Field TextStyle.hyphens:
+    Attempted to remove @Nullable annotation from Field TextStyle.hyphens
+InvalidNullConversion: Field TextStyle.lineBreak:
+    Attempted to remove @Nullable annotation from Field TextStyle.lineBreak
+InvalidNullConversion: Field TextStyle.textAlign:
+    Attempted to remove @Nullable annotation from Field TextStyle.textAlign
+InvalidNullConversion: Field TextStyle.textDirection:
+    Attempted to remove @Nullable annotation from Field TextStyle.textDirection
+InvalidNullConversion: androidx.compose.ui.text.TextStyle#getHyphens():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.TextStyle.getHyphens()
+InvalidNullConversion: androidx.compose.ui.text.TextStyle#getLineBreak():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.TextStyle.getLineBreak()
+InvalidNullConversion: androidx.compose.ui.text.TextStyle#getTextAlign():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.TextStyle.getTextAlign()
+InvalidNullConversion: androidx.compose.ui.text.TextStyle#getTextDirection():
+    Attempted to remove @Nullable annotation from method androidx.compose.ui.text.TextStyle.getTextDirection()
+
+
 ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #0:
     Attempted to change parameter name from fallbackFontFamilyResolver to defaultFontFamilyResolver in constructor androidx.compose.ui.text.TextMeasurer
 ParameterNameChange: androidx.compose.ui.text.TextMeasurer#TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, int) parameter #1:

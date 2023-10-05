@@ -2065,7 +2065,7 @@ AndroidParagraphTest {
         text: String = "",
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
-        textAlign: TextAlign? = null,
+        textAlign: TextAlign = TextAlign.Unspecified,
         ellipsis: Boolean = false,
         maxLines: Int = Int.MAX_VALUE,
         width: Float,

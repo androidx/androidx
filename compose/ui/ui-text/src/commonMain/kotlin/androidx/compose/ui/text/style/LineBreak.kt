@@ -66,5 +66,12 @@ expect value class LineBreak private constructor(
          */
         @Stable
         val Paragraph: LineBreak
+
+        /**
+         * This represents an unset value, a usual replacement for "null" when a primitive value
+         * is desired.
+         */
+        @Stable
+        val Unspecified: LineBreak
     }
 }

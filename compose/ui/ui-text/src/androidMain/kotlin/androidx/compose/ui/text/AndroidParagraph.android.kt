@@ -152,9 +152,9 @@ internal class AndroidParagraph(
 
         val hyphens = toLayoutHyphenationFrequency(style.paragraphStyle.hyphens)
 
-        val breakStrategy = toLayoutBreakStrategy(style.lineBreak?.strategy)
-        val lineBreakStyle = toLayoutLineBreakStyle(style.lineBreak?.strictness)
-        val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak?.wordBreak)
+        val breakStrategy = toLayoutBreakStrategy(style.lineBreak.strategy)
+        val lineBreakStyle = toLayoutLineBreakStyle(style.lineBreak.strictness)
+        val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak.wordBreak)
 
         val ellipsize = if (ellipsis) {
             TextUtils.TruncateAt.END
@@ -552,7 +552,7 @@ internal class AndroidParagraph(
  * Converts [TextAlign] into [TextLayout] alignment constants.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
+private fun toLayoutAlign(align: TextAlign): Int = when (align) {
     TextAlign.Left -> ALIGN_LEFT
     TextAlign.Right -> ALIGN_RIGHT
     TextAlign.Center -> ALIGN_CENTER
@@ -562,7 +562,7 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
+private fun toLayoutHyphenationFrequency(hyphens: Hyphens): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
         HYPHENATION_FREQUENCY_FULL
     } else {
@@ -573,7 +573,7 @@ private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = when (breakStrategy) {
+private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy): Int = when (breakStrategy) {
     LineBreak.Strategy.Simple -> BREAK_STRATEGY_SIMPLE
     LineBreak.Strategy.HighQuality -> BREAK_STRATEGY_HIGH_QUALITY
     LineBreak.Strategy.Balanced -> BREAK_STRATEGY_BALANCED
@@ -581,7 +581,7 @@ private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = whe
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): Int =
+private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness): Int =
     when (lineBreakStrictness) {
         LineBreak.Strictness.Default -> LINE_BREAK_STYLE_NONE
         LineBreak.Strictness.Loose -> LINE_BREAK_STYLE_LOOSE
@@ -591,7 +591,7 @@ private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): 
     }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak?): Int =
+private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak): Int =
     when (lineBreakWordStyle) {
         LineBreak.WordBreak.Default -> LINE_BREAK_WORD_STYLE_NONE
         LineBreak.WordBreak.Phrase -> LINE_BREAK_WORD_STYLE_PHRASE
@@ -609,7 +609,8 @@ private fun TextLayout.numberOfLinesThatFitMaxHeight(maxHeight: Int): Int {
 private fun shouldAttachIndentationFixSpan(textStyle: TextStyle, ellipsis: Boolean) =
     with(textStyle) {
         ellipsis && (letterSpacing != 0.sp && letterSpacing != TextUnit.Unspecified) &&
-            (textAlign != null && textAlign != TextAlign.Start && textAlign != TextAlign.Justify)
+            (textAlign != TextAlign.Unspecified && textAlign != TextAlign.Start &&
+                textAlign != TextAlign.Justify)
     }
 
 @OptIn(InternalPlatformTextApi::class)
