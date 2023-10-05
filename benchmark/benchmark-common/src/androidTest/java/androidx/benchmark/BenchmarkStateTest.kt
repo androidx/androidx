@@ -168,8 +168,8 @@ class BenchmarkStateTest {
             if (simplifiedTimingOnlyMode) 0 else BenchmarkState.REPEAT_COUNT_ALLOCATION
         val expectedCount = report.warmupIterations +
             report.repeatIterations * expectedRepeatCount +
-            // method tracing phase by default only when API > 21, and simplified timing off
-            if (simplifiedTimingOnlyMode || Build.VERSION.SDK_INT <= 21) 0 else 1
+            // method tracing phase by default only when API in 22..33, and simplified timing off
+            if (Build.VERSION.SDK_INT in 22..33 && !simplifiedTimingOnlyMode) 1 else 0
         assertEquals(expectedCount, total)
 
         if (Arguments.iterations != null) {
