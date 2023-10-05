@@ -165,11 +165,11 @@ public interface VideoCapabilities {
      * nearest EncoderProfilesProxy will be selected, whether that EncoderProfilesProxy's
      * resolution is above or below the given size.
      *
-     * @see #findHighestSupportedQualityFor(Size, DynamicRange)
+     * @see #findNearestHigherSupportedQualityFor(Size, DynamicRange)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
-    default VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
+    default VideoValidatedEncoderProfilesProxy findNearestHigherSupportedEncoderProfilesFor(
             @NonNull Size size, @NonNull DynamicRange dynamicRange) {
         return null;
     }
@@ -190,7 +190,7 @@ public interface VideoCapabilities {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    default Quality findHighestSupportedQualityFor(@NonNull Size size,
+    default Quality findNearestHigherSupportedQualityFor(@NonNull Size size,
             @NonNull DynamicRange dynamicRange) {
         return Quality.NONE;
     }
