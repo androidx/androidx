@@ -113,6 +113,11 @@ const val VERIFY_UP_TO_DATE = "androidx.verifyUpToDate"
 const val KMP_GITHUB_BUILD = "androidx.github.build"
 
 /**
+ * Specifies to give as much memory to Gradle as in a typical CI run
+ */
+const val HIGH_MEMORY = "androidx.highMemory"
+
+/**
  * If true, don't require lint-checks project to exist. This should only be set in integration
  * tests, to allow them to save time by not configuring extra projects.
  */
@@ -152,6 +157,7 @@ val ALL_ANDROIDX_PROPERTIES =
         ENABLE_COMPOSE_COMPILER_REPORTS,
         DISPLAY_TEST_OUTPUT,
         ENABLE_DOCUMENTATION,
+        HIGH_MEMORY,
         STUDIO_TYPE,
         SUMMARIZE_STANDARD_ERROR,
         USE_MAX_DEP_VERSIONS,

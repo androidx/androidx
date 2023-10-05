@@ -11,6 +11,7 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Calculating task graph as configuration cache cannot be reused because the set of Gradle properties has changed\.
 # > Task :listTaskOutputs
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 BUILD SUCCESSFUL in .*
