@@ -1089,7 +1089,7 @@ internal class LayoutNode(
     }
 
     internal fun dispatchOnPositionedCallbacks() {
-        if (layoutState != Idle || layoutPending || measurePending) {
+        if (layoutState != Idle || layoutPending || measurePending || isDeactivated) {
             return // it hasn't yet been properly positioned, so don't make a call
         }
         if (!isPlaced) {
