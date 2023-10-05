@@ -69,12 +69,12 @@ class GitRunnerGitClientTest {
                 convertToFilePath("a", "b", "c.java"),
                 convertToFilePath("d", "e", "f.java"))
         commandRunner.addReply(
-                "$CHANGED_FILES_CMD_PREFIX HEAD..mySha",
+                "$CHANGED_FILES_CMD_PREFIX HEAD mySha",
                 changes.joinToString(System.lineSeparator())
         )
         assertEquals(
                 changes,
-                client.findChangedFilesSince(sha = "mySha", includeUncommitted = true))
+                client.findChangedFilesSince(sha = "mySha"))
     }
 
     @Test
@@ -82,23 +82,6 @@ class GitRunnerGitClientTest {
         assertEquals(
                 emptyList<String>(),
                 client.findChangedFilesSince("foo"))
-    }
-
-    @Test
-    fun findChangesSince_twoCls() {
-        var changes = listOf(
-                convertToFilePath("a", "b", "c.java"),
-                convertToFilePath("d", "e", "f.java"))
-        commandRunner.addReply(
-                "$CHANGED_FILES_CMD_PREFIX otherSha mySha",
-                changes.joinToString(System.lineSeparator())
-        )
-        assertEquals(
-                changes,
-                client.findChangedFilesSince(
-                        sha = "mySha",
-                        top = "otherSha",
-                        includeUncommitted = false))
     }
 
     @Test
