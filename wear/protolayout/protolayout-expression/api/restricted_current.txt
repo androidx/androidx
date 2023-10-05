@@ -285,6 +285,14 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicType {
   }
 
+  public static interface DynamicBuilders.DynamicZonedDateTime extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[], int, int);
+    method public default byte[] toDynamicZonedDateTimeByteArray();
+    method public default int toDynamicZonedDateTimeByteArray(byte[]);
+    method public default int toDynamicZonedDateTimeByteArray(byte[], int, int);
+  }
+
   public final class DynamicDataBuilders {
   }
 
