@@ -29,5 +29,7 @@ actual value class LineBreak private constructor(
         actual val Heading: LineBreak = LineBreak(2)
 
         actual val Paragraph: LineBreak = LineBreak(3)
+
+        actual val Unspecified: LineBreak = LineBreak(Int.MIN_VALUE)
     }
 }

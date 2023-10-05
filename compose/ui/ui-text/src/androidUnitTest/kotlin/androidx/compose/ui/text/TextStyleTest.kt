@@ -77,10 +77,13 @@ class TextStyleTest {
         assertThat(style.localeList).isNull()
         assertThat(style.background).isEqualTo(Color.Unspecified)
         assertThat(style.drawStyle).isNull()
+        assertThat(style.textAlign).isEqualTo(TextAlign.Unspecified)
+        assertThat(style.textDirection).isEqualTo(TextDirection.Unspecified)
         assertThat(style.textDecoration).isNull()
         assertThat(style.fontFamily).isNull()
         assertThat(style.platformStyle).isNull()
-        assertThat(style.hyphens).isNull()
+        assertThat(style.lineBreak).isEqualTo(LineBreak.Unspecified)
+        assertThat(style.hyphens).isEqualTo(Hyphens.Unspecified)
         assertThat(style.textMotion).isNull()
     }
 
@@ -89,7 +92,7 @@ class TextStyleTest {
         val style = TextStyle(hyphens = Hyphens.Auto)
 
         assertThat(style.hyphens).isEqualTo(Hyphens.Auto)
-        assertThat(style.lineBreak).isNull()
+        assertThat(style.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
@@ -159,7 +162,6 @@ class TextStyleTest {
         assertThat(style.copy().drawStyle).isEqualTo(Stroke(2f))
     }
 
-    @Suppress("DEPRECATION")
     @Test
     fun `platformTextStyle copy with existing drawStyle should not remove drawStyle`() {
         val style = TextStyle(drawStyle = Stroke(2f))
@@ -333,9 +335,9 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge with other's hyphens is null should use this hyphens`() {
+    fun `merge with other's hyphens is unspecified should use this hyphens`() {
         val style = TextStyle(hyphens = Hyphens.Auto)
-        val otherStyle = TextStyle(hyphens = null)
+        val otherStyle = TextStyle(hyphens = Hyphens.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
@@ -638,21 +640,21 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge textAlign other null, return original`() {
+    fun `merge textAlign other unspecified, return original`() {
         val style = TextStyle(textAlign = TextAlign.Justify)
 
-        val newStyle = style.merge(TextStyle(textAlign = null))
+        val newStyle = style.merge(TextStyle(textAlign = TextAlign.Unspecified))
 
         assertThat(newStyle.textAlign).isEqualTo(style.textAlign)
     }
 
     @Test
-    fun `merge textAlign both null returns null`() {
-        val style = TextStyle(textAlign = null)
+    fun `merge textAlign both unspecified returns unspecified`() {
+        val style = TextStyle(textAlign = TextAlign.Unspecified)
 
-        val newStyle = style.merge(TextStyle(textAlign = null))
+        val newStyle = style.merge(TextStyle(textAlign = TextAlign.Unspecified))
 
-        assertThat(newStyle.textAlign).isNull()
+        assertThat(newStyle.textAlign).isEqualTo(TextAlign.Unspecified)
     }
 
     @Test
@@ -666,21 +668,21 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge textDirection other null, returns original`() {
+    fun `merge textDirection other unspecified, returns original`() {
         val style = TextStyle(textDirection = TextDirection.Rtl)
 
-        val newStyle = style.merge(TextStyle(textDirection = null))
+        val newStyle = style.merge(TextStyle(textDirection = TextDirection.Unspecified))
 
         assertThat(newStyle.textDirection).isEqualTo(style.textDirection)
     }
 
     @Test
-    fun `merge textDirection both null returns null`() {
-        val style = TextStyle(textDirection = null)
+    fun `merge textDirection both unspecified returns unspecified`() {
+        val style = TextStyle(textDirection = TextDirection.Unspecified)
 
-        val newStyle = style.merge(TextStyle(textDirection = null))
+        val newStyle = style.merge(TextStyle(textDirection = TextDirection.Unspecified))
 
-        assertThat(newStyle.textDirection).isNull()
+        assertThat(newStyle.textDirection).isEqualTo(TextDirection.Unspecified)
     }
 
     @Test
@@ -804,8 +806,8 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge null and non-null lineBreak uses other's lineBreak`() {
-        val style = TextStyle(lineBreak = null)
+    fun `merge unspecified linebreak and lineBreak uses other's lineBreak`() {
+        val style = TextStyle(lineBreak = LineBreak.Unspecified)
         val otherStyle = TextStyle(lineBreak = LineBreak.Heading)
 
         val mergedStyle = style.merge(otherStyle)
@@ -814,9 +816,9 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge non-null and null lineBreak uses original`() {
+    fun `merge linebreak and unspecified lineBreak uses original`() {
         val style = TextStyle(lineBreak = LineBreak.Paragraph)
-        val otherStyle = TextStyle(lineBreak = null)
+        val otherStyle = TextStyle(lineBreak = LineBreak.Unspecified)
 
         val mergedStyle = style.merge(otherStyle)
 
@@ -824,13 +826,13 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge with both null lineBreak uses null`() {
-        val style = TextStyle(lineBreak = null)
-        val otherStyle = TextStyle(lineBreak = null)
+    fun `merge with both unspecified lineBreak uses unspecified`() {
+        val style = TextStyle(lineBreak = LineBreak.Unspecified)
+        val otherStyle = TextStyle(lineBreak = LineBreak.Unspecified)
 
         val mergedStyle = style.merge(otherStyle)
 
-        assertThat(mergedStyle.lineBreak).isEqualTo(null)
+        assertThat(mergedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
@@ -1300,13 +1302,13 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textAlign with a null, b not null and t is smaller than half`() {
-        val style1 = TextStyle(textAlign = null)
+    fun `lerp textAlign with a unspecified, b not null and t is smaller than half`() {
+        val style1 = TextStyle(textAlign = TextAlign.Unspecified)
         val style2 = TextStyle(textAlign = TextAlign.Right)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
-        assertThat(newStyle.textAlign).isNull()
+        assertThat(newStyle.textAlign).isEqualTo(TextAlign.Unspecified)
     }
 
     @Test
@@ -1330,13 +1332,13 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textDirection with a null, b not null and t is smaller than half`() {
-        val style1 = TextStyle(textDirection = null)
+    fun `lerp textDirection with a unspecified, b not null and t is smaller than half`() {
+        val style1 = TextStyle(textDirection = TextDirection.Unspecified)
         val style2 = TextStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
-        assertThat(newStyle.textDirection).isNull()
+        assertThat(newStyle.textDirection).isEqualTo(TextDirection.Unspecified)
     }
 
     @Test
@@ -1425,7 +1427,6 @@ class TextStyleTest {
 
     @Test
     fun `copy without platformStyle uses existing platformStyle`() {
-        @Suppress("DEPRECATION")
         val style = TextStyle(
             platformStyle = PlatformTextStyle(includeFontPadding = false)
         )
@@ -1471,43 +1472,43 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp with non-null start, null end, closer to start has non-null lineBreak`() {
+    fun `lerp with non-null start, unspecified end, closer to start has non-null lineBreak`() {
         val style = TextStyle(lineBreak = LineBreak.Heading)
-        val otherStyle = TextStyle(lineHeightStyle = null)
+        val otherStyle = TextStyle(lineBreak = LineBreak.Unspecified)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.4f)
 
-        assertThat(lerpedStyle.lineBreak).isSameInstanceAs(style.lineBreak)
+        assertThat(lerpedStyle.lineBreak).isEqualTo(style.lineBreak)
     }
 
     @Test
-    fun `lerp with non-null start, null end, closer to end has null lineBreak`() {
+    fun `lerp with non-null start, unspecified end, closer to end has unspecified lineBreak`() {
         val style = TextStyle(lineBreak = LineBreak.Heading)
-        val otherStyle = TextStyle(lineHeightStyle = null)
+        val otherStyle = TextStyle(lineBreak = LineBreak.Unspecified)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.6f)
 
-        assertThat(lerpedStyle.lineBreak).isNull()
+        assertThat(lerpedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
-    fun `lerp with null start, non-null end, closer to start has null lineBreak`() {
-        val style = TextStyle(lineHeightStyle = null)
+    fun `lerp with unspecified start, non-null end, closer to start has null lineBreak`() {
+        val style = TextStyle(lineBreak = LineBreak.Unspecified)
         val otherStyle = TextStyle(lineBreak = LineBreak.Heading)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.4f)
 
-        assertThat(lerpedStyle.lineBreak).isNull()
+        assertThat(lerpedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
-    fun `lerp with null start, non-null end, closer to end has non-null lineBreak`() {
-        val style = TextStyle(lineBreak = null)
+    fun `lerp with unspecified start, non-null end, closer to end has non-null lineBreak`() {
+        val style = TextStyle(lineBreak = LineBreak.Unspecified)
         val otherStyle = TextStyle(lineBreak = LineBreak.Heading)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.6f)
 
-        assertThat(lerpedStyle.lineBreak).isSameInstanceAs(otherStyle.lineBreak)
+        assertThat(lerpedStyle.lineBreak).isEqualTo(otherStyle.lineBreak)
     }
 
     @Test
@@ -1889,18 +1890,18 @@ class TextStyleTest {
     }
 
     @Test
-    fun resolveTextDirection_null() {
+    fun resolveTextDirection_unspecified() {
         assertThat(
             resolveTextDirection(
                 LayoutDirection.Ltr,
-                null
+                TextDirection.Unspecified
             )
         ).isEqualTo(TextDirection.Ltr)
 
         assertThat(
             resolveTextDirection(
                 LayoutDirection.Rtl,
-                null
+                TextDirection.Unspecified
             )
         ).isEqualTo(TextDirection.Rtl)
     }
@@ -2053,7 +2054,6 @@ private fun KClass<TextStyle>.allConstructorParams() = this.constructors
 /**
  * Compute a distinct value for [KParameter] from the value in [kParameter]
  */
-@OptIn(ExperimentalTextApi::class)
 private fun TextStyle.getNotEqualValueFor(kParameter: KParameter): Any {
     val prop: KProperty1<TextStyle, *> =
         TextStyle::class.memberProperties.first { it.name == kParameter.name }

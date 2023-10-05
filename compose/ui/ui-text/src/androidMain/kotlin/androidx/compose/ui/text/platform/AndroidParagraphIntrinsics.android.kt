@@ -151,15 +151,15 @@ internal class AndroidParagraphIntrinsics constructor(
  */
 @OptIn(InternalPlatformTextApi::class)
 internal fun resolveTextDirectionHeuristics(
-    textDirection: TextDirection? = null,
+    textDirection: TextDirection,
     localeList: LocaleList? = null
 ): Int {
-    return when (textDirection ?: TextDirection.Content) {
+    return when (textDirection) {
         TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
         TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
         TextDirection.Ltr -> LayoutCompat.TEXT_DIRECTION_LTR
         TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
-        TextDirection.Content -> {
+        TextDirection.Content, TextDirection.Unspecified -> {
             val currentLocale = localeList?.let {
                 (it[0].platformLocale as AndroidLocale).javaLocale
             } ?: Locale.getDefault()

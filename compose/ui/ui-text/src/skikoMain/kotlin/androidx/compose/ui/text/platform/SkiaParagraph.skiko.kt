@@ -498,7 +498,7 @@ internal class ParagraphBuilder(
     ): ParagraphStyle {
         val pStyle = ParagraphStyle()
         pStyle.textStyle = makeSkTextStyle(computedStyle)
-        style.textAlign?.let {
+        style.textAlign.let {
             pStyle.alignment = it.toSkAlignment()
         }
 

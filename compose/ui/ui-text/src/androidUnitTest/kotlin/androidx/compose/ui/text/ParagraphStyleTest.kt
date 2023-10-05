@@ -52,9 +52,9 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textAlign other null, return original`() {
+    fun `merge textAlign other unspecified, return original`() {
         val style = ParagraphStyle(textAlign = TextAlign.Justify)
-        val otherStyle = ParagraphStyle(textAlign = null)
+        val otherStyle = ParagraphStyle(textAlign = TextAlign.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
@@ -62,13 +62,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textAlign both null returns null`() {
-        val style = ParagraphStyle(textAlign = null)
-        val otherStyle = ParagraphStyle(textAlign = null)
+    fun `merge textAlign both unspecified returns unspecified`() {
+        val style = ParagraphStyle(textAlign = TextAlign.Unspecified)
+        val otherStyle = ParagraphStyle(textAlign = TextAlign.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
-        assertThat(newStyle.textAlign).isNull()
+        assertThat(newStyle.textAlign).isEqualTo(TextAlign.Unspecified)
     }
 
     @Test
@@ -86,7 +86,7 @@ class ParagraphStyleTest {
     @Test
     fun `merge textDirection other null, returns original`() {
         val style = ParagraphStyle(textDirection = TextDirection.Rtl)
-        val otherStyle = ParagraphStyle(textDirection = null)
+        val otherStyle = ParagraphStyle(textDirection = TextDirection.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
@@ -94,13 +94,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge textDirection both null returns null`() {
-        val style = ParagraphStyle(textDirection = null)
-        val otherStyle = ParagraphStyle(textDirection = null)
+    fun `merge textDirection both unspecified returns unspecified`() {
+        val style = ParagraphStyle(textDirection = TextDirection.Unspecified)
+        val otherStyle = ParagraphStyle(textDirection = TextDirection.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
-        assertThat(newStyle.textDirection).isNull()
+        assertThat(newStyle.textDirection).isEqualTo(TextDirection.Unspecified)
     }
 
     @Test
@@ -114,9 +114,9 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge hyphens other null, returns original`() {
+    fun `merge hyphens other unspecified, returns original`() {
         val style = ParagraphStyle(hyphens = Hyphens.Auto)
-        val otherStyle = ParagraphStyle(hyphens = null)
+        val otherStyle = ParagraphStyle(hyphens = Hyphens.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
@@ -124,8 +124,8 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge null hyphens other non-null, returns other's hyphens`() {
-        val style = ParagraphStyle(hyphens = null)
+    fun `merge unspecified hyphens other non-null, returns other's hyphens`() {
+        val style = ParagraphStyle(hyphens = Hyphens.Unspecified)
         val otherStyle = ParagraphStyle(hyphens = Hyphens.Auto)
 
         val newStyle = style.merge(otherStyle)
@@ -134,13 +134,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge hyphens both null returns null`() {
-        val style = ParagraphStyle(hyphens = null)
-        val otherStyle = ParagraphStyle(hyphens = null)
+    fun `merge hyphens both unspecified returns unspecified`() {
+        val style = ParagraphStyle(hyphens = Hyphens.Unspecified)
+        val otherStyle = ParagraphStyle(hyphens = Hyphens.Unspecified)
 
         val newStyle = style.merge(otherStyle)
 
-        assertThat(newStyle.hyphens).isNull()
+        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Unspecified)
     }
 
     @Test
@@ -204,8 +204,8 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge null with non-null lineBreak uses other's lineBreak`() {
-        val style = ParagraphStyle(lineBreak = null)
+    fun `merge unspecified with non-null lineBreak uses other's lineBreak`() {
+        val style = ParagraphStyle(lineBreak = LineBreak.Unspecified)
         val otherStyle = ParagraphStyle(lineBreak = LineBreak.Heading)
 
         val mergedStyle = style.merge(otherStyle)
@@ -214,9 +214,9 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge non-null with null lineBreak returns original's lineBreak`() {
+    fun `merge non-null with unspecified lineBreak returns original's lineBreak`() {
         val style = ParagraphStyle(lineBreak = LineBreak.Paragraph)
-        val otherStyle = ParagraphStyle(lineBreak = null)
+        val otherStyle = ParagraphStyle(lineBreak = LineBreak.Unspecified)
 
         val mergedStyle = style.merge(otherStyle)
 
@@ -224,13 +224,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `merge null with null lineBreak returns null`() {
-        val style = ParagraphStyle(lineBreak = null)
-        val otherStyle = ParagraphStyle(lineBreak = null)
+    fun `merge unspecified with unspecified lineBreak returns unspecified`() {
+        val style = ParagraphStyle(lineBreak = LineBreak.Unspecified)
+        val otherStyle = ParagraphStyle(lineBreak = LineBreak.Unspecified)
 
         val mergedStyle = style.merge(otherStyle)
 
-        assertThat(mergedStyle.lineBreak).isEqualTo(null)
+        assertThat(mergedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
@@ -271,13 +271,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp textAlign with a null, b not null and t is smaller than half`() {
-        val style1 = ParagraphStyle(textAlign = null)
+    fun `lerp textAlign with a unspecified, b not null and t is smaller than half`() {
+        val style1 = ParagraphStyle(textAlign = TextAlign.Unspecified)
         val style2 = ParagraphStyle(textAlign = TextAlign.Right)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
-        assertThat(newStyle.textAlign).isNull()
+        assertThat(newStyle.textAlign).isEqualTo(TextAlign.Unspecified)
     }
 
     @Test
@@ -301,13 +301,13 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp textDirection with a null, b not null and t is smaller than half`() {
-        val style1 = ParagraphStyle(textDirection = null)
+    fun `lerp textDirection with a unspecified, b not null and t is smaller than half`() {
+        val style1 = ParagraphStyle(textDirection = TextDirection.Unspecified)
         val style2 = ParagraphStyle(textDirection = TextDirection.Rtl)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
-        assertThat(newStyle.textDirection).isNull()
+        assertThat(newStyle.textDirection).isEqualTo(TextDirection.Unspecified)
     }
 
     @Test
@@ -331,18 +331,18 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp hyphens with a null, b not null and t is smaller than half`() {
-        val style1 = ParagraphStyle(hyphens = null)
+    fun `lerp hyphens with a unspecified, b not null and t is smaller than half`() {
+        val style1 = ParagraphStyle(hyphens = Hyphens.Unspecified)
         val style2 = ParagraphStyle(hyphens = Hyphens.Auto)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.4f)
 
-        assertThat(newStyle.hyphens).isNull()
+        assertThat(newStyle.hyphens).isEqualTo(Hyphens.Unspecified)
     }
 
     @Test
-    fun `lerp hyphens with a null, b not null and t is equal to half`() {
-        val style1 = ParagraphStyle(hyphens = null)
+    fun `lerp hyphens with a unspecified, b not null and t is equal to half`() {
+        val style1 = ParagraphStyle(hyphens = Hyphens.Unspecified)
         val style2 = ParagraphStyle(hyphens = Hyphens.Auto)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.5f)
@@ -491,43 +491,43 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `lerp with non-null start, null end, closer to start has non-null lineBreak`() {
+    fun `lerp with non-null start, unspecified end, closer to start has non-null lineBreak`() {
         val style = ParagraphStyle(lineBreak = LineBreak.Heading)
-        val otherStyle = ParagraphStyle(lineHeightStyle = null)
+        val otherStyle = ParagraphStyle(lineBreak = LineBreak.Unspecified)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.4f)
 
-        assertThat(lerpedStyle.lineBreak).isSameInstanceAs(style.lineBreak)
+        assertThat(lerpedStyle.lineBreak).isEqualTo(style.lineBreak)
     }
 
     @Test
-    fun `lerp with non-null start, null end, closer to end has null lineBreak`() {
+    fun `lerp with non-null start, unspecified end, closer to end has unspecified lineBreak`() {
         val style = ParagraphStyle(lineBreak = LineBreak.Heading)
-        val otherStyle = ParagraphStyle(lineHeightStyle = null)
+        val otherStyle = ParagraphStyle(lineBreak = LineBreak.Unspecified)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.6f)
 
-        assertThat(lerpedStyle.lineBreak).isNull()
+        assertThat(lerpedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
-    fun `lerp with null start, non-null end, closer to start has null lineBreak`() {
+    fun `lerp with unspecified start, non-null end, closer to start has unspecified lineBreak`() {
         val style = ParagraphStyle(lineHeightStyle = null)
         val otherStyle = ParagraphStyle(lineBreak = LineBreak.Heading)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.4f)
 
-        assertThat(lerpedStyle.lineBreak).isNull()
+        assertThat(lerpedStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
     }
 
     @Test
-    fun `lerp with null start, non-null end, closer to end has non-null lineBreak`() {
-        val style = ParagraphStyle(lineBreak = null)
+    fun `lerp with unspecified start, non-null end, closer to end has non-null lineBreak`() {
+        val style = ParagraphStyle(lineBreak = LineBreak.Unspecified)
         val otherStyle = ParagraphStyle(lineBreak = LineBreak.Heading)
 
         val lerpedStyle = lerp(start = style, stop = otherStyle, fraction = 0.6f)
 
-        assertThat(lerpedStyle.lineBreak).isSameInstanceAs(otherStyle.lineBreak)
+        assertThat(lerpedStyle.lineBreak).isEqualTo(otherStyle.lineBreak)
     }
 
     @Test
@@ -627,8 +627,8 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `equals return false for null and non-null hyphens`() {
-        val style = ParagraphStyle(hyphens = null)
+    fun `equals return false for unspecified and non-null hyphens`() {
+        val style = ParagraphStyle(hyphens = Hyphens.Unspecified)
         val otherStyle = ParagraphStyle(hyphens = Hyphens.Auto)
 
         assertThat(style == otherStyle).isFalse()
@@ -643,9 +643,9 @@ class ParagraphStyleTest {
     }
 
     @Test
-    fun `equals return true for both null hyphens`() {
-        val style = ParagraphStyle(hyphens = null)
-        val otherStyle = ParagraphStyle(hyphens = null)
+    fun `equals return true for both unspecified hyphens`() {
+        val style = ParagraphStyle(hyphens = Hyphens.Unspecified)
+        val otherStyle = ParagraphStyle(hyphens = Hyphens.Unspecified)
 
         assertThat(style == otherStyle).isTrue()
     }

@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -54,12 +55,12 @@ class ParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withLtrLocale_resolvesToLtr() {
+    fun unspecifiedTextDirection_withLtrLocale_resolvesToLtr() {
         Locale.setDefault(ltrLocale)
 
         val paragraph = Paragraph(
             text = "",
-            style = TextStyle(textDirection = null),
+            style = TextStyle(textDirection = TextDirection.Unspecified),
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = resourceLoader
@@ -69,12 +70,12 @@ class ParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withRtlLocale_resolvesToRtl() {
+    fun unspecifiedTextDirection_withRtlLocale_resolvesToRtl() {
         Locale.setDefault(rtlLocale)
 
         val paragraph = Paragraph(
             text = "",
-            style = TextStyle(textDirection = null),
+            style = TextStyle(textDirection = TextDirection.Unspecified),
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = resourceLoader
@@ -84,10 +85,13 @@ class ParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withLtrLocaleList_resolvesToLtr() {
+    fun unspecifiedTextDirection_withLtrLocaleList_resolvesToLtr() {
         val paragraph = Paragraph(
             text = "",
-            style = TextStyle(textDirection = null, localeList = ltrLocaleList),
+            style = TextStyle(
+                textDirection = TextDirection.Unspecified,
+                localeList = ltrLocaleList
+            ),
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = resourceLoader
@@ -97,10 +101,13 @@ class ParagraphIntegrationTextDirectionTest {
     }
 
     @Test
-    fun nullTextDirection_withRtlLocaleList_resolvesToRtl() {
+    fun unspecifiedTextDirection_withRtlLocaleList_resolvesToRtl() {
         val paragraph = Paragraph(
             text = "",
-            style = TextStyle(textDirection = null, localeList = rtlLocaleList),
+            style = TextStyle(
+                textDirection = TextDirection.Unspecified,
+                localeList = rtlLocaleList
+            ),
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = resourceLoader
