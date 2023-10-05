@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -71,8 +72,6 @@ class RobolectricGattServerTest {
         private val notifyCharUuid = UUID.fromString("00002223-0000-1000-8000-00805F9B34FB")
         private val unknownCharUuid = UUID.fromString("00002224-0000-1000-8000-00805F9B34FB")
 
-        private val cccdUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
         private val readCharacteristic = GattCharacteristic(readCharUuid, PROPERTY_READ)
         private val writeCharacteristic = GattCharacteristic(
             writeCharUuid, PROPERTY_READ or PROPERTY_WRITE
@@ -99,6 +98,8 @@ class RobolectricGattServerTest {
     @Test
     fun openGattServer() = runTest {
         val device = createDevice("00:11:22:33:44:55")
+        val deviceName = "Device A"
+        shadowOf(device).setName(deviceName)
         val opened = CompletableDeferred<Unit>()
         val closed = CompletableDeferred<Unit>()
 
@@ -112,7 +113,10 @@ class RobolectricGattServerTest {
             }
 
         bluetoothLe.openGattServer(listOf()) {
-            connectRequests.first().accept {}
+            connectRequests.first().let {
+                assertEquals(deviceName, it.device.name)
+                it.accept {}
+            }
         }
 
         assertTrue(opened.isCompleted)
