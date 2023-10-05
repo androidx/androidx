@@ -59,7 +59,11 @@ internal constructor(
      */
     val laps: List<ExerciseLap> = emptyList(),
 
-    /** [ExerciseRouteResult] [ExerciseRouteResult] of the session. */
+    /**
+     * [ExerciseRouteResult] [ExerciseRouteResult] of the session. Location data points of
+     * [ExerciseRoute] should be within the parent session, and should be before the end time of the
+     * session.
+     */
     val exerciseRouteResult: ExerciseRouteResult = ExerciseRouteResult.NoData(),
 ) : IntervalRecord {
 
