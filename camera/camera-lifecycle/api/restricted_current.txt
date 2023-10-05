@@ -15,6 +15,7 @@ package androidx.camera.lifecycle {
     method public boolean hasCamera(androidx.camera.core.CameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
     method public boolean isBound(androidx.camera.core.UseCase);
     method @MainThread public boolean isConcurrentCameraModeOn();
+    method @VisibleForTesting public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> shutdownAsync();
     method @MainThread public void unbind(androidx.camera.core.UseCase!...);
     method @MainThread public void unbindAll();
   }

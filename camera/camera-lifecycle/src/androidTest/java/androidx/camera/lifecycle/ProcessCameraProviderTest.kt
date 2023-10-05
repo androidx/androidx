@@ -73,7 +73,7 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             try {
                 val provider = ProcessCameraProvider.getInstance(context).await()
-                provider.shutdown().await()
+                provider.shutdownAsync().await()
             } catch (e: IllegalStateException) {
                 // ProcessCameraProvider may not be configured. Ignore.
             }
@@ -662,7 +662,7 @@ class ProcessCameraProviderTest {
         runBlocking {
             provider = ProcessCameraProvider.getInstance(context).await()
             // Clear the configuration so we can reinit
-            provider.shutdown().await()
+            provider.shutdownAsync().await()
         }
 
         // Should not throw exception

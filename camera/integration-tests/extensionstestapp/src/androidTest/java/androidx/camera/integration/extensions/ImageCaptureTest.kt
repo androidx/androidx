@@ -95,7 +95,7 @@ class ImageCaptureTest(private val config: CameraIdExtensionModePair) {
     fun tearDown() {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        cameraProvider.shutdown()
+        cameraProvider.shutdownAsync()
 
         val extensionsManager = ExtensionsManager.getInstanceAsync(
             context,

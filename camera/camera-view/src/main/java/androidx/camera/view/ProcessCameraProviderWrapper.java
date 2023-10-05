@@ -64,10 +64,10 @@ interface ProcessCameraProviderWrapper {
             @NonNull UseCaseGroup useCaseGroup);
 
     /**
-     * Wrapper method for {@link ProcessCameraProvider#shutdown()}.
+     * Wrapper method for {@link ProcessCameraProvider#shutdownAsync()}.
      *
      */
     @NonNull
     @VisibleForTesting
-    ListenableFuture<Void> shutdown();
+    ListenableFuture<Void> shutdownAsync();
 }

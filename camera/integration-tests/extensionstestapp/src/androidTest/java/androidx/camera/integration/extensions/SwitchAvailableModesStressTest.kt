@@ -123,7 +123,7 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         withContext(Dispatchers.Main) {
-            cameraProvider.shutdown()
+            cameraProvider.shutdownAsync()
         }
 
         val extensionsManager = ExtensionsManager.getInstanceAsync(
