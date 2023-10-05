@@ -18,7 +18,6 @@ package androidx.build.gitclient
 
 import androidx.build.parseXml
 import com.google.gson.Gson
-import java.io.File
 import org.gradle.api.GradleException
 
 /**
@@ -147,24 +146,8 @@ class ChangeInfoGitClient(
         return ""
     }
 
-    /** Finds the commits in a certain range */
-    override fun getGitLog(
-        gitCommitRange: GitCommitRange,
-        keepMerges: Boolean,
-        projectDir: File?
-    ): List<Commit> {
-        if (gitCommitRange.n != 1) {
-            throw UnsupportedOperationException(
-                "ChangeInfoGitClient only supports n = 1, not ${gitCommitRange.n}"
-            )
-        }
-        if (gitCommitRange.untilInclusive != "HEAD") {
-            throw UnsupportedOperationException(
-                "ChangeInfoGitClient only supports untilInclusive = HEAD, " +
-                    "not ${gitCommitRange.untilInclusive}"
-            )
-        }
-        return listOf(Commit("_CommitSHA:${extractVersion(versionInfo)}", projectPath))
+    override fun getHeadSha(): String {
+        return extractVersion(versionInfo)
     }
 }
 

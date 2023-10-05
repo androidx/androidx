@@ -32,8 +32,6 @@ class GitRunnerGitClient(
         RealCommandRunner(workingDir = workingDir, logger = logger)
 ) : GitClient {
 
-    private val gitRoot: File = findGitDirInParentFilepath(workingDir) ?: workingDir
-
     /** Finds changed file paths since the given sha */
     override fun findChangedFilesSince(
         sha: String,
@@ -59,99 +57,16 @@ class GitRunnerGitClient(
             ?.firstOrNull()
     }
 
-    private fun parseCommitLogString(
-        commitLogString: String,
-        commitStartDelimiter: String,
-        commitSHADelimiter: String,
-        subjectDelimiter: String,
-        authorEmailDelimiter: String,
-        localProjectDir: String
-    ): List<Commit> {
-        // Split commits string out into individual commits (note: this removes the deliminter)
-        val gitLogStringList: List<String>? = commitLogString.split(commitStartDelimiter)
-        var commitLog: MutableList<Commit> = mutableListOf()
-        gitLogStringList
-            ?.filter { gitCommit -> gitCommit.trim() != "" }
-            ?.forEach { gitCommit ->
-                commitLog.add(
-                    Commit(
-                        gitCommit,
-                        localProjectDir,
-                        commitSHADelimiter = commitSHADelimiter,
-                        subjectDelimiter = subjectDelimiter,
-                        authorEmailDelimiter = authorEmailDelimiter
-                    )
-                )
-            }
-        return commitLog.toList()
-    }
-
-    /**
-     * Converts a diff log command into a [List<Commit>]
-     *
-     * @param gitCommitRange the [GitCommitRange] that defines the parameters of the git log command
-     * @param keepMerges boolean for whether or not to add merges to the return [List<Commit>].
-     * @param projectDir a [File] object that represents the project directory.
-     */
-    override fun getGitLog(
-        gitCommitRange: GitCommitRange,
-        keepMerges: Boolean,
-        projectDir: File?
-    ): List<Commit> {
-        val commitStartDelimiter: String = "_CommitStart"
-        val commitSHADelimiter: String = "_CommitSHA:"
-        val subjectDelimiter: String = "_Subject:"
-        val authorEmailDelimiter: String = "_Author:"
-        val dateDelimiter: String = "_Date:"
-        val bodyDelimiter: String = "_Body:"
-        val fullProjectDir = if (projectDir == null) workingDir else projectDir
-        val localProjectDir: String = fullProjectDir.relativeTo(gitRoot).toString()
-        val relativeProjectDir: String = fullProjectDir.relativeTo(workingDir).toString()
-
-        var gitLogOptions: String =
-            "--pretty=format:$commitStartDelimiter%n" +
-                "$commitSHADelimiter%H%n" +
-                "$authorEmailDelimiter%ae%n" +
-                "$dateDelimiter%ad%n" +
-                "$subjectDelimiter%s%n" +
-                "$bodyDelimiter%b" +
-                if (!keepMerges) {
-                    " --no-merges"
-                } else {
-                    ""
-                }
-        var gitLogCmd: String
-        if (gitCommitRange.fromExclusive != "") {
-            gitLogCmd =
-                "$GIT_LOG_CMD_PREFIX $gitLogOptions " +
-                    "${gitCommitRange.fromExclusive}..${gitCommitRange.untilInclusive}" +
-                    " -- ./$relativeProjectDir"
-        } else {
-            gitLogCmd =
-                "$GIT_LOG_CMD_PREFIX $gitLogOptions ${gitCommitRange.untilInclusive} -n " +
-                    "${gitCommitRange.n} -- ./$relativeProjectDir"
-        }
+    override fun getHeadSha(): String {
+        val gitLogCmd =
+            "git log --name-only --pretty=format:%H HEAD -n 1 -- ./"
         val gitLogString: String = commandRunner.execute(gitLogCmd)
-        val commits =
-            parseCommitLogString(
-                gitLogString,
-                commitStartDelimiter,
-                commitSHADelimiter,
-                subjectDelimiter,
-                authorEmailDelimiter,
-                localProjectDir
-            )
-        if (commits.isEmpty()) {
-            // Probably an error; log this
+        if (gitLogString.isEmpty()) {
             logger?.warn(
-                "No git commits found! Ran this command: '" +
-                    gitLogCmd +
-                    "' and received this output: '" +
-                    gitLogString +
-                    "'"
+                "No git commits found! Ran this command: '$gitLogCmd ' and received no output"
             )
         }
-        return commits
+        return gitLogString
     }
 
     private class RealCommandRunner(private val workingDir: File, private val logger: Logger?) :
@@ -181,15 +96,13 @@ class GitRunnerGitClient(
         }
 
         override fun executeAndParse(command: String): List<String> {
-            val response = execute(command).split(System.lineSeparator()).filterNot { it.isEmpty() }
-            return response
+            return execute(command).split(System.lineSeparator()).filterNot { it.isEmpty() }
         }
     }
 
     companion object {
         const val PREVIOUS_SUBMITTED_CMD = "git log -1 --merges --oneline"
         const val CHANGED_FILES_CMD_PREFIX = "git diff --name-only"
-        const val GIT_LOG_CMD_PREFIX = "git log --name-only"
     }
 }
 

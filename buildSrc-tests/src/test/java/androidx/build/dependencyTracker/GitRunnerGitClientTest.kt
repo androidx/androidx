@@ -16,19 +16,18 @@
 
 package androidx.build.dependencyTracker
 
-import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitRunnerGitClient
 import androidx.build.gitclient.GitRunnerGitClient.Companion.CHANGED_FILES_CMD_PREFIX
 import androidx.build.gitclient.GitRunnerGitClient.Companion.PREVIOUS_SUBMITTED_CMD
-import androidx.build.gitclient.GitCommitRange
+import java.io.File
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
 
 @RunWith(JUnit4::class)
 class GitRunnerGitClientTest {
@@ -104,20 +103,8 @@ class GitRunnerGitClientTest {
 
     @Test
     fun checkLatestCommitExists() {
-        /* Do not use the MockCommandRunner because it's a better test to check the validity of
-         * the git command against the actual git in the repo
-         */
-        val commitList: List<Commit> = GitRunnerGitClient(workingDir, logger)
-            .getGitLog(
-                GitCommitRange(
-                    fromExclusive = "",
-                    untilInclusive = "HEAD",
-                    n = 1
-                ),
-                keepMerges = true,
-                projectDir = workingDir
-        )
-        assertEquals(1, commitList.size)
+        val headCommit: String = GitRunnerGitClient(workingDir, logger).getHeadSha()
+        assertFalse(headCommit.isEmpty())
     }
 
     // For both Linux/Windows

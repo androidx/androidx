@@ -17,9 +17,7 @@
 package androidx.build.dependencyTracker
 
 import androidx.build.gitclient.ChangeInfoGitClient
-import androidx.build.gitclient.GitCommitRange
 import com.google.gson.JsonSyntaxException
-import java.io.File
 import junit.framework.TestCase.assertEquals
 import org.gradle.api.GradleException
 import org.junit.Test
@@ -238,7 +236,7 @@ class ChangeInfoGitClientTest {
     }
 
     @Test
-    fun getGitLog_hasVersion() {
+    fun getHeadSha_hasVersion() {
         checkVersion("""
             <manifest>
                 <project path="prebuilts/internal" name="platform/prebuilts/internal" revision="prebuiltsVersion1"/>
@@ -251,7 +249,7 @@ class ChangeInfoGitClientTest {
     }
 
     @Test
-    fun getGitLog_noVersion() {
+    fun getHeadSha_noVersion() {
         var threw = false
         try {
             checkVersion("""
@@ -268,9 +266,8 @@ class ChangeInfoGitClientTest {
     fun checkVersion(config: String, expectedVersion: String?) {
         assertEquals(expectedVersion, getVersion(config))
     }
-    fun getVersion(config: String): String? {
+    fun getVersion(config: String): String {
         return ChangeInfoGitClient("{}", config, "frameworks/support")
-            .getGitLog(GitCommitRange(n = 1), keepMerges = true, projectDir = File("."))
-            .getOrNull(0)?.sha
+            .getHeadSha()
     }
 }
