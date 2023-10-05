@@ -113,7 +113,7 @@ class ImageAnalysisTest(private val config: CameraIdExtensionModePair) {
     @After
     fun tearDown() = runBlocking(Dispatchers.Main) {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10, SECONDS]
+            cameraProvider.shutdownAsync()[10, SECONDS]
         }
 
         if (::extensionsManager.isInitialized) {

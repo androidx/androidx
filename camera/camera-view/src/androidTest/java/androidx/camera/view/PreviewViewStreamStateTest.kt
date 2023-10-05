@@ -102,7 +102,7 @@ class PreviewViewStreamStateTest(
     fun tearDown() {
         if (isSetup) {
             instrumentation.runOnMainSync {
-                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
             }
             isSetup = false
         }
