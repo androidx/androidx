@@ -21,7 +21,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Text
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation.Companion.parseAnimatedContent
-import androidx.compose.ui.tooling.animation.Utils.searchForAnimation
+import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -45,7 +45,7 @@ class AnimatedContentComposeAnimationTest {
     fun parseAnimation() {
         assertTrue(AnimatedContentComposeAnimation.apiAvailable)
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) {
+        rule.addAnimations(search) {
             AnimatedContent(targetState = 1.dp) { targetCount ->
                 Text(text = "Count: $targetCount")
             }
@@ -66,7 +66,7 @@ class AnimatedContentComposeAnimationTest {
     fun parseIfApiIsNotAvailable() {
         AnimatedContentComposeAnimation.testOverrideAvailability(false)
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) {
+        rule.addAnimations(search) {
             AnimatedContent(targetState = 1.dp) { targetCount ->
                 Text(text = "Count: $targetCount")
             }
@@ -79,7 +79,7 @@ class AnimatedContentComposeAnimationTest {
     @Test
     fun parseAnimationWithNullState() {
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) {
+        rule.addAnimations(search) {
             AnimatedContent(targetState = null) { targetCount ->
                 Text(text = "Count: $targetCount")
             }
