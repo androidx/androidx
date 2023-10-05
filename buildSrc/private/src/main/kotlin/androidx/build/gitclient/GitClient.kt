@@ -25,11 +25,7 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.provider.Provider
 
 interface GitClient {
-    fun findChangedFilesSince(
-        sha: String,
-        top: String = "HEAD",
-        includeUncommitted: Boolean = false
-    ): List<String>
+    fun findChangedFilesSince(sha: String): List<String>
 
     fun findPreviousSubmittedChange(): String?
 
