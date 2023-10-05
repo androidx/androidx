@@ -34,9 +34,10 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.LabTestRule
-import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.DEFAULT_VALIDATOR
+import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.validateOrAdapt
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
+import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -149,7 +150,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    fun defaultValidator_returnNonNull_whenProfileIsFromCamcorder() {
+    fun validateOrAdaptWithDefaultEncoderInfoFinder_returnNonNull_whenProfileIsFromCamcorder() {
         // Arrange.
         assumeFalse(hasMediaCodecIncorrectInfoQuirk())
         assumeTrue(baseProvider.hasProfile(quality))
@@ -157,7 +158,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         val baseVideoProfile = encoderProfiles!!.videoProfiles[0]
 
         // Act.
-        val resultVideoProfile = DEFAULT_VALIDATOR.apply(baseVideoProfile)
+        val resultVideoProfile = validateOrAdapt(baseVideoProfile, VideoEncoderInfoImpl.FINDER)
 
         // Verify.
         assertWithMessage("Video profile validation failed.").that(resultVideoProfile).isNotNull()
@@ -166,7 +167,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     @LabTestRule.LabTestOnly
     @SdkSuppress(minSdkVersion = 33)
     @Test
-    fun providerWithDefaultValidator_provideHdrBackupProfile_whenBaseSdrProfileIsValid() {
+    fun providerWithDefaultEncoderInfoFinder_provideHdrBackupProfile_whenBaseSdrProfileIsValid() {
         // Pre-arrange.
         assumeTrue(cameraInfo.supportedDynamicRanges.containsAll(setOf(SDR, HLG_10_BIT)))
 
@@ -177,7 +178,7 @@ class BackupHdrProfileEncoderProfilesProviderTest(
 
         // Act.
         val backupProvider =
-            BackupHdrProfileEncoderProfilesProvider(baseProvider, DEFAULT_VALIDATOR)
+            BackupHdrProfileEncoderProfilesProvider(baseProvider, VideoEncoderInfoImpl.FINDER)
         assertThat(backupProvider.hasProfile(quality)).isTrue()
         val backupVideoProfiles = backupProvider.getAll(quality)!!.videoProfiles
 

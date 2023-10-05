@@ -23,10 +23,12 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -80,7 +82,8 @@ class RecorderVideoCapabilitiesTest(
         CameraXUtil.initialize(context, cameraConfig).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        videoCapabilities = RecorderVideoCapabilities.from(cameraInfo)
+            as CameraInfoInternal
+        videoCapabilities = RecorderVideoCapabilities(cameraInfo, VideoEncoderInfoImpl.FINDER)
     }
 
     @After

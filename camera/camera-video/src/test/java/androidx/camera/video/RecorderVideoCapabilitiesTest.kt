@@ -34,13 +34,13 @@ import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.DynamicRange.UNSPECIFIED
-import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
@@ -78,14 +78,9 @@ class RecorderVideoCapabilitiesTest {
         encoderProfilesProvider = defaultProfilesProvider
         supportedDynamicRanges = defaultDynamicRanges
     }
-
-    private val fakeValidator: (VideoProfileProxy) -> VideoProfileProxy = {
-        // Just returns the input video profile.
-        it
-    }
     private val validatedProfiles2160p = VideoValidatedEncoderProfilesProxy.from(PROFILES_2160P)
     private val validatedProfiles720p = VideoValidatedEncoderProfilesProxy.from(PROFILES_720P)
-    private val videoCapabilities = RecorderVideoCapabilities(cameraInfo, fakeValidator)
+    private val videoCapabilities = RecorderVideoCapabilities(cameraInfo) { FakeVideoEncoderInfo() }
 
     @Test
     fun canGetSupportedDynamicRanges() {
