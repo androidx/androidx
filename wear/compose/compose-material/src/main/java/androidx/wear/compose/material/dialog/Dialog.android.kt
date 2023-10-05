@@ -262,7 +262,7 @@ private fun animateBackgroundScrimAlpha(
                 // Outro
                 durationMillis = QUICK + RAPID
                 1f at 0
-                0.9f at RAPID with STANDARD_IN
+                0.9f at RAPID using STANDARD_IN
                 0.0f at RAPID + QUICK
             }
         }
@@ -285,7 +285,7 @@ private fun animateContentAlpha(
                 // Intro
                 durationMillis = QUICK + RAPID
                 0.0f at 0
-                0.1f at RAPID with STANDARD_IN
+                0.1f at RAPID using STANDARD_IN
                 1f at RAPID + QUICK
             }
 

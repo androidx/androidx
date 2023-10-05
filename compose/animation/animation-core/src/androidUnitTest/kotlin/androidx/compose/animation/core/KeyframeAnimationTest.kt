@@ -78,7 +78,7 @@ class KeyframeAnimationTest {
         val easing = FastOutSlowInEasing
         val animation = keyframes<Float> {
             durationMillis = 100
-            0f at 0 with easing
+            0f at 0 using easing
             1f at durationMillis
         }.vectorize(Float.VectorConverter)
 
@@ -90,7 +90,7 @@ class KeyframeAnimationTest {
         val easing = FastOutSlowInEasing
         val animation = keyframes<Float> {
             durationMillis = 200
-            1f at 100 with easing
+            1f at 100 using easing
             2f at durationMillis
         }.vectorize(Float.VectorConverter)
 
@@ -101,7 +101,7 @@ class KeyframeAnimationTest {
     fun firstPartIsLinearWithEasingOnTheSecondPart() {
         val animation = keyframes<Float> {
             durationMillis = 100
-            0.5f at 50 with FastOutSlowInEasing
+            0.5f at 50 using FastOutSlowInEasing
             1f at durationMillis
         }.vectorize(Float.VectorConverter)
 
@@ -113,7 +113,7 @@ class KeyframeAnimationTest {
         val easing = FastOutLinearInEasing
         val animation = keyframes<AnimationVector2D> {
             durationMillis = 400
-            AnimationVector(200f, 300f) at 200 with easing
+            AnimationVector(200f, 300f) at 200 using easing
         }.vectorize(TwoWayConverter<AnimationVector2D, AnimationVector2D>({ it }, { it }))
 
         val start = AnimationVector(0f, 0f)
@@ -144,7 +144,7 @@ class KeyframeAnimationTest {
         val config: KeyframesSpec.KeyframesSpecConfig<Float>.() -> Unit = {
             durationMillis = 500
             0f at 100
-            0.5f at 200 with FastOutLinearInEasing
+            0.5f at 200 using FastOutLinearInEasing
             0.8f at 300
             1f at durationMillis
         }
@@ -156,7 +156,7 @@ class KeyframeAnimationTest {
         val animationRedeclareConfig = keyframes<Float> {
             durationMillis = 500
             0f at 100
-            0.5f at 200 with FastOutLinearInEasing
+            0.5f at 200 using FastOutLinearInEasing
             0.8f at 300
             1f at durationMillis
         }
@@ -174,7 +174,7 @@ class KeyframeAnimationTest {
         val animation = keyframes<Float> {
             durationMillis = 500
             0f at 100
-            0.5f at 200 with FastOutLinearInEasing
+            0.5f at 200 using FastOutLinearInEasing
             0.8f at 300
             1f at durationMillis
         }
@@ -182,14 +182,14 @@ class KeyframeAnimationTest {
         val animationAlteredDuration = keyframes<Float> {
             durationMillis = 700
             0f at 100
-            0.5f at 200 with FastOutLinearInEasing
+            0.5f at 200 using FastOutLinearInEasing
             0.8f at 300
             1f at durationMillis
         }
 
         val animationAlteredEasing = keyframes<Float> {
             durationMillis = 500
-            0f at 100 with FastOutSlowInEasing
+            0f at 100 using FastOutSlowInEasing
             0.5f at 200
             0.8f at 300
             1f at durationMillis
@@ -198,7 +198,7 @@ class KeyframeAnimationTest {
         val animationAlteredKeyframes = keyframes<Float> {
             durationMillis = 500
             0f at 100
-            0.3f at 200 with FastOutLinearInEasing
+            0.3f at 200 using FastOutLinearInEasing
             0.8f at 400
             1f at durationMillis
         }
@@ -230,7 +230,7 @@ class KeyframeAnimationTest {
     fun percentageBasedKeyframesWithEasing() {
         val animation = keyframes<Float> {
             durationMillis = 100
-            0.5f atFraction 0.5f with FastOutSlowInEasing
+            0.5f atFraction 0.5f using FastOutSlowInEasing
             1f atFraction 1f
         }.vectorize(Float.VectorConverter)
 

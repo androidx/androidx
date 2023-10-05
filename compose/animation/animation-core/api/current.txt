@@ -438,6 +438,9 @@ package androidx.compose.animation.core {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface InternalAnimationApi {
   }
 
+  public abstract sealed class KeyframeBaseEntity<T> {
+  }
+
   @androidx.compose.runtime.Immutable public final class KeyframesSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public KeyframesSpec(androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T> config);
     method public androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T> getConfig();
@@ -445,18 +448,22 @@ package androidx.compose.animation.core {
     property public final androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T> config;
   }
 
-  public static final class KeyframesSpec.KeyframeEntity<T> {
+  public static final class KeyframesSpec.KeyframeEntity<T> extends androidx.compose.animation.core.KeyframeBaseEntity<T> {
   }
 
-  public static final class KeyframesSpec.KeyframesSpecConfig<T> {
+  public static final class KeyframesSpec.KeyframesSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
     ctor public KeyframesSpec.KeyframesSpecConfig();
-    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, @IntRange(from=0L) int timeStamp);
-    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, float fraction);
-    method @IntRange(from=0L) public int getDelayMillis();
-    method @IntRange(from=0L) public int getDurationMillis();
-    method public void setDelayMillis(int);
-    method public void setDurationMillis(int);
-    method public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
+    method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
+  }
+
+  public abstract sealed class KeyframesSpecBaseConfig<T, E extends androidx.compose.animation.core.KeyframeBaseEntity<T>> {
+    method public final infix E at(T, @IntRange(from=0L) int timeStamp);
+    method public final infix E atFraction(T, float fraction);
+    method @IntRange(from=0L) public final int getDelayMillis();
+    method @IntRange(from=0L) public final int getDurationMillis();
+    method public final void setDelayMillis(int);
+    method public final void setDurationMillis(int);
+    method public final infix E using(E, androidx.compose.animation.core.Easing easing);
     property @IntRange(from=0L) public final int delayMillis;
     property @IntRange(from=0L) public final int durationMillis;
   }
