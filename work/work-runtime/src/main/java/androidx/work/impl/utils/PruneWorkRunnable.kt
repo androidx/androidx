@@ -13,52 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.work.impl.utils
 
-package androidx.work.impl.utils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.work.Operation;
-import androidx.work.impl.OperationImpl;
-import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.Operation
+import androidx.work.impl.OperationImpl
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
- * A Runnable that prunes work in the background.  Pruned work meets the following criteria:
+ * Prunes work in the background.  Pruned work meets the following criteria:
  * - Is finished (succeeded, failed, or cancelled)
  * - Has zero unfinished dependents
- *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PruneWorkRunnable implements Runnable {
-
-    private final WorkManagerImpl mWorkManagerImpl;
-    private final OperationImpl mOperation;
-
-    public PruneWorkRunnable(@NonNull WorkManagerImpl workManagerImpl) {
-        mWorkManagerImpl = workManagerImpl;
-        mOperation = new OperationImpl();
-    }
-
-    /**
-     * @return The {@link Operation} that encapsulates the state of the {@link PruneWorkRunnable}.
-     */
-    @NonNull
-    public Operation getOperation() {
-        return mOperation;
-    }
-
-
-    @Override
-    public void run() {
+internal fun WorkDatabase.pruneWork(executor: TaskExecutor): Operation {
+    val operation = OperationImpl()
+    executor.executeOnTaskThread {
         try {
-            WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
-            WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-            workSpecDao.pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
-            mOperation.markState(Operation.SUCCESS);
-        } catch (Throwable exception) {
-            mOperation.markState(new Operation.State.FAILURE(exception));
+            workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
+            operation.markState(Operation.SUCCESS)
+        } catch (exception: Throwable) {
+            operation.markState(Operation.State.FAILURE(exception))
         }
     }
+    return operation
 }

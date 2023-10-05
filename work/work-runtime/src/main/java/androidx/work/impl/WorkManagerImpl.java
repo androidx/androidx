@@ -64,7 +64,7 @@ import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.PreferenceUtils;
-import androidx.work.impl.utils.PruneWorkRunnable;
+import androidx.work.impl.utils.PruneWorkRunnableKt;
 import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
@@ -466,9 +466,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull Operation pruneWork() {
-        PruneWorkRunnable runnable = new PruneWorkRunnable(this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return PruneWorkRunnableKt.pruneWork(mWorkDatabase, mWorkTaskExecutor);
     }
 
     @Override
