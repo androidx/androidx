@@ -104,7 +104,7 @@ class ThreePaneScaffoldTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockLayoutDirective = AdaptiveLayoutDirective(
+private val MockScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 1,
     gutterSizes = GutterSizes(0.dp, 0.dp),
     maxVerticalPartitions = 1,
@@ -117,7 +117,7 @@ internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
 @Composable
 private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
     SampleThreePaneScaffold(
-        MockLayoutDirective,
+        MockScaffoldDirective,
         scaffoldValue,
         ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
     )
@@ -126,13 +126,13 @@ private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun SampleThreePaneScaffold(
-    layoutDirective: AdaptiveLayoutDirective,
+    scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
     arrangement: ThreePaneScaffoldArrangement
 ) {
     ThreePaneScaffold(
         modifier = Modifier.fillMaxSize().testTag(ThreePaneScaffoldTestTag),
-        layoutDirective = layoutDirective,
+        scaffoldDirective = scaffoldDirective,
         scaffoldValue = scaffoldValue,
         arrangement = arrangement,
         secondaryPane = {
