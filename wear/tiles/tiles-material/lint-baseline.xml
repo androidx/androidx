@@ -21,7 +21,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Modifiers.newBuilder can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
+        message="Modifiers.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                    ModifiersProto.Modifiers.newBuilder(modifiers.toProto())"
         errorLine2="                                             ~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Builder.setMetadata can only be called from within the same library group (referenced groupId=`` from groupId=`androidx.wear.tiles`)"
+        message="Builder.setMetadata can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="                            .setMetadata("
         errorLine2="                             ~~~~~~~~~~~">
         <location
