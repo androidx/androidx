@@ -90,10 +90,11 @@ class GattClient(private val context: Context) {
     companion object {
         private const val TAG = "GattClient"
 
+        private const val GATT_MAX_ATTR_LENGTH = 512
         /**
-         * The maximum ATT size(512) + header(3)
+         * The maximum ATT size + header(3)
          */
-        private const val GATT_MAX_MTU = 515
+        private const val GATT_MAX_MTU = GATT_MAX_ATTR_LENGTH + 3
 
         private const val CONNECT_TIMEOUT_MS = 30_000L
         private val CCCD_UID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -289,9 +290,14 @@ class GattClient(private val context: Context) {
                     else return Result.failure(
                         IllegalArgumentException("can't write to the characteristic"))
 
+                if (value.size > GATT_MAX_ATTR_LENGTH) {
+                    return Result.failure(IllegalArgumentException("too long value to write"))
+                }
+
                 return runTask {
                     fwkAdapter.writeCharacteristic(
-                        characteristic.fwkCharacteristic, value, writeType)
+                        characteristic.fwkCharacteristic, value, writeType
+                    )
                     val res = takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
                         callbackResultsFlow
                     ) {
@@ -299,7 +305,7 @@ class GattClient(private val context: Context) {
                     }
                     if (res.status == BluetoothGatt.GATT_SUCCESS) Result.success(Unit)
                     // TODO: throw precise reason if we can gather the info
-                    else Result.failure(CancellationException("fail"))
+                    else Result.failure(CancellationException("fail with error = ${res.status}"))
                 }
             }
 

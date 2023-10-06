@@ -285,6 +285,9 @@ class BluetoothLe(private val context: Context) {
         /**
          * Writes the characteristic value to the server.
          *
+         * It could fail if the [characteristic] doesn't have the write property or the length
+         * of the [value] is greater than the maximum length of an attribute value (512).
+         *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
          * @return the result of the write operation
