@@ -2133,6 +2133,11 @@ public class CameraXActivity extends AppCompatActivity {
         return findUseCase(ImageCapture.class);
     }
 
+    @Nullable
+    View getViewFinder() {
+        return mViewFinder;
+    }
+
     /**
      * Returns the error message of the last take picture action if any error occurs. Returns
      * null if no error occurs.

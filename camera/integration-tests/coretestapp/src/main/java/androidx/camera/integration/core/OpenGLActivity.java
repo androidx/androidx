@@ -94,10 +94,27 @@ public class OpenGLActivity extends AppCompatActivity {
      * {@link OpenGLActivity#INTENT_EXTRA_RENDER_SURFACE_TYPE}. This type will NOT
      * block the main thread while detaching it's {@link Surface} from the OpenGL
      * renderer, but some devices may crash due to their OpenGL/EGL implementation not being
-     * thread-safe.
+     * thread-safe. On API 30+, {@link android.view.SurfaceControl} is used to allow releasing of
+     * the surface off the main thread.
      */
     public static final String RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING =
             "surfaceview_nonblocking";
+
+    private static final String DEFAULT_RENDER_SURFACE_TYPE;
+
+    static {
+        // By default we choose TextureView to maximize compatibility. On devices that are API
+        // level 33 and above, we choose SurfaceView by default since SurfaceView has been proven
+        // to be stable on this API level, and we are able to push releasing of the surface off
+        // the main thread via SurfaceControl.
+        if (Build.VERSION.SDK_INT >= 33) {
+            DEFAULT_RENDER_SURFACE_TYPE = RENDER_SURFACE_TYPE_SURFACEVIEW_NONBLOCKING;
+        } else {
+            DEFAULT_RENDER_SURFACE_TYPE = RENDER_SURFACE_TYPE_TEXTUREVIEW;
+        }
+
+    }
+
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
                     Manifest.permission.CAMERA,
@@ -219,14 +236,15 @@ public class OpenGLActivity extends AppCompatActivity {
      *                       viewfinder.
      * @return The inflated viewfinder View.
      */
+    @NonNull
     public static View chooseViewFinder(@Nullable Bundle intentExtras,
             @NonNull ViewStub viewFinderStub,
             @NonNull OpenGLRenderer renderer) {
-        // By default we choose TextureView to maximize compatibility.
-        String renderSurfaceType = OpenGLActivity.RENDER_SURFACE_TYPE_TEXTUREVIEW;
+
+        String renderSurfaceType = DEFAULT_RENDER_SURFACE_TYPE;
         if (intentExtras != null) {
             renderSurfaceType = intentExtras.getString(INTENT_EXTRA_RENDER_SURFACE_TYPE,
-                    RENDER_SURFACE_TYPE_TEXTUREVIEW);
+                    DEFAULT_RENDER_SURFACE_TYPE);
         }
 
         switch (renderSurfaceType) {
