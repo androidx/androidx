@@ -39,6 +39,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    defaultConfig {
+        minSdk 21
+    }
 }
 
 androidx {
