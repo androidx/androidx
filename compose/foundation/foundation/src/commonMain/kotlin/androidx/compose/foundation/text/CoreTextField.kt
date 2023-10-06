@@ -38,6 +38,7 @@ import androidx.compose.foundation.text.selection.textFieldMagnifier
 import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RecomposeScope
@@ -629,7 +630,7 @@ internal fun CoreTextField(
         .textFieldScrollable(scrollerPosition, interactionSource, enabled)
         .then(pointerModifier)
         .then(semanticsModifier)
-        .onGloballyPositioned {
+        .onGloballyPositioned @DontMemoize {
             state.layoutResult?.decorationBoxCoordinates = it
         }
 

@@ -3947,6 +3947,34 @@ class CompositionTests {
         expectChanges()
     }
 
+    data class Foo(var i: Int = 0)
+    class UnstableCompConsumer(var invokeCount: Int = 0) {
+        @Composable fun UnstableComp(foo: Foo) {
+            use(foo)
+            invokeCount++
+        }
+    }
+    @Test
+    fun composableWithUnstableParameters_skipped() = compositionTest {
+        val consumer = UnstableCompConsumer()
+        var recomposeTrigger by mutableStateOf(0)
+        val data = Foo()
+        compose {
+            Linear {
+                use(recomposeTrigger)
+                consumer.UnstableComp(foo = data)
+            }
+        }
+
+        assertEquals(1, consumer.invokeCount)
+
+        recomposeTrigger = 1
+        data.i++
+        advance()
+
+        assertEquals(1, consumer.invokeCount)
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
