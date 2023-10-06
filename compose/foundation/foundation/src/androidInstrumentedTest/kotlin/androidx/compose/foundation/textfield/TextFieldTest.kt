@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
@@ -166,7 +167,7 @@ import org.mockito.kotlin.verify
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldTest {
+class TextFieldTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -898,7 +899,7 @@ class TextFieldTest {
         var value by mutableStateOf(TextFieldValue(text, TextRange(text.length)))
         var toolbar: TextToolbar? = null
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             toolbar = LocalTextToolbar.current
             BasicTextField(
                 modifier = Modifier.testTag(Tag),

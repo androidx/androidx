@@ -21,6 +21,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.FakeTextToolbar
@@ -61,7 +62,7 @@ import org.junit.Test
  */
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
-class TextFieldLongPressTest {
+class TextFieldLongPressTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -74,7 +75,7 @@ class TextFieldLongPressTest {
 
     @Test
     fun emptyTextField_longPressDoesNotShowCursor() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = rememberTextFieldState(),
                 textStyle = defaultTextStyle,
@@ -90,7 +91,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_requestsFocus_beforePointerIsReleased() {
         val state = TextFieldState("Hello, World!")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -110,7 +111,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPressOnEmptyRegion_showsCursorAtTheEnd() {
         val state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -138,7 +139,7 @@ class TextFieldLongPressTest {
             }, onHideMenu = {}
         )
         val clipboardManager = FakeClipboardManager("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(
                 LocalTextToolbar provides textToolbar,
                 LocalClipboardManager provides clipboardManager
@@ -165,7 +166,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPressOnWord_selectsWord() {
         val state = TextFieldState("abc def ghi")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -185,7 +186,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPressOnWhitespace_doesNotSelectWhitespace() {
         val state = TextFieldState("abc def ghi")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -208,7 +209,7 @@ class TextFieldLongPressTest {
         val state = TextFieldState("abc def ghi abc def ghi")
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
-        rule.setContent {
+        rule.setTextFieldTestContent {
             scope = rememberCoroutineScope()
             BasicTextField2(
                 state = state,
@@ -234,7 +235,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPressOnDecoratedTextField_selectsWord() {
         val state = TextFieldState("abc def ghi")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -264,7 +265,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragToRight_selectsCurrentAndNextWord_ltr() {
         val state = TextFieldState("abc def ghi")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -284,7 +285,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragToLeft_selectsCurrentAndPreviousWord_ltr() {
         val state = TextFieldState("abc def ghi")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -304,7 +305,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragDown_selectsFromCurrentToTargetWord_ltr() {
         val state = TextFieldState("abc def\nabc def\nabc def")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -324,7 +325,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragUp_selectsFromCurrentToTargetWord_ltr() {
         val state = TextFieldState("abc def\nabc def\nabc def")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -344,7 +345,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_startingFromEndPadding_dragToLeft_selectsLastWord_ltr() {
         val state = TextFieldState("abc def")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -368,7 +369,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragToRight_selectsCurrentAndPreviousWord_rtl() {
         val state = TextFieldState(rtlText3)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -388,7 +389,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragToLeft_selectsCurrentAndNextWord_rtl() {
         val state = TextFieldState(rtlText3)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -408,7 +409,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragDown_selectsFromCurrentToTargetWord_rtl() {
         val state = TextFieldState("$rtlText2\n$rtlText2\n$rtlText2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -428,7 +429,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_dragUp_selectsFromCurrentToTargetWord_rtl() {
         val state = TextFieldState("$rtlText2\n$rtlText2\n$rtlText2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -448,7 +449,7 @@ class TextFieldLongPressTest {
     @Test
     fun longPress_startingFromEndPadding_dragToRight_selectsLastWord_rtl() {
         val state = TextFieldState(rtlText2)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state = state,

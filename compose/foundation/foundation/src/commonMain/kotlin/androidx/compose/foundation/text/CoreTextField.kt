@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
@@ -217,6 +218,7 @@ internal fun CoreTextField(
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     val focusManager = LocalFocusManager.current
+    val windowInfo = LocalWindowInfo.current
 
     // Scroll state
     val singleLine = maxLines == 1 && !softWrap && imeOptions.singleLine
@@ -410,7 +412,7 @@ internal fun CoreTextField(
         state.layoutResult?.innerTextFieldCoordinates = it
         if (enabled) {
             if (state.handleState == HandleState.Selection) {
-                if (state.showFloatingToolbar) {
+                if (state.showFloatingToolbar && windowInfo.isWindowFocused) {
                     manager.showSelectionToolbar()
                 } else {
                     manager.hideSelectionToolbar()
@@ -576,8 +578,8 @@ internal fun CoreTextField(
         }
     }
 
-    val cursorModifier =
-        Modifier.cursor(state, value, offsetMapping, cursorBrush, enabled && !readOnly)
+    val showCursor = enabled && !readOnly && windowInfo.isWindowFocused
+    val cursorModifier = Modifier.cursor(state, value, offsetMapping, cursorBrush, showCursor)
 
     DisposableEffect(manager) {
         onDispose { manager.hideSelectionToolbar() }
@@ -624,7 +626,8 @@ internal fun CoreTextField(
             state.layoutResult?.decorationBoxCoordinates = it
         }
 
-    val showHandleAndMagnifier = enabled && state.hasFocus && state.isInTouchMode
+    val showHandleAndMagnifier =
+        enabled && state.hasFocus && state.isInTouchMode && windowInfo.isWindowFocused
     val magnifierModifier = if (showHandleAndMagnifier) {
         Modifier.textFieldMagnifier(manager)
     } else {

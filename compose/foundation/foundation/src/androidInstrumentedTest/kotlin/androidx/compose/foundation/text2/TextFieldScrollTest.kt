@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
@@ -78,7 +79,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldScrollTest {
+class TextFieldScrollTest : FocusedWindowTest {
 
     private val TextfieldTag = "textField"
 
@@ -408,7 +409,7 @@ class TextFieldScrollTest {
     fun textFieldFollowsCursor_whenFocused() {
         val state = TextFieldState(longText, TextRange(0))
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             ScrollableContent(
                 state = state,
                 scrollState = scrollState,

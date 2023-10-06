@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.DefaultCursorThickness
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -35,6 +36,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
@@ -53,12 +55,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
@@ -86,7 +90,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @LargeTest
-class TextFieldCursorTest {
+class TextFieldCursorTest : FocusedWindowTest {
 
     private val motionDurationScale = object : MotionDurationScale {
         override var scaleFactor: Float by mutableStateOf(1f)
@@ -150,13 +154,13 @@ class TextFieldCursorTest {
     // default onTextLayout to capture cursor boundaries.
     private val onTextLayout: Density.(() -> TextLayoutResult?) -> Unit = { textLayoutResult = it }
 
-    private fun ComposeTestRule.setTestContent(
+    private fun ComposeContentTestRule.setTestContent(
         content: @Composable () -> Unit
     ) {
-        rule.setContent {
+        this.setTextFieldTestContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
-            // the cursor to be next to the navigation bar which affects the red color to be a bit
-            // different - possibly anti-aliasing.
+            // the cursor to be next to the navigation bar which affects the red color to be a
+            // bit different - possibly anti-aliasing.
             Box(Modifier.padding(boxPadding)) {
                 content()
             }
@@ -208,11 +212,9 @@ class TextFieldCursorTest {
 
         // an empty text layout will be placed on the right side of 30.dp-width area
         // cursor will be at the most right side
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                .assertCursor(cursorTopCenterInRtl)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInRtl)
     }
 
     @Test
@@ -258,12 +260,10 @@ class TextFieldCursorTest {
 
         rule.mainClock.advanceTimeBy(100)
 
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                // 20 - 2(cursor)
-                .assertCursor(cursorTopCenterInRtl)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            // 20 - 2(cursor)
+            .assertCursor(cursorTopCenterInRtl)
     }
 
     @Test
@@ -707,6 +707,132 @@ class TextFieldCursorTest {
         rule.onNode(hasSetTextAction())
             .captureToImage()
             .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun cursorNotBlinking_whenWindowLostFocus() {
+        state = TextFieldState()
+        val focusWindow = mutableStateOf(true)
+        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focused
+        }
+
+        rule.setTestContent {
+            CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
+                Box(Modifier.padding(boxPadding)) {
+                    BasicTextField2(
+                        state = state,
+                        textStyle = textStyle,
+                        modifier = textFieldModifier,
+                        cursorBrush = SolidColor(cursorColor),
+                        onTextLayout = onTextLayout
+                    )
+                }
+            }
+        }
+
+        // window loses focus
+        focusWindow.value = false
+        rule.waitForIdle()
+
+        // check that text field cursor disappeared even within visible 500ms
+        rule.mainClock.advanceTimeBy(300)
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertDoesNotContainColor(cursorColor)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun focusedTextField_resumeBlinking_whenWindowRegainsFocus() {
+        state = TextFieldState()
+        val focusWindow = mutableStateOf(true)
+        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focused
+        }
+
+        rule.setTestContent {
+            CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
+                Box(Modifier.padding(boxPadding)) {
+                    BasicTextField2(
+                        state = state,
+                        textStyle = textStyle,
+                        modifier = textFieldModifier,
+                        cursorBrush = SolidColor(cursorColor),
+                        onTextLayout = onTextLayout
+                    )
+                }
+            }
+        }
+
+        focusAndWait()
+
+        // window loses focus
+        focusWindow.value = false
+        rule.waitForIdle()
+
+        // check that text field cursor disappeared even within visible 500ms
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertDoesNotContainColor(cursorColor)
+
+        // window regains focus
+        focusWindow.value = true
+        rule.waitForIdle()
+
+        rule.mainClock.advanceTimeBy(100)
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(cursorColor)
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_keepsSelection_whenWindowLosesFocus() {
+        state = TextFieldState("hello", initialSelectionInChars = TextRange(0, 5))
+        val selectionColor = Color.Blue
+        val focusWindow = mutableStateOf(true)
+        val windowInfo = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focusWindow.value
+        }
+
+        rule.setTestContent {
+            CompositionLocalProvider(
+                LocalWindowInfo provides windowInfo,
+                LocalTextSelectionColors provides TextSelectionColors(
+                    selectionColor,
+                    selectionColor
+                )
+            ) {
+                BasicTextField2(
+                    state = state,
+                    // make sure that background is not obstructing selection
+                    textStyle = textStyle.copy(background = Color.Unspecified),
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(selectionColor)
+
+        // window lost focus, make sure selection still drawn
+        focusWindow.value = false
+        rule.waitForIdle()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(selectionColor)
     }
 
     private fun focusAndWait() {

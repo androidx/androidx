@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -310,12 +311,14 @@ fun BasicTextField2(
 ) {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val windowInfo = LocalWindowInfo.current
     val singleLine = lineLimits == SingleLine
     // We're using this to communicate focus state to cursor for now.
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
     val isFocused = interactionSource.collectIsFocusedAsState().value
+    val isWindowFocused = windowInfo.isWindowFocused
     val textLayoutState = remember { TextLayoutState() }
 
     val transformedState = remember(state, inputTransformation, codepointTransformation) {
@@ -333,7 +336,7 @@ fun BasicTextField2(
             textLayoutState = textLayoutState,
             density = density,
             editable = enabled && !readOnly,
-            isFocused = isFocused
+            isFocused = isFocused && isWindowFocused
         )
     }
     val currentHapticFeedback = LocalHapticFeedback.current
@@ -410,7 +413,7 @@ fun BasicTextField2(
                     .clipToBounds()
                     .then(
                         TextFieldCoreModifier(
-                            isFocused = isFocused,
+                            isFocused = isFocused && isWindowFocused,
                             textLayoutState = textLayoutState,
                             textFieldState = transformedState,
                             textFieldSelectionState = textFieldSelectionState,
@@ -431,7 +434,8 @@ fun BasicTextField2(
                     )
                 )
 
-                if (enabled && isFocused && textFieldSelectionState.isInTouchMode) {
+                if (enabled && isFocused &&
+                    isWindowFocused && textFieldSelectionState.isInTouchMode) {
                     TextFieldSelectionHandles(
                         selectionState = textFieldSelectionState
                     )
