@@ -319,7 +319,6 @@ fun BasicTextField2(
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
     val isFocused = interactionSource.collectIsFocusedAsState().value
     val isWindowFocused = windowInfo.isWindowFocused
-    val textLayoutState = remember { TextLayoutState() }
 
     val transformedState = remember(state, inputTransformation, codepointTransformation) {
         // First prefer provided codepointTransformation if not null, e.g. BasicSecureTextField
@@ -329,6 +328,10 @@ fun BasicTextField2(
             ?: SingleLineCodepointTransformation.takeIf { singleLine }
         TransformedTextFieldState(state, inputTransformation, appliedCodepointTransformation)
     }
+
+    // Invalidate textLayoutState if TextFieldState itself has changed, since TextLayoutState
+    // would be carrying an invalid TextFieldState in its nonMeasureInputs.
+    val textLayoutState = remember(transformedState) { TextLayoutState() }
 
     val textFieldSelectionState = remember(transformedState) {
         TextFieldSelectionState(
@@ -377,15 +380,19 @@ fun BasicTextField2(
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)
         .scrollable(
+            state = scrollState,
             orientation = orientation,
+            // Disable scrolling when textField is disabled, there is no where to scroll, and
+            // another dragging gesture is taking place
+            enabled = enabled &&
+                scrollState.maxValue > 0 &&
+                textFieldSelectionState.draggingHandle == null,
             reverseDirection = ScrollableDefaults.reverseDirection(
                 layoutDirection = layoutDirection,
                 orientation = orientation,
                 reverseScrolling = false
             ),
-            state = scrollState,
             interactionSource = interactionSource,
-            enabled = enabled && scrollState.maxValue > 0
         )
 
     Box(decorationModifiers, propagateMinConstraints = true) {

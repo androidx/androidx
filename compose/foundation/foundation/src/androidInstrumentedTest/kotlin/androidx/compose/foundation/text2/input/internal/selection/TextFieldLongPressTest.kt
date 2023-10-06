@@ -41,10 +41,13 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
@@ -468,6 +471,154 @@ class TextFieldLongPressTest : FocusedWindowTest {
         }
 
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(4, 7))
+    }
+
+    @Test
+    fun longPress_startDraggingToScrollRight_startHandleDoesNotShow_ltr() {
+        val state = TextFieldState("abc def ghi ".repeat(10))
+        rule.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = defaultTextStyle,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(center)
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(Offset(fontSize.toPx(), fontSize.toPx() / 2))
+            moveBy(Offset(fontSize.toPx() * 30, 0f))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertDoesNotExist()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+
+        // slightly back a little bit so that selection seems to be collapsing but the acting
+        // handle should remain the same
+        rule.onNodeWithTag(TAG).performTouchInput {
+            moveBy(Offset(-fontSize.toPx(), 0f))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertDoesNotExist()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+    }
+
+    @Test
+    fun longPress_startDraggingToScrollDown_startHandleDoesNotShow_ltr() {
+        val state = TextFieldState("abc def ghi ".repeat(10))
+        rule.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = defaultTextStyle,
+                lineLimits = TextFieldLineLimits.MultiLine(1, 3),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(center)
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(Offset(fontSize.toPx(), fontSize.toPx() / 2))
+            moveBy(Offset(0f, fontSize.toPx() * 30))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertDoesNotExist()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+
+        // slightly back a little bit so that selection seems to be collapsing but the acting
+        // handle should remain the same
+        rule.onNodeWithTag(TAG).performTouchInput {
+            moveBy(Offset(0f, -fontSize.toPx()))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertDoesNotExist()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+    }
+
+    @Test
+    fun longPress_startDraggingToScrollLeft_endHandleDoesNotShow_ltr() {
+        val state = TextFieldState("abc def ghi ".repeat(10))
+        rule.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = defaultTextStyle,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(center)
+            // swipe to the absolute right by specifying a huge swipe delta
+            swipeLeft(endX = -10000f)
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(Offset(right - 1f, centerY))
+            moveBy(Offset(-fontSize.toPx() * 30, 0f))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
+
+        // slightly back a little bit so that selection seems to be collapsing but the acting
+        // handle should remain the same
+        rule.onNodeWithTag(TAG).performTouchInput {
+            moveBy(Offset(fontSize.toPx(), 0f))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
+    }
+
+    @Test
+    fun longPress_startDraggingToScrollUp_endHandleDoesNotShow_ltr() {
+        val state = TextFieldState("abc def ghi ".repeat(10))
+        rule.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                textStyle = defaultTextStyle,
+                lineLimits = TextFieldLineLimits.MultiLine(1, 3),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(100.dp)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(center)
+            // swipe to the absolute bottom by specifying a huge swipe delta
+            swipeUp(endY = -10000f)
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(Offset(centerX, bottom - 1f))
+            moveBy(Offset(0f, -fontSize.toPx() * 30))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
+
+        // slightly back a little bit so that selection seems to be collapsing but the acting
+        // handle should remain the same
+        rule.onNodeWithTag(TAG).performTouchInput {
+            moveBy(Offset(0f, fontSize.toPx()))
+        }
+
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
     }
 
     //endregion
