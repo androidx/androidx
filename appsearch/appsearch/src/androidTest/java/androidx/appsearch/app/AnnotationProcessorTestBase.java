@@ -30,6 +30,7 @@ import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.builtintypes.PotentialAction;
 import androidx.appsearch.builtintypes.Thing;
@@ -45,6 +46,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class AnnotationProcessorTestBase {
     private AppSearchSession mSession;
@@ -1280,6 +1284,130 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+    @Document
+    static class Product {
+        @NonNull
+        @Document.Namespace
+        String mNamespace;
+
+        @NonNull
+        @Document.Id
+        String mId;
+
+        @Nullable
+        @Document.LongProperty(serializer = PricePointAsOrdinalSerializer.class)
+        PricePoint mPricePoint;
+
+        @Nullable
+        @Document.LongProperty(serializer = PricePointAsOrdinalSerializer.class)
+        PricePoint[] mPricePointArr;
+
+        @Nullable
+        @Document.LongProperty(serializer = PricePointAsOrdinalSerializer.class)
+        List<PricePoint> mPricePointList;
+
+        @Nullable
+        @Document.StringProperty(serializer = UrlAsStringSerializer.class)
+        URL mUrl;
+
+        @Nullable
+        @Document.StringProperty(serializer = UrlAsStringSerializer.class)
+        URL[] mUrlArr;
+
+        @Nullable
+        @Document.StringProperty(serializer = UrlAsStringSerializer.class)
+        List<URL> mUrlList;
+
+        // Such naming should not have any collisions with the local vars in the generated code.
+        @Document.BooleanProperty
+        boolean serializer;
+
+        Product(@NonNull String namespace, @NonNull String id) {
+            mId = id;
+            mNamespace = namespace;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Product product = (Product) o;
+            return Objects.equals(mId, product.mId)
+                    && Objects.equals(mNamespace, product.mNamespace)
+                    && mPricePoint == product.mPricePoint
+                    && Arrays.equals(mPricePointArr, product.mPricePointArr)
+                    && Objects.equals(mPricePointList, product.mPricePointList)
+                    && Objects.equals(mUrl, product.mUrl)
+                    && Arrays.equals(mUrlArr, product.mUrlArr)
+                    && Objects.equals(mUrlList, product.mUrlList)
+                    && serializer == product.serializer;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(
+                    mId,
+                    mNamespace,
+                    mPricePoint,
+                    Arrays.hashCode(mPricePointArr),
+                    mPricePointList,
+                    mUrl,
+                    Arrays.hashCode(mUrlArr),
+                    mUrlList,
+                    serializer);
+        }
+
+        enum PricePoint { LOW, MID, HIGH }
+        static class PricePointAsOrdinalSerializer implements LongSerializer<PricePoint> {
+            @Override
+            public long serialize(@NonNull PricePoint pricePoint) {
+                return pricePoint.ordinal();
+            }
+
+            @Nullable
+            @Override
+            public PricePoint deserialize(long value) {
+                for (PricePoint pricePoint : PricePoint.values()) {
+                    if (pricePoint.ordinal() == value) {
+                        return pricePoint;
+                    }
+                }
+                return null;
+            }
+        }
+
+    }
+
+    @Document
+    static class DocumentWithPropertyCalledSerializer {
+        @Document.Namespace
+        String mNamespace;
+        @Document.Id
+        String mId;
+
+        // Such naming should not cause any issues
+        @Document.StringProperty(serializer = UrlAsStringSerializer.class)
+        URL serializer;
+    }
+
+    static class UrlAsStringSerializer implements StringSerializer<URL> {
+        @NonNull
+        @Override
+        public String serialize(@NonNull URL url) {
+            return url.toString();
+        }
+
+        @Nullable
+        @Override
+        public URL deserialize(@NonNull String string) {
+            try {
+                return new URL(string);
+            } catch (MalformedURLException ignore) {
+                return null;
+            }
+        }
+    }
+
     @Test
     public void testGenericDocumentConversion_BuilderConstructor() throws Exception {
         // Create Person document
@@ -1305,6 +1433,83 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
         assertThat(newPerson.getFirstName()).isEqualTo("first");
         assertThat(newPerson.getLastName()).isEqualTo("last");
+    }
+
+    @Test
+    public void testSerializerSupport() throws Exception {
+        Product product = new Product("ns", "id");
+        product.mPricePoint = Product.PricePoint.HIGH;
+        product.mPricePointArr =
+                new Product.PricePoint[]{Product.PricePoint.MID, Product.PricePoint.LOW};
+        product.mPricePointList = List.of(Product.PricePoint.HIGH, Product.PricePoint.MID);
+        product.mUrl = new URL("https://google.com");
+        product.mUrlArr = new URL[]{
+                new URL("https://android.com"), new URL("http://gmail.com")};
+        product.mUrlList = List.of(
+                new URL("https://schema.org"), new URL("https://bard.google.com"));
+
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(product);
+        assertThat(genericDocument.getPropertyLong("pricePoint"))
+                .isEqualTo((long) Product.PricePoint.HIGH.ordinal());
+        assertThat(genericDocument.getPropertyLongArray("pricePointArr"))
+                .asList()
+                .containsExactly(
+                        (long) Product.PricePoint.MID.ordinal(),
+                        (long) Product.PricePoint.LOW.ordinal());
+        assertThat(genericDocument.getPropertyLongArray("pricePointList"))
+                .asList()
+                .containsExactly(
+                        (long) Product.PricePoint.HIGH.ordinal(),
+                        (long) Product.PricePoint.MID.ordinal());
+        assertThat(genericDocument.getPropertyString("url")).isEqualTo("https://google.com");
+        assertThat(genericDocument.getPropertyStringArray("urlArr"))
+                .asList()
+                .containsExactly("https://android.com", "http://gmail.com");
+        assertThat(genericDocument.getPropertyStringArray("urlList"))
+                .asList()
+                .containsExactly("https://schema.org", "https://bard.google.com");
+
+        Product productBack = genericDocument.toDocumentClass(Product.class);
+        assertThat(productBack).isEqualTo(product);
+    }
+
+    @Test
+    public void testSerializerOmitsPropertyUponFailedDeserialization() throws Exception {
+        long invalidPricePoint = 999;
+        String invalidUrl = "not a valid url";
+        GenericDocument genericDocument =
+                new GenericDocument.Builder<>("ns", "id", /* schemaType= */"Product")
+                        .setPropertyLong("pricePoint", invalidPricePoint)
+                        .setPropertyLong("pricePointArr",
+                                Product.PricePoint.MID.ordinal(),
+                                invalidPricePoint,
+                                Product.PricePoint.LOW.ordinal())
+                        .setPropertyLong("pricePointList",
+                                Product.PricePoint.HIGH.ordinal(),
+                                invalidPricePoint,
+                                Product.PricePoint.MID.ordinal())
+                        .setPropertyString("url", invalidUrl)
+                        .setPropertyString("urlArr",
+                                "https://android.com", invalidUrl, "http://gmail.com")
+                        .setPropertyString("urlList",
+                                "https://schema.org", invalidUrl, "https://bard.google.com")
+                        .build();
+
+        Product product = genericDocument.toDocumentClass(Product.class);
+        assertThat(product).isEqualTo(new Product("ns", "id"));
+    }
+
+    @Test
+    public void testSerializerSupportWhenFieldIsCalledSerializer() throws Exception {
+        DocumentWithPropertyCalledSerializer entity = new DocumentWithPropertyCalledSerializer();
+        entity.mNamespace = "ns";
+        entity.mId = "id";
+        entity.serializer = new URL("https://google.com");
+
+        GenericDocument genericDoc = GenericDocument.fromDocumentClass(entity);
+        assertThat(genericDoc.getNamespace()).isEqualTo("ns");
+        assertThat(genericDoc.getId()).isEqualTo("id");
+        assertThat(genericDoc.getPropertyString("serializer")).isEqualTo("https://google.com");
     }
 
     @Test

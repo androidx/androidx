@@ -2846,6 +2846,122 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testStringSerializer() throws Exception {
+        Compilation compilation = compile(
+                "import androidx.appsearch.app.StringSerializer;\n"
+                        + "import java.net.URL;\n"
+                        + "import java.net.MalformedURLException;\n"
+                        + "import java.util.List;\n"
+                        + "@Document\n"
+                        + "class Gift {\n"
+                        + "    @Document.Id String mId;\n"
+                        + "    @Document.Namespace String mNamespace;\n"
+                        + "    @Document.StringProperty(\n"
+                        + "        serializer = UrlAsStringSerializer.class\n"
+                        + "    )\n"
+                        + "    URL mUrl;\n"
+                        + "    @Document.StringProperty(\n"
+                        + "        serializer = UrlAsStringSerializer.class\n"
+                        + "    )\n"
+                        + "    List<URL> mUrlList;\n"
+                        + "    @Document.StringProperty(\n"
+                        + "        serializer = UrlAsStringSerializer.class\n"
+                        + "    )\n"
+                        + "    URL[] mUrlArr;\n"
+                        + "    static class UrlAsStringSerializer \n"
+                        + "            implements StringSerializer<URL> {\n"
+                        + "        @Override\n"
+                        + "        public String serialize(URL url) {\n"
+                        + "            return url.toString();\n"
+                        + "        }\n"
+                        + "        @Override\n"
+                        + "        public URL deserialize(String string) {\n"
+                        + "            try {\n"
+                        + "                return new URL(string);\n"
+                        + "            } catch (MalformedURLException e) {\n"
+                        + "                return null;\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+        );
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+        checkResultContains(
+                "Gift.java",
+                "Gift.UrlAsStringSerializer serializer = new Gift.UrlAsStringSerializer()");
+        checkResultContains("Gift.java", "String mUrlConv = serializer.serialize(mUrlCopy)");
+        checkResultContains(
+                "Gift.java", "mUrlConv = new Gift.UrlAsStringSerializer().deserialize(mUrlCopy)");
+        checkResultContains("Gift.java", "mUrlListConv[i++] = serializer.serialize(item)");
+        checkResultContains("Gift.java", "URL elem = serializer.deserialize(mUrlListCopy[i])");
+        checkResultContains("Gift.java", "mUrlArrConv[i] = serializer.serialize(mUrlArrCopy[i])");
+        checkResultContains("Gift.java", "URL elem = serializer.deserialize(mUrlArrCopy[i])");
+    }
+
+    @Test
+    public void testLongSerializer() throws Exception {
+        Compilation compilation = compile(
+                "import androidx.appsearch.app.LongSerializer;\n"
+                        + "import java.util.Arrays;\n"
+                        + "import java.util.List;\n"
+                        + "@Document\n"
+                        + "class Gift {\n"
+                        + "    @Document.Id String mId;\n"
+                        + "    @Document.Namespace String mNamespace;\n"
+                        + "    @Document.LongProperty(\n"
+                        + "        serializer = PricePointAsOrdinalSerializer.class\n"
+                        + "    )\n"
+                        + "    PricePoint mPricePoint;\n"
+                        + "    @Document.LongProperty(\n"
+                        + "        serializer = PricePointAsOrdinalSerializer.class\n"
+                        + "    )\n"
+                        + "    List<PricePoint> mPricePointList;\n"
+                        + "    @Document.LongProperty(\n"
+                        + "        serializer = PricePointAsOrdinalSerializer.class\n"
+                        + "    )\n"
+                        + "    PricePoint[] mPricePointArr;\n"
+                        + "    enum PricePoint { LOW, MID, HIGH }\n"
+                        + "    static class PricePointAsOrdinalSerializer \n"
+                        + "            implements LongSerializer<PricePoint> {\n"
+                        + "        @Override\n"
+                        + "        public long serialize(PricePoint pricePoint) {\n"
+                        + "            return pricePoint.ordinal();\n"
+                        + "        }\n"
+                        + "        @Override\n"
+                        + "        public PricePoint deserialize(long l) {\n"
+                        + "            return Arrays.stream(PricePoint.values())\n"
+                        + "                    .filter(pp -> pp.ordinal() == l)\n"
+                        + "                    .findFirst()\n"
+                        + "                    .orElse(null);\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+        );
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+        checkResultContains(
+                "Gift.java",
+                "Gift.PricePointAsOrdinalSerializer serializer = "
+                        + "new Gift.PricePointAsOrdinalSerializer()");
+        checkResultContains(
+                "Gift.java",
+                "mPricePointConv = "
+                        + "new Gift.PricePointAsOrdinalSerializer().deserialize(mPricePointCopy)");
+        checkResultContains(
+                "Gift.java", "long mPricePointConv = serializer.serialize(mPricePointCopy)");
+        checkResultContains(
+                "Gift.java",
+                "Gift.PricePoint elem = serializer.deserialize(mPricePointListCopy[i])");
+        checkResultContains("Gift.java", "mPricePointListConv[i++] = serializer.serialize(item)");
+        checkResultContains(
+                "Gift.java", "mPricePointArrConv[i] = serializer.serialize(mPricePointArrCopy[i])");
+        checkResultContains(
+                "Gift.java",
+                "Gift.PricePoint elem = serializer.deserialize(mPricePointArrCopy[i])");
+    }
+
+    @Test
     public void testSerializerWithoutDefaultConstructor() {
         Compilation compilation = compile(
                 "import androidx.appsearch.app.LongSerializer;\n"
