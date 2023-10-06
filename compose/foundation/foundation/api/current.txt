@@ -230,7 +230,7 @@ package androidx.compose.foundation {
 
   public final class PreferKeepClearKt {
     method public static androidx.compose.ui.Modifier preferKeepClear(androidx.compose.ui.Modifier);
-    method public static androidx.compose.ui.Modifier preferKeepClear(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> keepClearRect);
+    method public static androidx.compose.ui.Modifier preferKeepClear(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> rectProvider);
   }
 
   public final class ProgressSemanticsKt {
