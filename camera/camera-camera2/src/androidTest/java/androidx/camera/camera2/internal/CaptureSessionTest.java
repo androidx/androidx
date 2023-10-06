@@ -37,7 +37,6 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
@@ -135,7 +134,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Tests for {@link CaptureSession}. This requires an environment where a valid {@link
@@ -1482,10 +1483,17 @@ public final class CaptureSessionTest {
     @Test
     public void setSessionConfigWithoutSurface_shouldStopRepeating()
             throws ExecutionException, InterruptedException {
+        AtomicBoolean isStartMonitor = new AtomicBoolean(false);
+        AtomicLong latestFrameTimeMs = new AtomicLong(0L);
+        CountDownLatch onReadyCountDown = new CountDownLatch(1);
+
         // Create Surface
         ImageReader imageReader =
                 ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, /*maxImages*/ 2);
         imageReader.setOnImageAvailableListener(reader -> {
+            if (isStartMonitor.get()) {
+                latestFrameTimeMs.set(System.currentTimeMillis());
+            }
             Image image = reader.acquireNextImage();
             if (image != null) {
                 image.close();
@@ -1499,9 +1507,23 @@ public final class CaptureSessionTest {
         // Prepare SessionConfig builder
         SessionConfig.Builder builder = new SessionConfig.Builder();
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        CameraCaptureSession.StateCallback stateCallback =
-                Mockito.mock(CameraCaptureSession.StateCallback.class);
-        builder.addSessionStateCallback(stateCallback);
+        builder.addSessionStateCallback(new CameraCaptureSession.StateCallback() {
+
+            @Override
+            public void onConfigured(@NonNull CameraCaptureSession session) {
+            }
+
+            @Override
+            public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+            }
+
+            @Override
+            public void onReady(@NonNull CameraCaptureSession session) {
+                if (isStartMonitor.get()) {
+                    onReadyCountDown.countDown();
+                }
+            }
+        });
         CameraCaptureCallback captureCallback =
                 Mockito.mock(CameraCaptureCallback.class);
         builder.addRepeatingCameraCaptureCallback(captureCallback);
@@ -1523,11 +1545,15 @@ public final class CaptureSessionTest {
         verify(captureCallback, timeout(3000L).atLeast(3)).onCaptureCompleted(any());
 
         // Deactivate repeating request
-        clearInvocations(stateCallback);
+        isStartMonitor.set(true);
         captureSession.setSessionConfig(sessionConfigWithoutSurface);
 
         // Wait for #onReady which means there is no repeating request.
-        verify(stateCallback, timeout(3000L)).onReady(any());
+        // Some devices have a known issue where the #onReady callback may not be called after
+        // calling the stopRepeating() method. The alternative way is to verify that the output
+        // is no longer being produced. Please see b/303739264
+        assertTrue(onReadyCountDown.await(3, TimeUnit.SECONDS)
+                || (System.currentTimeMillis() - latestFrameTimeMs.get()) > 1000L);
     }
 
     @RequiresApi(33) // SurfaceTexture.getDataSpace() was added in API 33
