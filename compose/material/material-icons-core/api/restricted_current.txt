@@ -54,8 +54,8 @@ package androidx.compose.material.icons {
   }
 
   public final class IconsKt {
-    method public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, boolean autoMirror, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
-    method public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
+    method public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, optional boolean autoMirror, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
+    method @Deprecated public static inline androidx.compose.ui.graphics.vector.ImageVector materialIcon(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.ImageVector.Builder,androidx.compose.ui.graphics.vector.ImageVector.Builder> block);
     method public static inline androidx.compose.ui.graphics.vector.ImageVector.Builder materialPath(androidx.compose.ui.graphics.vector.ImageVector.Builder, optional float fillAlpha, optional float strokeAlpha, optional int pathFillType, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit> pathBuilder);
     field @kotlin.PublishedApi internal static final float MaterialIconDimension = 24.0f;
   }
