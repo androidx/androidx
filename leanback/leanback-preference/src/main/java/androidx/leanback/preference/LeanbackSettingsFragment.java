@@ -43,14 +43,14 @@ import androidx.preference.PreferenceScreen;
  * <p>The following sample code shows a simple leanback preference fragment that is
  * populated from a resource.  The resource it loads is:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
  *
  * <p>The sample implements
  * {@link PreferenceFragment.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(PreferenceFragment, Preference)},
  * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen(PreferenceFragment, PreferenceScreen)},
  * and {@link #onPreferenceStartInitialScreen()}:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences.java leanback_preferences}
  * @deprecated Use {@link LeanbackSettingsFragmentCompat}
  */
 @Deprecated
