@@ -61,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Sandbox that provides APIs for JavaScript evaluation in a restricted environment.
@@ -83,6 +84,7 @@ import javax.annotation.concurrent.GuardedBy;
  * can create their own {@link JavaScriptIsolate} objects from it but the
  * {@link JavaScriptIsolate} object cannot be shared.
  */
+@ThreadSafe
 public final class JavaScriptSandbox implements AutoCloseable {
     private static final String TAG = "JavaScriptSandbox";
     // TODO(crbug.com/1297672): Add capability to this class to support spawning

@@ -17,7 +17,6 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Exception thrown when evaluation is terminated due the {@link JavaScriptSandbox} being dead.
@@ -28,7 +27,7 @@ public final class SandboxDeadException extends IsolateTerminatedException {
     public SandboxDeadException() {
         super();
     }
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+
     public SandboxDeadException(@NonNull String message) {
         super(message);
     }

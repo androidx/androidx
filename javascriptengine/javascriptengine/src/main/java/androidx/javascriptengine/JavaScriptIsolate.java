@@ -16,6 +16,7 @@
 
 package androidx.javascriptengine;
 
+import android.annotation.SuppressLint;
 import android.content.res.AssetFileDescriptor;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
@@ -25,7 +26,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Environment within a {@link JavaScriptSandbox} where JavaScript is executed.
@@ -54,6 +55,7 @@ import javax.annotation.concurrent.GuardedBy;
  * <p>
  * This class is thread-safe.
  */
+@ThreadSafe
 public final class JavaScriptIsolate implements AutoCloseable {
     private static final String TAG = "JavaScriptIsolate";
     private final Object mLock = new Object();
@@ -475,7 +477,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * @param callback Consumer to be called with TerminationInfo when a crash occurs.
      * @throws IllegalStateException if the callback is already registered (using any executor).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("RegistrationName")
     public void addOnTerminatedCallback(@NonNull Executor executor,
             @NonNull Consumer<TerminationInfo> callback) {
         Objects.requireNonNull(executor);
@@ -494,7 +496,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * @param callback Consumer to be called with TerminationInfo when a crash occurs.
      * @throws IllegalStateException if the callback is already registered (using any executor).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("RegistrationName")
     public void addOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
         addOnTerminatedCallback(mJsSandbox.getMainExecutor(), callback);
     }
@@ -504,7 +506,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      *
      * @param callback The callback to unregister, if currently registered.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("RegistrationName")
     public void removeOnTerminatedCallback(@NonNull Consumer<TerminationInfo> callback) {
         Objects.requireNonNull(callback);
         synchronized (mLock) {
