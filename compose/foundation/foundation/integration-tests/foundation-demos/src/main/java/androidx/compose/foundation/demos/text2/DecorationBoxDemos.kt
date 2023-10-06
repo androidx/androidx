@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DecorationBoxDemos() {
-    Column {
+    Column(Modifier.padding(16.dp)) {
         TagLine(tag = "Simple Decoration w/ Label")
         SimpleDecorationWithLabel()
 

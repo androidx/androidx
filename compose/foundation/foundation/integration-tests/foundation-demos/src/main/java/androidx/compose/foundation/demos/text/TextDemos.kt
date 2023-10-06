@@ -25,6 +25,7 @@ import androidx.compose.foundation.demos.text2.BasicTextField2ValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemos
+import androidx.compose.foundation.demos.text2.ScrollableDemosRtl
 import androidx.compose.foundation.demos.text2.SwapFieldSameStateDemo
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
 import androidx.compose.foundation.samples.BasicTextField2UndoSample
@@ -141,7 +142,10 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                 ComposableDemo("Decoration Box") { DecorationBoxDemos() },
                 ComposableDemo("Line limits") { TextFieldLineLimitsDemos() },
-                ComposableDemo("Scroll") { ScrollableDemos() },
+                DemoCategory("Scroll", listOf(
+                    ComposableDemo("Ltr") { ScrollableDemos() },
+                    ComposableDemo("Rtl") { ScrollableDemosRtl() },
+                )),
                 ComposableDemo("Filters") { BasicTextField2FilterDemos() },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
