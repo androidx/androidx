@@ -53,7 +53,7 @@ package androidx.collection {
 
   public final class ArraySetKt {
     method public static inline <T> androidx.collection.ArraySet<T> arraySetOf();
-    method public static <T> androidx.collection.ArraySet<T> arraySetOf(T?... values);
+    method public static <T> androidx.collection.ArraySet<T> arraySetOf(T... values);
   }
 
   public final class CircularArray<E> {
@@ -1840,12 +1840,12 @@ package androidx.collection {
     method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1);
     method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2);
     method public static <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E element1, E element2, E element3);
-    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E?... elements);
+    method public static inline <E> androidx.collection.MutableObjectList<E> mutableObjectListOf(E... elements);
     method public static <E> androidx.collection.ObjectList<E> objectListOf();
     method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1);
     method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2);
     method public static <E> androidx.collection.ObjectList<E> objectListOf(E element1, E element2, E element3);
-    method public static <E> androidx.collection.ObjectList<E> objectListOf(E?... elements);
+    method public static <E> androidx.collection.ObjectList<E> objectListOf(E... elements);
   }
 
   public abstract sealed class ObjectLongMap<K> {
@@ -1972,12 +1972,12 @@ package androidx.collection {
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1);
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2);
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1, E element2, E element3);
-    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E?... elements);
+    method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E... elements);
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf();
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1);
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2);
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2, E element3);
-    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E?... elements);
+    method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E... elements);
   }
 
   public class SimpleArrayMap<K, V> {
