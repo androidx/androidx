@@ -81,7 +81,7 @@ class NavigationSuiteScaffoldTest {
             )
 
         assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationSuiteType.NavigationBar)
+            .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
     @Test
@@ -92,7 +92,7 @@ class NavigationSuiteScaffoldTest {
             )
 
         assertThat(NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(mockAdaptiveInfo))
-            .isEqualTo(NavigationSuiteType.NavigationBar)
+            .isEqualTo(NavigationSuiteType.NavigationRail)
     }
 
     @Test
