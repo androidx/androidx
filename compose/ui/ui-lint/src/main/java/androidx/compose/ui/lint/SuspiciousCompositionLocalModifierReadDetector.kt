@@ -18,7 +18,6 @@ package androidx.compose.ui.lint
 
 import androidx.compose.lint.Names
 import androidx.compose.lint.Package
-import androidx.compose.lint.PackageName
 import androidx.compose.lint.isInPackageName
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -35,6 +34,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
+import org.jetbrains.uast.kotlin.KotlinULambdaExpression
 
 @Suppress("UnstableApiUsage")
 class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeScanner {
@@ -46,10 +46,11 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Ui.Node.PackageName)) return
-        reportIfAnyParentIsNodeLifecycleCallback(context, node, node)
+        reportIfInNodeLifecycleCallback(context, node, node)
+        reportIfInLazyBlock(context, node, node)
     }
 
-    private tailrec fun reportIfAnyParentIsNodeLifecycleCallback(
+    private tailrec fun reportIfInNodeLifecycleCallback(
         context: JavaContext,
         node: UElement?,
         usage: UCallExpression
@@ -75,6 +76,20 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
                 }
             }
             return
+        } else if (node is KotlinULambdaExpression.Body) {
+            return
+        }
+
+        reportIfInNodeLifecycleCallback(context, node.uastParent, usage)
+    }
+
+    private tailrec fun reportIfInLazyBlock(
+        context: JavaContext,
+        node: UElement?,
+        usage: UCallExpression
+    ) {
+        if (node == null) {
+            return
         } else if (node is KotlinUFunctionCallExpression && node.isLazyDelegate()) {
             report(context, usage) { localBeingRead ->
                 "Reading $localBeingRead lazily will only access the CompositionLocal's value " +
@@ -84,7 +99,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
             return
         }
 
-        reportIfAnyParentIsNodeLifecycleCallback(context, node.uastParent, usage)
+        reportIfInLazyBlock(context, node.uastParent, usage)
     }
 
     private inline fun report(
