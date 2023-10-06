@@ -178,20 +178,23 @@ private fun SelectionLayout.updateSelectionBoundary(
         return anchorSnappedToWordBoundary
     }
 
-    if (currentRawOffset == info.rawPreviousHandleOffset) {
+    val rawPreviousHandleOffset = info.rawPreviousHandleOffset
+    if (currentRawOffset == rawPreviousHandleOffset) {
         // no change in current handle, return the previous result unchanged
         return previousSelectionAnchor
     }
 
-    val previousSelectionOffset = previousSelectionAnchor.offset
-    val previousSelectionLine =
-        info.textLayoutResult.getLineForOffset(previousSelectionOffset)
-
-    if (currentRawLine != previousSelectionLine) {
-        // line changed, use word based adjustment
+    val previousRawLine = info.textLayoutResult.getLineForOffset(rawPreviousHandleOffset)
+    // Check raw lines. The previous adjusted selection offset could remain
+    // on a different line after snapping to the word boundary, causing the code to
+    // always seem like it is switching lines and never allowing it to not use the
+    // word boundary offset.
+    if (currentRawLine != previousRawLine) {
+        // Line changed, use word based adjustment.
         return anchorSnappedToWordBoundary
     }
 
+    val previousSelectionOffset = previousSelectionAnchor.offset
     val previousSelectionWordBoundary =
         info.textLayoutResult.getWordBoundary(previousSelectionOffset)
 
