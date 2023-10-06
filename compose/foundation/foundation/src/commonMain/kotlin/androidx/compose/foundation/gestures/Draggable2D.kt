@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
@@ -37,7 +38,8 @@ import kotlinx.coroutines.coroutineScope
  * State of Draggable2D. Allows for granular control of how deltas are consumed by the user as well
  * as to write custom drag methods using [drag] suspend function.
  */
-internal interface Draggable2DState {
+@ExperimentalFoundationApi
+interface Draggable2DState {
     /**
      * Call this function to take control of drag logic.
      *
@@ -76,7 +78,8 @@ internal interface Draggable2DState {
 /**
  * Scope used for suspending drag blocks
  */
-internal interface Drag2DScope {
+@ExperimentalFoundationApi
+interface Drag2DScope {
     /**
      * Attempts to drag by [pixels] px.
      */
@@ -97,7 +100,8 @@ internal interface Drag2DScope {
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Suppress("PrimitiveInLambda")
-internal fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
+@ExperimentalFoundationApi
+fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
     DefaultDraggable2DState(onDelta)
 
 /**
@@ -112,8 +116,9 @@ internal fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Suppress("PrimitiveInLambda")
+@ExperimentalFoundationApi
 @Composable
-internal fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
+fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
     val onDeltaState = rememberUpdatedState(onDelta)
     return remember { Draggable2DState { onDeltaState.value.invoke(it) } }
 }
@@ -126,6 +131,8 @@ internal fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DSta
  * inside the component on the screen and represent this state via one float value
  *
  * If you are implementing dragging in a single orientation, consider using [draggable].
+ *
+ * @sample androidx.compose.foundation.samples.Draggable2DSample
  *
  * @param state [Draggable2DState] state of the draggable2D. Defines how drag events will be
  * interpreted by the user land logic.
@@ -151,7 +158,8 @@ internal fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DSta
  * behave like bottom to top and left to right will behave like right to left.
  */
 @Suppress("PrimitiveInLambda")
-internal fun Modifier.draggable2D(
+@ExperimentalFoundationApi
+fun Modifier.draggable2D(
     state: Draggable2DState,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
@@ -171,6 +179,7 @@ internal fun Modifier.draggable2D(
 )
 
 @Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
 internal class Draggable2DElement(
     private val state: Draggable2DState,
     private val canDrag: (PointerInputChange) -> Boolean,
@@ -251,6 +260,7 @@ internal class Draggable2DElement(
 }
 
 @Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
 internal class Draggable2DNode(
     private var state: Draggable2DState,
     canDrag: (PointerInputChange) -> Boolean,
@@ -331,11 +341,13 @@ internal class Draggable2DNode(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private val NoOpDrag2DScope: Drag2DScope = object : Drag2DScope {
     override fun dragBy(pixels: Offset) {}
 }
 
 @Suppress("PrimitiveInLambda")
+@OptIn(ExperimentalFoundationApi::class)
 private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable2DState {
     private val drag2DScope: Drag2DScope = object : Drag2DScope {
         override fun dragBy(pixels: Offset) = onDelta(pixels)
