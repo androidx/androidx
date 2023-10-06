@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.tokens.BadgeTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -210,15 +209,12 @@ fun Badge(
     ) {
         if (content != null) {
             // Not using Surface composable because it blocks touch propagation behind it.
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor
-            ) {
-                val style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
-                ProvideTextStyle(
-                    value = style,
-                    content = { content() }
-                )
-            }
+            val style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
+            ProvideContentColorTextStyle(
+                contentColor = contentColor,
+                textStyle = style,
+                content = { content() }
+            )
         }
     }
 }
