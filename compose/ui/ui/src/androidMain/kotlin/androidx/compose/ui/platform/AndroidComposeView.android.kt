@@ -1800,19 +1800,19 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         when (event.actionMasked) {
             ACTION_HOVER_EXIT -> {
                 if (isInBounds(event)) {
-                    if (event.getToolType(0) != TOOL_TYPE_MOUSE) {
-                        // This may be caused by a press (e.g. stylus pressed on the screen), but
-                        // we can't be sure until the ACTION_DOWN is received. Let's delay this
-                        // message and see if the ACTION_DOWN comes.
-                        previousMotionEvent?.recycle()
-                        previousMotionEvent = MotionEvent.obtainNoHistory(event)
-                        hoverExitReceived = true
-                        post(sendHoverExitEvent)
-                        return false
-                    } else if (event.buttonState != 0) {
-                        // We know that this is caused by a button press, so we can ignore it
+                    if (event.getToolType(0) == TOOL_TYPE_MOUSE && event.buttonState != 0) {
+                        // We know that this is caused by a mouse button press, so we can ignore it
                         return false
                     }
+
+                    // This may be caused by a press (e.g. stylus pressed on the screen), but
+                    // we can't be sure until the ACTION_DOWN is received. Let's delay this
+                    // message and see if the ACTION_DOWN comes.
+                    previousMotionEvent?.recycle()
+                    previousMotionEvent = MotionEvent.obtainNoHistory(event)
+                    hoverExitReceived = true
+                    post(sendHoverExitEvent)
+                    return false
                 }
             }
 
