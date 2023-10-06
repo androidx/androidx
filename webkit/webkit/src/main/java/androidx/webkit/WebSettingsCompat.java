@@ -783,7 +783,6 @@ public class WebSettingsCompat {
      * happen depending on the installed version of WebView, but any response is discarded and
      * nothing will be stored on the device.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ATTRIBUTION_BEHAVIOR_DISABLED =
             WebSettingsBoundaryInterface.AttributionBehavior.DISABLED;
     /**
@@ -793,7 +792,6 @@ public class WebSettingsCompat {
      * <p>
      * This is the default behavior.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_WEB_TRIGGER;
     /**
@@ -804,14 +802,12 @@ public class WebSettingsCompat {
      * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">
      *     use web sources</a>.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.WEB_SOURCE_AND_WEB_TRIGGER;
     /**
      * AttributionRegistrationBehavior that allows apps to register app sources and app triggers
      * from WebView.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_APP_TRIGGER;
 
@@ -842,7 +838,6 @@ public class WebSettingsCompat {
      * @param settings Settings retrieved from {@link WebView#getSettings()}.
      * @param behavior New behavior to use.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setAttributionRegistrationBehavior(@NonNull WebSettings settings,
@@ -866,7 +861,6 @@ public class WebSettingsCompat {
      * @see #ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER
      * @param settings Settings retrieved from {@link WebView#getSettings()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @AttributionRegistrationBehavior
