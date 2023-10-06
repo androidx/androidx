@@ -2845,6 +2845,111 @@ public class AppSearchCompilerTest {
         checkDocumentMapEqualsGolden(/* roundIndex= */0);
     }
 
+    @Test
+    public void testSerializerWithoutDefaultConstructor() {
+        Compilation compilation = compile(
+                "import androidx.appsearch.app.LongSerializer;\n"
+                        + "import java.time.Instant;\n"
+                        + "@Document\n"
+                        + "class Gift {\n"
+                        + "    @Document.Id\n"
+                        + "    String mId = null;\n"
+                        + "    @Document.Namespace\n"
+                        + "    String mNamespace = null;\n"
+                        + "    @Document.LongProperty(\n"
+                        + "        serializer = InstantAsEpochMillisSerializer.class\n"
+                        + "    )\n"
+                        + "    Instant mPurchaseTimeStamp = null;\n"
+                        + "    final static class InstantAsEpochMillisSerializer \n"
+                        + "            implements LongSerializer<Instant> {\n"
+                        + "        InstantAsEpochMillisSerializer(boolean someParam) {}\n"
+                        + "        @Override\n"
+                        + "        public long serialize(Instant instant) {\n"
+                        + "            return instant.toEpochMilli();\n"
+                        + "        }\n"
+                        + "        @Override\n"
+                        + "        public Instant deserialize(long l) {\n"
+                        + "            return Instant.ofEpochMilli(l);\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+        );
+        assertThat(compilation).hadErrorContaining(
+                "Serializer com.example.appsearch.Gift.InstantAsEpochMillisSerializer must have a "
+                        + "zero-param constructor");
+    }
+
+    @Test
+    public void testSerializerWithPrivateDefaultConstructor() {
+        Compilation compilation = compile(
+                "import androidx.appsearch.app.LongSerializer;\n"
+                        + "import java.time.Instant;\n"
+                        + "@Document\n"
+                        + "class Gift {\n"
+                        + "    @Document.Id\n"
+                        + "    String mId = null;\n"
+                        + "    @Document.Namespace\n"
+                        + "    String mNamespace = null;\n"
+                        + "    @Document.LongProperty(\n"
+                        + "        serializer = InstantAsEpochMillisSerializer.class\n"
+                        + "    )\n"
+                        + "    Instant mPurchaseTimeStamp = null;\n"
+                        + "    final static class InstantAsEpochMillisSerializer \n"
+                        + "            implements LongSerializer<Instant> {\n"
+                        + "        private InstantAsEpochMillisSerializer() {}\n"
+                        + "        @Override\n"
+                        + "        public long serialize(Instant instant) {\n"
+                        + "            return instant.toEpochMilli();\n"
+                        + "        }\n"
+                        + "        @Override\n"
+                        + "        public Instant deserialize(long l) {\n"
+                        + "            return Instant.ofEpochMilli(l);\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+        );
+        assertThat(compilation).hadErrorContaining(
+                "The zero-param constructor of serializer "
+                        + "com.example.appsearch.Gift.InstantAsEpochMillisSerializer must not "
+                        + "be private");
+    }
+
+    @Test
+    public void testPropertyTypeDoesNotMatchSerializer() {
+        Compilation compilation = compile(
+                "import androidx.appsearch.app.StringSerializer;\n"
+                        + "import java.net.MalformedURLException;\n"
+                        + "import java.net.URL;\n"
+                        + "@Document\n"
+                        + "class Gift {\n"
+                        + "    @Document.Id\n"
+                        + "    String mId = null;\n"
+                        + "    @Document.Namespace\n"
+                        + "    String mNamespace = null;\n"
+                        + "    @Document.StringProperty(serializer = UrlAsStringSerializer.class)\n"
+                        + "    int mProductUrl = null;\n"
+                        + "    final static class UrlAsStringSerializer\n"
+                        + "            implements StringSerializer<URL> {\n"
+                        + "        @Override\n"
+                        + "        public String serialize(URL url) {\n"
+                        + "            return url.toString();\n"
+                        + "        }\n"
+                        + "        @Override\n"
+                        + "        public URL deserialize(String string) {\n"
+                        + "            try {\n"
+                        + "                return new URL(string);\n"
+                        + "            } catch (MalformedURLException e) {\n"
+                        + "                return null;\n"
+                        + "            }\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}"
+        );
+        assertThat(compilation).hadErrorContaining(
+                "@StringProperty with serializer = UrlAsStringSerializer must only be placed on a "
+                        + "getter/field of type or array or collection of java.net.URL");
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }
