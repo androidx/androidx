@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+ChangedType: androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig#at(T, int):
+    Method androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig.at has changed return type from androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> to E (extends androidx.compose.animation.core.KeyframeBaseEntity<T>)
+ChangedType: androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig#atFraction(T, float):
+    Method androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig.atFraction has changed return type from androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> to E (extends androidx.compose.animation.core.KeyframeBaseEntity<T>)
+
+
 DefaultValueChange: androidx.compose.animation.core.Animatable#animateDecay(T, androidx.compose.animation.core.DecayAnimationSpec<T>, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>) parameter #3:
     Attempted to remove default value from parameter arg4 in androidx.compose.animation.core.Animatable.animateDecay
 DefaultValueChange: androidx.compose.animation.core.Animatable#animateTo(T, androidx.compose.animation.core.AnimationSpec<T>, T, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>) parameter #4:

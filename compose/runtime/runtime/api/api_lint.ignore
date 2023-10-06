@@ -45,10 +45,10 @@ KotlinOperator: androidx.compose.runtime.snapshots.SnapshotStateList#contains(T)
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 
 
-MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#MutableVector(int):
-    Missing nullability on method `MutableVector` return
-MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf():
-    Missing nullability on method `mutableVectorOf` return
+MissingNullability: androidx.compose.runtime.SnapshotStateKt#mutableStateListOf(T...) parameter #0:
+    Missing nullability on parameter `elements` in method `mutableStateListOf`
+MissingNullability: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf(T...) parameter #0:
+    Missing nullability on parameter `elements` in method `mutableVectorOf`
 MissingNullability: androidx.compose.runtime.snapshots.SnapshotStateMap#get(Object) parameter #0:
     Missing nullability on parameter `key` in method `get`
 MissingNullability: androidx.compose.runtime.snapshots.SnapshotStateMap#remove(Object) parameter #0:

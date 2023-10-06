@@ -622,7 +622,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.State<T> derivedStateOf(kotlin.jvm.functions.Function0<? extends T> calculation);
     method public static inline operator <T> T getValue(androidx.compose.runtime.State<? extends T>, Object? thisObj, kotlin.reflect.KProperty<?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> mutableStateListOf();
-    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> mutableStateListOf(T?... elements);
+    method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> mutableStateListOf(T... elements);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.MutableState<T> mutableStateOf(T value, optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy);
@@ -741,7 +741,7 @@ package androidx.compose.runtime.collection {
     method public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(optional int capacity);
     method public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(int size, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends T> init);
     method public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf();
-    method public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf(T?... elements);
+    method public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf(T... elements);
   }
 
 }
