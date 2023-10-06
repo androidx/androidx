@@ -335,19 +335,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      */
     private var slideRange = 0
 
-    /**
-     * A panel view is locked into internal scrolling or another condition that
-     * is preventing a drag.
-     */
-    private var isUnableToDrag = false
-
-    private var initialMotionX = 0f
-    private var initialMotionY = 0f
-    private val slideableStateListeners: MutableList<SlideableStateListener> =
-        CopyOnWriteArrayList()
-    private val panelSlideListeners: MutableList<PanelSlideListener> = CopyOnWriteArrayList()
-    private var singlePanelSlideListener: PanelSlideListener? = null
-    private val dragHelper: ViewDragHelper
+    private val overlappingPaneHandler = OverlappingPaneHandler()
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
@@ -435,8 +423,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
-        dragHelper = ViewDragHelper.create(this, 0.5f, DragHelperCallback())
-        dragHelper.minVelocity = MIN_FLING_VELOCITY * context.resources.displayMetrics.density
 
         context.withStyledAttributes(attrs, R.styleable.SlidingPaneLayout) {
             isOverlappingEnabled =
@@ -457,13 +443,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      */
     @Deprecated("Use {@link #addPanelSlideListener(PanelSlideListener)}")
     open fun setPanelSlideListener(listener: PanelSlideListener?) {
-        // The logic in this method emulates what we had before support for multiple
-        // registered listeners.
-        singlePanelSlideListener?.let { removePanelSlideListener(it) }
-        listener?.let { addPanelSlideListener(it) }
-        // Update the deprecated field so that we can remove the passed listener the next
-        // time we're called
-        singlePanelSlideListener = listener
+        overlappingPaneHandler.setPanelSlideListener(listener)
     }
 
     /**
@@ -473,7 +453,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * @see removeSlideableStateListener
      */
     open fun addSlideableStateListener(listener: SlideableStateListener) {
-        slideableStateListeners.add(listener)
+        overlappingPaneHandler.addSlideableStateListener(listener)
     }
 
     /**
@@ -482,7 +462,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * @param listener Listener to notify when sliding state events occur
      */
     open fun removeSlideableStateListener(listener: SlideableStateListener) {
-        slideableStateListeners.remove(listener)
+        overlappingPaneHandler.removeSlideableStateListener(listener)
     }
 
     /**
@@ -493,7 +473,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * @see removePanelSlideListener
      */
     open fun addPanelSlideListener(listener: PanelSlideListener) {
-        panelSlideListeners.add(listener)
+        overlappingPaneHandler.addPanelSlideListener(listener)
     }
 
     /**
@@ -504,27 +484,19 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * @see addPanelSlideListener
      */
     open fun removePanelSlideListener(listener: PanelSlideListener) {
-        panelSlideListeners.remove(listener)
+        overlappingPaneHandler.removePanelSlideListener(listener)
     }
 
     private fun dispatchOnPanelSlide(panel: View) {
-        for (listener in panelSlideListeners) {
-            listener.onPanelSlide(panel, currentSlideOffset)
-        }
+        overlappingPaneHandler.dispatchOnPanelSlide(panel, currentSlideOffset)
     }
 
     private fun dispatchOnPanelOpened(panel: View) {
-        for (listener in panelSlideListeners) {
-            listener.onPanelOpened(panel)
-        }
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+        overlappingPaneHandler.dispatchOnPanelOpened(panel)
     }
 
     private fun dispatchOnPanelClosed(panel: View) {
-        for (listener in panelSlideListeners) {
-            listener.onPanelClosed(panel)
-        }
-        sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+        overlappingPaneHandler.dispatchOnPanelClosed(panel)
     }
 
     private fun updateObscuredViewsVisibility(panel: View?) {
@@ -801,13 +773,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         setMeasuredDimension(widthSize, measuredHeight)
         if (canSlide != isSlideable) {
             _isSlideable = canSlide
-            for (listener in slideableStateListeners) {
-                listener.onSlideableStateChanged(isSlideable)
-            }
+            overlappingPaneHandler.dispatchSlideableState(canSlide)
         }
-        if (dragHelper.viewDragState != ViewDragHelper.STATE_IDLE && !canSlide) {
+        if (!overlappingPaneHandler.isIdle && !canSlide) {
             // Cancel scrolling in progress, it's no longer relevant.
-            dragHelper.abort()
+            overlappingPaneHandler.abort()
         }
     }
 
@@ -970,90 +940,13 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     override fun onInterceptTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        val action = ev.actionMasked
-
-        // Preserve the open state based on the last view that was touched.
-        if (!isSlideable && action == MotionEvent.ACTION_DOWN && childCount > 1) {
-            // After the first things will be slideable.
-            val secondChild = getChildAt(1)
-            if (secondChild != null) {
-                preservedOpenState =
-                    dragHelper.isViewUnder(secondChild, ev.x.toInt(), ev.y.toInt())
-            }
-        }
-        if (!isSlideable || isUnableToDrag && action != MotionEvent.ACTION_DOWN) {
-            dragHelper.cancel()
-            return super.onInterceptTouchEvent(ev)
-        }
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            dragHelper.cancel()
-            return false
-        }
-        var interceptTap = false
-        when (action) {
-            MotionEvent.ACTION_DOWN -> {
-                isUnableToDrag = false
-                val x = ev.x
-                val y = ev.y
-                initialMotionX = x
-                initialMotionY = y
-                if (dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt()) &&
-                    isDimmed(slideableView)
-                ) {
-                    interceptTap = true
-                }
-            }
-
-            MotionEvent.ACTION_MOVE -> {
-                val x = ev.x
-                val y = ev.y
-                val adx = abs(x - initialMotionX)
-                val ady = abs(y - initialMotionY)
-                val slop = dragHelper.touchSlop
-                if (adx > slop && ady > adx) {
-                    dragHelper.cancel()
-                    isUnableToDrag = true
-                    return false
-                }
-            }
-        }
-        val interceptForDrag = dragHelper.shouldInterceptTouchEvent(ev)
-        return interceptForDrag || interceptTap
+        return overlappingPaneHandler.onInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        if (!isSlideable) {
-            return super.onTouchEvent(ev)
-        }
-        dragHelper.processTouchEvent(ev)
-        val wantTouchEvents = true
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                val x = ev.x
-                val y = ev.y
-                initialMotionX = x
-                initialMotionY = y
-            }
-
-            MotionEvent.ACTION_UP -> {
-                if (isDimmed(slideableView)) {
-                    val x = ev.x
-                    val y = ev.y
-                    val dx = x - initialMotionX
-                    val dy = y - initialMotionY
-                    val slop = dragHelper.touchSlop
-                    if (dx * dx + dy * dy < slop * slop &&
-                        dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt())
-                    ) {
-                        // Taps close a dimmed open pane.
-                        closePane(0)
-                    }
-                }
-            }
-        }
-        return wantTouchEvents
+        return overlappingPaneHandler.onTouchEvent(ev)
     }
 
     private fun closePane(initialVelocity: Int): Boolean {
@@ -1173,23 +1066,21 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         @Suppress("InvalidNullabilityOverride") child: View,
         drawingTime: Long
     ): Boolean {
-        val isLayoutRtl = isLayoutRtlSupport
-        val enableEdgeLeftTracking = isLayoutRtl xor isOpen
-        if (enableEdgeLeftTracking) {
-            dragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT)
+        if (isSlideable) {
             val gestureInsets = systemGestureInsets
-            if (gestureInsets != null) {
-                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
-                dragHelper.edgeSize = gestureInsets.left.coerceAtLeast(dragHelper.defaultEdgeSize)
+            if (isLayoutRtlSupport xor isOpen) {
+                overlappingPaneHandler.setEdgeTrackingEnabled(
+                    ViewDragHelper.EDGE_LEFT,
+                    gestureInsets?.left ?: 0
+                )
+            } else {
+                overlappingPaneHandler.setEdgeTrackingEnabled(
+                    ViewDragHelper.EDGE_RIGHT,
+                    gestureInsets?.right ?: 0
+                )
             }
         } else {
-            dragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_RIGHT)
-            val gestureInsets = systemGestureInsets
-            if (gestureInsets != null) {
-                // Gesture insets will be 0 if the device doesn't have gesture navigation enabled.
-                dragHelper.edgeSize =
-                    gestureInsets.right.coerceAtLeast(dragHelper.defaultEdgeSize)
-            }
+            overlappingPaneHandler.disableEdgeTracking()
         }
         val lp = child.layoutParams as LayoutParams
         val save = canvas.save()
@@ -1220,17 +1111,18 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             // Nothing to do.
             return false
         }
+        val slideableView = slideableView ?: return false
         val isLayoutRtl = isLayoutRtlSupport
-        val lp = slideableView!!.layoutParams as LayoutParams
+        val lp = slideableView.layoutParams as LayoutParams
         val x: Int = if (isLayoutRtl) {
             val startBound = paddingRight + lp.rightMargin
-            val childWidth = slideableView!!.width
+            val childWidth = slideableView.width
             (width - (startBound + slideOffset * slideRange + childWidth)).toInt()
         } else {
             val startBound = paddingLeft + lp.leftMargin
             (startBound + slideOffset * slideRange).toInt()
         }
-        if (dragHelper.smoothSlideViewTo(slideableView!!, x, slideableView!!.top)) {
+        if (overlappingPaneHandler.smoothSlideViewTo(slideableView, x, slideableView.top)) {
             setAllChildrenVisible()
             ViewCompat.postInvalidateOnAnimation(this)
             return true
@@ -1239,13 +1131,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     override fun computeScroll() {
-        if (dragHelper.continueSettling(true)) {
-            if (!isSlideable) {
-                dragHelper.abort()
-                return
-            }
-            ViewCompat.postInvalidateOnAnimation(this)
-        }
+        overlappingPaneHandler.onComputeScroll()
     }
 
     /**
@@ -1435,110 +1321,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         preservedOpenState = state.isOpen
         lockMode = state.lockMode
-    }
-
-    private inner class DragHelperCallback() : ViewDragHelper.Callback() {
-        override fun tryCaptureView(child: View, pointerId: Int): Boolean {
-            return if (!isDraggable) {
-                false
-            } else (child.layoutParams as LayoutParams).slideable
-        }
-
-        override fun onViewDragStateChanged(state: Int) {
-            if (dragHelper.viewDragState == ViewDragHelper.STATE_IDLE) {
-                preservedOpenState = if (currentSlideOffset == 1f) {
-                    updateObscuredViewsVisibility(slideableView)
-                    dispatchOnPanelClosed(slideableView!!)
-                    false
-                } else {
-                    dispatchOnPanelOpened(slideableView!!)
-                    true
-                }
-            }
-        }
-
-        override fun onViewCaptured(capturedChild: View, activePointerId: Int) {
-            // Make all child views visible in preparation for sliding things around
-            setAllChildrenVisible()
-        }
-
-        override fun onViewPositionChanged(
-            changedView: View,
-            left: Int,
-            top: Int,
-            dx: Int,
-            dy: Int
-        ) {
-            onPanelDragged(left)
-            invalidate()
-        }
-
-        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
-            val lp = releasedChild.layoutParams as LayoutParams
-            var left: Int
-            if (isLayoutRtlSupport) {
-                var startToRight = paddingRight + lp.rightMargin
-                if (xvel < 0 || xvel == 0f && currentSlideOffset > 0.5f) {
-                    startToRight += slideRange
-                }
-                val childWidth = slideableView!!.width
-                left = width - startToRight - childWidth
-            } else {
-                left = paddingLeft + lp.leftMargin
-                if (xvel > 0 || xvel == 0f && currentSlideOffset > 0.5f) {
-                    left += slideRange
-                }
-            }
-            dragHelper.settleCapturedViewAt(left, releasedChild.top)
-            invalidate()
-        }
-
-        override fun getViewHorizontalDragRange(child: View): Int {
-            return slideRange
-        }
-
-        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
-            var newLeft = left
-            val lp = slideableView!!.layoutParams as LayoutParams
-            newLeft = if (isLayoutRtlSupport) {
-                val startBound = (width - (paddingRight + lp.rightMargin + slideableView!!.width))
-                val endBound = startBound - slideRange
-                newLeft.coerceIn(endBound, startBound)
-            } else {
-                val startBound = paddingLeft + lp.leftMargin
-                val endBound = startBound + slideRange
-                newLeft.coerceIn(startBound, endBound)
-            }
-            return newLeft
-        }
-
-        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
-            // Make sure we never move views vertically.
-            // This could happen if the child has less height than its parent.
-            return child.top
-        }
-
-        override fun onEdgeTouched(edgeFlags: Int, pointerId: Int) {
-            if (!isDraggable) {
-                return
-            }
-            dragHelper.captureChildView(slideableView!!, pointerId)
-        }
-
-        override fun onEdgeDragStarted(edgeFlags: Int, pointerId: Int) {
-            if (!isDraggable) {
-                return
-            }
-            dragHelper.captureChildView(slideableView!!, pointerId)
-        }
-
-        private val isDraggable: Boolean
-            get() {
-                if (isUnableToDrag) return false
-                if (lockMode == LOCK_MODE_LOCKED) return false
-                if (isOpen && lockMode == LOCK_MODE_LOCKED_OPEN) return false
-                return !(!isOpen && lockMode == LOCK_MODE_LOCKED_CLOSED)
-            }
     }
 
     open class LayoutParams : MarginLayoutParams {
@@ -1747,6 +1529,299 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun onPanelSlide(panel: View, slideOffset: Float) {}
         override fun onPanelOpened(panel: View) {}
         override fun onPanelClosed(panel: View) {}
+    }
+
+    private interface TouchHandler {
+        fun onInterceptTouchEvent(ev: MotionEvent): Boolean
+        fun onTouchEvent(ev: MotionEvent): Boolean
+    }
+
+    private inner class OverlappingPaneHandler : ViewDragHelper.Callback(), TouchHandler {
+        /**
+         * A panel view is locked into internal scrolling or another condition that
+         * is preventing a drag.
+         */
+        private var isUnableToDrag = false
+
+        private var initialMotionX = 0f
+        private var initialMotionY = 0f
+        private val slideableStateListeners: MutableList<SlideableStateListener> =
+            CopyOnWriteArrayList()
+        private val panelSlideListeners: MutableList<PanelSlideListener> = CopyOnWriteArrayList()
+        private var singlePanelSlideListener: PanelSlideListener? = null
+        private val dragHelper = ViewDragHelper.create(
+            this@SlidingPaneLayout,
+            0.5f,
+            this
+        ).apply {
+            minVelocity = MIN_FLING_VELOCITY * context.resources.displayMetrics.density
+        }
+
+        val isIdle: Boolean
+            get() = dragHelper.viewDragState == ViewDragHelper.STATE_IDLE
+
+        fun abort() = dragHelper.abort()
+
+        fun onComputeScroll() {
+            if (dragHelper.continueSettling(true)) {
+                if (!isSlideable) {
+                    dragHelper.abort()
+                    return
+                }
+                ViewCompat.postInvalidateOnAnimation(this@SlidingPaneLayout)
+            }
+        }
+
+        fun smoothSlideViewTo(view: View, left: Int, top: Int): Boolean =
+            dragHelper.smoothSlideViewTo(view, left, top)
+
+        fun setPanelSlideListener(listener: PanelSlideListener?) {
+            // The logic in this method emulates what we had before support for multiple
+            // registered listeners.
+            singlePanelSlideListener?.let { removePanelSlideListener(it) }
+            listener?.let { addPanelSlideListener(it) }
+            // Update the deprecated field so that we can remove the passed listener the next
+            // time we're called
+            singlePanelSlideListener = listener
+        }
+
+        fun addSlideableStateListener(listener: SlideableStateListener) {
+            slideableStateListeners.add(listener)
+        }
+
+        fun removeSlideableStateListener(listener: SlideableStateListener) {
+            slideableStateListeners.remove(listener)
+        }
+
+        fun dispatchSlideableState(isSlideable: Boolean) {
+            for (listener in slideableStateListeners) {
+                listener.onSlideableStateChanged(isSlideable)
+            }
+        }
+
+        fun addPanelSlideListener(listener: PanelSlideListener) {
+            panelSlideListeners.add(listener)
+        }
+
+        fun removePanelSlideListener(listener: PanelSlideListener) {
+            panelSlideListeners.remove(listener)
+        }
+
+        fun dispatchOnPanelSlide(panel: View, slideOffset: Float) {
+            for (listener in panelSlideListeners) {
+                listener.onPanelSlide(panel, slideOffset)
+            }
+        }
+
+        fun dispatchOnPanelOpened(panel: View) {
+            for (listener in panelSlideListeners) {
+                listener.onPanelOpened(panel)
+            }
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+        }
+
+        fun dispatchOnPanelClosed(panel: View) {
+            for (listener in panelSlideListeners) {
+                listener.onPanelClosed(panel)
+            }
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+        }
+
+        override fun tryCaptureView(child: View, pointerId: Int): Boolean {
+            return if (!isDraggable) {
+                false
+            } else (child.layoutParams as LayoutParams).slideable
+        }
+
+        override fun onViewDragStateChanged(state: Int) {
+            if (dragHelper.viewDragState == ViewDragHelper.STATE_IDLE) {
+                preservedOpenState = if (currentSlideOffset == 1f) {
+                    updateObscuredViewsVisibility(slideableView)
+                    dispatchOnPanelClosed(slideableView!!)
+                    false
+                } else {
+                    dispatchOnPanelOpened(slideableView!!)
+                    true
+                }
+            }
+        }
+
+        override fun onViewCaptured(capturedChild: View, activePointerId: Int) {
+            // Make all child views visible in preparation for sliding things around
+            setAllChildrenVisible()
+        }
+
+        override fun onViewPositionChanged(
+            changedView: View,
+            left: Int,
+            top: Int,
+            dx: Int,
+            dy: Int
+        ) {
+            onPanelDragged(left)
+            invalidate()
+        }
+
+        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+            val lp = releasedChild.layoutParams as LayoutParams
+            var left: Int
+            if (isLayoutRtlSupport) {
+                var startToRight = paddingRight + lp.rightMargin
+                if (xvel < 0 || xvel == 0f && currentSlideOffset > 0.5f) {
+                    startToRight += slideRange
+                }
+                val childWidth = slideableView!!.width
+                left = width - startToRight - childWidth
+            } else {
+                left = paddingLeft + lp.leftMargin
+                if (xvel > 0 || xvel == 0f && currentSlideOffset > 0.5f) {
+                    left += slideRange
+                }
+            }
+            dragHelper.settleCapturedViewAt(left, releasedChild.top)
+            invalidate()
+        }
+
+        override fun getViewHorizontalDragRange(child: View): Int {
+            return slideRange
+        }
+
+        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+            var newLeft = left
+            val lp = slideableView!!.layoutParams as LayoutParams
+            newLeft = if (isLayoutRtlSupport) {
+                val startBound = (width - (paddingRight + lp.rightMargin + slideableView!!.width))
+                val endBound = startBound - slideRange
+                newLeft.coerceIn(endBound, startBound)
+            } else {
+                val startBound = paddingLeft + lp.leftMargin
+                val endBound = startBound + slideRange
+                newLeft.coerceIn(startBound, endBound)
+            }
+            return newLeft
+        }
+
+        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+            // Make sure we never move views vertically.
+            // This could happen if the child has less height than its parent.
+            return child.top
+        }
+
+        override fun onEdgeTouched(edgeFlags: Int, pointerId: Int) {
+            if (!isDraggable) {
+                return
+            }
+            dragHelper.captureChildView(slideableView!!, pointerId)
+        }
+
+        override fun onEdgeDragStarted(edgeFlags: Int, pointerId: Int) {
+            if (!isDraggable) {
+                return
+            }
+            dragHelper.captureChildView(slideableView!!, pointerId)
+        }
+
+        val isDraggable: Boolean
+            get() {
+                if (isUnableToDrag) return false
+                if (lockMode == LOCK_MODE_LOCKED) return false
+                if (isOpen && lockMode == LOCK_MODE_LOCKED_OPEN) return false
+                return !(!isOpen && lockMode == LOCK_MODE_LOCKED_CLOSED)
+            }
+
+        fun setEdgeTrackingEnabled(edgeFlags: Int, size: Int) {
+            dragHelper.setEdgeTrackingEnabled(edgeFlags)
+            dragHelper.edgeSize = size.coerceAtLeast(dragHelper.defaultEdgeSize)
+        }
+
+        fun disableEdgeTracking() {
+            dragHelper.setEdgeTrackingEnabled(0)
+        }
+
+        override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+            val action = ev.actionMasked
+
+            // Preserve the open state based on the last view that was touched.
+            if (!isSlideable && action == MotionEvent.ACTION_DOWN && childCount > 1) {
+                // After the first things will be slideable.
+                val secondChild = getChildAt(1)
+                if (secondChild != null) {
+                    preservedOpenState =
+                        dragHelper.isViewUnder(secondChild, ev.x.toInt(), ev.y.toInt())
+                }
+            }
+            if (!isSlideable || isUnableToDrag && action != MotionEvent.ACTION_DOWN) {
+                dragHelper.cancel()
+                return super@SlidingPaneLayout.onInterceptTouchEvent(ev)
+            }
+            if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+                dragHelper.cancel()
+                return false
+            }
+            var interceptTap = false
+            when (action) {
+                MotionEvent.ACTION_DOWN -> {
+                    isUnableToDrag = false
+                    val x = ev.x
+                    val y = ev.y
+                    initialMotionX = x
+                    initialMotionY = y
+                    if (dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt()) &&
+                        isDimmed(slideableView)
+                    ) {
+                        interceptTap = true
+                    }
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    val x = ev.x
+                    val y = ev.y
+                    val adx = abs(x - initialMotionX)
+                    val ady = abs(y - initialMotionY)
+                    val slop = dragHelper.touchSlop
+                    if (adx > slop && ady > adx) {
+                        dragHelper.cancel()
+                        isUnableToDrag = true
+                        return false
+                    }
+                }
+            }
+            val interceptForDrag = dragHelper.shouldInterceptTouchEvent(ev)
+            return interceptForDrag || interceptTap
+        }
+
+        override fun onTouchEvent(ev: MotionEvent): Boolean {
+            if (!isSlideable) {
+                return super@SlidingPaneLayout.onTouchEvent(ev)
+            }
+            dragHelper.processTouchEvent(ev)
+            val wantTouchEvents = true
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    val x = ev.x
+                    val y = ev.y
+                    initialMotionX = x
+                    initialMotionY = y
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    if (isDimmed(slideableView)) {
+                        val x = ev.x
+                        val y = ev.y
+                        val dx = x - initialMotionX
+                        val dy = y - initialMotionY
+                        val slop = dragHelper.touchSlop
+                        if (dx * dx + dy * dy < slop * slop &&
+                            dragHelper.isViewUnder(slideableView, x.toInt(), y.toInt())
+                        ) {
+                            // Taps close a dimmed open pane.
+                            closePane(0)
+                        }
+                    }
+                }
+            }
+            return wantTouchEvents
+        }
     }
 
     companion object {
