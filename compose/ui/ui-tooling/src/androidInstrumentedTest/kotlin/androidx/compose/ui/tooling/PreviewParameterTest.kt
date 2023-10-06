@@ -118,4 +118,18 @@ class PreviewParameterTest {
             )
         }
     }
+
+    private class LoremIpsum5WordsProvider : LoremIpsum(5)
+
+    @Test
+    fun checkLoremIpsumProviderSubclass() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.ParameterProviderComposableKt",
+                "OneStringParameter",
+                parameterProvider = LoremIpsum5WordsProvider::class.java,
+                debugViewInfos = true
+            )
+        }
+    }
 }
