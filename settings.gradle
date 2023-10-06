@@ -2,9 +2,6 @@ import androidx.build.gradle.gcpbuildcache.GcpBuildCache
 import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
 import groovy.transform.Field
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 pluginManagement {
     repositories {
         maven {
@@ -909,6 +906,8 @@ includeProject(":sqlite:sqlite", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":sqlite:sqlite-framework", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":sqlite:sqlite-inspection", [BuildType.MAIN])
 includeProject(":sqlite:sqlite-ktx", [BuildType.MAIN])
+includeProject(":sqliteMultiplatform:sqlite", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
+includeProject(":sqliteMultiplatform:sqlite-driver", [BuildType.MAIN, BuildType.KMP, BuildType.INFRAROGUE])
 includeProject(":startup:integration-tests:first-library", [BuildType.MAIN])
 includeProject(":startup:integration-tests:second-library", [BuildType.MAIN])
 includeProject(":startup:integration-tests:test-app", [BuildType.MAIN])
