@@ -23,10 +23,10 @@ import androidx.compose.ui.util.fastMap
 @Composable
 fun SupportingPaneScaffold(
     scaffoldState: SupportingPaneScaffoldState,
-    supportingPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
+    supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)? = null,
-    mainPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit
+    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    mainPane: @Composable ThreePaneScaffoldScope.() -> Unit
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),

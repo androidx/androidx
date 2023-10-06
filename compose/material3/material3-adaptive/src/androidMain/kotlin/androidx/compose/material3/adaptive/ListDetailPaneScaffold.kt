@@ -38,10 +38,10 @@ import androidx.compose.ui.util.fastMap
 @Composable
 fun ListDetailPaneScaffold(
     layoutState: ListDetailPaneScaffoldState,
-    listPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
+    listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
-    extraPane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)? = null,
-    detailPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit
+    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    detailPane: @Composable ThreePaneScaffoldScope.() -> Unit
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
