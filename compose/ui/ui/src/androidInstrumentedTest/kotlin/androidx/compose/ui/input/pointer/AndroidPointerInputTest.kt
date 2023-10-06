@@ -1433,6 +1433,69 @@ class AndroidPointerInputTest {
     }
 
     @Test
+    fun mousePress_ignoresHoverExitOnPress() {
+        lateinit var layoutCoordinates: LayoutCoordinates
+        val latch = CountDownLatch(1)
+        val events = mutableListOf<PointerEvent>()
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            layoutCoordinates = it
+                            latch.countDown()
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    event.changes[0].consume()
+                                    events += event
+                                }
+                            }
+                        }
+                )
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            val root = layoutCoordinates.findRootCoordinates()
+            val pos = root.localPositionOf(layoutCoordinates, Offset.Zero)
+            val pointerCoords = PointerCoords(pos.x, pos.y)
+            val pointerProperties = PointerProperties(0).apply { toolType = TOOL_TYPE_MOUSE }
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+
+            val hoverExitEvent = MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_EXIT,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(pointerProperties),
+                pointerCoords = arrayOf(pointerCoords),
+                buttonState = 0,
+            )
+            androidComposeView.dispatchHoverEvent(hoverExitEvent)
+
+            val downEvent = MotionEvent(
+                eventTime = 0,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(pointerProperties),
+                pointerCoords = arrayOf(pointerCoords),
+            )
+            androidComposeView.dispatchTouchEvent(downEvent)
+        }
+
+        rule.runOnUiThread {
+            assertThat(events).hasSize(1)
+            assertThat(events.single().type).isEqualTo(PointerEventType.Press)
+        }
+    }
+
+    @Test
     fun hoverEnterPressExitEnterExitRelease() {
         var outerCoordinates: LayoutCoordinates? = null
         var innerCoordinates: LayoutCoordinates? = null
@@ -2272,22 +2335,18 @@ private fun countDown(block: (CountDownLatch) -> Unit) {
 
 class AndroidPointerInputTestActivity : ComponentActivity()
 
-@Suppress("SameParameterValue", "TestFunctionName")
 private fun MotionEvent(
     eventTime: Int,
     action: Int,
     numPointers: Int,
     actionIndex: Int,
     pointerProperties: Array<MotionEvent.PointerProperties>,
-    pointerCoords: Array<MotionEvent.PointerCoords>
-): MotionEvent {
-    val buttonState = if (pointerProperties[0].toolType == MotionEvent.TOOL_TYPE_MOUSE &&
+    pointerCoords: Array<MotionEvent.PointerCoords>,
+    buttonState: Int = if (
+        pointerProperties[0].toolType == TOOL_TYPE_MOUSE &&
         (action == ACTION_DOWN || action == ACTION_MOVE)
-    ) {
-        MotionEvent.BUTTON_PRIMARY
-    } else {
-        0
-    }
+    ) MotionEvent.BUTTON_PRIMARY else 0,
+): MotionEvent {
     val source = if (pointerProperties[0].toolType == TOOL_TYPE_MOUSE) {
         InputDevice.SOURCE_MOUSE
     } else {
