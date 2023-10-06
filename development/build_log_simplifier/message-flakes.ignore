@@ -49,9 +49,6 @@ Configuration cache entry reused with [0-9]+ problem\.
 \[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:unchecked for details\.
 # b/179833331 , https://youtrack.jetbrains.com/issue/KT-35156
 # b/181258249 , https://youtrack.jetbrains.com/issue/KT-43881
-# > Task :jetifier-core:compileKotlin
-Could not perform incremental compilation\: Could not connect to Kotlin compile daemon
-Could not connect to kotlin daemon\. Using fallback strategy\.
 \.\.\. [0-9]+ more
 at java\.rmi\/sun\.rmi\.transport\.StreamRemoteCall\.exceptionReceivedFromServer\(StreamRemoteCall\.java\:[0-9]+\)
 at java\.rmi\/sun\.rmi\.transport\.StreamRemoteCall\.executeCall\(StreamRemoteCall\.java\:[0-9]+\)
