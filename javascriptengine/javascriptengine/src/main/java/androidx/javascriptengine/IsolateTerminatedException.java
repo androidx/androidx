@@ -17,7 +17,6 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 
 import java.util.concurrent.Executor;
@@ -50,7 +49,7 @@ public class IsolateTerminatedException extends JavaScriptException {
     public IsolateTerminatedException() {
         super();
     }
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+
     public IsolateTerminatedException(@NonNull String message) {
         super(message);
     }
