@@ -170,6 +170,56 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
+    fun androidNative(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
+        return listOfNotNull(
+            androidNativeX86(block),
+            androidNativeX64(block),
+            androidNativeArm64(block),
+            androidNativeArm32(block)
+        )
+    }
+
+    @JvmOverloads
+    fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
+        return if (project.enableNative()) {
+            kotlinExtension.androidNativeX86().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
+    fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
+        return if (project.enableNative()) {
+            kotlinExtension.androidNativeX64().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
+    fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
+        return if (project.enableNative()) {
+            kotlinExtension.androidNativeArm64().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
+    fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
+        return if (project.enableNative()) {
+            kotlinExtension.androidNativeArm32().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
     fun desktop(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
         supportedPlatforms.add(PlatformIdentifier.DESKTOP)
         return if (project.enableDesktop()) {
