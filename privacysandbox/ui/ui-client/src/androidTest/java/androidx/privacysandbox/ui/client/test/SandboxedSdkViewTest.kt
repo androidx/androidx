@@ -25,6 +25,7 @@ import android.os.IBinder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -68,9 +69,11 @@ class SandboxedSdkViewTest {
 
     private lateinit var context: Context
     private lateinit var view: SandboxedSdkView
-    private lateinit var layoutParams: ViewGroup.LayoutParams
+    private lateinit var layoutParams: LayoutParams
     private lateinit var testSandboxedUiAdapter: TestSandboxedUiAdapter
     private lateinit var stateChangedListener: StateChangedListener
+    private var mainLayoutWidth = -1
+    private var mainLayoutHeight = -1
 
     @get:Rule
     var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
@@ -545,11 +548,84 @@ class SandboxedSdkViewTest {
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
-    private fun addViewToLayout() {
+    @Test
+    fun requestSizeWithMeasureSpecAtMost_withinParentBounds() {
+        view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        addViewToLayoutAndWaitToBeActive()
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ mainLayoutWidth - 100,
+            /* requestedHeight=*/ mainLayoutHeight - 100,
+            /* expectedWidth=*/ mainLayoutWidth - 100,
+            /* expectedHeight=*/ mainLayoutHeight - 100)
+    }
+
+    @Test
+    fun requestSizeWithMeasureSpecAtMost_exceedsParentBounds() {
+        view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        addViewToLayoutAndWaitToBeActive()
+        // the resize is constrained by the parent's size
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ mainLayoutWidth + 100,
+            /* requestedHeight=*/ mainLayoutHeight + 100,
+            /* expectedWidth=*/ mainLayoutWidth,
+            /* expectedHeight=*/ mainLayoutHeight)
+    }
+
+    @Test
+    fun requestSizeWithMeasureSpecExactly() {
+        view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addViewToLayoutAndWaitToBeActive()
+        val currentWidth = view.width
+        val currentHeight = view.height
+        // the request is a no-op when the MeasureSpec is EXACTLY
+        requestSizeAndVerifyLayout(
+            /* requestedWidth=*/ currentWidth - 100,
+            /* requestedHeight=*/ currentHeight - 100,
+            /* expectedWidth=*/ currentWidth,
+            /* expectedHeight=*/ currentHeight)
+    }
+
+    private fun addViewToLayout(waitToBeActive: Boolean = false) {
         activityScenarioRule.withActivity {
-            findViewById<LinearLayout>(
-                R.id.mainlayout
-            ).addView(view)
+            val mainLayout: LinearLayout = findViewById(R.id.mainlayout)
+            mainLayoutWidth = mainLayout.width
+            mainLayoutHeight = mainLayout.height
+            mainLayout.addView(view)
         }
+        if (waitToBeActive) {
+            val latch = CountDownLatch(1)
+            view.addStateChangedListener {
+                if (it == SandboxedSdkUiSessionState.Active) {
+                    latch.countDown()
+                }
+            }
+            assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+    }
+
+    private fun addViewToLayoutAndWaitToBeActive() {
+        addViewToLayout(true)
+    }
+
+    private fun requestSizeAndVerifyLayout(
+        requestedWidth: Int,
+        requestedHeight: Int,
+        expectedWidth: Int,
+        expectedHeight: Int
+    ) {
+        val layoutLatch = CountDownLatch(1)
+        var width = -1
+        var height = -1
+        view.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+            width = right - left
+            height = bottom - top
+            layoutLatch.countDown()
+        }
+        activityScenarioRule.withActivity {
+            view.requestSize(requestedWidth, requestedHeight)
+        }
+        assertThat(layoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(width).isEqualTo(expectedWidth)
+        assertThat(height).isEqualTo(expectedHeight)
     }
 }

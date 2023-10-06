@@ -338,6 +338,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val newWidth = calculateMeasuredDimension(requestedWidth, widthMeasureSpec)
         val newHeight = calculateMeasuredDimension(requestedHeight, heightMeasureSpec)
+        requestedWidth = -1
+        requestedHeight = -1
         setMeasuredDimension(newWidth, newHeight)
     }
 
