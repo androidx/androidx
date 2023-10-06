@@ -559,8 +559,6 @@ w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/ko
 w: file://\$SUPPORT/compose/ui/ui/src/androidInstrumentedTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
-# > Configure project :internal-testutils-appcompat
-WARNING: The option setting 'android\.experimental\.lint\.reservedMemoryPerTask=[0-9]+g' is experimental\.
 # > Task :slice:slice-builders-ktx:compileDebugKotlin
 w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/main/java/androidx/slice/builders/ListBuilder\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
 # > Task :slice:slice-builders-ktx:compileDebugAndroidTestKotlin
