@@ -80,9 +80,9 @@ fun ThreePaneScaffold(
     scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
     arrangement: ThreePaneScaffoldArrangement,
-    secondaryPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
-    tertiaryPane: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)? = null,
-    primaryPane: @Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit,
+    secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val previousScaffoldValue = remember { ThreePaneScaffoldValueHolder(scaffoldValue) }
     val paneMotion = calculateThreePaneMotion(
@@ -96,52 +96,51 @@ fun ThreePaneScaffold(
     // role and arrangement.
     val contents = listOf<@Composable () -> Unit>(
         {
-            PaneWrapper(
-                scaffoldValue[ThreePaneScaffoldRole.Primary],
-                positionAnimationSpec = paneMotion.animationSpec,
+            remember { ThreePaneScaffoldScopeImpl() }.apply {
+                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Primary]
+                positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Primary,
                     arrangement
-                ),
+                )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Primary,
                     arrangement
-                ),
-                label = "Primary",
-                content = primaryPane
-            )
+                )
+                animationToolingLabel = "Primary"
+            }.primaryPane()
         },
         {
-            PaneWrapper(
-                scaffoldValue[ThreePaneScaffoldRole.Secondary],
-                positionAnimationSpec = paneMotion.animationSpec,
+            remember { ThreePaneScaffoldScopeImpl() }.apply {
+                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Secondary]
+                positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Secondary,
                     arrangement
-                ),
+                )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Secondary,
                     arrangement
-                ),
-                label = "Secondary",
-                content = secondaryPane
-            )
+                )
+                animationToolingLabel = "Secondary"
+            }.secondaryPane()
         },
         {
-            PaneWrapper(
-                scaffoldValue[ThreePaneScaffoldRole.Tertiary],
-                positionAnimationSpec = paneMotion.animationSpec,
-                enterTransition = paneMotion.enterTransition(
-                    ThreePaneScaffoldRole.Tertiary,
-                    arrangement
-                ),
-                exitTransition = paneMotion.exitTransition(
-                    ThreePaneScaffoldRole.Tertiary,
-                    arrangement
-                ),
-                label = "Tertiary",
-                content = tertiaryPane
-            )
+            if (tertiaryPane != null) {
+                remember { ThreePaneScaffoldScopeImpl() }.apply {
+                    paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Tertiary]
+                    positionAnimationSpec = paneMotion.animationSpec
+                    enterTransition = paneMotion.enterTransition(
+                        ThreePaneScaffoldRole.Tertiary,
+                        arrangement
+                    )
+                    exitTransition = paneMotion.exitTransition(
+                        ThreePaneScaffoldRole.Tertiary,
+                        arrangement
+                    )
+                    animationToolingLabel = "Tertiary"
+                }.tertiaryPane()
+            }
         },
     )
 
@@ -652,34 +651,46 @@ private class ThreePaneContentMeasurePolicy(
 private fun Modifier.clipToBounds(adaptedValue: PaneAdaptedValue): Modifier =
     if (adaptedValue == PaneAdaptedValue.Hidden) this.clipToBounds() else this
 
+/**
+ * The root composable of pane contents in a [ThreePaneScaffold] that supports default motions
+ * during pane switching. It's recommended to use this composable to wrap your own contents when
+ * passing them into pane parameters of the scaffold functions, therefore your panes can have a
+ * nice default animation for free.
+ *
+ * See usage samples at:
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailExtraPaneScaffoldSample
+ */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-private fun PaneWrapper(
-    adaptedValue: PaneAdaptedValue,
-    positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
-    enterTransition: EnterTransition,
-    exitTransition: ExitTransition,
-    label: String,
-    content: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit)?,
+fun ThreePaneScaffoldScope.AnimatedPane(
+    modifier: Modifier,
+    content: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit),
 ) {
-    if (content != null) {
-        AnimatedVisibility(
-            visible = adaptedValue == PaneAdaptedValue.Expanded,
-            modifier = Modifier
-                .clipToBounds(adaptedValue)
-                .then(
-                    if (adaptedValue == PaneAdaptedValue.Expanded) {
-                        Modifier.animateBounds(positionAnimationSpec = positionAnimationSpec)
-                    } else {
-                        Modifier
-                    }
-                ),
-            enter = enterTransition,
-            exit = exitTransition,
-            label = "AnimatedVisibility: $label"
-        ) {
-            content.invoke(ThreePaneScaffoldScopeImpl, adaptedValue)
-        }
+    AnimatedVisibility(
+        visible = paneAdaptedValue == PaneAdaptedValue.Expanded,
+        modifier = modifier
+            .clipToBounds(paneAdaptedValue)
+            .then(
+                if (paneAdaptedValue == PaneAdaptedValue.Expanded) {
+                    Modifier.animateBounds(
+                        // TODO Figure out why we need to pass a non-null here to get the bounds
+                        //  animation going on the first navigation event that pass in the spec
+                        //  later on. To resolve this, we default to the paneSpringSpec().
+                        //  Otherwise, the first motion shows a snap instead of a smooth
+                        //  transition.
+                        positionAnimationSpec = positionAnimationSpec
+                            ?: ThreePaneScaffoldDefaults.PaneSpringSpec
+                    )
+                } else {
+                    Modifier
+                }
+            ),
+        enter = enterTransition,
+        exit = exitTransition,
+        label = "AnimatedVisibility: $animationToolingLabel"
+    ) {
+        content.invoke(this@AnimatedPane, paneAdaptedValue)
     }
 }
 
@@ -704,9 +715,45 @@ private class PaneMeasurable(
  * Scope for the panes of [ThreePaneScaffold].
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-interface ThreePaneScaffoldScope : PaneScaffoldScope
+interface ThreePaneScaffoldScope : PaneScaffoldScope {
+    /**
+     * The adapted value of the associated pane to the scope.
+     */
+    val paneAdaptedValue: PaneAdaptedValue
 
-private object ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldScopeImpl()
+    /**
+     * The position animation spec of the associated pane to the scope. [AnimatedPane] will use this
+     * value to perform pane animations during scaffold state changes.
+     */
+    val positionAnimationSpec: FiniteAnimationSpec<IntOffset>?
+
+    /**
+     * The [EnterTransition] of the associated pane. [AnimatedPane] will use this value to perform
+     * pane entering animations when it's showing during scaffold state changes.
+     */
+    val enterTransition: EnterTransition
+
+    /**
+     * The [ExitTransition] of the associated pane. [AnimatedPane] will use this value to perform
+     * pane exiting animations when it's hiding during scaffold state changes.
+     */
+    val exitTransition: ExitTransition
+
+    /**
+     * The label will be used by [AnimatedPane] to provide tooling labels to the foundation
+     * animation APIs like [AnimatedVisibility].
+     */
+    val animationToolingLabel: String
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private class ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldScopeImpl() {
+    override var paneAdaptedValue: PaneAdaptedValue = PaneAdaptedValue.Hidden
+    override var positionAnimationSpec: FiniteAnimationSpec<IntOffset>? = null
+    override var enterTransition: EnterTransition = EnterTransition.None
+    override var exitTransition: ExitTransition = ExitTransition.None
+    override var animationToolingLabel: String = ""
+}
 
 /**
  * Provides default values of [ThreePaneScaffold] and the calculation functions of
@@ -776,7 +823,8 @@ object ThreePaneScaffoldDefaults {
     /**
      * A default [SpringSpec] for the panes motion.
      */
-    private val PaneSpringSpec: SpringSpec<IntOffset> =
+    // TODO(conradchen): open this to public when we support motion customization
+    internal val PaneSpringSpec: SpringSpec<IntOffset> =
         spring(
             dampingRatio = 0.7f,
             stiffness = 600f,

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
@@ -43,113 +45,131 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@Preview
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Preview
+@Sampled
 @Composable
-internal fun ListDetailPaneScaffoldSample() {
+fun ListDetailPaneScaffoldSample() {
     val layoutState = rememberListDetailPaneScaffoldState(
         initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
     )
     ListDetailPaneScaffold(
         layoutState = layoutState,
         listPane = {
-            Surface(
+            AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
-                color = MaterialTheme.colorScheme.secondary,
-                onClick = {
-                    layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
-                }
             ) {
-                Text("List")
+                Surface(
+                    color = MaterialTheme.colorScheme.secondary,
+                    onClick = {
+                        layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                    }
+                ) {
+                    Text("List")
+                }
             }
         },
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.primary,
-            onClick = {
-                layoutState.navigateBack()
-            }
-        ) {
-            Text("Details")
-        }
-    }
-}
-
-@Preview
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Composable
-internal fun ListDetailExtraPaneScaffoldSample() {
-    val layoutState = rememberListDetailPaneScaffoldState(
-        initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
-    )
-
-    ListDetailPaneScaffold(
-        layoutState = layoutState,
-        listPane = {
+        AnimatedPane(modifier = Modifier) {
             Surface(
-                modifier = Modifier.preferredWidth(200.dp),
-                color = MaterialTheme.colorScheme.secondary,
-                onClick = {
-                    layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
-                }
-            ) {
-                Text("List")
-            }
-        },
-        extraPane = {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.primary,
                 onClick = {
                     layoutState.navigateBack()
                 }
             ) {
-                Text("Extra")
+                Text("Details")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ListDetailExtraPaneScaffoldSample() {
+    val layoutState = rememberListDetailPaneScaffoldState(
+        initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
+    )
+
+    ListDetailPaneScaffold(
+        layoutState = layoutState,
+        listPane = {
+            AnimatedPane(
+                modifier = Modifier.preferredWidth(200.dp),
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.secondary,
+                    onClick = {
+                        layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                    }
+                ) {
+                    Text("List")
+                }
+            }
+        },
+        extraPane = {
+            AnimatedPane(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    onClick = {
+                        layoutState.navigateBack()
+                    }
+                ) {
+                    Text("Extra")
+                }
             }
         }
     ) {
-        Surface(
-            color = MaterialTheme.colorScheme.primary,
+        AnimatedPane(
+            modifier = Modifier
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Details")
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Surface(
-                        onClick = {
-                            layoutState.navigateBack()
-                        },
+            Surface(
+                color = MaterialTheme.colorScheme.primary,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Detail")
+                    Row(
                         modifier = Modifier
-                            .weight(0.5f)
-                            .fillMaxHeight(),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        Surface(
+                            onClick = {
+                                layoutState.navigateBack()
+                            },
+                            modifier = Modifier
+                                .weight(0.5f)
+                                .fillMaxHeight(),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                         ) {
-                            Text("Previous")
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Previous")
+                            }
                         }
-                    }
-                    VerticalDivider()
-                    Surface(
-                        onClick = {
-                            layoutState.navigateTo(ListDetailPaneScaffoldRole.Extra)
-                        },
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .fillMaxHeight(),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        VerticalDivider()
+                        Surface(
+                            onClick = {
+                                layoutState.navigateTo(ListDetailPaneScaffoldRole.Extra)
+                            },
+                            modifier = Modifier
+                                .weight(0.5f)
+                                .fillMaxHeight(),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                         ) {
-                            Text("Next")
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Next")
+                            }
                         }
                     }
                 }
@@ -158,8 +178,8 @@ internal fun ListDetailExtraPaneScaffoldSample() {
     }
 }
 
-@Preview
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Preview
 @Composable
 internal fun ThreePaneScaffoldSample() {
     val scaffoldDirective = calculateStandardPaneScaffoldDirective(calculateWindowAdaptiveInfo())
