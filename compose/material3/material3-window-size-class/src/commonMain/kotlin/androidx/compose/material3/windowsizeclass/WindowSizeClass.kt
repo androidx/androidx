@@ -138,24 +138,28 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
+        @Suppress("PrimitiveInCollection")
         val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
+        @Suppress("PrimitiveInCollection")
+        private val AllSizeClassList = listOf(Expanded, Medium, Compact)
+
         /**
-         * The standard set of size classes. It's supposed to include all size classes and will be
-         * expanded whenever a new size class is defined. By default
-         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
-         * in order to avoid behaviral changes when new size classes are added. You can opt in to
-         * support all available size classes by doing:
+         * The set of all size classes. It's supposed to be expanded whenever a new size class is
+         * defined. By default [WindowSizeClass.calculateFromSize] will only return size classes in
+         * [DefaultSizeClasses] in order to avoid behavioral changes when new size classes are
+         * added. You can opt in to support all available size classes by doing:
          * ```
          * WindowSizeClass.calculateFromSize(
          *     size = size,
          *     density = density,
-         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
-         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.AllSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.AllSizeClasses
          * )
          * ```
          */
-        val StandardSizeClasses get() = DefaultSizeClasses
+        @Suppress("ListIterator", "PrimitiveInCollection")
+        val AllSizeClasses = AllSizeClassList.toSet()
 
         private fun WindowWidthSizeClass.breakpoint(): Dp {
             return when {
@@ -175,15 +179,18 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
         ): WindowWidthSizeClass {
             require(width >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
-            val sortedSizeClasses = supportedSizeClasses.sortedDescending()
-            // Find the largest supported size class that matches the width
-            sortedSizeClasses.fastForEach {
-                if (width >= it.breakpoint()) {
-                    return it
+            var smallestSupportedSizeClass = Compact
+            AllSizeClassList.fastForEach {
+                if (it in supportedSizeClasses) {
+                    if (width >= it.breakpoint()) {
+                        return it
+                    }
+                    smallestSupportedSizeClass = it
                 }
             }
-            // If none of the size classes matches, return the smallest one.
-            return sortedSizeClasses.last()
+
+            // If none of the size classes matches, return the largest one.
+            return smallestSupportedSizeClass
         }
     }
 }
@@ -228,24 +235,28 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
+        @Suppress("PrimitiveInCollection")
         val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
+        @Suppress("PrimitiveInCollection")
+        private val AllSizeClassList = listOf(Expanded, Medium, Compact)
+
         /**
-         * The standard set of size classes. It's supposed to include all size classes and will be
-         * expanded whenever a new size class is defined. By default
-         * [WindowSizeClass.calculateFromSize] will only return size classes in [DefaultSizeClasses]
-         * in order to avoid behavioral changes when new size classes are added. You can opt in to
-         * support all available size classes by doing:
+         * The set of all size classes. It's supposed to be expanded whenever a new size class is
+         * defined. By default [WindowSizeClass.calculateFromSize] will only return size classes in
+         * [DefaultSizeClasses] in order to avoid behavioral changes when new size classes are
+         * added. You can opt in to support all available size classes by doing:
          * ```
          * WindowSizeClass.calculateFromSize(
          *     size = size,
          *     density = density,
-         *     supportedWidthSizeClasses = WindowWidthSizeClass.StandardSizeClasses,
-         *     supportedHeightSizeClasses = WindowHeightSizeClass.StandardSizeClasses
+         *     supportedWidthSizeClasses = WindowWidthSizeClass.AllSizeClasses,
+         *     supportedHeightSizeClasses = WindowHeightSizeClass.AllSizeClasses
          * )
          * ```
          */
-        val StandardSizeClasses get() = DefaultSizeClasses
+        @Suppress("ListIterator", "PrimitiveInCollection")
+        val AllSizeClasses = AllSizeClassList.toSet()
 
         private fun WindowHeightSizeClass.breakpoint(): Dp {
             return when {
@@ -265,15 +276,18 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
         ): WindowHeightSizeClass {
             require(height >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
-            val sortedSizeClasses = supportedSizeClasses.sortedDescending()
-            // Find the largest supported size class that matches the width
-            sortedSizeClasses.fastForEach {
-                if (height >= it.breakpoint()) {
-                    return it
+            var smallestSupportedSizeClass = Expanded
+            AllSizeClassList.fastForEach {
+                if (it in supportedSizeClasses) {
+                    if (height >= it.breakpoint()) {
+                        return it
+                    }
+                    smallestSupportedSizeClass = it
                 }
             }
-            // If none of the size classes matches, return the smallest one.
-            return sortedSizeClasses.last()
+
+            // If none of the size classes matches, return the largest one.
+            return smallestSupportedSizeClass
         }
     }
 }
