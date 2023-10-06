@@ -26,9 +26,10 @@ enum class Language(text: String) {
 
 fun loremIpsum(
     language: Language = Language.Latin,
-    wordCount: Int = language.words.size
+    wordCount: Int = language.words.size,
+    separator: CharSequence = " ",
 ): String =
-    loremIpsumWords(language).joinToString(separator = " ", limit = wordCount, truncated = "")
+    loremIpsumWords(language).joinToString(separator = separator, limit = wordCount, truncated = "")
 
 /**
  * An infinite [Sequence] of words of Lorem Ipsum text.
