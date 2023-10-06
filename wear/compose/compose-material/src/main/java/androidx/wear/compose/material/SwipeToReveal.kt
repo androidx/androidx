@@ -59,7 +59,15 @@ import androidx.wear.compose.foundation.SwipeToReveal
 import kotlin.math.abs
 
 /**
- * [SwipeToReveal] Material composable for Chips. This provides the default style for consistency.
+ * [SwipeToReveal] Material composable for [Chip]s. This adds the option to configure up to two
+ * additional actions on the [Chip]: a mandatory [primaryAction] and an optional
+ * [secondaryAction]. These actions are initially hidden and revealed only when the [content] is
+ * swiped. These additional actions can be triggered by clicking on them after they are revealed.
+ * [primaryAction] can also be triggered by performing a full swipe of the [content].
+ *
+ * For actions like "Delete", consider adding [undoPrimaryAction] (displayed when the
+ * [primaryAction] is activated) and/or [undoSecondaryAction] (displayed when the [secondaryAction]
+ * is activated). Adding undo composables allow users to undo the action that they just performed.
  *
  * Example of [SwipeToRevealChip] with primary and secondary actions
  * @sample androidx.wear.compose.material.samples.SwipeToRevealChipSample
@@ -112,7 +120,15 @@ public fun SwipeToRevealChip(
 }
 
 /**
- * [SwipeToReveal] Material composable for Cards. This provides the default style for consistency.
+ * [SwipeToReveal] Material composable for [Card]s. This adds the option to configure up to two
+ * additional actions on the [Card]: a mandatory [primaryAction] and an optional
+ * [secondaryAction]. These actions are initially hidden and revealed only when the [content] is
+ * swiped. These additional actions can be triggered by clicking on them after they are revealed.
+ * [primaryAction] can also be triggered by performing a full swipe of the [content].
+ *
+ * For actions like "Delete", consider adding [undoPrimaryAction] (displayed when the
+ * [primaryAction] is activated) and/or [undoSecondaryAction] (displayed when the [secondaryAction]
+ * is activated). Adding undo composables allow users to undo the action that they just performed.
  *
  * Example of [SwipeToRevealCard] with primary and secondary actions
  * @sample androidx.wear.compose.material.samples.SwipeToRevealCardSample
@@ -176,17 +192,19 @@ public object SwipeToRevealDefaults {
     public val CardActionShape = RoundedCornerShape(40.dp)
 
     /**
-     * Colors to be used with different actions in [SwipeToReveal].
+     * The recommended colors used to display the contents of the
+     * primary, secondary and undo actions in [SwipeToReveal].
      *
-     * @param primaryActionBackgroundColor The background color (color of the shape) of the primary
-     * action
-     * @param primaryActionContentColor The content color (text and icon) of the primary action
+     * @param primaryActionBackgroundColor The background color (color of the shape) of the
+     * [primaryAction]
+     * @param primaryActionContentColor The content color (text and icon) of the [primaryAction]
      * @param secondaryActionBackgroundColor The background color (color of the shape) of the
-     * secondary action
-     * @param secondaryActionContentColor The content color (text and icon) of the secondary
-     * action
-     * @param undoActionBackgroundColor The background color (color of the shape) of the undo action
-     * @param undoActionContentColor The content color (text) of the undo action
+     * [secondaryAction]
+     * @param secondaryActionContentColor The content color (text and icon) of the
+     * [secondaryAction]
+     * @param undoActionBackgroundColor The background color (color of the shape) of the
+     * [undoAction]
+     * @param undoActionContentColor The content color (text) of the [undoAction]
      */
     @Composable
     public fun actionColors(
@@ -316,6 +334,7 @@ public object SwipeToRevealDefaults {
 
 /**
  * A class representing the colors applied in [SwipeToReveal] actions.
+ * See [SwipeToRevealDefaults.actionColors].
  *
  * @param primaryActionBackgroundColor Color of the shape (background) of primary action
  * @param primaryActionContentColor Color of icon or text used in the primary action
