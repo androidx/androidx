@@ -19,7 +19,6 @@ package androidx.webkit;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.ProfileStoreImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -41,10 +40,7 @@ import java.util.List;
  *    profileStore.deleteProfile("profile_test");
  *
  * </pre>
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ProfileStore {
 
     /**
@@ -128,6 +124,5 @@ public interface ProfileStore {
      */
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    boolean deleteProfile(@NonNull String name) throws IllegalStateException,
-            IllegalArgumentException;
+    boolean deleteProfile(@NonNull String name);
 }

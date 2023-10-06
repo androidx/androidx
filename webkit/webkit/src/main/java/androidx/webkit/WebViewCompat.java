@@ -1092,12 +1092,11 @@ public class WebViewCompat {
      * called on the WebView before this method.
      * @throws IllegalStateException if the WebView has previously navigated to a web page.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setProfile(@NonNull WebView webView,
-            @NonNull String profileName) throws IllegalStateException {
+            @NonNull String profileName) {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
         if (feature.isSupportedByWebView()) {
             getProvider(webView).setProfileWithName(profileName);
@@ -1119,11 +1118,10 @@ public class WebViewCompat {
      * @throws IllegalStateException if the WebView has been destroyed.
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static Profile getProfile(@NonNull WebView webView) throws IllegalStateException {
+    public static Profile getProfile(@NonNull WebView webView) {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
         if (feature.isSupportedByWebView()) {
             return getProvider(webView).getProfile();

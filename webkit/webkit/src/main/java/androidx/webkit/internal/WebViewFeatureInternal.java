@@ -557,7 +557,6 @@ public class WebViewFeatureInternal {
      * {@link ProfileStore#deleteProfile(String)}.
      * {@link ProfileStore#getInstance()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework MULTI_PROFILE =
             new ApiFeature.NoFramework(WebViewFeature.MULTI_PROFILE, Features.MULTI_PROFILE) {
                 @Override
