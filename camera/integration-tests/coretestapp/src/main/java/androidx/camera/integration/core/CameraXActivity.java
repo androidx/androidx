@@ -42,6 +42,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.camera2.CameraCharacteristics;
@@ -68,6 +69,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -79,10 +81,12 @@ import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
@@ -685,6 +689,9 @@ public class CameraXActivity extends AppCompatActivity {
                 DynamicRange dynamicRange = itemIdToDynamicRange(item.getItemId());
                 if (!Objects.equals(dynamicRange, mDynamicRange)) {
                     mDynamicRange = dynamicRange;
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        updateWindowColorMode();
+                    }
                     mRecordUi.getButtonDynamicRange()
                             .setText(getDynamicRangeIconName(mDynamicRange));
                     // Dynamic range changed, rebind UseCases
@@ -741,6 +748,15 @@ public class CameraXActivity extends AppCompatActivity {
 
             popup.show();
         });
+    }
+
+    @RequiresApi(26)
+    private void updateWindowColorMode() {
+        int colorMode = ActivityInfo.COLOR_MODE_DEFAULT;
+        if (!Objects.equals(mDynamicRange, DynamicRange.SDR)) {
+            colorMode = ActivityInfo.COLOR_MODE_HDR;
+        }
+        Api26Impl.setColorMode(requireNonNull(getWindow()), colorMode);
     }
 
     private static boolean hasTenBitDynamicRange(@NonNull Set<DynamicRange> dynamicRanges) {
@@ -1249,7 +1265,12 @@ public class CameraXActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_camera_xmain);
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
-        OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
+        Display display = null;
+        if (Build.VERSION.SDK_INT >= 30) {
+            display = OpenGLActivity.Api30Impl.getDisplay(this);
+        }
+        OpenGLRenderer previewRenderer = mPreviewRenderer =
+                new OpenGLRenderer(OpenGLActivity.getHdrEncodingsSupportedByDisplay(display));
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
         updateVideoMirrorModeByIntent(getIntent());
@@ -2362,5 +2383,17 @@ public class CameraXActivity extends AppCompatActivity {
         DynamicRange mDynamicRange;
         String mMenuItemName;
         int mToggleLabelRes;
+    }
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setColorMode(@NonNull Window window, int colorMode) {
+            window.setColorMode(colorMode);
+        }
+
     }
 }

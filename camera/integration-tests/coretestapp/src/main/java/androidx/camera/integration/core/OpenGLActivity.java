@@ -16,11 +16,18 @@
 
 package androidx.camera.integration.core;
 
+import static android.view.Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HDR10;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS;
+import static android.view.Display.HdrCapabilities.HDR_TYPE_HLG;
+
 import android.Manifest;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,19 +43,27 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /** Activity which runs the camera preview with opengl processing */
 public class OpenGLActivity extends AppCompatActivity {
@@ -99,7 +114,12 @@ public class OpenGLActivity extends AppCompatActivity {
 
         setContentView(R.layout.opengl_activity);
 
-        OpenGLRenderer renderer = mRenderer = new OpenGLRenderer();
+        Display display = null;
+        if (Build.VERSION.SDK_INT >= 30) {
+            display = Api30Impl.getDisplay(this);
+        }
+        OpenGLRenderer renderer = mRenderer = new OpenGLRenderer(
+                getHdrEncodingsSupportedByDisplay(display));
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         View viewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 renderer);
@@ -228,6 +248,24 @@ public class OpenGLActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns a list of HDR encodings supported by the display.
+     *
+     * <p>The returned HDR encodings are the encodings from the {@link DynamicRange} class, such
+     * as {@link DynamicRange#ENCODING_HLG}. The returned list will never contain
+     * {@link DynamicRange#ENCODING_SDR}.
+     *
+     * <p>The list may be empty if the display does not support HDR, such as on pre-API 24 devices.
+     */
+    @NonNull
+    public static List<Integer> getHdrEncodingsSupportedByDisplay(@Nullable Display display) {
+        if (display != null && Build.VERSION.SDK_INT >= 24) {
+            return Api24Impl.getHdrEncodingsSupportedByDisplay(display);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     private void startCamera() {
         // Keep screen on for this app. This is just for convenience, and is not required.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -275,4 +313,47 @@ public class OpenGLActivity extends AppCompatActivity {
         return true;
     }
     // **************************** Permission handling code end *********************************//
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private static final Map<Integer, Integer> DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING =
+                new HashMap<>();
+
+        static {
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HLG, DynamicRange.ENCODING_HLG);
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HDR10,
+                    DynamicRange.ENCODING_HDR10);
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HDR10_PLUS,
+                    DynamicRange.ENCODING_HDR10_PLUS);
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_DOLBY_VISION,
+                    DynamicRange.ENCODING_DOLBY_VISION);
+        }
+
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static List<Integer> getHdrEncodingsSupportedByDisplay(@NonNull Display display) {
+            return Arrays.stream(display.getHdrCapabilities().getSupportedHdrTypes())
+                    .boxed()
+                    .map(DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Display getDisplay(ContextWrapper contextWrapper) {
+            return contextWrapper.getDisplay();
+        }
+
+    }
 }
