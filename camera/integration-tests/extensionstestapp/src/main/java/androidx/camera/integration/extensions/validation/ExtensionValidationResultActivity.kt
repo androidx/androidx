@@ -44,7 +44,7 @@ import androidx.core.app.ActivityCompat
  * validation flow.
  */
 class ExtensionValidationResultActivity : AppCompatActivity() {
-    private lateinit var extensionTestResultMap: LinkedHashMap<Int, Int>
+    private lateinit var extensionTestResultMap: LinkedHashMap<Int, Pair<Int, String>>
     private lateinit var testResults: TestResults
     private val result = Intent()
     private var lensFacing = INVALID_LENS_FACING
@@ -87,8 +87,8 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
 
         listView.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
-                if (extensionTestResultMap.values.elementAt(position) == TEST_RESULT_NOT_SUPPORTED
-                ) {
+                if (extensionTestResultMap.values.elementAt(position).first ==
+                    TEST_RESULT_NOT_SUPPORTED) {
                     Toast.makeText(this, "Not supported!", Toast.LENGTH_SHORT).show()
                     return@OnItemClickListener
                 }

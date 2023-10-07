@@ -26,17 +26,17 @@ import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 
-class ExtensionValidationResultAdapter constructor(
+class ExtensionValidationResultAdapter(
     private val testType: String,
     private val layoutInflater: LayoutInflater,
-    private val extensionResultMap: LinkedHashMap<Int, Int>
+    private val extensionResultMap: LinkedHashMap<Int, Pair<Int, String>>
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
         return extensionResultMap.size
     }
 
-    override fun getItem(position: Int): MutableMap.MutableEntry<Int, Int> {
+    override fun getItem(position: Int): MutableMap.MutableEntry<Int, Pair<Int, String>> {
         return extensionResultMap.entries.elementAt(position)
     }
 
@@ -45,11 +45,19 @@ class ExtensionValidationResultAdapter constructor(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val textView: TextView = if (convertView == null) {
-            val layout = android.R.layout.simple_list_item_1
-            layoutInflater.inflate(layout, parent, false) as TextView
+        val textView: TextView
+        val detailsView: TextView
+
+        val v = if (convertView == null) {
+            val layout = android.R.layout.simple_list_item_2
+            val view = layoutInflater.inflate(layout, parent, false)
+            textView = view.findViewById(android.R.id.text1)
+            detailsView = view.findViewById(android.R.id.text2)
+            view
         } else {
-            convertView as TextView
+            textView = convertView.findViewById(android.R.id.text1)
+            detailsView = convertView.findViewById(android.R.id.text2)
+            convertView
         }
 
         val item = getItem(position)
@@ -57,22 +65,30 @@ class ExtensionValidationResultAdapter constructor(
         var backgroundResource = 0
         var iconResource = 0
 
-        if (item.value == TEST_RESULT_PASSED) {
-            backgroundResource = R.drawable.test_pass_gradient
-            iconResource = R.drawable.outline_check_circle
-        } else if (item.value == TEST_RESULT_FAILED) {
-            backgroundResource = R.drawable.test_fail_gradient
-            iconResource = R.drawable.outline_error
-        } else if (item.value == TEST_RESULT_NOT_SUPPORTED) {
-            backgroundResource = R.drawable.test_disable_gradient
+        when (item.value.first) {
+            TEST_RESULT_PASSED -> {
+                backgroundResource = R.drawable.test_pass_gradient
+                iconResource = R.drawable.outline_check_circle
+            }
+            TEST_RESULT_FAILED -> {
+                backgroundResource = R.drawable.test_fail_gradient
+                iconResource = R.drawable.outline_error
+            }
+            TEST_RESULT_NOT_SUPPORTED -> {
+                backgroundResource = R.drawable.test_disable_gradient
+            }
         }
 
         val padding = 10
         textView.text = TestResults.getExtensionModeStringFromId(testType, item.key)
         textView.setPadding(padding, 0, padding, 0)
         textView.compoundDrawablePadding = padding
-        textView.setBackgroundResource(backgroundResource)
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, iconResource, 0)
-        return textView
+
+        detailsView.text = item.value.second
+        detailsView.setPadding(padding, 0, padding, 0)
+
+        v.setBackgroundResource(backgroundResource)
+        return v
     }
 }

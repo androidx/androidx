@@ -57,12 +57,16 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_ERROR_CODE
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_URI
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_TESTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_NONE
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_SAVE_IMAGE_FAILED
@@ -76,6 +80,7 @@ import androidx.camera.integration.extensions.utils.TransformUtil.calculateRelat
 import androidx.camera.integration.extensions.utils.TransformUtil.surfaceRotationToRotationDegrees
 import androidx.camera.integration.extensions.utils.TransformUtil.transformTextureView
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity
+import androidx.camera.integration.extensions.validation.TestResults
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import androidx.core.util.Preconditions
@@ -596,17 +601,35 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 "Camera2 Stream Configuration Latency: min=${min}ms max=${max}ms avg=${avg}ms"
             )
         }
+        var testResultDetails = ""
         streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY]?.also {
             val min = "${it.minOrNull() ?: "n/a"}"
             val max = "${it.maxOrNull() ?: "n/a"}"
             val avg = "%.2f".format(it.average())
+            testResultDetails = "min=${min}ms max=${max}ms avg=${avg}ms"
 
-            Log.d(
-                TAG,
-                "Camera Extensions Stream Configuration Latency: " +
-                    "min=${min}ms max=${max}ms avg=${avg}ms"
-            )
+            Log.d(TAG, "Camera Extensions Stream Configuration Latency: $testResultDetails")
         }
+
+        val durations = streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY] ?: emptyList()
+        val testResult = if (durations.isNotEmpty()) {
+            if (durations.average() > 300.0) {
+                TEST_RESULT_FAILED
+            } else {
+                TEST_RESULT_PASSED
+            }
+        } else {
+            TEST_RESULT_NOT_TESTED
+        }
+
+        val testResults = TestResults.getInstance(this@Camera2ExtensionsActivity)
+        testResults.updateTestResultAndSave(
+            TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY,
+            currentCameraId,
+            currentExtensionMode,
+            testResult,
+            testResultDetails
+        )
 
         Log.d(TAG, "onDestroy()--")
     }
