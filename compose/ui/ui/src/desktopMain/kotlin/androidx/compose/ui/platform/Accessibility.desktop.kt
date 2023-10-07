@@ -70,21 +70,21 @@ internal class AccessibilityControllerImpl(
             if (entry.value != prev) {
                 when (entry.key) {
                     SemanticsProperties.Text -> {
-                        component.accessibleContext.firePropertyChange(
+                        component.composeAccessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
                             prev, entry.value
                         )
                     }
 
                     SemanticsProperties.EditableText -> {
-                        component.accessibleContext.firePropertyChange(
+                        component.composeAccessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
                             prev, entry.value
                         )
                     }
 
                     SemanticsProperties.TextSelectionRange -> {
-                        component.accessibleContext.firePropertyChange(
+                        component.composeAccessibleContext.firePropertyChange(
                             ACCESSIBLE_CARET_PROPERTY,
                             prev, (entry.value as TextRange).start
                         )
@@ -92,13 +92,13 @@ internal class AccessibilityControllerImpl(
 
                     SemanticsProperties.Focused ->
                         if (entry.value as Boolean) {
-                            component.accessibleContext.firePropertyChange(
+                            component.composeAccessibleContext.firePropertyChange(
                                 ACCESSIBLE_STATE_PROPERTY,
                                 null, AccessibleState.FOCUSED
                             )
                             onFocusReceived(component)
                         } else {
-                            component.accessibleContext.firePropertyChange(
+                            component.composeAccessibleContext.firePropertyChange(
                                 ACCESSIBLE_STATE_PROPERTY,
                                 AccessibleState.FOCUSED, null
                             )
@@ -107,13 +107,13 @@ internal class AccessibilityControllerImpl(
                     SemanticsProperties.ToggleableState -> {
                         when (entry.value as ToggleableState) {
                             ToggleableState.On ->
-                                component.accessibleContext.firePropertyChange(
+                                component.composeAccessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
                                     null, AccessibleState.CHECKED
                                 )
 
                             ToggleableState.Off, ToggleableState.Indeterminate ->
-                                component.accessibleContext.firePropertyChange(
+                                component.composeAccessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
                                     AccessibleState.CHECKED, null
                                 )

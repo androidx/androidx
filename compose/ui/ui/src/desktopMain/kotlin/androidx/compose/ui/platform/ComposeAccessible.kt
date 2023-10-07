@@ -80,17 +80,23 @@ private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boo
 internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
     val controller: AccessibilityControllerImpl? = null
-) : Accessible {
+) : Accessible,
+    // Must be a subclass of java.awt.Component because CAccessible only registers property
+    // listeners with the accessible context if the Accessible is an instance of java.awt.Component
+    // (see constructor of sun.lwawt.macosx.CAccessible), even though there's no reason for it.
+    // The property change listener is what allows us to update CAccessible when some value changes.
+    java.awt.Component()
+{
     private val isNativelyInitialized = AtomicBoolean(false)
 
-    val accessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
+    val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 
     override fun getAccessibleContext(): AccessibleContext {
         // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
         if (isNativelyInitialized.compareAndSet(false, true)) {
             nativeInitializeAccessible(this)
         }
-        return accessibleContext
+        return composeAccessibleContext
     }
 
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent, AccessibleAction {
@@ -441,7 +447,7 @@ internal class ComposeAccessible(
             }
         }
 
-        open inner class ComposeAccessibleText() : AccessibleText,
+        open inner class ComposeAccessibleText : AccessibleText,
             AccessibleExtendedText {
             override fun getIndexAtPoint(p: Point): Int {
                 return textLayoutResult!!.getOffsetForPosition(p.toComposeOffset())

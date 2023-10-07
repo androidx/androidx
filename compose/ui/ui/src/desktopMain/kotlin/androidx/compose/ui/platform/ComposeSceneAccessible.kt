@@ -85,9 +85,7 @@ internal class ComposeSceneAccessible(
                 val controller = owner.accessibilityController as? AccessibilityControllerImpl
                     ?: continue
                 val rootAccessible = controller.rootAccessible
-                val context =
-                    rootAccessible.getAccessibleContext() as? AccessibleComponent
-                        ?: continue
+                val context = rootAccessible.composeAccessibleContext
                 val accessibleOnPoint = context.getAccessibleAt(p) ?: continue
                 if (accessibleOnPoint != rootAccessible) {
                     // TODO: ^ this check produce weird behavior
@@ -117,19 +115,19 @@ internal class ComposeSceneAccessible(
         }
 
         override fun getSize(): Dimension? {
-            return getMainOwnerAccessibleRoot()?.accessibleContext?.size
+            return getMainOwnerAccessibleRoot()?.composeAccessibleContext?.size
         }
 
         override fun getLocationOnScreen(): Point? {
-            return getMainOwnerAccessibleRoot()?.accessibleContext?.locationOnScreen
+            return getMainOwnerAccessibleRoot()?.composeAccessibleContext?.locationOnScreen
         }
 
         override fun getLocation(): Point? {
-            return getMainOwnerAccessibleRoot()?.accessibleContext?.location
+            return getMainOwnerAccessibleRoot()?.composeAccessibleContext?.location
         }
 
         override fun getBounds(): Rectangle? {
-            return getMainOwnerAccessibleRoot()?.accessibleContext?.bounds
+            return getMainOwnerAccessibleRoot()?.composeAccessibleContext?.bounds
         }
 
         override fun isShowing(): Boolean = true

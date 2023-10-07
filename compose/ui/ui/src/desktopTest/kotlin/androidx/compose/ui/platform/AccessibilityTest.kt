@@ -53,8 +53,8 @@ class AccessibilityTest {
         }
 
         val node = rule.onNodeWithTag("text").fetchSemanticsNode()
-        val accessibleNode = ComposeAccessible(node)
-        val accessibleText = accessibleNode.accessibleContext.accessibleText!!
+        val accessibleContext = ComposeAccessible(node).accessibleContext
+        val accessibleText = accessibleContext.accessibleText!!
         assertEquals(22, accessibleText.charCount)
 
         assertEquals("H", accessibleText.getAtIndex(AccessibleText.CHARACTER, 0))
@@ -128,8 +128,8 @@ class AccessibilityTest {
     }
 
     private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
-        val accessible = ComposeAccessible(fetchSemanticsNode())
-        assertThat(accessible.accessibleContext.accessibleRole).isEqualTo(role)
+        val accessibleContext = ComposeAccessible(fetchSemanticsNode()).accessibleContext
+        assertThat(accessibleContext.accessibleRole).isEqualTo(role)
     }
 
 }
