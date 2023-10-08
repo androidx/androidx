@@ -144,9 +144,11 @@ class TextFieldLayoutStateCacheTest {
     }
 
     @Test
-    fun updateNonMeasureInputs_doesntInvalidateSnapshot_whenStyleDrawAffectingAttrsChanged() {
+    fun updateNonMeasureInputs_doesInvalidateSnapshot_whenStyleDrawAffectingAttrsChanged() {
+        // Measure still does not happen but TextLayoutInput object inside TextLayoutResult
+        // should change to reflect the latest inputs that need to be used during the draw phase.
         textStyle = TextStyle(color = Color.Black)
-        assertInvalidationsOnChange(0) {
+        assertInvalidationsOnChange(1) {
             textStyle = TextStyle(color = Color.Blue)
             updateNonMeasureInputs()
         }
@@ -500,7 +502,8 @@ class TextFieldLayoutStateCacheTest {
                 updateNonMeasureInputs()
             }
         ) { old, new ->
-            assertThat(new).isSameInstanceAs(old)
+            // TextLayoutInput needs to change. We only care whether multiParagraph is reused.
+            assertThat(new.multiParagraph).isSameInstanceAs(old.multiParagraph)
         }
     }
 

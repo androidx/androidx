@@ -237,7 +237,8 @@ internal class BasicTextField2Test {
     fun textField_textStyleColorChange_doesNotRelayout() {
         val state = TextFieldState("Hello")
         var style by mutableStateOf(TextStyle(color = Color.Red))
-        val textLayoutResults = mutableListOf<() -> TextLayoutResult?>()
+        var textLayoutResultState: (() -> TextLayoutResult?)? by mutableStateOf(null)
+        val textLayoutResults = mutableListOf<TextLayoutResult?>()
         inputMethodInterceptor.setContent {
             BasicTextField2(
                 state = state,
@@ -245,16 +246,24 @@ internal class BasicTextField2Test {
                     .fillMaxSize()
                     .testTag(Tag),
                 textStyle = style,
-                onTextLayout = { textLayoutResults += it }
+                onTextLayout = { textLayoutResultState = it }
             )
+
+            LaunchedEffect(Unit) {
+                snapshotFlow { textLayoutResultState?.invoke() }
+                    .drop(1)
+                    .collect { textLayoutResults += it }
+            }
         }
 
         style = TextStyle(color = Color.Blue)
 
         rule.runOnIdle {
             assertThat(textLayoutResults.size).isEqualTo(2)
-            assertThat(textLayoutResults[0]()?.multiParagraph)
-                .isSameInstanceAs(textLayoutResults[1]()?.multiParagraph)
+            assertThat(textLayoutResults[0]?.multiParagraph)
+                .isSameInstanceAs(textLayoutResults[1]?.multiParagraph)
+            assertThat(textLayoutResults[0]?.layoutInput?.style?.color).isEqualTo(Color.Red)
+            assertThat(textLayoutResults[1]?.layoutInput?.style?.color).isEqualTo(Color.Blue)
         }
     }
 
