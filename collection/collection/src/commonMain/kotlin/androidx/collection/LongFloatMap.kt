@@ -800,7 +800,7 @@ public class MutableLongFloatMap(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (Long, Float) -> Boolean) {
+    public inline fun removeIf(predicate: (Long, Float) -> Boolean) {
         forEachIndexed { index ->
             if (predicate(keys[index], values[index])) {
                 removeValueAt(index)
@@ -842,7 +842,8 @@ public class MutableLongFloatMap(
         }
     }
 
-    private fun removeValueAt(index: Int) {
+    @PublishedApi
+    internal fun removeValueAt(index: Int) {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group

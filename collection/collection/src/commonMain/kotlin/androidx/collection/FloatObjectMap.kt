@@ -804,7 +804,7 @@ public class MutableFloatObjectMap<V>(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (Float, V) -> Boolean) {
+    public inline fun removeIf(predicate: (Float, V) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(keys[index], values[index] as V)) {
@@ -847,7 +847,8 @@ public class MutableFloatObjectMap<V>(
         }
     }
 
-    private fun removeValueAt(index: Int): V? {
+    @PublishedApi
+    internal fun removeValueAt(index: Int): V? {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group
