@@ -100,6 +100,10 @@ import androidx.compose.ui.unit.Density
  * cursor, and text composition information. Please check [TextFieldValue] and corresponding
  * [BasicTextField2] overload for more information.
  *
+ * If you want to add decorations to your text field, such as icon or similar, and increase the
+ * hit target area, use the decorator:
+ * @sample androidx.compose.foundation.samples.BasicTextField2DecoratorSample
+ *
  * @param value The input [String] text to be shown in the text field.
  * @param onValueChange The callback that is triggered when the user or the system updates the
  * text. The updated text is passed as a parameter of the callback. The value passed to the callback
@@ -139,17 +143,13 @@ import androidx.compose.ui.unit.Density
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, then no cursor will be drawn.
+ * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
+ * codepoints.
+ * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
+ * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
- * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
- * codepoints.
- * @param decorationBox Composable lambda that allows to add decorations around text field, such
- * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
- * of the text field. To allow you to control the placement of the inner text field relative to your
- * decorations, the text field implementation will pass in a framework-controlled composable
- * parameter "innerTextField" to the decorationBox lambda you provide. You must call
- * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
@@ -170,8 +170,7 @@ fun BasicTextField2(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
-    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() },
+    decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
@@ -222,7 +221,7 @@ fun BasicTextField2(
         cursorBrush = cursorBrush,
         scrollState = scrollState,
         codepointTransformation = codepointTransformation,
-        decorationBox = decorationBox,
+        decorator = decorator,
     )
 }
 
@@ -237,6 +236,10 @@ fun BasicTextField2(
  * All the editing state of this composable is hoisted through [state]. Whenever the contents of
  * this composable change via user input or semantics, [TextFieldState.text] gets updated.
  * Similarly, all the programmatic updates made to [state] also reflect on this composable.
+ *
+ * If you want to add decorations to your text field, such as icon or similar, and increase the
+ * hit target area, use the decorator:
+ * @sample androidx.compose.foundation.samples.BasicTextField2DecoratorSample
  *
  * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField2].
  * @param modifier optional [Modifier] for this text field.
@@ -274,17 +277,13 @@ fun BasicTextField2(
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, then no cursor will be drawn.
+ * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
+ * codepoints.
+ * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
+ * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
- * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
- * codepoints.
- * @param decorationBox Composable lambda that allows to add decorations around text field, such
- * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
- * of the text field. To allow you to control the placement of the inner text field relative to your
- * decorations, the text field implementation will pass in a framework-controlled composable
- * parameter "innerTextField" to the decorationBox lambda you provide. You must call
- * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
@@ -304,8 +303,7 @@ fun BasicTextField2(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
-    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() },
+    decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
@@ -388,7 +386,8 @@ fun BasicTextField2(
         )
 
     Box(decorationModifiers, propagateMinConstraints = true) {
-        decorationBox {
+        val nonNullDecorator = decorator ?: DefaultTextFieldDecorator
+        nonNullDecorator.Decoration {
             val minLines: Int
             val maxLines: Int
             if (lineLimits is MultiLine) {
@@ -499,3 +498,6 @@ internal fun TextFieldSelectionHandles(
         )
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+private val DefaultTextFieldDecorator = TextFieldDecorator { it() }

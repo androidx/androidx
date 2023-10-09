@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
-import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.password
@@ -128,19 +127,15 @@ import kotlinx.coroutines.launch
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
- * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
- * bounds of the text field. It controls the state of the scroll for the text field.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
  * scope is the one that was used while creating the given text layout.
- * @param decorationBox Composable lambda that allows to add decorations around text field, such
- * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
- * of the text field. To allow you to control the placement of the inner text field relative to your
- * decorations, the text field implementation will pass in a framework-controlled composable
- * parameter "innerTextField" to the decorationBox lambda you provide. You must call
- * innerTextField exactly once.
+ * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
+ * messages or similar, and automatically increase the hit target area of the text field.
+ * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
+ * bounds of the text field. It controls the state of the scroll for the text field.
  */
 @ExperimentalFoundationApi
 @Composable
@@ -158,10 +153,9 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    scrollState: ScrollState = rememberScrollState(),
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
-    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() }
+    decorator: TextFieldDecorator? = null,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     val state = remember {
         TextFieldState(
@@ -208,7 +202,7 @@ fun BasicSecureTextField(
         cursorBrush = cursorBrush,
         scrollState = scrollState,
         onTextLayout = onTextLayout,
-        decorationBox = decorationBox,
+        decorator = decorator,
     )
 }
 
@@ -254,19 +248,15 @@ fun BasicSecureTextField(
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
- * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
- * bounds of the text field. It controls the state of the scroll for the text field.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
  * scope is the one that was used while creating the given text layout.
- * @param decorationBox Composable lambda that allows to add decorations around text field, such
- * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
- * of the text field. To allow you to control the placement of the inner text field relative to your
- * decorations, the text field implementation will pass in a framework-controlled composable
- * parameter "innerTextField" to the decorationBox lambda you provide. You must call
- * innerTextField exactly once.
+ * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
+ * messages or similar, and automatically increase the hit target area of the text field.
+ * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
+ * bounds of the text field. It controls the state of the scroll for the text field.
  */
 @ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
@@ -286,8 +276,7 @@ fun BasicSecureTextField(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
-    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
-        @Composable { innerTextField -> innerTextField() },
+    decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
@@ -356,7 +345,7 @@ fun BasicSecureTextField(
                 ?: KeyboardActions.Default,
             onTextLayout = onTextLayout,
             codepointTransformation = codepointTransformation,
-            decorationBox = decorationBox,
+            decorator = decorator,
         )
     }
 }
@@ -504,7 +493,7 @@ private fun DisableCutCopy(
 ) {
     val currentToolbar = LocalTextToolbar.current
     val copyDisabledToolbar = remember(currentToolbar) {
-        object : TextToolbar {
+        object : TextToolbar by currentToolbar {
             override fun showMenu(
                 rect: Rect,
                 onCopyRequested: (() -> Unit)?,
@@ -520,13 +509,6 @@ private fun DisableCutCopy(
                     onCutRequested = null
                 )
             }
-
-            override fun hide() {
-                currentToolbar.hide()
-            }
-
-            override val status: TextToolbarStatus
-                get() = currentToolbar.status
         }
     }
     CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar) {
