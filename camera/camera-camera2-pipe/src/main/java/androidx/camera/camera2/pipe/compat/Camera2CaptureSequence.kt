@@ -87,7 +87,7 @@ internal class Camera2CaptureSequence(
         captureRequest: CaptureRequest,
         captureTimestamp: Long,
         captureFrameNumber: Long
-    ) = onCaptureStarted(captureRequest, captureTimestamp, captureFrameNumber)
+    ) = onCaptureStarted(captureRequest, captureFrameNumber, captureTimestamp)
 
     override fun onCaptureStarted(
         captureRequest: CaptureRequest,
