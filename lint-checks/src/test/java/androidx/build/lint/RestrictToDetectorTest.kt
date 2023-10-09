@@ -24,6 +24,9 @@ import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.Project
+import com.android.tools.lint.model.DefaultLintModelJavaLibrary
+import com.android.tools.lint.model.DefaultLintModelMavenName
+import com.android.tools.lint.model.DefaultLintModelModuleLibrary
 import java.io.File
 
 class RestrictToDetectorTest : AbstractCheckTest() {
@@ -674,6 +677,41 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             4 errors, 0 warnings
             """
             )
+    }
+
+    fun testGetMavenCoordinateFromIdentifier() {
+        assertEquals(
+            "androidx.wear.tiles:tiles-material:",
+            DefaultLintModelModuleLibrary(
+                ":@@:wear:tiles:tiles-material", "", null, false
+            ).getMavenNameFromIdentifier()!!.toString()
+        )
+
+        assertEquals(
+            "androidx.wear.tiles:tiles-material:",
+            DefaultLintModelModuleLibrary(
+                ":@@:wear:tiles:tiles-material::debug", "", null, false
+            ).getMavenNameFromIdentifier()!!.toString()
+        )
+
+        assertEquals(
+            null,
+            DefaultLintModelModuleLibrary(
+                "", "", null, false
+            ).getMavenNameFromIdentifier()
+        )
+    }
+
+    fun testFindMavenNameWithJarFileInPath() {
+        val mavenName = DefaultLintModelMavenName("", "")
+        val path = "/media/nvme/android/androidx-main/out/androidx/health/connect/connect-client"
+        val filePath = "$path/build/.transforms/7940653434057db25345237f4ed56def/transformed/out" +
+            "/jars/libs/repackaged.jar"
+        val library = DefaultLintModelJavaLibrary(
+            "", listOf(File(filePath)), mavenName, false, null
+        )
+
+        assertEquals(mavenName, listOf(library).findMavenNameWithJarFileInPath(path))
     }
 
     companion object {
