@@ -80,7 +80,7 @@ public final class IsolateStartupParameters {
      * {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES}.
      * <p>
      * If an evaluation exceeds this limit, {@link EvaluationResultSizeLimitExceededException}
-     * is thrown. Errors will be truncated to adhere to this limit.
+     * is produced. Error messages will be truncated to adhere to this limit.
      *
      * @param size max size in bytes
      */
