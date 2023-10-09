@@ -73,9 +73,6 @@ class SandboxedSdkViewTest {
     private lateinit var view: SandboxedSdkView
     private lateinit var layoutParams: ViewGroup.LayoutParams
     private lateinit var testSandboxedUiAdapter: TestSandboxedUiAdapter
-    private lateinit var openSessionLatch: CountDownLatch
-    private lateinit var resizeLatch: CountDownLatch
-    private lateinit var configChangedLatch: CountDownLatch
     private lateinit var stateChangedListener: StateChangedListener
 
     @get:Rule
@@ -95,13 +92,7 @@ class SandboxedSdkViewTest {
         }
     }
 
-    // TODO(b/270965314) Use OnLayoutChangeListener to track resizes and config changes
-    //  in SandboxedSdkViewTest.
-    class TestSandboxedUiAdapter(
-        private val openSessionLatch: CountDownLatch?,
-        private val resizeLatch: CountDownLatch?,
-        private val configChangedLatch: CountDownLatch?
-    ) : SandboxedUiAdapter {
+    class TestSandboxedUiAdapter : SandboxedUiAdapter {
 
         var isSessionOpened = false
         var internalClient: SandboxedUiAdapter.SessionClient? = null
@@ -112,6 +103,10 @@ class SandboxedSdkViewTest {
         // When set to true, the onSessionOpened callback will only be invoked when specified
         // by the test. This is to test race conditions when the session is being loaded.
         var delayOpenSessionCallback = false
+
+        private val openSessionLatch = CountDownLatch(1)
+        private val resizeLatch = CountDownLatch(1)
+        private val configChangedLatch = CountDownLatch(1)
 
         override fun openSession(
             context: Context,
@@ -124,26 +119,36 @@ class SandboxedSdkViewTest {
         ) {
             internalClient = client
             testSession =
-                TestSession(context, initialWidth, initialHeight, resizeLatch, configChangedLatch)
+                TestSession(context, initialWidth, initialHeight)
             if (!delayOpenSessionCallback) {
                 client.onSessionOpened(testSession!!)
             }
             isSessionOpened = true
             this.isZOrderOnTop = isZOrderOnTop
             this.inputToken = windowInputToken
-            openSessionLatch?.countDown()
+            openSessionLatch.countDown()
         }
 
         internal fun sendOnSessionOpened() {
             internalClient?.onSessionOpened(testSession!!)
         }
 
+        internal fun assertSessionOpened() {
+            assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        internal fun wasNotifyResizedCalled(): Boolean {
+            return resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+        }
+
+        internal fun wasOnConfigChangedCalled(): Boolean {
+            return configChangedLatch.await(UI_INTENSIVE_TIMEOUT, TimeUnit.MILLISECONDS)
+        }
+
         inner class TestSession(
             context: Context,
             initialWidth: Int,
             initialHeight: Int,
-            private var resizeLatch: CountDownLatch?,
-            private var configChangedLatch: CountDownLatch?
         ) : SandboxedUiAdapter.Session {
 
             var zOrderChangedLatch: CountDownLatch = CountDownLatch(1)
@@ -159,7 +164,7 @@ class SandboxedSdkViewTest {
             }
 
             override fun notifyResized(width: Int, height: Int) {
-                resizeLatch?.countDown()
+                resizeLatch.countDown()
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
@@ -168,7 +173,7 @@ class SandboxedSdkViewTest {
             }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
-                configChangedLatch?.countDown()
+                configChangedLatch.countDown()
             }
 
             override fun close() {
@@ -198,12 +203,7 @@ class SandboxedSdkViewTest {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
             view.layoutParams = layoutParams
-            openSessionLatch = CountDownLatch(1)
-            resizeLatch = CountDownLatch(1)
-            configChangedLatch = CountDownLatch(1)
-            testSandboxedUiAdapter = TestSandboxedUiAdapter(
-                openSessionLatch, resizeLatch, configChangedLatch
-            )
+            testSandboxedUiAdapter = TestSandboxedUiAdapter()
             view.setAdapter(testSandboxedUiAdapter)
         }
     }
@@ -252,8 +252,7 @@ class SandboxedSdkViewTest {
     @Test
     fun onAttachedToWindowTest() {
         addViewToLayout()
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(testSandboxedUiAdapter.isSessionOpened)
+        testSandboxedUiAdapter.assertSessionOpened()
         assertTrue(view.childCount == 1)
         assertTrue(view.layoutParams == layoutParams)
     }
@@ -263,8 +262,7 @@ class SandboxedSdkViewTest {
         assertTrue(view.childCount == 0)
         addViewToLayout()
 
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(openSessionLatch.count == 0.toLong())
+        testSandboxedUiAdapter.assertSessionOpened()
         assertTrue(view.childCount == 1)
         assertTrue(view.layoutParams == layoutParams)
 
@@ -279,7 +277,7 @@ class SandboxedSdkViewTest {
         addViewToLayout()
 
         // When session is opened, the provider should not receive a Z-order notification.
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         val session = testSandboxedUiAdapter.testSession!!
         val adapter = testSandboxedUiAdapter
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
@@ -302,7 +300,7 @@ class SandboxedSdkViewTest {
         addViewToLayout()
 
         // When session is opened, the provider should not receive a Z-order notification.
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         val session = testSandboxedUiAdapter.testSession!!
         val adapter = testSandboxedUiAdapter
         assertThat(adapter.isZOrderOnTop).isTrue()
@@ -318,7 +316,7 @@ class SandboxedSdkViewTest {
     fun setZOrderNotOnTopBeforeOpeningSession() {
         view.orderProviderUiAboveClientUi(false)
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         val session = testSandboxedUiAdapter.testSession!!
 
         // The initial Z-order state is passed to the session, but notifyZOrderChanged is not called
@@ -330,7 +328,7 @@ class SandboxedSdkViewTest {
     fun setZOrderNotOnTopWhileSessionLoading() {
         testSandboxedUiAdapter.delayOpenSessionCallback = true
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         view.orderProviderUiAboveClientUi(false)
         val session = testSandboxedUiAdapter.testSession!!
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
@@ -348,13 +346,13 @@ class SandboxedSdkViewTest {
     fun onConfigurationChangedTest() {
         addViewToLayout()
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         // newWindow() will be triggered by a window state change, even if the activity handles
         // orientation changes without recreating the activity.
         device.performActionAndWait({
             device.setOrientationLeft()
         }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
-        assertThat(configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         device.performActionAndWait({
             device.setOrientationNatural()
         }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
@@ -363,45 +361,45 @@ class SandboxedSdkViewTest {
     @Test
     fun onConfigurationChangedTestSameConfiguration() {
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         activityScenarioRule.withActivity {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        assertThat(configChangedLatch.await(UI_INTENSIVE_TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(testSandboxedUiAdapter.wasOnConfigChangedCalled()).isFalse()
     }
 
     @Test
     fun onLayoutTestWithSizeChange() {
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         activityScenarioRule.withActivity {
             view.layoutParams = LinearLayout.LayoutParams(100, 200)
         }
-        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(testSandboxedUiAdapter.wasNotifyResizedCalled()).isTrue()
         assertTrue(view.width == 100 && view.height == 200)
     }
 
     @Test
     fun onLayoutTestNoSizeChange() {
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         activityScenarioRule.withActivity {
             view.layout(view.left, view.top, view.right, view.bottom)
         }
-        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(testSandboxedUiAdapter.wasNotifyResizedCalled()).isFalse()
     }
 
     @Test
     fun onLayoutTestViewShiftWithoutSizeChange() {
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         val rightShift = 10
         val upperShift = 30
         activityScenarioRule.withActivity {
             view.layout(view.left + rightShift, view.top - upperShift,
                 view.right + rightShift, view.bottom - upperShift)
         }
-        assertThat(resizeLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(testSandboxedUiAdapter.wasNotifyResizedCalled()).isFalse()
     }
 
     @Test
@@ -414,8 +412,7 @@ class SandboxedSdkViewTest {
             )
             layout.addView(view)
         }
-        openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(openSessionLatch.count == 0.toLong())
+        testSandboxedUiAdapter.assertSessionOpened()
         testSandboxedUiAdapter.testSession?.requestSizeChange(layout.width, layout.height)
         val observer = view.viewTreeObserver
         observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -493,7 +490,7 @@ class SandboxedSdkViewTest {
 
         // Verify that the UI adapter receives the same host token object when opening a session.
         addViewToLayout()
-        assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        testSandboxedUiAdapter.assertSessionOpened()
         assertThat(testSandboxedUiAdapter.inputToken).isEqualTo(token)
     }
 
