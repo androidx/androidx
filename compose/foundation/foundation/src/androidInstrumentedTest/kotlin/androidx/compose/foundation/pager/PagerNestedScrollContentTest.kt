@@ -305,10 +305,13 @@ class PagerNestedScrollContentTest(
         }
 
         // Assert: Inner list won't consume scroll and pager moved
-        assertThat(abs(pagerState.currentPageOffsetFraction - 0.4f)).isLessThan(0.001f)
-        assertThat(lazyListState.firstVisibleItemScrollOffset).isEqualTo(firstLazyListItemOffset)
-        assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
-
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction - 0.4f)).isLessThan(0.001f)
+            assertThat(
+                lazyListState.firstVisibleItemScrollOffset
+            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        }
         rule.onNodeWithTag(TestTag).performTouchInput {
             moveBy(
                 if (vertical) Offset(x = 0f, y = -forwardDelta / 2)
@@ -317,9 +320,13 @@ class PagerNestedScrollContentTest(
         }
 
         // assert: pager moved, but list is still at 0 after direction change
-        assertThat(abs(pagerState.currentPageOffsetFraction - 0.2f)).isLessThan(0.001f)
-        assertThat(lazyListState.firstVisibleItemScrollOffset).isEqualTo(firstLazyListItemOffset)
-        assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction - 0.2f)).isLessThan(0.001f)
+            assertThat(
+                lazyListState.firstVisibleItemScrollOffset
+            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        }
 
         rule.onNodeWithTag(TestTag).performTouchInput {
             up()

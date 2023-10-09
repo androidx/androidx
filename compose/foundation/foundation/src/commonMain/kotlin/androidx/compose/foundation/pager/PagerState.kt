@@ -141,7 +141,7 @@ abstract class PagerState(
 
     init {
         require(currentPageOffsetFraction in -0.5..0.5) {
-            "initialPageOffsetFraction $currentPageOffsetFraction is " +
+            "currentPageOffsetFraction $currentPageOffsetFraction is " +
                 "not within the range -0.5 to 0.5"
         }
     }
@@ -188,7 +188,7 @@ abstract class PagerState(
      * determine scroll deltas and max min scrolling.
      */
     private fun performScroll(delta: Float): Float {
-        val currentScrollPosition = scrollPosition.currentScrollOffset()
+        val currentScrollPosition = scrollPosition.currentAbsoluteScrollOffset()
         debugLog {
             "\nDelta=$delta " +
                 "\ncurrentScrollPosition=$currentScrollPosition " +
@@ -440,9 +440,8 @@ abstract class PagerState(
      * destination page will be offset from its snapped position.
      */
     fun ScrollScope.updateCurrentPage(page: Int, pageOffsetFraction: Float = 0.0f) {
-        val targetPageOffsetToSnappedPosition = (pageOffsetFraction * pageSizeWithSpacing).toInt()
         with(animatedScrollScope) {
-            snapToItem(page, targetPageOffsetToSnappedPosition)
+            snapToItem(page, pageOffsetFraction)
         }
     }
 
@@ -719,6 +718,7 @@ internal object EmptyLayoutInfo : PagerLayoutInfo {
     override val viewportEndOffset: Int = 0
     override val reverseLayout: Boolean = false
     override val beyondBoundsPageCount: Int = 0
+    override val snapPosition: SnapPosition = SnapPosition.Start
 }
 
 private val UnitDensity = object : Density {
@@ -726,13 +726,8 @@ private val UnitDensity = object : Density {
     override val fontScale: Float = 1f
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-internal val SnapAlignmentStartToStart =
-    SnapPosition { _, _, _, _, _ -> 0 }
-
-private const val DEBUG = PagerDebugEnable
 private inline fun debugLog(generateMsg: () -> String) {
-    if (DEBUG) {
+    if (PagerDebugConfig.PagerState) {
         println("PagerState: ${generateMsg()}")
     }
 }

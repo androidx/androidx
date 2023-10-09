@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.unit.IntSize
 
 /**
@@ -98,6 +99,11 @@ sealed interface PagerLayoutInfo {
      * scroll during scroll events.
      */
     val beyondBoundsPageCount: Int
+
+    /**
+     * The calculation of how this Pager performs snapping of pages.
+     */
+    val snapPosition: SnapPosition
 }
 
 @ExperimentalFoundationApi

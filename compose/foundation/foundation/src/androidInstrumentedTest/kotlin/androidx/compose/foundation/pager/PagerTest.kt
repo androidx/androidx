@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -356,6 +357,131 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 0)
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 1)
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 2)
+    }
+
+    @Test
+    fun snapPositionChanges_shouldReLayoutPages() {
+        val snapPosition = mutableStateOf(SnapPosition.Start)
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = PageSize.Fixed(250.dp), // make sure pages bleed in the layout
+                snapPosition = snapPosition.value
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.first().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnUiThread {
+            snapPosition.value = SnapPosition.End
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
+    }
+
+    @Test
+    fun pagerSizeChanges_shouldReLayoutPagesAccordingToSnapPosition() {
+        val pagerSizeDp = mutableStateOf(500.dp)
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .mainAxisSize(pagerSizeDp.value)
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = PageSize.Fixed(100.dp),
+                snapPosition = SnapPosition.Center // snap position that depends on pager size
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            val page = pagerState.layoutInfo.visiblePagesInfo.first { it.index == 5 }
+            // page is centered
+            assertThat(page.offset).isEqualTo(pagerSize / 2 - pageSize / 2)
+        }
+
+        val previousPagerSize = pagerSize
+        rule.runOnUiThread {
+            pagerSizeDp.value = 300.dp
+        }
+
+        // make sure we continue in the same place
+        rule.runOnIdle {
+            assertThat(pagerSize).isNotEqualTo(previousPagerSize) // make sure pager size changed
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            val page = pagerState.layoutInfo.visiblePagesInfo.first { it.index == 5 }
+            // page is centered
+            assertThat(page.offset).isEqualTo(pagerSize / 2 - pageSize / 2)
+        }
+    }
+
+    @Test
+    fun pageSizeChanges_shouldReLayoutPagesAccordingToSnapPosition() {
+        val pageSizeDp = mutableStateOf(PageSize.Fixed(200.dp))
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = pageSizeDp.value,
+                snapPosition = SnapPosition.End // snap position that depends on page size
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
+
+        val previousPageSize = pageSize
+        rule.runOnUiThread {
+            pageSizeDp.value = PageSize.Fixed(250.dp)
+        }
+
+        // make sure we continue in the same place
+        rule.runOnIdle {
+            assertThat(pageSize).isNotEqualTo(previousPageSize) // make sure page size changed
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
     }
 
     companion object {

@@ -36,8 +36,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import androidx.compose.ui.util.fastFirstOrNull
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -145,10 +143,18 @@ internal fun rememberPagerMeasurePolicy(
 
         val currentPage: Int
         val currentPageOffset: Int
-        val pageSizeWithSpacing = pageAvailableSize + spaceBetweenPages
+
         Snapshot.withoutReadObservation {
             currentPage = state.matchScrollPositionWithKey(itemProvider, state.currentPage)
-            currentPageOffset = state.calculateCurrentPageLayoutOffset(pageSizeWithSpacing)
+            currentPageOffset = snapPosition.currentPageOffset(
+                mainAxisAvailableSize,
+                pageAvailableSize,
+                spaceBetweenPages,
+                beforeContentPadding,
+                afterContentPadding,
+                state.currentPage,
+                state.currentPageOffsetFraction
+            )
         }
 
         val pinnedPages = itemProvider.calculateLazyLayoutPinnedIndices(
@@ -190,31 +196,8 @@ internal fun rememberPagerMeasurePolicy(
     }
 }
 
-private const val DEBUG = PagerDebugEnable
 private inline fun debugLog(generateMsg: () -> String) {
-    if (DEBUG) {
+    if (PagerDebugConfig.MeasurePolicy) {
         println("PagerMeasurePolicy: ${generateMsg()}")
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun PagerState.calculateCurrentPageLayoutOffset(pageSizeWithSpacing: Int): Int {
-    val previousPassOffset =
-        layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == currentPage }?.offset
-            ?: 0
-
-    val previousPassFraction = if (pageSizeWithSpacing == 0) {
-        currentPageOffsetFraction
-    } else {
-        ((-previousPassOffset.toFloat()) / (pageSizeWithSpacing))
-    }
-
-    val fractionDiff = currentPageOffsetFraction - previousPassFraction
-    debugLog {
-        "\npreviousPassOffset=$previousPassOffset" +
-            "\npreviousPassFraction=$previousPassFraction" +
-            "\nfractionDiff=$fractionDiff"
-    }
-
-    return -(fractionDiff * pageSizeWithSpacing - previousPassOffset).roundToInt()
 }

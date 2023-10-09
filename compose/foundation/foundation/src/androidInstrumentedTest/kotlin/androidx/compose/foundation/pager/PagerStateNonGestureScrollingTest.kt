@@ -18,8 +18,11 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,9 +33,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMaxBy
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import kotlin.math.abs
 import kotlin.test.assertFalse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -117,12 +125,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         // Act
         rule.runOnIdle {
             scope.launch {
-                state.scrollToPage(5)
-            }
-            runBlocking {
-                state.scroll {
-                    scrollBy(50f)
-                }
+                state.scrollToPage(5, 0.2f)
             }
         }
 
@@ -176,7 +179,9 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                 dataset.value.size
             }, pageContent = {
                 val item = dataset.value[it]
-                Box(modifier = Modifier.fillMaxSize().testTag(item.item))
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(item.item))
             })
 
         Truth.assertThat(dataset.value[pagerState.currentPage].item).isEqualTo("B")
@@ -371,6 +376,126 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         // target page reset
         Truth.assertThat(pagerState.currentPage).isEqualTo(0)
         Truth.assertThat(pagerState.targetPage).isEqualTo(pagerState.currentPage)
+    }
+
+    @Test
+    fun currentPage_shouldUpdateWithSnapPositionInLayout() {
+        // snap position is 200dp from edge of Pager
+        val customSnapPosition = SnapPosition { _, _, _, _, _ ->
+             with(rule.density) {
+                200.dp.roundToPx()
+            }
+        }
+
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            snapPosition = customSnapPosition,
+            pageSize = { PageSize.Fixed(100.dp) }
+        )
+
+        onPager().performTouchInput {
+            swipeLeft()
+            swipeLeft()
+            swipeLeft()
+        }
+
+        with(pagerState.layoutInfo) {
+            val viewPortSize = if (vertical) viewportSize.height else viewportSize.width
+            Truth.assertThat(pagerState.currentPage).isEqualTo(visiblePagesInfo.fastMaxBy {
+                -abs(
+                    calculateDistanceToDesiredSnapPosition(
+                        mainAxisViewPortSize = viewPortSize,
+                        beforeContentPadding = beforeContentPadding,
+                        afterContentPadding = afterContentPadding,
+                        itemSize = pageSize,
+                        itemOffset = it.offset,
+                        itemIndex = it.index,
+                        snapPosition = customSnapPosition
+                    )
+                )
+            }?.index)
+        }
+    }
+
+    @Test
+    fun snapPositionInLayout_startToStart_currentPageShouldBeCloserToStartOfLayout() {
+        createPager(
+            modifier = Modifier.fillMaxSize(),
+            snapPosition = SnapPosition.Start,
+            pageSize = { PageSize.Fixed(100.dp) }
+        )
+
+        onPager().performTouchInput {
+            if (vertical) {
+                swipeUp()
+            } else {
+                swipeLeft()
+            }
+        }
+
+        rule.runOnIdle {
+            // check we moved
+            Truth.assertThat(pagerState.firstVisiblePage).isNotEqualTo(0)
+
+            Truth.assertThat(pagerState.currentPage)
+                .isEqualTo(pagerState.layoutInfo.visiblePagesInfo.first().index)
+
+            // offset should be zero
+            Truth.assertThat(pagerState.layoutInfo.visiblePagesInfo.first().offset)
+                .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun snapPositionInLayout_centerToCenter_currentPageShouldBeCloserToMiddleOfLayout() {
+        createPager(
+            modifier = Modifier.size(50.dp),
+            snapPosition = SnapPosition.Center,
+            pageSize = { PageSize.Fixed(10.dp) }
+        )
+
+        onPager().performTouchInput {
+            if (vertical) {
+                swipeUp()
+            } else {
+                swipeLeft()
+            }
+        }
+
+        rule.runOnIdle {
+            // find page whose offset is closest to the centre
+            val candidatePage = pagerState.layoutInfo.visiblePagesInfo.fastMaxBy {
+                -(abs(it.offset - pagerSize/2))
+            }
+
+            // check we moved
+            Truth.assertThat(pagerState.firstVisiblePage).isNotEqualTo(0)
+            Truth.assertThat(pagerState.currentPage).isEqualTo(candidatePage?.index)
+        }
+    }
+
+    @Test
+    fun snapPositionInLayout_endToEnd_currentPageShouldBeCloserToEndOfLayout() {
+        createPager(
+            modifier = Modifier.size(50.dp),
+            snapPosition = SnapPosition.End,
+            pageSize = { PageSize.Fixed(10.dp) }
+        )
+
+        onPager().performTouchInput {
+            if (vertical) {
+                swipeUp()
+            } else {
+                swipeLeft()
+            }
+        }
+
+        rule.runOnIdle {
+            // check we moved
+            Truth.assertThat(pagerState.firstVisiblePage).isNotEqualTo(0)
+            Truth.assertThat(pagerState.currentPage)
+                .isEqualTo(pagerState.layoutInfo.visiblePagesInfo.last().index)
+        }
     }
 
     companion object {

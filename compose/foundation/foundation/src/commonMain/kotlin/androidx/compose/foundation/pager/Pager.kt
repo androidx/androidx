@@ -33,6 +33,7 @@ import androidx.compose.foundation.gestures.snapping.FinalSnappingItem
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateFinalSnappingItem
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -102,6 +104,11 @@ import kotlinx.coroutines.launch
  * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
  * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
+ * @param snapPosition The calculation of how this Pager will perform snapping of pages.
+ * Use this to provide different settling to different positions in the layout. This is used by
+ * [Pager] as a way to calculate [PagerState.currentPage], currentPage is the page closest
+ * to the snap position in the layout (e.g. if the snap position is the start of the layout, then
+ * currentPage will be the page closest to that).
  * @param pageContent This Pager's page Composable.
  */
 @Composable
@@ -121,6 +128,7 @@ fun HorizontalPager(
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
     },
+    snapPosition: SnapPosition = SnapPosition.Start,
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -138,6 +146,7 @@ fun HorizontalPager(
         reverseLayout = reverseLayout,
         key = key,
         pageNestedScrollConnection = pageNestedScrollConnection,
+        snapPosition = snapPosition,
         pageContent = pageContent
     )
 }
@@ -182,6 +191,11 @@ fun HorizontalPager(
  * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
  * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
+ * @param snapPosition The calculation of how this Pager will perform snapping of Pages.
+ * Use this to provide different settling to different positions in the layout. This is used by
+ * [Pager] as a way to calculate [PagerState.currentPage], currentPage is the page closest
+ * to the snap position in the layout (e.g. if the snap position is the start of the layout, then
+ * currentPage will be the page closest to that).
  * @param pageContent This Pager's page Composable.
  */
 @Composable
@@ -201,6 +215,7 @@ fun VerticalPager(
     pageNestedScrollConnection: NestedScrollConnection = remember(state) {
         PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
     },
+    snapPosition: SnapPosition = SnapPosition.Start,
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -218,6 +233,7 @@ fun VerticalPager(
         reverseLayout = reverseLayout,
         key = key,
         pageNestedScrollConnection = pageNestedScrollConnection,
+        snapPosition = snapPosition,
         pageContent = pageContent
     )
 }
@@ -595,7 +611,8 @@ private fun SnapLayoutInfoProvider(
         }
 
         override fun calculateSnappingOffset(currentVelocity: Float): Float {
-            val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds()
+            val snapPosition = pagerState.layoutInfo.snapPosition
+            val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds(snapPosition)
 
             val isForward = pagerState.isScrollingForward()
 
@@ -723,14 +740,23 @@ private fun SnapLayoutInfoProvider(
             }
         }
 
-        private fun searchForSnappingBounds(): Pair<Float, Float> {
+        private fun searchForSnappingBounds(snapPosition: SnapPosition): Pair<Float, Float> {
             debugLog { "Calculating Snapping Bounds" }
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
             val totalPageSize = pagerState.pageSize + pagerState.pageSpacing
+            val layoutInfo = pagerState.layoutInfo
 
             val currentPage = pagerState.currentPage
-            val currentPageScrollOffset = pagerState.calculateCurrentPageLayoutOffset(totalPageSize)
+            val currentPageScrollOffset = snapPosition.currentPageOffset(
+                layoutInfo.mainAxisViewportSize,
+                layoutInfo.pageSize,
+                layoutInfo.pageSpacing,
+                layoutInfo.beforeContentPadding,
+                layoutInfo.afterContentPadding,
+                pagerState.currentPage,
+                pagerState.currentPageOffsetFraction
+            )
 
             // the closest page should be close to the current page, we'll start from current page
             // and search both sides.
@@ -751,7 +777,7 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPosition = SnapAlignmentStartToStart
+                    snapPosition = snapPosition
                 )
 
                 debugLog { "Snapping Offset=$offset for page=$page" }
@@ -784,7 +810,7 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPosition = SnapAlignmentStartToStart
+                    snapPosition = snapPosition
                 )
 
                 debugLog {
@@ -817,6 +843,27 @@ private fun SnapLayoutInfoProvider(
             return lowerBoundOffset to upperBoundOffset
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal fun SnapPosition.currentPageOffset(
+    layoutSize: Int,
+    pageSize: Int,
+    spaceBetweenPages: Int,
+    beforeContentPadding: Int,
+    afterContentPadding: Int,
+    currentPage: Int,
+    currentPageOffsetFraction: Float
+): Int {
+    val snapOffset = position(
+        layoutSize,
+        pageSize,
+        beforeContentPadding,
+        afterContentPadding,
+        currentPage
+    )
+
+    return (snapOffset - currentPageOffsetFraction * (pageSize + spaceBetweenPages)).roundToInt()
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -946,11 +993,8 @@ internal fun Modifier.pagerSemantics(state: PagerState, isVertical: Boolean): Mo
 
 private const val LowVelocityAnimationDefaultDuration = 500
 
-internal const val PagerDebugEnable = false
-
-private const val DEBUG = PagerDebugEnable
 private inline fun debugLog(generateMsg: () -> String) {
-    if (DEBUG) {
+    if (PagerDebugConfig.MainPagerComposable) {
         println("Pager: ${generateMsg()}")
     }
 }
@@ -963,4 +1007,12 @@ private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orient
     upDownDifference.x
 } else {
     upDownDifference.y
+}
+
+internal object PagerDebugConfig {
+    const val MainPagerComposable = false
+    const val PagerState = false
+    const val MeasurePolicy = false
+    const val MeasureLogic = false
+    const val ScrollPosition = false
 }
