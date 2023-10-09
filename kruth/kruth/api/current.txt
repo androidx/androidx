@@ -11,7 +11,9 @@ package androidx.kruth {
     method public final void isAtMost(T? other);
     method public void isEquivalentAccordingToCompareTo(T? other);
     method public final void isGreaterThan(T? other);
+    method public final void isIn(com.google.common.collect.Range<T> range);
     method public final void isLessThan(T? other);
+    method public final void isNotIn(com.google.common.collect.Range<T> range);
   }
 
   public final class DoubleSubject extends androidx.kruth.ComparableSubject<java.lang.Double> {
