@@ -20,6 +20,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
@@ -66,7 +67,13 @@ internal interface DerivedState<T> : State<T> {
     }
 }
 
-private val calculationBlockNestedLevel = SnapshotThreadLocal<Int>()
+private val calculationBlockNestedLevel = SnapshotThreadLocal<IntRef>()
+private inline fun <T> withCalculationNestedLevel(block: (IntRef) -> T): T {
+    val ref = calculationBlockNestedLevel.get() ?: IntRef(0).also {
+        calculationBlockNestedLevel.set(it)
+    }
+    return block(ref)
+}
 
 private class DerivedSnapshotState<T>(
     private val calculation: () -> T,
@@ -171,39 +178,43 @@ private class DerivedSnapshotState<T>(
             if (forceDependencyReads) {
                 notifyObservers(this) {
                     val dependencies = readable._dependencies
-                    val invalidationNestedLevel = calculationBlockNestedLevel.get() ?: 0
-                    dependencies?.forEach { dependency, nestedLevel ->
-                        calculationBlockNestedLevel.set(nestedLevel + invalidationNestedLevel)
-                        snapshot.readObserver?.invoke(dependency)
+                    withCalculationNestedLevel { calculationLevelRef ->
+                        val invalidationNestedLevel = calculationLevelRef.element
+                        dependencies?.forEach { dependency, nestedLevel ->
+                            calculationLevelRef.element = invalidationNestedLevel + nestedLevel
+                            snapshot.readObserver?.invoke(dependency)
+                        }
+                        calculationLevelRef.element = invalidationNestedLevel
                     }
-                    calculationBlockNestedLevel.set(invalidationNestedLevel)
                 }
             }
             return readable
         }
-        val nestedCalculationLevel = calculationBlockNestedLevel.get() ?: 0
 
         val newDependencies = IdentityArrayMap<StateObject, Int>()
-        val result = notifyObservers(this) {
-            calculationBlockNestedLevel.set(nestedCalculationLevel + 1)
+        val result = withCalculationNestedLevel { calculationLevelRef ->
+            val nestedCalculationLevel = calculationLevelRef.element
+            notifyObservers(this) {
+                calculationLevelRef.element = nestedCalculationLevel + 1
 
-            val result = Snapshot.observe(
-                {
-                    if (it === this)
-                        error("A derived state calculation cannot read itself")
-                    if (it is StateObject) {
-                        val readNestedLevel = calculationBlockNestedLevel.get()!!
-                        newDependencies[it] = min(
-                            readNestedLevel - nestedCalculationLevel,
-                            newDependencies[it] ?: Int.MAX_VALUE
-                        )
-                    }
-                },
-                null, calculation
-            )
+                val result = Snapshot.observe(
+                    {
+                        if (it === this)
+                            error("A derived state calculation cannot read itself")
+                        if (it is StateObject) {
+                            val readNestedLevel = calculationLevelRef.element
+                            newDependencies[it] = min(
+                                readNestedLevel - nestedCalculationLevel,
+                                newDependencies[it] ?: Int.MAX_VALUE
+                            )
+                        }
+                    },
+                    null, calculation
+                )
 
-            calculationBlockNestedLevel.set(nestedCalculationLevel)
-            result
+                calculationLevelRef.element = nestedCalculationLevel
+                result
+            }
         }
 
         val record = sync {
@@ -230,7 +241,7 @@ private class DerivedSnapshotState<T>(
             }
         }
 
-        if (nestedCalculationLevel == 0) {
+        if (calculationBlockNestedLevel.get()?.element == 0) {
             Snapshot.notifyObjectsInitialized()
         }
 

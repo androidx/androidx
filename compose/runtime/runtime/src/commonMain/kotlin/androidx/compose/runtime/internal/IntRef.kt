@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime.changelist
+package androidx.compose.runtime.internal
 
 internal class IntRef(
     var element: Int = 0
