@@ -18,7 +18,9 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
-import androidx.compose.runtime.collection.IdentityArrayMap
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.ObjectIntMap
+import androidx.collection.emptyObjectIntMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.snapshots.Snapshot
@@ -58,12 +60,12 @@ internal interface DerivedState<T> : State<T> {
         val currentValue: T
 
         /**
-         * A list of the dependencies used to produce [value] or [currentValue].
+         * Map of the dependencies used to produce [value] or [currentValue] to nested read level.
          *
-         * The [dependencies] list can be used to determine when a [StateObject] appears in the apply
-         * observer set, if the state could affect value of this derived state.
+         * This map can be used to determine if the state could affect value of this derived state,
+         * when a [StateObject] appears in the apply observer set.
          */
-        val dependencies: Array<Any?>
+        val dependencies: ObjectIntMap<StateObject>
     }
 }
 
@@ -89,14 +91,14 @@ private class DerivedSnapshotState<T>(
         var validSnapshotId: Int = 0
         var validSnapshotWriteCount: Int = 0
 
-        var _dependencies: IdentityArrayMap<StateObject, Int>? = null
+        override var dependencies: ObjectIntMap<StateObject> = emptyObjectIntMap()
         var result: Any? = Unset
         var resultHash: Int = 0
 
         override fun assign(value: StateRecord) {
             @Suppress("UNCHECKED_CAST")
             val other = value as ResultRecord<T>
-            _dependencies = other._dependencies
+            dependencies = other.dependencies
             result = other.result
             resultHash = other.resultHash
         }
@@ -122,8 +124,8 @@ private class DerivedSnapshotState<T>(
 
         fun readableHash(derivedState: DerivedState<*>, snapshot: Snapshot): Int {
             var hash = 7
-            val dependencies = sync { _dependencies }
-            if (dependencies != null) {
+            val dependencies = sync { dependencies }
+            if (dependencies.isNotEmpty()) {
                 notifyObservers(derivedState) {
                     dependencies.forEach { stateObject, readLevel ->
                         if (readLevel != 1) {
@@ -152,9 +154,6 @@ private class DerivedSnapshotState<T>(
         override val currentValue: T
             @Suppress("UNCHECKED_CAST")
             get() = result as T
-
-        override val dependencies: Array<Any?>
-            get() = _dependencies?.keys ?: emptyArray()
     }
 
     /**
@@ -177,10 +176,10 @@ private class DerivedSnapshotState<T>(
             // for correct invalidation later
             if (forceDependencyReads) {
                 notifyObservers(this) {
-                    val dependencies = readable._dependencies
+                    val dependencies = readable.dependencies
                     withCalculationNestedLevel { calculationLevelRef ->
                         val invalidationNestedLevel = calculationLevelRef.element
-                        dependencies?.forEach { dependency, nestedLevel ->
+                        dependencies.forEach { dependency, nestedLevel ->
                             calculationLevelRef.element = invalidationNestedLevel + nestedLevel
                             snapshot.readObserver?.invoke(dependency)
                         }
@@ -191,7 +190,7 @@ private class DerivedSnapshotState<T>(
             return readable
         }
 
-        val newDependencies = IdentityArrayMap<StateObject, Int>()
+        val newDependencies = MutableObjectIntMap<StateObject>()
         val result = withCalculationNestedLevel { calculationLevelRef ->
             val nestedCalculationLevel = calculationLevelRef.element
             notifyObservers(this) {
@@ -205,7 +204,7 @@ private class DerivedSnapshotState<T>(
                             val readNestedLevel = calculationLevelRef.element
                             newDependencies[it] = min(
                                 readNestedLevel - nestedCalculationLevel,
-                                newDependencies[it] ?: Int.MAX_VALUE
+                                newDependencies.getOrDefault(it, Int.MAX_VALUE)
                             )
                         }
                     },
@@ -225,14 +224,14 @@ private class DerivedSnapshotState<T>(
                 @Suppress("UNCHECKED_CAST")
                 policy?.equivalent(result, readable.result as T) == true
             ) {
-                readable._dependencies = newDependencies
+                readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
                 readable.validSnapshotId = snapshot.id
                 readable.validSnapshotWriteCount = snapshot.writeCount
                 readable
             } else {
                 val writable = first.newWritableRecord(this, currentSnapshot)
-                writable._dependencies = newDependencies
+                writable.dependencies = newDependencies
                 writable.resultHash = writable.readableHash(this, currentSnapshot)
                 writable.validSnapshotId = snapshot.id
                 writable.validSnapshotWriteCount = snapshot.writeCount
