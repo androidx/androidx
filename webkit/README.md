@@ -25,8 +25,14 @@ to the library, you can do so like so:
 cd frameworks/support/
 # Build the library/compile changes
 ./gradlew :webkit:webkit:assembleDebug
+
 # Run integration tests with the WebView installed on the device
-./gradlew :webkit:integration-tests:instrumentation:connectedAndroidTest
+# using this convenience script:
+webkit/run_instrumentation_tests.sh
+# or run the tests directly: 
+./gradlew webkit:integration-tests:instrumentation:connectedAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.webview-version=factory
+
 # Update API files (only necessary if you changed public APIs)
 ./gradlew :webkit:webkit:updateApi
 ```
