@@ -246,6 +246,19 @@ class ObjectPValueTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableObjectPValueMap<String>()
+
+        var previous = map.put("Hello", 1ValueSuffix, -1ValueSuffix)
+        assertEquals(1ValueSuffix, map["Hello"])
+        assertEquals(-1ValueSuffix, previous)
+
+        previous = map.put("Hello", 2ValueSuffix, -1ValueSuffix)
+        assertEquals(2ValueSuffix, map["Hello"])
+        assertEquals(1ValueSuffix, previous)
+    }
+
+    @Test
     fun nullKey() {
         val map = MutableObjectPValueMap<String?>()
         map[null] = 1ValueSuffix

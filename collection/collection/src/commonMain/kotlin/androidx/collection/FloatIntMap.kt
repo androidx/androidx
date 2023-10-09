@@ -741,7 +741,8 @@ public class MutableFloatIntMap(
      * and cause allocations.
      */
     public operator fun set(key: Float, value: Int) {
-        val index = findAbsoluteInsertIndex(key)
+        var index = findInsertIndex(key)
+        if (index < 0) index = index.inv()
         keys[index] = key
         values[index] = value
     }
@@ -756,6 +757,29 @@ public class MutableFloatIntMap(
      */
     public fun put(key: Float, value: Int) {
         set(key, value)
+    }
+
+    /**
+     * Creates a new mapping from [key] to [value] in this map. If [key] is
+     * already present in the map, the association is modified and the previously
+     * associated value is replaced with [value]. If [key] is not present, a new
+     * entry is added to the map, which may require to grow the underlying storage
+     * and cause allocations.
+     *
+     * @return value previously associated with [key] or [default] if key was not present.
+     */
+    public fun put(key: Float, value: Int, default: Int): Int {
+        var index = findInsertIndex(key)
+        var previous = default
+        if (index < 0) {
+            index = index.inv()
+        } else {
+            previous = values[index]
+        }
+        keys[index] = key
+        values[index] = value
+
+        return previous
     }
 
     /**
@@ -870,7 +894,7 @@ public class MutableFloatIntMap(
      * Calling this function may cause the internal storage to be reallocated
      * if the table is full.
      */
-    private fun findAbsoluteInsertIndex(key: Float): Int {
+    private fun findInsertIndex(key: Float): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -908,7 +932,7 @@ public class MutableFloatIntMap(
         growthLimit -= if (isEmpty(metadata, index)) 1 else 0
         writeMetadata(index, hash2.toLong())
 
-        return index
+        return index.inv()
     }
 
     /**

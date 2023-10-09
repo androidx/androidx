@@ -246,6 +246,19 @@ class ObjectFloatTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableObjectFloatMap<String>()
+
+        var previous = map.put("Hello", 1f, -1f)
+        assertEquals(1f, map["Hello"])
+        assertEquals(-1f, previous)
+
+        previous = map.put("Hello", 2f, -1f)
+        assertEquals(2f, map["Hello"])
+        assertEquals(1f, previous)
+    }
+
+    @Test
     fun nullKey() {
         val map = MutableObjectFloatMap<String?>()
         map[null] = 1f
