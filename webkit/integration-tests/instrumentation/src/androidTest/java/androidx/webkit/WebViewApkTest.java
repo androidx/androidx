@@ -24,7 +24,6 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,8 +53,11 @@ public class WebViewApkTest {
         // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
         String expectedWebViewVersionString =
                 InstrumentationRegistry.getArguments().getString("webview-version");
-        Assume.assumeTrue("Did not receive a WebView version as an instrumentation argument",
-                expectedWebViewVersionString != null);
+        Assert.assertNotNull("Did not receive a WebView version as an instrumentation argument"
+                        + ". If you are running this test locally, add `-Pandroid"
+                        + ".testInstrumentationRunnerArguments.webview-version=factory` "
+                        + "to the test command or run `webkit/run_instrumentation_tests.sh`",
+                expectedWebViewVersionString);
 
         if (!"factory".equals(expectedWebViewVersionString)) {
             // Convert to a WebViewVersion to ensure these are well-formed
