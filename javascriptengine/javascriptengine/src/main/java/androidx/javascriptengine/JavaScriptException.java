@@ -19,7 +19,7 @@ package androidx.javascriptengine;
 import androidx.annotation.NonNull;
 
 /**
- * Super class for all exceptions resolved by
+ * Super class for all asynchronous exceptions produced by
  * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)}.
  */
 public class JavaScriptException extends Exception {

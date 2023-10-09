@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 
 /**
  * Indicates that streaming JavaScript code into the JS evaluation environment has failed.
- *
- * The JavaScript isolate may continue to be used after this exception has been thrown. The
+ * <p>
+ * The JavaScript isolate may continue to be used after this exception has been produced. The
  * JavaScript evaluation will not proceed if the JavaScript code streaming fails.
  */
 public final class FileDescriptorIoException extends JavaScriptException {
