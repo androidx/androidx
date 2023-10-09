@@ -139,10 +139,6 @@ RemovedInterface: androidx.kruth.Fact:
 
 RemovedMethod: androidx.kruth.ComparableSubject#ComparableSubject(androidx.kruth.FailureMetadata, T):
     Removed constructor androidx.kruth.ComparableSubject(androidx.kruth.FailureMetadata,T)
-RemovedMethod: androidx.kruth.ComparableSubject#isIn(com.google.common.collect.Range<T>):
-    Removed method androidx.kruth.ComparableSubject.isIn(com.google.common.collect.Range<T>)
-RemovedMethod: androidx.kruth.ComparableSubject#isNotIn(com.google.common.collect.Range<T>):
-    Removed method androidx.kruth.ComparableSubject.isNotIn(com.google.common.collect.Range<T>)
 RemovedMethod: androidx.kruth.FailureStrategy#fail(AssertionError):
     Removed method androidx.kruth.FailureStrategy.fail(AssertionError)
 RemovedMethod: androidx.kruth.IntegerSubject#IntegerSubject(androidx.kruth.FailureMetadata, Integer):

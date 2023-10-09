@@ -92,6 +92,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.mockitoAndroid)
+                implementation(libs.multidex)
             }
         }
 
@@ -153,4 +154,8 @@ androidx {
 
 android {
     namespace "androidx.paging.common"
+
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }
