@@ -17,7 +17,6 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Indicates that streaming JavaScript code into the JS evaluation environment has failed.
@@ -25,12 +24,11 @@ import androidx.annotation.RestrictTo;
  * The JavaScript isolate may continue to be used after this exception has been thrown. The
  * JavaScript evaluation will not proceed if the JavaScript code streaming fails.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class FileDescriptorIOException extends JavaScriptException {
-    public FileDescriptorIOException(@NonNull String error) {
+public final class FileDescriptorIoException extends JavaScriptException {
+    public FileDescriptorIoException(@NonNull String error) {
         super(error);
     }
-    public FileDescriptorIOException() {
+    public FileDescriptorIoException() {
         super();
     }
 }

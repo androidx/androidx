@@ -10,6 +10,11 @@ package androidx.javascriptengine {
     ctor public EvaluationResultSizeLimitExceededException(String);
   }
 
+  public final class FileDescriptorIoException extends androidx.javascriptengine.JavaScriptException {
+    ctor public FileDescriptorIoException();
+    ctor public FileDescriptorIoException(String);
+  }
+
   public final class IsolateStartupParameters {
     ctor public IsolateStartupParameters();
     method @IntRange(from=0) public int getMaxEvaluationReturnSizeBytes();

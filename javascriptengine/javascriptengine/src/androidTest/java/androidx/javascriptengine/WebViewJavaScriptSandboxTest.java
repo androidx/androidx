@@ -442,7 +442,7 @@ public class WebViewJavaScriptSandboxTest {
                     Assert.fail("Should have thrown.");
                 } catch (ExecutionException e) {
                     Assert.assertTrue(
-                            e.getCause().getClass().equals(FileDescriptorIOException.class));
+                            e.getCause().getClass().equals(FileDescriptorIoException.class));
                 }
             }
         } finally {
@@ -559,7 +559,7 @@ public class WebViewJavaScriptSandboxTest {
                     Assert.fail("Should have thrown.");
                 } catch (ExecutionException e) {
                     Assert.assertTrue(
-                            e.getCause().getClass().equals(FileDescriptorIOException.class));
+                            e.getCause().getClass().equals(FileDescriptorIoException.class));
                 }
             }
         } finally {
