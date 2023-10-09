@@ -16,17 +16,13 @@
 
 package androidx.core.telecom.extensions;
 
-import java.util.List;
-import androidx.core.telecom.extensions.Capability;
-import androidx.core.telecom.extensions.IParticipantStateListener;
-import androidx.core.telecom.extensions.ICallDetailsListener;
+import androidx.core.telecom.extensions.Participant;
+import androidx.core.telecom.extensions.IActionsResultCallback;
 
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
-oneway interface ICapabilityExchangeListener {
-    // Signal to VOIP containing participant extension support provided by ICS and provides VOIP
-    // side with a listener to communicate participant state changes to.
-    void onCreateParticipantExtension(in int version, in int[] actions, in IParticipantStateListener l) = 0;
-    // no actions set for call details yet, but we want to be forwards compatible.
-    void onCreateCallDetailsExtension(int version, in int[] actions, ICallDetailsListener l) = 1;
+oneway interface IParticipantActions {
+    // Contains participant action callbacks to VOIP app, to be accessed by the ICS side.
+    void raiseHand(in int participantId, in IActionsResultCallback cb) = 0;
+    void kickParticipant(in int participantId, in IActionsResultCallback cb) = 1;
 }

@@ -18,20 +18,15 @@ package androidx.core.telecom.extensions;
 
 import androidx.core.telecom.extensions.Capability;
 import androidx.core.telecom.extensions.ICapabilityExchangeListener;
+import androidx.core.telecom.extensions.IParticipantActions;
+import androidx.core.telecom.extensions.IParticipantStateListener;
+import androidx.core.telecom.extensions.ICallDetailsListener;
 
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICapabilityExchange {
     const int VERSION = 1;
-
-    // Notify the remote of the singleton listener interface that must be used to perform return
-    // communication.
-    void setListener(ICapabilityExchangeListener l) = 0;
     // Provide the capabilities of the service and request that capabilities of the remote are
-    // calculated. The response will be signalled back via
-    // ICapabilityExchangeListener#onCapabilitiesNegotiated
-    void negotiateCapabilities(in List<Capability> capabilities) = 1;
-    // All associated extension feature state has been synchronized and the user can now use the
-    // extensions.
-    void featureSetupComplete() = 2;
+    // calculated passing along a listener to send update back to the host side.
+    void beginExchange(in List<Capability> capabilities, in ICapabilityExchangeListener l) = 0;
 }
