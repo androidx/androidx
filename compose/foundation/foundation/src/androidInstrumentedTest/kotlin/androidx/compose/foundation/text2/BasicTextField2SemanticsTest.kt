@@ -66,7 +66,7 @@ class BasicTextField2SemanticsTest {
             BasicTextField2(
                 modifier = Modifier.testTag(Tag),
                 state = remember { TextFieldState() },
-                decorationBox = {
+                decorator = {
                     Column {
                         BasicText("label")
                         it()

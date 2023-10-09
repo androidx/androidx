@@ -239,7 +239,7 @@ class TextFieldLongPressTest {
                 state = state,
                 textStyle = defaultTextStyle,
                 modifier = Modifier.testTag(TAG),
-                decorationBox = {
+                decorator = {
                     Box(modifier = Modifier.padding(32.dp)) {
                         it()
                     }

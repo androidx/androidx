@@ -56,7 +56,7 @@ fun SimpleDecorationWithLabel() {
         state = state,
         modifier = Modifier,
         textStyle = LocalTextStyle.current,
-        decorationBox = @Composable {
+        decorator = {
             Column(Modifier.padding(4.dp)) {
                 Text("Label", style = MaterialTheme.typography.caption)
                 Spacer(modifier = Modifier.height(4.dp))
@@ -73,7 +73,7 @@ fun OutlinedBasicTextField2() {
         state = state,
         modifier = Modifier,
         textStyle = LocalTextStyle.current,
-        decorationBox = @Composable {
+        decorator = {
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = state.text.toString(),
                 visualTransformation = VisualTransformation.None,
