@@ -364,6 +364,10 @@ package androidx.compose.foundation.gestures {
     property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> DefaultScrollAnimationSpec;
   }
 
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface Drag2DScope {
+    method public void dragBy(long pixels);
+  }
+
   public final class DragGestureDetectorKt {
     method public static suspend Object? awaitDragOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, long pointerId, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
     method public static suspend Object? awaitHorizontalDragOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, long pointerId, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>);
@@ -383,6 +387,17 @@ package androidx.compose.foundation.gestures {
 
   public interface DragScope {
     method public void dragBy(float pixels);
+  }
+
+  public final class Draggable2DKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.Draggable2DState Draggable2DState(kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDelta);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier draggable2D(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.Draggable2DState state, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional boolean startDragImmediately, optional kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.ui.geometry.Offset,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onDragStarted, optional kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.ui.unit.Velocity,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onDragStopped, optional boolean reverseDirection);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.Draggable2DState rememberDraggable2DState(kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onDelta);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface Draggable2DState {
+    method public void dispatchRawDelta(long delta);
+    method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.Drag2DScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DraggableAnchors<T> {

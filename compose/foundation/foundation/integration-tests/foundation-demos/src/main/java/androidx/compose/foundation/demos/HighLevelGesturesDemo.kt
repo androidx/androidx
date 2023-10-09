@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.samples.Draggable2DSample
 import androidx.compose.foundation.samples.DraggableSample
 import androidx.compose.foundation.samples.FocusableSample
 import androidx.compose.foundation.samples.HoverableSample
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.dp
 fun HighLevelGesturesDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         DraggableSample()
+        Spacer(Modifier.height(50.dp))
+        Draggable2DSample()
         Spacer(Modifier.height(50.dp))
         ScrollableSample()
         Spacer(Modifier.height(50.dp))
