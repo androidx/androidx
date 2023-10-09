@@ -75,8 +75,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * class. This provides a security boundary between the calling app and the Javascript execution
  * environment.
  * <p>
- * The calling app can only have only one isolated process at a time, so only one
- * instance of this object can exist at a time.
+ * The calling app can have only one isolated process at a time, so only one
+ * instance of this class can be open at any given time.
  * <p>
  * It's safe to share a single {@link JavaScriptSandbox}
  * object with multiple threads and use it from multiple threads at once.
@@ -137,7 +137,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
             });
 
     /**
-     *
+     * A client-side feature, which may be conditional on one or more service-side features.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value =
@@ -168,8 +168,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * <p>
      * Irrespective of this feature, calling {@link JavaScriptSandbox#close()} terminates all
      * {@link JavaScriptIsolate} objects (and the isolated process) immediately and all pending
-     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)} futures resolve with {@link
-     * IsolateTerminatedException}.
+     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)} futures resolve with
+     * {@link IsolateTerminatedException}.
      */
     public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";
 
@@ -239,8 +239,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
             "JS_FEATURE_ISOLATE_CLIENT";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * <p>
      * When this feature is present,
-     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(android.content.res.AssetFileDescriptor)},
+     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(android.content.res.AssetFileDescriptor)}
      * and {@link JavaScriptIsolate#evaluateJavaScriptAsync(android.os.ParcelFileDescriptor)}
      * can be used to evaluate JavaScript code of known and unknown length from file descriptors.
      */
@@ -335,11 +337,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * Sandbox support should be checked using {@link JavaScriptSandbox#isSupported()} before
      * attempting to create a sandbox via this method.
      *
-     * @param context When the context is destroyed, the connection is closed. Use an
-     *                application
-     *                context if the connection is expected to outlive a single activity or service.
-     * @return Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
-     * exception if binding to service fails.
+     * @param context the Context for the sandbox. Use an application context if the connection
+     *                is expected to outlive a single activity or service.
+     * @return a Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
+     * exception if binding to service fails
      */
     @NonNull
     public static ListenableFuture<JavaScriptSandbox> createConnectedInstanceAsync(
@@ -363,11 +364,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * Only one sandbox process can exist at a time. Attempting to create a new instance before
      * the previous instance has been closed will fail with an {@link IllegalStateException}.
      *
-     * @param context When the context is destroyed, the connection will be closed. Use an
-     *                application
-     *                context if the connection is expected to outlive a single activity/service.
-     * @return Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
-     * exception if binding to service fails.
+     * @param context the Context for the sandbox. Use an application context if the connection
+     *                is expected to outlive a single activity or service.
+     * @return a Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
+     * exception if binding to service fails
      */
     @NonNull
     @VisibleForTesting
@@ -386,7 +386,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * This method should be used to check for sandbox support before calling
      * {@link JavaScriptSandbox#createConnectedInstanceAsync(Context)}.
      *
-     * @return true if JavaScriptSandbox is supported and false otherwise.
+     * @return true if JavaScriptSandbox is supported and false otherwise
      */
     public static boolean isSupported() {
         PackageInfo systemWebViewPackage = WebView.getCurrentWebViewPackage();
@@ -454,8 +454,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
     }
 
     /**
-     * Creates and returns an {@link JavaScriptIsolate} within which JS can be executed with default
+     * Creates and returns a {@link JavaScriptIsolate} within which JS can be executed with default
      * settings.
+     *
+     * @return a new JavaScriptIsolate
      */
     @NonNull
     public JavaScriptIsolate createIsolate() {
@@ -463,13 +465,14 @@ public final class JavaScriptSandbox implements AutoCloseable {
     }
 
     /**
-     * Creates and returns an {@link JavaScriptIsolate} within which JS can be executed with the
+     * Creates and returns a {@link JavaScriptIsolate} within which JS can be executed with the
      * specified settings.
      * <p>
      * If the sandbox is dead, this will still return an isolate, but evaluations will fail with
      * {@link SandboxDeadException}.
      *
-     * @param settings configuration used to set up the isolate
+     * @param settings the configuration for the isolate
+     * @return a new JavaScriptIsolate
      */
     @NonNull
     public JavaScriptIsolate createIsolate(@NonNull IsolateStartupParameters settings) {
@@ -559,7 +562,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * <p>
      * A feature check should be made prior to depending on certain features.
      *
-     * @param feature feature to be checked
+     * @param feature the feature to be checked
      * @return {@code true} if supported, {@code false} otherwise
      */
     public boolean isFeatureSupported(@JsSandboxFeature @NonNull String feature) {

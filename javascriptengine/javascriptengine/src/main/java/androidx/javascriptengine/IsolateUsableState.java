@@ -478,8 +478,8 @@ final class IsolateUsableState implements IsolateState {
 
     /**
      * Kill the sandbox and update state.
-     * @param e The exception causing us to kill the sandbox.
-     * @return TerminationInfo that has been set on the isolate.
+     * @param e the exception causing us to kill the sandbox
+     * @return terminationInfo that has been set on the isolate
      */
     @NonNull
     private TerminationInfo killSandbox(@NonNull Exception e) {
@@ -494,8 +494,8 @@ final class IsolateUsableState implements IsolateState {
 
     /**
      * Kill the sandbox, update state, and return a RuntimeException.
-     * @param e The original exception causing us to kill the sandbox.
-     * @return A runtime exception which may optionally be thrown.
+     * @param e the original exception causing us to kill the sandbox
+     * @return a runtime exception which may optionally be thrown
      */
     @NonNull
     private RuntimeException killSandboxAndGetRuntimeException(@NonNull Exception e) {
