@@ -351,12 +351,7 @@ class DialogBehaviourTest {
                     showDialog = showDialog,
                     onDismissRequest = { showDialog = false },
                 ) {
-                    Alert(
-                        icon = {},
-                        title = {},
-                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                        content = {},
-                    )
+                    Text("Text", modifier = Modifier.testTag(TEST_TAG))
                 }
             }
         }
