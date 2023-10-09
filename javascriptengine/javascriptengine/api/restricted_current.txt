@@ -41,8 +41,6 @@ package androidx.javascriptengine {
     method public int getLevel();
     method public int getLine();
     method public String getMessage();
-    method public String getSource();
-    method public String? getTrace();
     field public static final int LEVEL_DEBUG = 2; // 0x2
     field public static final int LEVEL_ERROR = 8; // 0x8
     field public static final int LEVEL_INFO = 4; // 0x4
