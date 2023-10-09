@@ -30,6 +30,11 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
+import com.android.tools.lint.model.DefaultLintModelAndroidLibrary
+import com.android.tools.lint.model.DefaultLintModelJavaLibrary
+import com.android.tools.lint.model.DefaultLintModelMavenName
+import com.android.tools.lint.model.LintModelLibrary
+import com.android.tools.lint.model.LintModelMavenName
 import com.intellij.lang.jvm.annotation.JvmAnnotationConstantValue
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiCompiledElement
@@ -38,6 +43,7 @@ import com.intellij.psi.PsiMember
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.compiled.ClsAnnotationImpl
 import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.kotlin.konan.file.File
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
@@ -175,16 +181,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         if (scope and RESTRICT_TO_LIBRARY_GROUP != 0 && member != null) {
             val evaluator = context.evaluator
             val thisCoordinates = evaluator.getLibrary(node) ?: context.project.mavenCoordinate
-            val methodCoordinates =
-                evaluator.getLibrary(member)
-                    ?: run {
-                        if (thisCoordinates != null && member !is PsiCompiledElement) {
-                            // Local source?
-                            context.evaluator.getProject(member)?.mavenCoordinate
-                        } else {
-                            null
-                        }
-                    }
+            val methodCoordinates = context.findMavenCoordinate(member)
             val thisGroup = thisCoordinates?.groupId
             val methodGroup = methodCoordinates?.groupId
             if (thisGroup != methodGroup && methodGroup != null) {
@@ -230,7 +227,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         } else if (scope and RESTRICT_TO_LIBRARY != 0 && member != null) {
             val evaluator = context.evaluator
             val thisCoordinates = evaluator.getLibrary(node) ?: context.project.mavenCoordinate
-            val methodCoordinates = evaluator.getLibrary(member)
+            val methodCoordinates = context.findMavenCoordinate(member)
             val thisGroup = thisCoordinates?.groupId
             val methodGroup = methodCoordinates?.groupId
             if (thisGroup != methodGroup && methodGroup != null) {
@@ -502,4 +499,93 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 implementation = IMPLEMENTATION
             )
     }
+}
+
+/** Attempts to find the Maven coordinate for the library containing [member]. */
+private fun JavaContext.findMavenCoordinate(member: PsiMember): LintModelMavenName? {
+    val mavenName = evaluator.getLibrary(member)
+        ?: evaluator.getProject(member)?.mavenCoordinate
+        ?: return null
+
+    // If the lint model is missing a Maven coordinate for this class, try to infer one from the
+    // JAR's owner library. If we fail, return the broken Maven name anyway.
+    if (mavenName == LintModelMavenName.NONE) {
+        return evaluator.findJarPath(member)
+            ?.let { jarPath ->
+                evaluator.findOwnerLibrary(jarPath.replace('/', File.separatorChar))
+            }
+            ?.getMavenNameFromIdentifier()
+            ?: mavenName
+    }
+
+    // If the lint model says the class lives in a "local AAR", try a little bit harder to match
+    // that to an artifact in a real library based on build directory containment.
+    if (mavenName.groupId == "__local_aars__") {
+        val artifactPath = mavenName.artifactId
+
+        // The artifact is being repackaged within this project. Assume that means it's in the same
+        // Maven group.
+        if (artifactPath.startsWith(project.buildModule.buildFolder.path)) {
+            return project.mavenCoordinate
+        }
+
+        val lastIndexOfBuild = artifactPath.lastIndexOf("/build/")
+        if (lastIndexOfBuild < 0) return null
+
+        // Otherwise, try to find a dependency with a matching path and use its Maven group.
+        val path = artifactPath.substring(0, lastIndexOfBuild)
+        return evaluator.dependencies?.getAll()
+            ?.findMavenNameWithJarFileInPath(path, mavenName)
+            ?: mavenName
+    }
+
+    return mavenName
+}
+
+/**
+ * Attempts to find the Maven name for the library with at least one JAR file matching the [path].
+ */
+internal fun List<LintModelLibrary>.findMavenNameWithJarFileInPath(
+    path: String,
+    excludeMavenName: LintModelMavenName? = null
+): LintModelMavenName? {
+    return firstNotNullOfOrNull { library ->
+        val resolvedCoordinates = when {
+            library is DefaultLintModelJavaLibrary -> library.resolvedCoordinates
+            library is DefaultLintModelAndroidLibrary -> library.resolvedCoordinates
+            else -> null
+        }
+
+        if (resolvedCoordinates == null || resolvedCoordinates == excludeMavenName) {
+            return@firstNotNullOfOrNull null
+        }
+
+        val hasMatchingJarFile = when {
+            library == excludeMavenName -> emptyList()
+            library is DefaultLintModelJavaLibrary -> library.jarFiles
+            library is DefaultLintModelAndroidLibrary -> library.jarFiles
+            else -> emptyList()
+        }.any { jarFile -> jarFile.path.startsWith(path) }
+
+        if (hasMatchingJarFile) {
+            return@firstNotNullOfOrNull resolvedCoordinates
+        }
+
+        return@firstNotNullOfOrNull null
+    }
+}
+
+/** Attempts to parse an unversioned Maven name from the library identifier. */
+internal fun LintModelLibrary.getMavenNameFromIdentifier(): LintModelMavenName? {
+    val indexOfSentinel = identifier.indexOf(":@@:")
+    if (indexOfSentinel < 0) return null
+
+    // May be suffixed with something like ::debug.
+    val project = identifier.substring(indexOfSentinel + 4).substringBefore("::")
+    val indexOfLastSeparator = project.lastIndexOf(':')
+    if (indexOfLastSeparator < 0) return null
+
+    val groupId = project.substring(0, indexOfLastSeparator).replace(':', '.')
+    val artifactId = project.substring(indexOfLastSeparator + 1)
+    return DefaultLintModelMavenName("androidx.$groupId", artifactId)
 }
