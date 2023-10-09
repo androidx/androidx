@@ -24,8 +24,8 @@ package androidx.annotation
  * ```
  * public @CheckResult String trim(String s) { return s.trim(); }
  * ...
- * s.trim(); // this is probably an error
- * s = s.trim(); // ok
+ * trim(s); // this is probably an error
+ * s = trim(s); // ok
  * ```
  */
 @MustBeDocumented
