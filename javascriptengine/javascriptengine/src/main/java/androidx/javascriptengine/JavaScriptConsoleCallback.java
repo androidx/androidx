@@ -136,6 +136,7 @@ public interface JavaScriptConsoleCallback {
 
         /** Return the source file/expression name */
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public String getSource() {
             return mSource;
         }
@@ -159,14 +160,22 @@ public interface JavaScriptConsoleCallback {
          * complete if present. The precise formatting of the trace is not defined.
          */
         @Nullable
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         public String getTrace() {
             return mTrace;
         }
 
+        /**
+         * Return a string representation of this console message, including the message body and
+         * where it came from.
+         * <p>
+         * Do not try to parse the result of this method as its format may change across
+         * JavaScriptEngine versions.
+         */
         @NonNull
         @Override
         public String toString() {
-            return getLevelInitial() + " " + mSource + ":" + mLine + ":" + mColumn + ": "
+            return getLevelInitial() + " <expression>:" + mLine + ":" + mColumn + ": "
                     + mMessage;
         }
     }
