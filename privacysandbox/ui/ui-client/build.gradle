@@ -54,6 +54,7 @@ android {
     namespace "androidx.privacysandbox.ui.client"
     defaultConfig {
         multiDexEnabled true
+        minSdk 21
     }
 }
 

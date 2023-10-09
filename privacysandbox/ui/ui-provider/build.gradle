@@ -46,6 +46,9 @@ dependencies {
 
 android {
     namespace "androidx.privacysandbox.ui.provider"
+    defaultConfig {
+        minSdk 21
+    }
 }
 
 androidx {

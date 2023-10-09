@@ -5,7 +5,7 @@ package androidx.privacysandbox.ui.core {
     method public void openSession(android.content.Context context, android.os.IBinder windowInputToken, int initialWidth, int initialHeight, boolean isZOrderOnTop, java.util.concurrent.Executor clientExecutor, androidx.privacysandbox.ui.core.SandboxedUiAdapter.SessionClient client);
   }
 
-  public static interface SandboxedUiAdapter.Session {
+  public static interface SandboxedUiAdapter.Session extends java.lang.AutoCloseable {
     method public void close();
     method public android.view.View getView();
     method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
