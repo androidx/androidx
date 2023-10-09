@@ -372,6 +372,7 @@ public class WebViewCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void testSetNullWebViewClient() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
+        WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
         // Silence the inspection that complains that we are passing null to a @NonNull method.
         //noinspection DataFlowIssue
         mWebViewOnUiThread.setWebViewClient(null);
