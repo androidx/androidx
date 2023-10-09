@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.os.Build
 import android.view.Surface
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -254,7 +256,7 @@ class AndroidEmbeddedExternalSurfaceTest {
                 AndroidEmbeddedExternalSurface(
                     modifier = Modifier
                         .size(size)
-                        .testTag("EmbeddedGraphicSurface"),
+                        .testTag("EmbeddedExternalSurface"),
                     isOpaque = false
                 ) {
                     onSurface { surface, _, _ ->
@@ -271,7 +273,7 @@ class AndroidEmbeddedExternalSurfaceTest {
         val expectedColor = Color(ColorUtils.compositeColors(translucentRed, Color.White.toArgb()))
 
         rule
-            .onNodeWithTag("EmbeddedGraphicSurface")
+            .onNodeWithTag("EmbeddedExternalSurface")
             .captureToImage()
             .assertPixels { expectedColor }
     }
@@ -286,7 +288,7 @@ class AndroidEmbeddedExternalSurfaceTest {
                 AndroidEmbeddedExternalSurface(
                     modifier = Modifier
                         .size(size)
-                        .testTag("EmbeddedGraphicSurface")
+                        .testTag("EmbeddedExternalSurface")
                 ) {
                     onSurface { surface, _, _ ->
                         surface.lockHardwareCanvas().apply {
@@ -299,8 +301,55 @@ class AndroidEmbeddedExternalSurfaceTest {
         }
 
         rule
-            .onNodeWithTag("EmbeddedGraphicSurface")
+            .onNodeWithTag("EmbeddedExternalSurface")
             .captureToImage()
             .assertPixels { Color.Red }
+    }
+
+    @Test
+    fun testTransform() {
+        var expectedSize = 0
+
+        rule.setContent {
+            expectedSize = with(LocalDensity.current) {
+                size.toPx().roundToInt()
+            }
+            AndroidEmbeddedExternalSurface(
+                modifier = Modifier
+                    .size(size)
+                    .testTag("EmbeddedExternalSurface"),
+                transform = Matrix().apply {
+                    val s = expectedSize / 2.0f
+                    translate(s, s)
+                    rotateZ(180.0f)
+                    translate(-s, -s)
+                }
+            ) {
+                onSurface { surface, _, _ ->
+                    // Draw the top half in red, the bottom half in blue
+                    // But because we set up a mirror transform on the
+                    // AndroidEmbeddedExternalSurface, the display result
+                    // will be top half in blue, bottom half in red
+                    surface.lockHardwareCanvas().apply {
+                        val s = expectedSize.toFloat()
+                        val paint = Paint()
+
+                        paint.color = Color.Red.toArgb()
+                        drawRect(0.0f, 0.0f, s, s / 2.0f, paint)
+
+                        paint.color = Color.Blue.toArgb()
+                        drawRect(0.0f, s / 2.0f, s, s, paint)
+
+                        surface.unlockCanvasAndPost(this)
+                    }
+                }
+            }
+        }
+
+        val halfHeight = (expectedSize.toFloat() / 2.0f).roundToInt()
+        rule
+            .onNodeWithTag("EmbeddedExternalSurface")
+            .captureToImage()
+            .assertPixels { if (it.y < halfHeight) Color.Blue else Color.Red }
     }
 }
