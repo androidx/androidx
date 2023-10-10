@@ -137,6 +137,7 @@ package androidx.graphics.opengl {
   }
 
   public static interface GLFrameBufferRenderer.Callback {
+    method @WorkerThread public default void onBufferReleased(androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? releaseFence);
     method @WorkerThread public default void onDrawComplete(androidx.graphics.surface.SurfaceControlCompat targetSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction, androidx.graphics.opengl.FrameBuffer frameBuffer, androidx.hardware.SyncFenceCompat? syncFence);
     method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EGLManager eglManager, int width, int height, androidx.graphics.lowlatency.BufferInfo bufferInfo, float[] transform);
   }

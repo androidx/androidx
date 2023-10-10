@@ -73,11 +73,33 @@ internal class ParamQueue<T> {
     }
 
     /**
+     * Similar to [next], but iterates through each item from the current index to the end of
+     * the collection and invokes the given lambda on each parameter.
+     * This does not actually remove the parameter from the collection. Consumers must either
+     * call [clear], or clear the collection returned in [release] to ensure contents do not
+     * grow unbounded.
+     */
+    inline fun flush(block: (T) -> Unit) {
+        mLock.withLock {
+            while (mIndex < mParams.size) {
+                val param = mParams[mIndex++]
+                block(param)
+            }
+        }
+    }
+
+    /**
      * Adds a new entry into the parameter queue. This leaves the current index position unchanged.
      */
     fun add(param: T) {
         mLock.withLock {
             mParams.add(param)
+        }
+    }
+
+    fun addAll(params: Collection<T>) {
+        mLock.withLock {
+            mParams.addAll(params)
         }
     }
 
