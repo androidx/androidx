@@ -47,6 +47,7 @@ import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.SystemColor.window
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -695,5 +696,45 @@ class WindowTest {
         awaitIdle()
         assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
         assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+    }
+
+    @Test
+    fun `window does not move to front on recomposition`() = runApplicationTest {
+        var window1: ComposeWindow? = null
+        var window2: ComposeWindow? = null
+
+        var window1Title by mutableStateOf("Window 1")
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = window1Title,
+            ) {
+                window1 = this.window
+                Box(Modifier.size(32.dp))
+            }
+
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "Window 2"
+            ) {
+                window2 = this.window
+                Box(Modifier.size(32.dp))
+                LaunchedEffect(Unit) {
+                    window.toFront()
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isTrue()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
+
+        window1Title = "Retitled Window"
+        awaitIdle()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
     }
 }

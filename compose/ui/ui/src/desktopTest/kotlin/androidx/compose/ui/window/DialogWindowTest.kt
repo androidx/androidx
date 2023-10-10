@@ -41,6 +41,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.sendKeyEvent
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.toInt
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -605,5 +607,39 @@ class DialogWindowTest {
         layoutDirection = LayoutDirection.Ltr
         awaitIdle()
         assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun `modal DialogWindow does not block parent window rendering`() {
+        runApplicationTest(useDelay = true) {
+            var text by mutableStateOf("1")
+            var renderedText: String? = null
+            lateinit var dialog: ComposeDialog
+
+            launchTestApplication {
+                Window(onCloseRequest = {}) {
+                    val textMeasurer = rememberTextMeasurer()
+                    Canvas(Modifier.size(200.dp)) {
+                        renderedText = text
+                        drawText(
+                            textMeasurer = textMeasurer,
+                            text = text
+                        )
+                    }
+
+                    DialogWindow(onCloseRequest = {}) {
+                        dialog = window
+                    }
+                }
+            }
+
+            awaitIdle()
+            assertThat(dialog.isModal).isTrue()
+            assertThat(renderedText).isEqualTo("1")
+
+            text = "2"
+            awaitIdle()
+            assertThat(renderedText).isEqualTo("2")
+        }
     }
 }

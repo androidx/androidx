@@ -18,7 +18,6 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -26,7 +25,6 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.util.UpdateEffect
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.MainUIDispatcher
 import java.awt.Window
@@ -41,8 +39,8 @@ import java.awt.Window
  *
  * The [update] block can be run multiple times (on the UI thread as well) due to recomposition,
  * and it is the right place to set [Window] properties depending on state.
- * When state changes, the block will be reexecuted to set the new properties.
- * Note the block will also be ran once right after the [create] block completes.
+ * When state changes, the block will be re-executed to set the new properties.
+ * Note the block will also be run once right after the [create] block completes.
  *
  * [AwtWindow] is needed for creating window's / dialog's that still can't be created with
  * the default Compose functions [androidx.compose.ui.window.Window] or
@@ -65,8 +63,6 @@ fun <T : Window> AwtWindow(
     dispose: (T) -> Unit,
     update: (T) -> Unit = {}
 ) {
-    val currentVisible by rememberUpdatedState(visible)
-
     val windowRef = remember { Ref<T>() }
     fun window() = windowRef.value!!
 
@@ -82,45 +78,38 @@ fun <T : Window> AwtWindow(
         update(window)
     }
 
-    val showJob = Ref<Job?>()
-
-    SideEffect {
+    DisposableEffect(visible) {
         // Why we dispatch showing in the next AWT tick:
         //
         // 1.
         // window.isVisible = true can be a blocking operation.
-        // So we have to schedule it when we will be outside of Compose render frame.
+        // So we have to schedule it outside the Compose render frame.
         //
-        // This happens in the when we create a modal dialog.
-        // When we call `window.isVisible = true`, internally will be created a new AWT event loop,
+        // This happens in when we create a modal dialog.
+        // When we call `window.isVisible = true`, internally a new AWT event loop will be created,
         // which will handle all the future Swing events while dialog is visible.
         //
-        // We can't use LaunchedEffect or rememberCoroutineScope, because they have a dispatcher
-        // which is controlled by the Compose rendering loop (ComposeScene.dispatcher) and we
-        // will block coroutine.
+        // We can't show the window directly inside LaunchedEffect or rememberCoroutineScope because
+        // their dispatcher is controlled by the Compose rendering loop (ComposeScene.dispatcher)
+        // and we will block the coroutine.
         //
         // 2.
-        // We achieve the correct order when we open nested
-        // window at the same time when we open the parent window. If we would show the window
-        // immediately we will have this sequence in case of nested Window's:
+        // We achieve the correct order when we open nested window at the same time when we open the
+        // parent window. If we had shown the window immediately we would have had this sequence in
+        // case of nested windows:
         //
         // 1. window1.setContent
         // 2. window2.setContent
         // 3. window2.isVisible = true
         // 4. window1.isVisible = true
         //
-        // So we will have a wrong active window (window1).
-
-        showJob.value?.cancel()
-        showJob.value = GlobalScope.launch(MainUIDispatcher) {
-            window().isVisible = currentVisible
+        // So we will have the wrong window active (window1).
+        val showJob = GlobalScope.launch(MainUIDispatcher) {
+            window().isVisible = visible
         }
-    }
 
-    DisposableEffect(Unit) {
         onDispose {
-            showJob.value?.cancel()
-            window().isVisible = false
+            showJob.cancel()
         }
     }
 }
