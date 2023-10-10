@@ -19,7 +19,6 @@ package androidx.compose.ui.draganddrop
 import android.content.ClipData
 import android.view.DragEvent
 import android.view.View
-import androidx.collection.ArraySet
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -48,13 +47,12 @@ actual class DragAndDropTransfer(
  */
 actual class DragAndDropEvent(
     internal val dragEvent: DragEvent,
-    internal actual val interestedNodes: ArraySet<DragAndDropModifierNode> = ArraySet()
 )
 
 /**
  * Returns the backing [DragEvent] to read platform specific data
  */
-val DragAndDropEvent.dragEvent: DragEvent get() = this.dragEvent
+fun DragAndDropEvent.toAndroidDragEvent(): DragEvent = this.dragEvent
 
 /**
  * The mime types present in a [DragAndDropEvent]

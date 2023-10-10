@@ -254,7 +254,7 @@ package androidx.compose.ui.autofill {
 package androidx.compose.ui.draganddrop {
 
   public final class DragAndDropEvent {
-    ctor public DragAndDropEvent(android.view.DragEvent dragEvent, optional androidx.collection.ArraySet<androidx.compose.ui.draganddrop.DragAndDropModifierNode> interestedNodes);
+    ctor public DragAndDropEvent(android.view.DragEvent dragEvent);
   }
 
   @kotlin.jvm.JvmInline public final value class DragAndDropEventType {
@@ -281,12 +281,12 @@ package androidx.compose.ui.draganddrop {
   }
 
   public final class DragAndDropInfo {
-    ctor public DragAndDropInfo(long size, androidx.compose.ui.draganddrop.DragAndDropTransfer transfer, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDrawDragShadow);
-    method public kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> getOnDrawDragShadow();
-    method public long getSize();
+    ctor public DragAndDropInfo(long dragDecorationSize, androidx.compose.ui.draganddrop.DragAndDropTransfer transfer, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
+    method public long getDragDecorationSize();
+    method public kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> getDrawDragDecoration();
     method public androidx.compose.ui.draganddrop.DragAndDropTransfer getTransfer();
-    property public final kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDrawDragShadow;
-    property public final long size;
+    property public final long dragDecorationSize;
+    property public final kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration;
     property public final androidx.compose.ui.draganddrop.DragAndDropTransfer transfer;
   }
 
@@ -313,8 +313,8 @@ package androidx.compose.ui.draganddrop {
   }
 
   public final class DragAndDrop_androidKt {
-    method public static android.view.DragEvent getDragEvent(androidx.compose.ui.draganddrop.DragAndDropEvent);
     method public static java.util.Set<java.lang.String> mimeTypes(androidx.compose.ui.draganddrop.DragAndDropEvent);
+    method public static android.view.DragEvent toAndroidDragEvent(androidx.compose.ui.draganddrop.DragAndDropEvent);
   }
 
 }

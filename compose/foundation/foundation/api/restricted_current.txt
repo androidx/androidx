@@ -294,7 +294,7 @@ package androidx.compose.foundation.draganddrop {
   }
 
   public final class DragAndDropSourceKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> onDrawDragShadow, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropSource(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.draganddrop.DragAndDropSourceScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DragAndDropSourceScope extends androidx.compose.ui.input.pointer.PointerInputScope {
