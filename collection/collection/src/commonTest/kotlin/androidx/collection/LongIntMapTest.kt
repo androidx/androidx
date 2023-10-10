@@ -245,6 +245,19 @@ class LongIntMapTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableLongIntMap()
+
+        var previous = map.put(1L, 1, -1)
+        assertEquals(1, map[1L])
+        assertEquals(-1, previous)
+
+        previous = map.put(1L, 2, -1)
+        assertEquals(2, map[1L])
+        assertEquals(1, previous)
+    }
+
+    @Test
     fun findNonExistingKey() {
         val map = MutableLongIntMap()
         map[1L] = 1

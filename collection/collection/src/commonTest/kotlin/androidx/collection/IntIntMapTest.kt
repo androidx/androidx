@@ -245,6 +245,19 @@ class IntIntMapTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableIntIntMap()
+
+        var previous = map.put(1, 1, -1)
+        assertEquals(1, map[1])
+        assertEquals(-1, previous)
+
+        previous = map.put(1, 2, -1)
+        assertEquals(2, map[1])
+        assertEquals(1, previous)
+    }
+
+    @Test
     fun findNonExistingKey() {
         val map = MutableIntIntMap()
         map[1] = 1

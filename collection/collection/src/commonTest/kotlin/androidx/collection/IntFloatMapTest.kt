@@ -245,6 +245,19 @@ class IntFloatMapTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableIntFloatMap()
+
+        var previous = map.put(1, 1f, -1f)
+        assertEquals(1f, map[1])
+        assertEquals(-1f, previous)
+
+        previous = map.put(1, 2f, -1f)
+        assertEquals(2f, map[1])
+        assertEquals(1f, previous)
+    }
+
+    @Test
     fun findNonExistingKey() {
         val map = MutableIntFloatMap()
         map[1] = 1f

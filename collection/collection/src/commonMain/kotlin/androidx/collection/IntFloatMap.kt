@@ -741,7 +741,8 @@ public class MutableIntFloatMap(
      * and cause allocations.
      */
     public operator fun set(key: Int, value: Float) {
-        val index = findAbsoluteInsertIndex(key)
+        var index = findInsertIndex(key)
+        if (index < 0) index = index.inv()
         keys[index] = key
         values[index] = value
     }
@@ -756,6 +757,29 @@ public class MutableIntFloatMap(
      */
     public fun put(key: Int, value: Float) {
         set(key, value)
+    }
+
+    /**
+     * Creates a new mapping from [key] to [value] in this map. If [key] is
+     * already present in the map, the association is modified and the previously
+     * associated value is replaced with [value]. If [key] is not present, a new
+     * entry is added to the map, which may require to grow the underlying storage
+     * and cause allocations.
+     *
+     * @return value previously associated with [key] or [default] if key was not present.
+     */
+    public fun put(key: Int, value: Float, default: Float): Float {
+        var index = findInsertIndex(key)
+        var previous = default
+        if (index < 0) {
+            index = index.inv()
+        } else {
+            previous = values[index]
+        }
+        keys[index] = key
+        values[index] = value
+
+        return previous
     }
 
     /**
@@ -800,7 +824,7 @@ public class MutableIntFloatMap(
     /**
      * Removes any mapping for which the specified [predicate] returns true.
      */
-    public fun removeIf(predicate: (Int, Float) -> Boolean) {
+    public inline fun removeIf(predicate: (Int, Float) -> Boolean) {
         forEachIndexed { index ->
             if (predicate(keys[index], values[index])) {
                 removeValueAt(index)
@@ -842,7 +866,8 @@ public class MutableIntFloatMap(
         }
     }
 
-    private fun removeValueAt(index: Int) {
+    @PublishedApi
+    internal fun removeValueAt(index: Int) {
         _size -= 1
 
         // TODO: We could just mark the entry as empty if there's a group
@@ -869,7 +894,7 @@ public class MutableIntFloatMap(
      * Calling this function may cause the internal storage to be reallocated
      * if the table is full.
      */
-    private fun findAbsoluteInsertIndex(key: Int): Int {
+    private fun findInsertIndex(key: Int): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)
@@ -907,7 +932,7 @@ public class MutableIntFloatMap(
         growthLimit -= if (isEmpty(metadata, index)) 1 else 0
         writeMetadata(index, hash2.toLong())
 
-        return index
+        return index.inv()
     }
 
     /**
