@@ -1152,10 +1152,11 @@ package androidx.collection {
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatFloatMap from);
     method public void put(float key, float value);
+    method public float put(float key, float value, float default);
     method public void putAll(androidx.collection.FloatFloatMap from);
     method public void remove(float key);
     method public boolean remove(float key, float value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,java.lang.Boolean> predicate);
     method public operator void set(float key, float value);
     method public int trim();
   }
@@ -1170,10 +1171,11 @@ package androidx.collection {
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatIntMap from);
     method public void put(float key, int value);
+    method public int put(float key, int value, int default);
     method public void putAll(androidx.collection.FloatIntMap from);
     method public void remove(float key);
     method public boolean remove(float key, int value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public operator void set(float key, int value);
     method public int trim();
   }
@@ -1219,10 +1221,11 @@ package androidx.collection {
     method public inline operator void minusAssign(float[] keys);
     method public inline operator void plusAssign(androidx.collection.FloatLongMap from);
     method public void put(float key, long value);
+    method public long put(float key, long value, long default);
     method public void putAll(androidx.collection.FloatLongMap from);
     method public void remove(float key);
     method public boolean remove(float key, long value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Long,java.lang.Boolean> predicate);
     method public operator void set(float key, long value);
     method public int trim();
   }
@@ -1240,7 +1243,7 @@ package androidx.collection {
     method public void putAll(androidx.collection.FloatObjectMap<V> from);
     method public V? remove(float key);
     method public boolean remove(float key, V value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Float,? super V,java.lang.Boolean> predicate);
     method public operator void set(float key, V value);
     method public int trim();
   }
@@ -1273,10 +1276,11 @@ package androidx.collection {
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntFloatMap from);
     method public void put(int key, float value);
+    method public float put(int key, float value, float default);
     method public void putAll(androidx.collection.IntFloatMap from);
     method public void remove(int key);
     method public boolean remove(int key, float value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Float,java.lang.Boolean> predicate);
     method public operator void set(int key, float value);
     method public int trim();
   }
@@ -1291,10 +1295,11 @@ package androidx.collection {
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntIntMap from);
     method public void put(int key, int value);
+    method public int put(int key, int value, int default);
     method public void putAll(androidx.collection.IntIntMap from);
     method public void remove(int key);
     method public boolean remove(int key, int value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public operator void set(int key, int value);
     method public int trim();
   }
@@ -1340,10 +1345,11 @@ package androidx.collection {
     method public inline operator void minusAssign(int[] keys);
     method public inline operator void plusAssign(androidx.collection.IntLongMap from);
     method public void put(int key, long value);
+    method public long put(int key, long value, long default);
     method public void putAll(androidx.collection.IntLongMap from);
     method public void remove(int key);
     method public boolean remove(int key, long value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
     method public operator void set(int key, long value);
     method public int trim();
   }
@@ -1361,7 +1367,7 @@ package androidx.collection {
     method public void putAll(androidx.collection.IntObjectMap<V> from);
     method public V? remove(int key);
     method public boolean remove(int key, V value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super V,java.lang.Boolean> predicate);
     method public operator void set(int key, V value);
     method public int trim();
   }
@@ -1394,10 +1400,11 @@ package androidx.collection {
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongFloatMap from);
     method public void put(long key, float value);
+    method public float put(long key, float value, float default);
     method public void putAll(androidx.collection.LongFloatMap from);
     method public void remove(long key);
     method public boolean remove(long key, float value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Float,java.lang.Boolean> predicate);
     method public operator void set(long key, float value);
     method public int trim();
   }
@@ -1412,10 +1419,11 @@ package androidx.collection {
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongIntMap from);
     method public void put(long key, int value);
+    method public int put(long key, int value, int default);
     method public void putAll(androidx.collection.LongIntMap from);
     method public void remove(long key);
     method public boolean remove(long key, int value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public operator void set(long key, int value);
     method public int trim();
   }
@@ -1461,10 +1469,11 @@ package androidx.collection {
     method public inline operator void minusAssign(long[] keys);
     method public inline operator void plusAssign(androidx.collection.LongLongMap from);
     method public void put(long key, long value);
+    method public long put(long key, long value, long default);
     method public void putAll(androidx.collection.LongLongMap from);
     method public void remove(long key);
     method public boolean remove(long key, long value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super java.lang.Long,java.lang.Boolean> predicate);
     method public operator void set(long key, long value);
     method public int trim();
   }
@@ -1482,7 +1491,7 @@ package androidx.collection {
     method public void putAll(androidx.collection.LongObjectMap<V> from);
     method public V? remove(long key);
     method public boolean remove(long key, V value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super java.lang.Long,? super V,java.lang.Boolean> predicate);
     method public operator void set(long key, V value);
     method public int trim();
   }
@@ -1516,10 +1525,11 @@ package androidx.collection {
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectFloatMap<K> from);
     method public void put(K key, float value);
+    method public float put(K key, float value, float default);
     method public void putAll(androidx.collection.ObjectFloatMap<K> from);
     method public void remove(K key);
     method public boolean remove(K key, float value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Float,java.lang.Boolean> predicate);
     method public operator void set(K key, float value);
     method public int trim();
   }
@@ -1535,10 +1545,11 @@ package androidx.collection {
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectIntMap<K> from);
     method public void put(K key, int value);
+    method public int put(K key, int value, int default);
     method public void putAll(androidx.collection.ObjectIntMap<K> from);
     method public void remove(K key);
     method public boolean remove(K key, int value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public operator void set(K key, int value);
     method public int trim();
   }
@@ -1606,10 +1617,11 @@ package androidx.collection {
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectLongMap<K> from);
     method public void put(K key, long value);
+    method public long put(K key, long value, long default);
     method public void putAll(androidx.collection.ObjectLongMap<K> from);
     method public void remove(K key);
     method public boolean remove(K key, long value);
-    method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public inline void removeIf(kotlin.jvm.functions.Function2<? super K,? super java.lang.Long,java.lang.Boolean> predicate);
     method public operator void set(K key, long value);
     method public int trim();
   }

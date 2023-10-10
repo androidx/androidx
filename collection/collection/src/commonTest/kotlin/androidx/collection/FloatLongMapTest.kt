@@ -245,6 +245,19 @@ class FloatLongMapTest {
     }
 
     @Test
+    fun putWithDefault() {
+        val map = MutableFloatLongMap()
+
+        var previous = map.put(1f, 1L, -1L)
+        assertEquals(1L, map[1f])
+        assertEquals(-1L, previous)
+
+        previous = map.put(1f, 2L, -1L)
+        assertEquals(2L, map[1f])
+        assertEquals(1L, previous)
+    }
+
+    @Test
     fun findNonExistingKey() {
         val map = MutableFloatLongMap()
         map[1f] = 1L
