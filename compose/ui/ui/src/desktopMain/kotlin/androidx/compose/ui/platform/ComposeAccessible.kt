@@ -91,7 +91,15 @@ internal class ComposeAccessible(
 
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 
-    override fun getAccessibleContext(): AccessibleContext {
+    var removed = false
+
+    override fun getAccessibleContext(): AccessibleContext? {
+        if (removed) {
+            // The accessibility system keeps calling functions on the context even after the node
+            // has been removed. We return null so it doesn't do that.
+            return null
+        }
+
         // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
         if (isNativelyInitialized.compareAndSet(false, true)) {
             nativeInitializeAccessible(this)

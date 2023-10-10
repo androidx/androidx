@@ -53,7 +53,7 @@ class AccessibilityTest {
         }
 
         val node = rule.onNodeWithTag("text").fetchSemanticsNode()
-        val accessibleContext = ComposeAccessible(node).accessibleContext
+        val accessibleContext = ComposeAccessible(node).accessibleContext!!
         val accessibleText = accessibleContext.accessibleText!!
         assertEquals(22, accessibleText.charCount)
 
@@ -115,7 +115,7 @@ class AccessibilityTest {
         }
 
         rule.onNodeWithTag("progressbar").apply {
-            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext
+            val context = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
             val value = context.accessibleValue
                 ?: fail("No accessibleValue on LinearProgressIndicator")
 
@@ -124,11 +124,10 @@ class AccessibilityTest {
             assertThat(value.maximumAccessibleValue).isEqualTo(1f)
             assertThat(value.currentAccessibleValue).isEqualTo(0.2f)
         }
-
     }
 
     private fun SemanticsNodeInteraction.assertHasAccessibleRole(role: AccessibleRole) {
-        val accessibleContext = ComposeAccessible(fetchSemanticsNode()).accessibleContext
+        val accessibleContext = ComposeAccessible(fetchSemanticsNode()).accessibleContext!!
         assertThat(accessibleContext.accessibleRole).isEqualTo(role)
     }
 

@@ -55,12 +55,13 @@ internal class AccessibilityControllerImpl(
         }
 
     @Suppress("UNUSED_PARAMETER")
-    fun fireNewNodeEvent(accessible: ComposeAccessible) {}
+    private fun onNodeAdded(accessible: ComposeAccessible) {}
 
-    @Suppress("UNUSED_PARAMETER")
-    fun fireRemovedNodeEvent(accessible: ComposeAccessible) {}
+    private fun onNodeRemoved(accessible: ComposeAccessible) {
+        accessible.removed = true
+    }
 
-    fun fireChangedNodeEvent(
+    private fun onNodeChanged(
         component: ComposeAccessible,
         previousSemanticsNode: SemanticsNode,
         newSemanticsNode: SemanticsNode
@@ -160,10 +161,10 @@ internal class AccessibilityControllerImpl(
             nodes[currentNode.id] = previous[currentNode.id]?.let {
                 val prevSemanticsNode = it.semanticsNode
                 it.semanticsNode = currentNode
-                fireChangedNodeEvent(it, prevSemanticsNode, currentNode)
+                onNodeChanged(it, prevSemanticsNode, currentNode)
                 it
             } ?: ComposeAccessible(currentNode, this).also {
-                fireNewNodeEvent(it)
+                onNodeAdded(it)
             }
 
             // TODO fake nodes?
@@ -178,7 +179,7 @@ internal class AccessibilityControllerImpl(
         findAllSemanticNodesRecursive(rootSemanticNode)
         for ((id, prevNode) in previous.entries) {
             if (nodes[id] == null) {
-                fireRemovedNodeEvent(prevNode)
+                onNodeRemoved(prevNode)
             }
         }
         _currentNodes = nodes
