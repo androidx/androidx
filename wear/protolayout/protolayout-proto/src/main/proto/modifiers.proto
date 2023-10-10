@@ -22,6 +22,22 @@ message Clickable {
   // The action to perform when the element this modifier is attached to is
   // clicked.
   Action on_click = 2;
+
+  // The minimum width of the clickable area.
+  //
+  // The default value is 48dp, following the Material design accessibility
+  // guideline. Note that this value does not affect the layout, so the minimum
+  // clickable width is not guaranteed unless there is enough space around the
+  // element within its parent bounds.
+  DpProp minimum_clickable_width = 3;
+
+  // The minimum height of the clickable area.
+  //
+  // The default value is 48dp, following the Material design accessibility
+  // guideline. Note that this value does not affect the layout, so the minimum
+  // clickable height is not guaranteed unless there is enough space around the
+  // element within its parent bounds.
+  DpProp minimum_clickable_height = 4;
 }
 
 // The type of user interface element. Accessibility services might use this to
