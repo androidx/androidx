@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toOffset
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -469,6 +470,7 @@ class TextFieldCursorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @FlakyTest(bugId = 303503435)
     fun cursorNotBlinking_whileTyping() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setTestContent {
