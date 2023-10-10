@@ -117,6 +117,28 @@ ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(andr
     Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
     Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
+ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#createNodesFromPathData(String):
+    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]):
+    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #2:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser.PathDataNode#nodesToPath(androidx.core.graphics.PathParser.PathDataNode[], android.graphics.Path) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
     Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
@@ -261,12 +283,10 @@ InvalidNullabilityOverride: androidx.core.location.LocationListenerCompat#onStat
     Invalid nullability on parameter `provider` in method `onStatusChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#addView(android.view.View) parameter #0:
     Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#measureChild(android.view.View, int, int) parameter #0:
     Invalid nullability on parameter `child` in method `measureChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onGenericMotionEvent(android.view.MotionEvent) parameter #0:
-    Invalid nullability on parameter `event` in method `onGenericMotionEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on parameter `motionEvent` in method `onGenericMotionEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
     Invalid nullability on parameter `ev` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onNestedFling(android.view.View, float, float, boolean) parameter #0:
@@ -290,7 +310,7 @@ InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onStartNestedS
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onStopNestedScroll(android.view.View) parameter #0:
     Invalid nullability on parameter `target` in method `onStopNestedScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#onTouchEvent(android.view.MotionEvent) parameter #0:
-    Invalid nullability on parameter `ev` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on parameter `motionEvent` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean) parameter #0:
     Invalid nullability on parameter `child` in method `requestChildRectangleOnScreen`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
@@ -451,8 +471,6 @@ MissingGetterMatchingBuilder: androidx.core.view.WindowInsetsCompat.Builder#setV
 
 MissingNullability: androidx.core.app.JobIntentService#onBind(android.content.Intent):
     Missing nullability on method `onBind` return
-MissingNullability: androidx.core.app.NotificationCompat.Action#actionIntent:
-    Missing nullability on field `actionIntent` in class `class androidx.core.app.NotificationCompat.Action`
 MissingNullability: androidx.core.app.NotificationCompat.Action#title:
     Missing nullability on field `title` in class `class androidx.core.app.NotificationCompat.Action`
 MissingNullability: androidx.core.app.NotificationCompatSideChannelService#cancel(String, int, String) parameter #0:
