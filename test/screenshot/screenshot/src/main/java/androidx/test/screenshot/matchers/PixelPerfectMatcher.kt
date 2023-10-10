@@ -37,8 +37,8 @@ class PixelPerfectMatcher : BitmapMatcher {
 
         val diffArray = IntArray(width * height)
 
-        for (x in 0 until width) {
-            for (y in 0 until height) {
+        for (y in 0 until height) {
+            for (x in 0 until width) {
                 val index = x + y * width
                 val referenceColor = expected[index]
                 val testColor = given[index]
