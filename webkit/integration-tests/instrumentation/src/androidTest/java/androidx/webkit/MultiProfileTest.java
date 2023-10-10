@@ -16,7 +16,12 @@
 
 package androidx.webkit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
 import android.os.Build;
+import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -29,6 +34,8 @@ import org.junit.runner.RunWith;
 
 /**
  * A class for testing common usages for ProfileStore, Profile.
+ *
+ * TODO(b/304456333) Delete the profile used in each test.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -37,6 +44,9 @@ public class MultiProfileTest {
 
     ProfileStore mProfileStore;
 
+    // We are unifying the name as there's no way at the moment to delete the loaded profiles, we
+    // should be able to use different test profiles once b/304456333 is fixed.
+    private static final String PROFILE_TEST_NAME = "Test";
     @Before
     public void setUp() {
         WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
@@ -49,10 +59,10 @@ public class MultiProfileTest {
     @Test
     public void testCreateProfile() {
         WebkitUtils.onMainThreadSync(() -> {
-            Profile createdProfile = mProfileStore.getOrCreateProfile("Test");
+            Profile createdProfile = mProfileStore.getOrCreateProfile(PROFILE_TEST_NAME);
 
             Assert.assertNotNull(createdProfile);
-            Assert.assertEquals(createdProfile.getName(), "Test");
+            Assert.assertEquals(createdProfile.getName(), PROFILE_TEST_NAME);
             Assert.assertNotNull(createdProfile.getCookieManager());
             Assert.assertNotNull(createdProfile.getGeolocationPermissions());
             Assert.assertNotNull(createdProfile.getWebStorage());
@@ -82,11 +92,11 @@ public class MultiProfileTest {
         WebkitUtils.onMainThreadSync(
                 () -> {
                     // DeleteProfileInUseFails
-                    mProfileStore.getOrCreateProfile("Test");
+                    mProfileStore.getOrCreateProfile(PROFILE_TEST_NAME);
 
                     Assert.assertThrows(
                             IllegalStateException.class,
-                            () -> mProfileStore.deleteProfile("Test"));
+                            () -> mProfileStore.deleteProfile(PROFILE_TEST_NAME));
 
                     // DeleteProfileNonExistent
                     Assert.assertFalse(mProfileStore.deleteProfile("Not-Found"));
@@ -98,4 +108,52 @@ public class MultiProfileTest {
                 });
     }
 
+    // setProfile, getProfile tests.
+
+    /**
+     * Test getting profile that was previously set should return the correct object.
+     */
+    @Test
+    public void testSetGetProfile() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
+
+        Profile testProfile =
+                WebkitUtils.onMainThreadSync(() -> ProfileStore.getInstance().getOrCreateProfile(
+                        PROFILE_TEST_NAME));
+        WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            WebkitUtils.onMainThreadSync(() -> WebViewCompat.setProfile(webView,
+                    testProfile.getName()));
+
+            Profile expectedProfile = WebkitUtils.onMainThreadSync(
+                    () -> WebViewCompat.getProfile(webView));
+
+            assertSame(testProfile.getName(), expectedProfile.getName());
+            assertSame(testProfile.getCookieManager(), expectedProfile.getCookieManager());
+            assertSame(testProfile.getWebStorage(), expectedProfile.getWebStorage());
+        } finally {
+            WebViewOnUiThread.destroy(webView);
+        }
+
+    }
+
+    /**
+     * Test getting profile returns the Default profile by default.
+     */
+    @Test
+    public void testGetProfileReturnsDefault() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
+
+        WebView webView = WebViewOnUiThread.createWebView();
+        try {
+            Profile expectedProfile = WebkitUtils.onMainThreadSync(
+                    () -> WebViewCompat.getProfile(webView));
+
+            assertNotNull(expectedProfile);
+            assertEquals(Profile.DEFAULT_PROFILE_NAME, expectedProfile.getName());
+        } finally {
+            WebViewOnUiThread.destroy(webView);
+        }
+
+    }
 }
