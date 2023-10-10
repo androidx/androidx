@@ -944,7 +944,7 @@ If in need to make structural changes internally that affect slot composables li
 ```
 @Composable
 fun PreferenceItem(
-    checked: Boolean
+    checked: Boolean,
     content: @Composable () -> Unit
 ) {
     // don't: this logic will dispose and compose again from scratch the content() composable on the `checked` boolean change
@@ -966,10 +966,13 @@ fun PreferenceItem(
 ```
 @Composable
 fun PreferenceItem(
-    checked: Boolean
+    checked: Boolean,
     content: @Composable () -> Unit
 ) {
-    Layout({ Text("Preference item"), content }) {
+    Layout({
+        Text("Preference item")
+        content()
+    }) {
         // custom layout that relayouts the same instance of `content`
         // when `checked` changes
     }
