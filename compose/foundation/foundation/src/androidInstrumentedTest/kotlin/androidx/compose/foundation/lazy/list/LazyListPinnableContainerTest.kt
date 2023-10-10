@@ -29,11 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
@@ -43,9 +45,17 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-class LazyListPinnableContainerTest {
+@RunWith(Parameterized::class)
+class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useLookahead = {0}")
+        fun params() = arrayOf(true, false)
+    }
 
     @get:Rule
     val rule = createComposeRule()
@@ -60,6 +70,20 @@ class LazyListPinnableContainerTest {
     @Before
     fun setup() {
         itemSize = with(rule.density) { itemSizePx.toDp() }
+    }
+
+    private inline fun ComposeContentTestRule.setContentParameterized(
+        crossinline content: @Composable () -> Unit
+    ) {
+        setContent {
+            if (useLookaheadScope) {
+                LookaheadScope {
+                    content()
+                }
+            } else {
+                content()
+            }
+        }
     }
 
     @Composable
@@ -81,7 +105,7 @@ class LazyListPinnableContainerTest {
     fun pinnedItemIsComposedAndPlacedWhenScrolledOut() {
         val state = LazyListState()
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 1) {
@@ -123,7 +147,7 @@ class LazyListPinnableContainerTest {
     fun itemsBetweenPinnedAndCurrentVisibleAreNotComposed() {
         val state = LazyListState()
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 1) {
@@ -162,7 +186,7 @@ class LazyListPinnableContainerTest {
     fun pinnedItemAfterVisibleOnesIsComposedAndPlacedWhenScrolledOut() {
         val state = LazyListState()
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 4) {
@@ -193,6 +217,13 @@ class LazyListPinnableContainerTest {
             runBlocking {
                 state.scrollToItem(0)
             }
+            if (useLookaheadScope) {
+                // Force another lookahead measure pass, because lookahead pass by design keeps
+                // content from last measure pass until it's no longer needed in either pass.
+                runBlocking {
+                    state.scrollToItem(0)
+                }
+            }
         }
 
         rule.waitUntil {
@@ -214,7 +245,7 @@ class LazyListPinnableContainerTest {
     fun pinnedItemCanBeUnpinned() {
         val state = LazyListState()
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 1) {
@@ -258,7 +289,7 @@ class LazyListPinnableContainerTest {
         val state = LazyListState()
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 3), state = state) {
                 items(list, key = { it }) { index ->
                     if (index == 2) {
@@ -295,7 +326,7 @@ class LazyListPinnableContainerTest {
     fun unpinnedWhenLazyListStateChanges() {
         var state by mutableStateOf(LazyListState(firstVisibleItemIndex = 2))
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 2) {
@@ -314,6 +345,13 @@ class LazyListPinnableContainerTest {
             assertThat(composed).contains(3)
             runBlocking {
                 state.scrollToItem(0)
+            }
+            if (useLookaheadScope) {
+                // Force another lookahead measure pass, because lookahead pass by design keeps
+                // content from last measure pass until it's no longer needed in either pass.
+                runBlocking {
+                    state.scrollToItem(0)
+                }
             }
         }
 
@@ -340,7 +378,7 @@ class LazyListPinnableContainerTest {
     fun pinAfterLazyListStateChange() {
         var state by mutableStateOf(LazyListState())
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 0) {
@@ -380,7 +418,7 @@ class LazyListPinnableContainerTest {
     fun itemsArePinnedBasedOnGlobalIndexes() {
         val state = LazyListState(firstVisibleItemIndex = 3)
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 repeat(100) { index ->
                     item {
@@ -424,7 +462,7 @@ class LazyListPinnableContainerTest {
         val state = LazyListState(3)
         var itemCount by mutableStateOf(10)
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(itemCount) { index ->
                     if (index == 3) {
@@ -440,6 +478,13 @@ class LazyListPinnableContainerTest {
             assertThat(composed).contains(4)
             runBlocking {
                 state.scrollToItem(0)
+            }
+            if (useLookaheadScope) {
+                // Force another lookahead measure pass, because lookahead pass by design keeps
+                // content from last measure pass until it's no longer needed in either pass.
+                runBlocking {
+                    state.scrollToItem(0)
+                }
             }
         }
 
@@ -466,7 +511,7 @@ class LazyListPinnableContainerTest {
         val state = LazyListState(0)
         var items by mutableStateOf(listOf(0, 1, 2))
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(items) { index ->
                     if (index == 1) {
@@ -498,7 +543,7 @@ class LazyListPinnableContainerTest {
     fun pinnedMultipleTimes() {
         val state = LazyListState(0)
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             LazyColumn(Modifier.size(itemSize * 2), state = state) {
                 items(100) { index ->
                     if (index == 1) {
@@ -552,7 +597,7 @@ class LazyListPinnableContainerTest {
             }
         }
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             CompositionLocalProvider(LocalPinnableContainer provides parentContainer) {
                 LazyColumn {
                     item {
@@ -595,7 +640,7 @@ class LazyListPinnableContainerTest {
         }
         var parentContainer by mutableStateOf<PinnableContainer>(parent1Container)
         // Arrange.
-        rule.setContent {
+        rule.setContentParameterized {
             CompositionLocalProvider(LocalPinnableContainer provides parentContainer) {
                 LazyColumn {
                     item {
