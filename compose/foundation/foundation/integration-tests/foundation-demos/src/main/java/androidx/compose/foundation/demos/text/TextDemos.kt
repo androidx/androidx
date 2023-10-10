@@ -168,6 +168,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Selection Minimum Touch Target") {
                     MinTouchTargetTextSelection()
                 },
+                ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
             )
         ),
         DemoCategory(
