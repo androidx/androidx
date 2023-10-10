@@ -58,6 +58,7 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
                 val dependency = dependencies.create("com.pinterest:ktlint:$version")
                 it.dependencies.add(dependency)
                 it.attributes.attribute(bundlingAttribute, "external")
+                it.isCanBeConsumed = false
             }
     )
 }
