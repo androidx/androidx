@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -94,19 +93,17 @@ fun DatePickerDialog(
                         .align(Alignment.End)
                         .padding(DialogButtonsPadding)
                 ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides DialogTokens.ActionLabelTextColor.value
+                    ProvideContentColorTextStyle(
+                        contentColor = DialogTokens.ActionLabelTextColor.value,
+                        textStyle =
+                        MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
                     ) {
-                        val textStyle =
-                            MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
-                        ProvideTextStyle(value = textStyle) {
-                            AlertDialogFlowRow(
-                                mainAxisSpacing = DialogButtonsMainAxisSpacing,
-                                crossAxisSpacing = DialogButtonsCrossAxisSpacing
-                            ) {
-                                dismissButton?.invoke()
-                                confirmButton()
-                            }
+                        AlertDialogFlowRow(
+                            mainAxisSpacing = DialogButtonsMainAxisSpacing,
+                            crossAxisSpacing = DialogButtonsCrossAxisSpacing
+                        ) {
+                            dismissButton?.invoke()
+                            confirmButton()
                         }
                     }
                 }

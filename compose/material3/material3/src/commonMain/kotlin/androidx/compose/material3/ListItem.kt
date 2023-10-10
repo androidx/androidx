@@ -510,12 +510,11 @@ private fun ProvideTextStyleFromToken(
     color: Color,
     textToken: TypographyKeyTokens,
     content: @Composable () -> Unit,
-) {
-    val textStyle = MaterialTheme.typography.fromToken(textToken)
-    CompositionLocalProvider(LocalContentColor provides color) {
-        ProvideTextStyle(textStyle, content)
-    }
-}
+) = ProvideContentColorTextStyle(
+    contentColor = color,
+    textStyle = MaterialTheme.typography.fromToken(textToken),
+    content = content
+)
 
 /**
  * Helper class to define list item type. Used for padding and sizing definition.
