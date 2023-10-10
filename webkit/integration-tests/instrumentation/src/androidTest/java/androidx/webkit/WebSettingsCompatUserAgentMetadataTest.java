@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 
 
 import android.os.Build;
+import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -86,6 +87,7 @@ public class WebSettingsCompatUserAgentMetadataTest {
         if (mWebViewOnUiThread != null) {
             mWebViewOnUiThread.cleanUp();
         }
+        CookieManager.getInstance().removeAllCookies(null);
     }
 
     /**
