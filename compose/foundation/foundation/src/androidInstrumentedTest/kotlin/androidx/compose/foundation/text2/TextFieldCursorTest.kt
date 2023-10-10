@@ -504,6 +504,7 @@ class TextFieldCursorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @FlakyTest(bugId = 303903824)
     fun selectionChanges_cursorNotBlinking() {
         state = TextFieldState("test", initialSelectionInChars = TextRange(2))
         rule.setTestContent {
