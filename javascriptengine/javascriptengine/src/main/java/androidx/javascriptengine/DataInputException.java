@@ -24,11 +24,11 @@ import androidx.annotation.NonNull;
  * The JavaScript isolate may continue to be used after this exception has been produced. The
  * JavaScript evaluation will not proceed if the JavaScript code streaming fails.
  */
-public final class FileDescriptorIoException extends JavaScriptException {
-    public FileDescriptorIoException(@NonNull String error) {
+public final class DataInputException extends JavaScriptException {
+    public DataInputException(@NonNull String error) {
         super(error);
     }
-    public FileDescriptorIoException() {
+    public DataInputException() {
         super();
     }
 }
