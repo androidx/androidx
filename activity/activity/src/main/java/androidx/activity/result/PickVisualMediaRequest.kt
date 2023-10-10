@@ -18,6 +18,7 @@ package androidx.activity.result
 
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
+import androidx.annotation.RequiresApi
 
 /**
  * Creates a request for a
@@ -28,6 +29,7 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
  *
  * @return a PickVisualMediaRequest that contains the given input
  */
+@RequiresApi(19)
 fun PickVisualMediaRequest(
     mediaType: VisualMediaType = ImageAndVideo
 ) = PickVisualMediaRequest.Builder().setMediaType(mediaType).build()
@@ -37,6 +39,7 @@ fun PickVisualMediaRequest(
  * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  */
+@RequiresApi(19)
 class PickVisualMediaRequest internal constructor() {
 
     var mediaType: VisualMediaType = ImageAndVideo

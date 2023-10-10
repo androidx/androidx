@@ -263,7 +263,7 @@ package androidx.activity.result {
   public static final class IntentSenderRequest.Companion {
   }
 
-  public final class PickVisualMediaRequest {
+  @RequiresApi(19) public final class PickVisualMediaRequest {
     method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
     property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
   }
@@ -275,7 +275,7 @@ package androidx.activity.result {
   }
 
   public final class PickVisualMediaRequestKt {
-    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method @RequiresApi(19) public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
   }
 
 }
