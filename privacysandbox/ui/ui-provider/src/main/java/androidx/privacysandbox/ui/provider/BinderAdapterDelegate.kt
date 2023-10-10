@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @file:JvmName("SandboxedUiAdapterProxy")
 
 package androidx.privacysandbox.ui.provider
@@ -27,7 +26,9 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.view.Display
 import android.view.SurfaceControlViewHost
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.privacysandbox.ui.core.IRemoteSessionClient
@@ -41,7 +42,6 @@ import java.util.concurrent.Executor
  * is shuttled to the host app in order for the [SandboxedUiAdapter] to be used to retrieve
  * content.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun SandboxedUiAdapter.toCoreLibInfo(@Suppress("ContextFirst") context: Context): Bundle {
     val binderAdapter = BinderAdapterDelegate(context, this)
     // TODO: Add version info
@@ -51,7 +51,6 @@ fun SandboxedUiAdapter.toCoreLibInfo(@Suppress("ContextFirst") context: Context)
     return bundle
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class BinderAdapterDelegate(
     private val sandboxContext: Context,
     private val adapter: SandboxedUiAdapter
@@ -77,6 +76,7 @@ private class BinderAdapterDelegate(
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun openRemoteSession(
         windowInputToken: IBinder,
         displayId: Int,
@@ -92,10 +92,13 @@ private class BinderAdapterDelegate(
                     sandboxContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
                 val windowContext =
                     sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
-                val surfaceControlViewHost = SurfaceControlViewHost(
+                val surfaceControlViewHost = CompatImpl.createSurfaceControlViewHost(
                     windowContext,
                     mDisplayManager.getDisplay(displayId), windowInputToken
                 )
+                checkNotNull(surfaceControlViewHost) {
+                    "SurfaceControlViewHost must be available when provider is remote"
+                }
                 val sessionClient = SessionClientProxy(
                     surfaceControlViewHost, initialWidth, initialHeight, isZOrderOnTop,
                     remoteSessionClient
@@ -110,6 +113,7 @@ private class BinderAdapterDelegate(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private inner class SessionClientProxy(
         private val surfaceControlViewHost: SurfaceControlViewHost,
         private val initialWidth: Int,
@@ -199,5 +203,40 @@ private class BinderAdapterDelegate(
                 }
             }
         }
+    }
+
+    /**
+     * Provides backward compat support for APIs.
+     *
+     * If the API is available, it's called from a version-specific static inner class gated with
+     * version check, otherwise a fallback action is taken depending on the situation.
+     */
+    private object CompatImpl {
+
+         fun createSurfaceControlViewHost(
+             context: Context,
+             display: Display,
+             hostToken: IBinder
+         ): SurfaceControlViewHost? {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return Api34PlusImpl.createSurfaceControlViewHost(context, display, hostToken)
+            } else {
+                null
+            }
+         }
+
+         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+         private object Api34PlusImpl {
+
+             @JvmStatic
+             @DoNotInline
+             fun createSurfaceControlViewHost(
+                 context: Context,
+                 display: Display,
+                 hostToken: IBinder
+             ): SurfaceControlViewHost {
+                 return SurfaceControlViewHost(context, display, hostToken)
+             }
+         }
     }
 }

@@ -44,7 +44,6 @@ import java.util.concurrent.Executor
  * Provides an adapter created from a supplied Bundle which acts as a proxy between the host app and
  * the Binder provided by the provider of content.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 object SandboxedUiAdapterFactory {
 
     private const val TAG = "PrivacySandboxUiLib"
@@ -70,10 +69,11 @@ object SandboxedUiAdapterFactory {
         val useLocalAdapter = !forceUseRemoteAdapter && isLocalBinder
         Log.d(TAG, "useLocalAdapter=$useLocalAdapter")
 
-        return if (useLocalAdapter) {
-            LocalAdapter(adapterInterface)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            !useLocalAdapter) {
+                RemoteAdapter(adapterInterface)
         } else {
-            RemoteAdapter(adapterInterface)
+            LocalAdapter(adapterInterface)
         }
     }
 
@@ -216,6 +216,7 @@ object SandboxedUiAdapterFactory {
     /**
      * [RemoteAdapter] fetches content from a provider living on a different process.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private class RemoteAdapter(private val adapterInterface: ISandboxedUiAdapter) :
         SandboxedUiAdapter {
 
