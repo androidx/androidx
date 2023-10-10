@@ -187,9 +187,11 @@ fun NavigationRailItem(
         @Composable {
             val style = MaterialTheme.typography.fromToken(NavigationRailTokens.LabelTextFont)
             val textColor by colors.textColor(selected = selected, enabled = enabled)
-            CompositionLocalProvider(LocalContentColor provides textColor) {
-                ProvideTextStyle(style, content = label)
-            }
+            ProvideContentColorTextStyle(
+                contentColor = textColor,
+                textStyle = style,
+                content = label
+            )
         }
     }
 

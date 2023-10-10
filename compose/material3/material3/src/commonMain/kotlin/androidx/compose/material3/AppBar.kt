@@ -1804,12 +1804,10 @@ private fun TopAppBarLayout(
                     .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics { } else Modifier)
                     .graphicsLayer(alpha = titleAlpha)
             ) {
-                ProvideTextStyle(value = titleTextStyle) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides titleContentColor,
-                        content = title
-                    )
-                }
+                ProvideContentColorTextStyle(
+                    contentColor = titleContentColor,
+                    textStyle = titleTextStyle,
+                    content = title)
             }
             Box(
                 Modifier
