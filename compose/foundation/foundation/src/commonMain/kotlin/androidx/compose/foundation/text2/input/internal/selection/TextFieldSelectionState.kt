@@ -35,6 +35,7 @@ import androidx.compose.foundation.text2.input.getSelectedText
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text2.input.internal.coerceIn
+import androidx.compose.foundation.text2.input.internal.fromDecorationToTextLayout
 import androidx.compose.foundation.text2.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -109,7 +110,7 @@ internal class TextFieldSelectionState(
      * Calculates the offset of currently visible bounds.
      */
     private val currentContentVisibleOffset: Offset
-        get() = innerCoordinates
+        get() = textLayoutCoordinates
             ?.visibleBounds()
             ?.topLeft ?: Offset.Unspecified
 
@@ -127,22 +128,20 @@ internal class TextFieldSelectionState(
      * selection handles to continue scrolling as they are dragged outside the visible bounds.
      */
     val handleDragPosition: Offset
-        get() {
-            return when {
-                // nothing is being dragged.
-                rawHandleDragPosition.isUnspecified -> {
-                    Offset.Unspecified
-                }
-                // no real handle is being dragged, we need to offset the drag position by current
-                // inner-decorator relative positioning.
-                startContentVisibleOffset.isUnspecified -> {
-                    with(textLayoutState) { rawHandleDragPosition.relativeToInputText() }
-                }
-                // a cursor or a selection handle is being dragged, offset by comparing the current
-                // and starting visible offsets.
-                else -> {
-                    rawHandleDragPosition + currentContentVisibleOffset - startContentVisibleOffset
-                }
+        get() = when {
+            // nothing is being dragged.
+            rawHandleDragPosition.isUnspecified -> {
+                Offset.Unspecified
+            }
+            // no real handle is being dragged, we need to offset the drag position by current
+            // inner-decorator relative positioning.
+            startContentVisibleOffset.isUnspecified -> {
+                textLayoutState.fromDecorationToTextLayout(rawHandleDragPosition)
+            }
+            // a cursor or a selection handle is being dragged, offset by comparing the current
+            // and starting visible offsets.
+            else -> {
+                rawHandleDragPosition + currentContentVisibleOffset - startContentVisibleOffset
             }
         }
 
@@ -163,10 +162,10 @@ internal class TextFieldSelectionState(
     private var showCursorHandleToolbar by mutableStateOf(false)
 
     /**
-     * Access helper for inner text field coordinates that checks attached state.
+     * Access helper for text layout node coordinates that checks attached state.
      */
-    private val innerCoordinates: LayoutCoordinates?
-        get() = textLayoutState.innerTextFieldCoordinates?.takeIf { it.isAttached }
+    private val textLayoutCoordinates: LayoutCoordinates?
+        get() = textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached }
 
     /**
      * The most recent [SelectionLayout] that passed the [SelectionLayout.shouldRecomputeSelection]
@@ -216,7 +215,7 @@ internal class TextFieldSelectionState(
     private val cursorHandleInBounds by derivedStateOf(policy = structuralEqualityPolicy()) {
         val position = Snapshot.withoutReadObservation { cursorRect.bottomCenter }
 
-        innerCoordinates
+        textLayoutCoordinates
             ?.visibleBounds()
             ?.containsInclusive(position)
             ?: false
@@ -505,9 +504,7 @@ internal class TextFieldSelectionState(
 
                 updateHandleDragging(
                     handle = Handle.SelectionEnd,
-                    position = with(textLayoutState) {
-                        dragStartOffset.relativeToInputText()
-                    }
+                    position = textLayoutState.fromDecorationToTextLayout(dragStartOffset)
                 )
 
                 dragBeginPosition = dragStartOffset
@@ -759,10 +756,10 @@ internal class TextFieldSelectionState(
             } else {
                 // contentRect is calculated in root coordinates. VisibleBounds are in parent
                 // coordinates. Convert visibleBounds to root before checking the overlap.
-                val visibleBounds = innerCoordinates?.visibleBounds()
+                val visibleBounds = textLayoutCoordinates?.visibleBounds()
                 if (visibleBounds != null) {
                     val visibleBoundsTopLeftInRoot =
-                        innerCoordinates?.localToRoot(visibleBounds.topLeft)
+                        textLayoutCoordinates?.localToRoot(visibleBounds.topLeft)
                     val visibleBoundsInRoot =
                         Rect(visibleBoundsTopLeftInRoot!!, visibleBounds.size)
 
@@ -793,18 +790,18 @@ internal class TextFieldSelectionState(
     private fun getContentRect(): Rect {
         val text = textFieldState.text
         // accept cursor position as content rect when selection is collapsed
-        // contentRect is defined in innerTextField coordinates, so it needs to be realigned to
-        // root container.
+        // contentRect is defined in text layout node coordinates, so it needs to be realigned to
+        // the root container.
         if (text.selectionInChars.collapsed) {
-            val topLeft = innerCoordinates?.localToRoot(cursorRect.topLeft) ?: Offset.Zero
+            val topLeft = textLayoutCoordinates?.localToRoot(cursorRect.topLeft) ?: Offset.Zero
             return Rect(topLeft, cursorRect.size)
         }
         val startOffset =
-            innerCoordinates?.localToRoot(getHandlePosition(true)) ?: Offset.Zero
+            textLayoutCoordinates?.localToRoot(getHandlePosition(true)) ?: Offset.Zero
         val endOffset =
-            innerCoordinates?.localToRoot(getHandlePosition(false)) ?: Offset.Zero
+            textLayoutCoordinates?.localToRoot(getHandlePosition(false)) ?: Offset.Zero
         val startTop =
-            innerCoordinates?.localToRoot(
+            textLayoutCoordinates?.localToRoot(
                 Offset(
                     0f,
                     textLayoutState.layoutResult?.getCursorRect(
@@ -813,7 +810,7 @@ internal class TextFieldSelectionState(
                 )
             )?.y ?: 0f
         val endTop =
-            innerCoordinates?.localToRoot(
+            textLayoutCoordinates?.localToRoot(
                 Offset(
                     0f,
                     textLayoutState.layoutResult?.getCursorRect(
@@ -842,7 +839,7 @@ internal class TextFieldSelectionState(
         val position = getHandlePosition(isStartHandle)
 
         val visible = draggingHandle == handle ||
-            (innerCoordinates
+            (textLayoutCoordinates
                 ?.visibleBounds()
                 ?.containsInclusive(position)
                 ?: false)
@@ -857,7 +854,7 @@ internal class TextFieldSelectionState(
         // we let it stay on the screen to maintain gesture continuation. However, we still want
         // to coerce handle's position to visible bounds to not let it jitter while scrolling the
         // TextField as the selection is expanding.
-        val coercedPosition = innerCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
+        val coercedPosition = textLayoutCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
             ?: position
         return TextFieldHandleState(
             visible = true,
@@ -904,7 +901,7 @@ internal class TextFieldSelectionState(
      * can correctly offset the actual position where drag corresponds to.
      */
     private fun markStartContentVisibleOffset() {
-        startContentVisibleOffset = innerCoordinates
+        startContentVisibleOffset = textLayoutCoordinates
             ?.visibleBounds()
             ?.topLeft ?: Offset.Unspecified
     }

@@ -482,6 +482,7 @@ internal class TextFieldCoreModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        this.textLayoutState.coreNodeCoordinates = coordinates
         textFieldMagnifierNode.onGloballyPositioned(coordinates)
     }
 
