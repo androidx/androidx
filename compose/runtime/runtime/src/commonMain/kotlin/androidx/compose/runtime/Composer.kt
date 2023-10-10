@@ -3251,7 +3251,7 @@ internal class ComposerImpl(
                 val location = scope.anchor?.location ?: return
                 invalidations.add(Invalidation(scope, location, set))
             }
-            invalidations.sortBy { it.location }
+            invalidations.sortWith(InvalidationLocationAscending)
             nodeIndex = 0
             var complete = false
             isComposing = true
@@ -4155,4 +4155,8 @@ internal fun composeRuntimeError(message: String): Nothing {
             "internal runtime API ($message). Please report to Google or use " +
             "https://goo.gle/compose-feedback"
     )
+}
+
+private val InvalidationLocationAscending = Comparator<Invalidation> { i1, i2 ->
+    i1.location.compareTo(i2.location)
 }
