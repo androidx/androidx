@@ -19,6 +19,7 @@ package androidx.compose.foundation.samples
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Intent
+import android.view.View
 import androidx.annotation.Sampled
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.DurationBasedAnimationSpec
@@ -65,8 +66,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTransfer
-import androidx.compose.ui.draganddrop.dragEvent
 import androidx.compose.ui.draganddrop.mimeTypes
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -143,7 +144,8 @@ fun TextDragAndDropSourceSample(
                     onLongPress = {
                         startTransfer(
                             DragAndDropTransfer(
-                                clipData = ClipData.newPlainText(label, label)
+                                clipData = ClipData.newPlainText(label, label),
+                                flags = View.DRAG_FLAG_GLOBAL,
                             )
                         )
                     }
@@ -217,14 +219,14 @@ fun TextDragAndDropTargetSample(
 }
 
 private fun DragAndDropEvent.summary() =
-    (0 until dragEvent.clipData.itemCount)
-        .map(dragEvent.clipData::getItemAt)
+    (0 until toAndroidDragEvent().clipData.itemCount)
+        .map(toAndroidDragEvent().clipData::getItemAt)
         .withIndex()
         .joinToString(separator = "\n\n") { (index, clipItem) ->
-            val mimeTypes = (0 until dragEvent.clipData.description.mimeTypeCount)
+            val mimeTypes = (0 until toAndroidDragEvent().clipData.description.mimeTypeCount)
                 .joinToString(
                     separator = ", ",
-                    transform = dragEvent.clipData.description::getMimeType
+                    transform = toAndroidDragEvent().clipData.description::getMimeType
                 )
             listOfNotNull(
                 "index: $index",
@@ -323,7 +325,7 @@ fun DragAndDropSourceWithColoredDragShadowSample(
             .size(56.dp)
             .background(color = color)
             .dragAndDropSource(
-                onDrawDragShadow = {
+                drawDragDecoration = {
                     drawRect(color)
                 },
             ) {
@@ -381,7 +383,7 @@ private fun Modifier.animatedDragAndDrop(
 private fun Modifier.stateDragSource(
     state: State
 ) = dragAndDropSource(
-    onDrawDragShadow = {
+    drawDragDecoration = {
         drawRoundRect(state.color)
     },
 ) {
@@ -416,7 +418,7 @@ private fun Modifier.stateDropTarget(
     },
     onDropped = { event ->
         println("Dropped items in ${state.name}")
-        when (val transferredColor = event.dragEvent.clipData.color()) {
+        when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
             null -> false
             else -> {
                 state.onDropped(transferredColor)

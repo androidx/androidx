@@ -67,6 +67,9 @@ internal class DragAndDropNode(
         private inline fun DragAndDropModifierNode.firstChildOrNull(
             crossinline predicate: (DragAndDropModifierNode) -> Boolean
         ): DragAndDropModifierNode? {
+            // TODO: b/303904810 unattached nodes should not be found from an attached
+            //  root drag and drop node
+            if (!node.isAttached) return null
             var match: DragAndDropModifierNode? = null
             traverseSubtreeWithKey(DragAndDropTraversableKey) { child ->
                 if (child is DragAndDropModifierNode && predicate(child)) {
@@ -91,13 +94,14 @@ internal class DragAndDropNode(
     override fun onDetach() {
         // Clean up
         thisDragAndDropTarget = null
+        lastChildDragAndDropModifierNode = null
     }
     // end Node
 
     // start DragSource
 
     override fun drag(dragAndDropInfo: DragAndDropInfo) {
-        requireOwner().drag(dragAndDropInfo)
+        requireOwner().dragAndDropManager.drag(dragAndDropInfo)
     }
 
     // end DragSource
@@ -117,6 +121,10 @@ internal class DragAndDropNode(
     }
 
     private fun onStarted(event: DragAndDropEvent): Boolean {
+        // TODO: b/303904810 unattached nodes should not be found from an attached
+        //  root drag and drop node
+        if (!isAttached) return false
+
         check(thisDragAndDropTarget == null) {
             "DragAndDropTarget self reference must be null at the start of a drag and drop session"
         }
@@ -131,8 +139,7 @@ internal class DragAndDropNode(
                 event = event,
                 type = DragAndDropEventType.Started
             ).also { accepted ->
-                // TODO (TJ) add interested nodes to the Owner
-                if (accepted) event.interestedNodes.add(child)
+                if (accepted) requireOwner().dragAndDropManager.registerNodeInterest(child)
             }
             true
         }
@@ -162,8 +169,8 @@ internal class DragAndDropNode(
             // Position is now outside active child, maybe it entered a different one.
             else -> firstChildOrNull { child ->
                 // Only dispatch to children who previously accepted the onStart gesture
-                // TODO (TJ) read interested nodes from Owner
-                event.interestedNodes.contains(child) && child.contains(event.positionInRoot)
+                requireOwner().dragAndDropManager.isInterestedNode(child) &&
+                    child.contains(event.positionInRoot)
             }
         }
 
@@ -248,6 +255,9 @@ internal class DragAndDropNode(
     }
 
     private fun onEnded(event: DragAndDropEvent) {
+        // TODO: b/303904810 unattached nodes should not be found from an attached
+        //  root drag and drop node
+        if (!node.isAttached) return
         traverseChildren { child ->
             child.onDragAndDropEvent(
                 event = event,
@@ -261,8 +271,6 @@ internal class DragAndDropNode(
         )
         thisDragAndDropTarget = null
         lastChildDragAndDropModifierNode = null
-        // TODO (TJ) Clear interested nodes on the Owner
-        event.interestedNodes.clear()
     }
     // end DropTarget
 }
