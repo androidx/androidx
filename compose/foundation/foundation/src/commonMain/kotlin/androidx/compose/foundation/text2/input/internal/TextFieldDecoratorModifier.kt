@@ -388,7 +388,7 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        textLayoutState.decorationBoxCoordinates = coordinates
+        textLayoutState.decoratorNodeCoordinates = coordinates
     }
 
     override fun onPointerEvent(

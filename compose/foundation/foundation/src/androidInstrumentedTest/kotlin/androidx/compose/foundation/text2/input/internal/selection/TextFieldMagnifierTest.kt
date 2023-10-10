@@ -17,7 +17,11 @@
 package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -30,13 +34,16 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInputSelection
@@ -44,12 +51,17 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -135,6 +147,139 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     @Test
     fun magnifier_staysAtVisibleRegion_whenSelectionEndDraggedPastScrollThreshold_Rtl() {
         checkMagnifierStayAtEndWhenDraggedBeyondScroll(Handle.SelectionEnd, LayoutDirection.Rtl)
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa",
+            initialSelectionInChars = TextRange.Zero
+        )
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(topLeft)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(-0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            Offset(0f, 10f) + Offset(8f, 8f)
+        )
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox_scrolledVertically() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa\naaaa\naaaa\n".repeat(5),
+            initialSelectionInChars = TextRange.Zero
+        )
+        val scrollState = ScrollState(0)
+        var coroutineScope: CoroutineScope? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                coroutineScope = rememberCoroutineScope()
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.MultiLine(1, 2),
+                    scrollState = scrollState,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        coroutineScope?.launch {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(bottomLeft)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            Offset(0f, 30f) + Offset(8f, 8f)
+        )
+    }
+
+    @Test
+    fun magnifier_insideDecorationBox_scrolledHorizontally() {
+        val tag = "BasicTextField2"
+        val state = TextFieldState(
+            "aaaa aaaa aaaa ".repeat(5),
+            initialSelectionInChars = TextRange.Zero
+        )
+        val scrollState = ScrollState(0)
+        var coroutineScope: CoroutineScope? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                coroutineScope = rememberCoroutineScope()
+                BasicTextField2(
+                    state = state,
+                    Modifier.testTag(tag).width(100.dp),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    scrollState = scrollState,
+                    decorator = {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            it()
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        coroutineScope?.launch {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            click(centerRight)
+        }
+
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
+            down(center)
+            movePastSlopBy(Offset(0.1f, 0.1f))
+        }
+
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
+            // x: drag threshold, y: line center(2nd line in view) + x: padding, y: padding
+            Offset(100f - 16f, 10f) + Offset(8f, 8f)
+        )
     }
 
     @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class)

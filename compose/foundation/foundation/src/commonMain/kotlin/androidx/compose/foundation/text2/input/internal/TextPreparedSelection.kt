@@ -121,14 +121,14 @@ internal class TextFieldPreparedSelection(
      */
     private fun TextLayoutState.jumpByPagesOffset(pagesAmount: Int): Int {
         val currentOffset = initialValue.selectionInChars.end
-        val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
-            decorationBoxCoordinates?.localBoundingBoxOf(inner)
+        val visibleTextLayoutRect = textLayoutNodeCoordinates?.let {
+            decoratorNodeCoordinates?.localBoundingBoxOf(it)
         } ?: return currentOffset
         val value = layoutResult ?: return currentOffset
         val currentPos = value.getCursorRect(currentOffset)
         val newPos = currentPos.translate(
             translateX = 0f,
-            translateY = visibleInnerTextFieldRect.size.height * pagesAmount
+            translateY = visibleTextLayoutRect.size.height * pagesAmount
         )
         // which line does the new cursor position belong?
         val topLine = value.getLineForVerticalPosition(newPos.top)
