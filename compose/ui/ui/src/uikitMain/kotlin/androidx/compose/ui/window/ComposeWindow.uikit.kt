@@ -605,6 +605,7 @@ internal actual class ComposeWindow : UIViewController {
             density = density,
             invalidate = skikoUIView::needRedraw,
         )
+        val isReadyToShowContent = mutableStateOf(false)
 
         skikoUIView.input = inputServices.skikoInput
         skikoUIView.inputTraits = inputTraits
@@ -663,12 +664,18 @@ internal actual class ComposeWindow : UIViewController {
 
                 scene.render(canvas, nanos)
             }
+
+            override fun onAttachedToWindow() {
+                attachedComposeContext!!.scene.density = density
+                isReadyToShowContent.value = true
+            }
         }
 
         scene.setContent(
             onPreviewKeyEvent = inputServices::onPreviewKeyEvent,
             onKeyEvent = { false },
             content = {
+                if (!isReadyToShowContent.value) return@setContent
                 CompositionLocalProvider(
                     LocalLayerContainer provides view,
                     LocalUIViewController provides this,
@@ -678,12 +685,10 @@ internal actual class ComposeWindow : UIViewController {
                     LocalInterfaceOrientationState provides interfaceOrientationState,
                     LocalSystemTheme provides systemTheme.value,
                     LocalUIKitInteropContext provides interopContext,
-                ) {
-                    content()
-                }
+                    content = content
+                )
             },
         )
-
 
         attachedComposeContext =
             AttachedComposeContext(scene, skikoUIView, interopContext).also {

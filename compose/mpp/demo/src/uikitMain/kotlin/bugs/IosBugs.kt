@@ -24,5 +24,6 @@ val IosBugs = Screen.Selection(
     KeyboardEmptyWhiteSpace,
     KeyboardPasswordType,
     UIKitRenderSync,
-    DispatchersMainDelayCheck
+    DispatchersMainDelayCheck,
+    StartRecompositionCheck
 )

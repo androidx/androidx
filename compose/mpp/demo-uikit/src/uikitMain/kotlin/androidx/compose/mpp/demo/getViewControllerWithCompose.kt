@@ -21,5 +21,5 @@ import androidx.compose.ui.window.ComposeUIViewController
 // TODO This module is just a proxy to run the demo from mpp:demo. Figure out how to get rid of it.
 //  If it is removed, there is no available configuration in IDE
 fun getViewControllerWithCompose() = ComposeUIViewController {
-    IosDemo()
+    IosDemo("")
 }

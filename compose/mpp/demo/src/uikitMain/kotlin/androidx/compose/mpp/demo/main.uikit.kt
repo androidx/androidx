@@ -6,16 +6,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.window.ComposeUIViewController
 import bugs.IosBugs
+import bugs.StartRecompositionCheck
 
 
-fun main() {
+fun main(vararg args: String) {
+    val arg = args.firstOrNull() ?: ""
     defaultUIKitMain("ComposeDemo", ComposeUIViewController {
-        IosDemo()
+        IosDemo(arg)
     })
 }
 
 @Composable
-fun IosDemo() {
+fun IosDemo(arg: String) {
     val app = remember {
         App(
             extraScreens = listOf(
@@ -24,5 +26,10 @@ fun IosDemo() {
             )
         )
     }
-    app.Content()
+    when (arg) {
+        "demo=StartRecompositionCheck" ->
+            // The issue tested by this demo can be properly reproduced/tested only right after app start
+            StartRecompositionCheck.content()
+        else -> app.Content()
+    }
 }
