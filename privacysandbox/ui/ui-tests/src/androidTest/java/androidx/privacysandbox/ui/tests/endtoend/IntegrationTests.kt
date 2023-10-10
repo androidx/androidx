@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.SystemClock
@@ -29,11 +28,11 @@ import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -54,7 +53,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @RunWith(Parameterized::class)
 @MediumTest
 class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
@@ -85,8 +83,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     @Before
     fun setup() {
         if (!invokeBackwardsCompatFlow) {
-            // SdkSandbox is only supported on U+ devices
-            assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            // Device needs to support remote provider to invoke non-backward-compat flow.
+            assumeTrue(BackwardCompatUtil.canProviderBeRemote())
         }
 
         activityScenarioRule.withActivity {
