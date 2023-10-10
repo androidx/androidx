@@ -33,7 +33,7 @@
         <LinearLayout
             android:id="@+id/ad_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -58,7 +58,7 @@
             <androidx.privacysandbox.ui.client.view.SandboxedSdkView
                 android:id="@+id/new_ad_view"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
