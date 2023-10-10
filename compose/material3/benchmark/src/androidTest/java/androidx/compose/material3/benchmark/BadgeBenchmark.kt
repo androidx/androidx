@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -43,7 +42,6 @@ class BadgeBenchmark {
 }
 
 private class BadgedBoxTestCase : LayeredComposeTestCase() {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
         BadgedBox(
@@ -60,7 +58,6 @@ private class BadgedBoxTestCase : LayeredComposeTestCase() {
 }
 
 private class BadgeTestCase : LayeredComposeTestCase() {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() { Badge() }
 
