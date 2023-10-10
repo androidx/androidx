@@ -74,7 +74,7 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Vertical scroll") { VerticalScrollExample() },
         ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
         ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
-        ComposableDemo("Graphics Surfaces") { AndroidExternalSurfaceDemo() },
+        ComposableDemo("External Surfaces") { AndroidExternalSurfaceDemo() },
         DemoCategory("Lazy lists", LazyListDemos),
         DemoCategory("Snapping", SnappingDemos),
         DemoCategory("Pagers", PagerDemos),
