@@ -27,7 +27,7 @@ import androidx.compose.ui.util.fastMap
  * A Material opinionated implementation of [ThreePaneScaffold] that will display the provided three
  * panes in a canonical list-detail layout.
  *
- * @param layoutState the state of the scaffold, which will decide the current layout directive
+ * @param scaffoldState the state of the scaffold, which will decide the current layout directive
  *        and scaffold layout value, and perform navigation within the scaffold.
  * @param listPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.List].
  * @param modifier [Modifier] of the scaffold layout.
@@ -37,16 +37,16 @@ import androidx.compose.ui.util.fastMap
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun ListDetailPaneScaffold(
-    layoutState: ListDetailPaneScaffoldState,
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
+    scaffoldState: ListDetailPaneScaffoldState = rememberListDetailPaneScaffoldState(),
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     detailPane: @Composable ThreePaneScaffoldScope.() -> Unit
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
-        scaffoldDirective = layoutState.scaffoldDirective,
-        scaffoldValue = layoutState.layoutValue,
+        scaffoldDirective = scaffoldState.scaffoldDirective,
+        scaffoldValue = scaffoldState.scaffoldValue,
         arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
@@ -89,14 +89,14 @@ object ListDetailPaneScaffoldDefaults {
  * @property scaffoldDirective the current layout directives that the associated
  *           [ListDetailPaneScaffold] needs to follow. It's supposed to be automatically updated
  *           when the window configuration changes.
- * @property layoutValue the current layout value of the associated [ListDetailPaneScaffold], which
+ * @property scaffoldValue the current layout value of the associated [ListDetailPaneScaffold], which
  *           represents unique layout states of the scaffold.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
 interface ListDetailPaneScaffoldState {
     val scaffoldDirective: PaneScaffoldDirective
-    val layoutValue: ThreePaneScaffoldValue
+    val scaffoldValue: ThreePaneScaffoldValue
 
     /**
      * Navigates to a new focus.
@@ -106,18 +106,18 @@ interface ListDetailPaneScaffoldState {
     /**
      * Returns `true` if there is a previous focus to navigate back to.
      *
-     * @param layoutValueMustChange `true` if the navigation operation should only be performed when
+     * @param scaffoldValueMustChange `true` if the navigation operation should only be performed when
      *        there are actual layout value changes.
      */
-    fun canNavigateBack(layoutValueMustChange: Boolean = true): Boolean
+    fun canNavigateBack(scaffoldValueMustChange: Boolean = true): Boolean
 
     /**
      * Navigates to the previous focus.
      *
-     * @param popUntilLayoutValueChange `true` if the backstack should be popped until the layout
+     * @param popUntilScaffoldValueChange `true` if the backstack should be popped until the layout
      *        value changes.
      */
-    fun navigateBack(popUntilLayoutValueChange: Boolean = true): Boolean
+    fun navigateBack(popUntilScaffoldValueChange: Boolean = true): Boolean
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -125,17 +125,17 @@ private class DefaultListDetailPaneScaffoldState(
     val internalState: DefaultThreePaneScaffoldState
 ) : ListDetailPaneScaffoldState {
     override val scaffoldDirective get() = internalState.scaffoldDirective
-    override val layoutValue get() = internalState.layoutValue
+    override val scaffoldValue get() = internalState.scaffoldValue
 
     override fun navigateTo(pane: ListDetailPaneScaffoldRole) {
         internalState.navigateTo(pane.threePaneScaffoldRole)
     }
 
-    override fun canNavigateBack(layoutValueMustChange: Boolean): Boolean =
-        internalState.canNavigateBack(layoutValueMustChange)
+    override fun canNavigateBack(scaffoldValueMustChange: Boolean): Boolean =
+        internalState.canNavigateBack(scaffoldValueMustChange)
 
-    override fun navigateBack(popUntilLayoutValueChange: Boolean): Boolean =
-        internalState.navigateBack(popUntilLayoutValueChange)
+    override fun navigateBack(popUntilScaffoldValueChange: Boolean): Boolean =
+        internalState.navigateBack(popUntilScaffoldValueChange)
 }
 
 /**
