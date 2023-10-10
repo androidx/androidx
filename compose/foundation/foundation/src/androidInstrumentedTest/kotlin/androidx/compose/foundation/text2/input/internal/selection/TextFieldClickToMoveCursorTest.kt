@@ -215,12 +215,14 @@ class TextFieldClickToMoveCursorTest {
             )
         }
 
-        with(rule.onNodeWithTag(TAG)) {
-            performTouchInput { click(Offset(right - 1f, height / 2f)) }
+        rule.onNodeWithTag(TAG).performTouchInput {
+            click(Offset(right - 1f, height / 2f))
         }
-        rule.waitForIdle()
-        assertThat(state.text.selectionInChars).isEqualTo(TextRange(6))
-        assertThat(scrollState.value).isGreaterThan(0)
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(6))
+            assertThat(scrollState.value).isGreaterThan(0)
+        }
     }
 
     @Test
