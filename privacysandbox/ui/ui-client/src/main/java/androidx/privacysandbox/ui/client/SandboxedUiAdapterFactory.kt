@@ -192,6 +192,7 @@ object SandboxedUiAdapterFactory {
 
             @SuppressLint("BanUncheckedReflection") // using reflection on library classes
             override fun notifyResized(width: Int, height: Int) {
+                view.layout(0, 0, width, height)
                 notifyResizedMethod.invoke(origSession, width, height)
             }
 
