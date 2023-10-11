@@ -195,6 +195,7 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime atZone(java.time.ZoneId);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[], int, int);
@@ -288,6 +289,13 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicZonedDateTime extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[], int, int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfMonth();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfWeek();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHour();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinute();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMonth();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecond();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getYear();
     method public default byte[] toDynamicZonedDateTimeByteArray();
     method public default int toDynamicZonedDateTimeByteArray(byte[]);
     method public default int toDynamicZonedDateTimeByteArray(byte[], int, int);

@@ -47,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 
 /** Builders for dynamic primitive types used by layout elements. */
 public final class DynamicBuilders {
@@ -7348,6 +7349,27 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Returns a {@link DynamicZonedDateTime} instance representing this Instant in the
+         * specified time-zone. As an example, the following expression yields a {@link
+         * DynamicZonedDateTime} instance representing platform time in Europe/London time-zone:
+         *
+         * <pre>
+         *   DynamicInstant.platformTimeWithSecondsPrecision()
+         *      .atZone(ZoneId.of("Europe/London"));
+         * </pre>
+         *
+         * @return a new instance of {@link DynamicZonedDateTime} representing this {@link
+         *     DynamicInstant} in the specified time-zone.
+         */
+        @NonNull
+        default DynamicZonedDateTime atZone(@NonNull ZoneId zoneId) {
+            return new InstantToZonedDateTimeOp.Builder()
+                    .setInstant(this)
+                    .setZoneId(zoneId.getId())
+                    .build();
+        }
+
+        /**
          * Bind the value of this {@link DynamicInstant} to the result of a conditional expression.
          * This will use the value given in either {@link ConditionScope#use} or {@link
          * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
@@ -7493,6 +7515,133 @@ public final class DynamicBuilders {
                         e);
             }
             return stream.getTotalBytesWritten();
+        }
+
+        /**
+         * Returns the year field following the ISO-8601 calendar system; As an example, the
+         * following is equal to {@code DynamicInt32.constant(1970)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getYear();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getYear() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_YEAR)
+                    .build();
+        }
+
+        /**
+         * Returns the month-of-year field from 1 to 12 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getMonth();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getMonth() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_MONTH)
+                    .build();
+        }
+
+        /**
+         * Returns the day-of-month field from 1 to 31 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getDayOfMonth();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getDayOfMonth() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_DAY_OF_MONTH)
+                    .build();
+        }
+
+        /**
+         * Returns the day-of-week field going from MONDAY (1) to SUNDAY (7) following the ISO-8601
+         * calendar system; As an example, the following is equal to {@code
+         * DynamicInt32.constant(4)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getDayOfWeek();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getDayOfWeek() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_DAY_OF_WEEK)
+                    .build();
+        }
+
+        /**
+         * Returns the hour-of-day field from 0 to 23 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(3)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getHour();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getHour() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_HOUR_24H)
+                    .build();
+        }
+
+        /**
+         * Returns the minute-of-hour field from 0 to 59 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(20)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getMinute();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getMinute() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_MINUTE)
+                    .build();
+        }
+
+        /**
+         * Returns the second-of-minute field from 0 to 59 following the ISO-8601 calendar system;
+         * As an example, the following is equal to {@code DynamicInt32.constant(10)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .atZone(ZoneId.of("Europe/London"))
+         *      .getSecond();
+         * </pre>
+         */
+        @NonNull
+        default DynamicInt32 getSecond() {
+            return new GetZonedDateTimePartOp.Builder()
+                    .setInput(this)
+                    .setPartType(ZONED_DATE_TIME_PART_SECOND)
+                    .build();
         }
 
         /** Get the fingerprint for this object or null if unknown. */
