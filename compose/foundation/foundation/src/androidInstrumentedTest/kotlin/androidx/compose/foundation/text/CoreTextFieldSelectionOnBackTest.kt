@@ -55,7 +55,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class CoreTextFieldSelectionOnBackTest {
+class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -78,7 +78,7 @@ class CoreTextFieldSelectionOnBackTest {
     @Test
     fun whenBackPressed_andReleased_coreTextFieldClearsSelection() {
         val results = mutableListOf<TextFieldValue>()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             val textFieldValue = remember {
                 mutableStateOf(TextFieldValue("hello", TextRange(0, 0)))
             }
@@ -109,7 +109,7 @@ class CoreTextFieldSelectionOnBackTest {
     @Test
     fun whenBackPressed_coreTextFieldRetainsSelection() {
         val results = mutableListOf<TextFieldValue>()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             val textFieldValue = remember {
                 mutableStateOf(TextFieldValue("hello", TextRange(0, 0)))
             }
@@ -139,7 +139,7 @@ class CoreTextFieldSelectionOnBackTest {
     fun whenBackPressed_andReleased_whenCursorHandleShown_doesNotConsumeEvent() {
         var backPressCount = 0
         var softwareKeyboardController: SoftwareKeyboardController? = null
-        rule.setContent {
+        rule.setTextFieldTestContent {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
             BasicTextField(
                 "hello world",

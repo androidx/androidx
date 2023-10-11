@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.FakeTextToolbar
@@ -77,7 +78,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
-class TextFieldTextToolbarTest {
+class TextFieldTextToolbarTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -581,7 +582,7 @@ class TextFieldTextToolbarTest {
         val textToolbar = FakeTextToolbar()
         val state = TextFieldState("Hello")
         val focusRequester = FocusRequester()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
                 Column {
                     Box(
@@ -623,7 +624,7 @@ class TextFieldTextToolbarTest {
         val textToolbar = FakeTextToolbar()
         val state = TextFieldState("Hello")
         val toggleState = mutableStateOf(true)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
                 Column {
                     if (toggleState.value) {
@@ -663,7 +664,7 @@ class TextFieldTextToolbarTest {
         clipboardManager: ClipboardManager = FakeClipboardManager(),
         filter: InputTransformation? = null
     ) {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(
                 LocalTextToolbar provides toolbar,
                 LocalClipboardManager provides clipboardManager

@@ -78,7 +78,7 @@ import kotlinx.coroutines.withContext
  * This modifier mostly handles layout and draw.
  */
 internal data class TextFieldCoreModifier(
-    private val isFocused: Boolean,
+    private val isFocused: Boolean, /* true iff component is focused and the window in focus */
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
@@ -120,6 +120,7 @@ internal data class TextFieldCoreModifier(
 /** Modifier node for [TextFieldCoreModifier]. */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldCoreModifierNode(
+    // true iff this component is focused and the window is focused
     private var isFocused: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TransformedTextFieldState,

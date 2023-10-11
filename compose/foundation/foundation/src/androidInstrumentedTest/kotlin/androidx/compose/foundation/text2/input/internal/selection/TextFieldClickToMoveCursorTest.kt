@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
@@ -45,7 +46,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
-class TextFieldClickToMoveCursorTest {
+class TextFieldClickToMoveCursorTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -62,7 +63,7 @@ class TextFieldClickToMoveCursorTest {
     fun emptyTextField_clinkOnCornersAndCenter() {
         // this test is more about detecting a possible crash
         state = TextFieldState()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -90,7 +91,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnText_ltr() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -110,7 +111,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnText_rtl() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state = state,
@@ -129,7 +130,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnText_ltr_in_rtlLayout() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state = state,
@@ -148,7 +149,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnText_rtl_in_ltrLayout() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -165,7 +166,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnEmptyRegion_ltr() {
         state = TextFieldState("abc")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -182,7 +183,7 @@ class TextFieldClickToMoveCursorTest {
     @Test
     fun clickOnEmptyRegion_rtl() {
         state = TextFieldState("\u05D0\u05D1\u05D2")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
                     state = state,
@@ -202,7 +203,7 @@ class TextFieldClickToMoveCursorTest {
     fun clickOnTextEdge_horizontalScrollable() {
         state = TextFieldState("abcabcabcabc")
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
@@ -229,7 +230,7 @@ class TextFieldClickToMoveCursorTest {
     fun clickOnTextEdge_verticalScrollable() {
         state = TextFieldState("abc abc abc abc")
         val scrollState = ScrollState(0)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 textStyle = defaultTextStyle,
