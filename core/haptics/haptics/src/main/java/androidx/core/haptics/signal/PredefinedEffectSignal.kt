@@ -67,6 +67,27 @@ class PredefinedEffectSignal private constructor(
         private val HeavyClick = PredefinedEffectSignal(HEAVY_CLICK, Build.VERSION_CODES.Q)
         private val DoubleClick = PredefinedEffectSignal(DOUBLE_CLICK, Build.VERSION_CODES.Q)
 
+        internal val ALL_EFFECTS =
+            listOf(Tick, Click, HeavyClick, DoubleClick)
+
+        /** Returns all [PredefinedEffectSignal] types available at the current SDK level. */
+        @JvmStatic
+        internal fun getSdkAvailableEffects(): List<PredefinedEffectSignal> =
+            ALL_EFFECTS.filter {
+                it.minSdk <= Build.VERSION.SDK_INT
+            }.toList()
+
+        @JvmStatic
+        internal fun typeToString(@Type type: Int): String {
+            return when (type) {
+                TICK -> "Tick"
+                CLICK -> "Click"
+                HEAVY_CLICK -> "HeavyClick"
+                DOUBLE_CLICK -> "DoubleClick"
+                else -> type.toString()
+            }
+        }
+
         /**
          * A standard tick effect.
          *
@@ -110,14 +131,7 @@ class PredefinedEffectSignal private constructor(
     }
 
     override fun toString(): String {
-        val typeStr = when (type) {
-            TICK -> "Tick"
-            CLICK -> "Click"
-            HEAVY_CLICK -> "HeavyClick"
-            DOUBLE_CLICK -> "DoubleClick"
-            else -> type.toString()
-        }
-        return "PredefinedEffectSignal(type=$typeStr)"
+        return "PredefinedEffectSignal(type=${typeToString(type)})"
     }
 
     /**
