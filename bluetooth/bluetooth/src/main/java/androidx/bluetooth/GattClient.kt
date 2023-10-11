@@ -26,6 +26,7 @@ import android.bluetooth.BluetoothGattDescriptor as FwkDescriptor
 import android.bluetooth.BluetoothGattService as FwkService
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -463,6 +464,7 @@ class GattClient(private val context: Context) {
         }
     }
 
+    @RequiresApi(33)
     private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun writeCharacteristic(
