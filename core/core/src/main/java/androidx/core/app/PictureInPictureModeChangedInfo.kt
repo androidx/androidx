@@ -13,33 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.app;
-
-import android.app.Activity;
-import android.content.res.Configuration;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import android.app.Activity
+import android.content.res.Configuration
+import androidx.annotation.RequiresApi
 
 /**
  * Class that encapsulates the information that is delivered when
- * {@link Activity#onPictureInPictureModeChanged} is dispatched to a
- * {@link OnPictureInPictureModeChangedProvider}.
+ * [Activity.onPictureInPictureModeChanged] is dispatched to a
+ * [OnPictureInPictureModeChangedProvider].
  */
-public final class PictureInPictureModeChangedInfo {
-    private final boolean mIsInPictureInPictureMode;
-    private final Configuration mNewConfig;
-
+class PictureInPictureModeChangedInfo(
     /**
-     * Construct an instance that only contains the new picture-in-picture mode.
+     * Gets the new picture-in-picture mode.
      *
-     * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
+     * @return True if the activity is in picture-in-picture mode.
      */
-    public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode) {
-        mIsInPictureInPictureMode = isInPictureInPictureMode;
-        mNewConfig = null;
-    }
+    val isInPictureInPictureMode: Boolean
+) {
+    @RequiresApi(26)
+    private var newConfiguration: Configuration? = null
 
     /**
      * Construct an instance that contains the new picture-in-picture mode and the new
@@ -50,43 +44,34 @@ public final class PictureInPictureModeChangedInfo {
      * {@param isInPictureInPictureMode}.
      */
     @RequiresApi(26)
-    public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode,
-            @NonNull Configuration newConfig) {
-        mIsInPictureInPictureMode = isInPictureInPictureMode;
-        mNewConfig = newConfig;
+    constructor(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) : this(isInPictureInPictureMode) {
+        this.newConfiguration = newConfig
     }
 
-    /**
-     * Gets the new picture-in-picture mode.
-     *
-     * @return True if the activity is in picture-in-picture mode.
-     */
-    public boolean isInPictureInPictureMode() {
-        return mIsInPictureInPictureMode;
-    }
-
-    /**
-     * Gets the new {@link Configuration} of the with activity with the state
-     * {@link #isInPictureInPictureMode()} applied.
-     *
-     * Note that this is only valid on devices that are running API 26
-     * ({@link android.os.Build.VERSION_CODES#O}) or higher.
-     *
-     * @return The new configuration of the activity with the state
-     * {@link #isInPictureInPictureMode()}.
-     * @throws IllegalStateException if the new {@link Configuration} is not available (i.e.,
-     * you are running on a device less that {@link android.os.Build.VERSION_CODES#O} which is
-     * when this information first became available).
-     */
-    @RequiresApi(26)
-    @NonNull
-    public Configuration getNewConfig() {
-        if (mNewConfig == null) {
-            throw new IllegalStateException("PictureInPictureModeChangedInfo must be constructed "
-                    + "with the constructor that takes a Configuration to call getNewConfig(). "
-                    + "Are you running on an API 26 or higher device that makes this "
-                    + "information available?");
+    @get:RequiresApi(26)
+    val newConfig: Configuration
+        /**
+         * Gets the new [Configuration] of the with activity with the state
+         * [isInPictureInPictureMode] applied.
+         *
+         * Note that this is only valid on devices that are running API 26
+         * ([android.os.Build.VERSION_CODES.O]) or higher.
+         *
+         * @return The new configuration of the activity with the state
+         * [isInPictureInPictureMode].
+         * @throws IllegalStateException if the new [Configuration] is not available (i.e.,
+         * you are running on a device less that [android.os.Build.VERSION_CODES.O] which is
+         * when this information first became available).
+         */
+        get() {
+            return checkNotNull(newConfiguration) {
+                "PictureInPictureModeChangedInfo must be constructed " +
+                    "with the constructor that takes a Configuration to access the newConfig. " +
+                    "Are you running on an API 26 or higher device that makes this " +
+                    "information available?"
+            }
         }
-        return mNewConfig;
-    }
 }
