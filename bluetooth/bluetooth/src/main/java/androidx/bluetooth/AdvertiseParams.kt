@@ -63,5 +63,9 @@ class AdvertiseParams(
     /**
      * A list of service UUIDs to advertise.
      */
-    val serviceUuids: List<UUID> = emptyList()
+    val serviceUuids: List<UUID> = emptyList(),
+    /**
+     * A list of service solicitation UUIDs to advertise that we invite to connect.
+     */
+    val serviceSolicitationUuids: List<UUID> = emptyList()
 )

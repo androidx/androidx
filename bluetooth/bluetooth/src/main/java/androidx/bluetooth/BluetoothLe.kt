@@ -183,6 +183,10 @@ class BluetoothLe(private val context: Context) {
             advertiseParams.serviceUuids.forEach {
                 addServiceUuid(ParcelUuid(it))
             }
+            advertiseParams.serviceSolicitationUuids.forEach {
+                // TODO(b/304648022) This is added in API 31. It will crash on API 30.
+                addServiceSolicitationUuid(ParcelUuid(it))
+            }
             build()
         }
 
