@@ -46,7 +46,7 @@ class AdvertiseParams(
      * It must not exceed 655350 milliseconds. A value of 0 means advertising continues
      * until it is stopped explicitly.
      */
-    @IntRange(from = 0, to = 655350) val durationMillis: Int = 0,
+    @IntRange(from = 0, to = 655350) val durationMillis: Long = 0,
 
     /**
      * A map of company identifiers to manufacturer specific data.
