@@ -99,7 +99,8 @@ internal class TextFieldSelectionState(
 
     /**
      * The offset of visible bounds when dragging is started by a cursor or a selection handle.
-     * Total drag value needs to account for any auto scrolling that happens during the scroll.
+     * Total drag value needs to account for any auto scrolling that happens during dragging of a
+     * handle.
      * This value is an anchor to calculate how much the visible bounds have shifted as the
      * dragging continues. If a cursor or a selection handle is not dragging, this value needs to be
      * [Offset.Unspecified]. This includes long press and drag gesture defined on TextField.
@@ -117,15 +118,25 @@ internal class TextFieldSelectionState(
     /**
      * Current drag position of a handle for magnifier to read. Only one handle can be dragged
      * at one time. This uses raw position as in only gesture start position and delta are used to
-     * calculate it. If a scroll is caused by the selection changes while the gesture is active,
-     * it is not reflected on this value. See [handleDragPosition] for such a  behavior.
+     * calculate it. If auto-scroll happens due to selection changes while the gesture is active,
+     * it is not reflected on this value. See [handleDragPosition] for such a behavior.
+     *
+     * This value can reflect the drag position of either a real handle like cursor or selection or
+     * an acting handle when long press dragging happens directly on the text field. However, these
+     * two systems (real and acting handles) use different coordinate systems. When real handles
+     * set this value, they send inner text field coordinates. On the other hand, long press and
+     * drag gesture defined on text field would send coordinates in the decoration coordinates.
      */
     private var rawHandleDragPosition by mutableStateOf(Offset.Unspecified)
 
     /**
-     * Defines where the handle exactly is in inner text field coordinates. This is mainly used by
+     * Defines where the handle exactly is in text layout node coordinates. This is mainly used by
      * Magnifier to anchor itself. Also, it provides an updated total drag value to cursor and
      * selection handles to continue scrolling as they are dragged outside the visible bounds.
+     *
+     * This value is primarily used by Magnifier and any handle dragging gesture detector. Since
+     * these calculations use inner text field coordinates, [handleDragPosition] is also always
+     * represented in the same coordinate system.
      */
     val handleDragPosition: Offset
         get() = when {
@@ -187,13 +198,15 @@ internal class TextFieldSelectionState(
     val cursorHandle by derivedStateOf {
         // For cursor handle to be visible, [showCursorHandle] must be true and the selection
         // must be collapsed.
-        // Also, cursor handle should be in visible bounds of inner TextField. However, if cursor
-        // is dragging and gets out of bounds, we cannot remove it from composition because that
-        // would stop the drag gesture defined on it. Instead, we allow the handle to be visible
-        // as long as it's being dragged.
+        // Also, cursor handle should be in visible bounds of the TextField. However, if
+        // cursor is dragging and gets out of bounds, we cannot remove it from composition
+        // because that would stop the drag gesture defined on it. Instead, we allow the handle
+        // to be visible as long as it's being dragged.
         // Visible bounds calculation lags one frame behind to let auto-scrolling settle.
         val text = textFieldState.text
-        val visible = showCursorHandle && text.selectionInChars.collapsed && text.isNotEmpty() &&
+        val visible = showCursorHandle &&
+            text.selectionInChars.collapsed &&
+            text.isNotEmpty() &&
             (draggingHandle == Handle.Cursor || cursorHandleInBounds)
 
         if (!visible) return@derivedStateOf TextFieldHandleState.Hidden
@@ -210,7 +223,10 @@ internal class TextFieldSelectionState(
     /**
      * Whether currently cursor handle is in visible bounds. This derived state does not react to
      * selection changes immediately because every selection change is processed in layout phase
-     * by auto-scroll behavior.
+     * by auto-scroll behavior. Only after giving auto-scroll time to process the cursor movement,
+     * and possibly scroll the cursor back into view, we can say that whether cursor is in visible
+     * bounds or not. This is guaranteed to happen after scroll since new [textLayoutCoordinates]
+     * are reported after the layout phase end.
      */
     private val cursorHandleInBounds by derivedStateOf(policy = structuralEqualityPolicy()) {
         val position = Snapshot.withoutReadObservation { cursorRect.bottomCenter }
@@ -222,25 +238,27 @@ internal class TextFieldSelectionState(
     }
 
     /**
-     * Where the cursor should be at any given time in InnerTextField coordinates.
+     * Where the cursor should be at any given time in core node coordinates.
+     *
+     * Returns [Rect.Zero] if text layout has not been calculated yet or the selection is not
+     * collapsed (no cursor to locate).
      */
     val cursorRect: Rect by derivedStateOf {
         val layoutResult = textLayoutState.layoutResult ?: return@derivedStateOf Rect.Zero
         val value = textFieldState.text
-        // layoutResult could be lagging one frame behind. In any case, make sure that we are not
-        // querying an out-of-bounds index.
-        val cursorRect = layoutResult.getCursorRect(
-            value.selectionInChars.start.coerceIn(0, layoutResult.layoutInput.text.length)
-        )
+        if (!value.selectionInChars.collapsed) return@derivedStateOf Rect.Zero
+        val cursorRect = layoutResult.getCursorRect(value.selectionInChars.start)
 
         val cursorWidth = with(density) { DefaultCursorThickness.toPx() }
+        // left and right values in cursorRect should be the same but in any case use the
+        // logically correct anchor.
         val cursorCenterX = if (layoutResult.layoutInput.layoutDirection == LayoutDirection.Ltr) {
             (cursorRect.left + cursorWidth / 2)
         } else {
             (cursorRect.right - cursorWidth / 2)
         }
 
-        // don't let cursor go beyond the bounds of inner text field or cursor will be clipped.
+        // don't let cursor go beyond the bounds of text layout node or cursor will be clipped.
         // but also make sure that empty Text Layout still draws a cursor.
         val coercedCursorCenterX = cursorCenterX
             // do not use coerceIn because it is not guaranteed that minimum value is smaller
@@ -492,6 +510,7 @@ internal class TextFieldSelectionState(
         var dragBeginOffsetInText = -1
         var dragBeginPosition: Offset = Offset.Unspecified
         var dragTotalDistance: Offset = Offset.Zero
+        var actingHandle: Handle = Handle.SelectionEnd // start with a placeholder.
 
         // offsets received by this gesture detector are in decoration box coordinates
         detectDragGesturesAfterLongPress(
@@ -502,9 +521,11 @@ internal class TextFieldSelectionState(
                 // drag gesture is finished
                 showCursorHandleToolbar = false
 
+                // this gesture detector is applied on the decoration box. We do not need to
+                // convert the gesture offset, that's going to be calculated by [handleDragPosition]
                 updateHandleDragging(
-                    handle = Handle.SelectionEnd,
-                    position = textLayoutState.fromDecorationToTextLayout(dragStartOffset)
+                    handle = actingHandle,
+                    position = dragStartOffset
                 )
 
                 dragBeginPosition = dragStartOffset
@@ -616,13 +637,50 @@ internal class TextFieldSelectionState(
                     allowPreviousSelectionCollapsed = false,
                 )
 
-                var actingHandle = Handle.SelectionEnd
-
-                // if new selection reverses the original selection, we can treat this drag position
-                // as start handle being dragged.
-                if (!prevSelection.reversed && newSelection.reversed) {
+                // Although we support reversed selection, reversing the selection after it's
+                // initiated via long press has a visual glitch that's hard to get rid of. When
+                // handles (start/end) switch places after the selection reverts, draw happens a
+                // bit late, making it obvious that selection handles switched places. We simply do
+                // not allow reversed selection during long press drag.
+                if (newSelection.reversed) {
                     newSelection = newSelection.reverse()
-                    actingHandle = Handle.SelectionStart
+                }
+
+                // When drag starts from the end padding, we eventually need to update the start
+                // point once a selection is initiated. Otherwise, startOffset is always calculated
+                // from dragBeginPosition which can refer to different positions on text if
+                // TextField starts scrolling.
+                if (dragBeginOffsetInText == -1 && !newSelection.collapsed) {
+                    dragBeginOffsetInText = newSelection.start
+                }
+
+                // if the new selection is not equal to previous selection, consider updating the
+                // acting handle. Otherwise, acting handle should remain the same.
+                if (newSelection != prevSelection) {
+                    // Find the growing direction of selection
+                    // - Since we do not allow reverse selection,
+                    //   - selection.start == selection.min
+                    //   - selection.end == selection.max
+                    // - If only start or end changes ([A, B] => [A, C]; [C, E] => [D, E])
+                    //   - acting handle is the changing handle.
+                    // - If both change, find the middle point and see how it moves.
+                    //   - If middle point moves right, acting handle is SelectionEnd
+                    //   - Otherwise, acting handle is SelectionStart
+                    actingHandle = when {
+                        newSelection.start != prevSelection.start &&
+                            newSelection.end == prevSelection.end -> Handle.SelectionStart
+                        newSelection.start == prevSelection.start &&
+                            newSelection.end != prevSelection.end -> Handle.SelectionEnd
+                        else -> {
+                            val newMiddle = (newSelection.start + newSelection.end) / 2f
+                            val prevMiddle = (prevSelection.start + prevSelection.end) / 2f
+                            if (newMiddle > prevMiddle) {
+                                Handle.SelectionEnd
+                            } else {
+                                Handle.SelectionStart
+                            }
+                        }
+                    }
                 }
 
                 // Do not allow selection to collapse on itself while dragging. Selection can
