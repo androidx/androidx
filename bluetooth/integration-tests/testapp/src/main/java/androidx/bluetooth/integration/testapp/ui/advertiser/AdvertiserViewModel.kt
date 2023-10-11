@@ -87,7 +87,7 @@ class AdvertiserViewModel : ViewModel() {
 
     fun addGattCharacteristic(service: GattService, characteristic: GattCharacteristic) {
         val index = _gattServerServices.indexOf(service)
-        if (index < 0) return;
+        if (index < 0) return
         _gattServerServices[index] = GattService(service.uuid,
             service.characteristics.toMutableList().apply {
                 add(characteristic)
