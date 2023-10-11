@@ -65,6 +65,7 @@ class TextFieldSelectionManagerTest {
     private val text = "Hello World"
     private val density = Density(density = 1f)
     private val offsetMapping = OffsetMapping.Identity
+    private val maxLines = 2
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
     private val spyLambda = spy(lambda)
@@ -102,7 +103,7 @@ class TextFieldSelectionManagerTest {
                 text = AnnotatedString(text),
                 style = TextStyle.Default,
                 placeholders = mock(),
-                maxLines = 2,
+                maxLines = maxLines,
                 softWrap = true,
                 overflow = TextOverflow.Ellipsis,
                 density = density,
@@ -112,6 +113,7 @@ class TextFieldSelectionManagerTest {
             )
         )
 
+        whenever(layoutResult.lineCount).thenReturn(maxLines)
         whenever(layoutResult.getWordBoundary(beginOffset))
             .thenAnswer(TextRangeAnswer(fakeTextRange))
         whenever(layoutResult.getWordBoundary(dragOffset))
