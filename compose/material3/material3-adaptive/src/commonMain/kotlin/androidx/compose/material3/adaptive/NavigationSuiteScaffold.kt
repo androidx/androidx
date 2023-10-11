@@ -20,7 +20,6 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -537,7 +536,6 @@ private fun rememberStateOfItems(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NavigationItemIcon(
     icon: @Composable () -> Unit,
