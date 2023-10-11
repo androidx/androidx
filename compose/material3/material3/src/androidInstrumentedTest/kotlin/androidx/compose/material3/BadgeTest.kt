@@ -60,7 +60,6 @@ class BadgeTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_noContent_size() {
         rule
@@ -71,7 +70,6 @@ class BadgeTest {
             .assertWidthIsEqualTo(BadgeTokens.Size)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_shortContent_size() {
         rule
@@ -82,7 +80,6 @@ class BadgeTest {
             .assertWidthIsEqualTo(BadgeTokens.LargeSize)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_longContent_size() {
         rule
@@ -93,7 +90,6 @@ class BadgeTest {
             .assertWidthIsAtLeast(BadgeTokens.LargeSize)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_shortContent_customSizeModifier_size() {
         val customWidth = 24.dp
@@ -108,7 +104,6 @@ class BadgeTest {
             .assertWidthIsEqualTo(customWidth)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun badge_noContent_shape() {
@@ -131,7 +126,6 @@ class BadgeTest {
             )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_noContent_position() {
         rule
@@ -155,7 +149,6 @@ class BadgeTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_shortContent_position() {
         rule
@@ -183,7 +176,6 @@ class BadgeTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_longContent_position() {
         rule
@@ -208,7 +200,6 @@ class BadgeTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_notMergingDescendants_withOwnContentDescription() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -233,7 +224,6 @@ class BadgeTest {
         rule.onNodeWithTag(TestAnchorTag).assertContentDescriptionEquals("inbox")
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_size() {
         rule.setMaterialContentForSizeAssertions {
@@ -245,7 +235,6 @@ class BadgeTest {
             .assertHeightIsEqualTo(icon.defaultHeight)
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_smallGreatGrandParentAndLargeAnchor_adjustedBadge() {
         val greatGrandParentTag = "greatGrandParentLayout"
