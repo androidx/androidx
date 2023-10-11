@@ -446,16 +446,25 @@ class ComposerLambdaMemoization(
         }
         val result = super.visitFunctionReference(expression)
         val functionContext = currentFunctionContext ?: return result
-        if (expression.valueArgumentsCount != 0) {
-            // If this syntax is as a curry syntax in the future, don't memoize.
-            // The syntax <expr>::<method>(<params>) and ::<function>(<params>) is reserved for
-            // future use. This ensures we don't try to memoize this syntax without knowing
-            // its meaning.
 
-            // The most likely correct implementation is to treat the parameters exactly as the
-            // receivers are treated below.
+        // Do not attempt memoization if the referenced function has context receivers.
+        if (expression.symbol.owner.contextReceiverParametersCount > 0) {
             return result
         }
+
+        // Do not attempt memoization if value parameters are not null. This is to guard against
+        // unexpected IR shapes.
+        val allValueArguments =
+            (0 until expression.valueArgumentsCount)
+            .map { expression.getValueArgument(it) }
+        if (allValueArguments.any { it != null }) {
+            return result
+        }
+
+        // The syntax <expr>::<method>(<params>) and ::<function>(<params>) is reserved for
+        // future use. Revisit implementation if this syntax is as a curry syntax in the future.
+        // The most likely correct implementation is to treat the parameters exactly as the
+        // receivers are treated below.
         if (functionContext.canRemember) {
             // Memoize the reference for <expr>::<method>
             val dispatchReceiver = expression.dispatchReceiver
