@@ -744,8 +744,7 @@ public class EmojiCompat {
 
     /**
      * Registers an initialization callback. If the initialization is already completed by the time
-     * the listener is added, the callback functions are called immediately. Callbacks are called on
-     * the main looper.
+     * the listener is added, the callback functions are called immediately.
      * <p/>
      * When used on devices running API 18 or below, {@link InitCallback#onInitialized()} is called
      * without loading any metadata. In such cases {@link InitCallback#onFailed(Throwable)} is never
@@ -1441,7 +1440,6 @@ public class EmojiCompat {
          *
          * @return EmojiCompat.Config instance
          */
-        @SuppressWarnings("ExecutorRegistration")
         @NonNull
         public Config registerInitCallback(@NonNull Executor executor,
                 @NonNull InitCallback initCallback) {
