@@ -18,6 +18,7 @@ package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.getValue
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class TextFieldVisualTransformationSelectionBoundsTest {
+internal class TextFieldVisualTransformationSelectionBoundsTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -71,7 +72,7 @@ internal class TextFieldVisualTransformationSelectionBoundsTest {
     @Before
     fun setUp() {
         var value by mutableStateOf(TextFieldValue(text))
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = value,
                 onValueChange = { value = it },

@@ -22,6 +22,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -62,7 +63,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class TextFieldKeyboardActionsTest {
+class TextFieldKeyboardActionsTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -72,7 +73,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsImeAction_viaSemantics() {
         var called = false
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -90,7 +91,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsImeAction_viaInputConnection() {
         var called = false
-        inputMethodInterceptor.setContent {
+        inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -111,7 +112,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
         var calledFor: ImeAction? = null
-        inputMethodInterceptor.setContent {
+        inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -131,7 +132,7 @@ class TextFieldKeyboardActionsTest {
 
     @Test
     fun textField_performsDefaultBehavior_forFocusNext() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Column {
                 Box(
                     Modifier
@@ -157,7 +158,7 @@ class TextFieldKeyboardActionsTest {
 
     @Test
     fun textField_performsDefaultBehavior_forFocusPrevious() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Column {
                 Box(
                     Modifier
@@ -185,7 +186,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsDefaultBehavior_forDone() {
         val testKeyboardController = TestSoftwareKeyboardController(rule)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(
                 LocalSoftwareKeyboardController provides testKeyboardController
             ) {
@@ -204,7 +205,7 @@ class TextFieldKeyboardActionsTest {
 
     @Test
     fun textField_canOverrideDefaultBehavior() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Column {
                 Box(
                     Modifier
@@ -234,7 +235,7 @@ class TextFieldKeyboardActionsTest {
 
     @Test
     fun textField_canRequestDefaultBehavior() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Column {
                 Box(
                     Modifier
@@ -264,7 +265,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_performsGo_whenReceivedImeActionIsGo() {
         var called = false
-        inputMethodInterceptor.setContent {
+        inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardActions = KeyboardActions(onGo = {
@@ -284,7 +285,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
         var called = false
-        inputMethodInterceptor.setContent {
+        inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardActions = KeyboardActions(onGo = {
@@ -307,7 +308,7 @@ class TextFieldKeyboardActionsTest {
         val actions1 = KeyboardActionsAll { lastCaller = 1 }
         val actions2 = KeyboardActionsAll { lastCaller = 2 }
         var keyboardActions by mutableStateOf(actions1)
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -329,7 +330,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_singleLinePressEnter_triggersPassedImeAction() {
         var calledFor: ImeAction? = null
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
@@ -351,7 +352,7 @@ class TextFieldKeyboardActionsTest {
     @Test
     fun textField_multiLinePressEnter_doesNotTriggerPassedImeAction() {
         var calledFor: ImeAction? = null
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
@@ -372,7 +373,7 @@ class TextFieldKeyboardActionsTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun textField_singleLinePressEnter_triggersDefaultBehavior() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             Column {
                 Box(
                     Modifier

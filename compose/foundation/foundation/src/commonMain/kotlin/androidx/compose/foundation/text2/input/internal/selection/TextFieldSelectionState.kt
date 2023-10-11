@@ -74,7 +74,7 @@ internal class TextFieldSelectionState(
     private val textLayoutState: TextLayoutState,
     private var density: Density,
     private var editable: Boolean,
-    var isFocused: Boolean,
+    var isFocused: Boolean, /* true iff component is focused and the window is focused */
 ) {
     /**
      * [HapticFeedback] handle to perform haptic feedback.

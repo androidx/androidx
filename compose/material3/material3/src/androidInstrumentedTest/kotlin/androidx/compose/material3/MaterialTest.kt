@@ -19,9 +19,12 @@ package androidx.compose.material3
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -52,9 +55,15 @@ fun ComposeContentTestRule.setMaterialContent(
 ) {
     setContent {
         MaterialTheme(colorScheme = colorScheme) {
-            Surface(modifier = modifier, content = composable)
+            Surface(modifier = modifier) {
+                CompositionLocalProvider(LocalWindowInfo provides WindowInfoFocused, composable)
+            }
         }
     }
+}
+
+private val WindowInfoFocused = object : WindowInfo {
+    override val isWindowFocused = true
 }
 
 fun <T> ComposeTestRule.runOnIdleWithDensity(action: Density.() -> T): T {

@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
@@ -53,7 +54,7 @@ import org.junit.runner.RunWith
 )
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class TextFieldSelectionOnBackTest {
+class TextFieldSelectionOnBackTest : FocusedWindowTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -137,7 +138,7 @@ class TextFieldSelectionOnBackTest {
         var backPressed = 0
         var softwareKeyboardController: SoftwareKeyboardController? = null
         val state = TextFieldState("Hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
             BasicTextField2(
                 state,

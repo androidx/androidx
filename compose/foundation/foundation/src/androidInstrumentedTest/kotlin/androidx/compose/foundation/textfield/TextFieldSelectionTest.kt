@@ -17,15 +17,19 @@
 package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.ReducedVisualTransformation
 import androidx.compose.foundation.text.selection.isSelectionHandle
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -50,7 +54,7 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-class TextFieldSelectionTest {
+class TextFieldSelectionTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -59,7 +63,7 @@ class TextFieldSelectionTest {
     @Test
     fun readOnlyTextField_showsSelectionHandles() {
         val textFieldValue = mutableStateOf("text text text")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
@@ -75,14 +79,13 @@ class TextFieldSelectionTest {
         rule.onNodeWithTag(testTag).performTouchInput { longClick() }
         rule.waitForIdle()
 
-        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
-        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+        assertHandlesDisplayed()
     }
 
     @Test
     fun textField_showsSelectionHandles_whenVisualTransformationIsApplied() {
         val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
@@ -98,13 +101,12 @@ class TextFieldSelectionTest {
         rule.onNodeWithTag(testTag).performTouchInput { longClick() }
         rule.waitForIdle()
 
-        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
-        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+        assertHandlesDisplayed()
     }
 
     @Test
     fun textField_showsSelectionHandles_whenReducedVisualTransformationIsApplied() {
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = "text".repeat(10),
                 onValueChange = { },
@@ -120,14 +122,13 @@ class TextFieldSelectionTest {
         rule.onNodeWithTag(testTag).performTouchInput { longClick() }
         rule.waitForIdle()
 
-        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
-        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+        assertHandlesDisplayed()
     }
 
     @Test
     fun textField_showsCursorHandle() {
         val textFieldValue = mutableStateOf("text text text")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
@@ -150,7 +151,7 @@ class TextFieldSelectionTest {
         val textFieldValue = mutableStateOf(TextFieldValue("text"))
         lateinit var textToolbar: TextToolbar
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             textToolbar = LocalTextToolbar.current
             BasicTextField(
                 value = textFieldValue.value,
@@ -203,6 +204,89 @@ class TextFieldSelectionTest {
         )
     }
 
+    @Test
+    fun textField_noSelectionHandles_whenWindowLosesFocus() {
+        val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
+        val focusWindow = mutableStateOf(true)
+        val windowInfo = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focusWindow.value
+        }
+        lateinit var textToolbar: TextToolbar
+
+        rule.setTextFieldTestContent {
+            textToolbar = LocalTextToolbar.current
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField(
+                    value = textFieldValue.value,
+                    onValueChange = { textFieldValue.value = it },
+                    modifier = Modifier.testTag(testTag)
+                )
+            }
+        }
+
+        // selection and cursor are hidden
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertHandlesNotExist()
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+
+        // make selection
+        rule.onNodeWithTag(testTag).performTouchInput { longClick() }
+        rule.waitForIdle()
+
+        assertHandlesDisplayed()
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+
+        // window lost focus, make sure handles and toolbar disappeared
+        rule.runOnIdle { focusWindow.value = false }
+        rule.waitForIdle()
+
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertHandlesNotExist()
+    }
+
+    @Test
+    fun textField_redisplaysSelectionHandlesAndToolbar_whenWindowRegainsFocus() {
+        val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
+        val focusWindow = mutableStateOf(true)
+        val windowInfo = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focusWindow.value
+        }
+        lateinit var textToolbar: TextToolbar
+
+        rule.setTextFieldTestContent {
+            textToolbar = LocalTextToolbar.current
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField(
+                    value = textFieldValue.value,
+                    onValueChange = { textFieldValue.value = it },
+                    modifier = Modifier.testTag(testTag)
+                )
+            }
+        }
+
+        // make selection
+        rule.onNodeWithTag(testTag).performTouchInput { longClick() }
+        rule.waitForIdle()
+
+        // window lost focus, make sure handles and toolbar disappeared
+        rule.runOnIdle { focusWindow.value = false }
+        rule.waitForIdle()
+
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.onAllNodes(isPopup()).assertCountEquals(0)
+        assertHandlesNotExist()
+
+        // regain window focus
+        rule.runOnIdle { focusWindow.value = true }
+        rule.waitForIdle()
+
+        assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        assertHandlesDisplayed()
+    }
+
     private fun textField_dragsCursorHandle(
         text: String,
         visualTransformation: VisualTransformation,
@@ -211,7 +295,7 @@ class TextFieldSelectionTest {
         val textFieldValue = mutableStateOf(TextFieldValue(text, TextRange(Int.MAX_VALUE)))
         val cursorPositions = mutableListOf<Int>()
         lateinit var textToolbar: TextToolbar
-        rule.setContent {
+        rule.setTextFieldTestContent {
             textToolbar = LocalTextToolbar.current
             BasicTextField(
                 value = textFieldValue.value,
@@ -326,7 +410,7 @@ class TextFieldSelectionTest {
         val textFieldValue =
             mutableStateOf(TextFieldValue(text, TextRange(Int.MAX_VALUE)))
         val selectionRanges = mutableListOf<TextRange>()
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = {
@@ -386,5 +470,15 @@ class TextFieldSelectionTest {
                 swipeRight(startX = centerX, endX = right + swipeDistance, durationMillis = 1000)
             }
         }
+    }
+
+    private fun assertHandlesDisplayed() {
+            rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
+            rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
+    }
+
+    private fun assertHandlesNotExist() {
+            rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertDoesNotExist()
+            rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertDoesNotExist()
     }
 }

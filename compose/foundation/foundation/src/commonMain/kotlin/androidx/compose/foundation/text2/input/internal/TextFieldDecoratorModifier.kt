@@ -39,16 +39,20 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.textInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
@@ -144,7 +148,8 @@ internal class TextFieldDecoratorModifierNode(
     GlobalPositionAwareModifierNode,
     PointerInputModifierNode,
     KeyInputModifierNode,
-    CompositionLocalConsumerModifierNode {
+    CompositionLocalConsumerModifierNode,
+    ObserverModifierNode {
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         with(textFieldSelectionState) {
@@ -162,7 +167,18 @@ internal class TextFieldDecoratorModifierNode(
     var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         private set
 
-    private var isFocused: Boolean = false
+    /**
+     * Needs to be kept separate from a window focus so we can restart an input session when the
+     * window receives the focus back. Element can stay focused even if the window loses its focus.
+     */
+    private var isElementFocused: Boolean = false
+
+    /**
+     * Keeps focus state of the window
+     */
+    private var windowInfo: WindowInfo? = null
+
+    private val isFocused: Boolean get() = isElementFocused && windowInfo?.isWindowFocused == true
 
     /**
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
@@ -365,11 +381,11 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     override fun onFocusEvent(focusState: FocusState) {
-        if (isFocused == focusState.isFocused) {
+        if (isElementFocused == focusState.isFocused) {
             return
         }
-        isFocused = focusState.isFocused
-        textFieldSelectionState.isFocused = focusState.isFocused
+        isElementFocused = focusState.isFocused
+        textFieldSelectionState.isFocused = this.isFocused
 
         if (focusState.isFocused) {
             // Deselect when losing focus even if readonly.
@@ -381,6 +397,10 @@ internal class TextFieldDecoratorModifierNode(
             disposeInputSession()
             textFieldState.collapseSelectionToMax()
         }
+    }
+
+    override fun onAttach() {
+        onObservedReadsChanged()
     }
 
     override fun onDetach() {
@@ -425,6 +445,13 @@ internal class TextFieldDecoratorModifierNode(
         )
     }
 
+    override fun onObservedReadsChanged() {
+        observeReads {
+            windowInfo = currentValueOf(LocalWindowInfo)
+            startOrDisposeInputSessionOnWindowFocusChange()
+        }
+    }
+
     private fun startInputSession() {
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
@@ -447,6 +474,15 @@ internal class TextFieldDecoratorModifierNode(
     private fun disposeInputSession() {
         inputSessionJob?.cancel()
         inputSessionJob = null
+    }
+
+    private fun startOrDisposeInputSessionOnWindowFocusChange() {
+        if (windowInfo == null) return
+        if (windowInfo?.isWindowFocused == true && isElementFocused) {
+            startInputSession()
+        } else {
+            disposeInputSession()
+        }
     }
 
     private fun requireKeyboardController(): SoftwareKeyboardController =

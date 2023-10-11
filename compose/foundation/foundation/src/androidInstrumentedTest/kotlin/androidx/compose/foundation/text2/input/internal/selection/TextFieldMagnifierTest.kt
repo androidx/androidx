@@ -157,7 +157,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             initialSelectionInChars = TextRange.Zero
         )
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 BasicTextField2(
                     state = state,
@@ -197,7 +197,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 coroutineScope = rememberCoroutineScope()
                 BasicTextField2(
@@ -244,7 +244,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 coroutineScope = rememberCoroutineScope()
                 BasicTextField2(
@@ -301,7 +301,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             initialSelectionInChars = TextRange.Zero
         )
 
-        rule.setContent {
+        rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 BasicTextField2(
                     state = state,

@@ -3,6 +3,7 @@ package androidx.compose.foundation.text2
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class BasicTextField2SemanticsTest {
+class BasicTextField2SemanticsTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -352,7 +353,7 @@ class BasicTextField2SemanticsTest {
     @Test
     fun inputSelection_changesSelectionState() {
         val state = TextFieldState("hello")
-        rule.setContent {
+        rule.setTextFieldTestContent {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag)
