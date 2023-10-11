@@ -23,6 +23,7 @@ import android.os.Binder
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
+import android.view.Window
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -647,11 +648,13 @@ class WindowAreaControllerImplTest {
         override fun setPresentationView(view: View) {
             sessionConsumer.accept(WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE)
         }
+
+        override fun getWindow(): Window {
+            return activity.window
+        }
     }
 
     companion object {
         private const val REAR_FACING_BINDER_DESCRIPTION = "TEST_WINDOW_AREA_REAR_FACING"
-
-        private const val FEATURE_VENDOR_API_LEVEL = 3
     }
 }

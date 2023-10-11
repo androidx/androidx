@@ -109,8 +109,10 @@ package androidx.window.area {
 
   @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
     method public android.content.Context getContext();
+    method public android.view.Window? getWindow();
     method public void setContentView(android.view.View view);
     property public abstract android.content.Context context;
+    property public abstract android.view.Window? window;
   }
 
 }

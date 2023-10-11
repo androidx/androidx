@@ -389,7 +389,8 @@ internal class WindowAreaControllerImpl(
                             windowAreaPresentationSessionCallback.onSessionStarted(
                                 RearDisplayPresentationSessionPresenterImpl(
                                     windowAreaComponent,
-                                    windowAreaComponent.rearDisplayPresentation!!
+                                    windowAreaComponent.rearDisplayPresentation!!,
+                                    ExtensionsUtil.safeVendorApiLevel
                                 )
                             )
                         }
