@@ -82,6 +82,33 @@ class CallsManager constructor(context: Context) {
         annotation class Capability
 
         /**
+         * Constants used to denote the type of [Capability] being registered.
+         */
+        @Target(AnnotationTarget.TYPE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(PARTICIPANT, CALL_SILENCE)
+        annotation class ExtensionType
+
+        internal const val PARTICIPANT = 1
+        internal const val CALL_SILENCE = 2
+        // Todo: Support additional capabilities
+
+        /**
+         * Constants used to denote the type of action supported by the [Capability] being
+         * registered.
+         */
+        @Target(AnnotationTarget.TYPE)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(RAISE_HAND_ACTION, KICK_PARTICIPANT_ACTION)
+        annotation class ExtensionSupportedActions
+
+        internal const val RAISE_HAND_ACTION = 1
+        internal const val KICK_PARTICIPANT_ACTION = 2
+        // Todo: Support additional actions
+
+        /**
          * Set on Connections that are using ConnectionService+AUTO specific extension layer.
          */
         internal const val EXTRA_VOIP_API_VERSION = "android.telecom.extra.VOIP_API_VERSION"
