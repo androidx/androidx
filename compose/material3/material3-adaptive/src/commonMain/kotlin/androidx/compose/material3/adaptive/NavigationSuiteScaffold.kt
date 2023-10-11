@@ -72,6 +72,9 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * @param modifier the [Modifier] to be applied to the navigation suite scaffold
  * @param layoutType the current [NavigationSuiteType]. Defaults to
  * [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
+ * @param navigationSuiteColors [NavigationSuiteColors] that will be used to determine the container
+ * (background) color of the navigation component and the preferred color for content inside the
+ * navigation component
  * @param containerColor the color used for the background of the navigation suite scaffold. Use
  * [Color.Transparent] to have no color
  * @param contentColor the preferred color for content inside the navigation suite scaffold.
@@ -86,6 +89,7 @@ fun NavigationSuiteScaffold(
     modifier: Modifier = Modifier,
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
+    navigationSuiteColors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable () -> Unit = {},
@@ -93,7 +97,11 @@ fun NavigationSuiteScaffold(
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
         NavigationSuiteScaffoldLayout(
             navigationSuite = {
-                NavigationSuite(layoutType = layoutType, content = navigationSuiteItems)
+                NavigationSuite(
+                    layoutType = layoutType,
+                    colors = navigationSuiteColors,
+                    content = navigationSuiteItems
+                )
             },
             layoutType = layoutType,
             content = content
