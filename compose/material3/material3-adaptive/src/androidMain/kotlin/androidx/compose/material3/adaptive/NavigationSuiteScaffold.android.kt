@@ -17,9 +17,8 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo
     @Composable
-    get() = with(LocalContext.current) { windowAdaptiveInfo() }
+    get() = calculateWindowAdaptiveInfo()
