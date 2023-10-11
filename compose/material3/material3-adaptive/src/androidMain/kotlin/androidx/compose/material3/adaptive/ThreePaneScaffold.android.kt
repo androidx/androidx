@@ -26,17 +26,17 @@ internal class DefaultThreePaneScaffoldState(
     val currentFocus: ThreePaneScaffoldRole?
         get() = focusHistory.lastOrNull()
 
-    val layoutValue: ThreePaneScaffoldValue get() = calculateScaffoldValue(currentFocus)
+    val scaffoldValue: ThreePaneScaffoldValue get() = calculateScaffoldValue(currentFocus)
 
     fun navigateTo(pane: ThreePaneScaffoldRole) {
         focusHistory.add(pane)
     }
 
-    fun canNavigateBack(layoutValueMustChange: Boolean): Boolean =
-        getPreviousFocusIndex(layoutValueMustChange) >= 0
+    fun canNavigateBack(scaffoldValueMustChange: Boolean): Boolean =
+        getPreviousFocusIndex(scaffoldValueMustChange) >= 0
 
-    fun navigateBack(popUntilLayoutValueChange: Boolean): Boolean {
-        val previousFocusIndex = getPreviousFocusIndex(popUntilLayoutValueChange)
+    fun navigateBack(popUntilScaffoldValueChange: Boolean): Boolean {
+        val previousFocusIndex = getPreviousFocusIndex(popUntilScaffoldValueChange)
         if (previousFocusIndex < 0) {
             focusHistory.clear()
             return false
@@ -48,17 +48,17 @@ internal class DefaultThreePaneScaffoldState(
         return true
     }
 
-    private fun getPreviousFocusIndex(withLayoutValueChange: Boolean): Int {
+    private fun getPreviousFocusIndex(withScaffoldValueChange: Boolean): Int {
         if (focusHistory.size <= 1) {
             // No previous focus
             return -1
         }
-        if (!withLayoutValueChange) {
+        if (!withScaffoldValueChange) {
             return focusHistory.lastIndex - 1
         }
         for (previousFocusIndex in focusHistory.lastIndex - 1 downTo 0) {
             val newValue = calculateScaffoldValue(focusHistory[previousFocusIndex])
-            if (newValue != layoutValue) {
+            if (newValue != scaffoldValue) {
                 return previousFocusIndex
             }
         }

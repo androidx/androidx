@@ -50,11 +50,11 @@ import androidx.compose.ui.unit.dp
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSample() {
-    val layoutState = rememberListDetailPaneScaffoldState(
+    val scaffoldState = rememberListDetailPaneScaffoldState(
         initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
     )
     ListDetailPaneScaffold(
-        layoutState = layoutState,
+        scaffoldState = scaffoldState,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
@@ -62,7 +62,7 @@ fun ListDetailPaneScaffoldSample() {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
                     onClick = {
-                        layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
                     }
                 ) {
                     Text("List")
@@ -74,7 +74,7 @@ fun ListDetailPaneScaffoldSample() {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
                 onClick = {
-                    layoutState.navigateBack()
+                    scaffoldState.navigateBack()
                 }
             ) {
                 Text("Details")
@@ -88,12 +88,12 @@ fun ListDetailPaneScaffoldSample() {
 @Sampled
 @Composable
 fun ListDetailExtraPaneScaffoldSample() {
-    val layoutState = rememberListDetailPaneScaffoldState(
+    val scaffoldState = rememberListDetailPaneScaffoldState(
         initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
     )
 
     ListDetailPaneScaffold(
-        layoutState = layoutState,
+        scaffoldState = scaffoldState,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
@@ -101,7 +101,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
                     onClick = {
-                        layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
                     }
                 ) {
                     Text("List")
@@ -116,7 +116,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary,
                     onClick = {
-                        layoutState.navigateBack()
+                        scaffoldState.navigateBack()
                     }
                 ) {
                     Text("Extra")
@@ -140,7 +140,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                     ) {
                         Surface(
                             onClick = {
-                                layoutState.navigateBack()
+                                scaffoldState.navigateBack()
                             },
                             modifier = Modifier
                                 .weight(0.5f)
@@ -157,7 +157,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                         VerticalDivider()
                         Surface(
                             onClick = {
-                                layoutState.navigateTo(ListDetailPaneScaffoldRole.Extra)
+                                scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Extra)
                             },
                             modifier = Modifier
                                 .weight(0.5f)
