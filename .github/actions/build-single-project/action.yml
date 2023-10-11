@@ -16,18 +16,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Setup JDK 8 for tools.jar"
-      id: setup-java8
-      uses: actions/setup-java@v1
-      with:
-        java-version: "8"
-    - name: "set tools jar path"
-      id: setup-tools-jar
-      shell: bash
-      run: |
-        set -x
-        TOOLS_JAR=$JAVA_HOME/lib/tools.jar
-        echo "::set-output name=toolsJar::$TOOLS_JAR"
     - name: "Setup JDK 17"
       id: setup-java
       uses: actions/setup-java@v1
@@ -69,7 +57,6 @@ runs:
     - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
       working-directory: ${{ inputs.project-root }}
@@ -78,7 +65,6 @@ runs:
     - name: "gradle playgroundCIHostTests"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
       working-directory: ${{ inputs.project-root }}
