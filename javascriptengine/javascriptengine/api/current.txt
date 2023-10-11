@@ -21,8 +21,8 @@ package androidx.javascriptengine {
     method @IntRange(from=0) public long getMaxHeapSizeBytes();
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setMaxEvaluationReturnSizeBytes(@IntRange(from=0) int);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_ISOLATE_MAX_HEAP_SIZE, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setMaxHeapSizeBytes(@IntRange(from=0) long);
+    field public static final long AUTOMATIC_MAX_HEAP_SIZE = 0L; // 0x0L
     field public static final int DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES = 20971520; // 0x1400000
-    field public static final long DEFAULT_MAX_HEAP_SIZE = 0L; // 0x0L
   }
 
   public class IsolateTerminatedException extends androidx.javascriptengine.JavaScriptException {
