@@ -25,7 +25,7 @@ import androidx.core.telecom.extensions.IActionsResultCallback;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IParticipantStateListener {
     // Built-in states provided as part of handling basic participant support
-    void updateParticipants(in int[] participants) = 0;
+    void updateParticipants(in Participant[] participants) = 0;
     void updateActiveParticipant(in int activeParticipant) = 1;
     // Updates for supported actions
     void updateRaisedHandsAction(in int[] participants) = 2;
