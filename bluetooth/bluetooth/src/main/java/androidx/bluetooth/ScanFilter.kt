@@ -54,8 +54,25 @@ class ScanFilter(
     /** The scan filter for service uuid. `null` if filter is not set. */
     val serviceUuid: UUID? = null,
 
-    /** The partial filter on service uuid. `null` if filter is not set. */
-    val serviceUuidMask: UUID? = null
+    /**
+     * The partial filter on service uuid. `null` if filter is not set.
+     * @throws IllegalArgumentException if this bit mask [serviceUuidMask] is set but
+     * [serviceUuid] is null
+     */
+    val serviceUuidMask: UUID? = null,
+
+    /** The scan filter for service Solicitation uuid. `null` if filter is not set. */
+    val serviceSolicitationUuid: UUID? = null,
+
+    /**
+     * The partial filter on service Solicitation uuid. This bit mask is for
+     * [serviceSolicitationUuid]. Set any bit in the mask to 1 to indicate a match is needed
+     * for the bit in [serviceSolicitationUuid], and 0 to ignore that bit.
+     * `null` if filter is not set.
+     * @throws IllegalArgumentException if this bit mask [serviceSolicitationUuidMask] is set but
+     * [serviceSolicitationUuid] is null
+     */
+    val serviceSolicitationUuidMask: UUID? = null
 ) {
     companion object {
         const val MANUFACTURER_FILTER_NONE: Int = -1
@@ -92,6 +109,12 @@ class ScanFilter(
 
         if (serviceUuid == null && serviceUuidMask != null) {
             throw IllegalArgumentException("ServiceUuid is null while ServiceUuidMask is not null")
+        }
+
+        if (serviceSolicitationUuid == null && serviceSolicitationUuidMask != null) {
+            throw IllegalArgumentException(
+                "ServiceSolicitationUuid is null while ServiceSolicitationUuidMask is not null"
+            )
         }
     }
 
@@ -131,6 +154,18 @@ class ScanFilter(
                     setServiceUuid(ParcelUuid(it), ParcelUuid(serviceUuidMask))
                 } else {
                     setServiceUuid(ParcelUuid(it))
+                }
+            }
+
+            serviceSolicitationUuid?.let {
+                // TODO(b/304911762) Handle below API 29
+                if (serviceSolicitationUuidMask == null) {
+                    setServiceSolicitationUuid(ParcelUuid(it))
+                } else {
+                    setServiceSolicitationUuid(
+                        ParcelUuid(it),
+                        ParcelUuid(serviceSolicitationUuidMask)
+                    )
                 }
             }
             build()
