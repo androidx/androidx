@@ -160,6 +160,7 @@ public interface CameraControlInternal extends CameraControl {
         return this;
     }
 
+    @NonNull
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @FlashMode
         @Override

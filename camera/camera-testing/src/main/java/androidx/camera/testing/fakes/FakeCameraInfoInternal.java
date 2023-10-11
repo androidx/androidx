@@ -57,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
- * Information for a fake camera.
+ * Fake implementation for retrieving camera information of a fake camera.
  *
  * <p>This camera info can be constructed with fake values.
  */
