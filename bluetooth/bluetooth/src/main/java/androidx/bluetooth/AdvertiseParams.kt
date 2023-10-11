@@ -23,15 +23,15 @@ import java.util.UUID
  * A class to provide a way to adjust advertising preferences and advertise data packet.
  */
 class AdvertiseParams(
-    /* Whether the device address will be included in the advertisement packet. */
+    /** Whether the device address will be included in the advertisement packet. */
     @Suppress("GetterSetterNames")
     @get:JvmName("shouldIncludeDeviceAddress")
     val shouldIncludeDeviceAddress: Boolean = false,
-    /* Whether the device name will be included in the advertisement packet. */
+    /** Whether the device name will be included in the advertisement packet. */
     @Suppress("GetterSetterNames")
     @get:JvmName("shouldIncludeDeviceName")
     val shouldIncludeDeviceName: Boolean = false,
-    /* Whether the advertisement will indicate connectable. */
+    /** Whether the advertisement will indicate connectable. */
     val isConnectable: Boolean = false,
     /**
      * Whether the advertisement will be discoverable.
