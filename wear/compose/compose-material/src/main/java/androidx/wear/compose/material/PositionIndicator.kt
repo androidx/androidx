@@ -80,6 +80,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -755,9 +756,7 @@ public fun PositionIndicator(
                         handleFadeOut(showFadeOutAnimation, animateAlphaChannel, alphaValue)
                     }
 
-                    // PositionIndicatorVisibility.Hide and
-                    // PositionIndicatorVisibility.AutoHide cases
-                    else -> {
+                    PositionIndicatorVisibility.Show -> {
                         // If showFadeInAnimation is true and we don't skip the first animation,
                         // then we send event to animation channel
                         if (showFadeInAnimation && !skipFirstAlphaAnimation) {
@@ -767,6 +766,11 @@ public fun PositionIndicator(
                             alphaValue.floatValue = 1f
                             skipFirstAlphaAnimation = false
                         }
+                    }
+
+                    // PositionIndicatorVisibility.AutoHide case
+                    else -> {
+                        skipFirstAlphaAnimation = false
 
                         if (it.visibility == PositionIndicatorVisibility.AutoHide) {
                             // Waiting for 2000ms and changing alpha value to 0f
@@ -782,15 +786,18 @@ public fun PositionIndicator(
     LaunchedEffect(Unit) {
         // Listens to events in [animateAlphaChannel] and triggers
         // alpha animations to specified value.
-        animateAlphaChannel.receiveAsFlow().collectLatest { targetValue ->
-            animate(
-                alphaValue.floatValue,
-                targetValue,
-                animationSpec = alphaChangeAnimationSpec
-            ) { value, _ ->
-                alphaValue.floatValue = value
+        animateAlphaChannel
+            .receiveAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { targetValue ->
+                animate(
+                    alphaValue.floatValue,
+                    targetValue,
+                    animationSpec = alphaChangeAnimationSpec
+                ) { value, _ ->
+                    alphaValue.floatValue = value
+                }
             }
-        }
     }
 
     BoundsLimiter(boundsOffset, boundsSize, modifier, onSizeChanged = {
@@ -927,7 +934,7 @@ public fun PositionIndicator(
     )
 }
 
-internal fun handleFadeOut(
+internal suspend fun handleFadeOut(
     showFadeOutAnimation: Boolean,
     animateAlphaChannel: Channel<Float>,
     alphaValue: MutableFloatState
