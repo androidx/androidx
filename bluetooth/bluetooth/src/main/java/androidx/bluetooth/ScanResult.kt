@@ -37,6 +37,13 @@ import java.util.UUID
  */
 class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) {
 
+    companion object {
+        /**
+         * Periodic advertising interval is not present in the packet.
+         */
+        const val PERIODIC_INTERVAL_NOT_PRESENT: Int = FwkScanResult.PERIODIC_INTERVAL_NOT_PRESENT
+    }
+
     /** Remote Bluetooth device found. */
     val device: BluetoothDevice
         get() = BluetoothDevice(fwkScanResult.device)
@@ -88,4 +95,17 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
     fun isConnectable(): Boolean {
         return fwkScanResult.isConnectable
     }
+
+    /** Returns the received signal strength in dBm. The valid range is [-127, 126]. */
+    val rssi: Int
+        get() = fwkScanResult.rssi
+
+    /**
+     * Returns the periodic advertising interval in milliseconds ranging from 7.5ms to 81918.75ms
+     * A value of [PERIODIC_INTERVAL_NOT_PRESENT] means periodic advertising interval is not present.
+     */
+    val periodicAdvertisingInterval: Long
+        // TODO(b/304870068) Cover periodicAdvertisingInterval for below API 26
+        // Framework returns interval in units of 1.25ms.
+        get() = (fwkScanResult.periodicAdvertisingInterval * 1.25.toLong())
 }
