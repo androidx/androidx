@@ -147,7 +147,7 @@ package androidx.webkit {
   public final class UserAgentMetadata {
     method public String? getArchitecture();
     method public int getBitness();
-    method public java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!>? getBrandVersionList();
+    method public java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!> getBrandVersionList();
     method public String? getFullVersion();
     method public String? getModel();
     method public String? getPlatform();
@@ -158,24 +158,32 @@ package androidx.webkit {
   }
 
   public static final class UserAgentMetadata.BrandVersion {
-    ctor public UserAgentMetadata.BrandVersion(String, String, String);
     method public String getBrand();
     method public String getFullVersion();
     method public String getMajorVersion();
+  }
+
+  public static final class UserAgentMetadata.BrandVersion.Builder {
+    ctor public UserAgentMetadata.BrandVersion.Builder();
+    ctor public UserAgentMetadata.BrandVersion.Builder(androidx.webkit.UserAgentMetadata.BrandVersion);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion build();
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setBrand(String);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setFullVersion(String);
+    method public androidx.webkit.UserAgentMetadata.BrandVersion.Builder setMajorVersion(String);
   }
 
   public static final class UserAgentMetadata.Builder {
     ctor public UserAgentMetadata.Builder();
     ctor public UserAgentMetadata.Builder(androidx.webkit.UserAgentMetadata);
     method public androidx.webkit.UserAgentMetadata build();
-    method public androidx.webkit.UserAgentMetadata.Builder setArchitecture(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setArchitecture(String?);
     method public androidx.webkit.UserAgentMetadata.Builder setBitness(int);
     method public androidx.webkit.UserAgentMetadata.Builder setBrandVersionList(java.util.List<androidx.webkit.UserAgentMetadata.BrandVersion!>);
-    method public androidx.webkit.UserAgentMetadata.Builder setFullVersion(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setFullVersion(String?);
     method public androidx.webkit.UserAgentMetadata.Builder setMobile(boolean);
-    method public androidx.webkit.UserAgentMetadata.Builder setModel(String);
-    method public androidx.webkit.UserAgentMetadata.Builder setPlatform(String);
-    method public androidx.webkit.UserAgentMetadata.Builder setPlatformVersion(String);
+    method public androidx.webkit.UserAgentMetadata.Builder setModel(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatform(String?);
+    method public androidx.webkit.UserAgentMetadata.Builder setPlatformVersion(String?);
     method public androidx.webkit.UserAgentMetadata.Builder setWow64(boolean);
   }
 
