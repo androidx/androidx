@@ -290,6 +290,21 @@ class CompositionSignal(
 
         companion object {
 
+            @JvmStatic
+            internal fun typeToString(@Type type: Int): String {
+                return when (type) {
+                    LOW_TICK -> "LowTick"
+                    TICK -> "Tick"
+                    CLICK -> "Click"
+                    SLOW_RISE -> "SlowRise"
+                    QUICK_RISE -> "QuickRise"
+                    QUICK_FALL -> "QuickFall"
+                    SPIN -> "Spin"
+                    THUD -> "Thud"
+                    else -> type.toString()
+                }
+            }
+
             /**
              * A very short low frequency tick effect.
              *
@@ -358,6 +373,17 @@ class CompositionSignal(
             internal val QuickFall = PrimitiveAtom(QUICK_FALL, Build.VERSION_CODES.R)
             internal val Spin = PrimitiveAtom(SPIN, Build.VERSION_CODES.S)
             internal val Thud = PrimitiveAtom(THUD, Build.VERSION_CODES.S)
+
+            internal val ALL_PRIMITIVES =
+                listOf(LowTick, Tick, Click, SlowRise, QuickRise, QuickFall, Spin, Thud)
+
+            @JvmStatic
+            internal fun getSdkAvailablePrimitiveTypes(): List<Int> =
+                ALL_PRIMITIVES.filter {
+                    it.minSdk <= Build.VERSION.SDK_INT
+                }.map {
+                    it.type
+                }
         }
 
         /**
@@ -389,18 +415,7 @@ class CompositionSignal(
         override fun hashCode(): Int = Objects.hash(type, amplitudeScale)
 
         override fun toString(): String {
-            val typeStr = when (type) {
-                LOW_TICK -> "LowTick"
-                TICK -> "Tick"
-                CLICK -> "Click"
-                SLOW_RISE -> "SlowRise"
-                QUICK_RISE -> "QuickRise"
-                QUICK_FALL -> "QuickFall"
-                SPIN -> "Spin"
-                THUD -> "Thud"
-                else -> type.toString()
-            }
-            return "PrimitiveAtom(type=$typeStr, amplitude=$amplitudeScale)"
+            return "PrimitiveAtom(type=${typeToString(type)}, amplitude=$amplitudeScale)"
         }
 
         override fun minSdk(): Int = minSdk

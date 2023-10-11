@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class PlayAndCancelTest {
     private val fakeVibrator = PatternVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test

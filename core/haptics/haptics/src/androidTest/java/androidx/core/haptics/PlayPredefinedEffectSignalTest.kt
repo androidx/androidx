@@ -38,7 +38,7 @@ class PlayPredefinedEffectSignalTest(
     private val expectedFallbackPattern: LongArray,
 ) {
     private val fakeVibrator = PredefinedEffectsAndAmplitudeVibrator()
-    private val hapticManager = HapticManager.createForVibrator(fakeVibrator)
+    private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test

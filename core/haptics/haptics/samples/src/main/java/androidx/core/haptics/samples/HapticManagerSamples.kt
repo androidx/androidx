@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.seconds
 @Sampled
 fun PlaySystemStandardClick(context: Context) {
     val hapticManager = HapticManager.create(context)
-    hapticManager.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
+    hapticManager?.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
 }
 
 /**

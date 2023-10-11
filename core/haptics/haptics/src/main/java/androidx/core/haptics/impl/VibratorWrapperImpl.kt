@@ -63,6 +63,13 @@ internal class VibratorWrapperImpl(
             null
         }
 
+    override fun getPrimitivesDurations(primitives: IntArray): IntArray? =
+        if (Build.VERSION.SDK_INT >= 31) {
+            Api31Impl.getPrimitivesDurations(vibrator, primitives)
+        } else {
+            null
+        }
+
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     override fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper?) {
         when (vibration) {
@@ -129,6 +136,21 @@ internal class VibratorWrapperImpl(
                     " ${attrs.vibrationAttributes}"
             }
             vibrator.vibrate(effect.vibrationEffect, attrs.vibrationAttributes)
+        }
+    }
+
+    /** Version-specific static inner class. */
+    @RequiresApi(31)
+    private object Api31Impl {
+
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        @DoNotInline
+        fun getPrimitivesDurations(
+            vibrator: Vibrator,
+            primitives: IntArray,
+        ): IntArray? {
+            return vibrator.getPrimitiveDurations(*primitives)
         }
     }
 

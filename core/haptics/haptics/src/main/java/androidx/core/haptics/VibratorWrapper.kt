@@ -34,6 +34,9 @@ internal interface VibratorWrapper {
     /** Check whether the hardware supports each primitive effect type. */
     fun arePrimitivesSupported(primitives: IntArray): BooleanArray?
 
+    /** Returns the estimate duration for each primitive. */
+    fun getPrimitivesDurations(primitives: IntArray): IntArray?
+
     /** Vibrate with a given vibration effect or pattern. */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper? = null)

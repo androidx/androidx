@@ -14,12 +14,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <string name="app_name">Haptic Demos</string>
-    <string name="no_vibrator_message">This device does not have a vibrator</string>
-    <string name="standard_click">Standard Click</string>
-    <string name="scaled_click">Scaled Click</string>
-    <string name="on_off_pattern">On/Off Notification Pattern</string>
-    <string name="repeating_waveform">Repeating Ringtone Waveform</string>
-    <string name="cancel">Cancel</string>
-</resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/no_vibrator_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_vibrator_message" />
+
+</LinearLayout>
