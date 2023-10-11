@@ -43,6 +43,7 @@ import androidx.annotation.WorkerThread;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
+import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -55,6 +56,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * OpenGLRenderer renders texture image to the output surface.
@@ -66,11 +69,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @WorkerThread
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class OpenGlRenderer {
+    /** Unknown version information. */
+    public static final String VERSION_UNKNOWN = "0.0";
+
     private static final String TAG = "OpenGlRenderer";
+
+    private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
+    private static final int EGL_GL_COLORSPACE_BT2020_HLG_EXT = 0x3540;
 
     private static final String VAR_TEXTURE_COORD = "vTextureCoord";
     private static final String VAR_TEXTURE = "sTexture";
     private static final int PIXEL_STRIDE = 4;
+    private static final int[] EMPTY_ATTRIBS = {EGL14.EGL_NONE};
+    private static final int[] HLG_SURFACE_ATTRIBS = {
+            EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_HLG_EXT,
+            EGL14.EGL_NONE
+    };
 
     private static final String DEFAULT_VERTEX_SHADER = String.format(Locale.US,
             "uniform mat4 uTexMatrix;\n"
@@ -156,6 +170,8 @@ public final class OpenGlRenderer {
     private EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
     @NonNull
     private EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
+    @NonNull
+    private int[] mSurfaceAttrib = EMPTY_ATTRIBS;
     @Nullable
     private EGLConfig mEglConfig;
     @NonNull
@@ -180,20 +196,30 @@ public final class OpenGlRenderer {
      *                                  initialized.
      * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
      *                                  invalid shader string.
+     * @return Info about the initialized graphics device.
      */
-    public void init(@NonNull DynamicRange dynamicRange, @NonNull ShaderProvider shaderProvider) {
+    @NonNull
+    public GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
+            @NonNull ShaderProvider shaderProvider) {
         checkInitializedOrThrow(false);
+        GraphicDeviceInfo.Builder infoBuilder = GraphicDeviceInfo.builder();
         try {
             if (dynamicRange.is10BitHdr()) {
-                String glExtensions = getGlExtensionsBeforeInitialized(dynamicRange);
+                Pair<String, String> extensions = getExtensionsBeforeInitialized(dynamicRange);
+                String glExtensions = Preconditions.checkNotNull(extensions.first);
+                String eglExtensions = Preconditions.checkNotNull(extensions.second);
                 if (!glExtensions.contains("GL_EXT_YUV_target")) {
-                    Log.w(TAG, "Device does not support GL_EXT_YUV_target. Fallback to SDR.");
+                    Logger.w(TAG, "Device does not support GL_EXT_YUV_target. Fallback to SDR.");
                     dynamicRange = DynamicRange.SDR;
                 }
+                mSurfaceAttrib = chooseSurfaceAttrib(eglExtensions, dynamicRange);
+                infoBuilder.setGlExtensions(glExtensions);
+                infoBuilder.setEglExtensions(eglExtensions);
             }
-            createEglContext(dynamicRange);
+            createEglContext(dynamicRange, infoBuilder);
             createTempSurface();
             makeCurrent(mTempSurface);
+            infoBuilder.setGlVersion(getGlVersionNumber());
             createProgram(dynamicRange, shaderProvider);
             loadLocations();
             createTexture();
@@ -204,6 +230,7 @@ public final class OpenGlRenderer {
         }
         mGlThread = Thread.currentThread();
         mInitialized.set(true);
+        return infoBuilder.build();
     }
 
     /**
@@ -413,23 +440,57 @@ public final class OpenGlRenderer {
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
     }
 
+    // Returns a pair of GL extension (first) and EGL extension (second) strings.
     @NonNull
-    private String getGlExtensionsBeforeInitialized(
+    private Pair<String, String> getExtensionsBeforeInitialized(
             @NonNull DynamicRange dynamicRangeToInitialize) {
         checkInitializedOrThrow(false);
         try {
-            createEglContext(dynamicRangeToInitialize);
+            createEglContext(dynamicRangeToInitialize, /*infoBuilder=*/null);
             createTempSurface();
             makeCurrent(mTempSurface);
             // eglMakeCurrent() has to be called before checking GL_EXTENSIONS.
             String glExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
-            return glExtensions != null ? glExtensions : "";
+            String eglExtensions = EGL14.eglQueryString(mEglDisplay, EGL14.EGL_EXTENSIONS);
+            return new Pair<>(glExtensions != null ? glExtensions : "", eglExtensions != null
+                    ? eglExtensions : "");
         } catch (IllegalStateException e) {
-            Logger.w(TAG, "Failed to get GL extensions: " + e.getMessage(), e);
-            return "";
+            Logger.w(TAG, "Failed to get GL or EGL extensions: " + e.getMessage(), e);
+            return new Pair<>("", "");
         } finally {
             releaseInternal();
         }
+    }
+
+    private static String getGlVersionNumber() {
+        // Logic adapted from CTS Egl14Utils:
+        // https://cs.android.com/android/platform/superproject/+/master:cts/tests/tests/opengl/src/android/opengl/cts/Egl14Utils.java;l=46;drc=1c705168ab5118c42e5831cd84871d51ff5176d1
+        String glVersion = GLES20.glGetString(GLES20.GL_VERSION);
+        Pattern pattern = Pattern.compile("OpenGL ES ([0-9]+)\\.([0-9]+).*");
+        Matcher matcher = pattern.matcher(glVersion);
+        if (matcher.find()) {
+            String major = Preconditions.checkNotNull(matcher.group(1));
+            String minor = Preconditions.checkNotNull(matcher.group(2));
+            return major + "." + minor;
+        }
+        return VERSION_UNKNOWN;
+    }
+
+    private static int[] chooseSurfaceAttrib(@NonNull String eglExtensions,
+            @NonNull DynamicRange dynamicRange) {
+        int[] attribs = EMPTY_ATTRIBS;
+        if (dynamicRange.getEncoding() == DynamicRange.ENCODING_HLG) {
+            if (eglExtensions.contains("EGL_EXT_gl_colorspace_bt2020_hlg")) {
+                attribs = HLG_SURFACE_ATTRIBS;
+            } else {
+                Logger.w(TAG, "Dynamic range uses HLG encoding, but "
+                        + "device does not support EGL_EXT_gl_colorspace_bt2020_hlg."
+                        + "Fallback to default colorspace.");
+            }
+        }
+        // TODO(b/303675500): Add path for PQ (EGL_EXT_gl_colorspace_bt2020_pq) output for
+        //  HDR10/HDR10+
+        return attribs;
     }
 
     private static int generateFbo() {
@@ -458,7 +519,8 @@ public final class OpenGlRenderer {
         checkGlErrorOrThrow("glDeleteFramebuffers");
     }
 
-    private void createEglContext(@NonNull DynamicRange dynamicRange) {
+    private void createEglContext(@NonNull DynamicRange dynamicRange,
+            @Nullable GraphicDeviceInfo.Builder infoBuilder) {
         mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
             throw new IllegalStateException("Unable to get EGL14 display");
@@ -468,6 +530,11 @@ public final class OpenGlRenderer {
             mEglDisplay = EGL14.EGL_NO_DISPLAY;
             throw new IllegalStateException("Unable to initialize EGL14");
         }
+
+        if (infoBuilder != null) {
+            infoBuilder.setEglVersion(version[0] + "." + version[1]);
+        }
+
         int rgbBits = dynamicRange.is10BitHdr() ? 10 : 8;
         int alphaBits = dynamicRange.is10BitHdr() ? 2 : 8;
         int renderType = dynamicRange.is10BitHdr() ? EGLExt.EGL_OPENGL_ES3_BIT_KHR
@@ -747,7 +814,8 @@ public final class OpenGlRenderer {
     private OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
         EGLSurface eglSurface;
         try {
-            eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig), surface);
+            eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig), surface,
+                    mSurfaceAttrib);
         } catch (IllegalStateException | IllegalArgumentException e) {
             Logger.w(TAG, "Failed to create EGL surface: " + e.getMessage(), e);
             return null;
@@ -784,11 +852,8 @@ public final class OpenGlRenderer {
 
     @NonNull
     private static EGLSurface createWindowSurface(@NonNull EGLDisplay eglDisplay,
-            @NonNull EGLConfig eglConfig, @NonNull Surface surface) {
+            @NonNull EGLConfig eglConfig, @NonNull Surface surface, @NonNull int[] surfaceAttrib) {
         // Create a window surface, and attach it to the Surface we received.
-        int[] surfaceAttrib = {
-                EGL14.EGL_NONE
-        };
         EGLSurface eglSurface = EGL14.eglCreateWindowSurface(eglDisplay, eglConfig, surface,
                 surfaceAttrib, /*offset=*/0);
         checkEglErrorOrThrow("eglCreateWindowSurface");
@@ -874,5 +939,81 @@ public final class OpenGlRenderer {
         abstract int getWidth();
 
         abstract int getHeight();
+    }
+
+    /**
+     * Information about an initialized graphics device.
+     *
+     * <p>This information can be used to determine which version or extensions of OpenGL and EGL
+     * are supported on the device to ensure the attached output surface will have expected
+     * characteristics.
+     */
+    @AutoValue
+    public abstract static class GraphicDeviceInfo {
+        /**
+         * Returns the OpenGL version this graphics device has been initialized to.
+         *
+         * <p>The version is in the form &lt;major&gt;.&lt;minor&gt;.
+         *
+         * <p>Returns {@link OpenGlRenderer#VERSION_UNKNOWN} if version information can't be
+         * retrieved.
+         */
+        @NonNull
+        public abstract String getGlVersion();
+
+        /**
+         * Returns the EGL version this graphics device has been initialized to.
+         *
+         * <p>The version is in the form &lt;major&gt;.&lt;minor&gt;.
+         *
+         * <p>Returns {@link OpenGlRenderer#VERSION_UNKNOWN} if version information can't be
+         * retrieved.
+         */
+        @NonNull
+        public abstract String getEglVersion();
+
+        /**
+         * Returns a space separated list of OpenGL extensions or an empty string if extensions
+         * could not be retrieved.
+         */
+        @NonNull
+        public abstract String getGlExtensions();
+
+        /**
+         * Returns a space separated list of EGL extensions or an empty string if extensions
+         * could not be retrieved.
+         */
+        @NonNull
+        public abstract String getEglExtensions();
+
+        static Builder builder() {
+            return new AutoValue_OpenGlRenderer_GraphicDeviceInfo.Builder()
+                    .setGlVersion(OpenGlRenderer.VERSION_UNKNOWN)
+                    .setEglVersion(OpenGlRenderer.VERSION_UNKNOWN)
+                    .setGlExtensions("")
+                    .setEglExtensions("");
+        }
+
+        // Should not be instantiated directly
+        GraphicDeviceInfo() {
+        }
+
+        @AutoValue.Builder
+        abstract static class Builder {
+            @NonNull
+            abstract Builder setGlVersion(@NonNull String version);
+
+            @NonNull
+            abstract Builder setEglVersion(@NonNull String version);
+
+            @NonNull
+            abstract Builder setGlExtensions(@NonNull String extensions);
+
+            @NonNull
+            abstract Builder setEglExtensions(@NonNull String extensions);
+
+            @NonNull
+            abstract GraphicDeviceInfo build();
+        }
     }
 }
