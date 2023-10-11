@@ -36,84 +36,84 @@ class ListDetailPaneScaffoldStateTest {
 
     @Test
     fun singlePaneLayout_navigateTo_makeFocusPaneExpanded() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
-            canNavigateBack = layoutState.canNavigateBack()
+            canNavigateBack = scaffoldState.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
+            scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
     fun dualPaneLayout_navigateTo_keepFocusPaneExpanded() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = MockDualPaneScaffoldDirective
             )
-            canNavigateBack = layoutState.canNavigateBack()
+            canNavigateBack = scaffoldState.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
     fun singlePaneLayout_navigateBack_makeFocusPaneHidden() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = MockSinglePaneScaffoldDirective
             )
-            canNavigateBack = layoutState.canNavigateBack()
+            canNavigateBack = scaffoldState.canNavigateBack()
         }
 
         composeRule.runOnIdle {
-            layoutState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+            scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
-            layoutState.navigateBack()
+            scaffoldState.navigateBack()
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
-    fun dualPaneLayout_enforceLayoutValueChange_cannotNavigateBack() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+    fun dualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialFocusHistory = listOf(
                     ListDetailPaneScaffoldRole.List,
@@ -123,16 +123,16 @@ class ListDetailPaneScaffoldStateTest {
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.canNavigateBack()).isFalse()
+            assertThat(scaffoldState.canNavigateBack()).isFalse()
         }
     }
 
     @Test
-    fun dualPaneLayout_notEnforceLayoutValueChange_canNavigateBack() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+    fun dualPaneLayout_notEnforceScaffoldValueChange_canNavigateBack() {
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = MockDualPaneScaffoldDirective,
                 initialFocusHistory = listOf(
                     ListDetailPaneScaffoldRole.List,
@@ -142,23 +142,23 @@ class ListDetailPaneScaffoldStateTest {
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
-            assertThat(layoutState.canNavigateBack(false)).isTrue()
-            layoutState.navigateBack(false)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.canNavigateBack(false)).isTrue()
+            scaffoldState.navigateBack(false)
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
         }
     }
 
     @Test
-    fun singlePaneToDualPaneLayout_enforceLayoutValueChange_cannotNavigateBack() {
-        lateinit var layoutState: ListDetailPaneScaffoldState
+    fun singlePaneToDualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
+        lateinit var scaffoldState: ListDetailPaneScaffoldState
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
-            layoutState = rememberListDetailPaneScaffoldState(
+            scaffoldState = rememberListDetailPaneScaffoldState(
                 scaffoldDirective = mockCurrentScaffoldDirective.value,
                 initialFocusHistory = listOf(
                     ListDetailPaneScaffoldRole.List,
@@ -167,13 +167,13 @@ class ListDetailPaneScaffoldStateTest {
             )
         }
         composeRule.runOnIdle {
-            assertThat(layoutState.layoutValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldState.scaffoldValue.primary).isEqualTo(PaneAdaptedValue.Expanded)
             // Switches to dual pane
             mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
         }
 
         composeRule.runOnIdle {
-            assertThat(layoutState.canNavigateBack()).isFalse()
+            assertThat(scaffoldState.canNavigateBack()).isFalse()
         }
     }
 }
