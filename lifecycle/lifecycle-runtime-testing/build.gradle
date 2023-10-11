@@ -36,6 +36,8 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
+
+    lintPublish(project(":lifecycle:lifecycle-runtime-testing-lint"))
 }
 
 androidx {
