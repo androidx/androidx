@@ -57,7 +57,7 @@ public class MediaPlaybackManager implements Manager {
      * @throws HostException            if the call is invoked by an app that is not declared as
      *                                  a navigation app in the manifest
      * @throws IllegalArgumentException if any of the token cannot be serialized
-     * @throws IllegalArgumentException if this is not called from the main thread.
+     * @throws IllegalStateException    if this is not called from the main thread.
      */
     @MainThread
     public void registerMediaPlaybackToken(@NonNull MediaSessionCompat.Token token) {
