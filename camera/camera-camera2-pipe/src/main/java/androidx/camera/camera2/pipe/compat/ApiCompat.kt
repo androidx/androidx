@@ -29,6 +29,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.InputConfiguration
+import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
@@ -326,6 +327,18 @@ internal object Api30Compat {
 
 @RequiresApi(Build.VERSION_CODES.S)
 internal object Api31Compat {
+    @JvmStatic
+    @DoNotInline
+    fun newInputConfiguration(
+        inputConfigData: List<InputConfigData>,
+        cameraId: String
+    ): InputConfiguration {
+        val multiResolutionInput = inputConfigData.map { input ->
+            MultiResolutionStreamInfo(input.width, input.height, cameraId)
+        }
+        return InputConfiguration(multiResolutionInput, inputConfigData.first().format)
+    }
+
     @JvmStatic
     @DoNotInline
     fun createExtensionCaptureSession(
