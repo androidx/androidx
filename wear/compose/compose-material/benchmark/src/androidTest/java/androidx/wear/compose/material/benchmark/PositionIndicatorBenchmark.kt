@@ -43,12 +43,17 @@ import org.junit.runner.RunWith
 class PositionIndicatorBenchmark {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
-    private val defaultPositionIndicatorCaseFactory = { PositionIndicatorBenchmarkTestCase() }
+    private val defaultPositionIndicatorCaseFactory = {
+        PositionIndicatorBenchmarkTestCase(animate = false)
+    }
 
     @Test
     fun changeFraction() {
         benchmarkRule.changePositionBenchmark {
-            PositionIndicatorBenchmarkTestCase(targetFraction = 0.5f)
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                animate = false
+            )
         }
     }
 
@@ -58,7 +63,8 @@ class PositionIndicatorBenchmark {
             PositionIndicatorBenchmarkTestCase(
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
-                targetVisibility = PositionIndicatorVisibility.Hide
+                targetVisibility = PositionIndicatorVisibility.Hide,
+                animate = false
             )
         }
     }
@@ -69,7 +75,42 @@ class PositionIndicatorBenchmark {
             PositionIndicatorBenchmarkTestCase(
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
-                targetVisibility = PositionIndicatorVisibility.AutoHide
+                targetVisibility = PositionIndicatorVisibility.AutoHide,
+                animate = false
+            )
+        }
+    }
+
+    @Test
+    fun changeFraction_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                animate = true
+            )
+        }
+    }
+
+    @Test
+    fun changeFractionAndSizeFraction_hide_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                targetSizeFraction = 0.5f,
+                targetVisibility = PositionIndicatorVisibility.Hide,
+                animate = true
+            )
+        }
+    }
+
+    @Test
+    fun changeFractionAndSizeFraction_autoHide_withAnimation() {
+        benchmarkRule.changePositionBenchmark {
+            PositionIndicatorBenchmarkTestCase(
+                targetFraction = 0.5f,
+                targetSizeFraction = 0.5f,
+                targetVisibility = PositionIndicatorVisibility.AutoHide,
+                animate = true
             )
         }
     }
@@ -83,7 +124,8 @@ class PositionIndicatorBenchmark {
 internal class PositionIndicatorBenchmarkTestCase(
     val targetFraction: Float? = null,
     val targetSizeFraction: Float? = null,
-    val targetVisibility: PositionIndicatorVisibility? = null
+    val targetVisibility: PositionIndicatorVisibility? = null,
+    val animate: Boolean
 ) : LayeredComposeTestCase() {
     private lateinit var positionFraction: MutableState<Float>
     private lateinit var sizeFraction: MutableState<Float>
@@ -114,7 +156,10 @@ internal class PositionIndicatorBenchmarkTestCase(
             state = state,
             indicatorHeight = 50.dp,
             indicatorWidth = 4.dp,
-            paddingHorizontal = 5.dp
+            paddingHorizontal = 5.dp,
+            showFadeInAnimation = animate,
+            showFadeOutAnimation = animate,
+            showPositionAnimation = animate
         )
     }
 
