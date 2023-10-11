@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.app;
-
-import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.app.Activity
+import android.content.Intent
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link android.app.Activity#onNewIntent(Intent)}.
+ * [Activity.onNewIntent].
  */
-public interface OnNewIntentProvider {
+interface OnNewIntentProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link android.app.Activity#onNewIntent(Intent)} with the
-     * new {@link Intent}.
+     * [Activity.onNewIntent] with the
+     * new [Intent].
      *
      * @param listener The listener that should be called whenever
-     * {@link android.app.Activity#onNewIntent(Intent)} was called.
+     * [android.app.Activity#onNewIntent] was called.
      */
-    void addOnNewIntentListener(@NonNull Consumer<Intent> listener);
+    fun addOnNewIntentListener(listener: Consumer<Intent>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnNewIntentListener(Consumer)} that should be removed.
+     * [addOnNewIntentListener] that should be removed.
      */
-    void removeOnNewIntentListener(@NonNull Consumer<Intent> listener);
+    fun removeOnNewIntentListener(listener: Consumer<Intent>)
 }

@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.content
 
-package androidx.core.content;
-
-import android.content.ComponentCallbacks;
-import android.content.res.Configuration;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.content.ComponentCallbacks
+import android.content.res.Configuration
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link ComponentCallbacks#onConfigurationChanged(Configuration)}.
+ * [ComponentCallbacks.onConfigurationChanged].
  */
-public interface OnConfigurationChangedProvider {
+interface OnConfigurationChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link ComponentCallbacks#onConfigurationChanged(Configuration)} with the
-     * new {@link Configuration}.
+     * [ComponentCallbacks.onConfigurationChanged] with the
+     * new [Configuration].
      *
      * @param listener The listener that should be called whenever
-     * {{@link ComponentCallbacks#onConfigurationChanged(Configuration)} was called.
+     * {[ComponentCallbacks.onConfigurationChanged] was called.
      */
-    void addOnConfigurationChangedListener(@NonNull Consumer<Configuration> listener);
+    fun addOnConfigurationChangedListener(listener: Consumer<Configuration>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnConfigurationChangedListener(Consumer)} that should be removed.
+     * [addOnConfigurationChangedListener] that should be removed.
      */
-    void removeOnConfigurationChangedListener(@NonNull Consumer<Configuration> listener);
+    fun removeOnConfigurationChangedListener(listener: Consumer<Configuration>)
 }

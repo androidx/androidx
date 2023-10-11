@@ -861,18 +861,18 @@ package androidx.core.app {
   }
 
   public interface OnMultiWindowModeChangedProvider {
-    method public void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
-    method public void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+    method public void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo> listener);
+    method public void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo> listener);
   }
 
   public interface OnNewIntentProvider {
-    method public void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
-    method public void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+    method public void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent> listener);
+    method public void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent> listener);
   }
 
   public interface OnPictureInPictureModeChangedProvider {
-    method public void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
-    method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+    method public void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
+    method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
   }
 
   public final class PendingIntentCompat {
@@ -1205,13 +1205,13 @@ package androidx.core.content {
   }
 
   public interface OnConfigurationChangedProvider {
-    method public void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
-    method public void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
+    method public void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration> listener);
+    method public void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration> listener);
   }
 
   public interface OnTrimMemoryProvider {
-    method public void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
-    method public void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
+    method public void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
+    method public void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
   }
 
   public final class PackageManagerCompat {

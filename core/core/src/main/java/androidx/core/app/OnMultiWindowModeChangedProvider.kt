@@ -13,36 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.app;
-
-import android.app.Activity;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.app.Activity
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link Activity#onMultiWindowModeChanged}.
+ * [Activity.onMultiWindowModeChanged].
  */
-public interface OnMultiWindowModeChangedProvider {
+interface OnMultiWindowModeChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link Activity#onMultiWindowModeChanged} with the
-     * new {@link MultiWindowModeChangedInfo}.
+     * [Activity.onMultiWindowModeChanged] with the
+     * new [MultiWindowModeChangedInfo].
      *
      * @param listener The listener that should be called whenever
-     * {@link Activity#onMultiWindowModeChanged} was called.
+     * [Activity#onMultiWindowModeChanged] was called.
      */
-    void addOnMultiWindowModeChangedListener(
-            @NonNull Consumer<MultiWindowModeChangedInfo> listener);
+    fun addOnMultiWindowModeChangedListener(
+        listener: Consumer<MultiWindowModeChangedInfo>
+    )
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnMultiWindowModeChangedListener(Consumer)} that should be removed.
+     * [addOnMultiWindowModeChangedListener] that should be removed.
      */
-    void removeOnMultiWindowModeChangedListener(
-            @NonNull Consumer<MultiWindowModeChangedInfo> listener);
+    fun removeOnMultiWindowModeChangedListener(
+        listener: Consumer<MultiWindowModeChangedInfo>
+    )
 }

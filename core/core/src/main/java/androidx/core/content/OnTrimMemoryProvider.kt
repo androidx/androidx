@@ -13,32 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.content
 
-package androidx.core.content;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.content.ComponentCallbacks2
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link android.content.ComponentCallbacks2#onTrimMemory(int)}.
+ * [ComponentCallbacks2.onTrimMemory].
  */
-public interface OnTrimMemoryProvider {
+interface OnTrimMemoryProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link android.content.ComponentCallbacks2#onTrimMemory(int)} with the {@code int}
+     * [ComponentCallbacks2.onTrimMemory] with the `int`
      * representing the level of trimming.
      *
      * @param listener The listener that should be called whenever
-     * {@link android.content.ComponentCallbacks2#onTrimMemory(int)} was called.
+     * [ComponentCallbacks2.onTrimMemory] was called.
      */
-    void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener);
+    fun addOnTrimMemoryListener(listener: Consumer<Int>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnTrimMemoryListener(Consumer)} that should be removed.
+     * [.addOnTrimMemoryListener] that should be removed.
      */
-    void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener);
+    fun removeOnTrimMemoryListener(listener: Consumer<Int>)
 }
