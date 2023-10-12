@@ -338,7 +338,8 @@ fun BasicTextField2(
             textFieldState = transformedState,
             textLayoutState = textLayoutState,
             density = density,
-            editable = enabled && !readOnly,
+            enabled = enabled,
+            readOnly = readOnly,
             isFocused = isFocused && isWindowFocused
         )
     }
@@ -353,7 +354,8 @@ fun BasicTextField2(
             clipboardManager = currentClipboardManager,
             textToolbar = currentTextToolbar,
             density = density,
-            editable = enabled && !readOnly,
+            enabled = enabled,
+            readOnly = readOnly,
         )
     }
 

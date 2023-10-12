@@ -73,7 +73,8 @@ internal class TextFieldSelectionState(
     private val textFieldState: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,
     private var density: Density,
-    private var editable: Boolean,
+    private var enabled: Boolean,
+    private var readOnly: Boolean,
     var isFocused: Boolean, /* true iff component is focused and the window is focused */
 ) {
     /**
@@ -177,6 +178,12 @@ internal class TextFieldSelectionState(
      */
     private val textLayoutCoordinates: LayoutCoordinates?
         get() = textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached }
+
+    /**
+     * Whether the contents of this TextField can be changed by the user.
+     */
+    private val editable: Boolean
+        get() = enabled && !readOnly
 
     /**
      * The most recent [SelectionLayout] that passed the [SelectionLayout.shouldRecomputeSelection]
@@ -287,13 +294,18 @@ internal class TextFieldSelectionState(
         clipboardManager: ClipboardManager,
         textToolbar: TextToolbar,
         density: Density,
-        editable: Boolean,
+        enabled: Boolean,
+        readOnly: Boolean,
     ) {
+        if (!enabled) {
+            hideTextToolbar()
+        }
         this.hapticFeedBack = hapticFeedBack
         this.clipboardManager = clipboardManager
         this.textToolbar = textToolbar
         this.density = density
-        this.editable = editable
+        this.enabled = enabled
+        this.readOnly = readOnly
     }
 
     /**
