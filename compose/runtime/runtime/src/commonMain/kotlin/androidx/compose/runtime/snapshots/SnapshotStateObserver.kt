@@ -466,9 +466,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                 val dependencyToDerivedStates = dependencyToDerivedStates
 
                 dependencyToDerivedStates.removeScope(value)
-                for (dependency in dependencies) {
-                    // skip over dependency array
-                    if (dependency == null) break
+                dependencies.forEachKey { dependency ->
                     dependencyToDerivedStates.add(dependency, value)
                 }
             }

@@ -29,6 +29,7 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.Stack
+import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.runtimeCheck
 
 internal class ComposerChangeListWriter(

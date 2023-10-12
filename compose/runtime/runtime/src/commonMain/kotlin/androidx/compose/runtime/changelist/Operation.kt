@@ -38,6 +38,7 @@ import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.deactivateCurrentGroup
+import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.movableContentKey
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck

@@ -887,9 +887,7 @@ internal class CompositionImpl(
                     // Record derived state dependency mapping
                     if (value is DerivedState<*>) {
                         derivedStates.removeScope(value)
-                        for (dependency in value.currentRecord.dependencies) {
-                            // skip over empty objects from dependency array
-                            if (dependency == null) break
+                        value.currentRecord.dependencies.forEachKey { dependency ->
                             derivedStates.add(dependency, value)
                         }
                     }
