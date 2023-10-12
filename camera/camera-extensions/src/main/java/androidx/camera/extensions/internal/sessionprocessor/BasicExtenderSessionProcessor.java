@@ -366,9 +366,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
     Map<CaptureResult.Key, Object> getCaptureResultKeyMaps(TotalCaptureResult captureResult) {
         Map<CaptureResult.Key, Object> map = new HashMap<>();
-        for (CaptureResult.Key<?> key : captureResult.getKeys()) {
-            if (mSupportedResultKeys.contains(key)) {
-                map.put(key, captureResult.get(key));
+        for (CaptureResult.Key supportedResultKey : mSupportedResultKeys) {
+            @SuppressWarnings("unchecked")
+            Object value = captureResult.get(supportedResultKey);
+            if (value != null) {
+                map.put(supportedResultKey, value);
             }
         }
         return map;
