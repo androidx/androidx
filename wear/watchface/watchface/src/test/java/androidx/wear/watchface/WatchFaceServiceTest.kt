@@ -32,6 +32,7 @@ import android.graphics.Insets
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Icon
+import android.opengl.EGL14
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -123,6 +124,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume
@@ -4793,6 +4795,45 @@ public class WatchFaceServiceTest {
                 SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive TestRenderer onDestroy",
                 "SharedAssets onDestroy"
             )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    public fun empty_eglConfigAttribListList() {
+        class TestSharedAssets : Renderer.SharedAssets {
+            override fun onDestroy() {
+            }
+        }
+
+        assertThrows(
+            IllegalArgumentException::class.java,
+            {
+                object : Renderer.GlesRenderer2<TestSharedAssets>(
+                    surfaceHolder,
+                    CurrentUserStyleRepository(UserStyleSchema(emptyList())),
+                    MutableWatchState().asWatchState(),
+                    INTERACTIVE_UPDATE_RATE_MS,
+                    eglConfigAttribListList = emptyList(), // Error this should not be empty.
+                    eglSurfaceAttribList = intArrayOf(EGL14.EGL_NONE),
+                    eglContextAttribList = intArrayOf(EGL14.EGL_NONE)
+                ) {
+                    override suspend fun createSharedAssets() = TestSharedAssets()
+
+                    override fun renderHighlightLayer(
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                    }
+
+                    override fun render(
+                        zonedDateTime: ZonedDateTime,
+                        sharedAssets: TestSharedAssets
+                    ) {
+                    }
+                }
+            }
+        )
     }
 
     @Test

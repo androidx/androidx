@@ -988,40 +988,18 @@ constructor(
      * concurrent access.
      *
      * In Java it may be easier to extend [androidx.wear.watchface.ListenableGlesRenderer] instead.
-     *
-     * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
-     *   into.
-     * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
-     * @param watchState The associated [WatchState].
-     * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
-     *   interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
-     *   rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
-     *   possible for better battery life. Variable frame rates can also help preserve battery life,
-     *   e.g. if a watch face has a short animation once per second it can adjust the frame rate
-     *   inorder to sleep when not animating.
-     * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *   RGBA8888 back buffer.
-     * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
-     *   default this is empty.
-     * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
-     *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
-     * @throws [GlesException] If any GL calls fail during initialization.
      */
     @Deprecated(message = "GlesRenderer is deprecated", ReplaceWith("GlesRenderer2"))
     public abstract class GlesRenderer
-    @Throws(GlesException::class)
-    @JvmOverloads
-    @WorkerThread
-    constructor(
+    internal constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
-        private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
-        private val eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
-    ) :
-        Renderer(
+        private val eglConfigAttribListList: List<IntArray>,
+        private val eglSurfaceAttribList: IntArray,
+        private val eglContextAttribList: IntArray
+    ) : Renderer(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
@@ -1032,6 +1010,53 @@ constructor(
 
             private val glContextLock = Mutex()
         }
+
+        init {
+            require(eglConfigAttribListList.isNotEmpty())
+        }
+
+        /**
+         * Constructs a [GlesRenderer], it is recommended that new code uses [GlesRenderer2]
+         * instead.
+         *
+         * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
+         *   into.
+         * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+         * @param watchState The associated [WatchState].
+         * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames
+         *   in interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+         *   frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+         *   rates if possible for better battery life. Variable frame rates can also help preserve
+         *   battery life, e.g. if a watch face has a short animation once per second it can adjust
+         *   the frame rate inorder to sleep when not animating.
+         * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this
+         *   selects an RGBA8888 back buffer.
+         * @param eglSurfaceAttribList The attributes to be passed to
+         *   [EGL14.eglCreateWindowSurface]. By default this is empty.
+         * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+         *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
+         * @throws [GlesException] If any GL calls fail during initialization.
+         */
+        @Throws(GlesException::class)
+        @JvmOverloads
+        @WorkerThread
+        constructor(
+            surfaceHolder: SurfaceHolder,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            watchState: WatchState,
+            @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
+            eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+            eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+            eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        ) : this(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            interactiveDrawModeUpdateDelayMillis,
+            listOf(eglConfigAttribList),
+            eglSurfaceAttribList,
+            eglContextAttribList
+        )
 
         /** Exception thrown if a GL call fails */
         public class GlesException(message: String) : Exception(message)
@@ -1125,24 +1150,39 @@ constructor(
         private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
             val numEglConfigs = IntArray(1)
             val eglConfigs = arrayOfNulls<EGLConfig>(1)
-            if (
-                !EGL14.eglChooseConfig(
-                    eglDisplay,
-                    eglConfigAttribList,
-                    0,
-                    eglConfigs,
-                    0,
-                    eglConfigs.size,
-                    numEglConfigs,
-                    0
-                )
-            ) {
+            var anyEglChooseConfigPassed = false
+
+            // Select the first successful config.
+            for ((i, eglConfigAttribList) in eglConfigAttribListList.withIndex()) {
+                if (!EGL14.eglChooseConfig(
+                        eglDisplay,
+                        eglConfigAttribList,
+                        0,
+                        eglConfigs,
+                        0,
+                        eglConfigs.size,
+                        numEglConfigs,
+                        0
+                     )
+                ) {
+                    if (this is GlesRenderer2<*>) {
+                        selectedEglConfigAttribListIndexInternal = Integer(i)
+                    }
+                    continue
+                }
+
+                anyEglChooseConfigPassed = true
+
+                if (numEglConfigs[0] != 0) {
+                    return eglConfigs[0]!!
+                }
+            }
+
+            if (!anyEglChooseConfigPassed) {
                 throw GlesException("eglChooseConfig failed")
             }
-            if (numEglConfigs[0] == 0) {
-                throw GlesException("no matching EGL configs")
-            }
-            return eglConfigs[0]!!
+
+            throw GlesException("no matching EGL configs")
         }
 
         private suspend fun createWindowSurface(width: Int, height: Int) =
@@ -1673,36 +1713,98 @@ constructor(
      *   possible for better battery life. Variable frame rates can also help preserve battery life,
      *   e.g. if a watch face has a short animation once per second it can adjust the frame rate
      *   inorder to sleep when not animating.
-     * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this selects an
-     *   RGBA8888 back buffer.
+     * @param eglConfigAttribListList A list of attributes to be tried in turn by
+     *   [EGL14.eglChooseConfig]. The first one to succeed is chosen and its index is wrtten to
+     *   [selectedEglConfigAttribListIndex]. If none succeed then a [GlesRenderer.GlesException]
+     *   will be thrown. An example use of this is to define a config with MSAA (anti-aliasing) and
+     *   to fall back to one without where that's not available.
      * @param eglSurfaceAttribList The attributes to be passed to [EGL14.eglCreateWindowSurface]. By
      *   default this is empty.
      * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
      *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
-     * @throws [Renderer.GlesException] If any GL calls fail during initialization.
+     * @throws [GlesRenderer.GlesException] If any GL calls fail during initialization.
      */
     public abstract class GlesRenderer2<SharedAssetsT>
     @Throws(GlesException::class)
-    @JvmOverloads
     @WorkerThread
     constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
-        eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-        eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
-        eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        eglConfigAttribListList: List<IntArray>,
+        eglSurfaceAttribList: IntArray,
+        eglContextAttribList: IntArray
     ) :
         GlesRenderer(
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
             interactiveDrawModeUpdateDelayMillis,
-            eglConfigAttribList,
+            eglConfigAttribListList,
             eglSurfaceAttribList,
             eglContextAttribList
         ) where SharedAssetsT : SharedAssets {
+
+        /**
+         * Constructs a [GlesRenderer2].
+         *
+         * @param SharedAssetsT The type extending [SharedAssets] returned by [createSharedAssets]
+         *   and passed into [render] and [renderHighlightLayer].
+         * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
+         *   into.
+         * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
+         * @param watchState The associated [WatchState].
+         * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames
+         *   in interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the
+         *   frame rate will be clamped to 10fps. Watch faces are recommended to use lower frame
+         *   rates if possible for better battery life. Variable frame rates can also help preserve
+         *   battery life, e.g. if a watch face has a short animation once per second it can adjust
+         *   the frame rate inorder to sleep when not animating.
+         * @param eglConfigAttribList Attributes for [EGL14.eglChooseConfig]. By default this
+         *   selects an RGBA8888 back buffer.
+         * @param eglSurfaceAttribList The attributes to be passed to
+         *   [EGL14.eglCreateWindowSurface]. By default this is empty.
+         * @param eglContextAttribList The attributes to be passed to [EGL14.eglCreateContext]. By
+         *   default this selects [EGL14.EGL_CONTEXT_CLIENT_VERSION] 2.
+         * @throws [GlesRenderer.GlesException] If any GL calls fail during initialization.
+         */
+        @Throws(GlesException::class)
+        @JvmOverloads
+        @WorkerThread
+        constructor(
+            surfaceHolder: SurfaceHolder,
+            currentUserStyleRepository: CurrentUserStyleRepository,
+            watchState: WatchState,
+            @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
+            eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+            eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
+            eglContextAttribList: IntArray = EGL_CONTEXT_ATTRIB_LIST
+        ) : this(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            interactiveDrawModeUpdateDelayMillis,
+            listOf(eglConfigAttribList),
+            eglSurfaceAttribList,
+            eglContextAttribList
+        )
+
+        /**
+         * If an eglConfigAttribListList is specified then each list of attributes will be tried in
+         * turn by [EGL14.eglChooseConfig]. The first one to succeed is chosen and its index is
+         * written to [selectedEglConfigAttribListIndex].
+         *
+         * If an eglConfigAttribListList was not specified this will be zero. If this is accessed
+         * before the constructor has finished an exception will be thrown.
+         */
+        val selectedEglConfigAttribListIndex: Int
+            get() = selectedEglConfigAttribListIndexInternal.toInt()
+
+        // Ideally we wouldn't need this, but kotlin doesn't allow lateinit for primitive types.
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+        internal lateinit var selectedEglConfigAttribListIndexInternal: Integer
+
         /**
          * When editing multiple [WatchFaceService] instances and hence Renderers can exist
          * concurrently (e.g. a headless instance and an interactive instance) and using

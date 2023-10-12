@@ -296,11 +296,14 @@ package androidx.wear.watchface {
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList, optional int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, java.util.List<int[]> eglConfigAttribListList, int[] eglSurfaceAttribList, int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     method @WorkerThread protected abstract suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
+    method public final int getSelectedEglConfigAttribListIndex();
     method public final void render(java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void render(java.time.ZonedDateTime zonedDateTime, SharedAssetsT sharedAssets);
     method public final void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime);
     method @UiThread public abstract void renderHighlightLayer(java.time.ZonedDateTime zonedDateTime, SharedAssetsT sharedAssets);
+    property public final int selectedEglConfigAttribListIndex;
   }
 
   public static interface Renderer.SharedAssets {
