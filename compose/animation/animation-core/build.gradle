@@ -25,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -68,16 +66,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(project(":compose:runtime:runtime"))
-                    implementation(project(":compose:ui:ui"))
-                    implementation(project(":compose:ui:ui-unit"))
-                    implementation(project(":compose:ui:ui-util"))
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -111,10 +107,8 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
 }

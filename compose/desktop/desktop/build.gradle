@@ -16,9 +16,7 @@
 
 import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -27,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-// Compose Desktop is qualified on "desktop" but actually builds as "jvm".
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
-    if (desktopEnabled) jvm()
+    // Compose Desktop is qualified on "desktop" but actually builds as "jvm".
+    jvm()
 
     sourceSets {
         commonMain {
@@ -51,30 +47,28 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            jvmMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(libs.kotlinStdlibJdk8)
-                    implementation(libs.kotlinCoroutinesCore)
-                }
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibJdk8)
+                implementation(libs.kotlinCoroutinesCore)
             }
+        }
 
-            jvmTest {
-                dependsOn(commonTest)
+        jvmTest {
+            dependsOn(commonTest)
 
-                resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
-                        "noto-fonts/other/")
-                resources.srcDirs += "src/jvmTest/res"
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
+                    "noto-fonts/other/")
+            resources.srcDirs += "src/jvmTest/res"
 
-                dependencies {
-                    implementation(libs.kotlinCoroutinesTest)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.junit)
-                    implementation(libs.truth)
-                }
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.junit)
+                implementation(libs.truth)
             }
         }
     }
@@ -89,17 +83,15 @@ File getGoldenPath(Project project) {
     }
 }
 
-if (desktopEnabled) {
-    // Set golden images path based on whether this is the GitHub or AndroidX repo.
-    tasks.findByName("jvmTest").configure {
-        systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
-    }
+// Set golden images path based on whether this is the GitHub or AndroidX repo.
+tasks.findByName("jvmTest").configure {
+    systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 
 androidx {
     name = "Compose Desktop"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = desktopEnabled ? Publish.SNAPSHOT_AND_RELEASE : Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
     runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")
@@ -135,22 +127,18 @@ def jvmOs(container, name, skikoDep) {
     }
 }
 
-if (desktopEnabled) {
-    // Set up additional publications containing native Skiko dependencies.
-    afterEvaluate {
-        publishing {
-            publications {
-                jvmOs(it, "linux-x64", libs.skikoLinuxX64.get())
-                jvmOs(it, "linux-arm64", libs.skikoLinuxArm64.get())
-                jvmOs(it, "macos-x64", libs.skikoMacOsX64.get())
-                jvmOs(it, "macos-arm64", libs.skikoMacOsArm64.get())
-                jvmOs(it, "windows-x64", libs.skikoWindowsX64.get())
-            }
+// Set up additional publications containing native Skiko dependencies.
+afterEvaluate {
+    publishing {
+        publications {
+            jvmOs(it, "linux-x64", libs.skikoLinuxX64.get())
+            jvmOs(it, "linux-arm64", libs.skikoLinuxArm64.get())
+            jvmOs(it, "macos-x64", libs.skikoMacOsX64.get())
+            jvmOs(it, "macos-arm64", libs.skikoMacOsArm64.get())
+            jvmOs(it, "windows-x64", libs.skikoWindowsX64.get())
         }
     }
 }
 
-if (desktopEnabled) {
-    // Validate desktop build by explicitly building the jvmJar task as part of bOS.
-    BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")
-}
+// Validate desktop build by explicitly building the jvmJar task as part of bOS.
+BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.compose.material.icons.generator.tasks.IconGenerationTask
-
 
 plugins {
     id("AndroidXPlugin")
@@ -27,11 +24,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -55,12 +50,10 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:ui:ui"))
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:ui:ui"))
             }
         }
 
@@ -70,12 +63,10 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
             }
         }
 
@@ -97,11 +88,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
             }
         }
     }
