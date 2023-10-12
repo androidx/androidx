@@ -54,24 +54,42 @@ class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
 /**
  * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
  * list.
+ *
+ * @param mergingEnabled set to true if you want the data to be merged.
+ * @param skipDeactivatedNodes set to false if you want to collect the nodes which are deactivated.
+ * For example, the children of [androidx.compose.ui.layout.SubcomposeLayout] which are retained
+ * to be reused in future are considered deactivated.
  */
-fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> {
-    return getAllSemanticsNodesToMap(useUnmergedTree = !mergingEnabled).values.toList()
+fun SemanticsOwner.getAllSemanticsNodes(
+    mergingEnabled: Boolean,
+    skipDeactivatedNodes: Boolean = true
+): List<SemanticsNode> {
+    return getAllSemanticsNodesToMap(
+        useUnmergedTree = !mergingEnabled,
+        skipDeactivatedNodes = skipDeactivatedNodes
+    ).values.toList()
 }
+
+@Deprecated(message = "Use a new overload instead", level = DeprecationLevel.HIDDEN)
+fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean) =
+    getAllSemanticsNodes(mergingEnabled, true)
 
 /**
  * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]. Return the results in a
  * map.
  */
 internal fun SemanticsOwner.getAllSemanticsNodesToMap(
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
+    skipDeactivatedNodes: Boolean = true
 ): Map<Int, SemanticsNode> {
     val nodes = mutableMapOf<Int, SemanticsNode>()
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-        nodes[currentNode.id] = currentNode
-        currentNode.children.fastForEach { child ->
-            findAllSemanticNodesRecursive(child)
+        if (!skipDeactivatedNodes || !currentNode.layoutInfo.isDeactivated) {
+            nodes[currentNode.id] = currentNode
+            currentNode.children.fastForEach { child ->
+                findAllSemanticNodesRecursive(child)
+            }
         }
     }
 

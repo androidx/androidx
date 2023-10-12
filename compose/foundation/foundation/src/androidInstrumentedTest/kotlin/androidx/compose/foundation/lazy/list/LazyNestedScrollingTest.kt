@@ -420,6 +420,7 @@ class LazyNestedScrollingTest {
     fun mouseScrollInLazyRow_nestedLazyRowInLazyColumn_scrollsVertically() = runBlocking {
         val items = (1..50).toList()
         var total = 0f
+        val boxTab = "boxTab"
 
         val scrollable = ScrollableState {
             total += it
@@ -430,7 +431,7 @@ class LazyNestedScrollingTest {
                 Modifier.scrollable(
                     orientation = Orientation.Vertical,
                     state = scrollable
-                )
+                ).testTag(boxTab)
             ) {
                 LazyColumn(
                     modifier = Modifier.requiredSize(200.dp)
@@ -462,7 +463,7 @@ class LazyNestedScrollingTest {
             Truth.assertThat(total).isLessThan(0)
         }
 
-        rule.onNodeWithTag(LazyTag).performMouseInput {
+        rule.onNodeWithTag(boxTab).performMouseInput {
             this.scroll(-100f)
         }
 
