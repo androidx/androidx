@@ -19,6 +19,7 @@ package androidx.bluetooth
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import java.util.UUID
 import org.junit.Assert
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -67,5 +68,16 @@ class GattCharacteristicTest {
 
         Assert.assertEquals(uuid, characteristic.uuid)
         Assert.assertEquals(properties, characteristic.properties)
+    }
+
+    @Test
+    fun subscriableCharacteristicHasCccd() {
+        val notifyCharacteristic = GattCharacteristic(UUID.randomUUID(),
+            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_NOTIFY)
+        val indicateCharacteristic = GattCharacteristic(UUID.randomUUID(),
+            GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_INDICATE)
+
+        assertNotNull(notifyCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+        assertNotNull(indicateCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
     }
 }
