@@ -44,6 +44,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
@@ -154,14 +155,41 @@ private fun Project.configureComponentPublishing(
             }
         }
         publications.withType(MavenPublication::class.java).all { publication ->
+            val isKmpAnchor = (publication.name == KMP_ANCHOR_PUBLICATION_NAME)
+            val pomPlatform = kmpExtension.defaultPlatform
+            // b/297355397 If a kmp project has Android as the default platform, there might
+            // externally be legacy projects depending on its .pom
+            // We advertise a stub .aar in this .pom for backwards compatibility and
+            // add a dependency on the actual .aar
+            val addStubAar = isKmpAnchor && pomPlatform == PlatformIdentifier.ANDROID.id
+            val buildDir = project.layout.buildDirectory
+            if (addStubAar) {
+                // create a unique namespace for this .aar, different from the android artifact
+                val stubNamespace = project.group.toString().replace(':', '.') + ".anchor"
+                val unpackedStubAarTask =
+                    tasks.register("unpackedStubAar", UnpackedStubAarTask::class.java) { aarTask ->
+                    aarTask.aarPackage.set(stubNamespace)
+                    aarTask.outputDir.set(buildDir.dir("intermediates/stub-aar"))
+                }
+                val stubAarTask = tasks.register("stubAar", Zip::class.java) { zipTask ->
+                    zipTask.from(unpackedStubAarTask.flatMap { it.outputDir })
+                    zipTask.destinationDirectory.set(buildDir.dir("outputs"))
+                    zipTask.archiveExtension.set("aar")
+                }
+                publication.artifact(stubAarTask)
+            }
+
             publication.pom { pom ->
+                if (addStubAar) {
+                    pom.packaging = "aar"
+                }
                 addInformativeMetadata(extension, pom)
                 tweakDependenciesMetadata(
                     androidxGroup,
                     pom,
                     androidLibrariesSetProvider,
-                    publication.name == KMP_ANCHOR_PUBLICATION_NAME,
-                    kmpExtension.defaultPlatform
+                    isKmpAnchor,
+                    pomPlatform
                 )
             }
         }
@@ -463,7 +491,7 @@ private fun tweakDependenciesMetadata(
         // For more context see:
         // https://android-review.googlesource.com/c/platform/frameworks/support/+/1144664/8/buildSrc/src/main/kotlin/androidx/build/MavenUploadHelper.kt#177
         assignSingleVersionDependenciesInGroupForPom(xml, mavenGroup)
-        assignAarTypes(xml, androidLibrariesSetProvider.get())
+        assignAarDependencyTypes(xml, androidLibrariesSetProvider.get())
         ensureConsistentJvmSuffix(xml)
 
         if (kmpAnchor && pomPlatform != null) {
@@ -474,7 +502,7 @@ private fun tweakDependenciesMetadata(
 
 // TODO(aurimas): remove this when Gradle bug is fixed.
 // https://github.com/gradle/gradle/issues/3170
-fun assignAarTypes(xml: XmlProvider, androidLibrariesSet: Set<String>) {
+fun assignAarDependencyTypes(xml: XmlProvider, androidLibrariesSet: Set<String>) {
     val xmlElement = xml.asElement()
     val dependencies = xmlElement.find { it.nodeName == "dependencies" } as? org.w3c.dom.Element
 

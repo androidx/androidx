@@ -261,7 +261,7 @@ class MavenUploadHelperTest {
 """
         /* ktlint-enable max-line-length */
 
-        assignAarTypes(pom, androidLibrariesSet)
+        assignAarDependencyTypes(pom, androidLibrariesSet)
 
         val actual = pom.toString()
         assertEquals(expected, actual)

@@ -152,10 +152,14 @@ fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): Lis
         }
     }
 
+    if (taskName == "stubAar") {
+        return listOf()
+    }
+
     throw GradleException(
         "Not sure which external dependencies are included in $projectPath:$taskName of type " +
             "${task::class.java} (this is used for publishing sboms). Please update " +
-            "AndroidXImplPlugin's listSbomConfigurationNamesForArchive and " +
+            "Sbom.kt's listSbomConfigurationNamesForArchive and " +
             "shouldSbomIncludeConfigurationName"
     )
 }
