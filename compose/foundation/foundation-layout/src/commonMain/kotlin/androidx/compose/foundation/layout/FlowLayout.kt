@@ -40,6 +40,13 @@ import kotlin.math.max
  * Example:
  * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowWithWeights
  *
+ * Note that if two or more Text components are placed in a [Row], normally they should be aligned
+ * by their first baselines. [FlowRow] as a general purpose container does not do it automatically
+ * so developers need to handle this manually. This is achieved by adding a
+ * [RowScope.alignByBaseline] modifier to every such Text component. By default this modifier
+ * aligns by [androidx.compose.ui.layout.FirstBaseline]. If, however, you need to align Texts
+ * by [androidx.compose.ui.layout.LastBaseline] for example, use a more general [RowScope.alignBy]
+ * modifier.
  *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
