@@ -154,7 +154,7 @@ package androidx.bluetooth {
   }
 
   public final class ScanFilter {
-    ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask);
+    ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask, optional java.util.UUID? serviceSolicitationUuid, optional java.util.UUID? serviceSolicitationUuidMask);
     method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();
     method public String? getDeviceName();
     method public byte[]? getManufacturerData();
@@ -163,6 +163,8 @@ package androidx.bluetooth {
     method public byte[]? getServiceData();
     method public byte[]? getServiceDataMask();
     method public java.util.UUID? getServiceDataUuid();
+    method public java.util.UUID? getServiceSolicitationUuid();
+    method public java.util.UUID? getServiceSolicitationUuidMask();
     method public java.util.UUID? getServiceUuid();
     method public java.util.UUID? getServiceUuidMask();
     property public final androidx.bluetooth.BluetoothAddress? deviceAddress;
@@ -173,6 +175,8 @@ package androidx.bluetooth {
     property public final byte[]? serviceData;
     property public final byte[]? serviceDataMask;
     property public final java.util.UUID? serviceDataUuid;
+    property public final java.util.UUID? serviceSolicitationUuid;
+    property public final java.util.UUID? serviceSolicitationUuidMask;
     property public final java.util.UUID? serviceUuid;
     property public final java.util.UUID? serviceUuidMask;
     field public static final androidx.bluetooth.ScanFilter.Companion Companion;

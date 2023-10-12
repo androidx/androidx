@@ -41,6 +41,8 @@ class ScanFilterTest {
         assertNull(scanFilter.serviceDataMask)
         assertNull(scanFilter.serviceUuid)
         assertNull(scanFilter.serviceUuidMask)
+        assertNull(scanFilter.serviceSolicitationUuid)
+        assertNull(scanFilter.serviceSolicitationUuidMask)
     }
 
     @Test
@@ -55,6 +57,8 @@ class ScanFilterTest {
         val serviceDataMask = "BB".toByteArray()
         val serviceUuid = UUID.randomUUID()
         val serviceUuidMask = UUID.randomUUID()
+        val serviceSolicitationUuid = UUID.randomUUID()
+        val serviceSolicitationUuidMask = UUID.randomUUID()
 
         val scanFilter = ScanFilter(
             deviceAddress = deviceAddress,
@@ -65,7 +69,9 @@ class ScanFilterTest {
             serviceData = serviceData,
             serviceDataMask = serviceDataMask,
             serviceUuid = serviceUuid,
-            serviceUuidMask = serviceUuidMask
+            serviceUuidMask = serviceUuidMask,
+            serviceSolicitationUuid = serviceSolicitationUuid,
+            serviceSolicitationUuidMask = serviceSolicitationUuidMask
         )
 
         assertEquals(deviceAddress, scanFilter.deviceAddress)
@@ -76,6 +82,8 @@ class ScanFilterTest {
         assertEquals(serviceDataMask, scanFilter.serviceDataMask)
         assertEquals(serviceUuid, scanFilter.serviceUuid)
         assertEquals(serviceUuidMask, scanFilter.serviceUuidMask)
+        assertEquals(serviceSolicitationUuid, scanFilter.serviceSolicitationUuid)
+        assertEquals(serviceSolicitationUuidMask, scanFilter.serviceSolicitationUuidMask)
 
         assertNotNull(scanFilter.fwkScanFilter)
     }
@@ -135,6 +143,15 @@ class ScanFilterTest {
 
         assertFailsWith<IllegalArgumentException> {
             ScanFilter(serviceUuidMask = serviceUuidMask)
+        }
+    }
+
+    @Test
+    fun constructorWithNullServiceSolicitationUuid_andNonNullMask() {
+        val serviceSolicitationUuidMask = UUID.randomUUID()
+
+        assertFailsWith<IllegalArgumentException> {
+            ScanFilter(serviceSolicitationUuidMask = serviceSolicitationUuidMask)
         }
     }
 }
