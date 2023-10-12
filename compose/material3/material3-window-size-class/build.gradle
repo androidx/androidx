@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -25,11 +23,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -57,16 +53,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    // Because dependencies are pinned in the android/common code.
-                    implementation(project(":compose:ui:ui-util"))
-                    api(project(":compose:runtime:runtime"))
-                    api(project(":compose:ui:ui"))
-                    api(project(":compose:ui:ui-unit"))
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                // Because dependencies are pinned in the android/common code.
+                implementation(project(":compose:ui:ui-util"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-unit"))
             }
         }
 
@@ -77,13 +71,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
 
-                }
             }
         }
 
@@ -113,12 +105,10 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
 
-                }
             }
         }
     }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -27,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -68,11 +64,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                }
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
             }
         }
 
@@ -81,10 +75,8 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
 
         androidInstrumentedTest {
