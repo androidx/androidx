@@ -63,7 +63,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-class SwipeToDismissBoxTest {
+class BasicSwipeToDismissBoxTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -71,7 +71,7 @@ class SwipeToDismissBoxTest {
     fun supports_testtag() {
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -92,7 +92,7 @@ class SwipeToDismissBoxTest {
             if (runTest) {
                 outerCounter++
                 val state = rememberSwipeToDismissBoxState()
-                SwipeToDismissBox(
+                BasicSwipeToDismissBox(
                     state = state,
                     onDismissed = { },
                 ) { isBackground ->
@@ -149,7 +149,7 @@ class SwipeToDismissBoxTest {
     fun does_not_display_background_without_swipe() {
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) { isBackground ->
@@ -169,7 +169,7 @@ class SwipeToDismissBoxTest {
                 dismissed =
                     state.currentValue == SwipeToDismissValue.Dismissed
             }
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
                 userSwipeEnabled = false
@@ -197,7 +197,7 @@ class SwipeToDismissBoxTest {
                     state.snapTo(SwipeToDismissValue.Default)
                 }
             }
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
                 backgroundKey = if (showCounterForContent.value) TOGGLE_SCREEN else COUNTER_SCREEN,
@@ -246,7 +246,7 @@ class SwipeToDismissBoxTest {
                 outerDismissed =
                     outerState.currentValue == SwipeToDismissValue.Dismissed
             }
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = outerState,
                 modifier = Modifier.testTag("OUTER"),
                 userSwipeEnabled = true
@@ -257,7 +257,7 @@ class SwipeToDismissBoxTest {
                     innerDismissed =
                         innerState.currentValue == SwipeToDismissValue.Dismissed
                 }
-                SwipeToDismissBox(
+                BasicSwipeToDismissBox(
                     state = innerState,
                     modifier = Modifier.testTag("INNER"),
                     userSwipeEnabled = true
@@ -319,7 +319,7 @@ class SwipeToDismissBoxTest {
     fun calls_ondismissed_after_swipe_when_supplied() {
         var dismissed = false
         rule.setContent {
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 onDismissed = { dismissed = true },
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -384,7 +384,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             horizontalScrollState = rememberScrollState(initialScrollState)
 
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -406,7 +406,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             horizontalScrollState = rememberScrollState(initialScrollState)
 
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -479,7 +479,7 @@ class SwipeToDismissBoxTest {
 
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
             ) { isBackground ->
@@ -536,7 +536,7 @@ class SwipeToDismissBoxTest {
             val state = rememberSwipeToDismissBoxState()
             horizontalScrollState = rememberScrollState(initialScrollState)
 
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -562,7 +562,7 @@ class SwipeToDismissBoxTest {
         var dismissed = false
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG),
                 onDismissed = { dismissed = true }
@@ -592,7 +592,7 @@ class SwipeToDismissBoxTest {
                 dismissed =
                     state.currentValue == SwipeToDismissValue.Dismissed
             }
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) {
@@ -610,7 +610,7 @@ class SwipeToDismissBoxTest {
     private fun verifyPartialSwipe(expectedMessage: String) {
         rule.setContent {
             val state = rememberSwipeToDismissBoxState()
-            SwipeToDismissBox(
+            BasicSwipeToDismissBox(
                 state = state,
                 modifier = Modifier.testTag(TEST_TAG)
             ) { isBackground ->
@@ -679,7 +679,6 @@ class SwipeToDismissBoxTest {
 
 private const val BACKGROUND_MESSAGE = "The Background"
 private const val CONTENT_MESSAGE = "The Content"
-private const val LONG_SWIPE = 1000L
 private const val TOGGLE_SCREEN = "Toggle"
 private const val COUNTER_SCREEN = "Counter"
 private const val TOGGLE_ON = "On"
