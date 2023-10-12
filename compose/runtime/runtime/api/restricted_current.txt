@@ -320,6 +320,9 @@ package androidx.compose.runtime {
     method public inline androidx.compose.runtime.DisposableEffectResult onDispose(kotlin.jvm.functions.Function0<kotlin.Unit> onDisposeEffect);
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.EXPRESSION, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface DontMemoize {
+  }
+
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface DoubleState extends androidx.compose.runtime.State<java.lang.Double> {
     method public double getDoubleValue();
     method @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="doubleValue") public default Double getValue();
@@ -466,6 +469,9 @@ package androidx.compose.runtime {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface NonRestartableComposable {
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface NonSkippableComposable {
   }
 
   public final class PausableMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
