@@ -18,6 +18,7 @@ package androidx.compose.mpp.demo.textfield
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -67,6 +68,10 @@ val TextFields = Screen.Selection(
                 label = { Text("OutlinedTextField Label") },
             )
         }
+    },
+    Screen.Example("BasicTextField") {
+        var text by remember { mutableStateOf("usage of BasicTextField") }
+        BasicTextField(text, { text = it })
     }
 )
 

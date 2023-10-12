@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import kotlin.math.roundToInt
 
 /**
@@ -52,6 +54,7 @@ private val RADIUS = 6.dp
  */
 private val THICKNESS = 2.dp
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun SelectionHandle(
     position: Offset,
@@ -90,7 +93,10 @@ internal actual fun SelectionHandle(
                     y = anchorBounds.top + positionState.value.y
                 )
             }
-        }
+        },
+        properties = PopupProperties(
+            clippingEnabled = false,
+        ),
     ) {
         Spacer(
             modifier.size((PADDING + RADIUS) * 2)
