@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -646,6 +648,58 @@ class MeasureAndLayoutDelegateTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun unplacedNodeSkipsForceSubtreeLookaheadMeasure() {
+        val unplacedNode = node {
+            add(node())
+            add(node())
+            layoutDelegate.measurePassDelegate.markDetachedFromParentLookaheadPass()
+        }
+        val placedNode = node()
+        val anotherPlacedNode = node()
+        val root = root {
+            measurePolicy = MeasurePolicy { measurables, constraints ->
+                if (!isLookingAhead) {
+                    placedNode.add(node())
+                }
+                with(MeasureInMeasureBlock()) {
+                    measure(measurables, constraints)
+                }
+            }
+            add(
+                virtualNode {
+                    isVirtualLookaheadRoot = true
+                    add(
+                        node { // lookahead root
+                            measurePolicy = MeasurePolicy { measurables, constraints ->
+                                with(MeasureInMeasureBlock()) {
+                                    // Skip measure & layout for unplaced node
+                                    measure(measurables.drop(1), constraints)
+                                }
+                            }
+                            add(unplacedNode)
+                            add(placedNode)
+                            add(anotherPlacedNode)
+                        }
+                    )
+                    add(node())
+                }
+            )
+        }
+
+        val delegate = createDelegate(root)
+        // Unplaced node should maintain its lookahead measure pending status
+        assertTrue(unplacedNode.lookaheadMeasurePending)
+        assertTrue(unplacedNode.measurePending)
+        assertNotEquals(true, unplacedNode.isPlacedInLookahead)
+        assertNotEquals(true, unplacedNode.isPlaced)
+
+        // Request remeasure on the root triggers new nodes to be inserted in lookahead scope. This
+        // is intended to imitate subcomposition adding new nodes during post-lookahead measure.
+        root.requestRemeasure()
+        delegate.measureOnly()
     }
 
     // different levels

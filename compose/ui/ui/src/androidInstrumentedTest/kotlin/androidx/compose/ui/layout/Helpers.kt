@@ -296,6 +296,13 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
+internal fun virtualNode(block: LayoutNode.() -> Unit = {}): LayoutNode {
+    return LayoutNode(isVirtual = true).apply {
+        measurePolicy = MeasureInMeasureBlock()
+        block.invoke(this)
+    }
+}
+
 internal fun LayoutNode.add(child: LayoutNode) = insertAt(foldedChildren.count(), child)
 
 internal fun LayoutNode.measureInLayoutBlock() {
