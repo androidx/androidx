@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanSuppressTag"
@@ -18,7 +18,7 @@
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/Composition.kt"/>
     </issue>
-    
+
     <issue
         id="BanSuppressTag"
         message="@suppress is not allowed in documentation"
@@ -93,7 +93,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable var63166f50 with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
+        message="variable var63166efe with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
         errorLine1="                val virtualCounts = nodeCountVirtualOverrides ?: run {"
         errorLine2="                                    ^">
         <location
