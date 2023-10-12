@@ -253,7 +253,7 @@ class RobolectricGattClientTest {
     }
 
     @Test
-    fun writeCharacteristicWithoutWriteProperty_returnsException() = runTest {
+    fun writeCharacteristicWithoutWriteProperty_throwsException() = runTest {
         acceptConnect()
         val device = createDevice("00:11:22:33:44:55")
 
@@ -265,12 +265,12 @@ class RobolectricGattClientTest {
 
         bluetoothLe.connectGatt(device) {
             Assert.assertEquals(sampleServices.size, services.size)
-            assertTrue(
+            assertFailsWith<IllegalArgumentException> {
                 writeCharacteristic(
                     services[0].getCharacteristic(readCharUuid)!!,
                     48.toByteArray()
-                ).exceptionOrNull()
-                is IllegalArgumentException)
+                )
+            }
         }
     }
 
