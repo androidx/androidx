@@ -31,7 +31,6 @@ import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.extensions.ExtensionMode;
 
 import java.util.List;
 
@@ -45,11 +44,9 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
     private final PreviewConfigProvider mPreviewConfigProvider;
     private final ImageAnalysisConfigProvider mImageAnalysisConfigProvider;
 
-    public ExtensionsUseCaseConfigFactory(
-            @ExtensionMode.Mode int mode,
-            @NonNull VendorExtender vendorExtender) {
-        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, vendorExtender);
-        mPreviewConfigProvider = new PreviewConfigProvider(mode, vendorExtender);
+    public ExtensionsUseCaseConfigFactory(@NonNull VendorExtender vendorExtender) {
+        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(vendorExtender);
+        mPreviewConfigProvider = new PreviewConfigProvider(vendorExtender);
         mImageAnalysisConfigProvider = new ImageAnalysisConfigProvider(vendorExtender);
     }
 
