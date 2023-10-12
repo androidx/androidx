@@ -91,9 +91,11 @@ package androidx.bluetooth {
   public static interface BluetoothLe.GattServerSessionScope {
     method public androidx.bluetooth.BluetoothDevice getDevice();
     method public kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> getRequests();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> getSubscribedCharacteristics();
     method public suspend Object? notify(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.bluetooth.BluetoothDevice device;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> requests;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> subscribedCharacteristics;
   }
 
   public final class GattCharacteristic {
