@@ -193,7 +193,9 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
         val shouldPublish = androidXExtension.shouldPublish()
 
         // Create configuration that we'll use to load Compose compiler plugin
-        val configuration = project.configurations.create(COMPILER_PLUGIN_CONFIGURATION)
+        val configuration = project.configurations.create(COMPILER_PLUGIN_CONFIGURATION) {
+            it.isCanBeConsumed = false
+        }
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
         project.dependencies.add(

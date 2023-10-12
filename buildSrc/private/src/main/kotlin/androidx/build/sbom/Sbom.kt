@@ -206,7 +206,9 @@ fun Project.configureSbomPublishing() {
     val projectName = project.name
     val projectVersion = project.version.toString()
 
-    project.configurations.create(sbomEmptyConfiguration)
+    project.configurations.create(sbomEmptyConfiguration) { emptyConfiguration ->
+        emptyConfiguration.isCanBeConsumed = false
+    }
     project.apply(plugin = "org.spdx.sbom")
     val repos = getRepoPublicUrls()
     val gitsClient = MultiGitClient.create(project)

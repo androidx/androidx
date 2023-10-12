@@ -461,8 +461,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val generatedDocsDir = project.layout.buildDirectory.dir("docs")
 
         val dackkaConfiguration =
-            project.configurations.create("dackka").apply {
-                dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+            project.configurations.create("dackka") {
+                it.dependencies.add(project.dependencies.create(project.getLibraryByName("dackka")))
+                it.isCanBeConsumed = false
             }
 
         val generateMetadataTask =
