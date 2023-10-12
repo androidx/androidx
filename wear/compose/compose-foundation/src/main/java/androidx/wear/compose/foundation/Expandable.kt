@@ -72,6 +72,7 @@ public fun rememberExpandableState(
  * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun <T> rememberExpandableStateMapping(
     initiallyExpanded: (key: T) -> Boolean = { false },
     expandAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.expandAnimationSpec,
@@ -102,8 +103,8 @@ public fun <T> rememberExpandableStateMapping(
 public fun ScalingLazyListScope.expandableItems(
     state: ExpandableState,
     count: Int,
-    key: ((index: Int) -> Any)? = null,
-    itemContent: @Composable BoxScope.(index: Int) -> Unit
+    @Suppress("PrimitiveInLambda") key: ((index: Int) -> Any)? = null,
+    @Suppress("PrimitiveInLambda") itemContent: @Composable BoxScope.(index: Int) -> Unit
 ) {
     repeat(count) { itemIndex ->
         // Animations for each item start in inverse order, the first item animates last.
@@ -180,8 +181,6 @@ private fun ScalingLazyListScope.expandableItemImpl(
     invertProgress: Boolean = false,
     content: @Composable (expanded: Boolean) -> Unit
 ) {
-    val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
-
     item(key = key) {
         Layout(
             content = {
@@ -190,6 +189,8 @@ private fun ScalingLazyListScope.expandableItemImpl(
             },
             modifier = Modifier.clipToBounds()
         ) { measurables, constraints ->
+            val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
+
             val placeables = measurables.fastMap { it.measure(constraints) }
 
             val width = lerp(placeables[0].width, placeables[1].width, progress)
@@ -263,6 +264,7 @@ public class ExpandableState internal constructor(
  * A class that maps from keys of the given type to [ExpandableState].
  * An instance can be created and remembered with [rememberExpandableStateMapping]
  */
+@ExperimentalWearFoundationApi
 public class ExpandableStateMapping<T> internal constructor(
     private val initiallyExpanded: (key: T) -> Boolean,
     private val coroutineScope: CoroutineScope,
