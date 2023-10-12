@@ -61,6 +61,8 @@ import androidx.compose.animation.demos.statetransition.LoadingAnimationDemo
 import androidx.compose.animation.demos.statetransition.MultiDimensionalAnimationDemo
 import androidx.compose.animation.demos.statetransition.RepeatedRotationDemo
 import androidx.compose.animation.demos.suspendfun.InfiniteAnimationDemo
+import androidx.compose.animation.demos.suspendfun.OffsetKeyframeSplinePlaygroundDemo
+import androidx.compose.animation.demos.suspendfun.OffsetKeyframeWithSplineDemo
 import androidx.compose.animation.demos.suspendfun.SuspendAnimationDemo
 import androidx.compose.animation.demos.suspendfun.SuspendDoubleTapToLikeDemo
 import androidx.compose.animation.demos.vectorgraphics.AnimatedVectorGraphicsDemo
@@ -160,6 +162,10 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Loading Animation Demo") { LoadingAnimationDemo() },
                 ComposableDemo("Spring back scrolling") { SpringBackScrollingDemo() },
                 ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
+                ComposableDemo("Offset w/ Spline keyFrame") { OffsetKeyframeWithSplineDemo() },
+                ComposableDemo("Spline Keyframes Playground") {
+                    OffsetKeyframeSplinePlaygroundDemo()
+                },
             )
         ),
         DemoCategory(
