@@ -18,6 +18,7 @@ package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -43,6 +44,9 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
     val visibleBackStack = rememberVisibleList(dialogBackStack)
     visibleBackStack.PopulateVisibleList(dialogBackStack)
 
+    val transitionInProgress by dialogNavigator.transitionInProgress.collectAsState()
+    val dialogsToDispose = remember { mutableStateListOf<NavBackStackEntry>() }
+
     visibleBackStack.forEach { backStackEntry ->
         val destination = backStackEntry.destination as Destination
         Dialog(
@@ -50,8 +54,10 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
             properties = destination.dialogProperties
         ) {
             DisposableEffect(backStackEntry) {
+                dialogsToDispose.add(backStackEntry)
                 onDispose {
                     dialogNavigator.onTransitionComplete(backStackEntry)
+                    dialogsToDispose.remove(backStackEntry)
                 }
             }
 
@@ -62,14 +68,25 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
             }
         }
     }
+    // Dialogs may have been popped before it was composed. To prevent leakage, we need to
+    // mark popped entries as complete here. Check that we don't accidentally complete popped
+    // entries that were composed, unless they were disposed of already.
+    LaunchedEffect(transitionInProgress, dialogsToDispose) {
+        transitionInProgress.forEach { entry ->
+            if (!dialogNavigator.backStack.value.contains(entry) &&
+                !dialogsToDispose.contains(entry)) {
+                dialogNavigator.onTransitionComplete(entry)
+            }
+        }
+    }
 }
 
 @Composable
 internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
-    transitionsInProgress: Collection<NavBackStackEntry>
+    backStack: Collection<NavBackStackEntry>
 ) {
     val isInspecting = LocalInspectionMode.current
-    transitionsInProgress.forEach { entry ->
+    backStack.forEach { entry ->
         DisposableEffect(entry.lifecycle) {
             val observer = LifecycleEventObserver { _, event ->
                 // show dialog in preview
@@ -99,14 +116,14 @@ internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
 
 @Composable
 internal fun rememberVisibleList(
-    transitionsInProgress: Collection<NavBackStackEntry>
+    backStack: Collection<NavBackStackEntry>
 ): SnapshotStateList<NavBackStackEntry> {
     // show dialog in preview
     val isInspecting = LocalInspectionMode.current
-    return remember(transitionsInProgress) {
+    return remember(backStack) {
         mutableStateListOf<NavBackStackEntry>().also {
             it.addAll(
-                transitionsInProgress.filter { entry ->
+                backStack.filter { entry ->
                     if (isInspecting) {
                         true
                     } else {
