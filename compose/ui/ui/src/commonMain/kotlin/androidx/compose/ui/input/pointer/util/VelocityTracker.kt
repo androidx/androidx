@@ -286,6 +286,11 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
 }
 
 /**
+ * Some platforms (e.g. iOS) ignore certain events during velocity calculation.
+ */
+internal expect fun VelocityTracker.shouldUse(event: PointerInputChange): Boolean
+
+/**
  * Track the positions and timestamps inside this event change.
  *
  * For optimal tracking, this should be called for the DOWN event and all MOVE
@@ -306,6 +311,10 @@ fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
     if (event.changedToDownIgnoreConsumed()) {
         currentPointerPositionAccumulator = event.position
         resetTracking()
+    }
+
+    if (!shouldUse(event)) {
+        return
     }
 
     // To calculate delta, for each step we want to  do currentPosition - previousPosition.
