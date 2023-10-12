@@ -26,6 +26,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
+import static androidx.camera.testing.impl.FileUtil.createFolder;
 import static androidx.camera.testing.impl.FileUtil.createParentFolder;
 import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
 import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
@@ -1737,7 +1738,7 @@ public class CameraXActivity extends AppCompatActivity {
     void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        if (createParentFolder(pictureFolder)) {
+        if (createFolder(pictureFolder)) {
             Log.e(TAG, "Failed to create directory: " + pictureFolder);
         }
     }
