@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -26,11 +24,10 @@ plugins {
     id("AndroidXPaparazziPlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -69,14 +66,12 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
 
-                    implementation(project(":compose:ui:ui-util"))
-                }
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -126,16 +121,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(libs.mockitoCore)
-                    implementation(libs.mockitoKotlin)
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
             }
         }
     }

@@ -24,11 +24,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -54,14 +52,12 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(libs.skikoCommon)
-                    implementation(project(":compose:runtime:runtime"))
-                    implementation(project(":compose:runtime:runtime-saveable"))
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.skikoCommon)
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:runtime:runtime-saveable"))
             }
         }
 
@@ -84,11 +80,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-            }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
         }
 
         jvmTest {
@@ -127,18 +121,16 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.kotlinTest)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(project(":compose:foundation:foundation"))
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(project(":internal-testutils-fonts"))
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.kotlinTest)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-fonts"))
             }
         }
 

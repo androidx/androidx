@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -26,11 +25,9 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -66,13 +63,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:ui:ui-graphics"))
-                    api(libs.skikoCommon)
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:ui:ui-graphics"))
+                api(libs.skikoCommon)
             }
         }
 
@@ -99,15 +94,13 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(libs.kotlinStdlibJdk8)
-                    api(libs.kotlinCoroutinesSwing)
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibJdk8)
+                api(libs.kotlinCoroutinesSwing)
             }
         }
 
@@ -170,18 +163,16 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.mockitoCore)
-                    implementation(libs.mockitoKotlin)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(project(":compose:material:material"))
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
     }
@@ -220,10 +211,8 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
 }
 
-if (desktopEnabled) {
-    tasks.findByName("desktopTest").configure {
-        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
-    }
+tasks.findByName("desktopTest").configure {
+    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
 }
 
 android {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.RunApiTasks
@@ -26,8 +25,6 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 IconGenerationTask.registerExtendedIconMainProject(
         project,
         android
@@ -35,7 +32,7 @@ IconGenerationTask.registerExtendedIconMainProject(
 
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -59,11 +56,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
             }
         }
 
@@ -73,12 +68,10 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
             }
         }
 
@@ -114,11 +107,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
             }
         }
     }

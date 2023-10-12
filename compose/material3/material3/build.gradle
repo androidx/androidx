@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,11 +24,9 @@ plugins {
     id("AndroidXPaparazziPlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -64,19 +59,17 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:animation:animation-core"))
-                    api(project(":compose:runtime:runtime"))
-                    api(project(":compose:ui:ui"))
-                    api(project(":compose:ui:ui-text"))
-                    api(project(":compose:foundation:foundation-layout"))
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:animation:animation-core"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-text"))
+                api(project(":compose:foundation:foundation-layout"))
 
-                    implementation(project(":compose:animation:animation"))
-                    implementation(project(":compose:ui:ui-util"))
-                }
+                implementation(project(":compose:animation:animation"))
+                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -95,13 +88,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -139,15 +130,13 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.skikoCurrentOs)
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
             }
         }
     }
