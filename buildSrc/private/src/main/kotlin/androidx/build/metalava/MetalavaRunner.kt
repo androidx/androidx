@@ -112,6 +112,7 @@ fun Project.getMetalavaClasspath(): FileCollection {
         configurations.findByName("metalava")
             ?: configurations.create("metalava") {
                 it.dependencies.add(dependencies.create(getLibraryByName("metalava")))
+                it.isCanBeConsumed = false
             }
     return project.files(configuration)
 }

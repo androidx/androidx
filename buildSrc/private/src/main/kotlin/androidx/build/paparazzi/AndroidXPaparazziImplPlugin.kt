@@ -156,6 +156,7 @@ constructor(private val fileSystemOperations: FileSystemOperations) : Plugin<Pro
         }
 
         val configuration = configurations.create("paparazziNative")
+        configuration.isCanBeConsumed = false
         configuration.dependencies.add(
             dependencies.create(getLibraryByName("paparazziNative$platformSuffix"))
         )
