@@ -33,7 +33,9 @@ import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -88,6 +90,8 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     val fontSizePx = with(rule.density) { fontSize.toPx() }
 
     val TAG = "BasicTextField2"
+
+    private var enabled by mutableStateOf(true)
 
     @Test
     fun toolbarAppears_whenCursorHandleIsClicked() {
@@ -171,6 +175,57 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.onNodeWithTag(TAG).performTextInput(" World!")
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun cursorToolbarDisappears_whenTextField_getsDisabled_doesNotReappear() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+
+        enabled = false
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+
+        enabled = true
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun selectionToolbarDisappears_whenTextField_getsDisabled_doesNotReappear() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        rule.onNodeWithTag(TAG).requestFocus()
+        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(2, 4))
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+
+        enabled = false
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+
+        enabled = true
 
         rule.runOnIdle {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
@@ -678,6 +733,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                         fontFamily = TEST_FONT_FAMILY,
                         fontSize = fontSize
                     ),
+                    enabled = enabled,
                     lineLimits = if (singleLine) {
                         TextFieldLineLimits.SingleLine
                     } else {
