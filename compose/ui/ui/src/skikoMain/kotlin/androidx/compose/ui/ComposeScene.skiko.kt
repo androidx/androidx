@@ -972,6 +972,7 @@ private fun pointerInputEvent(
                 it.pressed,
                 it.pressure,
                 it.type,
+                issuesEnterExit = it.type == PointerType.Mouse,
                 historical = it.historical,
                 scrollDelta = scrollDelta
             )

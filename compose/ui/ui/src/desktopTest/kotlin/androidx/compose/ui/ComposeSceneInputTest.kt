@@ -444,16 +444,11 @@ class ComposeSceneInputTest {
             touch(1f, 1f, pressed = false, id = 1),
             touch(1f, 2f, pressed = false, id = 2),
         )
-        // Position is changed, we need to generate a synthetic Move for this position
-        background.events.assertReceived(
-            PointerEventType.Move,
-            touch(1f, 1f, pressed = true, id = 1),
-            touch(1f, 2f, pressed = true, id = 2),
-        )
+
         background.events.assertReceived(
             PointerEventType.Release,
-            touch(1f, 1f, pressed = false, id = 1),
-            touch(1f, 2f, pressed = true, id = 2),
+            touch(10f, 55f, pressed = false, id = 1),
+            touch(1f, 55f, pressed = true, id = 2),
         )
         background.events.assertReceivedLast(
             PointerEventType.Release,

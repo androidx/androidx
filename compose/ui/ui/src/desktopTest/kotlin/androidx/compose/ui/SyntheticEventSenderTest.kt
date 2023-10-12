@@ -77,6 +77,23 @@ class SyntheticEventSenderTest {
     }
 
     @Test
+    fun `touch, shouldn't generate new move before non-move if position isn't the same`() {
+        eventsSentBy(
+            event(Press, 1 to touch(10f, 25f, pressed = true)),
+            event(Move, 1 to touch(10f, 30f, pressed = true)),
+            event(Release, 1 to touch(10f, 35f, pressed = false)),
+            event(Press, 2 to touch(10f, 45f, pressed = true)),
+            event(Release, 2 to touch(10f, 50f, pressed = false)),
+        ) positionAndDownShouldEqual listOf(
+            event(Press, 1 to touch(10f, 25f, pressed = true)),
+            event(Move, 1 to touch(10f, 30f, pressed = true)),
+            event(Release, 1 to touch(10f, 35f, pressed = false)),
+            event(Press, 2 to touch(10f, 45f, pressed = true)),
+            event(Release, 2 to touch(10f, 50f, pressed = false)),
+        )
+    }
+
+    @Test
     fun `touch, shouldn't generate new events if order is correct, without moves`() {
         eventsSentBy(
             event(Press, 1 to touch(1f, 2f, pressed = true)),
@@ -115,26 +132,6 @@ class SyntheticEventSenderTest {
     }
 
     @Test
-    fun `touch, should generate new move before non-move if position isn't the same`() {
-        eventsSentBy(
-            event(Press, 1 to touch(1f, 2f, pressed = true)),
-            event(Press, 1 to touch(1f, 3f, pressed = true), 2 to touch(10f, 20f, pressed = true)),
-            event(Move, 1 to touch(1f, 3f, pressed = true), 2 to touch(10f, 25f, pressed = true)),
-            event(Release, 1 to touch(1f, 4f, pressed = false), 2 to touch(10f, 30f, pressed = true)),
-            event(Release, 2 to touch(10f, 40f, pressed = false)),
-        ) positionAndDownShouldEqual listOf(
-            event(Press, 1 to touch(1f, 2f, pressed = true)),
-            event(Move, 1 to touch(1f, 3f, pressed = true)),
-            event(Press, 1 to touch(1f, 3f, pressed = true), 2 to touch(10f, 20f, pressed = true)),
-            event(Move, 1 to touch(1f, 3f, pressed = true), 2 to touch(10f, 25f, pressed = true)),
-            event(Move, 1 to touch(1f, 4f, pressed = true), 2 to touch(10f, 30f, pressed = true)),
-            event(Release, 1 to touch(1f, 4f, pressed = false), 2 to touch(10f, 30f, pressed = true)),
-            event(Move, 1 to touch(1f, 4f, pressed = false), 2 to touch(10f, 40f, pressed = true)),
-            event(Release, 2 to touch(10f, 40f, pressed = false)),
-        )
-    }
-
-    @Test
     fun `touch, should generate one press or release at a time`() {
         eventsSentBy(
             event(
@@ -163,71 +160,6 @@ class SyntheticEventSenderTest {
             ),
             event(
                 Press,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(10f, 20f, pressed = true),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-            event(
-                Release,
-                1 to touch(1f, 3f, pressed = false),
-                2 to touch(10f, 20f, pressed = true),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-            event(
-                Release,
-                2 to touch(10f, 20f, pressed = false),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-        )
-    }
-
-    @Test
-    fun `touch, should generate one press or release at a time, with moves and changed position`() {
-        eventsSentBy(
-            event(
-                Press,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(10f, 20f, pressed = true),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-            event(
-                Move,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(1f, 2f, pressed = true),
-                3 to touch(1f, 4f, pressed = true),
-            ),
-            event(
-                Release,
-                2 to touch(10f, 20f, pressed = false),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-        ) positionAndDownShouldEqual listOf(
-            event(
-                Press,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(10f, 20f, pressed = false),
-                3 to touch(100f, 200f, pressed = false),
-            ),
-            event(
-                Press,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(10f, 20f, pressed = true),
-                3 to touch(100f, 200f, pressed = false),
-            ),
-            event(
-                Press,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(10f, 20f, pressed = true),
-                3 to touch(100f, 200f, pressed = true),
-            ),
-            event(
-                Move,
-                1 to touch(1f, 3f, pressed = true),
-                2 to touch(1f, 2f, pressed = true),
-                3 to touch(1f, 4f, pressed = true),
-            ),
-            event(
-                Move,
                 1 to touch(1f, 3f, pressed = true),
                 2 to touch(10f, 20f, pressed = true),
                 3 to touch(100f, 200f, pressed = true),

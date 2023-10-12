@@ -314,6 +314,11 @@ class DragGestureTest {
             assertFalse(dragEnded)
 
             scene.sendPointerEvent(
+                eventType = PointerEventType.Move,
+                position = Offset(5f + viewConfiguration.touchSlop, 15f),
+                type = PointerType.Touch
+            )
+            scene.sendPointerEvent(
                 eventType = PointerEventType.Release,
                 position = Offset(5f + viewConfiguration.touchSlop, 15f),
                 type = PointerType.Touch

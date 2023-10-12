@@ -253,6 +253,7 @@ internal fun mouseEvent(
             pressure = 1f,
             type = PointerType.Mouse,
             scrollDelta = Offset.Zero,
+            issuesEnterExit = true,
             historical = emptyList()
         )
     ),
