@@ -22,6 +22,7 @@ import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -517,23 +518,6 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
         infix fun KeyframeEntity<T>.with(easing: Easing) {
             this.easing = easing
         }
-
-        override fun equals(other: Any?): Boolean {
-            return other is KeyframesSpecConfig<*> && delayMillis == other.delayMillis &&
-                durationMillis == other.durationMillis && keyframes == other.keyframes
-        }
-
-        override fun hashCode(): Int {
-            return (durationMillis * 31 + delayMillis) * 31 + keyframes.hashCode()
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is KeyframesSpec<*> && config == other.config
-    }
-
-    override fun hashCode(): Int {
-        return config.hashCode()
     }
 
     override fun <V : AnimationVector> vectorize(
@@ -566,6 +550,48 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
         override fun hashCode(): Int {
             return value.hashCode() * 31 + easing.hashCode()
         }
+    }
+}
+
+/**
+ * [KeyframesWithSplineSpec] creates a keyframe based [DurationBasedAnimationSpec] using the
+ * Monotone cubic Hermite spline to interpolate between the values in [config].
+ *
+ * [KeyframesWithSplineSpec] is best used with 2D values such as [Offset]. For example:
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
+ *
+ * @see keyframesWithSpline
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ */
+@ExperimentalAnimationSpecApi
+@Immutable
+class KeyframesWithSplineSpec<T>(val config: KeyframesWithSplineSpecConfig<T>) :
+    DurationBasedAnimationSpec<T> {
+
+    @ExperimentalAnimationSpecApi
+    class KeyframesWithSplineSpecConfig<T> :
+        KeyframesSpecBaseConfig<T, KeyframesSpec.KeyframeEntity<T>>() {
+
+        override fun createEntityFor(value: T): KeyframesSpec.KeyframeEntity<T> =
+            KeyframesSpec.KeyframeEntity(value)
+    }
+
+    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>):
+        VectorizedDurationBasedAnimationSpec<V> {
+        // TODO(b/292114811): Finish Easing support, user input is currently ignored
+        // TODO(b/292114811): Find a way to comply and preserve insertion order
+        @SuppressWarnings("PrimitiveInCollection")
+        val vectorizedKeyframes = mutableMapOf<Int, V>()
+        config.keyframes.forEach { key, value ->
+            vectorizedKeyframes[key] = converter.convertToVector(value.value)
+        }
+
+        return VectorizedMonoSplineKeyframesSpec(
+            keyframes = vectorizedKeyframes,
+            durationMillis = config.durationMillis,
+            delayMillis = config.delayMillis
+        )
     }
 }
 
@@ -618,6 +644,25 @@ fun <T> keyframes(
 ): KeyframesSpec<T> {
     return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
 }
+
+/**
+ * Creates a [KeyframesWithSplineSpec] animation, initialized with [init]. For example:
+ *
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
+ *
+ * @param init Initialization function for the [KeyframesWithSplineSpec] animation
+ * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForIntOffsetWithSplines
+ * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
+ */
+@ExperimentalAnimationSpecApi
+@Stable
+fun <T> keyframesWithSpline(
+    init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
+): KeyframesWithSplineSpec<T> =
+    KeyframesWithSplineSpec(
+        config = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>().apply(init)
+    )
 
 /**
  * Creates a [RepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g.
