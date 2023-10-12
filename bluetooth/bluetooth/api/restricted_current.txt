@@ -2,10 +2,11 @@
 package androidx.bluetooth {
 
   public final class AdvertiseParams {
-    ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional @IntRange(from=0L, to=655350L) long durationMillis, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids);
+    ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional @IntRange(from=0L, to=655350L) long durationMillis, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids, optional java.util.List<java.util.UUID> serviceSolicitationUuids);
     method public long getDurationMillis();
     method public java.util.Map<java.lang.Integer,byte[]> getManufacturerData();
     method public java.util.Map<java.util.UUID,byte[]> getServiceData();
+    method public java.util.List<java.util.UUID> getServiceSolicitationUuids();
     method public java.util.List<java.util.UUID> getServiceUuids();
     method public boolean getShouldIncludeDeviceAddress();
     method public boolean getShouldIncludeDeviceName();
@@ -16,6 +17,7 @@ package androidx.bluetooth {
     property public final boolean isDiscoverable;
     property public final java.util.Map<java.lang.Integer,byte[]> manufacturerData;
     property public final java.util.Map<java.util.UUID,byte[]> serviceData;
+    property public final java.util.List<java.util.UUID> serviceSolicitationUuids;
     property public final java.util.List<java.util.UUID> serviceUuids;
     property public final boolean shouldIncludeDeviceAddress;
     property public final boolean shouldIncludeDeviceName;
