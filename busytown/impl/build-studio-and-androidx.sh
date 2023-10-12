@@ -104,7 +104,6 @@ export LINT_VERSION=$(perl -nle'print $& while m{(?<=baseVersion=).*}g' "$versio
 echo "LINT_VERSION=$LINT_VERSION"
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
 export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk17/$PREBUILT_JDK/"
-export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
