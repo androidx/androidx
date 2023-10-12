@@ -45,6 +45,7 @@ import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -248,6 +249,7 @@ internal class BasicTextField2ImmIntegrationTest {
         }
     }
 
+    @FlakyTest(bugId = 290927588)
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
