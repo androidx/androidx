@@ -58,7 +58,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideAar(relocations: List<Relocation>, dropResourcesWithSuffix: String?) {
-        val bundle = configurations.create(CONFIGURATION_NAME)
+        val bundle = createBundleConfiguration()
         val repackage = configureRepackageTaskForType(relocations, bundle, dropResourcesWithSuffix)
         // Add to AGP's configuration so this jar get packaged inside of the aar.
         dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
@@ -106,7 +106,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideJar(from: String, to: String, dropResourcesWithSuffix: String?) {
-        val bundle = configurations.create(CONFIGURATION_NAME)
+        val bundle = createBundleConfiguration()
         val repackage =
             configureRepackageTaskForType(
                 relocations = listOf(Relocation(from, to)),
@@ -153,7 +153,7 @@ object BundleInsideHelper {
     fun Project.forInsideJarKmp(from: String, to: String, dropResourcesWithSuffix: String?) {
         val kmpExtension =
             extensions.findByType<KotlinMultiplatformExtension>() ?: error("kmp only")
-        val bundle = configurations.create(CONFIGURATION_NAME)
+        val bundle = createBundleConfiguration()
         val repackage =
             configureRepackageTaskForType(
                 relocations = listOf(Relocation(from, to)),
@@ -204,7 +204,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideLintJar() {
-        val bundle = configurations.create(CONFIGURATION_NAME)
+        val bundle = createBundleConfiguration()
         val compileOnly = configurations.getByName("compileOnly")
         val testImplementation = configurations.getByName("testImplementation")
         // bundleInside dependencies should be included as compileOnly as well
@@ -251,6 +251,12 @@ object BundleInsideHelper {
                 destinationDirectory.set(layout.buildDirectory.dir("repackaged"))
             }
         }
+    }
+
+    private fun Project.createBundleConfiguration(): Configuration {
+        val bundle = configurations.create(CONFIGURATION_NAME)
+        bundle.isCanBeConsumed = false
+        return bundle
     }
 
     internal class DontIncludeResourceTransformer : Transformer {

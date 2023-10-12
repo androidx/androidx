@@ -157,7 +157,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.registerProjectOrArtifact()
         project.addCreateLibraryBuildInfoFileTasks(extension)
 
-        project.configurations.create("samples")
+        project.configurations.create("samples") { samples ->
+            samples.isCanBeResolved = false
+        }
         project.validateMultiplatformPluginHasNotBeenApplied()
 
         project.tasks.register("printCoordinates", PrintProjectCoordinatesTask::class.java) {
