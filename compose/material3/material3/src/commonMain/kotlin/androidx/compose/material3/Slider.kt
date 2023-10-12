@@ -24,9 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.GestureCancellationException
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -1423,7 +1421,7 @@ private fun Modifier.sliderTapModifier(
 ) = if (enabled) {
     pointerInput(state, interactionSource) {
         detectTapGestures(
-            onPress = { with(state) { onPress(it) } },
+            onPress = { state.onPress(it) },
             onTap = {
                 state.dispatchRawDelta(0f)
                 state.gestureEndAction()
@@ -1794,14 +1792,9 @@ class SliderState(
         }
     }
 
-    internal suspend fun PressGestureScope.onPress(pos: Offset) {
+    internal fun onPress(pos: Offset) {
         val to = if (isRtl) totalWidth - pos.x else pos.x
         pressOffset = to - rawOffset
-        try {
-            awaitRelease()
-        } catch (_: GestureCancellationException) {
-            pressOffset = 0f
-        }
     }
 
     private var rawOffset by mutableFloatStateOf(scaleToOffset(0f, 0f, value))
