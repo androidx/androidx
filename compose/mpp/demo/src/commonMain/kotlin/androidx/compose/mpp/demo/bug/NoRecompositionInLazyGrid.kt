@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+package androidx.compose.mpp.demo.bug
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,18 +25,16 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.*
+import androidx.compose.mpp.demo.Screen
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
-val BugReproducers = Screen.Selection("Bug Reproducers",
-    // https://github.com/JetBrains/compose-multiplatform/issues/3475
-    Screen.Example("No Recomposition in Lazy Grid") { NoRecompositionInLazyGrid() },
-    Screen.Example("RoundedCornerCrashOnJS") { RoundedCornerCrashOnJS() },
-    Screen.Example("Code Viewer - Selection Reproducer") { CodeViewerReproducer() },
-)
-
-@Composable
-fun NoRecompositionInLazyGrid() {
+// https://github.com/JetBrains/compose-multiplatform/issues/3475
+val NoRecompositionInLazyGrid = Screen.Example("No Recomposition in Lazy Grid") {
     var string by remember { mutableStateOf("1") }
     val value by derivedStateOf {
         maxOf(string.toIntOrNull() ?: 1, 1)
@@ -54,7 +52,7 @@ fun NoRecompositionInLazyGrid() {
                     columns = GridCells.Fixed(value),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    itemsIndexed(gridItems) { index, _->
+                    itemsIndexed(gridItems) { index, _ ->
                         Text("Item index: $index")
                     }
                 }

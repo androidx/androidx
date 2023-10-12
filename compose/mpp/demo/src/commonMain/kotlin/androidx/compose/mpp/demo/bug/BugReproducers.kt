@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+package androidx.compose.mpp.demo.bug
 
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.mpp.demo.Screen
 
-
-// https://github.com/JetBrains/compose-multiplatform/issues/3560
-@Composable
-fun CodeViewerReproducer() {
-    SelectionContainer {
-        LazyColumn {
-            items(100) {
-                Text(text = "Text $it",)
-            }
-        }
-    }
-}
+val BugReproducers = Screen.Selection(
+    "Bug Reproducers",
+    NoRecompositionInLazyGrid,
+    RoundedCornerCrashOnJS,
+    CodeViewerReproducer,
+    SelectionContainerCrash,
+)
