@@ -194,11 +194,28 @@ private fun rememberAndroidExternalSurfaceState(): AndroidExternalSurfaceState {
     return remember { AndroidExternalSurfaceState(scope) }
 }
 
+/**
+ * Defines the z-order of an [AndroidExternalSurface]. When using an
+ * [AndroidExternalSurface], a new [Surface] is created and displayed as a separate
+ * window layer whose position in the windows layer stack relative to the parent
+ * window is decided by its z-order. This class provides constants to set that
+ * z-order.
+ */
 @JvmInline
 value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
     companion object {
+        /**
+         * The [Surface]'s window layer is positioned behind the parent window.
+         */
         val Behind = AndroidExternalSurfaceZOrder(0)
+        /**
+         * The [Surface]'s window layer is positioned behind the parent window but
+         * above other [Surface] window layers marked [Behind].
+         */
         val MediaOverlay = AndroidExternalSurfaceZOrder(1)
+        /**
+         * The [Surface]'s window layer is positioned above the parent window.
+         */
         val OnTop = AndroidExternalSurfaceZOrder(2)
     }
 }
@@ -249,15 +266,16 @@ value class AndroidExternalSurfaceZOrder private constructor(val zOrder: Int) {
  * @param modifier Modifier to be applied to the [AndroidExternalSurface]
  * @param isOpaque Whether the managed surface should be opaque or transparent.
  * @param surfaceSize Sets the surface size independently of the layout size of
- *                    this [GraphicsSurface]. If set to [IntSize.Zero], the surface
- *                    size will be equal to the [GraphicsSurface] layout size.
+ *                    this [AndroidExternalSurface]. If set to [IntSize.Zero], the
+ *                    surface size will be equal to the [AndroidExternalSurface]
+ *                    layout size.
  * @param zOrder Sets the z-order of the surface relative to its parent window.
  * @param isSecure Control whether the surface view's content should be treated as
  *                 secure, preventing it from appearing in screenshots or from being
  *                 viewed on non-secure displays.
  * @param onInit Lambda invoked on first composition. This lambda can be used to
- *               declare a [GraphicsSurfaceScope.onSurface] callback that will be
- *               invoked when a surface is available.
+ *               declare a [AndroidExternalSurfaceScope.onSurface] callback that
+ *               will be invoked when a surface is available.
  *
  * @sample androidx.compose.foundation.samples.AndroidExternalSurfaceColors
  */
@@ -416,15 +434,16 @@ private fun rememberAndroidEmbeddedExternalSurfaceState(): AndroidEmbeddedExtern
  *                 transparent and [isMediaOverlay] is `false`, the surface will
  *                 be positioned above the parent window.
  * @param surfaceSize Sets the surface size independently of the layout size of
- *                    this [GraphicsSurface]. If set to [IntSize.Zero], the surface
- *                    size will be equal to the [GraphicsSurface] layout size.
+ *                    this [AndroidExternalSurface]. If set to [IntSize.Zero], the
+ *                    surface size will be equal to the [AndroidExternalSurface]
+ *                    layout size.
  * @param transform Sets the transform to apply to the [Surface]. Some transforms
  *                  might prevent the content from drawing all the pixels contained
  *                  within this Composable's bounds. In such situations, make sure
  *                  to set [isOpaque] to `false`.
  * @param onInit Lambda invoked on first composition. This lambda can be used to
- *               declare a [GraphicsSurfaceScope.onSurface] callback that will be
- *               invoked when a surface is available.
+ *               declare a [AndroidExternalSurfaceScope.onSurface] callback that
+ *               will be invoked when a surface is available.
  *
  * @sample androidx.compose.foundation.samples.AndroidEmbeddedExternalSurfaceColors
  */
