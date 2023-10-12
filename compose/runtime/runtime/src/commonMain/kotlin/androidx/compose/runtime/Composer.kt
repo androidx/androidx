@@ -1767,6 +1767,19 @@ internal class ComposerImpl(
         if (reusing && it !is ReusableRememberObserver) Composer.Empty else it
     }
 
+    @PublishedApi
+    @OptIn(InternalComposeApi::class)
+    internal fun nextSlotForCache(): Any? {
+        return if (inserting) {
+            validateNodeNotExpected()
+            Composer.Empty
+        } else reader.next().let {
+            if (reusing && it !is ReusableRememberObserver) Composer.Empty
+            else if (it is RememberObserverHolder) it.wrapped
+            else it
+        }
+    }
+
     /**
      * Determine if the current slot table value is equal to the given value, if true, the value
      * is scheduled to be skipped during [ControlledComposition.applyChanges] and [changes] return
@@ -1892,10 +1905,10 @@ internal class ComposerImpl(
      */
     @ComposeCompilerApi
     inline fun <T> cache(invalid: Boolean, block: () -> T): T {
-        var result = nextSlot()
+        var result = nextSlotForCache()
         if (result === Composer.Empty || invalid) {
             val value = block()
-            updateValue(value)
+            updateCachedValue(value)
             result = value
         }
 
@@ -1918,15 +1931,8 @@ internal class ComposerImpl(
     internal fun updateValue(value: Any?) {
         if (inserting) {
             writer.update(value)
-            if (value is RememberObserver) {
-                changeListWriter.remember(value)
-                abandonSet.add(value)
-            }
         } else {
             val groupSlotIndex = reader.groupSlotIndex - 1
-            if (value is RememberObserver) {
-                abandonSet.add(value)
-            }
             changeListWriter.updateValue(value, groupSlotIndex)
         }
     }
@@ -1939,7 +1945,12 @@ internal class ComposerImpl(
     @PublishedApi
     @OptIn(InternalComposeApi::class)
     internal fun updateCachedValue(value: Any?) {
-        updateValue(value)
+        val toStore = if (value is RememberObserver) {
+            if (inserting) { changeListWriter.remember(value) }
+            abandonSet.add(value)
+            RememberObserverHolder(value)
+        } else value
+        updateValue(toStore)
     }
 
     override val compositionData: CompositionData get() = slotTable
@@ -3677,8 +3688,8 @@ internal class ComposerImpl(
 
     override val recomposeScope: RecomposeScope? get() = currentRecomposeScope
     override val recomposeScopeIdentity: Any? get() = currentRecomposeScope?.anchor
-    override fun rememberedValue(): Any? = nextSlot()
-    override fun updateRememberedValue(value: Any?) = updateValue(value)
+    override fun rememberedValue(): Any? = nextSlotForCache()
+    override fun updateRememberedValue(value: Any?) = updateCachedValue(value)
     override fun recordUsed(scope: RecomposeScope) { (scope as? RecomposeScopeImpl)?.used = true }
 }
 
@@ -3834,8 +3845,8 @@ internal fun SlotWriter.removeCurrentGroup(rememberManager: RememberManager) {
         if (slot is ComposeNodeLifecycleCallback) {
             rememberManager.releasing(slot)
         }
-        if (slot is RememberObserver) {
-            rememberManager.forgetting(slot)
+        if (slot is RememberObserverHolder) {
+            rememberManager.forgetting(slot.wrapped)
         }
         if (slot is RecomposeScopeImpl) {
             slot.release()
@@ -3862,12 +3873,14 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
 
         forEachData(group) { index, data ->
             when (data) {
-                is ReusableRememberObserver -> {
-                    // do nothing, the value should be preserved on reuse
-                }
-                is RememberObserver -> {
-                    removeData(group, index, data)
-                    rememberManager.forgetting(data)
+                is RememberObserverHolder -> {
+                    val wrapped = data.wrapped
+                    if (wrapped is ReusableRememberObserver) {
+                        // do nothing, the value should be preserved on reuse
+                    } else {
+                        removeData(group, index, data)
+                        rememberManager.forgetting(wrapped)
+                    }
                 }
                 is RecomposeScopeImpl -> {
                     removeData(group, index, data)
@@ -4080,6 +4093,8 @@ private value class GroupKind private constructor(val value: Int) {
  * It is used to preserve composition locals between group deactivation.
  */
 internal interface ReusableRememberObserver : RememberObserver
+
+internal class RememberObserverHolder(var wrapped: RememberObserver)
 
 /*
  * Integer keys are arbitrary values in the biload range. The do not need to be unique as if
