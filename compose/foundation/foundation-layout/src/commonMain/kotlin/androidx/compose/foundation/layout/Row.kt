@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measured
 
@@ -60,6 +61,17 @@ import androidx.compose.ui.layout.Measured
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleRow
+ *
+ * Note that if two or more Text components are placed in a [Row], normally they should be aligned
+ * by their first baselines. [Row] as a general purpose container does not do it automatically
+ * so developers need to handle this manually. This is achieved by adding a
+ * [RowScope.alignByBaseline] modifier to every such Text component. By default this modifier
+ * aligns by [FirstBaseline]. If, however, you need to align Texts by [LastBaseline] for example,
+ * use a more general [RowScope.alignBy] modifier.
+ *
+ * See example of using Texts inside the Row:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
  *
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
