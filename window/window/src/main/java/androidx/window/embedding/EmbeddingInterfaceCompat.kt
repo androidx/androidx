@@ -46,8 +46,11 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(2)
     fun clearSplitAttributesCalculator()
 
-    @RequiresWindowSdkExtension(3)
+    @RequiresWindowSdkExtension(5)
     fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+
+    @RequiresWindowSdkExtension(5)
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
 
     @RequiresWindowSdkExtension(3)
     fun invalidateTopVisibleSplitAttributes()

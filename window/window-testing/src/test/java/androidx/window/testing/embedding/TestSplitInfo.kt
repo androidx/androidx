@@ -64,9 +64,11 @@ fun TestSplitInfo(
 fun TestActivityStack(
     testActivity: Activity,
     isEmpty: Boolean = true,
+    token: IBinder = Binder()
 ): ActivityStack {
     return ActivityStack(
         listOf(testActivity),
         isEmpty,
+        token
     )
 }

@@ -24,11 +24,15 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
+import androidx.window.core.ExperimentalWindowApi
+import androidx.window.demo.R
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.SplitInfo
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalWindowApi::class)
 class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity(),
     View.OnClickListener {
 
@@ -39,6 +43,8 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
         super.onCreate(savedInstanceState)
 
         viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#e8f5e9"))
+
+        val isRuntimeApiSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3
 
         secondaryActivityIntent = Intent(
             this,
@@ -54,6 +60,15 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
 
         // Enable to finish secondary ActivityStacks for primary Activity.
         viewBinding.finishSecondaryActivitiesDivider.visibility = View.VISIBLE
+        val finishSecondaryActivitiesButton =
+            viewBinding.finishSecondaryActivitiesButton.apply {
+                visibility = View.VISIBLE
+                if (!isRuntimeApiSupported) {
+                    isEnabled = false
+                } else {
+                    setOnClickListener(this@SplitAttributesTogglePrimaryActivity)
+                }
+            }
 
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
@@ -64,6 +79,7 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
                     .splitInfoList(this@SplitAttributesTogglePrimaryActivity)
                     .onEach { updateUiFromRules() }
                     .collect { splitInfoList ->
+                        finishSecondaryActivitiesButton.isEnabled = splitInfoList.isNotEmpty()
                         activityStacks = splitInfoList.mapTo(mutableSetOf()) { splitInfo ->
                             splitInfo.getTheOtherActivityStack(
                                 this@SplitAttributesTogglePrimaryActivity
@@ -80,4 +96,14 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
         } else {
             primaryActivityStack
         }
+
+    override fun onClick(button: View) {
+        super.onClick(button)
+        when (button.id) {
+            R.id.finish_secondary_activities_button -> {
+                applyRules()
+                activityEmbeddingController.finishActivityStacks(activityStacks)
+            }
+        }
+    }
 }

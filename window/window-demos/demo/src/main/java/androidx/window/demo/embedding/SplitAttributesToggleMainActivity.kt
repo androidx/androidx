@@ -222,6 +222,12 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
             if (apiLevel < 3) {
                 append("Finishing secondary activities is not supported on this device!\n")
             }
+            if (viewBinding.finishSecondaryActivitiesButton.isEnabled &&
+                getSplitRule<SplitPlaceholderRule>() != null
+            ) {
+                append(resources.getString(R.string.show_placeholder_warning))
+                append("\n")
+            }
         }
         withContext(Dispatchers.Main) {
             viewBinding.warningMessageTextView.text = warningMessages

@@ -371,11 +371,16 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    @RequiresWindowSdkExtension(3)
+    @RequiresWindowSdkExtension(5)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    @RequiresWindowSdkExtension(5)
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        embeddingExtension?.finishActivityStacks(activityStacks)
+    }
 
     @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
