@@ -212,4 +212,27 @@ public class DynamicRangeUtil {
 
         return EncoderProfilesProxy.CODEC_PROFILE_NONE;
     }
+
+    /**
+     * Checks if the HDR settings match between a {@link EncoderProfilesProxy.VideoProfileProxy}
+     * and a {@link DynamicRange}.
+     *
+     * <p>HDR settings includes bit depth and encoding.
+     */
+    public static boolean isHdrSettingsMatched(
+            @NonNull EncoderProfilesProxy.VideoProfileProxy videoProfile,
+            @NonNull DynamicRange dynamicRange) {
+        return isBitDepthMatched(videoProfile.getBitDepth(), dynamicRange)
+                && isHdrEncodingMatched(videoProfile.getHdrFormat(), dynamicRange);
+    }
+
+    private static boolean isBitDepthMatched(int bitDepth, @NonNull DynamicRange dynamicRange) {
+        Set<Integer> matchedBitDepths = DR_TO_VP_BIT_DEPTH_MAP.get(dynamicRange.getBitDepth());
+        return matchedBitDepths != null && matchedBitDepths.contains(bitDepth);
+    }
+
+    private static boolean isHdrEncodingMatched(int hdrFormat, @NonNull DynamicRange dynamicRange) {
+        Set<Integer> matchedHdrEncodings = DR_TO_VP_FORMAT_MAP.get(dynamicRange.getEncoding());
+        return matchedHdrEncodings != null && matchedHdrEncodings.contains(hdrFormat);
+    }
 }

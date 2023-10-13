@@ -24,23 +24,21 @@ import static android.media.EncoderProfiles.VideoProfile.HDR_NONE;
 
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.getVideoCodecMimeType;
+import static androidx.camera.video.internal.config.VideoConfigUtil.toVideoEncoderConfig;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaRecorder;
 import android.util.Rational;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
@@ -74,7 +72,6 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
             BackupHdrProfileEncoderProfilesProvider::validateOrAdapt;
 
     private static final String TAG = "BackupHdrProfileEncoderProfilesProvider";
-    private static final Timebase DEFAULT_TIME_BASE = Timebase.UPTIME;
 
     private final EncoderProfilesProvider mEncoderProfilesProvider;
     private final Function<VideoProfileProxy, VideoProfileProxy> mVideoProfileValidator;
@@ -280,19 +277,6 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
             // Not supported case.
             return null;
         }
-    }
-
-    @VisibleForTesting
-    @NonNull
-    static VideoEncoderConfig toVideoEncoderConfig(@NonNull VideoProfileProxy videoProfile) {
-        return VideoEncoderConfig.builder()
-                .setMimeType(videoProfile.getMediaType())
-                .setProfile(videoProfile.getProfile())
-                .setResolution(new Size(videoProfile.getWidth(), videoProfile.getHeight()))
-                .setFrameRate(videoProfile.getFrameRate())
-                .setBitrate(videoProfile.getBitrate())
-                .setInputTimebase(DEFAULT_TIME_BASE)
-                .build();
     }
 
     @NonNull

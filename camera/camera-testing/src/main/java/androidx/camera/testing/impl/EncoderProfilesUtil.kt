@@ -182,13 +182,14 @@ object EncoderProfilesUtil {
         videoFrameHeight: Int,
         videoCodec: Int = DEFAULT_VIDEO_CODEC,
         videoMediaType: String = DEFAULT_VIDEO_MEDIA_TYPE,
+        bitrate: Int = DEFAULT_VIDEO_BITRATE,
         videoBitDepth: Int = DEFAULT_VIDEO_BIT_DEPTH,
         videoHdrFormat: Int = DEFAULT_VIDEO_HDR_FORMAT
     ): VideoProfileProxy {
         return VideoProfileProxy.create(
             videoCodec,
             videoMediaType,
-            DEFAULT_VIDEO_BITRATE,
+            bitrate,
             DEFAULT_VIDEO_FRAME_RATE,
             videoFrameWidth,
             videoFrameHeight,

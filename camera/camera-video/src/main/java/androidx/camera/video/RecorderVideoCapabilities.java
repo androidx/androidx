@@ -201,7 +201,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     @Nullable
     private CapabilitiesByQuality getCapabilities(@NonNull DynamicRange dynamicRange) {
-        if (isFullySpecified(dynamicRange)) {
+        if (dynamicRange.isFullySpecified()) {
             return mCapabilitiesMapForFullySpecifiedDynamicRange.get(dynamicRange);
         }
 
@@ -254,7 +254,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
      */
     private static boolean canResolve(@NonNull DynamicRange dynamicRangeToTest,
             @NonNull Set<DynamicRange> fullySpecifiedDynamicRanges) {
-        if (isFullySpecified(dynamicRangeToTest)) {
+        if (dynamicRangeToTest.isFullySpecified()) {
             return fullySpecifiedDynamicRanges.contains(dynamicRangeToTest);
         } else {
             for (DynamicRange fullySpecifiedDynamicRange : fullySpecifiedDynamicRanges) {
@@ -270,7 +270,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     private static boolean canMatchBitDepth(@NonNull DynamicRange dynamicRangeToTest,
             @NonNull DynamicRange fullySpecifiedDynamicRange) {
-        Preconditions.checkState(isFullySpecified(fullySpecifiedDynamicRange), "Fully specified "
+        Preconditions.checkState(fullySpecifiedDynamicRange.isFullySpecified(), "Fully specified "
                 + "range is not actually fully specified.");
         if (dynamicRangeToTest.getBitDepth() == BIT_DEPTH_UNSPECIFIED) {
             return true;
@@ -281,7 +281,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
     private static boolean canMatchEncoding(@NonNull DynamicRange dynamicRangeToTest,
             @NonNull DynamicRange fullySpecifiedDynamicRange) {
-        Preconditions.checkState(isFullySpecified(fullySpecifiedDynamicRange), "Fully specified "
+        Preconditions.checkState(fullySpecifiedDynamicRange.isFullySpecified(), "Fully specified "
                 + "range is not actually fully specified.");
         int encodingToTest = dynamicRangeToTest.getEncoding();
         if (encodingToTest == ENCODING_UNSPECIFIED) {
@@ -294,11 +294,5 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         }
 
         return encodingToTest == fullySpecifiedEncoding;
-    }
-
-    private static boolean isFullySpecified(@NonNull DynamicRange dynamicRange) {
-        return dynamicRange.getEncoding() != ENCODING_UNSPECIFIED
-                && dynamicRange.getEncoding() != ENCODING_HDR_UNSPECIFIED
-                && dynamicRange.getBitDepth() != BIT_DEPTH_UNSPECIFIED;
     }
 }
