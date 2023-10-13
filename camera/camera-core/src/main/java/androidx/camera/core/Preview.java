@@ -679,7 +679,6 @@ public final class Preview extends UseCase {
      * @return {@link PreviewCapabilities}
      */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static PreviewCapabilities getPreviewCapabilities(@NonNull CameraInfo cameraInfo) {
         return PreviewCapabilitiesImpl.from(cameraInfo);
     }
