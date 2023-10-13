@@ -123,27 +123,40 @@ private fun FontPaddingRow(text: String) {
 private fun FontPaddingColumn(text: String, overflow: TextOverflow) {
     val fontSize = fontSize8
     val width = with(LocalDensity.current) { fontSize.toDp() } * 5
-    val widthWodifier = Modifier.width(width)
+    val textModifier = Modifier
+        .width(width)
+        .background(Color.LightGray)
+
     Column {
-        SecondTagLine(tag = "no-softwrap,~5chars width")
+        SecondTagLine(tag = "softWrap=false,maxLines=\u221E")
         SelectionContainer {
             Text(
                 text,
                 style = TextStyle(fontSize = fontSize),
                 softWrap = false,
                 maxLines = 1,
-                modifier = widthWodifier,
+                modifier = textModifier,
                 overflow = overflow
             )
         }
 
-        SecondTagLine(tag = "maxLines=2,~5chars width")
-
+        SecondTagLine(tag = "softWrap=true,maxLines=1")
         SelectionContainer {
             Text(
                 text,
                 style = TextStyle(fontSize = fontSize),
-                modifier = widthWodifier,
+                maxLines = 1,
+                modifier = textModifier,
+                overflow = overflow
+            )
+        }
+
+        SecondTagLine(tag = "softWrap=true,maxLines=2")
+        SelectionContainer {
+            Text(
+                text,
+                style = TextStyle(fontSize = fontSize),
+                modifier = textModifier,
                 maxLines = 2,
                 overflow = overflow
             )

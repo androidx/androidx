@@ -363,6 +363,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             // affects multiple text selection when selected text is configured with maxLines=1
             // and overflow=clip.
             val handlePosition = startSelectable.getHandlePosition(selection, isStartHandle = true)
+            if (handlePosition.isUnspecified) return@let null
             val position = containerCoordinates.localPositionOf(handleCoordinates, handlePosition)
             position.takeIf {
                 draggingHandle == Handle.SelectionStart || visibleBounds.containsInclusive(it)
@@ -371,6 +372,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         this.endHandlePosition = endLayoutCoordinates?.let { handleCoordinates ->
             val handlePosition = endSelectable.getHandlePosition(selection, isStartHandle = false)
+            if (handlePosition.isUnspecified) return@let null
             val position = containerCoordinates.localPositionOf(handleCoordinates, handlePosition)
             position.takeIf {
                 draggingHandle == Handle.SelectionEnd || visibleBounds.containsInclusive(it)
@@ -780,11 +782,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
             val otherSelectable =
                 selectionRegistrar.selectableMap[otherSelectableId] ?: return@let null
+            val handlePosition = otherSelectable.getHandlePosition(selection, !isStartHandle)
+            if (handlePosition.isUnspecified) return@let null
             convertToContainerCoordinates(
                 otherSelectable.getLayoutCoordinates()!!,
-                getAdjustedCoordinates(
-                    otherSelectable.getHandlePosition(selection, !isStartHandle)
-                )
+                getAdjustedCoordinates(handlePosition)
             )
         } ?: return false
 
