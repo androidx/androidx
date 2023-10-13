@@ -23,7 +23,6 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
 import androidx.benchmark.macro.PowerMetric.Type
 import androidx.benchmark.macro.PowerRail.hasMetrics
-import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
@@ -126,49 +125,6 @@ sealed class Metric {
 }
 
 private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
-
-/**
- * Metric which captures information about underruns while playing audio.
- *
- * Each time an instance of [android.media.AudioTrack] is started, the systems repeatedly
- * logs the number of audio frames available for output. This doesn't work when audio offload is
- * enabled. No logs are generated while there is no active track. See
- * [android.media.AudioTrack.Builder.setOffloadedPlayback] for more details.
- *
- * Test fails in case of multiple active tracks during a single iteration.
- *
- * This outputs the following measurements:
- *
- * * `audioTotalMs` - Total duration of played audio captured during the iteration.
- * The test fails if no counters are detected.
- *
- * * `audioUnderrunMs` - Duration of played audio when zero audio frames were available for output.
- * Each single log of zero frames available for output indicates a gap in audio playing.
- */
-@ExperimentalMetricApi
-@Suppress("CanSealedSubClassBeObject")
-class AudioUnderrunMetric : Metric() {
-    override fun configure(packageName: String) {
-    }
-
-    override fun start() {
-    }
-
-    override fun stop() {
-    }
-
-    override fun getResult(
-        captureInfo: CaptureInfo,
-        traceSession: PerfettoTraceProcessor.Session
-    ): List<Measurement> {
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(traceSession)
-
-        return listOf(
-            Measurement("audioTotalMs", subMetrics.totalMs.toDouble()),
-            Measurement("audioUnderrunMs", subMetrics.zeroMs.toDouble())
-        )
-    }
-}
 
 /**
  * Metric which captures timing information from frames produced by a benchmark, such as
