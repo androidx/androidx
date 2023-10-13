@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.content;
-
-import android.content.ComponentCallbacks;
-import android.content.res.Configuration;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.app.Activity
+import android.content.Intent
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link ComponentCallbacks#onConfigurationChanged(Configuration)}.
+ * [Activity.onNewIntent].
  */
-public interface OnConfigurationChangedProvider {
+interface OnNewIntentProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link ComponentCallbacks#onConfigurationChanged(Configuration)} with the
-     * new {@link Configuration}.
+     * [Activity.onNewIntent] with the
+     * new [Intent].
      *
      * @param listener The listener that should be called whenever
-     * {{@link ComponentCallbacks#onConfigurationChanged(Configuration)} was called.
+     * [android.app.Activity#onNewIntent] was called.
      */
-    void addOnConfigurationChangedListener(@NonNull Consumer<Configuration> listener);
+    fun addOnNewIntentListener(listener: Consumer<Intent>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnConfigurationChangedListener(Consumer)} that should be removed.
+     * [addOnNewIntentListener] that should be removed.
      */
-    void removeOnConfigurationChangedListener(@NonNull Consumer<Configuration> listener);
+    fun removeOnNewIntentListener(listener: Consumer<Intent>)
 }

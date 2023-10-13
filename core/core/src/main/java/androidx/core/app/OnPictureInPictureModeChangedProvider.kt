@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.app;
-
-import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.app.Activity
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link android.app.Activity#onNewIntent(Intent)}.
+ * [Activity.onPictureInPictureModeChanged].
  */
-public interface OnNewIntentProvider {
+interface OnPictureInPictureModeChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link android.app.Activity#onNewIntent(Intent)} with the
-     * new {@link Intent}.
+     * [Activity.onPictureInPictureModeChanged] with the
+     * new [PictureInPictureModeChangedInfo].
      *
      * @param listener The listener that should be called whenever
-     * {@link android.app.Activity#onNewIntent(Intent)} was called.
+     * [Activity.onPictureInPictureModeChanged] was called.
      */
-    void addOnNewIntentListener(@NonNull Consumer<Intent> listener);
+    fun addOnPictureInPictureModeChangedListener(
+        listener: Consumer<PictureInPictureModeChangedInfo>
+    )
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnNewIntentListener(Consumer)} that should be removed.
+     * [addOnPictureInPictureModeChangedListener] that should be removed.
      */
-    void removeOnNewIntentListener(@NonNull Consumer<Intent> listener);
+    fun removeOnPictureInPictureModeChangedListener(
+        listener: Consumer<PictureInPictureModeChangedInfo>
+    )
 }
