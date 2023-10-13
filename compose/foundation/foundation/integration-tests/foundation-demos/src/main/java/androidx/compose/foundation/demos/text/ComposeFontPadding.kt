@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun TextFontPaddingDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        FontPaddingRow("ABCDEfgHIjKgpvyzgpvyzgpvyzgpvyz")
+        FontPaddingRow("ABCDEfgHIjKLMNOPQRSTUVWXYZ")
         FontPaddingRow("مرحبا" + "ဪไန််မ့်၇ဤဩဦနိမြသကိမ့်" + "مرحبا" + "ဪไန််မ့်၇ဤဩဦနိမြသကိမ့်")
         CenteredInContainerRow()
         CenterInCircleRow()
@@ -81,7 +81,6 @@ private fun Configuration() {
         for (text in arrayOf(latinText, tallText)) {
             Box {
                 Column(padding.width(width)) {
-                    @Suppress("DEPRECATION")
                     Text(
                         text,
                         style = style.copy(
@@ -91,7 +90,6 @@ private fun Configuration() {
                     )
                 }
                 Column(padding.width(width)) {
-                    @Suppress("DEPRECATION")
                     Text(
                         text,
                         style = style.copy(
