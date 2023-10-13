@@ -659,12 +659,12 @@ package androidx.wear.compose.material {
     property public final T to;
   }
 
-  public final class SwipeToDismissBoxDefaults {
-    method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
-    method public float getEdgeWidth();
-    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
-    property public final float EdgeWidth;
-    field public static final androidx.wear.compose.material.SwipeToDismissBoxDefaults INSTANCE;
+  @Deprecated @androidx.compose.runtime.Stable public final class SwipeToDismissBoxDefaults {
+    method @Deprecated public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
+    method @Deprecated public float getEdgeWidth();
+    property @Deprecated public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
+    property @Deprecated public final float EdgeWidth;
+    field @Deprecated public static final androidx.wear.compose.material.SwipeToDismissBoxDefaults INSTANCE;
   }
 
   public final class SwipeToDismissBoxKt {
