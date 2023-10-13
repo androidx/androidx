@@ -21,7 +21,6 @@ import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_HLG;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
-import static androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider.DEFAULT_VALIDATOR;
 
 import android.util.Size;
 
@@ -29,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
@@ -43,6 +41,8 @@ import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 import androidx.core.util.Preconditions;
@@ -84,15 +84,13 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     /**
      * Creates a RecorderVideoCapabilities.
      *
-     * @param cameraInfoInternal the cameraInfo.
-     * @param backupVideoProfileValidator the validator used to check if the derived backup HDR
-     *                                    {@link VideoProfileProxy} is valid.
+     * @param cameraInfoInternal     the cameraInfo.
+     * @param videoEncoderInfoFinder the VideoEncoderInfo finder.
      * @throws IllegalArgumentException if unable to get the capability information from the
      *                                  CameraInfo.
      */
-    @VisibleForTesting
     RecorderVideoCapabilities(@NonNull CameraInfoInternal cameraInfoInternal,
-            @NonNull Function<VideoProfileProxy, VideoProfileProxy> backupVideoProfileValidator) {
+            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
         EncoderProfilesProvider encoderProfilesProvider =
                 cameraInfoInternal.getEncoderProfilesProvider();
 
@@ -104,7 +102,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         // Add backup HDR video information. In the initial version, only HLG10 profile is added.
         if (isHlg10SupportedByCamera(cameraInfoInternal)) {
             encoderProfilesProvider = new BackupHdrProfileEncoderProfilesProvider(
-                    encoderProfilesProvider, backupVideoProfileValidator);
+                    encoderProfilesProvider, videoEncoderInfoFinder);
         }
 
         // Filter out qualities with unsupported resolutions.
@@ -132,20 +130,6 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
 
         // Video stabilization
         mIsStabilizationSupported = cameraInfoInternal.isVideoStabilizationSupported();
-    }
-
-    /**
-     * Gets RecorderVideoCapabilities by the {@link CameraInfo}.
-     *
-     * <p>Should not be called directly, use {@link Recorder#getVideoCapabilities(CameraInfo)}
-     * instead.
-     *
-     * <p>The {@link BackupHdrProfileEncoderProfilesProvider#DEFAULT_VALIDATOR} is used for
-     * validating the derived backup HDR {@link VideoProfileProxy}.
-     */
-    @NonNull
-    static RecorderVideoCapabilities from(@NonNull CameraInfo cameraInfo) {
-        return new RecorderVideoCapabilities((CameraInfoInternal) cameraInfo, DEFAULT_VALIDATOR);
     }
 
     @NonNull

@@ -33,16 +33,15 @@ import android.util.Rational;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,32 +63,23 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesProvider {
 
-    /**
-     * The default validator which checks the {@link VideoProfileProxy} has at least one matched
-     * encoder, or provides a workable alternative if possible.
-     */
-    public static final Function<VideoProfileProxy, VideoProfileProxy> DEFAULT_VALIDATOR =
-            BackupHdrProfileEncoderProfilesProvider::validateOrAdapt;
-
     private static final String TAG = "BackupHdrProfileEncoderProfilesProvider";
 
     private final EncoderProfilesProvider mEncoderProfilesProvider;
-    private final Function<VideoProfileProxy, VideoProfileProxy> mVideoProfileValidator;
+    private final Function<VideoEncoderConfig, VideoEncoderInfo> mVideoEncoderInfoFinder;
     private final Map<Integer, EncoderProfilesProxy> mEncoderProfilesCache = new HashMap<>();
 
     /**
      * Creates a BackupHdrProfileEncoderProfilesProvider.
      *
-     * @param provider the {@link EncoderProfilesProvider}.
-     * @param validator a {@link Function} used to check if the derived backup HDR
-     *                  {@link VideoProfileProxy} is valid. It is expected to return a non-null
-     *                  profile when the profile to be checked is valid or a workable alternative
-     *                  can be found. Otherwise return a {@code null}.
+     * @param provider               the {@link EncoderProfilesProvider}.
+     * @param videoEncoderInfoFinder a {@link Function} to find a VideoEncoderInfo from a
+     *                               VideoEncoderConfig.
      */
     public BackupHdrProfileEncoderProfilesProvider(@NonNull EncoderProfilesProvider provider,
-            @NonNull Function<VideoProfileProxy, VideoProfileProxy> validator) {
+            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
         mEncoderProfilesProvider = provider;
-        mVideoProfileValidator = validator;
+        mVideoEncoderInfoFinder = videoEncoderInfoFinder;
     }
 
     /** {@inheritDoc} */
@@ -149,7 +139,7 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
 
         // Check if the media codec supports the generated backup profile and adapt bitrate if
         // possible.
-        backupProfile = mVideoProfileValidator.apply(backupProfile);
+        backupProfile = validateOrAdapt(backupProfile, mVideoEncoderInfoFinder);
 
         if (backupProfile != null) {
             videoProfiles.add(backupProfile);
@@ -257,26 +247,22 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
      * Check if any encoder supports the video profile and adapt the bitrate if possible. A null
      * will be returned if the video profile is not able to support.
      */
+    @VisibleForTesting
     @Nullable
-    private static VideoProfileProxy validateOrAdapt(@Nullable VideoProfileProxy profile) {
+    static VideoProfileProxy validateOrAdapt(@Nullable VideoProfileProxy profile,
+            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
         if (profile == null) {
             return null;
         }
-
         VideoEncoderConfig videoEncoderConfig = toVideoEncoderConfig(profile);
-        try {
-            VideoEncoderInfo videoEncoderInfo = VideoEncoderInfoImpl.from(videoEncoderConfig);
-            if (!videoEncoderInfo.isSizeSupported(profile.getWidth(), profile.getHeight())) {
-                return null;
-            }
-
-            int baseBitrate = videoEncoderConfig.getBitrate();
-            int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(baseBitrate);
-            return newBitrate == baseBitrate ? profile : modifyBitrate(profile, newBitrate);
-        } catch (InvalidConfigException e) {
-            // Not supported case.
+        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.apply(videoEncoderConfig);
+        if (videoEncoderInfo == null
+                || !videoEncoderInfo.isSizeSupported(profile.getWidth(), profile.getHeight())) {
             return null;
         }
+        int baseBitrate = videoEncoderConfig.getBitrate();
+        int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(baseBitrate);
+        return newBitrate == baseBitrate ? profile : modifyBitrate(profile, newBitrate);
     }
 
     @NonNull

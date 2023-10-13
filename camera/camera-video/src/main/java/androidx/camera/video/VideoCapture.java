@@ -126,7 +126,6 @@ import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureI
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
-import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
@@ -786,7 +785,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
         private static final Function<VideoEncoderConfig, VideoEncoderInfo>
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = createFinder();
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = VideoEncoderInfoImpl.FINDER;
 
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
@@ -804,18 +803,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     .setCaptureType(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
-        }
-
-        @NonNull
-        private static Function<VideoEncoderConfig, VideoEncoderInfo> createFinder() {
-            return encoderConfig -> {
-                try {
-                    return VideoEncoderInfoImpl.from(encoderConfig);
-                } catch (InvalidConfigException e) {
-                    Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
-                    return null;
-                }
-            };
         }
 
         @NonNull
