@@ -1736,7 +1736,7 @@ internal inline fun group(metadata: LongArray, offset: Int): Group {
     // |_________Long0_______ _|  |_________Long1_______ _|
     //
     // To retrieve the Group we first find the index of Long0 by taking the
-    // offset divided by 0. Then offset modulo 8 gives us how many bits we
+    // offset divided by 8. Then offset modulo 8 gives us how many bits we
     // need to shift by. With offset = 1:
     //
     // index = offset / 8 == 0
