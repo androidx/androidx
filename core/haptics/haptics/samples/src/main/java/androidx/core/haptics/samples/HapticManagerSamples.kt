@@ -25,13 +25,16 @@ import androidx.annotation.Sampled
 import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.HapticAttributes.Companion.USAGE_MEDIA
 import androidx.core.haptics.HapticManager
+import androidx.core.haptics.signal.CompositionSignal.Companion.click
 import androidx.core.haptics.signal.CompositionSignal.Companion.compositionOf
 import androidx.core.haptics.signal.CompositionSignal.Companion.off
 import androidx.core.haptics.signal.CompositionSignal.Companion.quickFall
 import androidx.core.haptics.signal.CompositionSignal.Companion.slowRise
 import androidx.core.haptics.signal.CompositionSignal.Companion.thud
+import androidx.core.haptics.signal.FallbackChainSignal.Companion.fallbackChainOf
 import androidx.core.haptics.signal.InfiniteSignal
 import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedClick
+import androidx.core.haptics.signal.PredefinedEffectSignal.Companion.predefinedDoubleClick
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -54,6 +57,24 @@ fun PlayHapticSignal(hapticManager: HapticManager) {
             quickFall(),
             off(durationMillis = 50),
             thud(),
+        ),
+        HapticAttributes(HapticAttributes.USAGE_TOUCH),
+    )
+}
+
+/**
+ * Sample showing how to play a resolvable haptic signal on a vibrator.
+ */
+@Sampled
+fun PlayResolvableHapticSignal(hapticManager: HapticManager) {
+    hapticManager.play(
+        fallbackChainOf(
+            compositionOf(
+                click(amplitudeScale = 0.7f),
+                off(durationMillis = 50),
+                thud(amplitudeScale = 0.5f),
+            ),
+            predefinedDoubleClick(),
         ),
         HapticAttributes(HapticAttributes.USAGE_TOUCH),
     )

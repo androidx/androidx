@@ -25,6 +25,7 @@ import androidx.core.haptics.device.HapticDeviceProfile
 import androidx.core.haptics.impl.HapticManagerImpl
 import androidx.core.haptics.impl.VibratorWrapperImpl
 import androidx.core.haptics.signal.HapticSignal
+import androidx.core.haptics.signal.ResolvableSignal
 
 /**
  * Manager for interactions with a device vibrator.
@@ -88,6 +89,26 @@ interface HapticManager {
      */
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     fun play(signal: HapticSignal, attrs: HapticAttributes)
+
+    /**
+     * Resolves and plays a given [ResolvableSignal].
+     *
+     * If the same signal will be played by this vibrator multiple times then consider resolving the
+     * [HapticSignal] only once using this [deviceProfile] and then reusing it.
+     *
+     * @sample androidx.core.haptics.samples.PlayResolvableHapticSignal
+     *
+     * @param signal The haptic signal to be resolved using this device profile and played.
+     * @param attrs The attributes corresponding to the haptic signal. For example, specify
+     *   [HapticAttributes.USAGE_NOTIFICATION] for notification vibrations or
+     *   [HapticAttributes.USAGE_TOUCH] for touch feedback haptics.
+     */
+    @RequiresPermission(android.Manifest.permission.VIBRATE)
+    fun play(signal: ResolvableSignal, attrs: HapticAttributes) {
+        signal.resolve(deviceProfile)?.let { resolvedSignal ->
+            play(resolvedSignal, attrs)
+        }
+    }
 
     /**
      * Cancel any [HapticSignal] currently playing.
