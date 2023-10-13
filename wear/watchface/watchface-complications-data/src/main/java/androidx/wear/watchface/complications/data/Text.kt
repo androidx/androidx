@@ -612,10 +612,10 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * watch face's Renderer, it'll have been converted to a plain ComplicationText.
  *
  * @param dynamicValue The [DynamicString] which will be evaluated into a value dynamically.
- * @param fallbackValue Used when the system does not support dynamic values.
+ * @param fallbackValue Used when the system does not support [dynamicValue].
  *
- *   IMPORTANT: This is only used when the system does not support dynamic values _at all_. See
- *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the dynamic value
+ *   IMPORTANT: This is only used when the system does not support [dynamicValue] _at all_. See
+ *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the [dynamicValue]
  *   cannot be evaluated, e.g. when a data source is not available.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
