@@ -2898,7 +2898,9 @@ internal class ComposerImpl(
                 updateValue(newScope)
                 newScope
             } else slot as RecomposeScopeImpl
-            scope.requiresRecompose = invalidation != null
+            scope.requiresRecompose = invalidation != null || scope.forcedRecompose.also { forced ->
+                if (forced) scope.forcedRecompose = false
+            }
             invalidateStack.push(scope)
             scope.start(compositionToken)
         }
