@@ -337,6 +337,9 @@ class GattServer(private val context: Context) {
                             characteristic: GattCharacteristic,
                             value: ByteArray
                         ) {
+                            if (value.size > GattCommon.MAX_ATTR_LENGTH) {
+                                throw IllegalArgumentException("too long value to notify")
+                            }
                             if (!characteristic.isSubscribable) {
                                 throw IllegalArgumentException(
                                     "The characteristic can not be notified"

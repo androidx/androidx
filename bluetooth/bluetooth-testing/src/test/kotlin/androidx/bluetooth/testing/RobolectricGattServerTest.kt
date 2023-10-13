@@ -35,8 +35,10 @@ import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
 import androidx.bluetooth.GattServer
 import androidx.bluetooth.GattServerRequest
 import androidx.bluetooth.GattService
+import java.nio.ByteBuffer
 import java.util.UUID
 import junit.framework.TestCase.fail
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
@@ -466,6 +468,47 @@ class RobolectricGattServerTest {
         // Ensure if the server is closed
         assertTrue(closed.isCompleted)
         assertEquals(valueToNotify, notified.await())
+    }
+
+    @Test
+    fun notifyTooLongValue_throwsException() = runTest {
+        val services = listOf(service1, service2)
+        val device = createDevice("00:11:22:33:44:55")
+        val closed = CompletableDeferred<Unit>()
+        val tooLongValue = ByteBuffer.allocate(513).array()
+
+        runAfterServicesAreAdded(services.size) {
+            connectDevice(device) {
+                serverAdapter.callback.onCharacteristicReadRequest(
+                    device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
+            }
+        }
+        serverAdapter.onNotifyCharacteristicChangedListener =
+            StubServerFrameworkAdapter.OnNotifyCharacteristicChangedListener {
+                    _, _, _, _ ->
+                fail()
+            }
+        serverAdapter.onCloseGattServerListener =
+            StubServerFrameworkAdapter.OnCloseGattServerListener {
+                closed.complete(Unit)
+            }
+
+        launch {
+            bluetoothLe.openGattServer(services) {
+                connectRequests.collect {
+                    it.accept {
+                        assertFailsWith<IllegalArgumentException> {
+                            notify(notifyCharacteristic, tooLongValue)
+                        }
+                        // Close the server
+                        this@launch.cancel()
+                    }
+                }
+            }
+        }.join()
+
+        // Ensure if the server is closed
+        assertTrue(closed.isCompleted)
     }
 
     @Test
