@@ -346,6 +346,11 @@ internal class DefaultSpecialEffectsController(
             }
         }
 
+        if (sharedElementTransition == null && filteredInfos.all { it.transition == null }) {
+            // Return without creating a TransitionEffect since there are no Transitions to run
+            return
+        }
+
         val transitionEffect = TransitionEffect(
             filteredInfos, firstOut, lastIn, transitionImpl, sharedElementTransition,
             sharedElementFirstOutViews, sharedElementLastInViews, sharedElementNameMapping,
