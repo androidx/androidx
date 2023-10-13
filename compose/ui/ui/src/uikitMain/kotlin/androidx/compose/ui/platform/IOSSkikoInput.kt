@@ -125,6 +125,35 @@ internal interface IOSSkikoInput {
      */
     fun rangeEnclosingPosition(position: Int, withGranularity: UITextGranularity, inDirection: UITextDirection): IntRange?
 
+    /**
+     * Return whether a text position is at a boundary of a text unit of a specified granularity in a specified direction.
+     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614553-isposition?language=objc
+     * @param position
+     * A text-position object that represents a location in a document.
+     * @param granularity
+     * A constant that indicates a certain granularity of text unit.
+     * @param direction
+     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+     * @return
+     * TRUE if the text position is at the given text-unit boundary in the given direction; FALSE if it is not at the boundary.
+     */
+    fun isPositionAtBoundary(position: Int, atBoundary: UITextGranularity, inDirection: UITextDirection): Boolean
+
+    /**
+     * Return whether a text position is within a text unit of a specified granularity in a specified direction.
+     * https://developer.apple.com/documentation/uikit/uitextinputtokenizer/1614491-isposition?language=objc
+     * @param position
+     * A text-position object that represents a location in a document.
+     * @param granularity
+     * A constant that indicates a certain granularity of text unit.
+     * @param direction
+     * A constant that indicates a direction relative to position. The constant can be of type UITextStorageDirection or UITextLayoutDirection.
+     * @return
+     * TRUE if the text position is within a text unit of the specified granularity in the specified direction; otherwise, return FALSE.
+     * If the text position is at a boundary, return TRUE only if the boundary is part of the text unit in the given direction.
+     */
+    fun isPositionWithingTextUnit(position: Int, withinTextUnit: UITextGranularity, inDirection: UITextDirection): Boolean
+
     object Empty : IOSSkikoInput {
         override fun hasText(): Boolean = false
         override fun insertText(text: String) = Unit
@@ -144,5 +173,17 @@ internal interface IOSSkikoInput {
             withGranularity: UITextGranularity,
             inDirection: UITextDirection
         ): IntRange? = null
+
+        override fun isPositionAtBoundary(
+            position: Int,
+            atBoundary: UITextGranularity,
+            inDirection: UITextDirection
+        ): Boolean = false
+
+        override fun isPositionWithingTextUnit(
+            position: Int,
+            withinTextUnit: UITextGranularity,
+            inDirection: UITextDirection
+        ): Boolean = false
     }
 }
