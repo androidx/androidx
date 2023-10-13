@@ -1221,6 +1221,41 @@ class SliderTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun slider_dragOutsideTouchArea_doesntJump() {
+        val state = SliderState(.5f)
+        var slop = 0f
+
+        rule.setMaterialContent(lightColorScheme()) {
+            slop = LocalViewConfiguration.current.touchSlop
+            Slider(
+                state = state,
+                modifier = Modifier.testTag(tag)
+            )
+        }
+
+        rule.runOnUiThread {
+            Truth.assertThat(state.value).isEqualTo(.5f)
+        }
+
+        var expected = 0f
+
+        rule.onNodeWithTag(tag)
+            .performTouchInput {
+                down(center)
+                // move down outside the slider area
+                moveBy(Offset(0f, 500f))
+                moveBy(Offset(100f, 0f))
+                up()
+                expected = calculateFraction(left, right, centerX + 100 - slop)
+            }
+
+        rule.runOnIdle {
+            Truth.assertThat(state.value).isWithin(SliderTolerance).of(expected)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun rangeSlider_thumb_recomposition() {
         val state = RangeSliderState(
             0f,
