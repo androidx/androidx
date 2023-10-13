@@ -312,8 +312,13 @@ public class UiObject2 implements Searchable {
 
     /** Returns the visible bounds of a {@code node}. */
     private Rect getVisibleBounds(AccessibilityNodeInfo node) {
-        Point displaySize = getDevice().getDisplaySize(getDisplayId());
-        Rect screen = new Rect(0, 0, displaySize.x, displaySize.y);
+        //  The display may not be accessible because it can be a private display, for example.
+        final boolean isDisplayAccessible = getDevice().getDisplayById(getDisplayId()) != null;
+        Rect screen = null;
+        if (isDisplayAccessible) {
+            Point displaySize = getDevice().getDisplaySize(getDisplayId());
+            screen = new Rect(0, 0, displaySize.x, displaySize.y);
+        }
         return AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, screen, true);
     }
 
