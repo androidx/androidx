@@ -234,8 +234,10 @@ package androidx.wear.watchface.complications.data {
     ctor public NoDataComplicationData();
     ctor public NoDataComplicationData(androidx.wear.watchface.complications.data.ComplicationData placeholder);
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
+    method public androidx.wear.watchface.complications.data.ComplicationData? getInvalidatedData();
     method public androidx.wear.watchface.complications.data.ComplicationData? getPlaceholder();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property public final androidx.wear.watchface.complications.data.ComplicationData? invalidatedData;
     property public final androidx.wear.watchface.complications.data.ComplicationData? placeholder;
     field public static final androidx.wear.watchface.complications.data.NoDataComplicationData.Companion Companion;
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
