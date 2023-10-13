@@ -4,11 +4,11 @@ SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
 
 # Use this flag to temporarily disable `checkApi`
 # while landing Metalava w/ breaking API changes
-DURING_METALAVA_UPDATE=false
+METALAVA_INTEGRATION_ENFORCED=true
 
-if [ ! $DURING_METALAVA_UPDATE ]
+if $METALAVA_INTEGRATION_ENFORCED
 then
-$SCRIPT_PATH/impl/build-metalava-and-androidx.sh \
-  listTaskOutputs \
-  checkApi
+    $SCRIPT_PATH/impl/build-metalava-and-androidx.sh \
+        listTaskOutputs \
+        checkApi
 fi
