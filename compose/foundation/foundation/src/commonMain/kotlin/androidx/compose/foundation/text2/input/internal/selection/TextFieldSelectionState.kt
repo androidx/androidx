@@ -46,6 +46,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -462,9 +463,12 @@ internal class TextFieldSelectionState(
         var cursorDragDelta = Offset.Unspecified
 
         fun onDragStop() {
-            cursorDragStart = Offset.Unspecified
-            cursorDragDelta = Offset.Unspecified
-            clearHandleDragging()
+            // Only execute clear-up if drag was actually ongoing.
+            if (cursorDragStart.isSpecified) {
+                cursorDragStart = Offset.Unspecified
+                cursorDragDelta = Offset.Unspecified
+                clearHandleDragging()
+            }
         }
 
         // b/288931376: detectDragGestures do not call onDragCancel when composable is disposed.
@@ -511,6 +515,17 @@ internal class TextFieldSelectionState(
         var dragBeginPosition: Offset = Offset.Unspecified
         var dragTotalDistance: Offset = Offset.Zero
         var actingHandle: Handle = Handle.SelectionEnd // start with a placeholder.
+
+        fun onDragStop() {
+            // Only execute clear-up if drag was actually ongoing.
+            if (dragBeginPosition.isSpecified) {
+                clearHandleDragging()
+                dragBeginOffsetInText = -1
+                dragBeginPosition = Offset.Unspecified
+                dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
+            }
+        }
 
         // offsets received by this gesture detector are in decoration box coordinates
         detectDragGesturesAfterLongPress(
@@ -563,20 +578,8 @@ internal class TextFieldSelectionState(
                     dragBeginOffsetInText = newSelection.start
                 }
             },
-            onDragEnd = {
-                clearHandleDragging()
-                dragBeginOffsetInText = -1
-                dragBeginPosition = Offset.Unspecified
-                dragTotalDistance = Offset.Zero
-                previousRawDragOffset = -1
-            },
-            onDragCancel = {
-                clearHandleDragging()
-                dragBeginOffsetInText = -1
-                dragBeginPosition = Offset.Unspecified
-                dragTotalDistance = Offset.Zero
-                previousRawDragOffset = -1
-            },
+            onDragEnd = { onDragStop() },
+            onDragCancel = { onDragStop() },
             onDrag = onDrag@{ _, dragAmount ->
                 // selection never started, did not consume any drag
                 if (textFieldState.text.isEmpty()) return@onDrag
@@ -704,10 +707,13 @@ internal class TextFieldSelectionState(
         val handle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
 
         fun onDragStop() {
-            clearHandleDragging()
-            dragBeginPosition = Offset.Unspecified
-            dragTotalDistance = Offset.Zero
-            previousRawDragOffset = -1
+            // Only execute clear-up if drag was actually ongoing.
+            if (dragBeginPosition.isSpecified) {
+                clearHandleDragging()
+                dragBeginPosition = Offset.Unspecified
+                dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
+            }
         }
 
         // b/288931376: detectDragGestures do not call onDragCancel when composable is disposed.
