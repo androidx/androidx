@@ -13,36 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.content
 
-package androidx.core.app;
-
-import android.app.Activity;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.content.ComponentCallbacks2
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link Activity#onMultiWindowModeChanged}.
+ * [ComponentCallbacks2.onTrimMemory].
  */
-public interface OnMultiWindowModeChangedProvider {
+interface OnTrimMemoryProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link Activity#onMultiWindowModeChanged} with the
-     * new {@link MultiWindowModeChangedInfo}.
+     * [ComponentCallbacks2.onTrimMemory] with the `int`
+     * representing the level of trimming.
      *
      * @param listener The listener that should be called whenever
-     * {@link Activity#onMultiWindowModeChanged} was called.
+     * [ComponentCallbacks2.onTrimMemory] was called.
      */
-    void addOnMultiWindowModeChangedListener(
-            @NonNull Consumer<MultiWindowModeChangedInfo> listener);
+    fun addOnTrimMemoryListener(listener: Consumer<Int>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnMultiWindowModeChangedListener(Consumer)} that should be removed.
+     * [.addOnTrimMemoryListener] that should be removed.
      */
-    void removeOnMultiWindowModeChangedListener(
-            @NonNull Consumer<MultiWindowModeChangedInfo> listener);
+    fun removeOnTrimMemoryListener(listener: Consumer<Int>)
 }

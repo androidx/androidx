@@ -13,36 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.content
 
-package androidx.core.app;
-
-import android.app.Activity;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Consumer;
+import android.content.ComponentCallbacks
+import android.content.res.Configuration
+import androidx.core.util.Consumer
 
 /**
  * Interface for components that can dispatch calls from
- * {@link Activity#onPictureInPictureModeChanged}.
+ * [ComponentCallbacks.onConfigurationChanged].
  */
-public interface OnPictureInPictureModeChangedProvider {
+interface OnConfigurationChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * {@link Activity#onPictureInPictureModeChanged} with the
-     * new {@link PictureInPictureModeChangedInfo}.
+     * [ComponentCallbacks.onConfigurationChanged] with the
+     * new [Configuration].
      *
      * @param listener The listener that should be called whenever
-     * {@link Activity#onPictureInPictureModeChanged} was called.
+     * {[ComponentCallbacks.onConfigurationChanged] was called.
      */
-    void addOnPictureInPictureModeChangedListener(
-            @NonNull Consumer<PictureInPictureModeChangedInfo> listener);
+    fun addOnConfigurationChangedListener(listener: Consumer<Configuration>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
      * @param listener The listener previously added with
-     * {@link #addOnPictureInPictureModeChangedListener(Consumer)} that should be removed.
+     * [addOnConfigurationChangedListener] that should be removed.
      */
-    void removeOnPictureInPictureModeChangedListener(
-            @NonNull Consumer<PictureInPictureModeChangedInfo> listener);
+    fun removeOnConfigurationChangedListener(listener: Consumer<Configuration>)
 }
