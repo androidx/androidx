@@ -20,6 +20,7 @@ import androidx.build.dependencyTracker.AffectedModuleDetector.Companion.ENABLE_
 import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.gitclient.GitClient
+import androidx.build.gitclient.getGitLog
 import androidx.build.gradle.isRoot
 import java.io.File
 import org.gradle.api.Action
@@ -165,6 +166,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                             params.baseCommitOverride = baseCommitOverride
                             params.changeInfoPath = changeInfoPath
                             params.manifestPath = manifestPath
+                            params.getGitLog = rootProject.getGitLog(rootProject.objects.directoryProperty().convention(rootProject.layout.projectDirectory))
                         }
                     )
                 logger.info("using real detector")
@@ -270,6 +272,7 @@ abstract class AffectedModuleDetectorLoader :
         var baseCommitOverride: String?
         var changeInfoPath: Provider<String>
         var manifestPath: Provider<String>
+        var getGitLog: Provider<String>
     }
 
     val detector: AffectedModuleDetector by lazy {
@@ -287,7 +290,8 @@ abstract class AffectedModuleDetectorLoader :
                     checkoutRoot = parameters.checkoutRoot,
                     logger = logger.toLogger(),
                     changeInfoPath = parameters.changeInfoPath.get(),
-                    manifestPath = parameters.manifestPath.get()
+                    manifestPath = parameters.manifestPath.get(),
+                    getGitLog = parameters.getGitLog
                 )
             val changedFilesProvider: ChangedFilesProvider = {
                 val baseSha = baseCommitOverride ?: gitClient.findPreviousSubmittedChange()

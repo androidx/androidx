@@ -20,6 +20,8 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import org.gradle.api.logging.Logger
 
+import org.gradle.api.provider.Provider
+
 /**
  * A simple git client that uses system process commands to communicate with the git setup in the
  * given working directory.
@@ -28,6 +30,7 @@ class GitRunnerGitClient(
     /** The root location for git */
     private val workingDir: File,
     private val logger: Logger?,
+    private val getGitLog: Provider<String>,
     private val commandRunner: GitClient.CommandRunner =
         RealCommandRunner(workingDir = workingDir, logger = logger)
 ) : GitClient {
@@ -48,7 +51,7 @@ class GitRunnerGitClient(
 
     override fun getHeadSha(): String {
         val gitLogCmd = "git log --name-only --pretty=format:%H HEAD -n 1 -- ./"
-        val gitLogString: String = commandRunner.execute(gitLogCmd)
+        val gitLogString = getGitLog.get()
         if (gitLogString.isEmpty()) {
             logger?.warn(
                 "No git commits found! Ran this command: '$gitLogCmd ' and received no output"

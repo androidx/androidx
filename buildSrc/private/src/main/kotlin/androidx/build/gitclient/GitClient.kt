@@ -24,6 +24,14 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.provider.Provider
 
+import org.gradle.api.provider.Property
+import org.gradle.api.file.DirectoryProperty
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
+
 interface GitClient {
     fun findChangedFilesSince(sha: String): List<String>
 
@@ -55,7 +63,8 @@ interface GitClient {
                 project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
+                GitClient.getManifestPath(project).get(),
+                project.getGitLog(project.objects.directoryProperty().convention(project.layout.projectDirectory))
             )
         }
 
@@ -64,7 +73,8 @@ interface GitClient {
             checkoutRoot: File,
             logger: Logger,
             changeInfoPath: String,
-            manifestPath: String
+            manifestPath: String,
+            getGitLog: Provider<String>
         ): GitClient {
             if (changeInfoPath != "") {
                 if (manifestPath == "") {
@@ -90,7 +100,7 @@ interface GitClient {
             val gitRoot = findGitDirInParentFilepath(projectDir)
             check(gitRoot != null) { "Could not find .git dir for $projectDir" }
             logger.info("UsingGitRunnerGitClient")
-            return GitRunnerGitClient(gitRoot, logger)
+            return GitRunnerGitClient(gitRoot, logger, getGitLog)
         }
     }
 }
@@ -99,7 +109,8 @@ data class MultiGitClient(
     val checkoutRoot: File,
     val logger: Logger,
     val changeInfoPath: String,
-    val manifestPath: String
+    val manifestPath: String,
+    val getGitLog: Provider<String>
 ) {
     // Map from the root of the git repository to a GitClient for that repository
     // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
@@ -115,7 +126,7 @@ data class MultiGitClient(
             this.cache = cache
         }
         return cache.getOrPut(key = projectDir) {
-            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath)
+            GitClient.create(projectDir, checkoutRoot, logger, changeInfoPath, manifestPath, getGitLog)
         }
     }
 
@@ -125,8 +136,46 @@ data class MultiGitClient(
                 project.getCheckoutRoot(),
                 project.logger,
                 GitClient.getChangeInfoPath(project).get(),
-                GitClient.getManifestPath(project).get()
+                GitClient.getManifestPath(project).get(),
+                project.getGitLog(project.objects.directoryProperty().convention(project.layout.projectDirectory))
             )
         }
+    }
+}
+
+fun Project.getGitLog(workingDir: DirectoryProperty): Provider<String> {
+    return providers.of(GitLogValueSource::class.java) {
+        it.parameters.workingDir.set(workingDir)
+    }
+}
+
+abstract class GitLogValueSource : ValueSource<String, GitLogValueSource.Parameters> {
+
+    interface Parameters : ValueSourceParameters {
+        val workingDir: DirectoryProperty
+    }
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    internal fun findGitDirInParentFilepath(filepath: File): File? {
+        var curDirectory: File = filepath
+        while (curDirectory.path != "/") {
+            if (File("$curDirectory/.git").exists()) {
+                return curDirectory
+            }
+            curDirectory = curDirectory.parentFile
+        }
+        return null
+    }
+
+    override fun obtain(): String {
+        val output = ByteArrayOutputStream()
+        execOperations.exec {
+            it.commandLine("git", "log", "--name-only", "--pretty=format:%H", "HEAD", "-n", "1", "--" ,"./")
+            it.standardOutput = output
+            it.workingDir = findGitDirInParentFilepath(parameters.workingDir.get().asFile)
+        }
+        return String(output.toByteArray(), java.nio.charset.Charset.defaultCharset())
     }
 }
