@@ -34,10 +34,12 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import com.google.common.truth.Truth
 
-private fun ComposeTestRule.assertSelectionHandlesShown(shown: Boolean) {
-    listOf(Handle.SelectionStart, Handle.SelectionEnd)
-        .map { onNode(isSelectionHandle(it)) }
-        .forEach { if (shown) it.assertExists() else it.assertDoesNotExist() }
+private fun ComposeTestRule.assertSelectionHandlesShown(startShown: Boolean, endShown: Boolean) {
+    listOf(Handle.SelectionStart to startShown, Handle.SelectionEnd to endShown)
+        .forEach { (handle, shown) ->
+            val node = onNode(isSelectionHandle(handle))
+            if (shown) node.assertExists() else node.assertDoesNotExist()
+        }
 }
 
 private fun ComposeTestRule.assertMagnifierShown(shown: Boolean) {
@@ -82,7 +84,24 @@ internal abstract class SelectionAsserter<S>(
     private val hapticFeedback: FakeHapticFeedback,
     protected val getActual: () -> S,
 ) {
+    /**
+     * Set to true if both handles are expected to be shown.
+     *
+     * Overridden by [startSelectionHandleShown] and [endSelectionHandleShown].
+     */
     var selectionHandlesShown = false
+    /**
+     * Set to true if the start handle is expected to be shown.
+     *
+     * Overrides [selectionHandlesShown] unless this is `null`.
+     */
+    var startSelectionHandleShown: Boolean? = null
+    /**
+     * Set to true if the end handle is expected to be shown.
+     *
+     * Overrides [selectionHandlesShown] unless this is `null`.
+     */
+    var endSelectionHandleShown: Boolean? = null
     var textToolbarShown = false
     var magnifierShown = false
     var hapticsCount = 0
@@ -91,7 +110,10 @@ internal abstract class SelectionAsserter<S>(
 
     fun assert() {
         subAssert()
-        rule.assertSelectionHandlesShown(selectionHandlesShown)
+        rule.assertSelectionHandlesShown(
+            startShown = startSelectionHandleShown ?: selectionHandlesShown,
+            endShown = endSelectionHandleShown ?: selectionHandlesShown
+        )
         textToolbar.assertShown(textToolbarShown)
         rule.assertMagnifierShown(magnifierShown)
         // reset haptics every assert.

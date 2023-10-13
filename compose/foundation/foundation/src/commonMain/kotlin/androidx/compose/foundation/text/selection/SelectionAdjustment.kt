@@ -250,12 +250,20 @@ private fun SelectableInfo.snapToWordBoundary(
     val wordStartLine = textLayoutResult.getLineForOffset(wordBoundary.start)
     val start = if (wordStartLine == currentLine) {
         wordBoundary.start
+    } else if (currentLine >= textLayoutResult.lineCount) {
+        // We cannot find the line start, because this line is not even visible.
+        // Since we cannot really select meaningfully in this area, just use the word boundary.
+        wordBoundary.start
     } else {
         textLayoutResult.getLineStart(currentLine)
     }
 
     val wordEndLine = textLayoutResult.getLineForOffset(wordBoundary.end)
     val end = if (wordEndLine == currentLine) {
+        wordBoundary.end
+    } else if (currentLine >= textLayoutResult.lineCount) {
+        // We cannot find the line end, because this line is not even visible.
+        // Since we cannot really select meaningfully in this area, just use the word boundary.
         wordBoundary.end
     } else {
         textLayoutResult.getLineEnd(currentLine)

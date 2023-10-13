@@ -116,12 +116,12 @@ internal class MultiWidgetSelectionDelegate(
         if (isStartHandle && selection.start.selectableId != this.selectableId ||
             !isStartHandle && selection.end.selectableId != this.selectableId
         ) {
-            return Offset.Zero
+            return Offset.Unspecified
         }
 
-        if (getLayoutCoordinates() == null) return Offset.Zero
+        if (getLayoutCoordinates() == null) return Offset.Unspecified
 
-        val textLayoutResult = layoutResultCallback() ?: return Offset.Zero
+        val textLayoutResult = layoutResultCallback() ?: return Offset.Unspecified
         val offset = if (isStartHandle) selection.start.offset else selection.end.offset
         val coercedOffset = offset.coerceIn(0, textLayoutResult.lastVisibleOffset)
         return getSelectionHandleCoordinates(
@@ -155,18 +155,21 @@ internal class MultiWidgetSelectionDelegate(
     override fun getLineLeft(offset: Int): Float {
         val textLayoutResult = layoutResultCallback() ?: return -1f
         val line = textLayoutResult.getLineForOffset(offset)
+        if (line >= textLayoutResult.lineCount) return -1f
         return textLayoutResult.getLineLeft(line)
     }
 
     override fun getLineRight(offset: Int): Float {
         val textLayoutResult = layoutResultCallback() ?: return -1f
         val line = textLayoutResult.getLineForOffset(offset)
+        if (line >= textLayoutResult.lineCount) return -1f
         return textLayoutResult.getLineRight(line)
     }
 
     override fun getCenterYForOffset(offset: Int): Float {
         val textLayoutResult = layoutResultCallback() ?: return -1f
         val line = textLayoutResult.getLineForOffset(offset)
+        if (line >= textLayoutResult.lineCount) return -1f
         val top = textLayoutResult.getLineTop(line)
         val bottom = textLayoutResult.getLineBottom(line)
         return ((bottom - top) / 2) + top
