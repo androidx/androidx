@@ -183,10 +183,12 @@ package androidx.core.app {
   }
 
   public final class MultiWindowModeChangedInfo {
-    ctor public MultiWindowModeChangedInfo(boolean);
-    ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean, android.content.res.Configuration);
+    ctor public MultiWindowModeChangedInfo(boolean isInMultiWindowMode);
+    ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean isInMultiWindowMode, android.content.res.Configuration newConfig);
     method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
     method public boolean isInMultiWindowMode();
+    property public final boolean isInMultiWindowMode;
+    property @RequiresApi(26) public final android.content.res.Configuration newConfig;
   }
 
   public final class NavUtils {
@@ -910,10 +912,12 @@ package androidx.core.app {
   }
 
   public final class PictureInPictureModeChangedInfo {
-    ctor public PictureInPictureModeChangedInfo(boolean);
-    ctor @RequiresApi(26) public PictureInPictureModeChangedInfo(boolean, android.content.res.Configuration);
+    ctor public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode);
+    ctor @RequiresApi(26) public PictureInPictureModeChangedInfo(boolean isInPictureInPictureMode, android.content.res.Configuration newConfig);
     method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
     method public boolean isInPictureInPictureMode();
+    property public final boolean isInPictureInPictureMode;
+    property @RequiresApi(26) public final android.content.res.Configuration newConfig;
   }
 
   public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
