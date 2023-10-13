@@ -361,6 +361,42 @@ public final class ModifiersBuilders {
             }
         }
 
+        /**
+         * Gets the minimum width of the clickable area.
+         *
+         * <p>The default value is 48dp, following the Material design accessibility guideline. Note
+         * that this value does not affect the layout, so the minimum clickable width is not
+         * guaranteed unless there is enough space around the element within its parent bounds.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getMinimumClickableWidth() {
+            if (mImpl.hasMinimumClickableWidth()) {
+                return DpProp.fromProto(mImpl.getMinimumClickableWidth());
+            } else {
+                return new DpProp.Builder(48f).build();
+            }
+        }
+
+        /**
+         * Gets the minimum height of the clickable area.
+         *
+         * <p>The default value is 48dp, following the Material design accessibility guideline. Note
+         * that this value does not affect the layout, so the minimum clickable height is not
+         * guaranteed unless there is enough space around the element within its parent bounds.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getMinimumClickableHeight() {
+            if (mImpl.hasMinimumClickableHeight()) {
+                return DpProp.fromProto(mImpl.getMinimumClickableHeight());
+            } else {
+                return new DpProp.Builder(48f).build();
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -424,6 +460,57 @@ public final class ModifiersBuilders {
                 mImpl.setOnClick(onClick.toActionProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(onClick.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the minimum width of the clickable area.
+             *
+             * <p>The default value is 48dp, following the Material design accessibility guideline.
+             * Note that this value does not affect the layout, so the minimum clickable width is
+             * not guaranteed unless there is enough space around the element within its parent
+             * bounds.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setMinimumClickableWidth(@NonNull DpProp minimumClickableWidth) {
+                if (minimumClickableWidth.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setMinimumClickableWidth doesn't support dynamic values.");
+                }
+                mImpl.setMinimumClickableWidth(minimumClickableWidth.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3,
+                        checkNotNull(minimumClickableWidth.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the minimum height of the clickable area.
+             *
+             * <p>The default value is 48dp, following the Material design accessibility guideline.
+             * Note that this value does not affect the layout, so the minimum clickable height
+             * is not guaranteed unless there is enough space around the element within its
+             * parent bounds.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setMinimumClickableHeight(@NonNull DpProp minimumClickableHeight) {
+                if (minimumClickableHeight.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setMinimumClickableHeight doesn't support dynamic values.");
+                }
+                mImpl.setMinimumClickableHeight(minimumClickableHeight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4,
+                        checkNotNull(minimumClickableHeight.getFingerprint())
+                                .aggregateValueAsInt());
                 return this;
             }
 

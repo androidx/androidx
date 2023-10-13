@@ -905,6 +905,8 @@ package androidx.wear.protolayout {
 
   public static final class ModifiersBuilders.Clickable {
     method public String getId();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getMinimumClickableHeight();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getMinimumClickableWidth();
     method public androidx.wear.protolayout.ActionBuilders.Action? getOnClick();
   }
 
@@ -912,6 +914,8 @@ package androidx.wear.protolayout {
     ctor public ModifiersBuilders.Clickable.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable build();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable.Builder setId(String);
+    method public androidx.wear.protolayout.ModifiersBuilders.Clickable.Builder setMinimumClickableHeight(androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.Clickable.Builder setMinimumClickableWidth(androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable.Builder setOnClick(androidx.wear.protolayout.ActionBuilders.Action);
   }
 
