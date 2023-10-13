@@ -87,6 +87,7 @@ fun LifecycleEventEffect(
  * block and the ON_STOP effect will be within the
  * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
+ * ```
  * LifecycleStartEffect(lifecycleOwner) {
  *     // add ON_START effect here
  *
@@ -94,6 +95,7 @@ fun LifecycleEventEffect(
  *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
@@ -146,6 +148,7 @@ fun LifecycleStartEffect(
  * [effects] block and the ON_STOP effect will be within the
  * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
+ * ```
  * LifecycleStartEffect(lifecycleOwner) {
  *     // add ON_START effect here
  *
@@ -153,6 +156,7 @@ fun LifecycleStartEffect(
  *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
@@ -207,6 +211,7 @@ fun LifecycleStartEffect(
  * of the [effects] block and the ON_STOP effect will be within the
  * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
+ * ```
  * LifecycleStartEffect(lifecycleOwner) {
  *     // add ON_START effect here
  *
@@ -214,6 +219,7 @@ fun LifecycleStartEffect(
  *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
@@ -270,6 +276,7 @@ fun LifecycleStartEffect(
  * block and the ON_STOP effect will be within the
  * (onStopOrDispose clause)[LifecycleStartStopEffectScope.onStopOrDispose]:
  *
+ * ```
  * LifecycleStartEffect(lifecycleOwner) {
  *     // add ON_START effect here
  *
@@ -277,6 +284,7 @@ fun LifecycleStartEffect(
  *         // add clean up for work kicked off in the ON_START effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleStartEffectSample
  *
@@ -391,6 +399,7 @@ class LifecycleStartStopEffectScope(override val lifecycle: Lifecycle) : Lifecyc
  * block and the ON_PAUSE effect will be within the
  * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
+ * ```
  * LifecycleResumeEffect(lifecycleOwner) {
  *     // add ON_RESUME effect here
  *
@@ -398,6 +407,7 @@ class LifecycleStartStopEffectScope(override val lifecycle: Lifecycle) : Lifecyc
  *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
@@ -450,6 +460,7 @@ fun LifecycleResumeEffect(
  * [effects] block and the ON_PAUSE effect will be within the
  * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
+ * ```
  * LifecycleResumeEffect(lifecycleOwner) {
  *     // add ON_RESUME effect here
  *
@@ -457,6 +468,7 @@ fun LifecycleResumeEffect(
  *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
@@ -511,6 +523,7 @@ fun LifecycleResumeEffect(
  * of the [effects] block and the ON_PAUSE effect will be within the
  * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
+ * ```
  * LifecycleResumeEffect(lifecycleOwner) {
  *     // add ON_RESUME effect here
  *
@@ -518,6 +531,7 @@ fun LifecycleResumeEffect(
  *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
@@ -574,6 +588,7 @@ fun LifecycleResumeEffect(
  * block and the ON_PAUSE effect will be within the
  * (onPauseOrDispose clause)[LifecycleResumePauseEffectScope.onPauseOrDispose]:
  *
+ * ```
  * LifecycleResumeEffect(lifecycleOwner) {
  *     // add ON_RESUME effect here
  *
@@ -581,6 +596,7 @@ fun LifecycleResumeEffect(
  *         // add clean up for work kicked off in the ON_RESUME effect here
  *     }
  * }
+ * ```
  *
  * @sample androidx.lifecycle.compose.samples.lifecycleResumeEffectSample
  *
