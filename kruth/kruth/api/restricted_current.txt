@@ -173,12 +173,20 @@ package androidx.kruth {
 
   public final class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
     method public void contains(CharSequence charSequence);
+    method public void containsMatch(String regex);
+    method public void containsMatch(kotlin.text.Regex regex);
     method public void doesNotContain(CharSequence string);
+    method public void doesNotContainMatch(String regex);
+    method public void doesNotContainMatch(kotlin.text.Regex regex);
+    method public void doesNotMatch(String regex);
+    method public void doesNotMatch(kotlin.text.Regex regex);
     method public void endsWith(String string);
     method public void hasLength(int expectedLength);
     method public androidx.kruth.StringSubject.CaseInsensitiveStringComparison ignoringCase();
     method public void isEmpty();
     method public void isNotEmpty();
+    method public void matches(String regex);
+    method public void matches(kotlin.text.Regex regex);
     method public void startsWith(String string);
   }
 
