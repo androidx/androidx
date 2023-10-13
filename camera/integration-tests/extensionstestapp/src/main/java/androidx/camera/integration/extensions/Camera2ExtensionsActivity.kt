@@ -594,7 +594,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         streamConfigurationLatency[KEY_CAMERA2_LATENCY]?.also {
             val min = "${it.minOrNull() ?: "n/a"}"
             val max = "${it.maxOrNull() ?: "n/a"}"
-            val avg = "%.2f".format(it.average())
+            val avg = it.average().format(2)
 
             Log.d(
                 TAG,
@@ -605,7 +605,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY]?.also {
             val min = "${it.minOrNull() ?: "n/a"}"
             val max = "${it.maxOrNull() ?: "n/a"}"
-            val avg = "%.2f".format(it.average())
+            val avg = it.average().format(2)
             testResultDetails = "min=${min}ms max=${max}ms avg=${avg}ms"
 
             Log.d(TAG, "Camera Extensions Stream Configuration Latency: $testResultDetails")
@@ -1265,7 +1265,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         sessionImageUriSet.deleteAllUris()
     }
 
-    private class SessionMediaUriSet constructor(val contentResolver: ContentResolver) {
+    private class SessionMediaUriSet(val contentResolver: ContentResolver) {
         private val mSessionMediaUris: MutableSet<Uri> = mutableSetOf()
 
         fun add(uri: Uri) {
@@ -1286,3 +1286,5 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
     }
 }
+
+fun Double.format(scale: Int): String = String.format("%.${scale}f", this)
