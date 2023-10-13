@@ -107,7 +107,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     // This will only be invoked when the content view has been set and the window is attached.
     private val surfaceChangedCallback = object : SurfaceHolder.Callback {
         override fun surfaceCreated(p0: SurfaceHolder) {
-            setClippingBounds()
+            updateAndSetClippingBounds(true)
             viewTreeObserver.addOnGlobalLayoutListener(globalLayoutChangeListener)
         }
 
@@ -121,9 +121,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     // This will only be invoked when the content view has been set and the window is attached.
     private val globalLayoutChangeListener =
         ViewTreeObserver.OnGlobalLayoutListener {
-            if (getBoundingParent(currentClippingBounds)) {
-                setClippingBounds()
-            }
+            updateAndSetClippingBounds()
         }
 
     private var adapter: SandboxedUiAdapter? = null
@@ -183,8 +181,10 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         checkClientOpenSession()
     }
 
-    internal fun setClippingBounds() {
-        CompatImpl.setClippingBounds(contentView, isAttachedToWindow, currentClippingBounds)
+    internal fun updateAndSetClippingBounds(forceUpdate: Boolean = false) {
+        if (maybeUpdateClippingBounds(currentClippingBounds) || forceUpdate) {
+            CompatImpl.setClippingBounds(contentView, isAttachedToWindow, currentClippingBounds)
+        }
     }
 
     /**
@@ -194,7 +194,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
      * Returns true if the coordinates have changed, false otherwise.
      */
     @VisibleForTesting
-    internal fun getBoundingParent(rect: Rect): Boolean {
+    internal fun maybeUpdateClippingBounds(rect: Rect): Boolean {
         val prevBounds = Rect(rect)
         var viewParent: ViewParent? = parent
         while (viewParent != null && viewParent is View) {
