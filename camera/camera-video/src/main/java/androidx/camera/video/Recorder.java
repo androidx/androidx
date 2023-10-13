@@ -62,6 +62,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.MutableStateObservable;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.StateObservable;
@@ -94,6 +95,7 @@ import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
+import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.camera.video.internal.utils.OutputUtil;
 import androidx.camera.video.internal.workaround.CorrectNegativeLatLongForMediaMuxer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -2757,7 +2759,8 @@ public final class Recorder implements VideoOutput {
      */
     @NonNull
     public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
-        return RecorderVideoCapabilities.from(cameraInfo);
+        return new RecorderVideoCapabilities((CameraInfoInternal) cameraInfo,
+                VideoEncoderInfoImpl.FINDER);
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
