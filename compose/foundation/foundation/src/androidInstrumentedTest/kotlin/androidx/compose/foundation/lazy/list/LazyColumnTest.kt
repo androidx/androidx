@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,19 +49,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -69,16 +71,23 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 /**
  * This class contains all LazyColumn-specific tests, as well as (by convention) tests that don't
  * need to be run in both orientations.
  *
  * To have a test run in both orientations (LazyRow and LazyColumn), add it to [LazyListTest]
  */
-class LazyColumnTest {
+class LazyColumnTest(val useLookaheadScope: Boolean) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useLookahead = {0}")
+        fun params() = arrayOf(true, false)
+    }
+
     private val LazyListTag = "LazyListTag"
 
     @get:Rule
@@ -94,7 +103,10 @@ class LazyColumnTest {
         var part2 by mutableStateOf(false)
 
         rule.setContentWithTestViewConfiguration {
-            LazyColumn(Modifier.testTag(LazyListTag).fillMaxSize()) {
+            LazyColumn(
+                Modifier
+                    .testTag(LazyListTag)
+                    .fillMaxSize()) {
                 items(if (!part2) data1 else data2) {
                     DisposableEffect(NeverEqualObject) {
                         composed++
@@ -203,7 +215,10 @@ class LazyColumnTest {
         val composedIndexes = mutableListOf<Int>()
         rule.setContent {
             state = rememberLazyListState()
-            LazyColumn(Modifier.fillMaxWidth().height(10.dp), state) {
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+                    .height(10.dp), state) {
                 items(count) { index ->
                     composedIndexes.add(index)
                     Box(Modifier.size(20.dp))
@@ -261,14 +276,22 @@ class LazyColumnTest {
     private fun prepareLazyColumnsItemsAlignment(horizontalGravity: Alignment.Horizontal) {
         rule.setContentWithTestViewConfiguration {
             LazyColumn(
-                Modifier.testTag(LazyListTag).requiredWidth(100.dp),
+                Modifier
+                    .testTag(LazyListTag)
+                    .requiredWidth(100.dp),
                 horizontalAlignment = horizontalGravity
             ) {
                 items(listOf(1, 2)) {
                     if (it == 1) {
-                        Spacer(Modifier.size(50.dp).testTag(firstItemTag))
+                        Spacer(
+                            Modifier
+                                .size(50.dp)
+                                .testTag(firstItemTag))
                     } else {
-                        Spacer(Modifier.size(70.dp).testTag(secondItemTag))
+                        Spacer(
+                            Modifier
+                                .size(70.dp)
+                                .testTag(secondItemTag))
                     }
                 }
             }
@@ -329,11 +352,16 @@ class LazyColumnTest {
         val state = LazyListState()
         rule.setContentWithTestViewConfiguration {
             LazyColumn(
-                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                Modifier
+                    .requiredSize(100.dp)
+                    .testTag(LazyListTag),
                 state = state
             ) {
                 items(items) {
-                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                    Spacer(
+                        Modifier
+                            .requiredSize(20.dp)
+                            .testTag("$it"))
                 }
             }
         }
@@ -371,7 +399,10 @@ class LazyColumnTest {
         rule.setContentWithTestViewConfiguration {
             LazyColumn {
                 items(items) { item ->
-                    Spacer(Modifier.size(itemSize).testTag(item))
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag(item))
                 }
             }
         }
@@ -494,7 +525,11 @@ class LazyColumnTest {
         lateinit var state: LazyListState
         var remeasuresCount = 0
         val measureModifier = Modifier.layout { _, constraints ->
-            remeasuresCount++
+            if (!isLookingAhead) {
+                // Track the post-lookahead measurement count to avoid double counting when
+                // lookahead is used.
+                remeasuresCount++
+            }
             layout(constraints.maxWidth, constraints.maxHeight) {}
         }
         rule.setContentWithTestViewConfiguration {
@@ -508,7 +543,10 @@ class LazyColumnTest {
                 items(100) {
                     LazyRow {
                         item {
-                            Box(Modifier.size(25.dp).then(measureModifier))
+                            Box(
+                                Modifier
+                                    .size(25.dp)
+                                    .then(measureModifier))
                         }
                     }
                 }
@@ -537,7 +575,11 @@ class LazyColumnTest {
         lateinit var state: LazyListState
         var remeasuresCount = 0
         val measureModifier = Modifier.layout { _, constraints ->
-            remeasuresCount++
+            if (!isLookingAhead) {
+                // Track the post-lookahead measurement count to avoid double counting when
+                // lookahead is used.
+                remeasuresCount++
+            }
             layout(constraints.maxWidth, constraints.maxHeight) {}
         }
         rule.setContentWithTestViewConfiguration {
@@ -551,7 +593,10 @@ class LazyColumnTest {
                 items(100) { row ->
                     LazyRow {
                         item(contentType = row) {
-                            Box(Modifier.size(25.dp).then(measureModifier))
+                            Box(
+                                Modifier
+                                    .size(25.dp)
+                                    .then(measureModifier))
                         }
                     }
                 }
@@ -580,6 +625,20 @@ class LazyColumnTest {
         LazyRow {
             items(count = 1) {
                 content()
+            }
+        }
+    }
+
+    private fun ComposeContentTestRule.setContentWithTestViewConfiguration(
+        composable: @Composable () -> Unit
+    ) {
+        this.setContent {
+            if (useLookaheadScope) {
+                LookaheadScope {
+                    WithTouchSlop(TestTouchSlop, composable)
+                }
+            } else {
+                WithTouchSlop(TestTouchSlop, composable)
             }
         }
     }

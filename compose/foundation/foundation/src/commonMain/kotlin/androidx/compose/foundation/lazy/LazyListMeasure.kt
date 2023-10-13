@@ -31,6 +31,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import kotlin.math.abs
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
@@ -411,7 +412,7 @@ private fun createItemsAfterList(
             }
             val lastVisibleItem = lastPostLookaheadLayoutInfo.visibleItemsInfo.last()
             if (firstItem != null) {
-                for (i in firstItem.index..lastVisibleItem.index) {
+                for (i in firstItem.index..min(lastVisibleItem.index, itemsCount - 1)) {
                     // Only add to the list items that are _not_ already in the list.
                     if (list?.fastFirstOrNull { it.index == i } == null) {
                         if (list == null) list = mutableListOf()
