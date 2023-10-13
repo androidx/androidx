@@ -164,7 +164,7 @@ package androidx.compose.foundation {
   }
 
   public final class MagnifierKt {
-    method public static androidx.compose.ui.Modifier magnifier(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset> sourceCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset> magnifierCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.DpSize,kotlin.Unit>? onSizeChanged, optional float zoom, optional long size, optional float cornerRadius, optional float elevation, optional boolean clippingEnabled);
+    method public static androidx.compose.ui.Modifier magnifier(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset> sourceCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset>? magnifierCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.DpSize,kotlin.Unit>? onSizeChanged, optional float zoom, optional long size, optional float cornerRadius, optional float elevation, optional boolean clip);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @kotlin.jvm.JvmInline public final value class MarqueeAnimationMode {
