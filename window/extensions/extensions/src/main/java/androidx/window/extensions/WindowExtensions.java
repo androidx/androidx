@@ -44,12 +44,6 @@ import java.util.Set;
  * {@link WindowExtensions#getVendorApiLevel()}.
  */
 public interface WindowExtensions {
-    // TODO(b/241323716) Removed after we have annotation to check API level
-    /**
-     * An invalid {@link #getVendorApiLevel vendor API level}
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    int INVALID_VENDOR_API_LEVEL = -1;
 
     // TODO(b/241323716) Removed after we have annotation to check API level
     /**
