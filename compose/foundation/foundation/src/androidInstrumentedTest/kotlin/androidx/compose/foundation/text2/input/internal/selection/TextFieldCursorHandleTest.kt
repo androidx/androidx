@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2.input.internal.selection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -33,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
@@ -79,8 +81,12 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     private val fontSizePx = with(rule.density) { fontSize.toPx() }
 
+    private val fontSizeDp = with(rule.density) { fontSize.toDp() }
+
+    private val cursorWidth = DefaultCursorThickness
+
     @Test
-    fun cursorHandle_showsAtCorrectLocation_ltr() = with(rule.density) {
+    fun cursorHandle_showsAtCorrectLocation_ltr() {
         state = TextFieldState("hello")
         rule.setTextFieldTestContent {
             BasicTextField2(
@@ -99,13 +105,13 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            (2 * fontSize.value + 1).dp, // cursorWidth / 2
+            (2 * fontSize.value).dp + cursorWidth / 2,
             fontSize.value.dp
         )
     }
 
     @Test
-    fun tapTextField_cursorHandleFiltered() = with(rule.density) {
+    fun tapTextField_cursorHandleFiltered() {
         state = TextFieldState("hello")
         rule.setTextFieldTestContent {
             BasicTextField2(
@@ -128,7 +134,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     }
 
     @Test
-    fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_ltr() = with(rule.density) {
+    fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_ltr() {
         state = TextFieldState("hello")
         rule.setTextFieldTestContent {
             BasicTextField2(
@@ -148,12 +154,10 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
 
-        with(rule.density) {
-            rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-                5 * fontSize.toDp() + 1.dp, // cursorWidth / 2
-                fontSize.toDp()
-            )
-        }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
+            5 * fontSizeDp + cursorWidth / 2,
+            fontSizeDp
+        )
     }
 
     @Test
@@ -180,13 +184,13 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(3))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            (2 * fontSize.value + 1).dp, // cursorWidth / 2
+            (2 * fontSize.value).dp + cursorWidth / 2,
             fontSize.value.dp
         )
     }
 
     @Test
-    fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_rtl() = with(rule.density) {
+    fun cursorHandle_showsAtCorrectLocation_outOfTextBoundsTouch_rtl() {
         state = TextFieldState("hello")
         rule.setTextFieldTestContent {
             BasicTextField2(
@@ -207,7 +211,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            (5 * fontSize.value + 1).dp, // cursorWidth / 2
+            (5 * fontSize.value).dp + cursorWidth / 2,
             fontSize.value.dp
         )
     }
@@ -306,7 +310,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         state.edit { placeCursorBeforeCharAt(2) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            (2 * fontSize.value + 1).dp, // cursorWidth / 2
+            (2 * fontSize.value).dp + cursorWidth / 2,
             fontSize.value.dp
         )
     }
@@ -341,7 +345,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     }
 
     @Test
-    fun cursorHandle_coercesAtBoundaries_ltr() = with(rule.density) {
+    fun cursorHandle_coercesAtBoundaries_ltr() {
         state = TextFieldState("hello")
         rule.setTextFieldTestContent {
             BasicTextField2(
@@ -349,31 +353,40 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(fontSize.toDp() * 5)
+                    // Make this TextField guaranteed to be wider than the text content
+                    .width(fontSizeDp * 10)
             )
         }
 
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performClick() // cursor handle appears
-        state.edit { selectCharsIn(TextRange(0)) } // move cursor to the start
+        rule.runOnIdle {
+            state.edit { selectCharsIn(TextRange(0)) } // move cursor to the start of text
+        }
 
+        val characterSize = fontSizeDp // width and height is the same.
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            1.dp, // cursorWidth / 2
-            fontSize.toDp()
+            cursorWidth / 2,
+            characterSize
         )
 
-        state.edit { selectCharsIn(TextRange(5)) } // move cursor to the end
+        rule.runOnIdle {
+            state.edit { selectCharsIn(TextRange(5)) } // move cursor to the end of text
+        }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            5 * fontSize.toDp() - 1.dp, // cursorWidth / 2
-            fontSize.toDp()
+            // Move 5 characters to right (5 * character), finally account for the center of
+            // cursor (cursorWidth / 2).
+            5 * characterSize + cursorWidth / 2,
+            fontSizeDp
         )
     }
 
     @Test
     fun cursorHandle_coercesAtBoundaries_rtl() = with(rule.density) {
         state = TextFieldState("\u05D0\u05D1\u05D2\u05D3\u05D4")
+        var width = 0
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 BasicTextField2(
@@ -381,7 +394,9 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(fontSize.toDp() * 5)
+                        // Make this TextField guaranteed to be wider than the text content
+                        .width(fontSizeDp * 10)
+                        .onSizeChanged { width = it.width }
                 )
             }
         }
@@ -389,18 +404,26 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         focusAndWait()
 
         rule.onNodeWithTag(TAG).performClick() // cursor handle appears
-        state.edit { selectCharsIn(TextRange(0)) } // move cursor to the start
 
+        rule.runOnIdle {
+            state.edit { selectCharsIn(TextRange(0)) } // move cursor to the start of text
+        }
+
+        val characterSize = fontSizeDp // width and height is the same.
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            5 * fontSize.toDp() - 1.dp, // cursorWidth / 2
-            fontSize.toDp()
+            width.toDp() - cursorWidth / 2, // Should align to the right
+            characterSize
         )
 
-        state.edit { selectCharsIn(TextRange(5)) } // move cursor to the end
+        rule.runOnIdle {
+            state.edit { selectCharsIn(TextRange(5)) } // move cursor to the end of text
+        }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertHandlePositionMatches(
-            1.dp, // cursorWidth / 2
-            fontSize.toDp()
+            // Start from right (width), move 5 characters to left (5 * character), finally account
+            // for the center of cursor (cursorWidth / 2).
+            width.toDp() - 5 * characterSize - cursorWidth / 2,
+            fontSizeDp
         )
     }
 
@@ -419,7 +442,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 scrollState = scrollState,
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 5)
+                    .width(fontSizeDp * 5)
             )
         }
 
@@ -436,7 +459,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     }
 
     @Test
-    fun cursorHandle_disappearsOnHorizontalScroll() = with(rule.density) {
+    fun cursorHandle_disappearsOnHorizontalScroll() {
         state = TextFieldState("hello hello hello hello", initialSelectionInChars = TextRange.Zero)
         val scrollState = ScrollState(0)
         lateinit var scope: CoroutineScope
@@ -450,7 +473,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 scrollState = scrollState,
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(fontSize.toDp() * 10)
+                    .width(fontSizeDp * 10)
             )
         }
 
@@ -479,7 +502,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 scrollState = scrollState,
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 5)
+                    .width(fontSizeDp * 5)
             )
         }
 
@@ -514,7 +537,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 scrollState = scrollState,
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 5)
+                    .width(fontSizeDp * 5)
             )
         }
 
@@ -544,7 +567,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 },
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 10)
+                    .width(fontSizeDp * 10)
             )
         }
 
@@ -569,7 +592,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 10)
+                    .width(fontSizeDp * 10)
             )
         }
 
@@ -593,7 +616,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 10)
+                    .width(fontSizeDp * 10)
             )
         }
 
@@ -618,7 +641,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 5)
+                    .width(fontSizeDp * 5)
             )
         }
 
@@ -642,7 +665,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 5)
+                    .width(fontSizeDp * 5)
             )
         }
 
@@ -667,7 +690,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier
                     .testTag(TAG)
-                    .width(with(rule.density) { fontSize.toDp() } * 10)
+                    .width(fontSizeDp * 10)
             )
         }
 
@@ -695,7 +718,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(with(rule.density) { fontSize.toDp() } * 10)
+                        .width(fontSizeDp * 10)
                 )
             }
         }
@@ -721,7 +744,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(with(rule.density) { fontSize.toDp() } * 10)
+                        .width(fontSizeDp * 10)
                 )
             }
         }
@@ -747,7 +770,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(with(rule.density) { fontSize.toDp() } * 5)
+                        .width(fontSizeDp * 5)
                 )
             }
         }
@@ -773,7 +796,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(with(rule.density) { fontSize.toDp() } * 5)
+                        .width(fontSizeDp * 5)
                 )
             }
         }
@@ -805,7 +828,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
                     lineLimits = TextFieldLineLimits.SingleLine,
                     modifier = Modifier
                         .testTag(TAG)
-                        .width(with(rule.density) { fontSize.toDp() } * 10)
+                        .width(fontSizeDp * 10)
                 )
             }
         }
