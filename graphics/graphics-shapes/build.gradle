@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -22,22 +23,25 @@ plugins {
     id("com.android.library")
 }
 
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+
 androidXMultiplatform {
     android()
+    if (desktopEnabled) desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        all {
+        configureEach {
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
 
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
+                implementation(libs.kotlinStdlibCommon)
                 implementation project(':collection:collection')
-                implementation 'androidx.annotation:annotation:1.7.0-alpha02'
+                implementation("androidx.annotation:annotation:1.1.0")
             }
         }
 
@@ -46,27 +50,83 @@ androidXMultiplatform {
             }
         }
 
-        androidMain {
+        jvmMain {
             dependsOn(commonMain)
+            dependencies {
+            }
+        }
+
+        if (desktopEnabled) {
+            skikoMain {
+                dependsOn(commonMain)
+                dependencies {
+                }
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
             dependencies {
                 implementation("androidx.core:core-ktx:1.10.0-rc01")
                 implementation("androidx.core:core-ktx:1.8.0")
             }
         }
 
-        androidInstrumentedTest {
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(skikoMain)
+                dependsOn(jvmMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
+            }
+        }
+
+        jvmTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.dexmakerMockitoInlineExtended)
+                implementation(libs.mockitoKotlin)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+                dependencies {
+                    implementation(libs.truth)
+                    implementation(libs.junit)
+                    implementation(libs.skikoCurrentOs)
+                }
             }
         }
     }
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     namespace "androidx.graphics.shapes"
 }
 
