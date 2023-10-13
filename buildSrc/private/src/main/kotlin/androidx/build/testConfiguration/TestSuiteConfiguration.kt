@@ -18,10 +18,11 @@ package androidx.build.testConfiguration
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin
-import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
+import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.getFileInTestConfigDirectory
+import androidx.build.getPrivacySandboxApksDirectory
 import androidx.build.getSupportRootFolder
 import androidx.build.hasAndroidTestSourceCode
 import androidx.build.hasBenchmarkPlugin
@@ -75,6 +76,26 @@ fun Project.createTestConfigurationGenerationTask(
         ) { task ->
             val androidXExtension = extensions.getByType<AndroidXExtension>()
 
+            if (androidXExtension.deviceTests.includePrivacySandboxSdks) {
+                // TODO (b/309610890): Replace for dependency on AGP artifact.
+                val extractedPrivacySandboxSdkApksDir = layout.buildDirectory.dir(
+                    "intermediates/extracted_apks_from_privacy_sandbox_sdks"
+                )
+                task.privacySandboxSdkApks.from(
+                    files(extractedPrivacySandboxSdkApksDir) {
+                        it.builtBy("buildPrivacySandboxSdkApksForDebug")
+                    }
+                )
+                task.outputPrivacySandboxFilenamesPrefix.set(
+                    "${path.asFilenamePrefix()}-$variantName"
+                )
+                task.outputPrivacySandboxSdkApks.set(
+                    getPrivacySandboxApksDirectory().map {
+                        it.dir("${path.asFilenamePrefix()}-$variantName-sdks")
+                    }
+                )
+            }
+
             task.testFolder.set(artifacts.get(SingleArtifact.APK))
             task.testLoader.set(artifacts.getBuiltArtifactsLoader())
             task.outputTestApk.set(
@@ -106,7 +127,7 @@ fun Project.createTestConfigurationGenerationTask(
         }
     }
     rootProject.tasks
-        .findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!
+        .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
 }
 
@@ -257,7 +278,7 @@ private fun getOrCreateMediaTestConfigTask(
             ) { task ->
                 AffectedModuleDetector.configureTaskGuard(task)
             }
-        project.rootProject.tasks.findByName(ZIP_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
+        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
         return task
     } else {
         return parentProject.tasks

@@ -457,4 +457,10 @@ abstract class DeviceTests {
     var enabled = true
     var targetAppProject: Project? = null
     var targetAppVariant = "debug"
+
+    /**
+     * Whether to extract and include APKs from PrivacySandbox SDKs dependencies.
+     * TODO (b/309610890): Replace for dependency on AGP artifact.
+     */
+    var includePrivacySandboxSdks = false
 }
