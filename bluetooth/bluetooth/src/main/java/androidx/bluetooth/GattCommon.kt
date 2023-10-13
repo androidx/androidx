@@ -19,6 +19,7 @@ package androidx.bluetooth
 import java.util.UUID
 
 internal object GattCommon {
+    const val MAX_ATTR_LENGTH = 512
     // UUID for client characteristic configuration descriptor.
     val UUID_CCCD: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 }

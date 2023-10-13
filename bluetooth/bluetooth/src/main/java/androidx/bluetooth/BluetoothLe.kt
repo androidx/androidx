@@ -289,11 +289,11 @@ class BluetoothLe(private val context: Context) {
         /**
          * Writes the characteristic value to the server.
          *
-         * It could fail if the [characteristic] doesn't have the write property or the length
-         * of the [value] is greater than the maximum length of an attribute value (512).
-         *
          * @param characteristic a remote [GattCharacteristic] to write
          * @param value a value to be written.
+         * @throws IllegalArgumentException if the [characteristic] doesn't have the write
+         *     property or the length of the [value] is greater than the maximum
+         *     attribute length (512)
          * @return the result of the write operation
          */
         suspend fun writeCharacteristic(
@@ -391,6 +391,8 @@ class BluetoothLe(private val context: Context) {
          * @param value the new value of the characteristic
          *
          * @throws CancellationException if it failed to notify
+         * @throws IllegalArgumentException if the length of the [value] is greater than
+         * the maximum attribute length (512)
          */
         suspend fun notify(characteristic: GattCharacteristic, value: ByteArray)
     }

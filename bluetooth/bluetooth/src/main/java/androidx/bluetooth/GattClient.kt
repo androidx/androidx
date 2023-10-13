@@ -33,6 +33,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_WRITE_NO_RESPONSE
+import androidx.bluetooth.GattCommon.MAX_ATTR_LENGTH
 import androidx.bluetooth.GattCommon.UUID_CCCD
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
@@ -93,11 +94,10 @@ class GattClient(private val context: Context) {
     companion object {
         private const val TAG = "GattClient"
 
-        private const val GATT_MAX_ATTR_LENGTH = 512
         /**
          * The maximum ATT size + header(3)
          */
-        private const val GATT_MAX_MTU = GATT_MAX_ATTR_LENGTH + 3
+        private const val GATT_MAX_MTU = MAX_ATTR_LENGTH + 3
 
         private const val CONNECT_TIMEOUT_MS = 30_000L
     }
@@ -289,11 +289,10 @@ class GattClient(private val context: Context) {
                         FwkCharacteristic.WRITE_TYPE_NO_RESPONSE
                     else if (characteristic.properties and PROPERTY_WRITE != 0)
                         FwkCharacteristic.WRITE_TYPE_DEFAULT
-                    else return Result.failure(
-                        IllegalArgumentException("can't write to the characteristic"))
+                    else throw IllegalArgumentException("can't write to the characteristic")
 
-                if (value.size > GATT_MAX_ATTR_LENGTH) {
-                    return Result.failure(IllegalArgumentException("too long value to write"))
+                if (value.size > MAX_ATTR_LENGTH) {
+                    throw IllegalArgumentException("too long value to write")
                 }
 
                 return runTask {
