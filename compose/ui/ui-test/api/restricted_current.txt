@@ -409,6 +409,7 @@ package androidx.compose.ui.test {
     ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     method public void assertDoesNotExist();
     method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
+    method public void assertIsDeactivated(optional String? errorMessageOnFail);
     method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
   }
 

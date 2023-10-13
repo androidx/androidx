@@ -2206,11 +2206,13 @@ package androidx.compose.ui.layout {
     method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
     method public int getWidth();
     method public boolean isAttached();
+    method public default boolean isDeactivated();
     method public boolean isPlaced();
     property public abstract androidx.compose.ui.layout.LayoutCoordinates coordinates;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract int height;
     property public abstract boolean isAttached;
+    property public default boolean isDeactivated;
     property public abstract boolean isPlaced;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract androidx.compose.ui.layout.LayoutInfo? parentInfo;
@@ -3378,7 +3380,8 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsOwnerKt {
-    method public static java.util.List<androidx.compose.ui.semantics.SemanticsNode> getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner, boolean mergingEnabled);
+    method @Deprecated public static java.util.List<androidx.compose.ui.semantics.SemanticsNode> getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner, boolean mergingEnabled);
+    method public static java.util.List<androidx.compose.ui.semantics.SemanticsNode> getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner, boolean mergingEnabled, optional boolean skipDeactivatedNodes);
   }
 
   public final class SemanticsProperties {

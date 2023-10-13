@@ -474,13 +474,13 @@ internal class LayoutNode(
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
         }
-        if (!deactivated) {
+        if (!isDeactivated) {
             nodes.markAsAttached()
         }
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
-        if (!deactivated) {
+        if (!isDeactivated) {
             nodes.runAttachLifecycle()
         }
 
@@ -491,7 +491,7 @@ internal class LayoutNode(
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
-        if (!deactivated) {
+        if (!isDeactivated) {
             invalidateFocusOnAttach()
         }
     }
@@ -847,7 +847,7 @@ internal class LayoutNode(
             require(!isVirtual || modifier === Modifier) {
                 "Modifiers are not supported on virtual LayoutNodes"
             }
-            require(!deactivated) {
+            require(!isDeactivated) {
                 "modifier is updated when deactivated"
             }
             field = value
@@ -1324,14 +1324,16 @@ internal class LayoutNode(
     override val parentInfo: LayoutInfo?
         get() = parent
 
-    private var deactivated = false
+    override var isDeactivated = false
+        private set
 
     override fun onReuse() {
         require(isAttached) { "onReuse is only expected on attached node" }
         interopViewFactoryHolder?.onReuse()
         subcompositionsState?.onReuse()
-        if (deactivated) {
-            deactivated = false
+        if (isDeactivated) {
+            isDeactivated = false
+            invalidateSemantics()
             // we don't need to reset state as it was done when deactivated
         } else {
             resetModifierState()
@@ -1345,8 +1347,9 @@ internal class LayoutNode(
     override fun onDeactivate() {
         interopViewFactoryHolder?.onDeactivate()
         subcompositionsState?.onDeactivate()
-        deactivated = true
+        isDeactivated = true
         resetModifierState()
+        invalidateSemantics()
     }
 
     override fun onRelease() {

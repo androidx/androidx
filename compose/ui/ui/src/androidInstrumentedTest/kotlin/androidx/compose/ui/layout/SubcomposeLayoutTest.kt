@@ -910,8 +910,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(2, 3) + /*reusable*/ listOf(0, 1),
-            doesNotExist = /*disposed*/ listOf(4)
+            active = listOf(2, 3),
+            deactivated = listOf(0, 1),
+            disposed = listOf(4)
         )
     }
 
@@ -933,8 +934,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(2, 3, 5) + /*reusable*/ listOf(0),
-            doesNotExist = /*disposed*/ listOf(1, 4)
+            active = listOf(2, 3, 5),
+            deactivated = listOf(0),
+            disposed = listOf(1, 4)
         )
     }
 
@@ -956,7 +958,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(2, 3, 1) + /*reusable*/ listOf(0)
+            active = listOf(2, 3, 1),
+            deactivated = listOf(0)
         )
     }
 
@@ -980,7 +983,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(2, 3) + /*prefetch*/ listOf(5) + /*reusable*/ listOf(0)
+            active = listOf(2, 3) + /*prefetch*/ listOf(5),
+            deactivated = listOf(0)
         )
     }
 
@@ -1004,8 +1008,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(2) + /*prefetch*/ listOf(3) + /*reusable*/ listOf(0, 1),
-            doesNotExist = listOf(4)
+            active = listOf(2) + /*prefetch*/ listOf(3),
+            deactivated = listOf(0, 1),
+            disposed = listOf(4)
         )
     }
 
@@ -1021,8 +1026,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = listOf(2, 4),
-            doesNotExist = listOf(0, 1, 3)
+            active = listOf(2, 4),
+            disposed = listOf(0, 1, 3)
         )
     }
 
@@ -1038,8 +1043,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(0, 1) + /*reusable*/ listOf(2),
-            doesNotExist = /*disposed*/ listOf(3)
+            active = listOf(0, 1),
+            deactivated = listOf(2),
+            disposed = listOf(3)
         )
     }
 
@@ -1623,8 +1629,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(0, 3) + /*reusable*/ listOf(2),
-            doesNotExist = /*disposed*/ listOf(1, 4)
+            active = listOf(0, 3),
+            deactivated = listOf(2),
+            disposed = listOf(1, 4)
         )
 
         rule.runOnIdle {
@@ -1632,8 +1639,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(0, 3, 5) + /*reusable*/ emptyList(),
-            doesNotExist = /*disposed*/ listOf(1, 2, 4)
+            active = listOf(0, 3, 5),
+            disposed = listOf(1, 2, 4)
         )
     }
 
@@ -1733,8 +1740,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ emptyList<Int>() + /*reusable*/ listOf(1, 3, 5),
-            doesNotExist = /*disposed*/ listOf(0, 2, 4, 6)
+            deactivated = listOf(1, 3, 5),
+            disposed = listOf(0, 2, 4, 6)
         )
 
         rule.runOnIdle {
@@ -1744,8 +1751,9 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*active*/ listOf(8, 9, 10) + /*reusable*/ listOf(1, 3),
-            doesNotExist = /*disposed*/ listOf(5)
+            active = listOf(8, 9, 10),
+            deactivated = listOf(1, 3),
+            disposed = listOf(5)
         )
     }
 
@@ -1770,15 +1778,16 @@ class SubcomposeLayoutTest {
             items.value = listOf()
         }
 
-        assertNodes(exists = /*active*/ emptyList<Int>() + /*reusable*/ listOf(0, 1, 2, 3))
+        assertNodes(deactivated = listOf(0, 1, 2, 3))
 
         rule.runOnIdle {
             items.value = listOf(10) // slot 2 should be reused
         }
 
         assertNodes(
-            exists = /*active*/ listOf(10) + /*reusable*/ listOf(0, 1, 3),
-            doesNotExist = /*disposed*/ listOf(2)
+            active = listOf(10),
+            deactivated = listOf(0, 1, 3),
+            disposed = listOf(2)
         )
     }
 
@@ -2013,8 +2022,8 @@ class SubcomposeLayoutTest {
         }
 
         assertNodes(
-            exists = /*prefetch*/ listOf(0),
-            doesNotExist = /*disposed*/ listOf(1)
+            active = /*prefetch*/ listOf(0),
+            disposed = listOf(1)
         )
     }
 
@@ -2362,12 +2371,12 @@ class SubcomposeLayoutTest {
             flag = false
         }
 
-        // the node will exist when after `need` was switched to false it will first cause
+        // the node will exist when after `flag` was switched to false it will first cause
         // remeasure, and because during the remeasure we will not subcompose the child
         // the node will be deactivated before its block recomposes causing the Box to be
         // removed from the hierarchy.
         rule.onNodeWithTag("tag")
-            .assertExists()
+            .assertIsDeactivated()
     }
 
     // Regression test of b/271156218
@@ -2666,12 +2675,20 @@ class SubcomposeLayoutTest {
                 .testTag("$index"))
     }
 
-    private fun assertNodes(exists: List<Int>, doesNotExist: List<Int> = emptyList()) {
-        exists.forEach {
+    private fun assertNodes(
+        active: List<Int> = emptyList(),
+        deactivated: List<Int> = emptyList(),
+        disposed: List<Int> = emptyList()
+    ) {
+        active.forEach {
             rule.onNodeWithTag("$it")
                 .assertExists()
         }
-        doesNotExist.forEach {
+        deactivated.forEach {
+            rule.onNodeWithTag("$it")
+                .assertIsDeactivated()
+        }
+        disposed.forEach {
             rule.onNodeWithTag("$it")
                 .assertDoesNotExist()
         }
