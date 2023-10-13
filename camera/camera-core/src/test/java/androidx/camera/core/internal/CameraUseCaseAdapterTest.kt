@@ -50,6 +50,7 @@ import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
 import androidx.camera.core.processing.DefaultSurfaceProcessor
@@ -113,9 +114,7 @@ class CameraUseCaseAdapterTest {
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
     private val preview = Preview.Builder().build()
-    private val video = FakeUseCase().apply {
-        this.supportedEffectTargets = setOf(VIDEO_CAPTURE)
-    }
+    private val video = createFakeVideoCaptureUseCase()
     private val image = ImageCapture.Builder().build()
     private val analysis = ImageAnalysis.Builder().build()
     private lateinit var adapter: CameraUseCaseAdapter
@@ -167,13 +166,21 @@ class CameraUseCaseAdapterTest {
         adapter.addUseCases(setOf(preview, preview2, image))
     }
 
+    @Test
+    fun attachOneVideoCapture_streamSharingNotEnabled() {
+        adapter.addUseCases(setOf(video, image))
+        // Assert: StreamSharing is not bound.
+        adapter.cameraUseCases.hasExactTypes(
+            FakeUseCase::class.java,
+            ImageCapture::class.java
+        )
+    }
+
     @Test(expected = CameraException::class)
     fun attachTwoVideoCaptures_streamSharingNotEnabled() {
         // Arrange: bind 2 videos with an ImageCapture. Request fails without enabling StreamSharing
         // because StreamSharing only allows one use case per type.
-        val video2 = FakeUseCase().apply {
-            this.supportedEffectTargets = setOf(VIDEO_CAPTURE)
-        }
+        val video2 = createFakeVideoCaptureUseCase()
         adapter.addUseCases(setOf(video, video2, image))
     }
 
@@ -335,12 +342,38 @@ class CameraUseCaseAdapterTest {
         assertThat(streamSharing.camera).isNull()
     }
 
-    @Test(expected = CameraException::class)
-    fun extensionEnabled_streamSharingOffAndThrowsException() {
-        // Arrange: enable extensions
-        adapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig())
-        // Act: add UseCases that require StreamSharing
+    @RequiresApi(23)
+    @Test
+    fun extensionEnabledAndVideoCaptureExisted_streamSharingOn() {
+        // Arrange: enable extensions.
+        val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
+        adapter.setExtendedConfig(extensionsConfig)
+        // Act: add UseCases that require StreamSharing.
         adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing exists and bound.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        val streamSharing = adapter.getStreamSharing()
+        assertThat(streamSharing.camera).isNotNull()
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun extensionEnabledAndOnlyVideoCaptureAttached_streamSharingOn() {
+        // Arrange: enable extensions.
+        val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
+        adapter.setExtendedConfig(extensionsConfig)
+        // Act: add UseCases that require StreamSharing.
+        adapter.addUseCases(setOf(video))
+        // Assert: StreamSharing exists and bound.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java // Placeholder
+        )
+        val streamSharing = adapter.getStreamSharing()
+        assertThat(streamSharing.camera).isNotNull()
     }
 
     @Test
@@ -1313,17 +1346,27 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.hasFlashUnit())
     }
 
-    private fun createCoexistingRequiredRuleCameraConfig(): CameraConfig {
+    private fun createFakeVideoCaptureUseCase(): FakeUseCase {
+        return FakeUseCaseConfig.Builder()
+            .setCaptureType(CaptureType.VIDEO_CAPTURE)
+            .setSurfaceOccupancyPriority(0).build().apply {
+                this.supportedEffectTargets = setOf(VIDEO_CAPTURE)
+            }
+    }
+
+    private fun createCoexistingRequiredRuleCameraConfig(
+        sessionProcessor: FakeSessionProcessor? = null
+    ): CameraConfig {
         return object : CameraConfig {
-            private val mUseCaseConfigFactory =
-                UseCaseConfigFactory { _, _ -> null }
-            private val mIdentifier = Identifier.create(Any())
+            private val useCaseConfigFactory = UseCaseConfigFactory { _, _ -> null }
+            private val identifier = Identifier.create(Any())
+
             override fun getUseCaseConfigFactory(): UseCaseConfigFactory {
-                return mUseCaseConfigFactory
+                return useCaseConfigFactory
             }
 
             override fun getCompatibilityId(): Identifier {
-                return mIdentifier
+                return identifier
             }
 
             override fun getConfig(): Config {
@@ -1332,6 +1375,14 @@ class CameraUseCaseAdapterTest {
 
             override fun getUseCaseCombinationRequiredRule(): Int {
                 return CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE
+            }
+
+            override fun getSessionProcessor(valueIfMissing: SessionProcessor?): SessionProcessor? {
+                return sessionProcessor ?: valueIfMissing
+            }
+
+            override fun getSessionProcessor(): SessionProcessor {
+                return sessionProcessor!!
             }
         }
     }

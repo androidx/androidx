@@ -48,6 +48,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -179,22 +180,19 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
                             for (int i = 0; i < sessionConfig.getSurfaces().size(); i++) {
                                 DeferrableSurface dSurface = sessionConfig.getSurfaces().get(i);
-                                if (Objects.equals(dSurface.getContainerClass(),
-                                        Preview.class)) {
+                                if (isPreview(dSurface) || isStreamSharing(dSurface)) {
                                     previewOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
                                             new Size(dSurface.getPrescribedSize().getWidth(),
                                                     dSurface.getPrescribedSize().getHeight()),
                                             dSurface.getPrescribedStreamFormat());
-                                } else if (Objects.equals(dSurface.getContainerClass(),
-                                        ImageCapture.class)) {
+                                } else if (isImageCapture(dSurface)) {
                                     captureOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
                                             new Size(dSurface.getPrescribedSize().getWidth(),
                                                     dSurface.getPrescribedSize().getHeight()),
                                             dSurface.getPrescribedStreamFormat());
-                                } else if (Objects.equals(dSurface.getContainerClass(),
-                                        ImageAnalysis.class)) {
+                                } else if (isImageAnalysis(dSurface)) {
                                     analysisOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
                                             new Size(dSurface.getPrescribedSize().getWidth(),
@@ -596,9 +594,15 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
     }
 
-    private boolean hasPreviewSurface(CaptureConfig captureConfig) {
+    /**
+     * Checks if the CaptureConfig has a preview surface.
+     *
+     * <p> Note that {@link StreamSharing} provides preview output surface and is therefore
+     * considered a {@link Preview}.
+     */
+    private static boolean hasPreviewSurface(@NonNull CaptureConfig captureConfig) {
         for (DeferrableSurface surface : captureConfig.getSurfaces()) {
-            if (Objects.equals(surface.getContainerClass(), Preview.class)) {
+            if (isPreview(surface) || isStreamSharing(surface)) {
                 return true;
             }
         }
@@ -616,6 +620,22 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         builder.insertAllOptions(sessionOptions);
         builder.insertAllOptions(stillCaptureOptions);
         mSessionProcessor.setParameters(builder.build());
+    }
+
+    private static boolean isPreview(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), Preview.class);
+    }
+
+    private static boolean isImageCapture(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), ImageCapture.class);
+    }
+
+    private static boolean isImageAnalysis(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), ImageAnalysis.class);
+    }
+
+    private static boolean isStreamSharing(@NonNull DeferrableSurface dSurface) {
+        return Objects.equals(dSurface.getContainerClass(), StreamSharing.class);
     }
 
     private static class SessionProcessorCaptureCallback
