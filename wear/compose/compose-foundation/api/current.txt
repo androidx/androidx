@@ -26,6 +26,13 @@ package androidx.wear.compose.foundation {
     method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
+  public final class BasicSwipeToDismissBoxKt {
+    method @androidx.compose.runtime.Composable public static void BasicSwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void BasicSwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
+    method public static androidx.compose.ui.Modifier edgeSwipeToDismiss(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.SwipeToDismissBoxState swipeToDismissBoxState, optional float edgeWidth);
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
+  }
+
   public final class CompositionLocalsKt {
     method @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.ReduceMotion> getLocalReduceMotion();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalSwipeToDismissBackgroundScrimColor();
@@ -286,13 +293,6 @@ package androidx.wear.compose.foundation {
     property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> AnimationSpec;
     property public final float EdgeWidth;
     field public static final androidx.wear.compose.foundation.SwipeToDismissBoxDefaults INSTANCE;
-  }
-
-  public final class SwipeToDismissBoxKt {
-    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional androidx.compose.ui.Modifier modifier, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
-    method public static androidx.compose.ui.Modifier edgeSwipeToDismiss(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.SwipeToDismissBoxState swipeToDismissBoxState, optional float edgeWidth);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
   }
 
   @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {

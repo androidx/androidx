@@ -43,9 +43,9 @@ import androidx.navigation.Navigator
 import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.createGraph
 import androidx.navigation.get
+import androidx.wear.compose.foundation.BasicSwipeToDismissBox
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
-import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
@@ -62,7 +62,7 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * Content is displayed within a [BasicSwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
  * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
@@ -90,8 +90,7 @@ public fun SwipeDismissableNavHost(
     state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
-) =
-    SwipeDismissableNavHost(
+) = SwipeDismissableNavHost(
         navController,
         remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
@@ -111,7 +110,7 @@ public fun SwipeDismissableNavHost(
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * Content is displayed within a [BasicSwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
  * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
@@ -219,7 +218,7 @@ public fun SwipeDismissableNavHost(
         }
     }
 
-    SwipeToDismissBox(
+    BasicSwipeToDismissBox(
         state = swipeState,
         modifier = Modifier,
         userSwipeEnabled = userSwipeEnabled && previous != null,
@@ -257,7 +256,7 @@ public fun SwipeDismissableNavHost(
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * Content is displayed within a [BasicSwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
  * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
@@ -308,7 +307,7 @@ public fun SwipeDismissableNavHost(
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
+ * Content is displayed within a [BasicSwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
  * the background. BackgroundScrimColor and ContentScrimColor of it are taken from
  * [LocalSwipeToDismissBackgroundScrimColor] and [LocalSwipeToDismissContentScrimColor].
@@ -348,7 +347,7 @@ public fun SwipeDismissableNavHost(
 /**
  * State for [SwipeDismissableNavHost]
  *
- * @param swipeToDismissBoxState State for [SwipeToDismissBox], which is used to support the
+ * @param swipeToDismissBoxState State for [BasicSwipeToDismissBox], which is used to support the
  * swipe-to-dismiss gesture in [SwipeDismissableNavHost] and can also be used to support
  * edge-swiping, using [edgeSwipeToDismiss].
  */
@@ -368,7 +367,7 @@ public class SwipeDismissableNavHostState(
 /**
  * Create a [SwipeToDismissBoxState] and remember it.
  *
- * @param swipeToDismissBoxState State for [SwipeToDismissBox], which is used to support the
+ * @param swipeToDismissBoxState State for [BasicSwipeToDismissBox], which is used to support the
  * swipe-to-dismiss gesture in [SwipeDismissableNavHost] and can also be used to support
  * edge-swiping, using [edgeSwipeToDismiss].
  */
