@@ -501,7 +501,7 @@ class SandboxedSdkViewTest {
         onView(withId(R.id.mainlayout)).check(matches(isDisplayed()))
         activityScenarioRule.withActivity {
             val boundingRect = Rect()
-            assertThat(view.getBoundingParent(boundingRect)).isTrue()
+            assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
             val rootView: ViewGroup = findViewById(android.R.id.content)
             val rootRect = Rect()
             rootView.getGlobalVisibleRect(rootRect)
@@ -522,7 +522,7 @@ class SandboxedSdkViewTest {
         val scrollViewRect = Rect()
         assertThat(scrollView.getGlobalVisibleRect(scrollViewRect)).isTrue()
         val boundingRect = Rect()
-        assertThat(view.getBoundingParent(boundingRect)).isTrue()
+        assertThat(view.maybeUpdateClippingBounds(boundingRect)).isTrue()
         assertThat(scrollViewRect).isEqualTo(boundingRect)
     }
 
