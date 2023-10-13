@@ -24,11 +24,9 @@ import java.util.UUID
  */
 class AdvertiseParams(
     /** Whether the device address will be included in the advertisement packet. */
-    @Suppress("GetterSetterNames")
     @get:JvmName("shouldIncludeDeviceAddress")
     val shouldIncludeDeviceAddress: Boolean = false,
     /** Whether the device name will be included in the advertisement packet. */
-    @Suppress("GetterSetterNames")
     @get:JvmName("shouldIncludeDeviceName")
     val shouldIncludeDeviceName: Boolean = false,
     /** Whether the advertisement will indicate connectable. */
@@ -47,7 +45,6 @@ class AdvertiseParams(
      * until it is stopped explicitly.
      */
     @IntRange(from = 0, to = 655350) val durationMillis: Long = 0,
-
     /**
      * A map of company identifiers to manufacturer specific data.
      * <p>
