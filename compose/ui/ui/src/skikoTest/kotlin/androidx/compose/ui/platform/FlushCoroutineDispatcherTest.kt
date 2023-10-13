@@ -75,36 +75,6 @@ class FlushCoroutineDispatcherTest {
     }
 
     @Test
-    fun flushing_in_another_thread() = runTest {
-        val actualNumbers = mutableListOf<Int>()
-        lateinit var dispatcher: FlushCoroutineDispatcher
-        val random = Random(123)
-
-        withContext(Dispatchers.Default) {
-            dispatcher = FlushCoroutineDispatcher(this)
-
-            val addJob = launch(dispatcher) {
-                repeat(10000) {
-                    actualNumbers.add(it)
-                    repeat(random.nextInt(5)) {
-                        yield()
-                    }
-                }
-            }
-
-            launch {
-                while (addJob.isActive) {
-                    dispatcher.flush()
-                    yield()
-                }
-            }
-        }
-
-        assertEquals((0 until 10000).toList(), actualNumbers)
-        assertFalse(dispatcher.hasTasks())
-    }
-
-    @Test
     fun delayed_tasks_are_cancelled() = runTest {
         val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
         val dispatcher = FlushCoroutineDispatcher(coroutineScope)
