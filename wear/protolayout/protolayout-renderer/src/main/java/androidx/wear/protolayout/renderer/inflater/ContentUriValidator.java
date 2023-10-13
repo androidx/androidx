@@ -107,7 +107,7 @@ class ContentUriValidator {
             return false;
         }
 
-        // Otherwise, only allow content from the same package that provided the tile.
+        // Otherwise, only allow content from the same package that provided the layout.
         return providerInfo.packageName.equals(mAllowedPackageName);
     }
 
