@@ -1,10 +1,6 @@
 // Signature format: 4.0
 package androidx.benchmark.macro {
 
-  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class AudioUnderrunMetric extends androidx.benchmark.macro.Metric {
-    ctor public AudioUnderrunMetric();
-  }
-
   public enum BaselineProfileMode {
     method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.BaselineProfileMode[] values();
