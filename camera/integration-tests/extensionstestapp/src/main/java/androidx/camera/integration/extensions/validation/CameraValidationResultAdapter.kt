@@ -29,7 +29,7 @@ import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PARTIAL
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 
-class CameraValidationResultAdapter constructor(
+class CameraValidationResultAdapter(
     private val layoutInflater: LayoutInflater,
     private val cameraLensFacingMap: LinkedHashMap<String, Int>,
     private val cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
