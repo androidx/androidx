@@ -16,12 +16,14 @@
 
 package androidx.compose.ui.uikit
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.staticCompositionLocalOf
+
 
 /**
  * Composition local for height that is overlapped with keyboard over Compose view.
  */
 @InternalComposeApi
-val LocalKeyboardOverlapHeightState = staticCompositionLocalOf<State<Float>> {
-    error("CompositionLocal LocalKeyboardOverlapHeightState not present")
+val LocalKeyboardOverlapHeight = staticCompositionLocalOf<Float> {
+    error("CompositionLocal LocalKeyboardOverlapHeight not present")
 }

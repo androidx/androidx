@@ -64,7 +64,7 @@ actual val WindowInsets.Companion.captionBar: WindowInsets
 actual val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable
     @OptIn(InternalComposeApi::class)
-    get() = when (LocalInterfaceOrientationState.current.value) {
+    get() = when (LocalInterfaceOrientation.current) {
         InterfaceOrientation.Portrait -> iosSafeArea.only(WindowInsetsSides.Top)
         InterfaceOrientation.PortraitUpsideDown -> iosSafeArea.only(WindowInsetsSides.Bottom)
         InterfaceOrientation.LandscapeLeft -> iosSafeArea.only(WindowInsetsSides.Right)
@@ -80,7 +80,7 @@ actual val WindowInsets.Companion.displayCutout: WindowInsets
 actual val WindowInsets.Companion.ime: WindowInsets
     @Composable
     @OptIn(InternalComposeApi::class)
-    get() = WindowInsets(bottom = LocalKeyboardOverlapHeightState.current.value.dp)
+    get() = WindowInsets(bottom = LocalKeyboardOverlapHeight.current.dp)
 
 /**
  * These insets represent the space where system gestures have priority over application gestures.
@@ -103,7 +103,7 @@ actual val WindowInsets.Companion.navigationBars: WindowInsets
 actual val WindowInsets.Companion.statusBars: WindowInsets
     @Composable
     @OptIn(InternalComposeApi::class)
-    get() = when (LocalInterfaceOrientationState.current.value) {
+    get() = when (LocalInterfaceOrientation.current) {
         InterfaceOrientation.Portrait -> iosSafeArea.only(WindowInsetsSides.Top)
         else -> ZeroInsets
     }

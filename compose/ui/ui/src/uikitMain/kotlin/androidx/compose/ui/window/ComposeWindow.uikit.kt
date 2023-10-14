@@ -33,7 +33,6 @@ import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.toCompose
 import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.LocalUIViewController
@@ -43,15 +42,12 @@ import androidx.compose.ui.platform.*
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.util.fastMap
 import kotlin.math.floor
 import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 import kotlin.math.roundToLong
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.cinterop.ObjCAction
-import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
@@ -59,8 +55,6 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoPointerEvent
-import org.jetbrains.skiko.currentNanoTime
 import platform.CoreGraphics.CGPoint
 import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGAffineTransformIdentity
@@ -157,16 +151,16 @@ private class AttachedComposeContext(
 internal actual class ComposeWindow : UIViewController {
 
     internal lateinit var configuration: ComposeUIViewControllerConfiguration
-    private val keyboardOverlapHeightState = mutableStateOf(0f)
+    private var keyboardOverlapHeight by mutableStateOf(0f)
     private var isInsideSwiftUI = false
-    private var safeAreaState by mutableStateOf(PlatformInsets())
-    private var layoutMarginsState by mutableStateOf(PlatformInsets())
+    private var safeArea by mutableStateOf(PlatformInsets())
+    private var layoutMargins by mutableStateOf(PlatformInsets())
 
     /*
-     * Initial value is arbitarily chosen to avoid propagating invalid value logic
+     * Initial value is arbitrarily chosen to avoid propagating invalid value logic
      * It's never the case in real usage scenario to reflect that in type system
      */
-    private val interfaceOrientationState = mutableStateOf(
+    private var interfaceOrientation by mutableStateOf(
         InterfaceOrientation.Portrait
     )
 
@@ -236,7 +230,7 @@ internal actual class ComposeWindow : UIViewController {
             val bottomIndent = screenHeight - composeViewBottomY
 
             if (bottomIndent < keyboardHeight) {
-                keyboardOverlapHeightState.value = (keyboardHeight - bottomIndent).toFloat()
+                keyboardOverlapHeight = (keyboardHeight - bottomIndent).toFloat()
             }
 
             val scene = attachedComposeContext?.scene ?: return
@@ -255,7 +249,7 @@ internal actual class ComposeWindow : UIViewController {
         @Suppress("unused")
         @ObjCAction
         fun keyboardWillHide(arg: NSNotification) {
-            keyboardOverlapHeightState.value = 0f
+            keyboardOverlapHeight = 0f
             if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
                 updateViewBounds(offsetY = 0.0)
             }
@@ -305,7 +299,7 @@ internal actual class ComposeWindow : UIViewController {
     fun viewSafeAreaInsetsDidChange() {
         // super.viewSafeAreaInsetsDidChange() // TODO: call super after Kotlin 1.8.20
         view.safeAreaInsets.useContents {
-            safeAreaState = PlatformInsets(
+            safeArea = PlatformInsets(
                 left = left.dp,
                 top = top.dp,
                 right = right.dp,
@@ -313,7 +307,7 @@ internal actual class ComposeWindow : UIViewController {
             )
         }
         view.directionalLayoutMargins.useContents {
-            layoutMarginsState = PlatformInsets(
+            layoutMargins = PlatformInsets(
                 left = leading.dp, // TODO: Check RTL support
                 top = top.dp,
                 right = trailing.dp, // TODO: Check RTL support
@@ -348,7 +342,7 @@ internal actual class ComposeWindow : UIViewController {
 
         // UIKit possesses all required info for layout at this point
         currentInterfaceOrientation?.let {
-            interfaceOrientationState.value = it
+            interfaceOrientation = it
         }
 
         attachedComposeContext?.let {
@@ -679,10 +673,10 @@ internal actual class ComposeWindow : UIViewController {
                 CompositionLocalProvider(
                     LocalLayerContainer provides view,
                     LocalUIViewController provides this,
-                    LocalKeyboardOverlapHeightState provides keyboardOverlapHeightState,
-                    LocalSafeArea provides safeAreaState,
-                    LocalLayoutMargins provides layoutMarginsState,
-                    LocalInterfaceOrientationState provides interfaceOrientationState,
+                    LocalKeyboardOverlapHeight provides keyboardOverlapHeight,
+                    LocalSafeArea provides safeArea,
+                    LocalLayoutMargins provides layoutMargins,
+                    LocalInterfaceOrientation provides interfaceOrientation,
                     LocalSystemTheme provides systemTheme.value,
                     LocalUIKitInteropContext provides interopContext,
                     content = content
