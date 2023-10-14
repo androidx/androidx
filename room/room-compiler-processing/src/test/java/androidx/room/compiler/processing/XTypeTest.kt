@@ -1848,16 +1848,7 @@ class XTypeTest {
             "KotlinClass.kt",
             """
             @JvmInline value class PackageName(val value: String)
-            @JvmInline value class MyResult<T>(val value: T)
-
             class KotlinClass {
-                // @JvmName disables name mangling for functions that use inline classes and
-                // make them visible to Java:
-                // https://kotlinlang.org/docs/inline-classes.html#calling-from-java-code
-                @JvmName("getResult")
-                fun getResult(): MyResult<String> = TODO()
-                @JvmName("setResult")
-                fun setResult(result: MyResult<String>) { }
                 fun getPackageNames(): Set<PackageName> = emptySet()
                 fun setPackageNames(pkgNames: Set<PackageName>) { }
             }
@@ -1868,31 +1859,6 @@ class XTypeTest {
             classpath = if (isPrecompiled) { compileFiles(listOf(kotlinSrc)) } else { emptyList() }
         ) { invocation ->
             val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
-
-            kotlinElm.getDeclaredMethodByJvmName("getResult").apply {
-                assertThat(returnType.asTypeName().java.toString())
-                    .isEqualTo("java.lang.Object")
-                if (invocation.isKsp) {
-                    assertThat(returnType.asTypeName().kotlin.toString())
-                        .isEqualTo("MyResult<kotlin.String>")
-                } else {
-                    // Can't generate Kotlin code with KAPT
-                    assertThat(returnType.asTypeName().kotlin.toString())
-                        .isEqualTo("androidx.room.compiler.codegen.Unavailable")
-                }
-            }
-            kotlinElm.getDeclaredMethodByJvmName("setResult").apply {
-                assertThat(parameters.single().type.asTypeName().java.toString())
-                    .isEqualTo("java.lang.Object")
-                if (invocation.isKsp) {
-                    assertThat(parameters.single().type.asTypeName().kotlin.toString())
-                        .isEqualTo("MyResult<kotlin.String>")
-                } else {
-                    // Can't generate Kotlin code with KAPT
-                    assertThat(parameters.single().type.asTypeName().kotlin.toString())
-                        .isEqualTo("androidx.room.compiler.codegen.Unavailable")
-                }
-            }
 
             kotlinElm.getMethodByJvmName("getPackageNames").apply {
                 assertThat(returnType.typeName.toString())
@@ -1906,6 +1872,122 @@ class XTypeTest {
                     .isEqualTo("java.util.Set<PackageName>")
                 assertThat(paramType.typeArguments.single().typeName.toString())
                     .isEqualTo("PackageName")
+            }
+        }
+    }
+
+    @Test
+    fun jvmTypes(@TestParameter isPrecompiled: Boolean) {
+        val kotlinSrc = Source.kotlin(
+            "KotlinClass.kt",
+            """
+            @JvmInline value class MyInlineClass(val value: Int)
+            @JvmInline value class MyGenericInlineClass<T: Number>(val value: T)
+            class KotlinClass {
+                // @JvmName disables name mangling for functions that use inline classes directly
+                // and make them visible to Java:
+                // https://kotlinlang.org/docs/inline-classes.html#calling-from-java-code
+                @JvmName("kotlinValueClassDirectUsage")
+                fun kotlinValueClassDirectUsage(): UInt = TODO()
+                fun kotlinValueClassIndirectUsage(): List<UInt> = TODO()
+                fun kotlinNonValueClassDirectUsage(): String = TODO()
+                fun kotlinNonValueClassIndirectUsage(): List<String> = TODO()
+                @JvmName("kotlinGenericValueClassDirectUsage")
+                fun kotlinGenericValueClassDirectUsage(): Result<Int> = TODO()
+                fun kotlinGenericValueClassIndirectUsage(): List<Result<Int>> = TODO()
+                @JvmName("nonKotlinValueClassDirectUsage")
+                fun nonKotlinValueClassDirectUsage(): MyInlineClass = TODO()
+                fun nonKotlinValueClassIndirectUsage(): List<MyInlineClass> = TODO()
+                @JvmName("nonKotlinGenericValueClassDirectUsage")
+                fun nonKotlinGenericValueClassDirectUsage(): MyGenericInlineClass<Int> = TODO()
+                fun nonKotlinGenericValueClassIndirectUsage(): List<MyGenericInlineClass<Int>> = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = if (isPrecompiled) { emptyList() } else { listOf(kotlinSrc) },
+            classpath = if (isPrecompiled) { compileFiles(listOf(kotlinSrc)) } else { emptyList() }
+        ) { invocation ->
+            val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
+            kotlinElm.getMethodByJvmName("kotlinValueClassDirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("int")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.UInt")
+                }
+            }
+            kotlinElm.getMethodByJvmName("kotlinValueClassIndirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.util.List<kotlin.UInt>")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.collections.List<kotlin.UInt>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("kotlinNonValueClassDirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.lang.String")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.String")
+                }
+            }
+            kotlinElm.getMethodByJvmName("kotlinNonValueClassIndirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.util.List<java.lang.String>")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.collections.List<kotlin.String>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("kotlinGenericValueClassDirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.lang.Object")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.Result<kotlin.Int>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("kotlinGenericValueClassIndirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.util.List<kotlin.Result<java.lang.Integer>>")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.collections.List<kotlin.Result<kotlin.Int>>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("nonKotlinValueClassDirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("int")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("MyInlineClass")
+                }
+            }
+            kotlinElm.getMethodByJvmName("nonKotlinValueClassIndirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.util.List<MyInlineClass>")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.collections.List<MyInlineClass>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("nonKotlinGenericValueClassDirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.lang.Number")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("MyGenericInlineClass<kotlin.Int>")
+                }
+            }
+            kotlinElm.getMethodByJvmName("nonKotlinGenericValueClassIndirectUsage").apply {
+                assertThat(returnType.asTypeName().java.toString())
+                    .isEqualTo("java.util.List<MyGenericInlineClass<java.lang.Integer>>")
+                if (invocation.isKsp) {
+                    assertThat(returnType.asTypeName().kotlin.toString())
+                        .isEqualTo("kotlin.collections.List<MyGenericInlineClass<kotlin.Int>>")
+                }
             }
         }
     }
