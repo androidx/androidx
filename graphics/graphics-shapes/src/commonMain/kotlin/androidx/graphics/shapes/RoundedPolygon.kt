@@ -17,6 +17,7 @@
 package androidx.graphics.shapes
 
 import androidx.annotation.IntRange
+import androidx.collection.MutableFloatList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -36,22 +37,31 @@ class RoundedPolygon internal constructor(
     /**
      * A flattened version of the [Feature]s, as a List<Cubic>.
      */
-    val cubics = features.flatMap { it.cubics }
+    val cubics = buildList {
+        // Equivalent to `features.flatMap { it.cubics }` but without Iterator allocation.
+        for (i in features.indices) {
+            addAll(features[i].cubics)
+        }
+    }
 
     init {
         var prevCubic = cubics[cubics.size - 1]
         debugLog("RoundedPolygon") { "Cubic-1 = $prevCubic" }
-        cubics.forEachIndexed { index, cubic ->
+        for (index in cubics.indices) {
+            val cubic = cubics[index]
             if (abs(cubic.anchor0X - prevCubic.anchor1X) > DistanceEpsilon ||
-                abs(cubic.anchor0Y - prevCubic.anchor1Y) > DistanceEpsilon) {
+                abs(cubic.anchor0Y - prevCubic.anchor1Y) > DistanceEpsilon
+            ) {
                 debugLog("RoundedPolygon") { "Cubic = $cubic" }
                 debugLog("RoundedPolygon") {
                     "Ix: $index | (${cubic.anchor0X},${cubic.anchor0Y}) vs " +
                         "$prevCubic"
                 }
-                throw IllegalArgumentException("RoundedPolygon must be contiguous, with the " +
-                    "anchor points of all curves matching the anchor points of the preceding " +
-                    "and succeeding cubics")
+                throw IllegalArgumentException(
+                    "RoundedPolygon must be contiguous, with the " +
+                        "anchor points of all curves matching the anchor points of the preceding " +
+                        "and succeeding cubics"
+                )
             }
             prevCubic = cubic
         }
@@ -67,7 +77,15 @@ class RoundedPolygon internal constructor(
      */
     fun transformed(f: PointTransformer): RoundedPolygon {
         val center = Point(centerX, centerY).transformed(f)
-        return RoundedPolygon(features.map { it.transformed(f) }, center.x, center.y)
+        return RoundedPolygon(
+            buildList {
+                for (i in features.indices) {
+                    add(features[i].transformed(f))
+                }
+            },
+            center.x,
+            center.y
+        )
     }
 
     /**
@@ -96,12 +114,13 @@ class RoundedPolygon internal constructor(
      * This is a library-internal API, prefer the appropriate wrapper in your platform.
      */
     fun calculateBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
-        require(bounds.size >= 4)
+        require(bounds.size >= 4) { "Required bounds size of 4" }
         var minX = Float.MAX_VALUE
         var minY = Float.MAX_VALUE
         var maxX = Float.MIN_VALUE
         var maxY = Float.MIN_VALUE
-        for (bezier in cubics) {
+        for (i in cubics.indices) {
+            val bezier = cubics[i]
             if (bezier.anchor0X < minX) minX = bezier.anchor0X
             if (bezier.anchor0Y < minY) minY = bezier.anchor0Y
             if (bezier.anchor0X > maxX) maxX = bezier.anchor0X
@@ -185,7 +204,8 @@ fun RoundedPolygon(
     rounding = rounding,
     perVertexRounding = perVertexRounding,
     centerX = centerX,
-    centerY = centerY)
+    centerY = centerY
+)
 
 /**
  * Creates a copy of the given [RoundedPolygon]
@@ -218,6 +238,8 @@ fun RoundedPolygon(source: RoundedPolygon) =
  * parameter has less than 6 Floats). Or if the [perVertexRounding] parameter is not null and the
  * size doesn't match the number vertices.
  */
+// TODO(performance): Update the map calls to more efficient code that doesn't allocate Iterators
+//  unnecessarily.
 @JvmOverloads
 fun RoundedPolygon(
     vertices: FloatArray,
@@ -233,8 +255,10 @@ fun RoundedPolygon(
         throw IllegalArgumentException("The vertices array should have even size")
     }
     if (perVertexRounding != null && perVertexRounding.size * 2 != vertices.size) {
-        throw IllegalArgumentException("perVertexRounding list should be either null or " +
-            "the same size as the number of vertices (vertices.size / 2)")
+        throw IllegalArgumentException(
+            "perVertexRounding list should be either null or " +
+                "the same size as the number of vertices (vertices.size / 2)"
+        )
     }
     val corners = mutableListOf<List<Cubic>>()
     val n = vertices.size / 2
@@ -286,10 +310,13 @@ fun RoundedPolygon(
     for (i in 0 until n) {
         // allowedCuts[0] is for the side from the previous corner to this one,
         // allowedCuts[1] is for the side from this corner to the next one.
-        val allowedCuts = (0..1).map { delta ->
+        val allowedCuts = MutableFloatList(2)
+        for (delta in 0..1) {
             val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
-            roundedCorners[i].expectedRoundCut * roundCutRatio +
-                (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
+            allowedCuts.add(
+                roundedCorners[i].expectedRoundCut * roundCutRatio +
+                    (roundedCorners[i].expectedCut - roundedCorners[i].expectedRoundCut) * cutRatio
+            )
         }
         corners.add(
             roundedCorners[i].getCubics(
@@ -397,17 +424,25 @@ private class RoundedCorner(
 
     // cosine of angle at p1 is dot product of unit vectors to the other two vertices
     val cosAngle = d1.dotProduct(d2)
+
     // identity: sin^2 + cos^2 = 1
     // sinAngle gives us the intersection
     val sinAngle = sqrt(1 - square(cosAngle))
+
     // How much we need to cut, as measured on a side, to get the required radius
     // calculating where the rounding circle hits the edge
     // This uses the identity of tan(A/2) = sinA/(1 + cosA), where tan(A/2) = radius/cut
     val expectedRoundCut =
-        if (sinAngle > 1e-3) { cornerRadius * (cosAngle + 1) / sinAngle } else { 0f }
+        if (sinAngle > 1e-3) {
+            cornerRadius * (cosAngle + 1) / sinAngle
+        } else {
+            0f
+        }
+
     // smoothing changes the actual cut. 0 is same as expectedRoundCut, 1 doubles it
     val expectedCut: Float
         get() = ((1 + smoothing) * expectedRoundCut)
+
     // the center of the circle approximated by the rounding curve (or the middle of the three
     // curves if smoothing is requested). The center is the same as p0 if there is no rounding.
     var center: Point = Point(0f, 0f)
@@ -451,8 +486,10 @@ private class RoundedCorner(
         ).reverse()
         return listOf(
             flanking0,
-            Cubic.circularArc(center.x, center.y, flanking0.anchor1X, flanking0.anchor1Y,
-                flanking2.anchor0X, flanking2.anchor0Y),
+            Cubic.circularArc(
+                center.x, center.y, flanking0.anchor1X, flanking0.anchor1Y,
+                flanking2.anchor0X, flanking2.anchor0Y
+            ),
             flanking2
         )
     }
@@ -509,9 +546,11 @@ private class RoundedCorner(
         // We use an approximation to cut a part of the circle section proportional to 1 - smooth,
         // When smooth = 0, we take the full section, when smooth = 1, we take nothing.
         // TODO: revisit this, it can be problematic as it approaches 180 degrees
-        val p = interpolate(circleSegmentIntersection,
+        val p = interpolate(
+            circleSegmentIntersection,
             (circleSegmentIntersection + otherCircleSegmentIntersection) / 2f,
-            actualSmoothingValues)
+            actualSmoothingValues
+        )
         // The flanking curve ends on the circle
         val curveEnd = circleCenter +
             directionVector(p.x - circleCenter.x, p.y - circleCenter.y) * actualR
