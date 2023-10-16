@@ -183,10 +183,96 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
     }
 
     /**
+     * Populate the values of the spline at time [t] into the given AnimationVector [v].
+     */
+    fun getPos(t: Float, v: AnimationVector) {
+        val n = timePoints.size
+        val dim = values[0].size
+        if (isExtrapolate) {
+            if (t <= timePoints[0]) {
+                getSlope(timePoints[0], slopeTemp)
+                for (j in 0 until dim) {
+                    v[j] = values[0][j] + (t - timePoints[0]) * slopeTemp[j]
+                }
+                return
+            }
+            if (t >= timePoints[n - 1]) {
+                getSlope(timePoints[n - 1], slopeTemp)
+                for (j in 0 until dim) {
+                    v[j] = values[n - 1][j] + (t - timePoints[n - 1]) * slopeTemp[j]
+                }
+                return
+            }
+        } else {
+            if (t <= timePoints[0]) {
+                for (j in 0 until dim) {
+                    v[j] = values[0][j]
+                }
+                return
+            }
+            if (t >= timePoints[n - 1]) {
+                for (j in 0 until dim) {
+                    v[j] = values[n - 1][j]
+                }
+                return
+            }
+        }
+        for (i in 0 until n - 1) {
+            if (t == timePoints[i]) {
+                for (j in 0 until dim) {
+                    v[j] = values[i][j]
+                }
+            }
+            if (t < timePoints[i + 1]) {
+                val h = timePoints[i + 1] - timePoints[i]
+                val x = (t - timePoints[i]) / h
+                for (j in 0 until dim) {
+                    val y1 = values[i][j]
+                    val y2 = values[i + 1][j]
+                    val t1 = tangents[i][j]
+                    val t2 = tangents[i + 1][j]
+                    v[j] = interpolate(h, x, y1, y2, t1, t2)
+                }
+                return
+            }
+        }
+    }
+
+    /**
      * Get the differential of the value at time
      * fill an array of slopes for each spline
      */
     fun getSlope(time: Float, v: FloatArray) {
+        var t = time
+        val n = timePoints.size
+        val dim = values[0].size
+        if (t <= timePoints[0]) {
+            t = timePoints[0]
+        } else if (t >= timePoints[n - 1]) {
+            t = timePoints[n - 1]
+        }
+        for (i in 0 until n - 1) {
+            if (t <= timePoints[i + 1]) {
+                val h = timePoints[i + 1] - timePoints[i]
+                val x = (t - timePoints[i]) / h
+                for (j in 0 until dim) {
+                    val y1 = values[i][j]
+                    val y2 = values[i + 1][j]
+                    val t1 = tangents[i][j]
+                    val t2 = tangents[i + 1][j]
+                    v[j] = diff(h, x, y1, y2, t1, t2) / h
+                }
+                break
+            }
+        }
+        return
+    }
+
+    /**
+     * Populate the differential values of the spline at the given [time] in to the given
+     * AnimationVector [v].
+     */
+    fun getSlope(time: Float, v: AnimationVector) {
         var t = time
         val n = timePoints.size
         val dim = values[0].size
