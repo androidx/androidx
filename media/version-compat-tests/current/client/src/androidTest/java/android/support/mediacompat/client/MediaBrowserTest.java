@@ -28,6 +28,7 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DEL
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
+import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 
@@ -41,6 +42,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -67,6 +69,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -453,15 +456,26 @@ public class MediaBrowserTest {
 
     @Test
     @SmallTest
-    // Platform MediaBrowser can't handle null children list on API < 24 (b/19127753).
-    @SdkSuppress(minSdkVersion = 24)
+    @SdkSuppress(minSdkVersion = 21)
     public void testSubscribeInvalidItem() throws Exception {
+        // TODO: Remove this when the 'previous' service version contains the fix in
+        //  http://r.android.com/2794937.
+        assumeTrue(Build.VERSION.SDK_INT >= 24 || mServiceVersion.equals(VERSION_TOT));
+
         connectMediaBrowserService();
 
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_INVALID, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);
+        if (Build.VERSION.SDK_INT < 24) {
+            // There's no way to communicate an invalid media ID on API < 24 because the documented
+            // way of emitting children = null from MediaBrowserService.onLoadChildren throws an
+            // exception from inside MediaBrowserService (b/19127753). Therefore we return an empty
+            // list of children, which is technically incorrect but avoids the exception.
+            assertEquals(Collections.emptyList(), mSubscriptionCallback.mLastChildMediaItems);
+        } else {
+            assertEquals(MEDIA_ID_INVALID, mSubscriptionCallback.mLastErrorId);
+        }
     }
 
     @Test
