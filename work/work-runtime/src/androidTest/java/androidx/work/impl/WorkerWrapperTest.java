@@ -61,6 +61,7 @@ import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.DatabaseTest;
+import androidx.work.DefaultWorkerFactory;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
@@ -1197,7 +1198,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                     @NonNull String workerClassName,
                     @NonNull WorkerParameters workerParameters) {
 
-                ListenableWorker instance = getDefaultWorkerFactory()
+                ListenableWorker instance = DefaultWorkerFactory.INSTANCE
                         .createWorkerWithDefaultFallback(
                                 appContext, workerClassName, workerParameters);
 
@@ -1248,7 +1249,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                     @NonNull String workerClassName,
                     @NonNull WorkerParameters workerParameters) {
 
-                ListenableWorker instance = getDefaultWorkerFactory()
+                ListenableWorker instance = DefaultWorkerFactory.INSTANCE
                         .createWorkerWithDefaultFallback(
                                 appContext, workerClassName, workerParameters);
 

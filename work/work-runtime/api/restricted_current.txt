@@ -184,8 +184,8 @@ package androidx.work {
 
   public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
     ctor public DelegatingWorkerFactory();
-    method public final void addFactory(androidx.work.WorkerFactory);
-    method public final androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public final void addFactory(androidx.work.WorkerFactory workerFactory);
+    method public final androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public enum ExistingPeriodicWorkPolicy {
@@ -497,30 +497,54 @@ package androidx.work {
   }
 
   public final class WorkQuery {
-    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID!>);
-    method public static androidx.work.WorkQuery fromIds(java.util.UUID!...);
-    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State!...);
-    method public static androidx.work.WorkQuery fromStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery fromTags(java.lang.String!...);
-    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String!...);
-    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String!>);
-    method public java.util.List<java.util.UUID!> getIds();
-    method public java.util.List<androidx.work.WorkInfo.State!> getStates();
-    method public java.util.List<java.lang.String!> getTags();
-    method public java.util.List<java.lang.String!> getUniqueWorkNames();
+    method public static androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID> ids);
+    method public static androidx.work.WorkQuery fromIds(java.util.UUID... ids);
+    method public static androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State... states);
+    method public static androidx.work.WorkQuery fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public static androidx.work.WorkQuery fromTags(java.lang.String... tags);
+    method public static androidx.work.WorkQuery fromTags(java.util.List<java.lang.String> tags);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String... uniqueWorkNames);
+    method public static androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+    method public java.util.List<java.util.UUID> getIds();
+    method public java.util.List<androidx.work.WorkInfo.State> getStates();
+    method public java.util.List<java.lang.String> getTags();
+    method public java.util.List<java.lang.String> getUniqueWorkNames();
+    property public final java.util.List<java.util.UUID> ids;
+    property public final java.util.List<androidx.work.WorkInfo.State> states;
+    property public final java.util.List<java.lang.String> tags;
+    property public final java.util.List<java.lang.String> uniqueWorkNames;
+    field public static final androidx.work.WorkQuery.Companion Companion;
   }
 
   public static final class WorkQuery.Builder {
-    method public androidx.work.WorkQuery.Builder addIds(java.util.List<java.util.UUID!>);
-    method public androidx.work.WorkQuery.Builder addStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
-    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public androidx.work.WorkQuery.Builder addIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery.Builder addStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
     method public androidx.work.WorkQuery build();
-    method public static androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID!>);
-    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID> ids);
+    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String> tags);
+    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+    field public static final androidx.work.WorkQuery.Builder.Companion Companion;
+  }
+
+  public static final class WorkQuery.Builder.Companion {
+    method public androidx.work.WorkQuery.Builder fromIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery.Builder fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
+  }
+
+  public static final class WorkQuery.Companion {
+    method public androidx.work.WorkQuery fromIds(java.util.List<java.util.UUID> ids);
+    method public androidx.work.WorkQuery fromIds(java.util.UUID... ids);
+    method public androidx.work.WorkQuery fromStates(androidx.work.WorkInfo.State... states);
+    method public androidx.work.WorkQuery fromStates(java.util.List<? extends androidx.work.WorkInfo.State> states);
+    method public androidx.work.WorkQuery fromTags(java.lang.String... tags);
+    method public androidx.work.WorkQuery fromTags(java.util.List<java.lang.String> tags);
+    method public androidx.work.WorkQuery fromUniqueWorkNames(java.lang.String... uniqueWorkNames);
+    method public androidx.work.WorkQuery fromUniqueWorkNames(java.util.List<java.lang.String> uniqueWorkNames);
   }
 
   public abstract class WorkRequest {
@@ -559,7 +583,7 @@ package androidx.work {
 
   public abstract class WorkerFactory {
     ctor public WorkerFactory();
-    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
+    method public abstract androidx.work.ListenableWorker? createWorker(android.content.Context appContext, String workerClassName, androidx.work.WorkerParameters workerParameters);
   }
 
   public final class WorkerParameters {
