@@ -1335,6 +1335,11 @@ public class UiDevice implements Searchable {
         }
     }
 
+    /**
+     * Gets the display with {@code displayId}. The display may be null because it may be a private
+     * virtual display, for example.
+     */
+    @Nullable
     Display getDisplayById(int displayId) {
         return mDisplayManager.getDisplay(displayId);
     }
