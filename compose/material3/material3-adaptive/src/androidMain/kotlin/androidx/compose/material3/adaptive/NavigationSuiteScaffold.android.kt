@@ -21,4 +21,4 @@ import androidx.compose.runtime.Composable
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo
     @Composable
-    get() = calculateWindowAdaptiveInfo()
+    get() = currentWindowAdaptiveInfo()

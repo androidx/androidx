@@ -40,13 +40,13 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class WindowSizeAsStateTest {
+class CollectWindowSizeAsStateTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun test_windowSizeAsState() {
-        lateinit var actualWindowSize: State<IntSize>
+    fun test_collectWindowSizeAsState() {
+        var actualWindowSize: IntSize = IntSize.Zero
 
         val mockWindowSize = mutableStateOf(MockWindowSize1)
         WindowMetricsCalculator.overrideDecorator(
@@ -58,18 +58,18 @@ class WindowSizeAsStateTest {
             testConfiguration.screenWidthDp = mockWindowSize.value.width
             testConfiguration.screenHeightDp = mockWindowSize.value.height
             CompositionLocalProvider(LocalConfiguration provides testConfiguration) {
-                actualWindowSize = windowSizeAsState()
+                actualWindowSize = collectWindowSizeAsState().value
             }
         }
 
         rule.runOnIdle {
-            assertThat(actualWindowSize.value).isEqualTo(MockWindowSize1)
+            assertThat(actualWindowSize).isEqualTo(MockWindowSize1)
         }
 
         mockWindowSize.value = MockWindowSize2
 
         rule.runOnIdle {
-            assertThat(actualWindowSize.value).isEqualTo(MockWindowSize2)
+            assertThat(actualWindowSize).isEqualTo(MockWindowSize2)
         }
     }
 

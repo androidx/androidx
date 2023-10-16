@@ -44,14 +44,14 @@ import kotlinx.coroutines.flow.map
 @ExperimentalMaterial3AdaptiveApi
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun calculateWindowAdaptiveInfo(): WindowAdaptiveInfo =
+fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo =
     WindowAdaptiveInfo(
         WindowSizeClass.calculateFromSize(
             with(LocalDensity.current) {
-                windowSizeAsState().value.toSize().toDpSize()
+                collectWindowSizeAsState().value.toSize().toDpSize()
             }
         ),
-        calculatePosture(foldingFeaturesAsState().value)
+        calculatePosture(collectFoldingFeaturesAsState().value)
     )
 
 /**
@@ -61,7 +61,7 @@ fun calculateWindowAdaptiveInfo(): WindowAdaptiveInfo =
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun windowSizeAsState(): State<IntSize> {
+fun collectWindowSizeAsState(): State<IntSize> {
     val size = remember {
         mutableStateOf(IntSize(0, 0))
     }
@@ -90,7 +90,7 @@ fun windowSizeAsState(): State<IntSize> {
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun foldingFeaturesAsState(): State<List<FoldingFeature>> {
+fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
     return remember(context) {
         if (context is Activity) {

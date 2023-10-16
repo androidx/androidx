@@ -155,7 +155,7 @@ private class DefaultListDetailPaneScaffoldState(
 @Composable
 fun rememberListDetailPaneScaffoldState(
     scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(calculateWindowAdaptiveInfo()),
+        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     initialFocusHistory: List<ListDetailPaneScaffoldRole> = listOf(ListDetailPaneScaffoldRole.List)
