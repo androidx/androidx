@@ -32,12 +32,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
@@ -49,7 +49,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
-import kotlinx.coroutines.flow.map
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -201,49 +200,43 @@ public fun NavHost(
         "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
     }
 
-    // Intercept back only when there's a destination to pop
-    val currentBackStack by remember(navController.currentBackStack) {
-        navController.currentBackStack.map {
-            it.filter { entry ->
-                entry.destination.navigatorName == ComposeNavigator.NAME
-            }
-        }
-    }.collectAsState(emptyList())
-    BackHandler(currentBackStack.size > 1) {
-        navController.popBackStack()
-    }
-
-    // Setup the navController with proper owners
-    DisposableEffect(lifecycleOwner) {
-        // Setup the navController with proper owners
-        navController.setLifecycleOwner(lifecycleOwner)
-        onDispose { }
-    }
     navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
 
     // Then set the graph
     navController.graph = graph
-
-    val saveableStateHolder = rememberSaveableStateHolder()
 
     // Find the ComposeNavigator, returning early if it isn't found
     // (such as is the case when using TestNavHostController)
     val composeNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
         ComposeNavigator.NAME
     ) as? ComposeNavigator ?: return
-    val visibleEntries by remember(navController.visibleEntries) {
-        navController.visibleEntries.map {
-            it.filter { entry ->
+
+    val currentBackStack by composeNavigator.backStack.collectAsState()
+
+    BackHandler(currentBackStack.size > 1) {
+        navController.popBackStack()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        // Setup the navController with proper owners
+        navController.setLifecycleOwner(lifecycleOwner)
+        onDispose { }
+    }
+
+    val saveableStateHolder = rememberSaveableStateHolder()
+
+    val allVisibleEntries by navController.visibleEntries.collectAsState()
+
+    // Intercept back only when there's a destination to pop
+    val visibleEntries by remember {
+        derivedStateOf {
+            allVisibleEntries.filter { entry ->
                 entry.destination.navigatorName == ComposeNavigator.NAME
             }
         }
-    }.collectAsState(emptyList())
-
-    val backStackEntry: NavBackStackEntry? = if (LocalInspectionMode.current) {
-        composeNavigator.backStack.value.lastOrNull()
-    } else {
-        visibleEntries.lastOrNull()
     }
+
+    val backStackEntry: NavBackStackEntry? = visibleEntries.lastOrNull()
 
     val zIndices = remember { mutableMapOf<String, Float>() }
 
@@ -306,12 +299,7 @@ public fun NavHost(
             // animating. In these cases the currentEntry will be null, and in those cases,
             // AnimatedContent will just skip attempting to transition the old entry.
             // See https://issuetracker.google.com/238686802
-            val currentEntry = if (LocalInspectionMode.current) {
-                // show startDestination if inspecting (preview)
-                composeNavigator.backStack.value
-            } else {
-                visibleEntries
-            }.lastOrNull { entry -> it == entry }
+            val currentEntry = visibleEntries.lastOrNull { entry -> it == entry }
 
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
