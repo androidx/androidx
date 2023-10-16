@@ -237,18 +237,18 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (!createParentFolder(pictureFolder)) {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        message="FileUtil.createFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!createFolder(pictureFolder)) {"
+        errorLine2="             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.createParentFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        if (!createParentFolder(pictureFolder)) {"
-        errorLine2="                                ~~~~~~~~~~~~~">
+        message="FileUtil.createFolder can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        if (!createFolder(pictureFolder)) {"
+        errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXService.java"/>
     </issue>
