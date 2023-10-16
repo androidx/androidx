@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -84,11 +85,15 @@ fun ThreePaneScaffold(
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+    val ltrArrangement = remember(arrangement, layoutDirection) {
+        arrangement.toLtrArrangement(layoutDirection)
+    }
     val previousScaffoldValue = remember { ThreePaneScaffoldValueHolder(scaffoldValue) }
     val paneMotion = calculateThreePaneMotion(
-        previousScaffoldValue.value,
-        scaffoldValue,
-        arrangement
+        previousScaffoldValue = previousScaffoldValue.value,
+        currentScaffoldValue = scaffoldValue,
+        arrangement = ltrArrangement
     )
     previousScaffoldValue.value = scaffoldValue
 
@@ -101,11 +106,11 @@ fun ThreePaneScaffold(
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Primary,
-                    arrangement
+                    ltrArrangement
                 )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Primary,
-                    arrangement
+                    ltrArrangement
                 )
                 animationToolingLabel = "Primary"
             }.primaryPane()
@@ -116,11 +121,11 @@ fun ThreePaneScaffold(
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Secondary,
-                    arrangement
+                    ltrArrangement
                 )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Secondary,
-                    arrangement
+                    ltrArrangement
                 )
                 animationToolingLabel = "Secondary"
             }.secondaryPane()
@@ -132,11 +137,11 @@ fun ThreePaneScaffold(
                     positionAnimationSpec = paneMotion.animationSpec
                     enterTransition = paneMotion.enterTransition(
                         ThreePaneScaffoldRole.Tertiary,
-                        arrangement
+                        ltrArrangement
                     )
                     exitTransition = paneMotion.exitTransition(
                         ThreePaneScaffoldRole.Tertiary,
-                        arrangement
+                        ltrArrangement
                     )
                     animationToolingLabel = "Tertiary"
                 }.tertiaryPane()
@@ -145,10 +150,10 @@ fun ThreePaneScaffold(
     )
 
     val measurePolicy =
-        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, arrangement) }
+        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, ltrArrangement) }
     measurePolicy.scaffoldDirective = scaffoldDirective
     measurePolicy.scaffoldValue = scaffoldValue
-    measurePolicy.arrangement = arrangement
+    measurePolicy.arrangement = ltrArrangement
 
     LookaheadScope {
         Layout(

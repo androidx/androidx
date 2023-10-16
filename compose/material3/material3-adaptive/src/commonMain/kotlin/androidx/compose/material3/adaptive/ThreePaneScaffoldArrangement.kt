@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Represents the pane order of [ThreePaneScaffold] from start to end. Note that the values of
@@ -59,8 +60,28 @@ class ThreePaneScaffoldArrangement(
     }
 }
 
+/**
+ * Converts a bidirectional arrangement to a left-to-right arrangement.
+ */
 @ExperimentalMaterial3AdaptiveApi
-internal inline fun ThreePaneScaffoldArrangement.forEach(action: (ThreePaneScaffoldRole) -> Unit) {
+internal fun ThreePaneScaffoldArrangement.toLtrArrangement(
+    layoutDirection: LayoutDirection
+): ThreePaneScaffoldArrangement {
+    return if (layoutDirection == LayoutDirection.Rtl) {
+        ThreePaneScaffoldArrangement(
+            thirdPane,
+            secondPane,
+            firstPane
+        )
+    } else {
+        this
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+internal inline fun ThreePaneScaffoldArrangement.forEach(
+    action: (ThreePaneScaffoldRole) -> Unit
+) {
     action(firstPane)
     action(secondPane)
     action(thirdPane)
