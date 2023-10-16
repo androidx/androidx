@@ -2219,8 +2219,6 @@ MissingNullability: androidx.constraintlayout.core.parser.CLContainer#allocate(c
     Missing nullability on method `allocate` return
 MissingNullability: androidx.constraintlayout.core.parser.CLContainer#allocate(char[]) parameter #0:
     Missing nullability on parameter `content` in method `allocate`
-MissingNullability: androidx.constraintlayout.core.parser.CLContainer#clone():
-    Missing nullability on method `clone` return
 MissingNullability: androidx.constraintlayout.core.parser.CLContainer#get(String):
     Missing nullability on method `get` return
 MissingNullability: androidx.constraintlayout.core.parser.CLContainer#get(String) parameter #0:
@@ -2297,8 +2295,6 @@ MissingNullability: androidx.constraintlayout.core.parser.CLElement#CLElement(ch
     Missing nullability on parameter `content` in method `CLElement`
 MissingNullability: androidx.constraintlayout.core.parser.CLElement#addIndent(StringBuilder, int) parameter #0:
     Missing nullability on parameter `builder` in method `addIndent`
-MissingNullability: androidx.constraintlayout.core.parser.CLElement#clone():
-    Missing nullability on method `clone` return
 MissingNullability: androidx.constraintlayout.core.parser.CLElement#content():
     Missing nullability on method `content` return
 MissingNullability: androidx.constraintlayout.core.parser.CLElement#getContainer():
@@ -2353,8 +2349,6 @@ MissingNullability: androidx.constraintlayout.core.parser.CLObject#allocate(char
     Missing nullability on method `allocate` return
 MissingNullability: androidx.constraintlayout.core.parser.CLObject#allocate(char[]) parameter #0:
     Missing nullability on parameter `content` in method `allocate`
-MissingNullability: androidx.constraintlayout.core.parser.CLObject#clone():
-    Missing nullability on method `clone` return
 MissingNullability: androidx.constraintlayout.core.parser.CLObject#iterator():
     Missing nullability on method `iterator` return
 MissingNullability: androidx.constraintlayout.core.parser.CLObject#toFormattedJSON():
@@ -3059,12 +3053,6 @@ MissingNullability: androidx.constraintlayout.core.state.Transition.WidgetState#
     Missing nullability on parameter `widgetState` in method `setPathRelative`
 MissingNullability: androidx.constraintlayout.core.state.Transition.WidgetState#update(androidx.constraintlayout.core.widgets.ConstraintWidget, int) parameter #0:
     Missing nullability on parameter `child` in method `update`
-MissingNullability: androidx.constraintlayout.core.state.TransitionParser#parse(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition, androidx.constraintlayout.core.state.CorePixelDp) parameter #0:
-    Missing nullability on parameter `json` in method `parse`
-MissingNullability: androidx.constraintlayout.core.state.TransitionParser#parse(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition, androidx.constraintlayout.core.state.CorePixelDp) parameter #1:
-    Missing nullability on parameter `transition` in method `parse`
-MissingNullability: androidx.constraintlayout.core.state.TransitionParser#parse(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition, androidx.constraintlayout.core.state.CorePixelDp) parameter #2:
-    Missing nullability on parameter `dpToPixel` in method `parse`
 MissingNullability: androidx.constraintlayout.core.state.TransitionParser#parseKeyFrames(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition) parameter #0:
     Missing nullability on parameter `transitionCLObject` in method `parseKeyFrames`
 MissingNullability: androidx.constraintlayout.core.state.TransitionParser#parseKeyFrames(androidx.constraintlayout.core.parser.CLObject, androidx.constraintlayout.core.state.Transition) parameter #1:

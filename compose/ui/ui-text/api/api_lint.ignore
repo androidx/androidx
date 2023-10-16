@@ -41,8 +41,6 @@ GetterSetterNames: field MultiParagraph.didExceedMaxLines:
     Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field Paragraph.didExceedMaxLines:
     Invalid name for boolean property `didExceedMaxLines`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PlatformParagraphStyle.includeFontPadding:
-    Invalid name for boolean property `includeFontPadding`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field TextLayoutInput.softWrap:
     Invalid name for boolean property `softWrap`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field TextLayoutResult.didOverflowHeight:

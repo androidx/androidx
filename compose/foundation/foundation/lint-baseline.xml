@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanSuppressTag"
@@ -949,8 +949,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableNode has parameter &apos;onDragStarted&apos; with type Function3&lt;? super CoroutineScope, ? super Offset, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
     </issue>
@@ -958,8 +958,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor DraggableNode has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Velocity, ? super Continuation&lt;? super Unit>, ? extends Object>."
-        errorLine1="    private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
     </issue>
@@ -978,15 +978,6 @@
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;onDragStopped&apos; with type Function3&lt;? super CoroutineScope, ? super Velocity, ? super Continuation&lt;? super Unit>, ? extends Object>."
         errorLine1="        onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;postPointerSlop&apos; with type Function2&lt;? super PointerInputChange, ? super Offset, ? extends Unit>."
-        errorLine1="        val postPointerSlop = { event: PointerInputChange, offset: Offset ->"
-        errorLine2="        ^">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/gestures/Draggable.kt"/>
     </issue>
@@ -1804,8 +1795,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1831,8 +1822,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method magnifier has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1858,8 +1849,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierElement has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    private val magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private val magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1903,8 +1894,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in constructor MagnifierNode has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    var magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1912,8 +1903,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method setMagnifierCenter has parameter &apos;&lt;set-?>&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    var magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1921,8 +1912,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in return type Function1&lt;Density, Offset> of &apos;getMagnifierCenter&apos;."
-        errorLine1="    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    var magnifierCenter: (Density.() -> Offset)? = null,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
@@ -1966,8 +1957,8 @@
     <issue
         id="PrimitiveInLambda"
         message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method update has parameter &apos;magnifierCenter&apos; with type Function1&lt;? super Density, Offset>."
-        errorLine1="        magnifierCenter: Density.() -> Offset,"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        magnifierCenter: (Density.() -> Offset)?,"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>

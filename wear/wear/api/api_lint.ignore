@@ -33,8 +33,6 @@ GetterSetterNames: field AmbientLifecycleObserver.AmbientDetails.deviceHasLowBit
 
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Invalid nullability on parameter `p` in method `checkLayoutParams`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Invalid nullability on parameter `child` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#generateLayoutParams(android.util.AttributeSet) parameter #0:
@@ -45,10 +43,6 @@ InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#onInterceptTouchEvent
     Invalid nullability on parameter `event` in method `onInterceptTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Invalid nullability on parameter `event` in method `onTouchEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.wear.widget.CurvedTextView#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.wear.widget.CurvedTextView#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.widget.CurvedTextView#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo) parameter #0:
     Invalid nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.wear.widget.CurvedTextView#onPopulateAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
