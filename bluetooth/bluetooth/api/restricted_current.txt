@@ -192,14 +192,23 @@ package androidx.bluetooth {
     method public androidx.bluetooth.BluetoothDevice getDevice();
     method public androidx.bluetooth.BluetoothAddress getDeviceAddress();
     method public byte[]? getManufacturerSpecificData(int manufacturerId);
+    method public long getPeriodicAdvertisingInterval();
+    method public int getRssi();
     method public byte[]? getServiceData(java.util.UUID serviceUuid);
     method public java.util.List<java.util.UUID> getServiceUuids();
     method public long getTimestampNanos();
     method public boolean isConnectable();
     property public final androidx.bluetooth.BluetoothDevice device;
     property public final androidx.bluetooth.BluetoothAddress deviceAddress;
+    property public final long periodicAdvertisingInterval;
+    property public final int rssi;
     property public final java.util.List<java.util.UUID> serviceUuids;
     property public final long timestampNanos;
+    field public static final androidx.bluetooth.ScanResult.Companion Companion;
+    field public static final int PERIODIC_INTERVAL_NOT_PRESENT = 0; // 0x0
+  }
+
+  public static final class ScanResult.Companion {
   }
 
 }
