@@ -19,8 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XPackageElement
-import androidx.room.compiler.processing.javac.kotlin.KmFlags
-import java.lang.UnsupportedOperationException
+import androidx.room.compiler.processing.javac.kotlin.KmVisibility
 import javax.lang.model.element.PackageElement
 
 internal class JavacPackageElement(
@@ -30,7 +29,7 @@ internal class JavacPackageElement(
     override val qualifiedName: String by lazy {
         packageElement.qualifiedName.toString()
     }
-    override val kotlinMetadata: KmFlags?
+    override val kotlinMetadata: KmVisibility?
         get() = null
     override val name: String by lazy {
         packageElement.simpleName.toString()
