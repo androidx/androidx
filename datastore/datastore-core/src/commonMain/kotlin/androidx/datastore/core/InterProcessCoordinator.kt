@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.annotation.RestrictTo
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -75,5 +76,9 @@ interface InterProcessCoordinator {
 
 /**
  * Create a coordinator for single process use cases.
+ *
+ * @param filePath The canonical file path of the file managed by [SingleProcessCoordinator]
  */
-fun createSingleProcessCoordinator(): InterProcessCoordinator = SingleProcessCoordinator()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun createSingleProcessCoordinator(filePath: String): InterProcessCoordinator =
+    SingleProcessCoordinator(filePath)

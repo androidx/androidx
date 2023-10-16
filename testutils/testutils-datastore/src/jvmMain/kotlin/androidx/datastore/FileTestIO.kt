@@ -51,6 +51,10 @@ class JavaIOFile(val file: File) : TestFile<JavaIOFile>() {
     override val name: String
         get() = file.name
 
+    override fun path(): String {
+        return file.canonicalFile.absolutePath
+    }
+
     override fun delete(): Boolean {
         return file.delete()
     }
