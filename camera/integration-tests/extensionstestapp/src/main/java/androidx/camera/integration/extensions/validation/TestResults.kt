@@ -114,10 +114,8 @@ class TestResults private constructor(val context: Context) {
                 ", extensionMode: $extensionMode, testResult: $testResult" +
                 ", testResultDetails: $testResultDetails"
         )
-        cameraExtensionResultMap.getOrDefault(
-            Pair(testType, cameraId),
-            linkedMapOf()
-        )[extensionMode] = Pair(testResult, testResultDetails)
+        val results = cameraExtensionResultMap[Pair(testType, cameraId)] ?: linkedMapOf()
+        results[extensionMode] = Pair(testResult, testResultDetails)
         saveTestResults()
     }
 
