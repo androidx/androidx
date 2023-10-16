@@ -23,8 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.biometric.integration.testapp"
-        minSdkVersion 18
-        versionCode 1
         testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
 

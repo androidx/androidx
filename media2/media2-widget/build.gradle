@@ -40,7 +40,6 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 16
         multiDexEnabled true
     }
     sourceSets {
