@@ -243,7 +243,8 @@ val AccessibilityDemos = DemoCategory(
         ComposableDemo("Simple Top Bar with Scrolling") { ScrollingColumnDemo() },
         ComposableDemo("Nested Containers—True") { NestedContainersTrueDemo() },
         ComposableDemo("Nested Containers—False") { NestedContainersFalseDemo() },
-        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() }
+        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() },
+        ComposableDemo("Dual LTR and RTL Scene") { SimpleRtlLayoutDemo() }
     )
 )
 
