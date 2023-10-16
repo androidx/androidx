@@ -2920,17 +2920,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             structure.setTextStyle(px, 0, 0, 0)
         }
 
-        try {
-            // TODO(b/302117973): fix inconsistent state between LayoutNode and its Modifier.Node.
-            with(boundsInParent) {
-                structure.setDimens(
-                    left.toInt(), top.toInt(), 0, 0, width.toInt(), height.toInt()
-                )
-            }
-        } catch (e: IllegalStateException) {
-            Log.e(LogTag, "Fetching bounds on an unattached node!")
+        with(boundsInParent) {
+            structure.setDimens(
+                left.toInt(), top.toInt(), 0, 0, width.toInt(), height.toInt()
+            )
         }
-
         return structure
     }
 
