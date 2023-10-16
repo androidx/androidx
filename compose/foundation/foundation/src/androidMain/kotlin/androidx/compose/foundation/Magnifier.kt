@@ -79,9 +79,9 @@ internal val MagnifierPositionInRoot =
  * [Magnifier.show].
  * @param magnifierCenter The offset of the magnifier widget itself, where the magnified content is
  * rendered over the original content. Measured in density-independent pixels from the top-left of
- * the layout node this modifier is applied to. If [unspecified][DpOffset.Unspecified], the
- * magnifier widget will be placed at a default offset relative to [sourceCenter]. The value of that
- * offset is specified by the system.
+ * the layout node this modifier is applied to. If left null or returns an
+ * [unspecified][DpOffset.Unspecified] value, the magnifier widget will be placed at a default
+ * offset relative to [sourceCenter]. The value of that offset is specified by the system.
  * @param onSizeChanged An optional callback that will be invoked when the magnifier widget is
  * initialized to report on its actual size. This can be useful when [size] parameter is left
  * unspecified.
@@ -89,17 +89,17 @@ internal val MagnifierPositionInRoot =
  * @param size See [Magnifier.Builder.setSize]. Only supported on API 29+.
  * @param cornerRadius See [Magnifier.Builder.setCornerRadius]. Only supported on API 29+.
  * @param elevation See [Magnifier.Builder.setElevation]. Only supported on API 29+.
- * @param clippingEnabled See [Magnifier.Builder.setClippingEnabled]. Only supported on API 29+.
+ * @param clip See [Magnifier.Builder.setClippingEnabled]. Only supported on API 29+.
  */
 fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
-    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    magnifierCenter: (Density.() -> Offset)? = null,
     onSizeChanged: ((DpSize) -> Unit)? = null,
     zoom: Float = Float.NaN,
     size: DpSize = DpSize.Unspecified,
     cornerRadius: Dp = Dp.Unspecified,
     elevation: Dp = Dp.Unspecified,
-    clippingEnabled: Boolean = true
+    clip: Boolean = true
 ): Modifier {
     return magnifier(
         sourceCenter = sourceCenter,
@@ -110,7 +110,7 @@ fun Modifier.magnifier(
         size = size,
         cornerRadius = cornerRadius,
         elevation = elevation,
-        clippingEnabled = clippingEnabled
+        clippingEnabled = clip
     )
 }
 
@@ -121,7 +121,7 @@ fun Modifier.magnifier(
  */
 internal fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
-    magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    magnifierCenter: (Density.() -> Offset)? = null,
     onSizeChanged: ((DpSize) -> Unit)? = null,
     zoom: Float = Float.NaN,
     useTextDefault: Boolean = false,
@@ -169,7 +169,7 @@ internal fun Modifier.magnifier(
 
 internal class MagnifierElement(
     private val sourceCenter: Density.() -> Offset,
-    private val magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    private val magnifierCenter: (Density.() -> Offset)? = null,
     private val onSizeChanged: ((DpSize) -> Unit)? = null,
     private val zoom: Float = Float.NaN,
     private val useTextDefault: Boolean = false,
@@ -256,7 +256,7 @@ internal class MagnifierElement(
 
 internal class MagnifierNode(
     var sourceCenter: Density.() -> Offset,
-    var magnifierCenter: Density.() -> Offset = { Offset.Unspecified },
+    var magnifierCenter: (Density.() -> Offset)? = null,
     var onSizeChanged: ((DpSize) -> Unit)? = null,
     var zoom: Float = Float.NaN,
     var useTextDefault: Boolean = false,
@@ -308,7 +308,7 @@ internal class MagnifierNode(
 
     fun update(
         sourceCenter: Density.() -> Offset,
-        magnifierCenter: Density.() -> Offset,
+        magnifierCenter: (Density.() -> Offset)?,
         zoom: Float,
         useTextDefault: Boolean,
         size: DpSize,
@@ -410,15 +410,16 @@ internal class MagnifierNode(
         // Once the position is set, it's never null again, so we don't need to worry
         // about dismissing the magnifier if this expression changes value.
         if (sourceCenterInRoot.isSpecified) {
+            // Calculate magnifier center if it's provided. Only accept if the returned value is
+            // specified. Then add [anchorPositionInRoot] for relative positioning.
+            val magnifierCenter = magnifierCenter?.invoke(density)
+                ?.takeIf { it.isSpecified }
+                ?.let { anchorPositionInRoot + it }
+                ?: Offset.Unspecified
+
             magnifier.update(
                 sourceCenter = sourceCenterInRoot,
-                magnifierCenter = magnifierCenter(density).let {
-                    if (it.isSpecified) {
-                        anchorPositionInRoot + it
-                    } else {
-                        Offset.Unspecified
-                    }
-                },
+                magnifierCenter = magnifierCenter,
                 zoom = zoom
             )
             updateSizeIfNecessary()
