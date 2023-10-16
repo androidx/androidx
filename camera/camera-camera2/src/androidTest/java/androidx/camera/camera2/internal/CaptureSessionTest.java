@@ -95,6 +95,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.impl.CameraUtil;
 import androidx.camera.testing.impl.SurfaceTextureProvider;
+import androidx.camera.testing.impl.WakelockEmptyActivityRule;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -187,6 +188,9 @@ public final class CaptureSessionTest {
     private CameraCharacteristicsCompat mCameraCharacteristics;
 
     private DynamicRangesCompat mDynamicRangesCompat;
+
+    @Rule
+    public TestRule wakelockEmptyActivityRule = new WakelockEmptyActivityRule();
 
     @Rule
     public TestRule getUseCameraRule() {
