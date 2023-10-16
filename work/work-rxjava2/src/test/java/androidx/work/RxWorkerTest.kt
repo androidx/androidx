@@ -128,7 +128,7 @@ class RxWorkerTest {
         0,
         executor,
         InstantWorkTaskExecutor(),
-        WorkerFactory.getDefaultWorkerFactory(),
+        DefaultWorkerFactory,
         progressUpdater,
         foregroundUpdater
     )

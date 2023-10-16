@@ -105,7 +105,7 @@ class CoroutineWorkerTest {
 
     @Test
     fun testCoroutineWorker_basicUsage() {
-        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val workerFactory = DefaultWorkerFactory
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
@@ -130,7 +130,7 @@ class CoroutineWorkerTest {
 
     @Test
     fun testCoroutineWorker_cancellingFutureCancelsJob() {
-        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val workerFactory = DefaultWorkerFactory
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
@@ -145,7 +145,7 @@ class CoroutineWorkerTest {
     @Test
     @LargeTest
     fun testProgressUpdates() {
-        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val workerFactory = DefaultWorkerFactory
         val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
         val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>().build()
         database.workSpecDao().insertWorkSpec(workRequest.workSpec)
@@ -179,7 +179,7 @@ class CoroutineWorkerTest {
     @Test
     @LargeTest
     fun testProgressUpdatesForRetry() {
-        val workerFactory = WorkerFactory.getDefaultWorkerFactory()
+        val workerFactory = DefaultWorkerFactory
         val progressUpdater = spy(WorkProgressUpdater(database, workManagerImpl.workTaskExecutor))
         val input = workDataOf(ProgressUpdatingWorker.Expected to "Retry")
         val workRequest = OneTimeWorkRequestBuilder<ProgressUpdatingWorker>()
