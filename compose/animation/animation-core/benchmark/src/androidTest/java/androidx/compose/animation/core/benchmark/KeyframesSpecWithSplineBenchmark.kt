@@ -92,14 +92,16 @@ class KeyframesSpecWithSplineBenchmark {
 
         // Cal the first frame before measuring, to guarantee the spline interpolation is built
         vectorized.getValueFromNanos(
-            playTimeNanos = 0L,
+            // Avoid using a number that may match one of the given timestamps, it will prevent the
+            // MonoSpline from initializing, an irrational number factor should work well
+            playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,
             initialVelocity = initialVector
         )
 
         val frame0 = playTimeNanosToEvaluate
-        val frame1 = playTimeNanosToEvaluate + (1000.0f / 60 * 1_000_000).roundToLong()
+        val frame1 = frame0 + (1000.0f / 60 * 1_000_000).roundToLong()
         benchmarkRule.measureRepeated {
             vectorized.getValueFromNanos(
                 playTimeNanos = frame0,
@@ -129,7 +131,9 @@ class KeyframesSpecWithSplineBenchmark {
 
         // Cal the first frame before measuring, to guarantee the spline interpolation is built
         vectorized.getValueFromNanos(
-            playTimeNanos = 0L,
+            // Avoid using a number that may match one of the given timestamps, it will prevent the
+            // MonoSpline from initializing, an irrational number factor should work well
+            playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,
             initialVelocity = initialVector
