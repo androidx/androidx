@@ -49,7 +49,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 class CardScreenshotTest {
 
     @get:Rule
