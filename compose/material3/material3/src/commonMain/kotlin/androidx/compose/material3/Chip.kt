@@ -254,7 +254,6 @@ fun ElevatedAssistChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun FilterChip(
     selected: Boolean,
@@ -334,7 +333,6 @@ fun FilterChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ElevatedFilterChip(
     selected: Boolean,
@@ -418,7 +416,6 @@ fun ElevatedFilterChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun InputChip(
     selected: Boolean,
@@ -789,7 +786,6 @@ object AssistChipDefaults {
 /**
  * Contains the baseline values used by [FilterChip].
  */
-@ExperimentalMaterial3Api
 object FilterChipDefaults {
     /**
      * The height applied for a filter chip.
@@ -1001,7 +997,6 @@ object FilterChipDefaults {
 /**
  * Contains the baseline values used by an [InputChip].
  */
-@ExperimentalMaterial3Api
 object InputChipDefaults {
     /**
      * The height applied for an input chip.
@@ -1345,7 +1340,6 @@ private fun Chip(
     }
 }
 
-@ExperimentalMaterial3Api
 @Composable
 private fun SelectableChip(
     selected: Boolean,
@@ -1609,7 +1603,6 @@ class ChipElevation internal constructor(
  * @param draggedElevation the elevation used when the chip is dragged
  * @param disabledElevation the elevation used when the chip is not enabled
  */
-@ExperimentalMaterial3Api
 @Immutable
 class SelectableChipElevation internal constructor(
     val elevation: Dp,
@@ -1858,7 +1851,6 @@ class ChipColors constructor(
  * See [FilterChipDefaults.filterChipColors] and [FilterChipDefaults.elevatedFilterChipColors] for
  * the default colors used in [FilterChip].
  */
-@ExperimentalMaterial3Api
 @Immutable
 class SelectableChipColors constructor(
     private val containerColor: Color,
@@ -1977,7 +1969,6 @@ class SelectableChipColors constructor(
 /**
  * Represents the border stroke used used in a selectable chip in different states.
  */
-@ExperimentalMaterial3Api
 @Immutable
 class SelectableChipBorder internal constructor(
     private val borderColor: Color,
