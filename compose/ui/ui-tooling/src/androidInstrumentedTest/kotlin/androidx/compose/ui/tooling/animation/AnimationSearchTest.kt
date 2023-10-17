@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling.animation
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.tooling.AnimateAsStatePreview
 import androidx.compose.ui.tooling.AnimateAsStateWithLabelsPreview
@@ -37,8 +38,9 @@ import androidx.compose.ui.tooling.TargetBasedAnimationPreview
 import androidx.compose.ui.tooling.TransitionAnimatedVisibilityPreview
 import androidx.compose.ui.tooling.TransitionPreview
 import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.Companion.parse
-import androidx.compose.ui.tooling.animation.Utils.searchAndTrackAllAnimations
-import androidx.compose.ui.tooling.animation.Utils.searchForAnimation
+import androidx.compose.ui.tooling.animation.Utils.addAnimations
+import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
+import androidx.compose.ui.tooling.animation.Utils.hasAnimations
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -58,11 +60,11 @@ class AnimationSearchTest {
     val rule = createComposeRule()
 
     @Test
-    fun targetBasedAnimationIsFound() {
+    fun targetBasedIsAddedAndTracked() {
         var callbacks = 0
         val search = AnimationSearch.TargetBasedSearch { callbacks++ }
-        rule.searchForAnimation(search) { TargetBasedAnimationPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { TargetBasedAnimationPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -70,18 +72,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun targetBasedAnimationIsFoundButNotSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { TargetBasedAnimationPreview() }
-        assertFalse(search.hasAnimations)
+    fun targetBasedIsFound() {
+        animationIsFound(AnimationSearch.TargetBasedSearch {}) {
+            TargetBasedAnimationPreview()
+        }
     }
 
     @Test
-    fun decayAnimationIsFound() {
+    fun targetBasedAnimationIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { TargetBasedAnimationPreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+    }
+
+    @Test
+    fun decayAnimationIsAddedAndTracked() {
         var callbacks = 0
         val search = AnimationSearch.DecaySearch { callbacks++ }
-        rule.searchForAnimation(search) { DecayAnimationPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { DecayAnimationPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -89,18 +98,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun decayAnimationIsFoundButNotSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { DecayAnimationPreview() }
-        assertFalse(search.hasAnimations)
+    fun decayBasedIsFound() {
+        animationIsFound(AnimationSearch.DecaySearch {}) {
+            DecayAnimationPreview()
+        }
     }
 
     @Test
-    fun infiniteTransitionIsFound() {
+    fun decayAnimationIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { DecayAnimationPreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+    }
+
+    @Test
+    fun infiniteTransitionIsAddedAndTracked() {
         var callbacks = 0
-        val search = AnimationSearch.InfiniteTransitionSearch(true) { callbacks++ }
-        rule.searchForAnimation(search) { InfiniteTransitionPreview() }
-        assertTrue(search.hasAnimations())
+        val search = AnimationSearch.InfiniteTransitionSearch { callbacks++ }
+        rule.addAnimations(search) { InfiniteTransitionPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -113,16 +129,23 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun infiniteTransitionIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { InfiniteTransitionPreview() }
-        assertTrue(search.hasAnimations)
+    fun infiniteTransitionIsFound() {
+        animationIsFound(AnimationSearch.InfiniteTransitionSearch {}) {
+            InfiniteTransitionPreview()
+        }
     }
 
     @Test
-    fun multipleInfiniteTransitionIsFound() {
-        val search = AnimationSearch.InfiniteTransitionSearch(true) { }
-        rule.searchForAnimation(search) {
+    fun infiniteTransitionIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { InfiniteTransitionPreview() }
+        assertEquals(1, clock.infiniteTransitionClocks.size)
+    }
+
+    @Test
+    fun multipleInfiniteTransitionIsAdded() {
+        val search = AnimationSearch.InfiniteTransitionSearch { }
+        rule.addAnimations(search) {
             rememberInfiniteTransition()
             rememberInfiniteTransition()
             rememberInfiniteTransition()
@@ -130,15 +153,15 @@ class AnimationSearchTest {
             rememberInfiniteTransition()
         }
         assertEquals(5, search.animations.size)
-        assertTrue(search.hasAnimations())
+        assertTrue(search.animations.isNotEmpty())
     }
 
     @Test
-    fun animatedXAsStateSearchIsFound() {
+    fun animatedXAsStateSearchIsAddedAndTracked() {
         var callbacks = 0
-        val search = AnimationSearch.AnimateXAsStateSearch(true) { callbacks++ }
-        rule.searchForAnimation(search) { AnimateAsStatePreview() }
-        assertTrue(search.hasAnimations())
+        val search = AnimationSearch.AnimateXAsStateSearch { callbacks++ }
+        rule.addAnimations(search) { AnimateAsStatePreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
@@ -159,18 +182,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun animatedXAsStateSearchIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimateAsStatePreview() }
-        assertTrue(search.hasAnimations)
+    fun animatedXAsStateIsFound() {
+        animationIsFound(AnimationSearch.AnimateXAsStateSearch {}) {
+            AnimateAsStatePreview()
+        }
     }
 
     @Test
-    fun animatedXAsStateWithLabelsSearchIsFound() {
+    fun animatedXAsStateSearchIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { AnimateAsStatePreview() }
+        assertEquals(2, clock.animateXAsStateClocks.size)
+    }
+
+    @Test
+    fun animatedXAsStateWithLabelsSearchIsAddedAndTracked() {
         var callbacks = 0
-        val search = AnimationSearch.AnimateXAsStateSearch(true) { callbacks++ }
-        rule.searchForAnimation(search) { AnimateAsStateWithLabelsPreview() }
-        assertTrue(search.hasAnimations())
+        val search = AnimationSearch.AnimateXAsStateSearch { callbacks++ }
+        rule.addAnimations(search) { AnimateAsStateWithLabelsPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
@@ -191,36 +221,43 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun animatedXAsStateWithLabelsSearchIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimateAsStateWithLabelsPreview() }
-        assertTrue(search.hasAnimations)
+    fun animatedXAsStateWithLabelsSearchIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { AnimateAsStateWithLabelsPreview() }
+        assertEquals(2, clock.animateXAsStateClocks.size)
     }
 
     @Test
-    fun animatedContentSizeIsFound() {
+    fun animatedContentSizeIsAddedAndTracke() {
         var callbacks = 0
         val search = AnimationSearch.AnimateContentSizeSearch { callbacks++ }
-        rule.searchForAnimation(search) { AnimateContentSizePreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { AnimateContentSizePreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
     }
 
     @Test
-    fun animatedContentSizeIsFoundButNotSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimateContentSizePreview() }
-        assertFalse(search.hasAnimations)
+    fun animatedContentSizeIsFound() {
+        animationIsFound(AnimationSearch.AnimateContentSizeSearch {}) {
+            AnimateContentSizePreview()
+        }
     }
 
     @Test
-    fun transitionIsFound() {
+    fun animatedContentSizeIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { AnimateContentSizePreview() }
+        assertEquals(1, clock.trackedUnsupportedAnimations.size)
+    }
+
+    @Test
+    fun transitionIsAddedAndTracked() {
         var callbacks = 0
         val search = AnimationSearch.TransitionSearch { callbacks++ }
-        rule.searchForAnimation(search) { TransitionPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { TransitionPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -228,24 +265,31 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun transitionIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { TransitionPreview() }
-        assertTrue(search.hasAnimations)
+    fun transitionIsFound() {
+        animationIsFound(AnimationSearch.TransitionSearch {}) {
+            TransitionPreview()
+        }
     }
 
     @Test
-    fun animatedVisibilityExtensionIsFoundAsTransition() {
+    fun transitionIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { TransitionPreview() }
+        assertEquals(1, clock.transitionClocks.size)
+    }
+
+    @Test
+    fun animatedVisibilityExtensionIsAddedAsTransition() {
         var transitionSearchCallbacks = 0
         var animatedVisibilitySearchCallbacks = 0
         val transitionSearch = AnimationSearch.TransitionSearch { transitionSearchCallbacks++ }
         val animatedVisibilitySearch =
             AnimationSearch.AnimatedVisibilitySearch { animatedVisibilitySearchCallbacks++ }
-        rule.searchForAnimation(transitionSearch, animatedVisibilitySearch) {
+        rule.addAnimations(transitionSearch, animatedVisibilitySearch) {
             TransitionAnimatedVisibilityPreview()
         }
-        assertTrue(transitionSearch.hasAnimations())
-        assertFalse(animatedVisibilitySearch.hasAnimations())
+        assertTrue(transitionSearch.animations.isNotEmpty())
+        assertFalse(animatedVisibilitySearch.animations.isNotEmpty())
         assertEquals(1, transitionSearch.animations.size)
         assertEquals(0, animatedVisibilitySearch.animations.size)
         // Track animations.
@@ -256,18 +300,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun animatedVisibilityExtensionIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { TransitionAnimatedVisibilityPreview() }
-        assertTrue(search.hasAnimations)
+    fun animatedVisibilityExtensionIsFound() {
+        animationIsFound(AnimationSearch.TransitionSearch {}) {
+            TransitionAnimatedVisibilityPreview()
+        }
     }
 
     @Test
-    fun crossFadeIsFoundAsTransition() {
+    fun animatedVisibilityExtensionIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { TransitionAnimatedVisibilityPreview() }
+        assertEquals(1, clock.transitionClocks.size)
+    }
+
+    @Test
+    fun crossFadeIsAddedAsTransition() {
         var callbacks = 0
         val search = AnimationSearch.TransitionSearch { callbacks++ }
-        rule.searchForAnimation(search) { CrossFadePreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { CrossFadePreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -276,18 +327,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun crossFadeIsFoundAsTransitionAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { CrossFadePreview() }
-        assertTrue(search.hasAnimations)
+    fun crossFadeIsFound() {
+        animationIsFound(AnimationSearch.TransitionSearch {}) {
+            CrossFadePreview()
+        }
     }
 
     @Test
-    fun crossFadeWithLabelIsFoundAsTransition() {
+    fun crossFadeIsConnectedAsTransition() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { CrossFadePreview() }
+        assertEquals(1, clock.transitionClocks.size)
+    }
+
+    @Test
+    fun crossFadeWithLabelIsAddedAsTransition() {
         var callbacks = 0
         val search = AnimationSearch.TransitionSearch { callbacks++ }
-        rule.searchForAnimation(search) { CrossFadeWithLabelPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { CrossFadeWithLabelPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -296,18 +354,18 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun crossFadeWithLabelIsFoundAsTransitionAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { CrossFadeWithLabelPreview() }
-        assertTrue(search.hasAnimations)
+    fun crossFadeWithLabelIsConnectedAsTransition() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { CrossFadeWithLabelPreview() }
+        assertEquals(1, clock.transitionClocks.size)
     }
 
     @Test
-    fun animatedVisibilityIsFound() {
+    fun animatedVisibilityIsAdded() {
         var callbacks = 0
         val search = AnimationSearch.AnimatedVisibilitySearch { callbacks++ }
-        rule.searchForAnimation(search) { AnimatedVisibilityPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { AnimatedVisibilityPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -315,18 +373,25 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun animatedVisibilityIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimatedVisibilityPreview() }
-        assertTrue(search.hasAnimations)
+    fun animatedVisibilityIsFoundd() {
+        animationIsFound(AnimationSearch.AnimatedVisibilitySearch {}) {
+            AnimatedVisibilityPreview()
+        }
     }
 
     @Test
-    fun animatedContentIsFound() {
+    fun animatedVisibilityIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { AnimatedVisibilityPreview() }
+        assertEquals(1, clock.animatedVisibilityClocks.size)
+    }
+
+    @Test
+    fun animatedContentIsAdded() {
         var callbacks = 0
         val search = AnimationSearch.AnimatedContentSearch { callbacks++ }
-        rule.searchForAnimation(search) { AnimatedContentPreview() }
-        assertTrue(search.hasAnimations())
+        rule.addAnimations(search) { AnimatedContentPreview() }
+        assertTrue(search.animations.isNotEmpty())
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
@@ -334,51 +399,55 @@ class AnimationSearchTest {
     }
 
     @Test
-    fun animatedContentIsFoundAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimatedContentPreview() }
-        assertTrue(search.hasAnimations)
+    fun animatedContentIsFound() {
+        animationIsFound(AnimationSearch.AnimatedContentSearch {}) {
+            AnimatedContentPreview()
+        }
     }
 
     @Test
-    fun nullAnimatedContentIsTrackedAsUnsupported() {
+    fun animatedContentIsConnected() {
+        val clock = PreviewAnimationClock {}
+        rule.attachAllAnimations(clock) { AnimatedContentPreview() }
+        assertEquals(1, clock.animatedContentClocks.size)
+    }
+
+    @Test
+    fun nullAnimatedContentIsConnectedAsUnsupported() {
         val clock = PreviewAnimationClock()
-        val search = AnimationSearch({ clock }, true) { }
-        rule.searchAndTrackAllAnimations(search) { NullAnimatedContentPreview() }
+        rule.attachAllAnimations(clock) { NullAnimatedContentPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
         assertTrue(clock.animatedContentClocks.isEmpty())
     }
 
     @Test
-    fun nullAnimatedXAsStateIsTrackedAsUnsupported() {
+    fun nullAnimatedXAsStateIsConnectedAsUnsupported() {
         val clock = PreviewAnimationClock()
-        val search = AnimationSearch({ clock }, true) { }
-        rule.searchAndTrackAllAnimations(search) { NullAnimateAsStatePreview() }
+        rule.attachAllAnimations(clock) { NullAnimateAsStatePreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
         assertTrue(clock.animateXAsStateClocks.isEmpty())
     }
 
     @Test
-    fun nullTransitionIsTrackedAsUnsupported() {
+    fun nullTransitionIsConnectedAsUnsupported() {
         val clock = PreviewAnimationClock()
-        val search = AnimationSearch({ clock }, true) { }
-        rule.searchAndTrackAllAnimations(search) { NullTransitionPreview() }
+        rule.attachAllAnimations(clock) { NullTransitionPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
         assertTrue(clock.transitionClocks.isEmpty())
     }
 
     @Test
-    fun animatedContentExtensionIsFoundAsTransition() {
+    fun animatedContentExtensionIsAddedAsTransition() {
         var transitionCallbacks = 0
         var animatedContentCallbacks = 0
         val transitionSearch = AnimationSearch.TransitionSearch { transitionCallbacks++ }
         val animatedContentSearch =
             AnimationSearch.AnimatedContentSearch { animatedContentCallbacks++ }
-        rule.searchForAnimation(transitionSearch, animatedContentSearch) {
+        rule.addAnimations(transitionSearch, animatedContentSearch) {
             AnimatedContentExtensionPreview()
         }
-        assertTrue(transitionSearch.hasAnimations())
-        assertFalse(animatedContentSearch.hasAnimations())
+        assertTrue(transitionSearch.animations.isNotEmpty())
+        assertFalse(animatedContentSearch.animations.isNotEmpty())
         assertEquals(1, transitionSearch.animations.size)
         assertEquals(0, animatedContentSearch.animations.size)
         transitionSearch.track()
@@ -389,8 +458,17 @@ class AnimationSearchTest {
 
     @Test
     fun animatedContentExtensionIsFoundAsTransitionAndSupported() {
-        val search = AnimationSearch({ PreviewAnimationClock {} }, true) { }
-        rule.searchAndTrackAllAnimations(search) { AnimatedContentExtensionPreview() }
-        assertTrue(search.hasAnimations)
+        val clock = PreviewAnimationClock()
+        rule.attachAllAnimations(clock) { AnimatedContentExtensionPreview() }
+        assertEquals(1, clock.transitionClocks.size)
+    }
+
+    private fun animationIsFound(
+        search: AnimationSearch.Search<*>,
+        content: @Composable () -> Unit
+    ) {
+        val hasAnimations = rule.hasAnimations(search) { content() }
+        assertTrue(hasAnimations)
+        assertFalse(search.animations.isNotEmpty())
     }
 }
