@@ -1190,6 +1190,10 @@ public final class CameraUtil {
             if (deviceHolder.get() == null) {
                 ret = false;
             }
+            if (Build.MODEL.equalsIgnoreCase("sm-g920v")) {
+                // Please see b/305835396
+                TimeUnit.SECONDS.sleep(1);
+            }
         } catch (Exception e) {
             ret = false;
         } finally {
