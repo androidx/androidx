@@ -51,24 +51,30 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        jvmMain {
+        commonJvmMain {
             dependsOn(commonMain)
         }
-        jvmTest {
+        commonJvmTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
             }
         }
+        jvmMain {
+            dependsOn(commonJvmMain)
+        }
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
         }
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmTest)
         }
         androidInstrumentedTest {
-            dependsOn(androidUnitTest)
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
