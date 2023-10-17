@@ -26,6 +26,7 @@ import static androidx.camera.effects.opengl.Utils.drawArrays;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.Bitmap;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.view.Surface;
 
@@ -157,7 +158,7 @@ class GlProgramOverlay extends GlProgram {
                 + "precision mediump float;\n"
                 + "varying vec2 " + TEXTURE_COORDINATES + ";\n"
                 + "uniform " + inputSampler + " " + INPUT_SAMPLER + ";\n"
-                + "uniform sampler2D " + OVERLAY_SAMPLER + ";\n"
+                + "uniform samplerExternalOES " + OVERLAY_SAMPLER + ";\n"
                 + "void main() {\n"
                 + "    vec4 inputColor = texture2D(" + INPUT_SAMPLER + ", "
                 + TEXTURE_COORDINATES + ");\n"
@@ -226,7 +227,7 @@ class GlProgramOverlay extends GlProgram {
 
         // Bind the overlay texture to TEXTURE1
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, overlayTextureId);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, overlayTextureId);
         checkGlErrorOrThrow("glBindTexture");
     }
 }
