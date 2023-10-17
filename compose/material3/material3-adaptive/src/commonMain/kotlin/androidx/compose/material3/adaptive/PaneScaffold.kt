@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 @ExperimentalMaterial3AdaptiveApi
 interface PaneScaffoldScope {
     /**
-     * Specify the preferred width of the pane. The relevant pane scaffold implementations are
-     * supposed to respect the preferred width of a pane whenever it's possible.
+     * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
+     * will respect this width whenever possible. In case the modifier is not set or set to
+     * [Dp.Unspecified], the default preferred widths of the respective scaffold implementation will
+     * be used.
      */
     fun Modifier.preferredWidth(width: Dp): Modifier
 }

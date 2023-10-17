@@ -703,11 +703,10 @@ private class PaneMeasurable(
 ) : Measurable by measurable {
     private val data = ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
 
-    // TODO(conradchen): Handle the case of a low priority pane with no preferred with
-    var measuredWidth = when (data.preferredWidth) {
-        null -> defaultPreferredWidth
-        Float.NaN -> 0
-        else -> data.preferredWidth!!.toInt()
+    var measuredWidth = if (data.preferredWidth == null || data.preferredWidth!!.isNaN()) {
+        defaultPreferredWidth
+    } else {
+        data.preferredWidth!!.toInt()
     }
 }
 
