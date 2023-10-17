@@ -716,13 +716,17 @@ internal fun CoreTextField(
 
                 SelectionToolbarAndHandles(
                     manager = manager,
-                    show = state.handleState == HandleState.Selection &&
+                    show = state.handleState != HandleState.None &&
                         state.layoutCoordinates != null &&
                         state.layoutCoordinates!!.isAttached &&
                         showHandleAndMagnifier
                 )
 
-                if (!readOnly && showHandleAndMagnifier) {
+                if (
+                    state.handleState == HandleState.Cursor &&
+                    !readOnly &&
+                    showHandleAndMagnifier
+                ) {
                     TextFieldCursorHandle(manager = manager)
                 }
             }
@@ -880,6 +884,11 @@ internal class TextFieldState(
 
     /**
      * A flag to check if the floating toolbar should show.
+     *
+     * This state is meant to represent the floating toolbar status regardless of if all touch
+     * behaviors are disabled (like if the user is using a mouse). This is so that when touch
+     * behaviors are re-enabled, the toolbar status will still reflect whether it should be shown
+     * at that point.
      */
     var showFloatingToolbar by mutableStateOf(false)
 

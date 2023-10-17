@@ -210,6 +210,7 @@ internal class TextFieldSelectionManager(
                     )
 
                     enterSelectionMode(showFloatingToolbar = false)
+                    setHandleState(HandleState.Cursor)
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onValueChange(newValue)
                 }
@@ -299,14 +300,13 @@ internal class TextFieldSelectionManager(
                     )
                 }
             }
-            state?.showFloatingToolbar = false
+            updateFloatingToolbar(show = false)
         }
 
         override fun onStop() {
             draggingHandle = null
             currentDragPosition = null
-            state?.showFloatingToolbar = true
-            if (textToolbar?.status == TextToolbarStatus.Hidden) showSelectionToolbar()
+            updateFloatingToolbar(show = true)
             dragBeginOffsetInText = null
         }
 
@@ -398,13 +398,13 @@ internal class TextFieldSelectionManager(
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
                 currentDragPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
                 state?.isInTouchMode = true
-                state?.showFloatingToolbar = false
+                updateFloatingToolbar(show = false)
             }
 
             override fun onUp() {
                 draggingHandle = null
                 currentDragPosition = null
-                state?.showFloatingToolbar = true
+                updateFloatingToolbar(show = true)
             }
 
             override fun onStart(startPoint: Offset) {
@@ -416,7 +416,7 @@ internal class TextFieldSelectionManager(
                 // Zero out the total distance that being dragged.
                 dragTotalDistance = Offset.Zero
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                state?.showFloatingToolbar = false
+                updateFloatingToolbar(show = false)
             }
 
             override fun onDrag(delta: Offset) {
@@ -431,14 +431,13 @@ internal class TextFieldSelectionManager(
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     isTouchBasedSelection = true, // handle drag infers touch
                 )
-                state?.showFloatingToolbar = false
+                updateFloatingToolbar(show = false)
             }
 
             override fun onStop() {
                 draggingHandle = null
                 currentDragPosition = null
-                state?.showFloatingToolbar = true
-                if (textToolbar?.status == TextToolbarStatus.Hidden) showSelectionToolbar()
+                updateFloatingToolbar(show = true)
             }
 
             override fun onCancel() {}
@@ -449,8 +448,7 @@ internal class TextFieldSelectionManager(
      */
     internal fun cursorDragObserver(): TextDragObserver = object : TextDragObserver {
         override fun onDown(point: Offset) {
-            draggingHandle = Handle.Cursor
-            currentDragPosition = getAdjustedCoordinates(getHandlePosition(true))
+            // Nothing
         }
 
         override fun onUp() {
@@ -466,6 +464,7 @@ internal class TextFieldSelectionManager(
             // Zero out the total distance that being dragged.
             dragTotalDistance = Offset.Zero
             draggingHandle = Handle.Cursor
+            updateFloatingToolbar(show = false)
         }
 
         override fun onDrag(delta: Offset) {
@@ -515,7 +514,7 @@ internal class TextFieldSelectionManager(
             focusRequester?.requestFocus()
         }
         oldValue = value
-        state?.showFloatingToolbar = showFloatingToolbar
+        updateFloatingToolbar(showFloatingToolbar)
         setHandleState(HandleState.Selection)
     }
 
@@ -525,7 +524,7 @@ internal class TextFieldSelectionManager(
      * Is triggered on accessibility action.
      */
     internal fun exitSelectionMode() {
-        state?.showFloatingToolbar = false
+        updateFloatingToolbar(show = false)
         setHandleState(HandleState.None)
     }
 
@@ -553,7 +552,7 @@ internal class TextFieldSelectionManager(
             HandleState.None
         }
         setHandleState(selectionMode)
-        hideSelectionToolbar()
+        updateFloatingToolbar(show = false)
     }
 
     /**
@@ -645,7 +644,7 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
         oldValue = oldValue.copy(selection = newValue.selection)
-        state?.showFloatingToolbar = true
+        updateFloatingToolbar(show = true)
     }
 
     internal fun getHandlePosition(isStartHandle: Boolean): Offset {
@@ -668,6 +667,19 @@ internal class TextFieldSelectionManager(
             cursorRect.left + DefaultCursorThickness.toPx() / 2
         }
         return Offset(x, cursorRect.bottom)
+    }
+
+    /**
+     * Update the [TextFieldState.showFloatingToolbar] state and show/hide the toolbar.
+     *
+     * You may want to call [showSelectionToolbar] and [hideSelectionToolbar] directly without
+     * updating the [TextFieldState.showFloatingToolbar] if you are simply hiding all touch
+     * selection behaviors (toolbar, handles, cursor, magnifier), but want the toolbar to come
+     * back when you un-hide all those behaviors.
+     */
+    private fun updateFloatingToolbar(show: Boolean) {
+        state?.showFloatingToolbar = show
+        if (show) showSelectionToolbar() else hideSelectionToolbar()
     }
 
     /**
@@ -882,6 +894,9 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
 
+        val handle = if (newValue.selection.collapsed) HandleState.Cursor else HandleState.Selection
+        setHandleState(handle)
+
         state?.isInTouchMode = isTouchBasedSelection
 
         // showSelectionHandleStart/End might be set to false when scrolled out of the view.
@@ -894,7 +909,7 @@ internal class TextFieldSelectionManager(
     }
 
     private fun setHandleState(handleState: HandleState) {
-        state?.let { it.handleState = handleState }
+        state?.takeUnless { it.handleState == handleState }?.let { it.handleState = handleState }
     }
 
     private fun createTextFieldValue(
