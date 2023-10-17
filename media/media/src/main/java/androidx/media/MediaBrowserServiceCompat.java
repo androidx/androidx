@@ -1357,7 +1357,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param id id
      * @param option option
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onSubscribe(String id, Bundle option) {
     }
 
@@ -1366,7 +1366,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @param id
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onUnsubscribe(String id) {
     }
 
