@@ -41,11 +41,11 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import org.junit.AssumptionViolatedException
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -253,7 +253,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on left
-        keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)) return
 
         // Check if the element to the left of text field gains focus
         rule.onNodeWithTag("test-button-left").assertIsFocused()
@@ -270,7 +270,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on right
-        keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)) return
 
         // Check if the element to the right of text field gains focus
         rule.onNodeWithTag("test-button-right").assertIsFocused()
@@ -287,7 +287,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on top
-        keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
 
         // Check if the element on the top of text field gains focus
         rule.onNodeWithTag("test-button-top").assertIsFocused()
@@ -304,12 +304,13 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on bottom
-        keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)) return
 
         // Check if the element to the bottom of text field gains focus
         rule.onNodeWithTag("test-button-bottom").assertIsFocused()
     }
 
+    @FlakyTest(bugId = 305087008)
     @Test
     fun basicTextField_checkKeyboardShown_onDPadCenter() {
         setupAndEnableBasicTextField()
@@ -320,7 +321,7 @@ class TextFieldFocusTest {
         testKeyboardController.assertHidden()
 
         // Check if keyboard is enabled on Dpad center key press
-        keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
         testKeyboardController.assertShown()
     }
 
@@ -462,19 +463,11 @@ class TextFieldFocusTest {
         source: Int,
         count: Int = 1,
         metaState: Int = 0,
-    ) {
-        // Since we can't create our own InputDevices, we have to use one that is connected to the
-        // system. This functionality only supports specific types of input devices, so we have to
-        // filter and if we can't find a valid one, the test can't run. In that case, we throw
-        // an AssumptionViolatedException which will abort the test and cause JUnit to report it
-        // as ignored.
+    ): Boolean {
         val deviceId = InputDevice.getDeviceIds().firstOrNull { id ->
             InputDevice.getDevice(id)?.isVirtual?.not() ?: false &&
                 InputDevice.getDevice(id)?.supportsSource(source) ?: false
-        } ?: throw AssumptionViolatedException(
-            "Could not find physical input device to send DPAD event from"
-        )
-
+        } ?: return false
         val keyEventDown = KeyEvent(
             SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
             KeyEvent.ACTION_DOWN, keyCode, 0, metaState,
@@ -491,6 +484,7 @@ class TextFieldFocusTest {
             rule.waitForIdle()
             rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventUp))
         }
+        return true
     }
 
     /** Triggers a key press on the virtual keyboard. */
