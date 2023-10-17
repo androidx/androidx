@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
@@ -42,42 +43,40 @@ fun calculateStandardPaneScaffoldDirective(
     hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
-    val gutterOuterVertical: Dp
-    val gutterInnerVertical: Dp
+    val contentPadding: PaddingValues
+    val verticalSpacerSize: Dp
     when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
             maxHorizontalPartitions = 1
-            gutterOuterVertical = 16.dp
-            gutterInnerVertical = 0.dp
+            contentPadding = PaddingValues(16.dp)
+            verticalSpacerSize = 0.dp
         }
         WindowWidthSizeClass.Medium -> {
             maxHorizontalPartitions = 1
-            gutterOuterVertical = 24.dp
-            gutterInnerVertical = 0.dp
+            contentPadding = PaddingValues(24.dp)
+            verticalSpacerSize = 0.dp
         }
         else -> {
             maxHorizontalPartitions = 2
-            gutterOuterVertical = 24.dp
-            gutterInnerVertical = 24.dp
+            contentPadding = PaddingValues(24.dp)
+            verticalSpacerSize = 24.dp
         }
     }
     val maxVerticalPartitions: Int
-    val gutterInnerHorizontal: Dp
+    val horizontalSpacerSize: Dp
 
     // TODO(conradchen): Confirm the table top mode settings
     if (windowAdaptiveInfo.posture.isTabletop) {
         maxVerticalPartitions = 2
-        gutterInnerHorizontal = 24.dp
+        horizontalSpacerSize = 24.dp
     } else {
         maxVerticalPartitions = 1
-        gutterInnerHorizontal = 0.dp
+        horizontalSpacerSize = 0.dp
     }
 
     return PaneScaffoldDirective(
         maxHorizontalPartitions,
-        GutterSizes(
-            gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
-        ),
+        GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
         getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
     )
@@ -103,42 +102,40 @@ fun calculateDensePaneScaffoldDirective(
     hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
-    val gutterOuterVertical: Dp
-    val gutterInnerVertical: Dp
+    val contentPadding: PaddingValues
+    val verticalSpacerSize: Dp
     when (windowAdaptiveInfo.windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
             maxHorizontalPartitions = 1
-            gutterOuterVertical = 16.dp
-            gutterInnerVertical = 0.dp
+            contentPadding = PaddingValues(16.dp)
+            verticalSpacerSize = 0.dp
         }
         WindowWidthSizeClass.Medium -> {
             // TODO(conradchen): Confirm the outer gutter size
             maxHorizontalPartitions = 2
-            gutterOuterVertical = 24.dp
-            gutterInnerVertical = 24.dp
+            contentPadding = PaddingValues(24.dp)
+            verticalSpacerSize = 24.dp
         }
         else -> {
             maxHorizontalPartitions = 2
-            gutterOuterVertical = 24.dp
-            gutterInnerVertical = 24.dp
+            contentPadding = PaddingValues(24.dp)
+            verticalSpacerSize = 24.dp
         }
     }
     val maxVerticalPartitions: Int
-    val gutterInnerHorizontal: Dp
+    val horizontalSpacerSize: Dp
 
     if (windowAdaptiveInfo.posture.isTabletop) {
         maxVerticalPartitions = 2
-        gutterInnerHorizontal = 24.dp
+        horizontalSpacerSize = 24.dp
     } else {
         maxVerticalPartitions = 1
-        gutterInnerHorizontal = 0.dp
+        horizontalSpacerSize = 0.dp
     }
 
     return PaneScaffoldDirective(
         maxHorizontalPartitions,
-        GutterSizes(
-            gutterOuterVertical, gutterInnerVertical, innerHorizontal = gutterInnerHorizontal
-        ),
+        GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
         getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
     )
@@ -193,44 +190,38 @@ class PaneScaffoldDirective(
 }
 
 /**
- * Denotes the gutter sizes of an adaptive layout. Gutters of an adaptive layouts include margins
- * between panes ([innerVertical] and [innerHorizontal]) and paddings of the layout itself
- * ([outerVertical] and [outerHorizontal]). Usually we will expect larger gutter sizes to be set
- * when the layout is larger and more panes are shown in the layout.
+ * Denotes the gutter sizes of an adaptive layout. Gutters of an adaptive layouts include spacers
+ * between panes ([verticalSpacerSize] and [horizontalSpacerSize]) and paddings of the layout itself
+ * ([contentPadding]). Usually we will expect larger gutter sizes to be set when the layout is
+ * larger and more panes are shown in the layout.
  *
  * @constructor create an instance of [GutterSizes]
- * @param outerVertical Size of the outer vertical gutters. It's similar to left/right paddings of
- *        a normal layout.
- * @param innerVertical Size of the inner vertical gutters. It's similar to left/right margins of
- *        the layout's children.
- * @param outerHorizontal Size of the outer horizontal gutters. It's similar to top/bottom paddings
- *        of a normal layout.
- * @param innerHorizontal Size of the inner horizontal gutters. It's similar to top/bottom margins
- *        of the layout's children.
+ * @param contentPadding Size of the paddings between the panes and the outer bounds of the layout.
+ * @param verticalSpacerSize Size of the vertical spacers between panes. It's similar to left/right
+ *        margins of the layout's children.
+ * @param horizontalSpacerSize Size of the horizontal spacers between panes. It's similar to
+ *        top/bottom margins of the layout's children.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class GutterSizes(
-    val outerVertical: Dp,
-    val innerVertical: Dp,
-    val outerHorizontal: Dp = outerVertical,
-    val innerHorizontal: Dp = innerVertical
+    val contentPadding: PaddingValues,
+    val verticalSpacerSize: Dp,
+    val horizontalSpacerSize: Dp = verticalSpacerSize
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GutterSizes) return false
-        if (outerVertical != other.outerVertical) return false
-        if (innerVertical != other.innerVertical) return false
-        if (outerHorizontal != other.outerHorizontal) return false
-        if (innerHorizontal != other.innerHorizontal) return false
+        if (contentPadding != other.contentPadding) return false
+        if (verticalSpacerSize != other.verticalSpacerSize) return false
+        if (horizontalSpacerSize != other.horizontalSpacerSize) return false
         return true
     }
 
     override fun hashCode(): Int {
-        var result = outerVertical.hashCode()
-        result = 31 * result + innerVertical.hashCode()
-        result = 31 * result + outerHorizontal.hashCode()
-        result = 31 * result + innerHorizontal.hashCode()
+        var result = contentPadding.hashCode()
+        result = 31 * result + verticalSpacerSize.hashCode()
+        result = 31 * result + horizontalSpacerSize.hashCode()
         return result
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -106,7 +107,7 @@ class ThreePaneScaffoldTest {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockScaffoldDirective = PaneScaffoldDirective(
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(0.dp, 0.dp),
+    gutterSizes = GutterSizes(PaddingValues(0.dp), 0.dp),
     maxVerticalPartitions = 1,
     excludedBounds = emptyList()
 )
