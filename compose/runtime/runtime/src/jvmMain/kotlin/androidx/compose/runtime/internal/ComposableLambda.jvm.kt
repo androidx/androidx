@@ -37,9 +37,10 @@ import androidx.compose.runtime.updateChangedFlags
 /* ktlint-disable parameter-list-wrapping */ // TODO(https://github.com/pinterest/ktlint/issues/921): reenable
 internal actual class ComposableLambdaImpl actual constructor(
     val key: Int,
-    private val tracked: Boolean
+    private val tracked: Boolean,
+    block: Any?
 ) : ComposableLambda {
-    private var _block: Any? = null
+    private var _block: Any? = block
     private var scope: RecomposeScope? = null
     private var scopes: MutableList<RecomposeScope>? = null
 

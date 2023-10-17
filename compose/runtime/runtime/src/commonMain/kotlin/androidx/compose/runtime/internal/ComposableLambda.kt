@@ -47,7 +47,8 @@ internal fun differentBits(slot: Int): Int = bitsForSlot(0b10, slot)
 /* ktlint-disable parameter-list-wrapping */ // TODO(https://github.com/pinterest/ktlint/issues/921): reenable
 internal expect class ComposableLambdaImpl(
     key: Int,
-    tracked: Boolean
+    tracked: Boolean,
+    block: Any?,
 ) : ComposableLambda {
     fun update(block: Any)
 }
@@ -331,13 +332,14 @@ fun composableLambda(
     composer.startReplaceableGroup(key)
     val slot = composer.rememberedValue()
     val result = if (slot === Composer.Empty) {
-        val value = ComposableLambdaImpl(key, tracked)
+        val value = ComposableLambdaImpl(key, tracked, block)
         composer.updateRememberedValue(value)
         value
     } else {
         slot as ComposableLambdaImpl
+        slot.update(block)
+        slot
     }
-    result.update(block)
     composer.endReplaceableGroup()
     return result
 }
@@ -349,4 +351,4 @@ fun composableLambdaInstance(
     tracked: Boolean,
     block: Any
 ): ComposableLambda =
-    ComposableLambdaImpl(key, tracked).apply { update(block) }
+    ComposableLambdaImpl(key, tracked, block)
