@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
@@ -30,7 +29,6 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.javapoet.JClassName
 import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
@@ -98,13 +96,14 @@ private fun KSDeclaration.asJTypeName(
     val qualified = qualifiedName?.asString() ?: return ERROR_JTYPE_NAME
     val pkg = getNormalizedPackageName()
 
+    // We want to map Kotlin types to equivalent Java types if there is one (e.g.
+    // kotlin.String to java.lang.String or kotlin.collections.List to java.util.List).
     // Note: To match KAPT behavior, a type annotated with @JvmInline is only replaced with the
     // underlying type if the inline type is used directly (e.g. MyInlineType) rather than in the
     // type args of another type, (e.g. List<MyInlineType>).
-    val isInlineUsedDirectly =
-        (isAnnotationPresent(JvmInline::class) || modifiers.contains(Modifier.INLINE)) &&
-            typeResolutionContext.originalType?.declaration?.qualifiedName?.asString() == qualified
-    if (pkg == "kotlin" || pkg.startsWith("kotlin.") || isInlineUsedDirectly) {
+    val isInline = isValueClass()
+    val isKotlinType = pkg == "kotlin" || pkg.startsWith("kotlin.")
+    if ((isInline && isUsedDirectly(typeResolutionContext)) || (!isInline && isKotlinType)) {
         val jvmSignature = resolver.mapToJvmSignature(this)
         if (!jvmSignature.isNullOrBlank()) {
             return jvmSignature.typeNameFromJvmSignature()
@@ -180,9 +179,9 @@ private fun KSType.asJTypeName(
     return if (declaration is KSTypeAlias) {
         replaceTypeAliases(resolver).asJTypeName(resolver, typeResolutionContext)
     } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this) &&
-            // Excluding generic value classes otherwise we may generate something
+            // Excluding generic value classes used directly otherwise we may generate something
             // like `Object<String>`.
-            !declaration.isValueClass()) {
+            !(declaration.isValueClass() && declaration.isUsedDirectly(typeResolutionContext))) {
         val args: Array<JTypeName> = this.arguments
             .map { typeArg -> typeArg.asJTypeName(resolver, typeResolutionContext) }
             .map { it.tryBox() }
@@ -234,3 +233,8 @@ private fun createModifiableTypeVariableName(
     name,
     bounds
 ) as JTypeVariableName
+
+private fun KSDeclaration.isUsedDirectly(typeResolutionContext: TypeResolutionContext): Boolean {
+    val qualified = qualifiedName?.asString()
+    return typeResolutionContext.originalType?.declaration?.qualifiedName?.asString() == qualified
+}
