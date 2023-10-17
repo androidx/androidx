@@ -334,6 +334,9 @@ package androidx.compose.runtime {
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
   }
 
+  public final class HotReloaderKt {
+  }
+
   @androidx.compose.runtime.StableMarker @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Immutable {
   }
 
