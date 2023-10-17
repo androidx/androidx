@@ -16,9 +16,6 @@
 
 package androidx.compose.foundation
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -26,12 +23,14 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Choreographer
+import android.view.Gravity
 import android.view.PixelCopy
 import android.view.Surface
 import android.view.View
-import android.view.ViewTreeObserver
-import android.view.Window
+import android.view.WindowManager
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiThread
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
@@ -57,17 +56,16 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.core.content.getSystemService
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.createBitmap
-import androidx.test.annotation.ExperimentalTestApi
+import androidx.core.view.doOnPreDraw
 import androidx.test.core.internal.os.HandlerExecutor
-import androidx.test.core.view.forceRedraw
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.graphics.HardwareRendererCompat
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
@@ -518,59 +516,62 @@ private fun SemanticsNodeInteraction.screenshotToImage(
 
     val node = fetchSemanticsNode()
     val view = (node.root as ViewRootForTest).view
-    val window = view.context.getActivityWindow()
 
     return withDrawingEnabled {
         val bitmapFuture: ResolvableFuture<Bitmap> = ResolvableFuture.create()
 
+        var cleanup = { }
+
         val mainExecutor = HandlerExecutor(Handler(Looper.getMainLooper()))
         mainExecutor.execute {
-            // We are testing SurfaceViews, ensure we have a hole punch
-            window.decorView.forceRelayout()
-            window.decorView.forceRedraw()
+            cleanup = view.waitForWindowManager {
+                Choreographer.getInstance().postFrameCallback {
+                    val location = IntArray(2)
+                    view.getLocationOnScreen(location)
 
-            Choreographer.getInstance().postFrameCallback {
-                val location = IntArray(2)
-                view.getLocationOnScreen(location)
+                    val bounds = node.boundsInRoot.translate(
+                        location[0].toFloat(),
+                        location[1].toFloat()
+                    ).deflate(1.0f) // inset the rectangle to avoid rounding errors
 
-                val bounds = node.boundsInRoot.translate(
-                    location[0].toFloat(),
-                    location[1].toFloat()
-                ).deflate(1.0f) // inset the rectangle to avoid rounding errors
-
-                // do multiple retries of uiAutomation.takeScreenshot because it is known to return null
-                // on API 31+ b/257274080
-                var bitmap: Bitmap? = null
-                var i = 0
-                while (i < 3 && bitmap == null) {
-                    bitmap = uiAutomation.takeScreenshot()
-                    i++
-                }
-
-                if (bitmap != null) {
-                    bitmap = Bitmap.createBitmap(
-                        bitmap,
-                        bounds.left.toInt(),
-                        bounds.top.toInt(),
-                        bounds.width.toInt(),
-                        bounds.height.toInt()
-                    )
-                    bitmapFuture.set(bitmap)
-                } else {
-                    if (hasSecureSurfaces) {
-                        // may be null on older API levels when a secure surface is showing
-                        bitmapFuture.set(null)
+                    // do multiple retries of uiAutomation.takeScreenshot because it is
+                    // known to return null on API 31+ b/257274080
+                    var bitmap: Bitmap? = null
+                    var i = 0
+                    while (i < 3 && bitmap == null) {
+                        bitmap = uiAutomation.takeScreenshot()
+                        i++
                     }
-                    // if we don't show secure surfaces, let the future timeout on get()
+
+                    if (bitmap != null) {
+                        bitmap = Bitmap.createBitmap(
+                            bitmap,
+                            bounds.left.toInt(),
+                            bounds.top.toInt(),
+                            bounds.width.toInt(),
+                            bounds.height.toInt()
+                        )
+                        bitmapFuture.set(bitmap)
+                    } else {
+                        if (hasSecureSurfaces) {
+                            // may be null on older API levels when a secure surface is showing
+                            bitmapFuture.set(null)
+                        }
+                        // if we don't show secure surfaces, let the future timeout on get()
+                    }
                 }
             }
         }
 
-        try {
+        val bitmap = try {
             bitmapFuture.get(5, TimeUnit.SECONDS)?.asImageBitmap()
         } catch (e: ExecutionException) {
             null
         }
+
+        cleanup()
+
+        bitmap
     }
 }
 
@@ -618,41 +619,38 @@ private fun <R> withDrawingEnabled(block: () -> R): R {
     }
 }
 
-private fun Context.getActivityWindow(): Window {
-    fun Context.getActivity(): Activity {
-        return when (this) {
-            is Activity -> this
-            is ContextWrapper -> this.baseContext.getActivity()
-            else -> throw IllegalStateException(
-                "Context is not an Activity context, but a ${javaClass.simpleName} context. " +
-                    "An Activity context is required to get a Window instance"
-            )
-        }
+/**
+ * Waits for the WindowManager to be "ready" and then runs [onWindowManagerReady].
+ * The wait is implemented by creating a new window and waiting for its content to
+ * draw once. Doing so should in theory guarantee that SurfaceViews from the parent
+ * window are also ready and visible, and thus reduce flakes.
+ *
+ * This method returns a lambda that must be executed to perform cleanup before
+ * the test finishes and the activity is torn down.
+ */
+@UiThread
+private fun View.waitForWindowManager(onWindowManagerReady: () -> Unit): () -> Unit {
+    val subWindow = TextView(context).apply {
+        text = "WM Ready"
+        setBackgroundColor(Color.White.toArgb())
     }
-    return getActivity().window
-}
 
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-@ExperimentalTestApi
-fun View.forceRelayout(): ListenableFuture<Void> {
-    val future: ResolvableFuture<Void> = ResolvableFuture.create()
-
-    viewTreeObserver.addOnGlobalLayoutListener(
-        object : ViewTreeObserver.OnGlobalLayoutListener {
-            var handled = false
-            override fun onGlobalLayout() {
-                if (!handled) {
-                    handled = true
-                    future.set(null)
-                    Handler(Looper.getMainLooper()).post {
-                        viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    }
-                }
-            }
+    val windowManager = context.getSystemService<WindowManager>()!!
+    windowManager.addView(
+        subWindow,
+        WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        ).apply {
+            width = WindowManager.LayoutParams.WRAP_CONTENT
+            height = WindowManager.LayoutParams.WRAP_CONTENT
+            gravity = Gravity.RIGHT or Gravity.BOTTOM
         }
     )
 
-    requestLayout()
+    subWindow.doOnPreDraw {
+        onWindowManagerReady()
+    }
 
-    return future
+    return { windowManager.removeView(subWindow) }
 }
