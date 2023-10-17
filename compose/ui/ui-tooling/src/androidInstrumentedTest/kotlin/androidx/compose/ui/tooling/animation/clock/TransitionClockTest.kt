@@ -38,7 +38,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation.Companion.parseAnimatedContent
 import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.TransitionComposeAnimation
-import androidx.compose.ui.tooling.animation.Utils.searchForAnimation
+import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.tooling.animation.parse
 import androidx.compose.ui.tooling.animation.states.ComposeAnimationState
 import androidx.compose.ui.tooling.animation.states.TargetState
@@ -489,7 +489,7 @@ class TransitionClockTest {
     @Test
     fun childTransition() {
         val search = AnimationSearch.TransitionSearch { }
-        rule.searchForAnimation(search) { childTransitions() }
+        rule.addAnimations(search) { childTransitions() }
         val clock = TransitionClock(search.animations.first().parse()!!)
 
         rule.runOnIdle {
@@ -555,7 +555,7 @@ class TransitionClockTest {
     fun animatedContentClockState() {
         val search = AnimationSearch.AnimatedContentSearch { }
         val target = mutableStateOf<Dp?>(null)
-        rule.searchForAnimation(search) { AnimatedContent(1.dp) { target.value = it } }
+        rule.addAnimations(search) { AnimatedContent(1.dp) { target.value = it } }
         val clock = TransitionClock(search.animations.first().parseAnimatedContent()!!)
         rule.runOnIdle {
             clock.setStateParameters(10.dp, 10.dp)
@@ -578,7 +578,7 @@ class TransitionClockTest {
     fun animatedContentClockStateAsList() {
         val search = AnimationSearch.AnimatedContentSearch { }
         val target = mutableStateOf<IntSize?>(null)
-        rule.searchForAnimation(search) { AnimatedContent(IntSize(10, 10)) { target.value = it } }
+        rule.addAnimations(search) { AnimatedContent(IntSize(10, 10)) { target.value = it } }
         val clock = TransitionClock(search.animations.first().parseAnimatedContent()!!)
         rule.runOnIdle {
             clock.setStateParameters(listOf(20, 30), listOf(40, 50))
@@ -593,7 +593,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockProperties() {
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) { AnimatedContent(1.dp) {} }
+        rule.addAnimations(search) { AnimatedContent(1.dp) {} }
         val clock = TransitionClock(search.animations.first().parseAnimatedContent()!!)
         rule.runOnIdle {
             clock.setStateParameters(10.dp, 10.dp)
@@ -611,7 +611,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockTransitions() {
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) { AnimatedContent(1.dp) {} }
+        rule.addAnimations(search) { AnimatedContent(1.dp) {} }
         val clock = TransitionClock(search.animations.first().parseAnimatedContent()!!)
         rule.runOnIdle {
             clock.setStateParameters(10.dp, 10.dp)
@@ -645,7 +645,7 @@ class TransitionClockTest {
     @Test
     fun animatedContentClockDuration() {
         val search = AnimationSearch.AnimatedContentSearch { }
-        rule.searchForAnimation(search) {
+        rule.addAnimations(search) {
             AnimatedContent(targetState = 1.dp) {}
         }
         val clock = TransitionClock(search.animations.first().parseAnimatedContent()!!)

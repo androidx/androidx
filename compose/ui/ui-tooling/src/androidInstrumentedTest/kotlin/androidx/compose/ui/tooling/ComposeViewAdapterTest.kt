@@ -446,6 +446,34 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun animationIsFoundWithoutClock() {
+        findAnimationWithoutClock("AllAnimations")
+    }
+
+    @Test
+    fun materialAnimationIsFoundWithoutClock() {
+        findAnimationWithoutClock("MaterialPreview")
+    }
+
+    private fun findAnimationWithoutClock(preview: String) {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.TestAnimationPreviewKt",
+                preview
+            )
+            assertFalse(composeViewAdapter.hasAnimations())
+        }
+
+        waitFor(5, TimeUnit.SECONDS) {
+            // Handle the case where onLayout was called too soon. Calling requestLayout will
+            // make sure onLayout will be called again.
+            composeViewAdapter.requestLayout()
+            composeViewAdapter.hasAnimations()
+        }
+        assertTrue(composeViewAdapter.hasAnimations())
+    }
+
+    @Test
     fun lineNumberMapping() {
         val viewInfos = assertRendersCorrectly(
             "androidx.compose.ui.tooling.LineNumberPreviewKt",
