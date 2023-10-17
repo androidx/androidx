@@ -13,180 +13,153 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.core.app
 
-package androidx.core.app;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-
-import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.collection.SimpleArrayMap;
-import androidx.core.view.KeyEventDispatcher;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
-import androidx.lifecycle.ReportFragment;
+import android.app.Activity
+import android.os.Build
+import android.os.Bundle
+import android.view.KeyEvent
+import androidx.annotation.CallSuper
+import androidx.annotation.RestrictTo
+import androidx.collection.SimpleArrayMap
+import androidx.core.view.KeyEventDispatcher
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ReportFragment
 
 /**
- * Base class for activities that enables composition of higher level components.
- * <p>
- * Rather than all functionality being built directly into this class, only the minimal set of
- * lower level building blocks are included. Higher level components can then be used as needed
- * without enforcing a deep Activity class hierarchy or strong coupling between components.
+ * Base class for activities to allow intercepting [KeyEvent] methods in a composable
+ * way in core.
  *
+ * You most certainly **don't** want to extend this class, but instead extend
+ * `androidx.activity.ComponentActivity`.
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class ComponentActivity extends Activity implements
-        LifecycleOwner,
-        KeyEventDispatcher.Component {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+open class ComponentActivity : Activity(),
+    LifecycleOwner,
+    KeyEventDispatcher.Component {
     /**
-     * Storage for {@link ExtraData} instances.
+     * Storage for [ExtraData] instances.
      *
-     * <p>Note that these objects are not retained across configuration changes</p>
+     * Note that these objects are not retained across configuration changes
      */
-    @SuppressWarnings("deprecation")
-    private SimpleArrayMap<Class<? extends ExtraData>, ExtraData> mExtraDataMap =
-            new SimpleArrayMap<>();
+    @Suppress("DEPRECATION")
+    private val extraDataMap = SimpleArrayMap<Class<out ExtraData>, ExtraData>()
+
     /**
      * This is only used for apps that have not switched to Fragments 1.1.0, where this
-     * behavior is provided by <code>androidx.activity.ComponentActivity</code>.
+     * behavior is provided by `androidx.activity.ComponentActivity`.
      */
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    @Suppress("LeakingThis")
+    private val lifecycleRegistry = LifecycleRegistry(this)
 
     /**
-     * Store an instance of {@link ExtraData} for later retrieval by class name
-     * via {@link #getExtraData}.
+     * Store an instance of [ExtraData] for later retrieval by class name
+     * via [getExtraData].
      *
-     * <p>Note that these objects are not retained across configuration changes</p>
+     * Note that these objects are not retained across configuration changes
      *
-     * @see #getExtraData
-     * @deprecated Use {@link View#setTag(int, Object)} with the window's decor view.
+     * @see getExtraData
      */
-    @SuppressWarnings("deprecation")
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Deprecated
-    public void putExtraData(ExtraData extraData) {
-        mExtraDataMap.put(extraData.getClass(), extraData);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("DEPRECATION")
+    @Deprecated("Use {@link View#setTag(int, Object)} with the window's decor view.")
+    open fun putExtraData(extraData: ExtraData) {
+        extraDataMap.put(extraData.javaClass, extraData)
     }
 
-    @SuppressLint("RestrictedApi")
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ReportFragment.injectIfNeededIn(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        ReportFragment.injectIfNeededIn(this)
     }
 
     @CallSuper
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
-        super.onSaveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        lifecycleRegistry.currentState = Lifecycle.State.CREATED
+        super.onSaveInstanceState(outState)
     }
 
     /**
-     * Retrieves a previously set {@link ExtraData} by class name.
+     * Retrieves a previously set [ExtraData] by class name.
      *
-     * @see #putExtraData
-     * @deprecated Use {@link View#getTag(int)} with the window's decor view.
+     * @see putExtraData
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @SuppressWarnings({"unchecked", "deprecation"})
-    @Deprecated
-    public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
-        return (T) mExtraDataMap.get(extraDataClass);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("DEPRECATION", "UNCHECKED_CAST")
+    @Deprecated("Use {@link View#getTag(int)} with the window's decor view.")
+    open fun <T : ExtraData> getExtraData(extraDataClass: Class<T>): T? {
+        return extraDataMap[extraDataClass] as T?
     }
 
-    @NonNull
-    @Override
-    public Lifecycle getLifecycle() {
-        return mLifecycleRegistry;
-    }
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     /**
      * @param event
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Override
-    public boolean superDispatchKeyEvent(@NonNull KeyEvent event) {
-        return super.dispatchKeyEvent(event);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun superDispatchKeyEvent(event: KeyEvent): Boolean {
+        return super.dispatchKeyEvent(event)
     }
 
-    @Override
-    public boolean dispatchKeyShortcutEvent(KeyEvent event) {
-        View decor = getWindow().getDecorView();
-        if (decor != null && KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
-            return true;
-        }
-        return super.dispatchKeyShortcutEvent(event);
+    override fun dispatchKeyShortcutEvent(event: KeyEvent): Boolean {
+        val decor = window.decorView
+        return if (KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
+            true
+        } else super.dispatchKeyShortcutEvent(event)
     }
 
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        View decor = getWindow().getDecorView();
-        if (decor != null && KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
-            return true;
-        }
-        return KeyEventDispatcher.dispatchKeyEvent(this, decor, this, event);
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val decor = window.decorView
+        return if (KeyEventDispatcher.dispatchBeforeHierarchy(decor, event)) {
+            true
+        } else KeyEventDispatcher.dispatchKeyEvent(this, decor, this, event)
     }
 
     /**
      * Checks if the internal state should be dump, as some special args are handled by
-     * {@link Activity} itself.
+     * [Activity] itself.
      *
-     * <p>Subclasses implementing
-     * {@link Activity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[])} should
-     * typically start with:
+     * Subclasses implementing [Activity.dump] should typically start with:
      *
-     * <pre>
-     * {@literal @}Override
-     * public void dump({@literal @}NonNull String prefix, {@literal @}Nullable FileDescriptor fd,
-     *        {@literal @}NonNull PrintWriter writer, {@literal @}Nullable String[] args) {
-     *    super.dump(prefix, fd, writer, args);
+     * ```
+     * override fun dump(
+     *   prefix: String,
+     *   fd: FileDescriptor?,
+     *   writer: PrintWriter,
+     *   args: Array<out String>?
+     * ) {
+     *   super.dump(prefix, fd, writer, args)
      *
-     *    if (!shouldDumpInternalState(args)) {
-     *        return;
-     *    }
-     *    // dump internal starte
+     *   if (!shouldDumpInternalState(args)) {
+     *     return
+     *   }
+     *   // dump internal state
      * }
-     * </pre>
+     * ```
      */
-    protected final boolean shouldDumpInternalState(@Nullable String[] args) {
-        return !shouldSkipDump(args);
-    }
-    private static boolean shouldSkipDump(@Nullable String[] args) {
-        if (args != null && args.length > 0) {
-            // NOTE: values below are hardcoded on framework's Activity (like dumpInner())
-            switch (args[0]) {
-                case "--autofill":
-                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-                case "--contentcapture":
-                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-                case "--translation":
-                    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
-                case "--list-dumpables":
-                case "--dump-dumpable":
-                    return Build.VERSION.SDK_INT >= 33;
-            }
-        }
-        return false;
+    protected fun shouldDumpInternalState(args: Array<String>?): Boolean {
+        return !shouldSkipDump(args)
     }
 
-    /**
-     * @deprecated Store the object you want to save directly by using
-     * {@link View#setTag(int, Object)} with the window's decor view.
-     */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Deprecated
-    public static class ExtraData {
+    private fun shouldSkipDump(args: Array<String>?): Boolean {
+        if (!args.isNullOrEmpty()) {
+            // NOTE: values below arke hardcoded on framework's Activity (like dumpInner())
+            when (args[0]) {
+                "--autofill" -> return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                "--contentcapture" -> return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                "--translation" -> return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                "--list-dumpables", "--dump-dumpable" -> return Build.VERSION.SDK_INT >= 33
+            }
+        }
+        return false
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Deprecated(
+        """Store the object you want to save directly by using
+      {@link View#setTag(int, Object)} with the window's decor view."""
+    )
+    open class ExtraData
 }

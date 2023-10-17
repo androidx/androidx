@@ -149,11 +149,12 @@ package androidx.core.app {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ComponentActivity extends android.app.Activity implements androidx.core.view.KeyEventDispatcher.Component androidx.lifecycle.LifecycleOwner {
     ctor public ComponentActivity();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T! getExtraData(Class<T!>!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T? getExtraData(Class<T> extraDataClass);
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData!);
-    method protected final boolean shouldDumpInternalState(String![]?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData extraData);
+    method protected final boolean shouldDumpInternalState(String![]? args);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent event);
+    property public androidx.lifecycle.Lifecycle lifecycle;
   }
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class ComponentActivity.ExtraData {
