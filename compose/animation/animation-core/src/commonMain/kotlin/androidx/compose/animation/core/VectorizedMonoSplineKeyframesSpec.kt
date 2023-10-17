@@ -16,16 +16,16 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.ui.util.fastForEachIndexed
+import androidx.collection.IntList
+import androidx.collection.IntObjectMap
 
 /**
  * Implementation of [VectorizedMonoSplineKeyframesSpec] using [MonoSpline].
  */
-// TODO(b/292114811): Find a way to comply and preserve insertion order
-@SuppressWarnings("PrimitiveInCollection")
 @ExperimentalAnimationSpecApi
 internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
-    private val keyframes: Map<Int, V>,
+    private val timestamps: IntList,
+    private val keyframes: IntObjectMap<V>,
     override val durationMillis: Int,
     override val delayMillis: Int = 0
 ) : VectorizedDurationBasedAnimationSpec<V> {
@@ -35,8 +35,6 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
     // Objects for MonoSpline
     private lateinit var lastInitialValue: V
     private lateinit var lastTargetValue: V
-    private lateinit var posArray: FloatArray
-    private lateinit var slopeArray: FloatArray
     private lateinit var monoSpline: MonoSpline
 
     private fun init(initialValue: V, targetValue: V, initialVelocity: V) {
@@ -49,8 +47,6 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         ) {
             lastInitialValue = initialValue
             lastTargetValue = targetValue
-            posArray = FloatArray(initialValue.size)
-            slopeArray = FloatArray(initialVelocity.size)
 
             val arraySize = keyframes.size + 2
             val times = FloatArray(arraySize)
@@ -69,14 +65,14 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
             }
 
             // Need to set times/values arrays in the order of the timestamps
-            keyframes.entries.sortedBy { it.key }
-                .fastForEachIndexed { index, (frameMillis, valueVector) ->
-                    times[index + 1] = frameMillis.toFloat() / SecondsToMillis
-                    val vector = values[index + 1]
-                    for (i in vector.indices) {
-                        vector[i] = valueVector[i]
-                    }
+            timestamps.forEachIndexed { index, frameMillis ->
+                val valueVector = keyframes[frameMillis]!!
+                times[index + 1] = frameMillis.toFloat() / SecondsToMillis
+                val vector = values[index + 1]
+                for (i in vector.indices) {
+                    vector[i] = valueVector[i]
                 }
+            }
             monoSpline = MonoSpline(times, values)
         }
     }
@@ -102,11 +98,8 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
 
         monoSpline.getPos(
             t = clampedPlayTime.toFloat() / SecondsToMillis,
-            v = posArray
+            v = valueVector
         )
-        for (i in posArray.indices) {
-            valueVector[i] = posArray[i]
-        }
         return valueVector
     }
 
@@ -126,11 +119,8 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
 
         monoSpline.getSlope(
             time = clampedPlayTime.toFloat() / SecondsToMillis,
-            v = slopeArray
+            v = velocityVector
         )
-        for (i in slopeArray.indices) {
-            velocityVector[i] = slopeArray[i]
-        }
         return velocityVector
     }
 }
