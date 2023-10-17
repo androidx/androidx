@@ -33,16 +33,8 @@
 
 package androidx.core.uwb.backend;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
-parcelable RangingCapabilities {
-  boolean supportsDistance;
-  boolean supportsAzimuthalAngle;
-  boolean supportsElevationAngle;
-  int minRangingInterval;
-  int[] supportedChannels;
-  int[] supportedNtfConfigs;
-  int[] supportedConfigIds;
-  @nullable int[] supportedSlotDurations;
-  @nullable int[] supportedRangingUpdateRates;
-  boolean supportsRangingIntervalReconfigure;
-  boolean hasBackgroundRangingSupport;
+parcelable UwbRangeDataNtfConfig {
+  int rangeDataNtfConfigType;
+  int ntfProximityNearCm;
+  int ntfProximityFarCm;
 }

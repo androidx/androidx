@@ -18,6 +18,7 @@ package androidx.core.uwb.backend;
 
 import androidx.core.uwb.backend.IRangingSessionCallback;
 import androidx.core.uwb.backend.RangingCapabilities;
+import androidx.core.uwb.backend.RangingControleeParameters;
 import androidx.core.uwb.backend.RangingParameters;
 import androidx.core.uwb.backend.UwbAddress;
 import androidx.core.uwb.backend.UwbComplexChannel;
@@ -32,5 +33,8 @@ interface IUwbClient {
     void startRanging(in RangingParameters parameters, in IRangingSessionCallback callback);
     void stopRanging(in IRangingSessionCallback callback);
     void addControlee(in UwbAddress address);
-    void removeControlee(in UwbAddress address);
+    void addControleeWithSessionParams(in androidx.core.uwb.backend.RangingControleeParameters params);
+    void removeControlee(in androidx.core.uwb.backend.UwbAddress address);
+    void reconfigureRangingInterval(in int intervalSkipCount);
+    void reconfigureRangeDataNtf(in int configType, in int proximityNearCm, in int proximityFarCm);
 }

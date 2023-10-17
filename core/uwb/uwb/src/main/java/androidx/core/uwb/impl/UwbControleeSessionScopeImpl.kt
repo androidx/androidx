@@ -17,22 +17,13 @@
 package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingCapabilities
-import androidx.core.uwb.RangingParameters
-import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbControleeSessionScope
 import com.google.android.gms.nearby.uwb.UwbClient
-import kotlinx.coroutines.flow.Flow
 
 internal class UwbControleeSessionScopeImpl(
     uwbClient: UwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress
-) : UwbControleeSessionScope {
-    private val uwbClientSessionScope =
-        UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress)
-
-    override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
-        return uwbClientSessionScope.prepareSession(parameters)
-    }
-}
+) : UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress),
+    UwbControleeSessionScope

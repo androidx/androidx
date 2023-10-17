@@ -42,4 +42,7 @@ parcelable RangingParameters {
   androidx.core.uwb.backend.UwbComplexChannel complexChannel;
   List<androidx.core.uwb.backend.UwbDevice> peerDevices;
   int rangingUpdateRate;
+  @nullable androidx.core.uwb.backend.UwbRangeDataNtfConfig uwbRangeDataNtfConfig;
+  int slotDuration;
+  boolean isAoaDisabled;
 }

@@ -98,9 +98,14 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 nearbyRangingCapabilities.supportsDistance(),
                 nearbyRangingCapabilities.supportsAzimuthalAngle(),
                 nearbyRangingCapabilities.supportsElevationAngle(),
-                nearbyRangingCapabilities.getMinRangingInterval(),
-                nearbyRangingCapabilities.getSupportedChannels().toSet(),
-                nearbyRangingCapabilities.getSupportedConfigIds().toSet())
+                nearbyRangingCapabilities.minRangingInterval,
+                nearbyRangingCapabilities.supportedChannels.toSet(),
+                nearbyRangingCapabilities.supportedNtfConfigs.toSet(),
+                nearbyRangingCapabilities.supportedConfigIds.toSet(),
+                nearbyRangingCapabilities.supportedSlotDurations.toSet(),
+                nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
+                nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
+                nearbyRangingCapabilities.hasBackgroundRangingSupport())
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -141,7 +146,12 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     it.supportsElevationAngle,
                     it.minRangingInterval,
                     it.supportedChannels.toSet(),
-                    it.supportedConfigIds.toSet())
+                    it.supportedNtfConfigs.toSet(),
+                    it.supportedConfigIds.toSet(),
+                    it.supportedSlotDurations.toSet(),
+                    it.supportedRangingUpdateRates.toSet(),
+                    it.supportsRangingIntervalReconfigure,
+                    it.hasBackgroundRangingSupport)
             }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel

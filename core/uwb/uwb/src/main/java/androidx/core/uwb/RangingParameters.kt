@@ -16,6 +16,8 @@
 
 package androidx.core.uwb
 
+import androidx.annotation.IntRange;
+
 /**
  * Set of parameters which should be passed to the UWB chip to start ranging.
  *
@@ -57,8 +59,21 @@ package androidx.core.uwb
  * The update rate type of the ranging data. The update rate types include
  * [RANGING_UPDATE_RATE_AUTOMATIC], [RANGING_UPDATE_RATE_FREQUENT], and
  * [RANGING_UPDATE_RATE_INFREQUENT].
+ *
+ * @property uwbRangeDataNtfConfig
+ * Configurable range data notification reports for a UWB session.
+ *
+ * @property slotDurationMillis
+ * The slot duration of the ranging session in millisecond. The available slot durations are
+ * [RANGING_SLOT_DURATION_1_MILLIS] and [RANGING_SLOT_DURATION_2_MILLIS].
+ * Default to [RANGING_SLOT_DURATION_2_MILLIS].
+ *
+ * @property isAoaDisabled
+ * The indicator of whether angle of arrival (AoA) is disabled. Default to false.
  */
-class RangingParameters(
+class RangingParameters
+@JvmOverloads
+constructor(
     val uwbConfigType: Int,
     val sessionId: Int,
     val subSessionId: Int,
@@ -66,9 +81,12 @@ class RangingParameters(
     val subSessionKeyInfo: ByteArray?,
     val complexChannel: UwbComplexChannel?,
     val peerDevices: List<UwbDevice>,
-    val updateRateType: Int
+    val updateRateType: Int,
+    val uwbRangeDataNtfConfig: UwbRangeDataNtfConfig? = null,
+    @IntRange(from = RANGING_SLOT_DURATION_1_MILLIS, to = RANGING_SLOT_DURATION_2_MILLIS)
+    val slotDurationMillis: Long = RANGING_SLOT_DURATION_2_MILLIS,
+    val isAoaDisabled: Boolean = false
 ) {
-
     companion object {
 
         /**
@@ -135,5 +153,11 @@ class RangingParameters(
          * configuration may use different values. (The default reporting interval at INFREQUENT mode is 4 seconds)
          */
         const val RANGING_UPDATE_RATE_FREQUENT = 3
+
+        /** 1 millisecond slot duration */
+        const val RANGING_SLOT_DURATION_1_MILLIS = 1L
+
+        /** 2 millisecond slot duration */
+        const val RANGING_SLOT_DURATION_2_MILLIS = 2L
     }
 }

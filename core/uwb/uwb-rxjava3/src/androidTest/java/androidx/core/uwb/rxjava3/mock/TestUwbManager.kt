@@ -22,6 +22,7 @@ import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
+import com.google.android.gms.internal.nearby.zzua
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 
 /** A default implementation of [UwbManager] used in testing. */
@@ -51,8 +52,9 @@ class TestUwbManager : UwbManager {
         val localAddress = com.google.android.gms.nearby.uwb.UwbAddress(DEVICE_ADDRESS)
 
         val rangingCapabilities =
-            com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false, 200,
-                listOf(9), listOf(1, 2, 3), 2F)
+        com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false, false,
+            200, zzua.zzl(9), zzua.zzl(1), zzua.zzn(1, 2, 3), zzua.zzl(2), zzua.zzl(1), false
+        )
         val uwbClient = TestUwbClient(complexChannel, localAddress, rangingCapabilities, true)
         return if (isController) {
              TestUwbControllerSessionScope(
@@ -60,9 +62,14 @@ class TestUwbManager : UwbManager {
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
                     rangingCapabilities.supportsElevationAngle(),
-                    rangingCapabilities.getMinRangingInterval(),
-                    rangingCapabilities.getSupportedChannels().toSet(),
-                    rangingCapabilities.getSupportedConfigIds().toSet()
+                    rangingCapabilities.minRangingInterval,
+                    rangingCapabilities.supportedChannels.toSet(),
+                    rangingCapabilities.supportedNtfConfigs.toSet(),
+                    rangingCapabilities.supportedConfigIds.toSet(),
+                    rangingCapabilities.supportedSlotDurations.toSet(),
+                    rangingCapabilities.supportedRangingUpdateRates.toSet(),
+                    rangingCapabilities.supportsRangingIntervalReconfigure(),
+                    rangingCapabilities.hasBackgroundRangingSupport()
                 ),
                 UwbAddress(localAddress.address),
                 androidx.core.uwb.UwbComplexChannel(
@@ -75,9 +82,14 @@ class TestUwbManager : UwbManager {
                     rangingCapabilities.supportsDistance(),
                     rangingCapabilities.supportsAzimuthalAngle(),
                     rangingCapabilities.supportsElevationAngle(),
-                    rangingCapabilities.getMinRangingInterval(),
-                    rangingCapabilities.getSupportedChannels().toSet(),
-                    rangingCapabilities.getSupportedConfigIds().toSet()
+                    rangingCapabilities.minRangingInterval,
+                    rangingCapabilities.supportedChannels.toSet(),
+                    rangingCapabilities.supportedNtfConfigs.toSet(),
+                    rangingCapabilities.supportedConfigIds.toSet(),
+                    rangingCapabilities.supportedSlotDurations.toSet(),
+                    rangingCapabilities.supportedRangingUpdateRates.toSet(),
+                    rangingCapabilities.supportsRangingIntervalReconfigure(),
+                    rangingCapabilities.hasBackgroundRangingSupport()
                 ),
                 UwbAddress(localAddress.address)
             )
