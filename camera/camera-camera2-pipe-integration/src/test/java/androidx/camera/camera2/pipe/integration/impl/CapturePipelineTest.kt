@@ -276,6 +276,7 @@ class CapturePipelineTest {
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCaseCameraState = fakeUseCaseCameraState,
             useTorchAsFlash = NotUseTorchAsFlash,
+            sessionProcessorManager = null,
         )
     }
 
@@ -402,6 +403,7 @@ class CapturePipelineTest {
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCaseCameraState = fakeUseCaseCameraState,
             useTorchAsFlash = UseTorchAsFlashImpl,
+            sessionProcessorManager = null,
         )
 
         val requestList = mutableListOf<Request>()

@@ -456,6 +456,7 @@ class StillCaptureRequestTest {
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
                 useCaseCameraState = fakeUseCaseCameraState,
                 useTorchAsFlash = NotUseTorchAsFlash,
+                sessionProcessorManager = null,
             ),
             state = fakeUseCaseCameraState,
             useCaseGraphConfig = fakeUseCaseGraphConfig,

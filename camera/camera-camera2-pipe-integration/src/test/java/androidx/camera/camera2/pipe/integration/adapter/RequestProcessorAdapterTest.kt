@@ -19,6 +19,8 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
+import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Size
 import android.view.Surface
@@ -27,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
@@ -66,6 +69,7 @@ class RequestProcessorAdapterTest {
     private val graphConfig = CameraGraph.Config(
         camera = cameraId,
         streams = listOf(previewStreamConfig, imageCaptureStreamConfig),
+        sessionParameters = mapOf(CameraPipeKeys.ignore3ARequiredParameters to true),
     )
 
     private val previewSurfaceTexture = SurfaceTexture(0).apply {
@@ -165,6 +169,45 @@ class RequestProcessorAdapterTest {
 
         frame.simulateComplete(emptyMap())
         verify(callback, times(1)).onCaptureCompleted(eq(requestToSet), any())
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun canSubmitRequests() = runTest {
+        val requestToSubmit = object : RequestProcessor.Request {
+            override fun getTargetOutputConfigIds(): MutableList<Int> {
+                return mutableListOf(imageCaptureOutputConfigId)
+            }
+
+            override fun getParameters(): androidx.camera.core.impl.Config {
+                return Camera2ImplConfig.Builder().apply {
+                    setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF)
+                }.build()
+            }
+
+            override fun getTemplateId(): Int {
+                return CameraDevice.TEMPLATE_STILL_CAPTURE
+            }
+        }
+
+        initialize(this)
+        val callback: RequestProcessor.Callback = mock()
+
+        requestProcessorAdapter!!.submit(mutableListOf(requestToSubmit), callback)
+        val frame = cameraGraphSimulator!!.simulateNextFrame()
+        val request = frame.request
+        assertThat(request.streams.size).isEqualTo(1)
+        assertThat(request.streams.first()).isEqualTo(
+            checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[imageCaptureStreamConfig]).id
+        )
+        assertThat(request.parameters[CaptureRequest.CONTROL_AE_MODE]).isEqualTo(
+            CONTROL_AE_MODE_OFF
+        )
+
+        verify(callback, times(1)).onCaptureStarted(eq(requestToSubmit), any(), any())
+
+        frame.simulateComplete(emptyMap())
+        verify(callback, times(1)).onCaptureCompleted(eq(requestToSubmit), any())
         advanceUntilIdle()
     }
 

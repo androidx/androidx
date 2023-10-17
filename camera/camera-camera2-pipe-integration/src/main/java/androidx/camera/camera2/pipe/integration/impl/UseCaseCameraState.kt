@@ -36,7 +36,9 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor.CaptureCallback
+import androidx.camera.core.impl.TagBundle
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -284,6 +286,21 @@ class UseCaseCameraState @Inject constructor(
                         }
                         Log.debug { "Update RepeatingRequest: $request" }
                         if (sessionProcessorManager != null) {
+                            val sessionConfig = SessionConfig.Builder().apply {
+                                request.template?.let { setTemplateType(it.value) }
+                                setImplementationOptions(Camera2ImplConfig.Builder().apply {
+                                    for ((key, value) in request.parameters) {
+                                        setCaptureRequestOptionWithType(key, value)
+                                    }
+                                }.build())
+                                currentInternalParameters[CAMERAX_TAG_BUNDLE]?.let {
+                                    val tagBundleMap = (it as TagBundle).toMap()
+                                    for ((tag, value) in tagBundleMap) {
+                                        addTag(tag, value)
+                                    }
+                                }
+                            }.build()
+                            sessionProcessorManager.sessionConfig = sessionConfig
                             sessionProcessorManager.startRepeating(object : CaptureCallback {})
                         } else {
                             it.startRepeating(request)
@@ -322,6 +339,14 @@ class UseCaseCameraState @Inject constructor(
     private fun Map<CaptureRequest.Key<*>, Any>?.getIntOrNull(
         key: CaptureRequest.Key<*>
     ): Int? = this?.get(key) as? Int
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> Camera2ImplConfig.Builder.setCaptureRequestOptionWithType(
+        key: CaptureRequest.Key<T>,
+        value: Any
+    ) {
+        setCaptureRequestOption(key, value as T)
+    }
 
     inner class RequestListener : Request.Listener {
         override fun onTotalCaptureResult(
