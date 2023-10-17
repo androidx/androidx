@@ -14,13 +14,13 @@
   limitations under the License.
   -->
 
-<resources>
-    <declare-styleable name="SlidingPaneLayout">
-        <attr name="isOverlappingEnabled" format="boolean"/>
-        <attr name="isUserResizingEnabled" format="boolean"/>
-        <attr name="userResizingDividerDrawable" format="reference"/>
-    </declare-styleable>
-    <declare-styleable name="SlidingPaneLayout_Layout">
-        <attr name="android:layout_weight"/>
-    </declare-styleable>
-</resources>
+<androidx.slidingpanelayout.widget.SlidingPaneLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:isUserResizingEnabled="true"
+    app:userResizingDividerDrawable="@android:drawable/ic_menu_add"
+    >
+
+</androidx.slidingpanelayout.widget.SlidingPaneLayout>
