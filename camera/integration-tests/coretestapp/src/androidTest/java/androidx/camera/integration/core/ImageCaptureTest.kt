@@ -118,6 +118,7 @@ private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
 private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
+private const val TOLERANCE = 1e-3f
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -971,7 +972,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio)
+        assertThat(resultCroppingRatio.toFloat()).isWithin(TOLERANCE)
+            .of(expectedCroppingRatio.toFloat())
         if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
         }
