@@ -13,8 +13,14 @@ AddedFinal: androidx.kruth.StringSubject:
     Class androidx.kruth.StringSubject added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#contains(CharSequence):
     Method androidx.kruth.StringSubject.contains has added 'final' qualifier
+AddedFinal: androidx.kruth.StringSubject#containsMatch(String):
+    Method androidx.kruth.StringSubject.containsMatch has added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#doesNotContain(CharSequence):
     Method androidx.kruth.StringSubject.doesNotContain has added 'final' qualifier
+AddedFinal: androidx.kruth.StringSubject#doesNotContainMatch(String):
+    Method androidx.kruth.StringSubject.doesNotContainMatch has added 'final' qualifier
+AddedFinal: androidx.kruth.StringSubject#doesNotMatch(String):
+    Method androidx.kruth.StringSubject.doesNotMatch has added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#endsWith(String):
     Method androidx.kruth.StringSubject.endsWith has added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#hasLength(int):
@@ -25,6 +31,8 @@ AddedFinal: androidx.kruth.StringSubject#isEmpty():
     Method androidx.kruth.StringSubject.isEmpty has added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#isNotEmpty():
     Method androidx.kruth.StringSubject.isNotEmpty has added 'final' qualifier
+AddedFinal: androidx.kruth.StringSubject#matches(String):
+    Method androidx.kruth.StringSubject.matches has added 'final' qualifier
 AddedFinal: androidx.kruth.StringSubject#startsWith(String):
     Method androidx.kruth.StringSubject.startsWith has added 'final' qualifier
 AddedFinal: androidx.kruth.ThrowableSubject:
@@ -36,7 +44,7 @@ ChangedType: androidx.kruth.SimpleSubjectBuilder#that(T):
 ChangedType: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
     Method androidx.kruth.StandardSubjectBuilder.about has changed return type from androidx.kruth.SimpleSubjectBuilder<S,A> to androidx.kruth.SimpleSubjectBuilder<S,T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#fail():
-    Method androidx.kruth.StandardSubjectBuilder.fail has changed return type from void to Void
+    Method androidx.kruth.StandardSubjectBuilder.fail has changed return type from void to java.lang.Void
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Boolean):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.BooleanSubject
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
@@ -46,7 +54,7 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
-    Method androidx.kruth.Subject.failWithActual has changed return type from void to Void
+    Method androidx.kruth.Subject.failWithActual has changed return type from void to java.lang.Void
 ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT):
     Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
 ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
@@ -69,10 +77,18 @@ InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String)
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
 InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter charSequence in androidx.kruth.StringSubject.contains(CharSequence charSequence)
+InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(String) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContain(CharSequence) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.doesNotContain(CharSequence string)
+InvalidNullConversion: androidx.kruth.StringSubject#doesNotContainMatch(String) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(String regex)
+InvalidNullConversion: androidx.kruth.StringSubject#doesNotMatch(String) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.doesNotMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#endsWith(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.endsWith(String string)
+InvalidNullConversion: androidx.kruth.StringSubject#matches(String) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.matches(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter #0:
     Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.startsWith(String string)
 InvalidNullConversion: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT) parameter #1:
@@ -167,20 +183,12 @@ RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.la
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
 RemovedMethod: androidx.kruth.StringSubject#StringSubject(androidx.kruth.FailureMetadata, String):
     Removed constructor androidx.kruth.StringSubject(androidx.kruth.FailureMetadata,String)
-RemovedMethod: androidx.kruth.StringSubject#containsMatch(String):
-    Removed method androidx.kruth.StringSubject.containsMatch(String)
 RemovedMethod: androidx.kruth.StringSubject#containsMatch(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.containsMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#doesNotContainMatch(String):
-    Removed method androidx.kruth.StringSubject.doesNotContainMatch(String)
 RemovedMethod: androidx.kruth.StringSubject#doesNotContainMatch(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.doesNotContainMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#doesNotMatch(String):
-    Removed method androidx.kruth.StringSubject.doesNotMatch(String)
 RemovedMethod: androidx.kruth.StringSubject#doesNotMatch(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.doesNotMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#matches(String):
-    Removed method androidx.kruth.StringSubject.matches(String)
 RemovedMethod: androidx.kruth.StringSubject#matches(java.util.regex.Pattern):
     Removed method androidx.kruth.StringSubject.matches(java.util.regex.Pattern)
 RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Object):
