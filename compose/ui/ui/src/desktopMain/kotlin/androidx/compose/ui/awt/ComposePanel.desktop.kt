@@ -57,13 +57,19 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         background = Color.white
         layout = null
         focusTraversalPolicy = object : FocusTraversalPolicy() {
-            override fun getComponentAfter(aContainer: Container?, aComponent: Component?): Component {
+            override fun getComponentAfter(
+                aContainer: Container?,
+                aComponent: Component?
+            ): Component? {
                 val ancestor = focusCycleRootAncestor
                 val policy = ancestor.focusTraversalPolicy
                 return policy.getComponentAfter(ancestor, this@ComposePanel)
             }
 
-            override fun getComponentBefore(aContainer: Container?, aComponent: Component?): Component {
+            override fun getComponentBefore(
+                aContainer: Container?,
+                aComponent: Component?
+            ): Component? {
                 val ancestor = focusCycleRootAncestor
                 val policy = ancestor.focusTraversalPolicy
                 return policy.getComponentBefore(ancestor, this@ComposePanel)
