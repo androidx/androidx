@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test connection between framework {@link MediaBrowser} and
@@ -247,7 +248,7 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_ROOT, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
         assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
 
         StubItemCallback itemCallback = new StubItemCallback();
@@ -350,7 +351,7 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_ROOT, mSubscriptionCallback);
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
         assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
         assertEquals(MEDIA_ID_CHILDREN.length, mSubscriptionCallback.mLastChildMediaItems.size());
         for (int i = 0; i < MEDIA_ID_CHILDREN.length; ++i) {
@@ -363,7 +364,7 @@ public class MediaBrowserTest {
         callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
                 getApplicationContext());
         mSubscriptionCallback.await(TIME_OUT_MS);
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
 
         // Test unsubscribe.
         mSubscriptionCallback.reset(1);
@@ -376,7 +377,7 @@ public class MediaBrowserTest {
         mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
 
         // onChildrenLoaded should not be called.
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
@@ -394,7 +395,7 @@ public class MediaBrowserTest {
             options.putInt(MediaBrowser.EXTRA_PAGE, page);
             mMediaBrowser.subscribe(MEDIA_ID_ROOT, options, mSubscriptionCallback);
             assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
-            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount.get());
             assertEquals(MEDIA_ID_ROOT, mSubscriptionCallback.mLastParentId);
             if (page != lastPage) {
                 assertEquals(pageSize, mSubscriptionCallback.mLastChildMediaItems.size());
@@ -413,7 +414,7 @@ public class MediaBrowserTest {
             callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
                     getApplicationContext());
             assertTrue(mSubscriptionCallback.await(TIME_OUT_MS * (page + 1)));
-            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+            assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Test unsubscribe with callback argument.
@@ -430,7 +431,7 @@ public class MediaBrowserTest {
             fail("Unexpected InterruptedException occurred.");
         }
         // onChildrenLoaded should not be called.
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
@@ -441,13 +442,13 @@ public class MediaBrowserTest {
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_CHILDREN_DELAYED, mSubscriptionCallback);
         assertFalse(mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
-        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount.get());
 
         callMediaBrowserServiceMethod(
                 SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED,
                 getApplicationContext());
         assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
-        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount.get());
     }
 
     @Test
@@ -507,7 +508,7 @@ public class MediaBrowserTest {
             callback.await(TIME_OUT_MS);
 
             // Each onChildrenLoaded() must be called.
-            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Reset callbacks and unsubscribe.
@@ -528,7 +529,7 @@ public class MediaBrowserTest {
 
         // onChildrenLoaded should not be called.
         for (StubSubscriptionCallback callback : subscriptionCallbacks) {
-            assertEquals(0, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(0, callback.mChildrenLoadedWithOptionCount.get());
         }
     }
 
@@ -553,7 +554,7 @@ public class MediaBrowserTest {
             callback.await(TIME_OUT_MS);
 
             // Each onChildrenLoaded() must be called.
-            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
         }
 
         // Unsubscribe existing subscriptions one-by-one.
@@ -578,7 +579,7 @@ public class MediaBrowserTest {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
                 assertTrue(callback.await(TIME_OUT_MS * remaining));
-                assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+                assertEquals(1, callback.mChildrenLoadedWithOptionCount.get());
             }
 
             try {
@@ -591,7 +592,7 @@ public class MediaBrowserTest {
             for (int j = 0; j <= i; j++) {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
-                assertEquals(0, callback.mChildrenLoadedWithOptionCount);
+                assertEquals(0, callback.mChildrenLoadedWithOptionCount.get());
             }
         }
     }
@@ -747,9 +748,9 @@ public class MediaBrowserTest {
     }
 
     private static class StubSubscriptionCallback extends MediaBrowser.SubscriptionCallback {
+        private final AtomicInteger mChildrenLoadedCount = new AtomicInteger();
+        private final AtomicInteger mChildrenLoadedWithOptionCount = new AtomicInteger();
         private volatile CountDownLatch mLatch;
-        private volatile int mChildrenLoadedCount;
-        private volatile int mChildrenLoadedWithOptionCount;
         private volatile String mLastErrorId;
         private volatile String mLastParentId;
         private volatile Bundle mLastOptions;
@@ -757,8 +758,8 @@ public class MediaBrowserTest {
 
         public void reset(int count) {
             mLatch = new CountDownLatch(count);
-            mChildrenLoadedCount = 0;
-            mChildrenLoadedWithOptionCount = 0;
+            mChildrenLoadedCount.set(0);
+            mChildrenLoadedWithOptionCount.set(0);
             mLastErrorId = null;
             mLastParentId = null;
             mLastOptions = null;
@@ -776,7 +777,7 @@ public class MediaBrowserTest {
 
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
-            mChildrenLoadedCount++;
+            mChildrenLoadedCount.incrementAndGet();
             mLastParentId = parentId;
             mLastChildMediaItems = children;
             mLatch.countDown();
@@ -785,7 +786,7 @@ public class MediaBrowserTest {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children,
                 @NonNull Bundle options) {
-            mChildrenLoadedWithOptionCount++;
+            mChildrenLoadedWithOptionCount.incrementAndGet();
             mLastParentId = parentId;
             mLastOptions = options;
             mLastChildMediaItems = children;
