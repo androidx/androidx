@@ -35,6 +35,7 @@ import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
+import androidx.compose.material3.samples.CarouselSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
@@ -280,6 +281,18 @@ val CardExamples = listOf(
         sourceUrl = CardsExampleSourceUrl
     ) {
         ClickableOutlinedCardSample()
+    }
+)
+
+private const val CarouselExampleDescription = "Carousel examples"
+private const val CarouselExampleSourceUrl = "$SampleSourceUrl/CarouselSamples.kt"
+val CarouselExamples = listOf(
+    Example(
+        name = ::CarouselSample.name,
+        description = CarouselExampleDescription,
+        sourceUrl = CarouselExampleSourceUrl
+    ) {
+        CarouselSample()
     }
 )
 
