@@ -53,7 +53,7 @@ import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.platform.textInputSession
+import androidx.compose.ui.platform.runTextInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
@@ -456,7 +456,7 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
             // cancel the inputSessionJob ourselves.
-            textInputSession {
+            runTextInputSession {
                 // Re-start observing changes in case our TextFieldState instance changed.
                 launch(start = CoroutineStart.UNDISPATCHED) {
                     textFieldSelectionState.observeChanges()
