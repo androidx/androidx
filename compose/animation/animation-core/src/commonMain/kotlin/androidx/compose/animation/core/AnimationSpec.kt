@@ -17,6 +17,8 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.IntRange
+import androidx.collection.MutableIntList
+import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
@@ -580,15 +582,17 @@ class KeyframesWithSplineSpec<T>(val config: KeyframesWithSplineSpecConfig<T>) :
     override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>):
         VectorizedDurationBasedAnimationSpec<V> {
         // TODO(b/292114811): Finish Easing support, user input is currently ignored
-        // TODO(b/292114811): Find a way to comply and preserve insertion order
-        @SuppressWarnings("PrimitiveInCollection")
-        val vectorizedKeyframes = mutableMapOf<Int, V>()
-        config.keyframes.forEach { key, value ->
-            vectorizedKeyframes[key] = converter.convertToVector(value.value)
-        }
+        val timestamps = MutableIntList()
+        val timeToVectorMap = MutableIntObjectMap<V>()
 
+        config.keyframes.forEach { key, value ->
+            timestamps.add(key)
+            timeToVectorMap[key] = converter.convertToVector(value.value)
+        }
+        timestamps.sort()
         return VectorizedMonoSplineKeyframesSpec(
-            keyframes = vectorizedKeyframes,
+            timestamps = timestamps,
+            keyframes = timeToVectorMap,
             durationMillis = config.durationMillis,
             delayMillis = config.delayMillis
         )
