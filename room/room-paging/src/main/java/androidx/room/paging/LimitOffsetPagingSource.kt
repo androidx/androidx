@@ -71,10 +71,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
             observer.registerIfNecessary(db)
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load
-            if (tempCount == INITIAL_ITEM_COUNT) {
-                initialLoad(params)
-            } else {
-                nonInitialLoad(params, tempCount)
+            try {
+                if (tempCount == INITIAL_ITEM_COUNT) {
+                    initialLoad(params)
+                } else {
+                    nonInitialLoad(params, tempCount)
+                }
+            } catch (e: Exception) {
+                LoadResult.Error(e)
             }
         }
     }

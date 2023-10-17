@@ -36,7 +36,6 @@ import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
@@ -315,6 +314,21 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
+    fun load_invalidQuery() = runPagingSourceTest(
+        LimitOffsetPagingSourceImpl(
+            db = database,
+            queryString = "SELECT * FROM $tableName ORDER BY",
+        )
+    ) { pager, _ ->
+        dao.addAllItems(ITEMS_LIST)
+        val result = pager.refresh()
+
+        assertThat(result).isInstanceOf<LoadResult.Error<Int, Int>>()
+        val throwable = (result as LoadResult.Error).throwable
+        assertThat(throwable).isNotNull()
+    }
+
+    @Test
     fun invalidInitialKey_dbEmpty_returnsEmpty() = runPagingSourceTest { pager, _ ->
         assertThat(
             (pager.refresh(initialKey = 101) as LoadResult.Page).data
@@ -337,12 +351,12 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun invalidInitialKey_negativeKey() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        // should throw error when initial key is negative
-        val expectedException = assertFailsWith<IllegalArgumentException> {
-            pager.refresh(initialKey = -1)
-        }
+        // should return error when initial key is negative
+        val result = pager.refresh(initialKey = -1)
+        assertThat(result).isInstanceOf<LoadResult.Error<Int, Int>>()
+        val message = (result as LoadResult.Error).throwable.message
         // default message from Paging 3 for negative initial key
-        assertThat(expectedException.message).isEqualTo(
+        assertThat(message).isEqualTo(
             "itemsBefore cannot be negative"
         )
     }
