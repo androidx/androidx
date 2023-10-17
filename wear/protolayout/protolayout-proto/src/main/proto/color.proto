@@ -53,7 +53,7 @@ message SweepGradient {
   //
   // A color stop is a pair of a color and its offset in the gradient.
   // The offset is the relative position of the color, beginning with 0 from the
-  // start angle and ending with 1.0 after spanning 360 degrees clockwise.
+  // start angle and ending with 1.0 at the end angle, spanning clockwise.
   //
   // There must be at least 2 colors.
   //
@@ -64,11 +64,23 @@ message SweepGradient {
   // results.
   repeated ColorStop color_stops = 1;
 
-  // The angular shift relative to the element's parent base angle. This is used
-  // to shift the start angle of the gradient.
+  // The start angle of the gradient relative to the element's base angle. If
+  // not set, defaults to zero.
   //
-  // For ArcLine, the base angle is the angle where the line starts.
-  DegreesProp angular_shift = 2;
+  // For ArcLine, the base angle is the angle where the line starts. The value
+  // represents a relative position in the line's length span. Values greater
+  // than 360 degrees correspond to upper layers of the arc line as it wraps
+  // over itself.
+  DegreesProp start_angle = 2;
+
+  // The end angle of the gradient, relative to the element's base angle. If not
+  // set, defaults to 360 degrees.
+  //
+  // For ArcLine, the base angle is the angle where the line starts. The value
+  // represents a relative position in the line's length span. Values greater
+  // than 360 degrees correspond to upper layers of the arc line as it wraps
+  // over itself.
+  DegreesProp end_angle = 3;
 }
 
 // A Brush describes how something is drawn on screen.
