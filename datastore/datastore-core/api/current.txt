@@ -51,8 +51,8 @@ package androidx.datastore.core {
     property public abstract kotlinx.coroutines.flow.Flow<kotlin.Unit> updateNotifications;
   }
 
-  public final class InterProcessCoordinatorKt {
-    method public static androidx.datastore.core.InterProcessCoordinator createSingleProcessCoordinator();
+  public final class InterProcessCoordinator_jvmKt {
+    method public static androidx.datastore.core.InterProcessCoordinator createSingleProcessCoordinator(java.io.File file);
   }
 
   public final class MultiProcessCoordinatorKt {

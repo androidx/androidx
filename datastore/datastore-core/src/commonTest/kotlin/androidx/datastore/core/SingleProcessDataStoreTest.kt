@@ -67,7 +67,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         store = testIO.getStore(
             serializerConfig,
             dataStoreScope,
-            { createSingleProcessCoordinator() }
+            { createSingleProcessCoordinator(testFile.path()) }
         ) { testFile }
     }
 
@@ -103,7 +103,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val store = testIO.getStore(
             serializerConfig,
             storeScope,
-            { createSingleProcessCoordinator() }) { testFile }
+            { createSingleProcessCoordinator(testFile.path()) }) { testFile }
 
         val collection = async {
             store.data.take(2).collect {
@@ -223,7 +223,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val newStore = testIO.getStore(
             serializerConfig,
             dataStoreScope,
-            { createSingleProcessCoordinator() },
+            { createSingleProcessCoordinator(testFile.path()) },
             fileProducer
         )
 
@@ -993,7 +993,10 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler()
     ): DataStore<Byte> {
         return DataStoreImpl(
-            testIO.getStorage(serializerConfig, { createSingleProcessCoordinator() }) { file },
+            testIO.getStorage(
+                serializerConfig,
+                { createSingleProcessCoordinator(file.path()) }
+            ) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler

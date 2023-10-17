@@ -39,7 +39,7 @@ import kotlinx.coroutines.sync.withLock
 class FileStorage<T>(
     private val serializer: Serializer<T>,
     private val coordinatorProducer: (File) -> InterProcessCoordinator = {
-        SingleProcessCoordinator()
+        createSingleProcessCoordinator(it)
     },
     private val produceFile: () -> File
 ) : Storage<T> {
