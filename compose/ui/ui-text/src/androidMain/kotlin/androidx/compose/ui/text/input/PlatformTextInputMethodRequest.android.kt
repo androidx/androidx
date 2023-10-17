@@ -44,11 +44,11 @@ actual fun interface PlatformTextInputMethodRequest {
      * system call will result in a 1:1 call to this method, although the old connection will always
      * be closed first.
      *
-     * @param outAttrs The [EditorInfo] from [View.onCreateInputConnection].
+     * @param outAttributes The [EditorInfo] from [View.onCreateInputConnection].
      *
      * @return The [InputConnection] that will be used to talk to the IME as long as the session is
      * active. This connection will not receive any calls after the requesting coroutine is
      * cancelled.
      */
-    fun createInputConnection(outAttrs: EditorInfo): InputConnection
+    fun createInputConnection(outAttributes: EditorInfo): InputConnection
 }

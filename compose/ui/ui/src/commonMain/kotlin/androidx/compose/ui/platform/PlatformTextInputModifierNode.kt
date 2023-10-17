@@ -30,14 +30,14 @@ import kotlinx.coroutines.cancelAndJoin
 
 /**
  * A modifier node that can connect to the platform's text input IME system. To initiate a text
- * input session, call [textInputSession].
+ * input session, call [runTextInputSession].
  *
  * @sample androidx.compose.ui.samples.platformTextInputModifierNodeSample
  */
 interface PlatformTextInputModifierNode : DelegatableNode
 
 /**
- * Receiver type for [textInputSession].
+ * Receiver type for [runTextInputSession].
  */
 expect interface PlatformTextInputSession {
     /**
@@ -46,8 +46,8 @@ expect interface PlatformTextInputSession {
      * On platforms that support software keyboards, calling this method will show the keyboard and
      * attempt to keep it visible until the last session is closed.
      *
-     * Calling this method multiple times, within the same [textInputSession] block or from
-     * different [textInputSession]s, will restart the session each time.
+     * Calling this method multiple times, within the same [runTextInputSession] block or from
+     * different [runTextInputSession]s, will restart the session each time.
      *
      * @param request The platform-specific [PlatformTextInputMethodRequest] that will be used to
      * initiate the session.
@@ -57,7 +57,7 @@ expect interface PlatformTextInputSession {
 
 /**
  * A [PlatformTextInputSession] that is also a [CoroutineScope]. This type should _only_ be used as
- * the receiver of the function passed to [textInputSession]. Other extension functions that need
+ * the receiver of the function passed to [runTextInputSession]. Other extension functions that need
  * to get the scope should _not_ use this as their receiver type, instead they should be suspend
  * functions with a [PlatformTextInputSession] receiver. If they need a [CoroutineScope] they should
  * call the [kotlinx.coroutines.coroutineScope] function.
@@ -67,13 +67,13 @@ interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineSco
 /**
  * Starts a new text input session and suspends until the session is closed.
  *
- * The [session] function must call [PlatformTextInputSession.startInputMethod] to actually show and
+ * The [block] function must call [PlatformTextInputSession.startInputMethod] to actually show and
  * initiate the connection with the input method. If it does not, the session will end when this
  * function returns without showing the input method.
  *
  * If this function is called while another session is active, the sessions will not overlap. The
  * new session will interrupt the old one, which will be cancelled and allowed to finish running any
- * cancellation tasks (e.g. `finally` blocks) before running the new [session] function.
+ * cancellation tasks (e.g. `finally` blocks) before running the new [block] function.
  *
  * The session will be closed when:
  *  - The session function throws an exception.
@@ -88,24 +88,24 @@ interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineSco
  *
  * @sample androidx.compose.ui.samples.platformTextInputModifierNodeSample
  *
- * @param session A suspend function that will be called when the session is started and that must
+ * @param block A suspend function that will be called when the session is started and that must
  * call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection with
  * the input method.
  */
 @OptIn(InternalComposeUiApi::class)
-suspend fun PlatformTextInputModifierNode.textInputSession(
-    session: suspend PlatformTextInputSessionScope.() -> Nothing
+suspend fun PlatformTextInputModifierNode.runTextInputSession(
+    block: suspend PlatformTextInputSessionScope.() -> Nothing
 ): Nothing {
-    require(node.isAttached) { "textInputSession called from an unattached node" }
+    require(node.isAttached) { "runTextInputSession called from an unattached node" }
     val override = requireLayoutNode().compositionLocalMap[LocalPlatformTextInputMethodOverride]
     val handler = override ?: requireOwner()
-    handler.textInputSession(session)
+    handler.textInputSession(block)
 }
 
 /**
  * Composition local used to override the [PlatformTextInputSessionHandler] used by
- * [textInputSession] for tests. Should only be set by `PlatformTextInputMethodTestOverride` in the
- * ui-test module, and only ready by [textInputSession].
+ * [runTextInputSession] for tests. Should only be set by `PlatformTextInputMethodTestOverride` in
+ * the ui-test module, and only ready by [runTextInputSession].
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,7 +123,7 @@ val LocalPlatformTextInputMethodOverride =
 interface PlatformTextInputSessionHandler {
     /**
      * Starts a new text input session and suspends until it's closed. For more information see
-     * [PlatformTextInputModifierNode.textInputSession].
+     * [PlatformTextInputModifierNode.runTextInputSession].
      *
      * Implementations must ensure that new requests cancel any active request. They must also
      * ensure that the previous request is finished running all cancellation tasks before starting

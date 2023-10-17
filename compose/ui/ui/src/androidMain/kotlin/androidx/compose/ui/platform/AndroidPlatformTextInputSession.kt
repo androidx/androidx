@@ -34,7 +34,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Manages a top-level input session, as created by [Owner.textInputSession].
  *
  * On Android there are three levels of input sessions:
- * 1. [PlatformTextInputModifierNode.textInputSession]: The app is performing some initialization
+ * 1. [PlatformTextInputModifierNode.runTextInputSession]: The app is performing some initialization
  *   before requesting the keyboard.
  * 2. [PlatformTextInputSession.startInputMethod]: The app has requested the keyboard with a
  *   particular implementation for [View.onCreateInputConnection] represented by a
