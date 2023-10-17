@@ -17,6 +17,7 @@ package androidx.camera.effects.internal;
 
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
+
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
@@ -61,8 +62,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     private final Executor mGlExecutor;
 
     // GL renderer.
-    private final GlRenderer mGlRenderer = new GlRenderer();
-    private final int mQueueDepth;
+    private final GlRenderer mGlRenderer;
 
     // Transform matrices.
     private final float[] mSurfaceTransform = new float[16];
@@ -89,7 +89,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
     public SurfaceProcessorImpl(int queueDepth, @NonNull Handler glHandler) {
         mGlHandler = glHandler;
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
-        mQueueDepth = queueDepth;
+        mGlRenderer = new GlRenderer(queueDepth);
         runOnGlThread(mGlRenderer::init);
     }
 
@@ -277,7 +277,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
         mInputSize = inputSize;
 
         // Create a buffer of textures with the same size as the input.
-        int[] textureIds = mGlRenderer.createBufferTextureIds(mQueueDepth, mInputSize);
+        int[] textureIds = mGlRenderer.createBufferTextureIds(mInputSize);
         mBuffer = new TextureFrameBuffer(textureIds);
 
         // Create the overlay Bitmap with the same size as the input.

@@ -58,24 +58,18 @@ class GlProgramOverlay extends GlProgram {
             + TEXTURE_ATTRIBUTE + ").xy;\n"
             + "}";
 
-    private static final String FRAGMENT_SHADER = "#extension GL_OES_EGL_image_external : require\n"
-            + "precision mediump float;\n"
-            + "varying vec2 " + TEXTURE_COORDINATES + ";\n"
-            + "uniform samplerExternalOES " + INPUT_SAMPLER + ";\n"
-            + "uniform sampler2D " + OVERLAY_SAMPLER + ";\n"
-            + "void main() {\n"
-            + "    vec4 inputColor = texture2D(" + INPUT_SAMPLER + ", "
-            + TEXTURE_COORDINATES + ");\n"
-            + "    vec4 overlayColor = texture2D(" + OVERLAY_SAMPLER + ", "
-            + TEXTURE_COORDINATES + ");\n"
-            + "    gl_FragColor = inputColor * (1.0 - overlayColor.a) + overlayColor;\n"
-            + "}";
+    private static final String SAMPLER_EXTERNAL = "samplerExternalOES";
+    private static final String SAMPLER_2D = "sampler2D";
 
     // Location of the texture matrix used in vertex shader.
     private int mTextureMatrixLoc = -1;
 
-    GlProgramOverlay() {
-        super(VERTEX_SHADER, FRAGMENT_SHADER);
+    GlProgramOverlay(int queueDepth) {
+        super(
+                VERTEX_SHADER,
+                // When the queue exists, the overlay program's input is the buffered 2D textures.
+                createFragmentShader(queueDepth > 0 ? SAMPLER_2D : SAMPLER_EXTERNAL)
+        );
     }
 
     @Override
@@ -155,6 +149,22 @@ class GlProgramOverlay extends GlProgram {
         byteBuffer.rewind();
         copyByteBufferToBitmap(bitmap, byteBuffer, width * SNAPSHOT_PIXEL_STRIDE);
         return bitmap;
+    }
+
+    @NonNull
+    private static String createFragmentShader(@NonNull String inputSampler) {
+        return "#extension GL_OES_EGL_image_external : require\n"
+                + "precision mediump float;\n"
+                + "varying vec2 " + TEXTURE_COORDINATES + ";\n"
+                + "uniform " + inputSampler + " " + INPUT_SAMPLER + ";\n"
+                + "uniform sampler2D " + OVERLAY_SAMPLER + ";\n"
+                + "void main() {\n"
+                + "    vec4 inputColor = texture2D(" + INPUT_SAMPLER + ", "
+                + TEXTURE_COORDINATES + ");\n"
+                + "    vec4 overlayColor = texture2D(" + OVERLAY_SAMPLER + ", "
+                + TEXTURE_COORDINATES + ");\n"
+                + "    gl_FragColor = inputColor * (1.0 - overlayColor.a) + overlayColor;\n"
+                + "}";
     }
 
     /**

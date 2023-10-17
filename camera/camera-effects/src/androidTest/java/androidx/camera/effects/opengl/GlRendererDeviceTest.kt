@@ -59,13 +59,14 @@ class GlRendererDeviceTest {
         private const val WIDTH = 640
         private const val HEIGHT = 480
         private const val TIMESTAMP_NS = 0L
+        private const val NO_QUEUE = 0
     }
 
     private val input = createBitmap(WIDTH, HEIGHT)
     private val overlay = createOverlayBitmap()
     private val transparentOverlay = createTransparentOverlay()
 
-    private val glRenderer = GlRenderer()
+    private lateinit var glRenderer: GlRenderer
     private lateinit var inputSurface: Surface
     private lateinit var inputTexture: SurfaceTexture
     private lateinit var inputExecutor: ExecutorService
@@ -80,34 +81,25 @@ class GlRendererDeviceTest {
     @Before
     fun setUp() = runBlocking {
         inputExecutor = Executors.newSingleThreadExecutor()
-        withContext(inputExecutor.asCoroutineDispatcher()) {
-            glRenderer.init()
-            inputTexture = SurfaceTexture(glRenderer.inputTextureId).apply {
-                setDefaultBufferSize(WIDTH, HEIGHT)
-            }
-            inputSurface = Surface(inputTexture)
-        }
-        outputTexture = SurfaceTexture(0).apply {
-            setDefaultBufferSize(WIDTH, HEIGHT)
-        }
-        outputSurface = Surface(outputTexture)
     }
 
     @After
     fun tearDown() {
-        inputExecutor.execute {
-            glRenderer.release()
-            inputTexture.release()
-            inputSurface.release()
+        if (::glRenderer.isInitialized) {
+            inputExecutor.execute {
+                glRenderer.release()
+                inputTexture.release()
+                inputSurface.release()
+            }
+            outputTexture.release()
+            outputSurface.release()
         }
-        outputTexture.release()
-        outputSurface.release()
         inputExecutor.shutdown()
     }
 
     @Test(expected = IllegalStateException::class)
     fun renderInputWhenUninitialized_throwsException() {
-        val glRenderer = GlRenderer()
+        val glRenderer = GlRenderer(NO_QUEUE)
         try {
             glRenderer.renderInputToSurface(TIMESTAMP_NS, identityMatrix, outputSurface)
         } finally {
@@ -118,9 +110,10 @@ class GlRendererDeviceTest {
     @Test
     fun drawInputToQueue_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
         // Arrange: upload a overlay and create a texture queue.
+        initGlRenderer(1)
         glRenderer.uploadOverlay(overlay)
         drawInputSurface(input)
-        val queue = glRenderer.createBufferTextureIds(1, Size(WIDTH, HEIGHT))
+        val queue = glRenderer.createBufferTextureIds(Size(WIDTH, HEIGHT))
         // Act: draw input to the queue and then to the output.
         glRenderer.renderInputToQueueTexture(queue[0])
         val bitmap =
@@ -132,12 +125,46 @@ class GlRendererDeviceTest {
     @Test
     fun drawInputWithoutOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
         // Arrange: upload a transparent overlay.
+        initGlRenderer(NO_QUEUE)
         glRenderer.uploadOverlay(transparentOverlay)
         drawInputSurface(input)
         // Act.
         val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
         // Assert: the output is the same as the input.
         assertThat(getAverageDiff(output, input)).isEqualTo(0)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun drawInputWithQueue_throwsException() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
+        initGlRenderer(1)
+        glRenderer.renderInputToSurface(TIMESTAMP_NS, identityMatrix, outputSurface)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun drawTextureWithoutQueue_throwsException() =
+        runBlocking(inputExecutor.asCoroutineDispatcher()) {
+            initGlRenderer(NO_QUEUE)
+            glRenderer.renderQueueTextureToSurface(
+                0,
+                TIMESTAMP_NS,
+                identityMatrix,
+                outputSurface
+            )
+        }
+
+    private suspend fun initGlRenderer(queueDepth: Int) {
+        glRenderer = GlRenderer(queueDepth)
+        withContext(inputExecutor.asCoroutineDispatcher()) {
+            glRenderer.init()
+            inputTexture = SurfaceTexture(glRenderer.inputTextureId).apply {
+                setDefaultBufferSize(WIDTH, HEIGHT)
+            }
+            inputSurface = Surface(inputTexture)
+        }
+        outputTexture = SurfaceTexture(0).apply {
+            setDefaultBufferSize(WIDTH, HEIGHT)
+        }
+        outputSurface = Surface(outputTexture)
     }
 
     /**
