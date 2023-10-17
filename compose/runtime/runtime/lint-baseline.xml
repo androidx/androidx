@@ -7,7 +7,7 @@
         errorLine1="fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)"
         errorLine2="    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composition.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composition.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="fun currentCompositionErrors(): List&lt;Pair&lt;Exception, Boolean>> ="
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composition.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="fun clearCompositionErrors() = HotReloader.clearErrors()"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composition.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
     </issue>
 
     <issue
