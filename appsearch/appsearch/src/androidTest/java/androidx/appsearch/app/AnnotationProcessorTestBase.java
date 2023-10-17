@@ -16,6 +16,8 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE;
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID;
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
@@ -875,6 +877,184 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(documents).hasSize(1);
     }
 
+    @Document(name = "Artist", parent = {Root.class})
+    static class Artist extends Root {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mName;
+        @Document.LongProperty(indexingType = INDEXING_TYPE_RANGE) long mAge;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES) String mMostFamousWork;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mNationality;
+    }
+
+
+    // Indexed properties for Media type: {"name", "description", "leadActor.name", "leadActor.age"}
+    @Document(name = "Media", parent = {Root.class})
+    static class Media extends Root {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mName;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES) String mDescription;
+        @Document.DocumentProperty(indexableNestedPropertiesList = {"name", "age"})
+        Artist mLeadActor;
+    }
+
+    // Indexed properties for Movie type: {"name", "description", "leadActor.name",
+    // "leadActor.nationality"}
+    // Movie does not index "leadActor.age" as the java class does not extend from Media
+    @Document(name = "Movie", parent = {Media.class})
+    static class Movie extends Root {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mName;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES) String mDescription;
+        @Document.DocumentProperty(
+                indexableNestedPropertiesList = {"name", "nationality"},
+                inheritIndexableNestedPropertiesFromSuperclass = true)
+        Artist mLeadActor;
+    }
+
+    // Indexed properties for Documentary type: {"name", "description", "leadActor.name",
+    // "leadActor.age", "leadActor.mostFamousWork"}
+    // Documentary extends Media, so it should index all nested properties in Media.leadActor, as
+    // well as "leadActor.mostFamousWork"
+    @Document(name = "Documentary", parent = {Media.class})
+    static class Documentary extends Media {
+        @Document.DocumentProperty(
+                indexableNestedPropertiesList = {"mostFamousWork"},
+                inheritIndexableNestedPropertiesFromSuperclass = true)
+        Artist mLeadActor;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mEvent;
+    }
+
+    // Indexed properties for DocumentaryMovie type: {"name", "description", "leadActor.name",
+    // "leadActor.age", "leadActor.mostFamousWork"}
+    // Documentary extends Media, so it should index all nested properties in Media.leadActor, but
+    // should not index "leadActor.nationality" as it does not extend from Movie.
+    @Document(name = "DocumentaryMovie", parent = {Documentary.class, Movie.class})
+    static class DocumentaryMovie extends Documentary {
+        @Document.DocumentProperty(
+                indexableNestedPropertiesList = {},
+                inheritIndexableNestedPropertiesFromSuperclass = true)
+        Artist mLeadActor;
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS) String mDate;
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesList() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                // Artist, Media, Movie and Documentary are added automatically as they are
+                // DocumentaryMovie's dependencies.
+                .addDocumentClasses(DocumentaryMovie.class)
+                // Add an unrelated schema type
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+
+        // Create documents
+        Artist actor = new Artist();
+        actor.mNamespace = "namespace";
+        actor.mId = "id1";
+        actor.mName = "actor";
+        actor.mAge = 30;
+        actor.mMostFamousWork = "famousWork";
+        actor.mNationality = "nationality";
+
+        Media media = new Media();
+        media.mNamespace = "namespace";
+        media.mId = "id2";
+        media.mName = "media";
+        media.mDescription = "mediaDescription";
+        media.mLeadActor = actor;
+
+        Movie movie = new Movie();
+        movie.mNamespace = "namespace";
+        movie.mId = "id3";
+        movie.mName = "movie";
+        movie.mDescription = "movieDescription";
+        movie.mLeadActor = actor;
+
+        Documentary documentary = new Documentary();
+        documentary.mNamespace = "namespace";
+        documentary.mId = "id4";
+        documentary.mName = "documentary";
+        documentary.mDescription = "documentaryDescription";
+        documentary.mLeadActor = actor;
+        documentary.mEvent = "documentaryEvent";
+
+        DocumentaryMovie documentaryMovie = new DocumentaryMovie();
+        documentaryMovie.mNamespace = "namespace";
+        documentaryMovie.mId = "id5";
+        documentaryMovie.mName = "documentaryMovie";
+        documentaryMovie.mDescription = "documentaryMovieDescription";
+        documentaryMovie.mLeadActor = actor;
+        documentaryMovie.mEvent = "documentaryMovieEvent";
+        documentaryMovie.mDate = "2023-10-12";
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(actor, media, movie, documentary, documentaryMovie)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(5);
+
+
+        // Query for "actor" should retrieve all documents.
+        searchResults = mSession.search("actor",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(5);
+
+        // Query for "leadActor.age == 30" should retrieve Media, Documentary and DocumentaryMovie
+        searchResults = mSession.search("leadActor.age == 30",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(3);
+        assertThat(documents.get(0).getId()).isEqualTo("id5");  // documentaryMovie
+        assertThat(documents.get(1).getId()).isEqualTo("id4");  // documentary
+        assertThat(documents.get(2).getId()).isEqualTo("id2");  // media
+
+        // Query for "famous" should retrieve Actor, Documentary and DocumentaryMovie
+        searchResults = mSession.search("famous",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(3);
+        assertThat(documents.get(0).getId()).isEqualTo("id5");  // documentaryMovie
+        assertThat(documents.get(1).getId()).isEqualTo("id4");  // documentary
+        assertThat(documents.get(2).getId()).isEqualTo("id1");  // actor
+
+        // Query for "nationality" should retrieve Actor and Movie.
+        searchResults = mSession.search("nationality",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents.get(0).getId()).isEqualTo("id3");  // movie
+        assertThat(documents.get(1).getId()).isEqualTo("id1");  // actor
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesList_notSupported() {
+        assumeFalse(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> mSession.setSchemaAsync(
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(DocumentaryMovie.class)
+                                .build()));
+    }
+
     // A class that some properties are annotated via getters without backing fields.
     @Document
     static class FakeMessage {
@@ -1638,6 +1818,344 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(businessGeneric);
+    }
+
+    @Document(name = "Event", parent = InterfaceRoot.class)
+    interface Event extends InterfaceRoot {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS)
+        String getName();
+
+        @Document.DocumentProperty(indexableNestedPropertiesList = {"name", "age"})
+        Artist getPerformer();
+
+        @Document.BuilderProducer
+        class Builder {
+            String mId;
+            String mNamespace;
+            long mCreationTimestamp;
+            String mName;
+            Artist mPerformer;
+
+            Builder(String id, String namespace) {
+                mId = id;
+                mNamespace = namespace;
+            }
+
+            public Event build() {
+                return new EventImpl(mId, mNamespace, mCreationTimestamp, mName, mPerformer);
+            }
+
+            public Event.Builder setCreationTimestamp(long creationTimestamp) {
+                mCreationTimestamp = creationTimestamp;
+                return this;
+            }
+
+            public Event.Builder setName(String name) {
+                mName = name;
+                return this;
+            }
+
+            public Event.Builder setPerformer(Artist performer) {
+                mPerformer = performer;
+                return this;
+            }
+        }
+    }
+
+    @Document(name = "Charity", parent = InterfaceRoot.class)
+    interface Charity extends InterfaceRoot {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS)
+        String getName();
+
+        @Document.DocumentProperty(indexableNestedPropertiesList = {"name", "nationality"})
+        Artist getPerformer();
+
+        @Document.BuilderProducer
+        class Builder {
+            String mId;
+            String mNamespace;
+            long mCreationTimestamp;
+            String mName;
+            Artist mPerformer;
+
+            Builder(String id, String namespace) {
+                mId = id;
+                mNamespace = namespace;
+            }
+
+            public Charity build() {
+                return new CharityImpl(mId, mNamespace, mCreationTimestamp, mName, mPerformer);
+            }
+
+            public Charity.Builder setCreationTimestamp(long creationTimestamp) {
+                mCreationTimestamp = creationTimestamp;
+                return this;
+            }
+
+            public Charity.Builder setName(String name) {
+                mName = name;
+                return this;
+            }
+
+            public Charity.Builder setPerformer(Artist performer) {
+                mPerformer = performer;
+                return this;
+            }
+        }
+    }
+
+    @Document(name = "CharityEvent", parent = {Event.class, Charity.class})
+    interface CharityEvent extends Event, Charity {
+        @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES)
+        String getDescription();
+
+        @Document.DocumentProperty(inheritIndexableNestedPropertiesFromSuperclass = true)
+        Artist getPerformer();
+
+        @Document.BuilderProducer
+        class Builder {
+            String mId;
+            String mNamespace;
+            long mCreationTimestamp;
+            String mName;
+            String mDescription;
+            Artist mPerformer;
+
+            Builder(String id, String namespace) {
+                mId = id;
+                mNamespace = namespace;
+            }
+
+            public CharityEvent build() {
+                return new CharityEventImpl(mId, mNamespace, mCreationTimestamp, mName,
+                        mDescription, mPerformer);
+            }
+
+            public CharityEvent.Builder setCreationTimestamp(long creationTimestamp) {
+                mCreationTimestamp = creationTimestamp;
+                return this;
+            }
+
+            public CharityEvent.Builder setName(String name) {
+                mName = name;
+                return this;
+            }
+
+            public CharityEvent.Builder setDescription(String description) {
+                mDescription = description;
+                return this;
+            }
+
+            public CharityEvent.Builder setPerformer(Artist performer) {
+                mPerformer = performer;
+                return this;
+            }
+        }
+    }
+
+
+    static class EventImpl implements Event {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mName;
+        Artist mPerformer;
+
+        EventImpl(String id, String namespace, long creationTimestamp, String name,
+                Artist performer) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mName = name;
+            mPerformer = performer;
+        }
+
+        @Override
+        public String getId() {
+            return mId;
+        }
+
+        @Override
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        @Override
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        @Override
+        public String getName() {
+            return mName;
+        }
+
+        @Override
+        public Artist getPerformer() {
+            return mPerformer;
+        }
+    }
+
+    static class CharityImpl implements Charity {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mName;
+        Artist mPerformer;
+
+        CharityImpl(String id, String namespace, long creationTimestamp, String name,
+                Artist performer) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mName = name;
+            mPerformer = performer;
+        }
+
+        @Override
+        public String getId() {
+            return mId;
+        }
+
+        @Override
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        @Override
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        @Override
+        public String getName() {
+            return mName;
+        }
+
+        @Override
+        public Artist getPerformer() {
+            return mPerformer;
+        }
+    }
+
+    // CharityEventImpl.performer's nested properties: {performer.name, performer.age,
+    // performer.nationality}
+    static class CharityEventImpl implements CharityEvent {
+        String mId;
+        String mNamespace;
+        long mCreationTimestamp;
+        String mName;
+        String mDescription;
+        Artist mPerformer;
+
+        CharityEventImpl(String id, String namespace, long creationTimestamp, String name,
+                String description, Artist performer) {
+            mId = id;
+            mNamespace = namespace;
+            mCreationTimestamp = creationTimestamp;
+            mName = name;
+            mDescription = description;
+            mPerformer = performer;
+        }
+
+        public String getId() {
+            return mId;
+        }
+
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        public long getCreationTimestamp() {
+            return mCreationTimestamp;
+        }
+
+        public String getName() {
+            return mName;
+        }
+
+        public Artist getPerformer() {
+            return mPerformer;
+        }
+
+        public String getDescription() {
+            return null;
+        }
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListForInterface() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(CharityEventImpl.class)
+                // Add an unrelated schema type
+                .addDocumentClasses(Gift.class)
+                .build()).get();
+
+
+        // Create documents
+        Artist performer = new Artist();
+        performer.mNamespace = "namespace";
+        performer.mId = "id1";
+        performer.mName = "performer";
+        performer.mAge = 30;
+        performer.mMostFamousWork = "famousWork";
+        performer.mNationality = "nationality";
+
+        CharityEventImpl charityEvent = new CharityEventImpl("id2", "namespace", 0, "charityEvent",
+                "charityEventDescription", performer);
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(performer, charityEvent)
+                        .build()));
+
+        // Query for all documents
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+
+        // Query for "performer" should retrieve all documents.
+        searchResults = mSession.search("performer",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // Query for "performer.age == 30" should retrieve CharityEvent
+        searchResults = mSession.search("performer.age == 30",
+                new SearchSpec.Builder()
+                        .setNumericSearchEnabled(true)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0).getId()).isEqualTo("id2");  // charityEvent
+
+        // Query for "famous" should retrieve Performer
+        searchResults = mSession.search("famous",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0).getId()).isEqualTo("id1");  // performer
+
+        // Query for "nationality" should retrieve Performer and CharityEvent.
+        searchResults = mSession.search("nationality",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents.get(0).getId()).isEqualTo("id2");  // charityEvent
+        assertThat(documents.get(1).getId()).isEqualTo("id1");  // performer
     }
 
     @Test

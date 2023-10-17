@@ -23,8 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.compiler.IntrospectionHelper;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.squareup.javapoet.ClassName;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.type.TypeMirror;
@@ -57,16 +60,38 @@ public abstract class DocumentPropertyAnnotation extends DataPropertyAnnotation 
     static DocumentPropertyAnnotation parse(
             @NonNull Map<String, Object> annotationParams, @NonNull String defaultName) {
         String name = (String) annotationParams.get("name");
+        List<String> indexableNestedPropertiesList = new ArrayList<>();
+        Object indexableList = annotationParams.get("indexableNestedPropertiesList");
+        if (indexableList instanceof List) {
+            for (Object property : (List<?>) indexableList) {
+                indexableNestedPropertiesList.add(property.toString());
+            }
+        }
         return new AutoValue_DocumentPropertyAnnotation(
                 name.isEmpty() ? defaultName : name,
                 (boolean) annotationParams.get("required"),
-                (boolean) annotationParams.get("indexNestedProperties"));
+                (boolean) annotationParams.get("indexNestedProperties"),
+                ImmutableList.copyOf(indexableNestedPropertiesList),
+                (boolean) annotationParams.get("inheritIndexableNestedPropertiesFromSuperclass"));
     }
 
     /**
      * Specifies whether fields in the nested document should be indexed.
      */
     public abstract boolean shouldIndexNestedProperties();
+
+    /**
+     * Returns the list of nested properties to index for the nested document other than the
+     * properties inherited from the type's parent.
+     */
+    @NonNull
+    public abstract ImmutableList<String> getIndexableNestedPropertiesList();
+
+    /**
+     * Specifies whether to inherit the parent class's definition for the indexable nested
+     * properties list.
+     */
+    public abstract boolean shouldInheritIndexableNestedPropertiesFromSuperClass();
 
     @NonNull
     @Override
