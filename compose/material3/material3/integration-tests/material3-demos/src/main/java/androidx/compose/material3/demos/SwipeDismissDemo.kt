@@ -32,10 +32,9 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
@@ -73,8 +72,7 @@ private val items = listOf(
 )
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun SwipeToDismissDemo() {
+fun SwipeDismissDemo() {
     // This is an example of a list of dismissible items, similar to what you would see in an
     // email app. Swiping left reveals a 'delete' icon and swiping right reveals a 'done' icon.
     // The background will start as grey, but once the dismiss threshold is reached, the colour
@@ -98,11 +96,11 @@ fun SwipeToDismissDemo() {
                 visible = !isDismissed,
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
             ) {
-                SwipeToDismiss(
+                SwipeDismiss(
                     state = dismissState,
                     modifier = Modifier.padding(vertical = 4.dp),
                     background = {
-                        val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+                        val direction = dismissState.dismissDirection ?: return@SwipeDismiss
                         val color by animateColorAsState(
                             when (dismissState.targetValue) {
                                 DismissValue.Default -> Color.LightGray

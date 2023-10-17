@@ -40,24 +40,23 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class)
-class SwipeToDismissTest {
+class SwipeDismissTest {
 
     @get:Rule
     val rule = createComposeRule()
 
     private val backgroundTag = "background"
     private val dismissContentTag = "dismissContent"
-    private val swipeToDismissTag = "swipeToDismiss"
+    private val swipeDismissTag = "swipeDismiss"
 
     private fun advanceClock() {
         rule.mainClock.advanceTimeBy(100_000L)
     }
 
     @Test
-    fun swipeToDismiss_testOffset_whenDefault() {
+    fun swipeDismiss_testOffset_whenDefault() {
         rule.setContent {
-            SwipeToDismiss(
+            SwipeDismiss(
                 state = rememberDismissState(DismissValue.Default),
                 background = { },
                 dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
@@ -69,9 +68,9 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_testOffset_whenDismissedToEnd() {
+    fun swipeDismiss_testOffset_whenDismissedToEnd() {
         rule.setContent {
-            SwipeToDismiss(
+            SwipeDismiss(
                 state = rememberDismissState(DismissValue.DismissedToEnd),
                 background = { },
                 dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
@@ -84,9 +83,9 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_testOffset_whenDismissedToStart() {
+    fun swipeDismiss_testOffset_whenDismissedToStart() {
         rule.setContent {
-            SwipeToDismiss(
+            SwipeDismiss(
                 state = rememberDismissState(DismissValue.DismissedToStart),
                 background = { },
                 dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
@@ -99,9 +98,9 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_testBackgroundMatchesContentSize() {
+    fun swipeDismiss_testBackgroundMatchesContentSize() {
         rule.setContent {
-            SwipeToDismiss(
+            SwipeDismiss(
                 state = rememberDismissState(DismissValue.Default),
                 background = { Box(Modifier.fillMaxSize().testTag(backgroundTag)) },
                 dismissContent = { Box(Modifier.size(100.dp)) }
@@ -113,12 +112,12 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_dismissBySwipe_toEnd() {
+    fun swipeDismiss_dismissBySwipe_toEnd() {
         lateinit var dismissState: DismissState
         rule.setContent {
             dismissState = rememberDismissState(DismissValue.Default)
-            SwipeToDismiss(
-                modifier = Modifier.testTag(swipeToDismissTag),
+            SwipeDismiss(
+                modifier = Modifier.testTag(swipeDismissTag),
                 state = dismissState,
                 directions = setOf(DismissDirection.StartToEnd),
                 background = { },
@@ -126,7 +125,7 @@ class SwipeToDismissTest {
             )
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeRight() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }
 
         advanceClock()
 
@@ -136,12 +135,12 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_dismissBySwipe_toStart() {
+    fun swipeDismiss_dismissBySwipe_toStart() {
         lateinit var dismissState: DismissState
         rule.setContent {
             dismissState = rememberDismissState(DismissValue.Default)
-            SwipeToDismiss(
-                modifier = Modifier.testTag(swipeToDismissTag),
+            SwipeDismiss(
+                modifier = Modifier.testTag(swipeDismissTag),
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
                 background = { },
@@ -149,7 +148,7 @@ class SwipeToDismissTest {
             )
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeLeft() }
 
         advanceClock()
 
@@ -159,13 +158,13 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_dismissBySwipe_toEnd_rtl() {
+    fun swipeDismiss_dismissBySwipe_toEnd_rtl() {
         lateinit var dismissState: DismissState
         rule.setContent {
             dismissState = rememberDismissState(DismissValue.Default)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                SwipeToDismiss(
-                    modifier = Modifier.testTag(swipeToDismissTag),
+                SwipeDismiss(
+                    modifier = Modifier.testTag(swipeDismissTag),
                     state = dismissState,
                     directions = setOf(DismissDirection.StartToEnd),
                     background = { },
@@ -174,7 +173,7 @@ class SwipeToDismissTest {
             }
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeLeft() }
 
         advanceClock()
 
@@ -184,13 +183,13 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_dismissBySwipe_toStart_rtl() {
+    fun swipeDismiss_dismissBySwipe_toStart_rtl() {
         lateinit var dismissState: DismissState
         rule.setContent {
             dismissState = rememberDismissState(DismissValue.Default)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                SwipeToDismiss(
-                    modifier = Modifier.testTag(swipeToDismissTag),
+                SwipeDismiss(
+                    modifier = Modifier.testTag(swipeDismissTag),
                     state = dismissState,
                     directions = setOf(DismissDirection.EndToStart),
                     background = { },
@@ -199,7 +198,7 @@ class SwipeToDismissTest {
             }
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeRight() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }
 
         advanceClock()
 
@@ -209,12 +208,12 @@ class SwipeToDismissTest {
     }
 
     @Test
-    fun swipeToDismiss_dismissBySwipe_disabled() {
+    fun swipeDismiss_dismissBySwipe_disabled() {
         lateinit var dismissState: DismissState
         rule.setContent {
             dismissState = rememberDismissState(DismissValue.Default)
-            SwipeToDismiss(
-                modifier = Modifier.testTag(swipeToDismissTag),
+            SwipeDismiss(
+                modifier = Modifier.testTag(swipeDismissTag),
                 state = dismissState,
                 directions = setOf(),
                 background = { },
@@ -222,7 +221,7 @@ class SwipeToDismissTest {
             )
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeRight() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }
 
         advanceClock()
 
@@ -230,7 +229,7 @@ class SwipeToDismissTest {
             assertThat(dismissState.currentValue).isEqualTo(DismissValue.Default)
         }
 
-        rule.onNodeWithTag(swipeToDismissTag).performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeLeft() }
 
         advanceClock()
 
