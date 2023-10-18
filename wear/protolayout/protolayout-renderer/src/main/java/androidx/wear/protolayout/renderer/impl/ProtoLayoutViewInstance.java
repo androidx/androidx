@@ -51,6 +51,7 @@ import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
+import androidx.wear.protolayout.renderer.common.LoggingUtils;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater;
@@ -113,6 +114,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @NonNull private final ListeningExecutorService mUiExecutorService;
     @NonNull private final ListeningExecutorService mBgExecutorService;
     @NonNull private final String mClickableIdExtra;
+    @Nullable private final LoggingUtils mLoggingUtils;
 
     @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
 
@@ -339,6 +341,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull private final ListeningExecutorService mBgExecutorService;
         @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
         @NonNull private final String mClickableIdExtra;
+
+        @Nullable private final LoggingUtils mLoggingUtils;
         private final boolean mAnimationEnabled;
         private final int mRunningAnimationsLimit;
 
@@ -359,6 +363,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @NonNull ListeningExecutorService bgExecutorService,
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
+                @Nullable LoggingUtils loggingUtils,
                 boolean animationEnabled,
                 int runningAnimationsLimit,
                 boolean updatesEnabled,
@@ -376,6 +381,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mBgExecutorService = bgExecutorService;
             this.mExtensionViewProvider = extensionViewProvider;
             this.mClickableIdExtra = clickableIdExtra;
+            this.mLoggingUtils = loggingUtils;
             this.mAnimationEnabled = animationEnabled;
             this.mRunningAnimationsLimit = runningAnimationsLimit;
             this.mUpdatesEnabled = updatesEnabled;
@@ -454,6 +460,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mClickableIdExtra;
         }
 
+        /** Returns the debug logger. */
+        @Nullable
+        public LoggingUtils getLoggingUtils() {
+          return mLoggingUtils;
+        }
+
         /** Returns whether animations are enabled. */
         @RestrictTo(Scope.LIBRARY)
         public boolean getAnimationEnabled() {
@@ -514,6 +526,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @NonNull private final ListeningExecutorService mBgExecutorService;
             @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider;
             @NonNull private final String mClickableIdExtra;
+            @Nullable private LoggingUtils mLoggingUtils;
             private boolean mAnimationEnabled = true;
             private int mRunningAnimationsLimit = DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS;
 
@@ -607,6 +620,14 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                     @NonNull ProtoLayoutExtensionViewProvider extensionViewProvider) {
                 this.mExtensionViewProvider = extensionViewProvider;
                 return this;
+            }
+
+            /** Sets the debug logger. */
+            @RestrictTo(Scope.LIBRARY)
+            @NonNull
+            public Builder setLoggingUtils(@NonNull LoggingUtils loggingUitls) {
+              this.mLoggingUtils = loggingUitls;
+              return this;
             }
 
             /**
@@ -704,6 +725,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mBgExecutorService,
                         mExtensionViewProvider,
                         mClickableIdExtra,
+                        mLoggingUtils,
                         mAnimationEnabled,
                         mRunningAnimationsLimit,
                         mUpdatesEnabled,
@@ -725,6 +747,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mExtensionViewProvider = config.getExtensionViewProvider();
         this.mAnimationEnabled = config.getAnimationEnabled();
         this.mClickableIdExtra = config.getClickableIdExtra();
+        this.mLoggingUtils = config.getLoggingUtils();
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
         this.mWasFullyVisibleBefore = false;
         this.mAllowLayoutChangingBindsWithoutDefault =
@@ -789,13 +812,18 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         .setAnimationEnabled(mAnimationEnabled)
                         .setClickableIdExtra(mClickableIdExtra)
                         .setAllowLayoutChangingBindsWithoutDefault(
-                                mAllowLayoutChangingBindsWithoutDefault);
+                                mAllowLayoutChangingBindsWithoutDefault)
+                        .setApplyFontVariantBodyAsDefault(true);
         if (mDataPipeline != null) {
             inflaterConfigBuilder.setDynamicDataPipeline(mDataPipeline);
         }
 
         if (mExtensionViewProvider != null) {
             inflaterConfigBuilder.setExtensionViewProvider(mExtensionViewProvider);
+        }
+
+        if (mLoggingUtils != null) {
+            inflaterConfigBuilder.setLoggingUtils(mLoggingUtils);
         }
 
         ProtoLayoutInflater inflater = new ProtoLayoutInflater(inflaterConfigBuilder.build());
@@ -882,6 +910,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
             @NonNull ViewGroup parent) {
+        if (mLoggingUtils != null && mLoggingUtils.canLogD(TAG)) {
+            mLoggingUtils.logD(TAG, "Layout received in #renderAndAttach:\n %s", layout.toString());
+            mLoggingUtils.logD(
+                    TAG, "Resources received in #renderAndAttach:\n %s", resources.toString());
+        }
         if (mAttachParent == null) {
             mAttachParent = parent;
             mAttachParent.removeAllViews();

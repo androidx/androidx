@@ -166,6 +166,7 @@ import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme.FontSet;
 import androidx.wear.protolayout.renderer.R;
+import androidx.wear.protolayout.renderer.common.LoggingUtils;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.LayoutDiff;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.TreeNodeWithChange;
@@ -278,6 +279,8 @@ public final class ProtoLayoutInflater {
 
     private final boolean mAllowLayoutChangingBindsWithoutDefault;
     final String mClickableIdExtra;
+
+    @Nullable private final LoggingUtils mLoggingUtils;
 
     @Nullable final Executor mLoadActionExecutor;
     final LoadActionListener mLoadActionListener;
@@ -496,6 +499,8 @@ public final class ProtoLayoutInflater {
         @NonNull private final ProtoLayoutTheme mProtoLayoutTheme;
         @Nullable private final ProtoLayoutDynamicDataPipeline mDataPipeline;
         @NonNull private final String mClickableIdExtra;
+
+        @Nullable private final LoggingUtils mLoggingUtils;
         @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
         private final boolean mAnimationEnabled;
         private final boolean mAllowLayoutChangingBindsWithoutDefault;
@@ -513,6 +518,7 @@ public final class ProtoLayoutInflater {
                 @Nullable ProtoLayoutDynamicDataPipeline dataPipeline,
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
+                @Nullable LoggingUtils loggingUtils,
                 boolean animationEnabled,
                 boolean allowLayoutChangingBindsWithoutDefault,
                 boolean applyFontVarianBodyAsDefault) {
@@ -527,6 +533,7 @@ public final class ProtoLayoutInflater {
             this.mAnimationEnabled = animationEnabled;
             this.mAllowLayoutChangingBindsWithoutDefault = allowLayoutChangingBindsWithoutDefault;
             this.mClickableIdExtra = clickableIdExtra;
+            this.mLoggingUtils = loggingUtils;
             this.mExtensionViewProvider = extensionViewProvider;
             this.mApplyFontVarianBodyAsDefault = applyFontVarianBodyAsDefault;
         }
@@ -594,6 +601,12 @@ public final class ProtoLayoutInflater {
             return mClickableIdExtra;
         }
 
+        /** Debug logger used to log debug messages. */
+        @Nullable
+        public LoggingUtils getLoggingUtils() {
+            return mLoggingUtils;
+        }
+
         /** View provider for the renderer extension. */
         @Nullable
         public ProtoLayoutExtensionViewProvider getExtensionViewProvider() {
@@ -632,6 +645,8 @@ public final class ProtoLayoutInflater {
             private boolean mAnimationEnabled = true;
             private boolean mAllowLayoutChangingBindsWithoutDefault = false;
             @Nullable private String mClickableIdExtra;
+
+            @Nullable private LoggingUtils mLoggingUtils;
 
             @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider = null;
 
@@ -732,6 +747,13 @@ public final class ProtoLayoutInflater {
                 return this;
             }
 
+            /** Sets the debug logger used for extensive logging. */
+            @NonNull
+            public Builder setLoggingUtils(@NonNull LoggingUtils loggingUtils) {
+                this.mLoggingUtils = loggingUtils;
+                return this;
+            }
+
             /**
              * Sets whether a "layout changing" data bind can be applied without the
              * "value_for_layout" field being filled in. This is to support legacy apps which use
@@ -783,6 +805,7 @@ public final class ProtoLayoutInflater {
                         mDataPipeline,
                         mExtensionViewProvider,
                         checkNotNull(mClickableIdExtra),
+                        mLoggingUtils,
                         mAnimationEnabled,
                         mAllowLayoutChangingBindsWithoutDefault,
                         mApplyFontVariantBodyAsDefault);
@@ -808,6 +831,7 @@ public final class ProtoLayoutInflater {
         this.mAllowLayoutChangingBindsWithoutDefault =
                 config.getAllowLayoutChangingBindsWithoutDefault();
         this.mClickableIdExtra = config.getClickableIdExtra();
+        this.mLoggingUtils = config.getLoggingUtils();
         this.mExtensionViewProvider = config.getExtensionViewProvider();
         this.mApplyFontVariantBodyAsDefault = config.getApplyFontVariantBodyAsDefault();
     }
@@ -3680,6 +3704,8 @@ public final class ProtoLayoutInflater {
             return null;
         }
 
+        logDebug(diff);
+
         List<InflatedView> inflatedViews = new ArrayList<>();
         LayoutInfo.Builder layoutInfoBuilder =
                 new LayoutInfo.Builder(prevRenderedMetadata.getLayoutInfo());
@@ -3973,6 +3999,37 @@ public final class ProtoLayoutInflater {
                 mProtoLayoutThemeContext,
                 /* attrs= */ null,
                 mProtoLayoutTheme.getFallbackTextAppearanceResId());
+    }
+
+    private void logDebug(LayoutDiff diff) {
+        if (mLoggingUtils != null && mLoggingUtils.canLogD(TAG)) {
+            StringBuilder sb =
+                    new StringBuilder("LayoutDiff result at LayoutInflater#computeMutation: \n");
+            List<TreeNodeWithChange> diffNodes = diff.getChangedNodes();
+            if (diffNodes.isEmpty()) {
+                mLoggingUtils.logD(TAG, "No diff.");
+                return;
+            }
+            for (TreeNodeWithChange changedNode : diffNodes) {
+                sb.append(formatNodeChangeForLogs(changedNode));
+                if (changedNode.getLayoutElement() != null) {
+                    sb.append(changedNode.getLayoutElement());
+                } else if (changedNode.getArcLayoutElement() != null) {
+                    sb.append(changedNode.getArcLayoutElement());
+                }
+                sb.append("\n");
+            }
+            mLoggingUtils.logD(TAG, sb.toString());
+        }
+    }
+
+    private static String formatNodeChangeForLogs(TreeNodeWithChange change) {
+        return "PosId: "
+                + change.getPosId()
+                + " | Fingerprint: "
+                + change.getFingerprint().getSelfTypeValue()
+                + " | isSelfOnlyChange: "
+                + change.isSelfOnlyChange();
     }
 
     /** Implementation of ClickableSpan for ProtoLayout's Clickables. */
