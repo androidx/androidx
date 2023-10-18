@@ -92,6 +92,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -111,6 +112,7 @@ private const val EXTENSION_MODE_INVALID = -1
 private const val FRAMES_UNTIL_VIEW_IS_READY = 10
 private const val KEY_CAMERA2_LATENCY = "camera2"
 private const val KEY_CAMERA_EXTENSION_LATENCY = "camera_extension"
+private const val MAX_EXTENSION_LATENCY_MILLIS = 800
 
 @RequiresApi(31)
 class Camera2ExtensionsActivity : AppCompatActivity() {
@@ -208,6 +210,20 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             ) {
                 previewIdlingResource.decrement()
             }
+
+            if (measureStreamConfigurationLatency && lastSurfaceTextureTimestampNanos != 0L) {
+                val duration = TimeUnit.NANOSECONDS.toMillis(
+                    surfaceTexture.timestamp - lastSurfaceTextureTimestampNanos)
+                if (duration > 150) {
+                    if (cameraCaptureSession is CameraCaptureSession) {
+                        streamConfigurationLatency[KEY_CAMERA2_LATENCY]?.add(duration)
+                    } else if (cameraCaptureSession is CameraExtensionSession) {
+                        streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY]?.add(duration)
+                    }
+                    measureStreamConfigurationLatency = false
+                }
+            }
+            lastSurfaceTextureTimestampNanos = surfaceTexture.timestamp
         }
     }
 
@@ -252,10 +268,17 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private var imageSaveTerminationFuture: ListenableFuture<Any?> = Futures.immediateFuture(null)
 
     /**
-     * Tracks the starting timestamp of when a stream configuration operation started. This is used
-     * to measure the stream configuration latency from openCaptureSession to onConfigured.
+     * Tracks the last timestamp of a surface texture rendered on to the TextureView. This is used
+     * to measure the configuration latency from the last preview frame received from the previous
+     * camera session until the first preview frame received of the new camera session.
      */
-    private var streamConfigurationStartMillis: Long = 0
+    private var lastSurfaceTextureTimestampNanos: Long = 0
+
+    /**
+     * A flag which represents when to measure the stream configuration latency. This is triggered
+     * when the user toggles the camera extension mode.
+     */
+    private var measureStreamConfigurationLatency: Boolean = true
 
     /**
      * Used to wait for the capture session is configured.
@@ -396,6 +419,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.ExtensionToggle).apply {
             visibility = View.VISIBLE
             setOnClickListener {
+                measureStreamConfigurationLatency = true
                 val cameraId = currentCameraId
                 val extensionMode = currentExtensionMode
                 restartPreview = true
@@ -578,6 +602,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             closeCaptureSessionAsync().await()
             closeCameraAsync().await()
         }
+        lastSurfaceTextureTimestampNanos = 0L
         restartOnStart = true
         activityStopped = true
         Log.d(TAG, "onStop()--")
@@ -613,7 +638,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         val durations = streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY] ?: emptyList()
         val testResult = if (durations.isNotEmpty()) {
-            if (durations.average() > 300.0) {
+            if (durations.average() > MAX_EXTENSION_LATENCY_MILLIS) {
                 TEST_RESULT_FAILED
             } else {
                 TEST_RESULT_PASSED
@@ -796,8 +821,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private suspend fun openCaptureSession(extensionMode: Int): Any =
         suspendCancellableCoroutine { cont ->
             Log.d(TAG, "openCaptureSession")
-            streamConfigurationStartMillis = System.currentTimeMillis()
-
             if (stillImageReader != null) {
                 val imageReaderToClose = stillImageReader!!
                 imageSaveTerminationFuture.addListener(
@@ -843,9 +866,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigured(session: CameraCaptureSession) {
                     Log.d(TAG, "CaptureSession - onConfigured: $session")
-                    val duration = System.currentTimeMillis() - streamConfigurationStartMillis
-                    streamConfigurationLatency[KEY_CAMERA2_LATENCY]?.add(duration)
-                    streamConfigurationStartMillis = 0
                     setRepeatingRequestWhenCaptureSessionConfigured(cont, session.device, session)
                     lifecycleScope.launch(Dispatchers.Main) {
                         enableUiControl(true)
@@ -857,7 +877,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
                     Log.e(TAG, "CaptureSession - onConfigureFailed: $session")
-                    streamConfigurationStartMillis = 0
                     cont.resumeWithException(
                         RuntimeException("Configure failed when creating capture session.")
                     )
@@ -889,9 +908,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigured(session: CameraExtensionSession) {
                     Log.d(TAG, "Extension CaptureSession - onConfigured: $session")
-                    val duration = System.currentTimeMillis() - streamConfigurationStartMillis
-                    streamConfigurationLatency[KEY_CAMERA_EXTENSION_LATENCY]?.add(duration)
-                    streamConfigurationStartMillis = 0
                     setRepeatingRequestWhenCaptureSessionConfigured(cont, session.device, session)
                     runOnUiThread {
                         enableUiControl(true)
@@ -903,7 +919,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigureFailed(session: CameraExtensionSession) {
                     Log.e(TAG, "Extension CaptureSession - onConfigureFailed: $session")
-                    streamConfigurationStartMillis = 0
                     cont.resumeWithException(
                         RuntimeException("Configure failed when creating capture session.")
                     )
