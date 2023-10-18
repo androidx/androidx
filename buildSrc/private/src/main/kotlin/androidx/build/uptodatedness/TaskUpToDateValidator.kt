@@ -114,8 +114,6 @@ val ALLOW_RERUNNING_TASKS =
         ":external:libyuv:buildCMakeRelWithDebInfo[arm64-v8a][yuv]",
         ":external:libyuv:buildCMakeRelWithDebInfo[x86][yuv]",
         ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
-        ":hilt:hilt-navigation-compose:kaptGenerateStubsDebugKotlin",
-        ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
         ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
         // https://youtrack.jetbrains.com/issue/KT-49933
