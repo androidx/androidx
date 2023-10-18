@@ -378,7 +378,7 @@ public final class ColorBuilders {
          *
          * <p>A color stop is a pair of a color and its offset in the gradient. The offset is the
          * relative position of the color, beginning with 0 from the start angle and ending with 1.0
-         * after spanning 360 degrees clockwise.
+         * at the end angle, spanning clockwise.
          *
          * <p>There must be at least 2 colors.
          *
@@ -398,20 +398,42 @@ public final class ColorBuilders {
         }
 
         /**
-         * Gets the angular shift relative to the element's parent base angle. This is used to shift
-         * the start angle of the gradient.
+         * Gets the start angle of the gradient relative to the element's base angle. If not set,
+         * defaults to zero.
          *
          * <p>For {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the base angle is
-         * the angle where the line starts.
+         * the angle where the line starts. The value represents a relative position in the line's
+         * length span. Values greater than 360 degrees correspond to upper layers of the arc line
+         * as it wraps over itself.
          *
          * @since 1.3
          */
-        @Nullable
-        public DegreesProp getAngularShift() {
-            if (mImpl.hasAngularShift()) {
-                return DegreesProp.fromProto(mImpl.getAngularShift());
+        @NonNull
+        public DegreesProp getStartAngle() {
+            if (mImpl.hasStartAngle()) {
+                return DegreesProp.fromProto(mImpl.getStartAngle());
             } else {
-                return null;
+                return new DegreesProp.Builder(0f).build();
+            }
+        }
+
+        /**
+         * Gets the end angle of the gradient, relative to the element's base angle. If not set,
+         * defaults to 360 degrees.
+         *
+         * <p>For {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the base angle is
+         * the angle where the line starts. The value represents a relative position in the line's
+         * length span. Values greater than 360 degrees correspond to upper layers of the arc line
+         * as it wraps over itself.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DegreesProp getEndAngle() {
+            if (mImpl.hasEndAngle()) {
+                return DegreesProp.fromProto(mImpl.getEndAngle());
+            } else {
+                return new DegreesProp.Builder(360f).build();
             }
         }
 
@@ -454,8 +476,10 @@ public final class ColorBuilders {
             return "SweepGradient{"
                     + "colorStops="
                     + getColorStops()
-                    + ", angularShift="
-                    + getAngularShift()
+                    + ", startAngle="
+                    + getStartAngle()
+                    + ", endAngle="
+                    + getEndAngle()
                     + "}";
         }
 
@@ -472,7 +496,7 @@ public final class ColorBuilders {
              *
              * <p>A color stop is a pair of a color and its offset in the gradient. The offset is
              * the relative position of the color, beginning with 0 from the start angle and ending
-             * with 1.0 after spanning 360 degrees clockwise.
+             * with 1.0 at the end angle, spanning clockwise.
              *
              * <p>There must be at least 2 colors.
              *
@@ -492,25 +516,52 @@ public final class ColorBuilders {
             }
 
             /**
-             * Sets the angular shift relative to the element's parent base angle. This is used to
-             * shift the start angle of the gradient.
+             * Sets the start angle of the gradient relative to the element's base angle. If not
+             * set, defaults to zero.
              *
              * <p>For {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the base
-             * angle is the angle where the line starts.
+             * angle is the angle where the line starts. The value represents a relative position in
+             * the line's length span. Values greater than 360 degrees correspond to upper layers of
+             * the arc line as it wraps over itself.
              *
              * <p>Note that this field only supports static values.
              *
              * @since 1.3
              */
             @NonNull
-            public Builder setAngularShift(@NonNull DegreesProp angularShift) {
-                if (angularShift.getDynamicValue() != null) {
+            public Builder setStartAngle(@NonNull DegreesProp startAngle) {
+                if (startAngle.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setAngularShift doesn't support dynamic values.");
+                            "setStartAngle doesn't support dynamic values.");
                 }
-                mImpl.setAngularShift(angularShift.toProto());
+                mImpl.setStartAngle(startAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
-                        2, checkNotNull(angularShift.getFingerprint()).aggregateValueAsInt());
+                        2, checkNotNull(startAngle.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the end angle of the gradient, relative to the element's base angle. If not set,
+             * defaults to 360 degrees.
+             *
+             * <p>For {@link androidx.wear.protolayout.LayoutElementBuilders.ArcLine}, the base
+             * angle is the angle where the line starts. The value represents a relative position in
+             * the line's length span. Values greater than 360 degrees correspond to upper layers of
+             * the arc line as it wraps over itself.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setEndAngle(@NonNull DegreesProp endAngle) {
+                if (endAngle.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setEndAngle doesn't support dynamic values.");
+                }
+                mImpl.setEndAngle(endAngle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(endAngle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -522,7 +573,7 @@ public final class ColorBuilders {
              *     degrees clockwise, finishing at the same angle.
              *     <p>A color stop is composed of a color and its offset in the gradient. The offset
              *     is the relative position of the color, beginning with 0 from the start angle and
-             *     ending with 1.0 after spanning 360 degrees clockwise.
+             *     ending with 1.0 at the end angle, spanning clockwise.
              *     <p>If offsets are not set, the colors are evenly distributed in the gradient.
              *     <p>If the offset values are not monotonic, the drawing may produce unexpected
              *     results.

@@ -129,14 +129,16 @@ package androidx.wear.protolayout {
   }
 
   public static final class ColorBuilders.SweepGradient implements androidx.wear.protolayout.ColorBuilders.Brush {
-    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAngularShift();
     method public java.util.List<androidx.wear.protolayout.ColorBuilders.ColorStop!> getColorStops();
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getEndAngle();
+    method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getStartAngle();
   }
 
   public static final class ColorBuilders.SweepGradient.Builder {
     ctor @java.lang.SafeVarargs public ColorBuilders.SweepGradient.Builder(androidx.wear.protolayout.ColorBuilders.ColorStop!...);
     method public androidx.wear.protolayout.ColorBuilders.SweepGradient build();
-    method public androidx.wear.protolayout.ColorBuilders.SweepGradient.Builder setAngularShift(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
+    method public androidx.wear.protolayout.ColorBuilders.SweepGradient.Builder setEndAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
+    method public androidx.wear.protolayout.ColorBuilders.SweepGradient.Builder setStartAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
   }
 
   public final class DeviceParametersBuilders {
