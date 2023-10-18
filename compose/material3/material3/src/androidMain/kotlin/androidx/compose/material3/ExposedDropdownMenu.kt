@@ -1039,7 +1039,7 @@ private fun Modifier.expandable(
     menuDescription: String,
     expandedDescription: String,
     collapsedDescription: String,
-) = pointerInput(Unit) {
+) = pointerInput(onExpandedChange) {
     awaitEachGesture {
         // Must be PointerEventPass.Initial to observe events before the text field consumes them
         // in the Main pass
