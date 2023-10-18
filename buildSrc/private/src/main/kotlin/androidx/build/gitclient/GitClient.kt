@@ -47,8 +47,10 @@ fun Project.getChangedFilesProvider(
             "Overriding base commit is not supported when using CHANGE_INFO and MANIFEST"
         )
         getChangedFilesFromChangeInfoProvider(manifestPath, changeInfoPath)
-    } else if (changeInfoPath != null || manifestPath != null) {
+    } else if (changeInfoPath != null) {
         throw GradleException("Setting CHANGE_INFO requires also setting MANIFEST")
+    } else if (manifestPath != null) {
+        throw GradleException("Setting MANIFEST requires also setting CHANGE_INFO")
     } else {
         providers.of(GitChangedFilesSource::class.java) {
             it.parameters.workingDir.set(rootProject.layout.projectDirectory)
