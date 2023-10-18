@@ -32,15 +32,16 @@ import androidx.compose.ui.unit.dp
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
  *
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
- *                           layout adaptation decisions like [WindowSizeClass].
- * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
+ *        layout adaptation decisions like [WindowSizeClass].
+ * @param verticalHingePolicy [HingePolicy] that decides how layouts are supposed to address
+ *        vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
 fun calculateStandardPaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
+    verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
     val contentPadding: PaddingValues
@@ -78,7 +79,7 @@ fun calculateStandardPaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
-        getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
+        getExcludedVerticalBounds(windowAdaptiveInfo.posture, verticalHingePolicy)
     )
 }
 
@@ -91,15 +92,16 @@ fun calculateStandardPaneScaffoldDirective(
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
  *
  * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
- *                           layout adaptation decisions like [WindowSizeClass].
- * @param hingePolicy [HingePolicy] that decides how layouts are supposed to address hinges.
+ *        layout adaptation decisions like [WindowSizeClass].
+ * @param verticalHingePolicy [HingePolicy] that decides how layouts are supposed to address
+ *        vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 // TODO(b/285144647): Add more details regarding the use scenarios of this function.
 @ExperimentalMaterial3AdaptiveApi
 fun calculateDensePaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
-    hingePolicy: HingePolicy = HingePolicy.AvoidSeparating
+    verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val maxHorizontalPartitions: Int
     val contentPadding: PaddingValues
@@ -111,7 +113,6 @@ fun calculateDensePaneScaffoldDirective(
             verticalSpacerSize = 0.dp
         }
         WindowWidthSizeClass.Medium -> {
-            // TODO(conradchen): Confirm the outer gutter size
             maxHorizontalPartitions = 2
             contentPadding = PaddingValues(24.dp)
             verticalSpacerSize = 24.dp
@@ -137,16 +138,16 @@ fun calculateDensePaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
-        getExcludedBounds(windowAdaptiveInfo.posture, hingePolicy)
+        getExcludedVerticalBounds(windowAdaptiveInfo.posture, verticalHingePolicy)
     )
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private fun getExcludedBounds(posture: Posture, hingePolicy: HingePolicy): List<Rect> {
+private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy): List<Rect> {
     return when (hingePolicy) {
-        HingePolicy.AvoidSeparating -> posture.separatingHingeBounds
-        HingePolicy.AvoidOccluding -> posture.occludingHingeBounds
-        HingePolicy.AlwaysAvoid -> posture.allHingeBounds
+        HingePolicy.AvoidSeparating -> posture.separatingVerticalHingeBounds
+        HingePolicy.AvoidOccluding -> posture.occludingVerticalHingeBounds
+        HingePolicy.AlwaysAvoid -> posture.allVerticalHingeBounds
         else -> emptyList()
     }
 }

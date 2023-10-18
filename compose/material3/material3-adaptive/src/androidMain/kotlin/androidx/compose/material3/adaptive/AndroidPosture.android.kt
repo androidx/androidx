@@ -28,30 +28,43 @@ import androidx.window.layout.FoldingFeature
 @ExperimentalMaterial3AdaptiveApi
 fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
     var isTableTop = false
-    val separatingHingeBounds = mutableListOf<Rect>()
-    val occludingHingeBounds = mutableListOf<Rect>()
-    val allHingeBounds = mutableListOf<Rect>()
+    val separatingVerticalHingeBounds = mutableListOf<Rect>()
+    val occludingVerticalHingeBounds = mutableListOf<Rect>()
+    val allVerticalHingeBounds = mutableListOf<Rect>()
+    val separatingHorizontalHingeBounds = mutableListOf<Rect>()
+    val occludingHorizontalHingeBounds = mutableListOf<Rect>()
+    val allHorizontalHingeBounds = mutableListOf<Rect>()
     foldingFeatures.fastForEach {
         if (it.orientation == FoldingFeature.Orientation.HORIZONTAL &&
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true
         }
         val hingeBounds = it.bounds.toComposeRect()
-        // TODO(conradchen): Figure out how to deal with horizontal hinges
         if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
-            allHingeBounds.add(hingeBounds)
+            allVerticalHingeBounds.add(hingeBounds)
             if (it.isSeparating) {
-                separatingHingeBounds.add(hingeBounds)
+                separatingVerticalHingeBounds.add(hingeBounds)
             }
             if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
-                occludingHingeBounds.add(hingeBounds)
+                occludingVerticalHingeBounds.add(hingeBounds)
+            }
+        } else if (it.orientation == FoldingFeature.Orientation.HORIZONTAL) {
+            allHorizontalHingeBounds.add(hingeBounds)
+            if (it.isSeparating) {
+                separatingHorizontalHingeBounds.add(hingeBounds)
+            }
+            if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
+                occludingHorizontalHingeBounds.add(hingeBounds)
             }
         }
     }
     return Posture(
         isTableTop,
-        separatingHingeBounds,
-        occludingHingeBounds,
-        allHingeBounds
+        separatingVerticalHingeBounds,
+        occludingVerticalHingeBounds,
+        allVerticalHingeBounds,
+        separatingHorizontalHingeBounds,
+        occludingHorizontalHingeBounds,
+        allHorizontalHingeBounds
     )
 }
