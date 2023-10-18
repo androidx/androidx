@@ -16,8 +16,8 @@
 
 package androidx.build
 
-import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.getFrameworksSupportCommitShaAtHead
 import androidx.build.checkapi.shouldConfigureApiTasks
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.transform.configureAarAsJarForConfiguration
 import groovy.lang.Closure
 import java.io.File
@@ -410,9 +410,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         configureAarAsJarForConfiguration(project, name)
     }
 
-    fun getReferenceSha(): Provider<String> {
-        return project.providers.provider { project.getFrameworksSupportCommitShaAtHead() }
-    }
+    fun getReferenceSha(): Provider<String> = getHeadShaProvider(project)
 
     /**
      * Specify the version for Kotlin API compatibility mode used during Kotlin compilation.
