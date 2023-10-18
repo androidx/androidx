@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="PrimitiveInCollection"
@@ -206,24 +206,6 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/CurvedLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandableItems has parameter &apos;key&apos; with type Function1&lt;? super Integer, ? extends Object>."
-        errorLine1="    key: ((index: Int) -> Any)? = null,"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/Expandable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method expandableItems has parameter &apos;itemContent&apos; with type Function2&lt;? super BoxScope, ? super Integer, Unit>."
-        errorLine1="    itemContent: @Composable BoxScope.(index: Int) -> Unit"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/Expandable.kt"/>
     </issue>
 
     <issue

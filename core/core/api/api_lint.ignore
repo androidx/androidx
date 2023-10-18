@@ -935,6 +935,22 @@ NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 
 
+NotCloseable: androidx.core.app.FrameMetricsAggregator:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.core.app.FrameMetricsAggregator
+NotCloseable: androidx.core.util.Pools.Pool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.Pool
+NotCloseable: androidx.core.util.Pools.SimplePool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.SimplePool
+NotCloseable: androidx.core.util.Pools.SynchronizedPool:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.util.Pools.SynchronizedPool
+NotCloseable: androidx.core.view.DragAndDropPermissionsCompat:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class androidx.core.view.DragAndDropPermissionsCompat
+NotCloseable: androidx.core.view.WindowInsetsAnimationControllerCompat:
+    Classes that release resources (finish()) should implement AutoCloseable and CloseGuard: class androidx.core.view.WindowInsetsAnimationControllerCompat
+NotCloseable: androidx.core.widget.EdgeEffectCompat:
+    Classes that release resources (finish()) should implement AutoCloseable and CloseGuard: class androidx.core.widget.EdgeEffectCompat
+
+
 NullableCollection: androidx.core.app.ActivityOptionsCompat#toBundle():
     Return type of method androidx.core.app.ActivityOptionsCompat.toBundle() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.core.app.FrameMetricsAggregator#getMetrics():

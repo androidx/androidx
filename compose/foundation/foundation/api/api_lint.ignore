@@ -23,8 +23,6 @@ GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollBack
     Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.foundation.pager.PagerState#getCanScrollForward():
     Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.foundation.text2.input.TextFieldBufferWithSelection#getHasSelection():
-    Getter for boolean property `hasSelection` is named `getHasSelection` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: field KeyboardOptions.autoCorrect:
     Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field LazyGridLayoutInfo.reverseLayout:

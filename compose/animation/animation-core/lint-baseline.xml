@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanSuppressTag"
@@ -80,24 +80,6 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field keyframes with type Map&lt;Integer, KeyframeEntity&lt;T>>: replace with IntObjectMap"
-        errorLine1="        internal val keyframes = mutableMapOf&lt;Int, KeyframeEntity&lt;T>>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimationSpec.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Integer, KeyframeEntity&lt;T>> of getKeyframes$lint_module: replace with IntObjectMap"
-        errorLine1="        internal val keyframes = mutableMapOf&lt;Int, KeyframeEntity&lt;T>>()"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/AnimationSpec.kt"/>
     </issue>
 
     <issue
