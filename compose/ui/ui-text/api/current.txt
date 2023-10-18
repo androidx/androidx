@@ -799,7 +799,7 @@ package androidx.compose.ui.text.font {
   }
 
   @kotlin.jvm.JvmInline public final value class FontStyle {
-    ctor public FontStyle(int value);
+    ctor @Deprecated public FontStyle(int value);
     method public int getValue();
     property public final int value;
     field public static final androidx.compose.ui.text.font.FontStyle.Companion Companion;
