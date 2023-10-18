@@ -75,6 +75,7 @@ import androidx.camera.view.RotationProvider;
 import androidx.camera.view.video.AudioConfig;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -371,8 +372,15 @@ public class CameraControllerFragment extends Fragment {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     void toast(String message) {
-        requireActivity().runOnUiThread(
-                () -> Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        Log.d(TAG, message);
     }
 
     private void updateZoomStateText(@Nullable ZoomState zoomState) {
