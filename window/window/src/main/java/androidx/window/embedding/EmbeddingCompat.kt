@@ -110,6 +110,14 @@ internal class EmbeddingCompat(
         embeddingExtension.clearSplitAttributesCalculator()
     }
 
+    @RequiresWindowSdkExtension(5)
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+
+        val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
+        embeddingExtension.finishActivityStacks(stackTokens)
+    }
+
     @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3)
@@ -130,12 +138,12 @@ internal class EmbeddingCompat(
         )
     }
 
-    @RequiresWindowSdkExtension(3)
+    @RequiresWindowSdkExtension(5)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
 
         return embeddingExtension.setLaunchingActivityStack(options, token)
     }

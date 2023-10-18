@@ -111,6 +111,11 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.finishActivityStacks(emptySet())
+        }
+        verify(embeddingExtension, never()).finishActivityStacks(any())
+
+        assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         }
         verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
@@ -139,6 +144,11 @@ class RequiresWindowSdkExtensionTests {
         verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
 
         assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.finishActivityStacks(emptySet())
+        }
+        verify(embeddingExtension, never()).finishActivityStacks(any())
+
+        assertThrows(UnsupportedOperationException::class.java) {
             embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         }
         verify(embeddingExtension, never()).updateSplitAttributes(any(), any())
@@ -161,12 +171,79 @@ class RequiresWindowSdkExtensionTests {
         embeddingCompat.clearSplitAttributesCalculator()
         verify(embeddingExtension).clearSplitAttributesCalculator()
 
+        assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
+        }
+        verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
+
+        assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.finishActivityStacks(emptySet())
+        }
+        verify(embeddingExtension, never()).finishActivityStacks(any())
+
+        embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
+        verify(embeddingExtension).updateSplitAttributes(
+            INVALID_SPLIT_INFO_TOKEN,
+            OemSplitAttributes.Builder().build()
+        )
+
+        embeddingCompat.invalidateTopVisibleSplitAttributes()
+        verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
+    }
+
+    @Test
+    fun testVendorApiLevel4() {
+        testRule.overrideExtensionVersion(4)
+
+        embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
+        verify(embeddingExtension).setSplitAttributesCalculator(
+            any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
+        )
+
+        embeddingCompat.clearSplitAttributesCalculator()
+        verify(embeddingExtension).clearSplitAttributesCalculator()
+
+        assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
+        }
+        verify(embeddingExtension, never()).setLaunchingActivityStack(any(), any())
+
+        assertThrows(UnsupportedOperationException::class.java) {
+            embeddingCompat.finishActivityStacks(emptySet())
+        }
+        verify(embeddingExtension, never()).finishActivityStacks(any())
+
+        embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
+        verify(embeddingExtension).updateSplitAttributes(
+            INVALID_SPLIT_INFO_TOKEN,
+            OemSplitAttributes.Builder().build()
+        )
+
+        embeddingCompat.invalidateTopVisibleSplitAttributes()
+        verify(embeddingExtension).invalidateTopVisibleSplitAttributes()
+    }
+
+    @Test
+    fun testVendorApiLevel5() {
+        testRule.overrideExtensionVersion(5)
+
+        embeddingCompat.setSplitAttributesCalculator { _ -> TEST_SPLIT_ATTRIBUTES }
+        verify(embeddingExtension).setSplitAttributesCalculator(
+            any<Function<OemSplitAttributesCalculatorParams, OemSplitAttributes>>()
+        )
+
+        embeddingCompat.clearSplitAttributesCalculator()
+        verify(embeddingExtension).clearSplitAttributesCalculator()
+
         embeddingCompat.setLaunchingActivityStack(activityOptions, INVALID_ACTIVITY_STACK_TOKEN)
 
         verify(embeddingExtension).setLaunchingActivityStack(
             activityOptions,
             INVALID_ACTIVITY_STACK_TOKEN
         )
+
+        embeddingCompat.finishActivityStacks(emptySet())
+        verify(embeddingExtension).finishActivityStacks(emptySet())
 
         embeddingCompat.updateSplitAttributes(TEST_SPLIT_INFO, TEST_SPLIT_ATTRIBUTES)
         verify(embeddingExtension).updateSplitAttributes(
@@ -180,8 +257,8 @@ class RequiresWindowSdkExtensionTests {
 
     companion object {
         private val TEST_SPLIT_INFO = SplitInfo(
-            ActivityStack(emptyList(), isEmpty = true),
-            ActivityStack(emptyList(), isEmpty = true),
+            ActivityStack(emptyList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
+            ActivityStack(emptyList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             SplitAttributes.Builder().build(),
             INVALID_SPLIT_INFO_TOKEN,
         )

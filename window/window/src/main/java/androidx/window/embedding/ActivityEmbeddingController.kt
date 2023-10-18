@@ -21,6 +21,7 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 
 /**
@@ -56,12 +57,41 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param options The [android.app.ActivityOptions] to be updated.
      * @param token The token of the [ActivityStack] to be set.
      */
-    @RequiresWindowSdkExtension(3)
+    @RequiresWindowSdkExtension(5)
     internal fun setLaunchingActivityStack(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
         return backend.setLaunchingActivityStack(options, token)
+    }
+
+    /**
+     * Finishes a set of [activityStacks][ActivityStack] from the lowest to the highest z-order
+     * regardless of the order of `activityStack` passed in the input parameter.
+     *
+     * If a remaining activityStack from a split participates in other splits with
+     * other activityStacks, the remaining activityStack might split with other activityStacks.
+     * For example, if activityStack A splits with activityStack B and C, and activityStack C covers
+     * activityStack B, finishing activityStack C might make the split of activityStack A and B
+     * show.
+     *
+     * If all split-associated activityStacks are finished, the remaining activityStack will
+     * be expanded to fill the parent task container. This is useful to expand the primary
+     * container as the sample linked below shows.
+     *
+     * **Note** that it's caller's responsibility to check whether this API is supported by checking
+     * [WindowSdkExtensions.extensionVersion] is greater than or equal to 5. If not, an alternative
+     * approach to finishing all containers above a particular activity can be to launch it again
+     * with flag [android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP].
+     *
+     * @param activityStacks The set of [ActivityStack] to be finished.
+     * @throws UnsupportedOperationException if extension version is less than 5.
+     * @sample androidx.window.samples.embedding.expandPrimaryContainer
+     */
+    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(5)
+    fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        backend.finishActivityStacks(activityStacks)
     }
 
     companion object {
