@@ -1325,7 +1325,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         // TODO: 33 > API > 29 does not use imePadding because of b/285746907, include when a better solution is found.
         Assume.assumeTrue(SDK_INT >= 33)
 
-        val imeAnimationDuration = 750000L
+        val imeAnimationDuration = 1000000L
         val textFieldTag = "sheetTextField"
 
         lateinit var sheetState: SheetState
