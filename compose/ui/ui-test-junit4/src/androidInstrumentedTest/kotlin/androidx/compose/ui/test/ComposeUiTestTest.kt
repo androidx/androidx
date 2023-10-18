@@ -38,6 +38,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,9 +61,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -73,7 +80,7 @@ import org.junit.runners.model.Statement
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
 class ComposeUiTestTest {
 
     private var idlingPolicy: IdlingPolicy? = null
@@ -366,6 +373,110 @@ class ComposeUiTestTest {
             runOnIdle {
                 assertThat(lastRecordedMotionDurationScale).isEqualTo(0f)
             }
+        }
+    }
+
+    @Test
+    fun customDispatcher_ignoredWhenNotSubclassOfTestDispatcher() {
+        class CustomNonTestDispatcher : CoroutineDispatcher() {
+            private var queuedTasks = mutableListOf<Runnable>()
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                queuedTasks.add(block)
+            }
+
+            fun runQueuedTasks() {
+                val tasksToRun = queuedTasks
+                queuedTasks = mutableListOf()
+                tasksToRun.forEach {
+                    it.run()
+                }
+            }
+        }
+
+        val customDispatcher = CustomNonTestDispatcher()
+
+        var expectCounter = 0
+        fun expect(value: Int) {
+            assertWithMessage("Expected sequence")
+                .that(expectCounter)
+                .isEqualTo(value)
+            expectCounter++
+        }
+
+        runComposeUiTest(effectContext = customDispatcher) {
+            setContent {
+                LaunchedEffect(Unit) {
+                    expect(2)
+                    withFrameNanos {
+                        expect(4)
+                    }
+                    expect(6)
+                }
+            }
+            expect(0)
+
+            // None of these will actually start the effect, because we control tasks.
+            waitForIdle()
+            mainClock.advanceTimeByFrame()
+            waitForIdle()
+            expect(1)
+
+            // This will actually start the effect.
+            customDispatcher.runQueuedTasks()
+            expect(3)
+
+            // This runs the first withFrameNanos.
+            mainClock.advanceTimeByFrame()
+            expect(5)
+
+            // And this resumes the effect coroutine after withFrameNanos.
+            customDispatcher.runQueuedTasks()
+            expect(7)
+        }
+    }
+
+    @Test
+    fun customDispatcher_usedWhenSubclassesTestDispatcher() {
+        var expectCounter = 0
+        fun expect(value: Int) {
+            assertWithMessage("Expected sequence")
+                .that(expectCounter)
+                .isEqualTo(value)
+            expectCounter++
+        }
+
+        val customDispatcher = StandardTestDispatcher()
+
+        // TestDispatcher has an internal constructor so we can't make our own subclass.
+        // StandardTestDispatcher was the only other subclass of TestDispatcher at the time this
+        // test was initially written.
+        runComposeUiTest(effectContext = customDispatcher) {
+            setContent {
+                LaunchedEffect(Unit) {
+                    expect(2)
+                    withFrameNanos {
+                        expect(4)
+                    }
+                    expect(6)
+                }
+            }
+            expect(0)
+
+            // None of these will start the effect, because StandardTestDispatcher hasn't been
+            // resumed yet, and Compose isn't wired to it.
+            waitForIdle()
+            mainClock.advanceTimeByFrame()
+            waitForIdle()
+            expect(1)
+
+            customDispatcher.scheduler.runCurrent()
+            expect(3)
+
+            mainClock.advanceTimeByFrame()
+            expect(5)
+
+            customDispatcher.scheduler.runCurrent()
+            expect(7)
         }
     }
 
