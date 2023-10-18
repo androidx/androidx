@@ -510,21 +510,21 @@ public final class SearchSpec {
     }
 
     /**
-     * Returns whether the {@link Features#NUMERIC_SEARCH} feature is enabled.
+     * Returns whether the NUMERIC_SEARCH feature is enabled.
      */
     public boolean isNumericSearchEnabled() {
         return getEnabledFeatures().contains(FeatureConstants.NUMERIC_SEARCH);
     }
 
     /**
-     * Returns whether the {@link Features#VERBATIM_SEARCH} feature is enabled.
+     * Returns whether the VERBATIM_SEARCH feature is enabled.
      */
     public boolean isVerbatimSearchEnabled() {
         return getEnabledFeatures().contains(FeatureConstants.VERBATIM_SEARCH);
     }
 
     /**
-     * Returns whether the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature is enabled.
+     * Returns whether the LIST_FILTER_QUERY_LANGUAGE feature is enabled.
      */
     public boolean isListFilterQueryLanguageEnabled() {
         return getEnabledFeatures().contains(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE);
@@ -1518,8 +1518,7 @@ public final class SearchSpec {
 // @exportToFramework:endStrip()
 
         /**
-         * Sets the {@link Features#NUMERIC_SEARCH} feature as enabled/disabled according to the
-         * enabled parameter.
+         * Sets the NUMERIC_SEARCH feature as enabled/disabled according to the enabled parameter.
          *
          * @param enabled Enables the feature if true, otherwise disables it.
          *
@@ -1539,8 +1538,7 @@ public final class SearchSpec {
         }
 
         /**
-         * Sets the {@link Features#VERBATIM_SEARCH} feature as enabled/disabled according to the
-         * enabled parameter.
+         * Sets the VERBATIM_SEARCH feature as enabled/disabled according to the enabled parameter.
          *
          * @param enabled Enables the feature if true, otherwise disables it
          *
@@ -1564,8 +1562,8 @@ public final class SearchSpec {
         }
 
         /**
-         * Sets the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature as enabled/disabled
-         * according to the enabled parameter.
+         * Sets the LIST_FILTER_QUERY_LANGUAGE feature as enabled/disabled according to the
+         * enabled parameter.
          *
          * @param enabled Enables the feature if true, otherwise disables it.
          *
