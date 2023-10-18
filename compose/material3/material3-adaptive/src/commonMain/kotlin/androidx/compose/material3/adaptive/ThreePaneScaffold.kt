@@ -294,9 +294,13 @@ private fun calculateThreePaneMotion(
                 ThreePaneScaffoldDefaults.panesRightMotion
             }
 
+            previousScaffoldValue[arrangement.secondPane] != PaneAdaptedValue.Expanded &&
+                currentScaffoldValue[arrangement.firstPane] != PaneAdaptedValue.Expanded -> {
+                ThreePaneScaffoldDefaults.replaceLeftPaneMotion
+            }
+
             else -> {
-                // TODO(conradchen): Address this case when we need to support supporting pane
-                ThreePaneMotion.NoMotion
+                ThreePaneScaffoldDefaults.replaceRightPaneMotion
             }
         }
 
@@ -859,5 +863,27 @@ object ThreePaneScaffoldDefaults {
         slideOutToLeft,
         slideInFromRight,
         slideOutToLeft
+    )
+
+    // TODO(conradchen): figure out how to add delay and zOffset to spring animations
+    internal val replaceLeftPaneMotion = ThreePaneMotion(
+        PaneSpringSpec,
+        slideInFromLeft,
+        slideOutToLeft,
+        slideInFromLeft,
+        slideOutToLeft,
+        EnterTransition.None,
+        ExitTransition.None
+    )
+
+    // TODO(conradchen): figure out how to add delay and zOffset to spring animations
+    internal val replaceRightPaneMotion = ThreePaneMotion(
+        PaneSpringSpec,
+        EnterTransition.None,
+        ExitTransition.None,
+        slideInFromRight,
+        slideOutToRight,
+        slideInFromRight,
+        slideOutToRight
     )
 }
