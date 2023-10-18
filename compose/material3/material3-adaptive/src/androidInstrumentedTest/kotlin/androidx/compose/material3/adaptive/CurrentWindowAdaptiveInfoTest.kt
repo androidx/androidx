@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class CalculateWindowAdaptiveInfoTest {
+class CurrentWindowAdaptiveInfoTest {
     private val composeRule = createComposeRule()
     private val layoutInfoRule = WindowLayoutInfoPublisherRule()
 
@@ -55,7 +55,7 @@ class CalculateWindowAdaptiveInfoTest {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @Test
-    fun test_calculateWindowAdaptiveInfo() {
+    fun test_currentWindowAdaptiveInfo() {
         lateinit var actualAdaptiveInfo: WindowAdaptiveInfo
         val mockWindowSize = mutableStateOf(MockWindowSize1)
         WindowMetricsCalculator.overrideDecorator(
@@ -70,7 +70,7 @@ class CalculateWindowAdaptiveInfoTest {
                 LocalDensity provides MockDensity,
                 LocalConfiguration provides testConfiguration
             ) {
-                actualAdaptiveInfo = calculateWindowAdaptiveInfo()
+                actualAdaptiveInfo = currentWindowAdaptiveInfo()
             }
         }
 
