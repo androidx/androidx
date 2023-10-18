@@ -41,23 +41,26 @@ internal class MouseWheelScrollableElement(
     val scrollingLogic: ScrollingLogic,
     val mouseWheelScrollConfig: ScrollConfig,
     val density: Float,
+    val enabled: Boolean,
 ) : ModifierNodeElement<MouseWheelScrollNode>() {
     override fun create(): MouseWheelScrollNode {
         return if (mouseWheelScrollConfig.isSmoothScrollingEnabled) {
-            AnimatedMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, density)
+            AnimatedMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, density, enabled)
         } else {
-            RawMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig)
+            RawMouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, enabled)
         }
     }
 
     override fun update(node: MouseWheelScrollNode) {
         node.scrollingLogic = scrollingLogic
         node.mouseWheelScrollConfig = mouseWheelScrollConfig
+        node.enabled = enabled
     }
 
     override fun hashCode(): Int {
         var result = scrollingLogic.hashCode()
         result = 31 * result + mouseWheelScrollConfig.hashCode()
+        result = 31 * result + enabled.hashCode()
         return result
     }
 
@@ -67,6 +70,7 @@ internal class MouseWheelScrollableElement(
 
         if (scrollingLogic != other.scrollingLogic) return false
         if (mouseWheelScrollConfig != other.mouseWheelScrollConfig) return false
+        if (enabled != other.enabled) return false
         return true
     }
 
@@ -75,11 +79,23 @@ internal class MouseWheelScrollableElement(
 
 internal abstract class MouseWheelScrollNode(
     var scrollingLogic: ScrollingLogic,
-    var mouseWheelScrollConfig: ScrollConfig
+    var mouseWheelScrollConfig: ScrollConfig,
+    private var _enabled: Boolean,
 ) : DelegatingNode(), PointerInputModifierNode {
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        mouseWheelInput()
+        if (_enabled) {
+            mouseWheelInput()
+        }
     })
+
+    var enabled
+        get() = _enabled
+        set(value) {
+            if (_enabled != value) {
+                _enabled = value
+                pointerInputNode.resetPointerInputHandler()
+            }
+        }
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
@@ -117,13 +133,13 @@ internal abstract class MouseWheelScrollNode(
 
     private inline val PointerEvent.isConsumed: Boolean get() = changes.fastAny { it.isConsumed }
     private inline fun PointerEvent.consume() = changes.fastForEach { it.consume() }
-
 }
 
 private class RawMouseWheelScrollNode(
     scrollingLogic: ScrollingLogic,
-    mouseWheelScrollConfig: ScrollConfig
-) : MouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig) {
+    mouseWheelScrollConfig: ScrollConfig,
+    enabled: Boolean,
+) : MouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, enabled) {
     override fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
         val delta = with(mouseWheelScrollConfig) {
             calculateMouseWheelScroll(pointerEvent, size)
@@ -135,8 +151,9 @@ private class RawMouseWheelScrollNode(
 private class AnimatedMouseWheelScrollNode(
     scrollingLogic: ScrollingLogic,
     mouseWheelScrollConfig: ScrollConfig,
-    val density: Float
-) : MouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig) {
+    val density: Float,
+    enabled: Boolean,
+) : MouseWheelScrollNode(scrollingLogic, mouseWheelScrollConfig, enabled) {
     private var isAnimationRunning = false
     private val channel = Channel<Float>(capacity = Channel.UNLIMITED)
 

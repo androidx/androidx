@@ -283,7 +283,7 @@ private fun Modifier.pointerScrollable(
             },
             canDrag = { down -> down.type != PointerType.Mouse }
         ))
-        .then(MouseWheelScrollableElement(scrollLogicValue, scrollConfig, density))
+        .then(MouseWheelScrollableElement(scrollLogicValue, scrollConfig, density, enabled))
         .nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
 }
 
