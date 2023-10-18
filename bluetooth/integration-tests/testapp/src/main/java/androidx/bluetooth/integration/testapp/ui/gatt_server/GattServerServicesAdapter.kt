@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.advertiser
+package androidx.bluetooth.integration.testapp.ui.gatt_server
 
 import android.view.LayoutInflater
 import android.view.View
