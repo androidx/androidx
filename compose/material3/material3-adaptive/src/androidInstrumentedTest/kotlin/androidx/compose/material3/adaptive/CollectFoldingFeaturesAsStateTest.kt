@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class FoldingFeaturesAsStateTest {
+class CollectFoldingFeaturesAsStateTest {
     private val composeRule = createComposeRule()
     private val publisherRule = WindowLayoutInfoPublisherRule()
 
@@ -47,11 +47,11 @@ class FoldingFeaturesAsStateTest {
     }
 
     @Test
-    fun test_foldingFeatureAsState_returnEmptyListInitially() {
+    fun test_collectFoldingFeatureAsState_returnEmptyListInitially() {
         lateinit var actualFoldingFeatures: State<List<FoldingFeature>>
 
         composeRule.setContent {
-            actualFoldingFeatures = foldingFeaturesAsState()
+            actualFoldingFeatures = collectFoldingFeaturesAsState()
         }
 
         composeRule.runOnIdle {
@@ -60,11 +60,11 @@ class FoldingFeaturesAsStateTest {
     }
 
     @Test
-    fun test_foldingFeatureAsState_returnCurrentFoldingFeatures() {
+    fun test_collectFoldingFeatureAsState_returnCurrentFoldingFeatures() {
         lateinit var actualFoldingFeatures: State<List<FoldingFeature>>
 
         composeRule.setContent {
-            actualFoldingFeatures = foldingFeaturesAsState()
+            actualFoldingFeatures = collectFoldingFeaturesAsState()
         }
 
         publisherRule.overrideWindowLayoutInfo(

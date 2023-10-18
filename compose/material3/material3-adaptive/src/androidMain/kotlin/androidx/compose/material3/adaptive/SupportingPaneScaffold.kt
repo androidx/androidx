@@ -140,7 +140,7 @@ private class DefaultSupportingPaneScaffoldState(
 @Composable
 fun rememberSupportingPaneScaffoldState(
     scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(calculateWindowAdaptiveInfo()),
+        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     initialFocusHistory: List<SupportingPaneScaffoldRole> = listOf(SupportingPaneScaffoldRole.Main)
