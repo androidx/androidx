@@ -24,7 +24,7 @@ import androidx.build.addToBuildOnServer
 import androidx.build.getDistributionDirectory
 import androidx.build.getPrebuiltsRoot
 import androidx.build.getSupportRootFolder
-import androidx.build.gitclient.MultiGitClient
+import androidx.build.gitclient.getHeadShaProvider
 import androidx.inspection.gradle.EXPORT_INSPECTOR_DEPENDENCIES
 import androidx.inspection.gradle.IMPORT_INSPECTOR_DEPENDENCIES
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -211,7 +211,7 @@ fun Project.configureSbomPublishing() {
     }
     project.apply(plugin = "org.spdx.sbom")
     val repos = getRepoPublicUrls()
-    val gitsClient = MultiGitClient.create(project)
+    val headShaProvider = getHeadShaProvider(project)
     val supportRootDir = getSupportRootFolder()
 
     val allowPublicRepos = System.getenv("ALLOW_PUBLIC_REPOS") != null
@@ -262,10 +262,8 @@ fun Project.configureSbomPublishing() {
                     original: ScmInfo,
                     projectInfo: ProjectInfo
                 ): ScmInfo {
-                    val gitClient = gitsClient.getGitClient(projectInfo.projectDirectory)
-                    val commit = gitClient.getHeadSha()
                     val url = getGitRemoteUrl(projectInfo.projectDirectory, supportRootDir)
-                    return ScmInfo.from("git", url, commit)
+                    return ScmInfo.from("git", url, headShaProvider.get())
                 }
 
                 override fun shouldCreatePackageForProject(projectInfo: ProjectInfo): Boolean {

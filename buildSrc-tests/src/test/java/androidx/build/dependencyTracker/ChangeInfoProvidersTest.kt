@@ -16,16 +16,24 @@
 
 package androidx.build.dependencyTracker
 
-import androidx.build.gitclient.ChangeInfoGitClient
+import androidx.build.gitclient.getChangedFilesFromChangeInfoProvider
+import androidx.build.gitclient.getHeadShaFromManifestProvider
 import com.google.gson.JsonSyntaxException
-import junit.framework.TestCase.assertEquals
 import org.gradle.api.GradleException
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ChangeInfoGitClientTest {
+class ChangeInfoProvidersTest {
+    @get:Rule
+    var folder: TemporaryFolder = TemporaryFolder()
+
     @Test
     fun findChangedFilesSince_oneChange() {
         checkChangedFiles(
@@ -219,55 +227,60 @@ class ChangeInfoGitClientTest {
         checkChangedFiles("{", listOf())
     }
 
-    fun checkChangedFiles(config: String, expectedFiles: List<String>) {
-        assertEquals(getChangedFiles(config), expectedFiles)
-    }
-
-    fun getChangedFiles(config: String): List<String> {
-        val client = ChangeInfoGitClient(
-            config,
-            """
-            <manifest>
-                <project path="frameworks/support" name="platform/frameworks/support"/>
-            </manifest>
-            """,
-            "frameworks/support")
-        return client.findChangedFilesSince("")
-    }
-
-    @Test
-    fun getHeadSha_hasVersion() {
-        checkVersion("""
-            <manifest>
-                <project path="prebuilts/internal" name="platform/prebuilts/internal" revision="prebuiltsVersion1"/>
-                <project path="frameworks/support" name="platform/frameworks/support" revision="supportVersion1"/>
-                <project path="tools/external/gradle" name="platform/tools/external/gradle" revision="gradleVersion1"/>
-            </manifest>
-            """,
-            "supportVersion1"
+    private fun checkChangedFiles(
+        changeInfoContent: String,
+        expectedChangedFiles: List<String>
+    ) {
+        val manifestFile = folder.newFile()
+        manifestFile.writeText(basicManifest)
+        val changeInfoFile = folder.newFile()
+        changeInfoFile.writeText(changeInfoContent)
+        val project = ProjectBuilder.builder().build()
+        val changedFilesProvider = project.getChangedFilesFromChangeInfoProvider(
+            manifestFile.absolutePath,
+            changeInfoFile.absolutePath,
+            frameworksSupportPath
         )
+        val changedFiles = changedFilesProvider.get()
+        assertEquals(expectedChangedFiles, changedFiles)
     }
 
     @Test
-    fun getHeadSha_noVersion() {
-        var threw = false
-        try {
-            checkVersion("""
-                <manifest/>
-                """,
-                null
-            )
-        } catch (e: GradleException) {
-            threw = true
-        }
-        assertEquals("Did not detect malformed manifest", threw, true)
+    fun headShaFromManifest() {
+        val manifestFile = folder.newFile()
+        manifestFile.writeText(basicManifest)
+        val project = ProjectBuilder.builder().build()
+        val headShaProvider = project.getHeadShaFromManifestProvider(
+            manifestFile.absolutePath,
+            frameworksSupportPath
+        )
+        assertEquals(frameworksSupportSha, headShaProvider.get())
     }
 
-    fun checkVersion(config: String, expectedVersion: String?) {
-        assertEquals(expectedVersion, getVersion(config))
-    }
-    fun getVersion(config: String): String {
-        return ChangeInfoGitClient("{}", config, "frameworks/support")
-            .getHeadSha()
+    @Test
+    fun missingProjectHeadShaFromManifest() {
+        val manifestFile = folder.newFile()
+        manifestFile.writeText(basicManifest)
+        val project = ProjectBuilder.builder().build()
+        val headShaProvider = project.getHeadShaFromManifestProvider(
+            manifestFile.absolutePath,
+            "missing/project/path"
+        )
+        assertThrows(GradleException::class.java) {
+            headShaProvider.get()
+        }
     }
 }
+
+private const val frameworksSupportPath = "frameworks/support"
+private const val frameworksSupportSha = "bbcf23f3ee42fc9e59e0cf5fbca71f526f760dba"
+private const val basicManifest = """<?xml version='1.0' encoding='UTF-8'?>
+<manifest>
+  <remote name="aosp" fetch="https://android.googlesource.com/" review="https://android.googlesource.com/" />
+  <default revision="androidx-main" remote="aosp" />
+  <superproject name="platform/superproject" remote="aosp" />
+  <project path="external/icing" name="platform/external/icing" clone-depth="1" revision="ea81bd0613730609fcf3c6ffa7d2e52bcc10a9ac" />
+  <project path="$frameworksSupportPath" name="platform/frameworks/support" revision="$frameworksSupportSha" />
+  <repo-hooks in-project="platform/tools/repohooks" enabled-list="pre-upload" />
+</manifest>
+"""
