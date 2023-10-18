@@ -13,173 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("StatusRunnable")
 
-package androidx.work.impl.utils;
+package androidx.work.impl.utils
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
-import androidx.work.WorkInfo;
-import androidx.work.WorkQuery;
-import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.WorkSpec;
-import androidx.work.impl.utils.futures.SettableFuture;
+import androidx.work.WorkInfo
+import androidx.work.WorkQuery
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.model.WorkSpec.Companion.WORK_INFO_MAPPER
+import androidx.work.impl.utils.futures.SettableFuture
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.UUID
 
-import com.google.common.util.concurrent.ListenableFuture;
+internal fun WorkDatabase.forStringIds(
+    executor: TaskExecutor,
+    ids: List<String>,
+): ListenableFuture<List<WorkInfo>> = loadStatusFuture(executor) { db ->
+    WORK_INFO_MAPPER.apply(db.workSpecDao().getWorkStatusPojoForIds(ids))
+}
 
-import java.util.List;
-import java.util.UUID;
+internal fun WorkDatabase.forUUID(
+    executor: TaskExecutor,
+    id: UUID,
+): ListenableFuture<WorkInfo?> = loadStatusFuture(executor) { db ->
+    db.workSpecDao().getWorkStatusPojoForId(id.toString())?.toWorkInfo()
+}
 
-/**
- * A {@link Runnable} to get {@link WorkInfo}es.
- *
- * @param <T> The expected return type for the {@link ListenableFuture}.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class StatusRunnable<T> implements Runnable {
-    private final SettableFuture<T> mFuture = SettableFuture.create();
+internal fun WorkDatabase.forTag(
+    executor: TaskExecutor,
+    tag: String
+): ListenableFuture<List<WorkInfo>> = loadStatusFuture(executor) { db ->
+    WORK_INFO_MAPPER.apply(db.workSpecDao().getWorkStatusPojoForTag(tag))
+}
 
-    @Override
-    public void run() {
+internal fun WorkDatabase.forUniqueWork(
+    executor: TaskExecutor,
+    name: String,
+): ListenableFuture<List<WorkInfo>> = loadStatusFuture(executor) { db ->
+    WORK_INFO_MAPPER.apply(db.workSpecDao().getWorkStatusPojoForName(name))
+}
+
+internal fun WorkDatabase.forWorkQuerySpec(
+    executor: TaskExecutor,
+    querySpec: WorkQuery
+): ListenableFuture<List<WorkInfo>> = loadStatusFuture(executor) { db ->
+    WORK_INFO_MAPPER.apply(db.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery()))
+}
+
+// it should be rewritten via SuspendToFutureAdapter.launchFuture once it is stable.
+private fun <T> WorkDatabase.loadStatusFuture(
+    executor: TaskExecutor,
+    block: (WorkDatabase) -> T
+): ListenableFuture<T> = SettableFuture.create<T>().apply {
+    executor.serialTaskExecutor.execute {
         try {
-            final T value = runInternal();
-            mFuture.set(value);
-        } catch (Throwable throwable) {
-            mFuture.setException(throwable);
+            set(block(this@loadStatusFuture))
+        } catch (throwable: Throwable) {
+            setException(throwable)
         }
-    }
-
-    @WorkerThread
-    abstract T runInternal();
-
-    @NonNull
-    public ListenableFuture<T> getFuture() {
-        return mFuture;
-    }
-
-    /**
-     * Creates a {@link StatusRunnable} which can get statuses for a given {@link List} of
-     * {@link String} workSpec ids.
-     *
-     * @param workManager The {@link WorkManagerImpl} to use
-     * @param ids         The {@link List} of {@link String} ids
-     * @return an instance of {@link StatusRunnable}
-     */
-    @NonNull
-    public static StatusRunnable<List<WorkInfo>> forStringIds(
-            @NonNull final WorkManagerImpl workManager,
-            @NonNull final List<String> ids) {
-
-        return new StatusRunnable<List<WorkInfo>>() {
-            @Override
-            public List<WorkInfo> runInternal() {
-                WorkDatabase workDatabase = workManager.getWorkDatabase();
-                List<WorkSpec.WorkInfoPojo> workInfoPojos =
-                        workDatabase.workSpecDao().getWorkStatusPojoForIds(ids);
-
-                return WorkSpec.WORK_INFO_MAPPER.apply(workInfoPojos);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link StatusRunnable} which can get statuses for a specific {@link UUID}
-     * workSpec id.
-     *
-     * @param workManager The {@link WorkManagerImpl} to use
-     * @param id          The workSpec {@link UUID}
-     * @return an instance of {@link StatusRunnable}
-     */
-    @NonNull
-    public static StatusRunnable<WorkInfo> forUUID(
-            @NonNull final WorkManagerImpl workManager,
-            @NonNull final UUID id) {
-
-        return new StatusRunnable<WorkInfo>() {
-            @Override
-            WorkInfo runInternal() {
-                WorkDatabase workDatabase = workManager.getWorkDatabase();
-                WorkSpec.WorkInfoPojo workInfoPojo =
-                        workDatabase.workSpecDao().getWorkStatusPojoForId(id.toString());
-
-                return workInfoPojo != null ? workInfoPojo.toWorkInfo() : null;
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link StatusRunnable} which can get statuses for {@link WorkSpec}s annotated with
-     * the given {@link String} tag.
-     *
-     * @param workManager The {@link WorkManagerImpl} to use
-     * @param tag The {@link String} tag
-     * @return an instance of {@link StatusRunnable}
-     */
-    @NonNull
-    public static StatusRunnable<List<WorkInfo>> forTag(
-            @NonNull final WorkManagerImpl workManager,
-            @NonNull final String tag) {
-
-        return new StatusRunnable<List<WorkInfo>>() {
-            @Override
-            List<WorkInfo> runInternal() {
-                WorkDatabase workDatabase = workManager.getWorkDatabase();
-                List<WorkSpec.WorkInfoPojo> workInfoPojos =
-                        workDatabase.workSpecDao().getWorkStatusPojoForTag(tag);
-
-                return WorkSpec.WORK_INFO_MAPPER.apply(workInfoPojos);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link StatusRunnable} which can get statuses for {@link WorkSpec}s annotated with
-     * the given {@link String} unique name.
-     *
-     * @param workManager The {@link WorkManagerImpl} to use
-     * @param name The {@link String} unique name
-     * @return an instance of {@link StatusRunnable}
-     */
-    @NonNull
-    public static StatusRunnable<List<WorkInfo>> forUniqueWork(
-            @NonNull final WorkManagerImpl workManager,
-            @NonNull final String name) {
-
-        return new StatusRunnable<List<WorkInfo>>() {
-            @Override
-            List<WorkInfo> runInternal() {
-                WorkDatabase workDatabase = workManager.getWorkDatabase();
-                List<WorkSpec.WorkInfoPojo> workInfoPojos =
-                        workDatabase.workSpecDao().getWorkStatusPojoForName(name);
-
-                return WorkSpec.WORK_INFO_MAPPER.apply(workInfoPojos);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link StatusRunnable} which can get statuses for {@link WorkSpec}s referenced
-     * by a given {@link WorkQuery}.
-     *
-     * @param workManager The {@link WorkManagerImpl} to use
-     * @param querySpec   The {@link WorkQuery} to use
-     * @return an instance of {@link StatusRunnable}
-     */
-    @NonNull
-    public static StatusRunnable<List<WorkInfo>> forWorkQuerySpec(
-            @NonNull final WorkManagerImpl workManager,
-            @NonNull final WorkQuery querySpec) {
-
-        return new StatusRunnable<List<WorkInfo>>() {
-            @Override
-            List<WorkInfo> runInternal() {
-                WorkDatabase workDatabase = workManager.getWorkDatabase();
-                List<WorkSpec.WorkInfoPojo> workInfoPojos =
-                        workDatabase.rawWorkInfoDao().getWorkInfoPojos(
-                                RawQueries.toRawQuery(querySpec));
-                return WorkSpec.WORK_INFO_MAPPER.apply(workInfoPojos);
-            }
-        };
     }
 }

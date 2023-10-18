@@ -180,11 +180,8 @@ public class WorkContinuationImpl extends WorkContinuation {
     @NonNull
     @Override
     public ListenableFuture<List<WorkInfo>> getWorkInfos() {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forStringIds(mWorkManagerImpl, mAllIds);
-
-        mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forStringIds(mWorkManagerImpl.getWorkDatabase(),
+                mWorkManagerImpl.getWorkTaskExecutor(), mAllIds);
     }
 
     @Override
