@@ -1,4 +1,21 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.renderer.common {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface LoggingUtils {
+    method public boolean canLogD(String);
+    method public void logD(String, String);
+    method @com.google.errorprone.annotations.FormatMethod public void logD(String, @com.google.errorprone.annotations.FormatString String, java.lang.Object!...);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LoggingUtilsImpl implements androidx.wear.protolayout.renderer.common.LoggingUtils {
+    ctor public LoggingUtilsImpl(android.content.ComponentName);
+    method public boolean canLogD(String);
+    method public void logD(String, String);
+    method @com.google.errorprone.annotations.FormatMethod public void logD(String, @com.google.errorprone.annotations.FormatString String, java.lang.Object!...);
+  }
+
+}
+
 package androidx.wear.protolayout.renderer.impl {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProtoLayoutViewInstance implements java.lang.AutoCloseable {
@@ -13,6 +30,7 @@ package androidx.wear.protolayout.renderer.impl {
     method public com.google.common.util.concurrent.ListeningExecutorService getBgExecutorService();
     method public String getClickableIdExtra();
     method public androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.LoadActionListener getLoadActionListener();
+    method public androidx.wear.protolayout.renderer.common.LoggingUtils? getLoggingUtils();
     method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>!> getPlatformDataProviders();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
     method public android.content.Context getUiContext();
