@@ -17,14 +17,12 @@
 <resources>
     <string name="app_name">AndroidX Bluetooth Test App</string>
 
-    <string name="title_scanner">Scanner</string>
-    <string name="title_advertiser">Advertiser</string>
-
     <!-- Main -->
     <string name="bluetooth_is_disabled">Bluetooth is disabled</string>
     <string name="enable">Enable</string>
 
     <!-- Scanner -->
+    <string name="title_scanner">Scanner</string>
     <string name="start_scanning">Start Scanning</string>
     <string name="stop_scanning">Stop scanning</string>
     <string name="scan_result_icon">Scan Result Icon</string>
@@ -53,6 +51,7 @@
     <string name="value">Value</string>
 
     <!-- Advertiser -->
+    <string name="title_advertiser">Advertiser</string>
     <string name="configure_advertising_packet">Configure Advertising Packet</string>
     <string name="display_name">Display Name</string>
     <string name="include_device_name">Include Device Name</string>
@@ -73,7 +72,7 @@
     <string name="clear_data">Clear Data</string>
 
     <!-- GATT Server -->
-    <string name="gatt_server">Gatt Server</string>
+    <string name="title_gatt_server">Gatt Server</string>
     <string name="add_service">Add Service</string>
     <string name="add_characteristic">Add Characteristic</string>
     <string name="add_descriptor">Add Descriptor</string>

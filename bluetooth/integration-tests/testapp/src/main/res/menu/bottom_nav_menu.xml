@@ -26,4 +26,9 @@
         android:icon="@drawable/baseline_wb_iridescent_24"
         android:title="@string/title_advertiser" />
 
+    <item
+        android:id="@+id/navigation_gatt_server"
+        android:icon="@drawable/baseline_design_services_24"
+        android:title="@string/title_gatt_server" />
+
 </menu>
