@@ -733,6 +733,14 @@ class TextFieldCursorTest : FocusedWindowTest {
             }
         }
 
+        focusAndWait()
+
+        // cursor visible first 500ms
+        rule.mainClock.advanceTimeBy(100)
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(cursorColor)
+
         // window loses focus
         focusWindow.value = false
         rule.waitForIdle()
@@ -776,12 +784,11 @@ class TextFieldCursorTest : FocusedWindowTest {
 
         // check that text field cursor disappeared even within visible 500ms
         rule.mainClock.advanceTimeBy(100)
-
         rule.onNode(hasSetTextAction())
             .captureToImage()
             .assertDoesNotContainColor(cursorColor)
 
-        // window regains focus
+        // window regains focus within 500ms
         focusWindow.value = true
         rule.waitForIdle()
 
