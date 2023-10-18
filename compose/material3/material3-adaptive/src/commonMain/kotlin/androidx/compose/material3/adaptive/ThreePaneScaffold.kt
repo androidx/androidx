@@ -376,24 +376,33 @@ private class ThreePaneContentMeasurePolicy(
                 it == PaneAdaptedValue.Hidden
             }
 
-            val outerVerticalGutterSize = scaffoldDirective.gutterSizes.outerVertical.roundToPx()
-            val innerVerticalGutterSize = scaffoldDirective.gutterSizes.innerVertical.roundToPx()
-            val outerHorizontalGutterSize =
-                scaffoldDirective.gutterSizes.outerHorizontal.roundToPx()
+            val verticalSpacerSize = scaffoldDirective.gutterSizes.verticalSpacerSize.roundToPx()
+            val leftContentPadding =
+                scaffoldDirective.gutterSizes.contentPadding.calculateLeftPadding(
+                    layoutDirection
+                ).roundToPx()
+            val rightContentPadding =
+                scaffoldDirective.gutterSizes.contentPadding.calculateRightPadding(
+                    layoutDirection
+                ).roundToPx()
+            val topContentPadding =
+                scaffoldDirective.gutterSizes.contentPadding.calculateTopPadding().roundToPx()
+            val bottomContentPadding =
+                scaffoldDirective.gutterSizes.contentPadding.calculateBottomPadding().roundToPx()
             val outerBounds = IntRect(
-                outerVerticalGutterSize,
-                outerHorizontalGutterSize,
-                constraints.maxWidth - outerVerticalGutterSize,
-                constraints.maxHeight - outerHorizontalGutterSize
+                leftContentPadding,
+                topContentPadding,
+                constraints.maxWidth - rightContentPadding,
+                constraints.maxHeight - bottomContentPadding
             )
 
             if (scaffoldDirective.excludedBounds.isNotEmpty()) {
                 val layoutBounds = coordinates!!.boundsInWindow()
                 val layoutPhysicalPartitions = mutableListOf<Rect>()
-                var actualLeft = layoutBounds.left + outerVerticalGutterSize
-                var actualRight = layoutBounds.right - outerVerticalGutterSize
-                val actualTop = layoutBounds.top + outerHorizontalGutterSize
-                val actualBottom = layoutBounds.bottom - outerHorizontalGutterSize
+                var actualLeft = layoutBounds.left + leftContentPadding
+                var actualRight = layoutBounds.right - rightContentPadding
+                val actualTop = layoutBounds.top + topContentPadding
+                val actualBottom = layoutBounds.bottom - bottomContentPadding
                 // Assume hinge bounds are sorted from left to right, non-overlapped.
                 scaffoldDirective.excludedBounds.fastForEach { hingeBound ->
                     if (hingeBound.left <= actualLeft) {
@@ -414,7 +423,7 @@ private class ThreePaneContentMeasurePolicy(
                             Rect(actualLeft, actualTop, hingeBound.left, actualBottom)
                         )
                         actualLeft +=
-                            max(hingeBound.right, hingeBound.left + innerVerticalGutterSize)
+                            max(hingeBound.right, hingeBound.left + verticalSpacerSize)
                     }
                 }
                 if (actualLeft < actualRight) {
@@ -428,7 +437,7 @@ private class ThreePaneContentMeasurePolicy(
                 } else if (layoutPhysicalPartitions.size == 1) {
                     measureAndPlacePanes(
                         layoutPhysicalPartitions[0],
-                        innerVerticalGutterSize,
+                        verticalSpacerSize,
                         visiblePanes,
                         isLookingAhead
                     )
@@ -439,7 +448,7 @@ private class ThreePaneContentMeasurePolicy(
                     if (layoutPhysicalPartitions[0].width > layoutPhysicalPartitions[1].width) {
                         measureAndPlacePanes(
                             layoutPhysicalPartitions[0],
-                            innerVerticalGutterSize,
+                            verticalSpacerSize,
                             visiblePanes.subList(0, 2),
                             isLookingAhead
                         )
@@ -456,7 +465,7 @@ private class ThreePaneContentMeasurePolicy(
                         )
                         measureAndPlacePanes(
                             layoutPhysicalPartitions[1],
-                            innerVerticalGutterSize,
+                            verticalSpacerSize,
                             visiblePanes.subList(1, 3),
                             isLookingAhead
                         )
@@ -474,7 +483,7 @@ private class ThreePaneContentMeasurePolicy(
             } else {
                 measureAndPlacePanesWithLocalBounds(
                     outerBounds,
-                    innerVerticalGutterSize,
+                    verticalSpacerSize,
                     visiblePanes,
                     isLookingAhead
                 )
