@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable sizedShapes with type Map&lt;Size, Sequence&lt;? extends Cubic>>: replace with LongObjectMap"
-        errorLine1="    val sizedShapes = remember(polygon) { mutableMapOf&lt;Size, Sequence&lt;Cubic>>() }"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/graphics/shapes/testcompose/MainActivity.kt"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="PrimitiveInLambda"

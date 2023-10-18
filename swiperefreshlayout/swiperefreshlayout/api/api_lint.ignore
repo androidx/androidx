@@ -13,8 +13,6 @@ InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOf
     Internal field mOriginalOffsetTop must not be exposed
 
 
-MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `canvas` in method `draw`
 MissingNullability: androidx.swiperefreshlayout.widget.CircularProgressDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
     Missing nullability on parameter `colorFilter` in method `setColorFilter`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#onInterceptTouchEvent(android.view.MotionEvent) parameter #0:
@@ -49,3 +47,7 @@ MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
     Bare field mFrom must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
     Bare field mOriginalOffsetTop must be marked final, or moved behind accessors if mutable
+
+
+NotCloseable: androidx.swiperefreshlayout.widget.CircularProgressDrawable:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.swiperefreshlayout.widget.CircularProgressDrawable

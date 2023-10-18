@@ -23,8 +23,6 @@ GetterSetterNames: field DialogProperties.usePlatformDefaultWidth:
     Invalid name for boolean property `usePlatformDefaultWidth`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field ImageVector.autoMirror:
     Invalid name for boolean property `autoMirror`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ModifierNodeElement.autoInvalidate:
-    Invalid name for boolean property `autoInvalidate`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field PointerInputChange.pressed:
     Invalid name for boolean property `pressed`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field PointerInputChange.previousPressed:

@@ -45,9 +45,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 17
-    }
     namespace "androidx.leanback.widget"
 }
 

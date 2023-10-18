@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="MissingPermission"
@@ -138,15 +138,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class com.example.android.supportv4.widget.SlidingPaneLayoutActivity.FirstLayoutListener is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            getWindow().setStatusBarColor(0x80000000);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
@@ -210,7 +201,16 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `values`.">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v11"/>
     </issue>
