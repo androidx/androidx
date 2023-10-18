@@ -322,6 +322,68 @@ class AnchoredDraggableGestureTest {
     }
 
     @Test
+    fun anchoredDraggable_negative_offset_targetState() {
+        val positionalThreshold = 0.5f
+        val absThreshold = abs(positionalThreshold)
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = { distance -> distance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            animationSpec = tween()
+        )
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
+                            state = state,
+                            orientation = Orientation.Horizontal
+                        )
+                        .onSizeChanged { layoutSize ->
+                            val anchors = DraggableAnchors {
+                                A at 0f
+                                B at -layoutSize.width.toFloat()
+                            }
+                            state.updateAnchors(anchors)
+                        }
+                        .offset {
+                            IntOffset(
+                                state
+                                    .requireOffset()
+                                    .roundToInt(), 0
+                            )
+                        }
+                        .background(Color.Red)
+                )
+            }
+        }
+
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
+        val distance = abs(positionOfA - positionOfB)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput { swipeLeft(startX = right, endX = left) }
+        rule.waitForIdle()
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        state.dispatchRawDelta(distance * (absThreshold * 1.1f))
+        rule.waitForIdle()
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+    }
+
+    @Test
     fun anchoredDraggable_positionalThresholds_fractional_targetState() {
         val positionalThreshold = 0.5f
         val absThreshold = abs(positionalThreshold)
