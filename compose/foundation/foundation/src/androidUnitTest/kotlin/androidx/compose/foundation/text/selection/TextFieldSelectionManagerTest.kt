@@ -180,7 +180,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
         // Assert
-        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(state.handleState).isEqualTo(HandleState.Cursor)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
         verify(
