@@ -16,7 +16,7 @@
 
 package androidx.compose.testutils
 
-import android.view.View
+expect class NativeView
 
 /**
  * Test scope accessible from execution controlled tests to test compose.
@@ -92,7 +92,12 @@ interface ComposeExecutionControl {
      */
     fun recompose()
 
-    fun getHostView(): View
+    /**
+     * Please avoid using this API; Make your tests more platform agnostic by utilizing platform-
+     * independent test hooks instead of invoking APIs on native views.
+     * This API may be removed in the future.
+     */
+    fun getHostView(): NativeView
 }
 
 /**
