@@ -42,6 +42,7 @@ import androidx.compose.ui.test.junit4.waitForComposeRoots
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
@@ -50,6 +51,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -239,7 +241,9 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
 
     private val recomposer: Recomposer
-    private val testCoroutineDispatcher = UnconfinedTestDispatcher()
+    // We can only accept a TestDispatcher here because we need to access its scheduler.
+    private val testCoroutineDispatcher = effectContext[ContinuationInterceptor] as? TestDispatcher
+        ?: UnconfinedTestDispatcher()
     private val testCoroutineScope = TestScope(testCoroutineDispatcher)
     private val recomposerCoroutineScope: CoroutineScope
     private val coroutineExceptionHandler = UncaughtExceptionHandler()

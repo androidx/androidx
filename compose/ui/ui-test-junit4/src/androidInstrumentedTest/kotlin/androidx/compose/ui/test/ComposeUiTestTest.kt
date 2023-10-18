@@ -455,28 +455,21 @@ class ComposeUiTestTest {
                 LaunchedEffect(Unit) {
                     expect(2)
                     withFrameNanos {
-                        expect(4)
+                        expect(3)
                     }
-                    expect(6)
+                    expect(4)
                 }
             }
             expect(0)
 
-            // None of these will start the effect, because StandardTestDispatcher hasn't been
-            // resumed yet, and Compose isn't wired to it.
-            waitForIdle()
-            mainClock.advanceTimeByFrame()
+            // This won't wait for the effect to launch…
             waitForIdle()
             expect(1)
 
-            customDispatcher.scheduler.runCurrent()
-            expect(3)
-
+            // …but this will, because Compose detected the custom TestDispatcher and wired the
+            // clock to it.
             mainClock.advanceTimeByFrame()
             expect(5)
-
-            customDispatcher.scheduler.runCurrent()
-            expect(7)
         }
     }
 
