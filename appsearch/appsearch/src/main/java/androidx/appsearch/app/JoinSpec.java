@@ -293,7 +293,7 @@ public final class JoinSpec {
          * Sets the query and the SearchSpec for the documents being joined. This will score and
          * rank the joined documents as well as filter the joined documents.
          *
-         * <p>If {@link SearchSpec.RankingStrategy#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} is set in
+         * <p>If {@link SearchSpec#RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} is set in
          * the outer {@link SearchSpec}, the resulting signals will be used to rank the parent
          * documents. Note that the aggregation strategy also needs to be set with
          * {@link JoinSpec.Builder#setAggregationScoringStrategy}, otherwise the default will be
