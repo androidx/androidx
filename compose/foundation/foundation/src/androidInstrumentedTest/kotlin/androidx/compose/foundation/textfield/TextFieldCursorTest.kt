@@ -28,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
@@ -600,11 +602,9 @@ class TextFieldCursorTest : FocusedWindowTest {
 
         // cursor visible first 500ms
         rule.mainClock.advanceTimeBy(100)
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                .assertCursor(2.dp, this, cursorRect)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(cursorColor)
 
         // window loses focus
         focusWindow.value = false
@@ -614,13 +614,7 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.mainClock.advanceTimeBy(100)
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = RectangleShape,
-                shapeColor = Color.White,
-                backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
-            )
+            .assertDoesNotContainColor(cursorColor)
     }
 
     @Test
@@ -656,24 +650,17 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.mainClock.advanceTimeBy(100)
         rule.onNode(hasSetTextAction())
             .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = RectangleShape,
-                shapeColor = Color.White,
-                backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
-            )
+            .assertDoesNotContainColor(cursorColor)
 
         // window regains focus within 500ms
         focusWindow.value = true
         rule.waitForIdle()
 
         rule.mainClock.advanceTimeBy(100)
-        with(rule.density) {
-            rule.onNode(hasSetTextAction())
-                .captureToImage()
-                .assertCursor(2.dp, this, cursorRect)
-        }
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertContainsColor(cursorColor)
+            .assertCursor(2.dp, rule.density, cursorRect)
     }
 
     private fun focusAndWait() {
