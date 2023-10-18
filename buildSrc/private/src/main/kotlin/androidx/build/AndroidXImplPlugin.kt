@@ -40,6 +40,7 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.ResourcesPackaging
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
@@ -461,6 +462,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.extensions.getByType<AppExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
             configureAndroidApplicationOptions(project, androidXExtension)
+            excludeVersionFiles(packagingOptions.resources)
         }
 
         project.extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
@@ -478,11 +480,28 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.extensions.getByType<TestExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
             project.addAppApkToTestConfigGeneration(androidXExtension)
+            excludeVersionFiles(packagingOptions.resources)
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
 
         project.addToProjectMap(androidXExtension)
+    }
+
+    /**
+     * Excludes files telling which versions of androidx libraries were used in test apks, to avoid
+     * invalidating caches as often
+     */
+    private fun excludeVersionFiles(packaging: com.android.build.api.variant.ResourcesPackaging) {
+        packaging.excludes.add("/META-INF/androidx*.version")
+    }
+
+    /**
+     * Excludes files telling which versions of androidx libraries were used in test apks, to avoid
+     * invalidating caches as often
+     */
+    private fun excludeVersionFiles(packaging: com.android.build.api.dsl.ResourcesPackaging) {
+        packaging.excludes.add("/META-INF/androidx*.version")
     }
 
     private fun Project.buildOnServerDependsOnAssembleRelease() {
@@ -511,7 +530,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun HasAndroidTest.configureTests() {
         configureLicensePackaging()
-        excludeVersionFilesFromTestApks()
+        androidTest?.packaging?.resources?.apply { excludeVersionFiles(this) }
     }
 
     @Suppress("UnstableApiUsage") // usage of experimentalProperties
@@ -531,14 +550,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             //   - net.java.dev.jna:jna:5.5.0
             excludes.add("/META-INF/LGPL2.1")
         }
-    }
-
-    /**
-     * Excludes files telling which versions of androidx libraries were used in test apks to avoid
-     * invalidating the build cache as often
-     */
-    private fun HasAndroidTest.excludeVersionFilesFromTestApks() {
-        androidTest?.packaging?.resources?.apply { excludes.add("/META-INF/androidx*.version") }
     }
 
     @Suppress("DEPRECATION") // AGP DSL APIs
