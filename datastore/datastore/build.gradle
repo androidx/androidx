@@ -57,11 +57,10 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-datastore"))
             }
         }
-        jvmMain {
+        commonJvmMain {
             dependsOn(commonMain)
-
         }
-        jvmTest {
+        commonJvmTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
@@ -69,14 +68,20 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-datastore"))
             }
         }
+        jvmMain {
+            dependsOn(commonJvmMain)
+        }
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
             dependencies {
                 implementation(libs.okio)
             }
         }
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.truth)

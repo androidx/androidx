@@ -81,11 +81,17 @@ androidXMultiplatform {
                 api("androidx.annotation:annotation:1.7.0")
             }
         }
-        jvmMain {
+
+        commonJvmMain {
             dependsOn(commonMain)
         }
+
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonJvmMain)
+        }
+
+        jvmMain {
+            dependsOn(commonJvmMain)
         }
 
         commonTest {
@@ -100,7 +106,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
+        commonJvmTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
@@ -112,15 +119,19 @@ androidXMultiplatform {
             }
         }
 
+        jvmTest {
+            dependsOn(commonJvmTest)
+        }
+
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.protobufLite)
             }
         }
 
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.protobufLite)
                 implementation(libs.truth)
@@ -132,10 +143,6 @@ androidXMultiplatform {
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
             }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(androidUnitTest)
         }
 
         if (enableNative) {
