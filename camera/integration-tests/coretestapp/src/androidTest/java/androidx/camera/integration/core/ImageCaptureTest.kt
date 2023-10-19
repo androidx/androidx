@@ -79,6 +79,7 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
@@ -286,6 +287,33 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         canTakeImages(
             defaultBuilder.setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
                 .setFlashMode(ImageCapture.FLASH_MODE_ON),
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeScreen_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used. But capture should be successful either way.
+        canTakeImages(
+            defaultBuilder.apply {
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeScreenAndUseTorch_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used as torch. Either way, capture should be successful
+        canTakeImages(
+            defaultBuilder.apply {
+                setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
             cameraSelector = FRONT_SELECTOR
         )
     }

@@ -108,6 +108,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         this(cameraId, 0, CameraSelector.LENS_FACING_BACK);
     }
 
+    public FakeCameraInfoInternal(@NonNull String cameraId,
+            @CameraSelector.LensFacing int lensFacing) {
+        this(cameraId, 0, lensFacing);
+    }
+
     public FakeCameraInfoInternal(int sensorRotation, @CameraSelector.LensFacing int lensFacing) {
         this("0", sensorRotation, lensFacing);
     }
