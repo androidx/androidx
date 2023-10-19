@@ -65,7 +65,6 @@ internal enum class UITouchesEventPhase {
 }
 
 @Suppress("CONFLICTING_OVERLOADS")
-@ExportObjCClass
 internal class SkikoUIView : UIView, UIKeyInputProtocol, UITextInputProtocol {
     companion object : UIViewMeta() {
         override fun layerClass() = CAMetalLayer
