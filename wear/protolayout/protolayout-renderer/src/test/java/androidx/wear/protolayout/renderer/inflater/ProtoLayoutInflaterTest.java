@@ -17,7 +17,6 @@
 package androidx.wear.protolayout.renderer.inflater;
 
 import static android.os.Looper.getMainLooper;
-import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_INSIDE;
@@ -59,7 +58,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils.TruncateAt;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -4689,12 +4687,5 @@ public class ProtoLayoutInflaterTest {
             sizes.add(sp(s));
         }
         return sizes;
-    }
-
-    private static float toPx(int spValue) {
-        return TypedValue.applyDimension(
-                COMPLEX_UNIT_SP,
-                spValue,
-                getApplicationContext().getResources().getDisplayMetrics());
     }
 }
