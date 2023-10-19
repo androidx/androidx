@@ -168,10 +168,10 @@ internal class TextFieldSelectionState(
     private var showCursorHandle by mutableStateOf(false)
 
     /**
-     * Request to show the text toolbar right now, anchored to the cursor handle. This is not the
-     * final decider for showing the toolbar. Please refer to [observeTextToolbarVisibility] docs.
+     * Whether to show the TextToolbar according to current selection state. This is not the final
+     * decider for showing the toolbar. Please refer to [observeTextToolbarVisibility] docs.
      */
-    private var showCursorHandleToolbar by mutableStateOf(false)
+    private var textToolbarState by mutableStateOf(TextToolbarState.None)
 
     /**
      * Access helper for text layout node coordinates that checks attached state.
@@ -321,7 +321,11 @@ internal class TextFieldSelectionState(
             }
             launch(start = CoroutineStart.UNDISPATCHED) {
                 detectTapGestures(onTap = {
-                    showCursorHandleToolbar = !showCursorHandleToolbar
+                    textToolbarState = if (textToolbarState == TextToolbarState.Cursor) {
+                        TextToolbarState.None
+                    } else {
+                        TextToolbarState.Cursor
+                    }
                 })
             }
         }
@@ -391,10 +395,14 @@ internal class TextFieldSelectionState(
             }
         } finally {
             showCursorHandle = false
-            if (showCursorHandleToolbar) {
+            if (textToolbarState != TextToolbarState.None) {
                 hideTextToolbar()
             }
         }
+    }
+
+    fun updateTextToolbarState(textToolbarState: TextToolbarState) {
+        this.textToolbarState = textToolbarState
     }
 
     fun dispose() {
@@ -434,7 +442,8 @@ internal class TextFieldSelectionState(
                         showCursorHandle = true
                     }
 
-                    showCursorHandleToolbar = false
+                    // do not show any TextToolbar.
+                    updateTextToolbarState(TextToolbarState.None)
 
                     // find the cursor position
                     val cursorIndex = textLayoutState.getOffsetForPosition(offset)
@@ -449,7 +458,8 @@ internal class TextFieldSelectionState(
                 // onTap is already called at this point. Focus is requested.
 
                 showCursorHandle = false
-                showCursorHandleToolbar = false
+                // go into selection mode.
+                updateTextToolbarState(TextToolbarState.Selection)
 
                 val index = textLayoutState.getOffsetForPosition(offset)
                 val newSelection = updateSelection(
@@ -529,9 +539,6 @@ internal class TextFieldSelectionState(
             onDragStart = onDragStart@{ dragStartOffset ->
                 logDebug { "onDragStart after longPress $dragStartOffset" }
                 requestFocus()
-                // at the beginning of selection disable toolbar, re-evaluate visibility after
-                // drag gesture is finished
-                showCursorHandleToolbar = false
 
                 // this gesture detector is applied on the decoration box. We do not need to
                 // convert the gesture offset, that's going to be calculated by [handleDragPosition]
@@ -551,7 +558,7 @@ internal class TextFieldSelectionState(
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     textFieldState.placeCursorBeforeCharAt(offset)
                     showCursorHandle = true
-                    showCursorHandleToolbar = true
+                    updateTextToolbarState(TextToolbarState.Cursor)
                 } else {
                     if (textFieldState.text.isEmpty()) return@onDragStart
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
@@ -568,7 +575,7 @@ internal class TextFieldSelectionState(
                         adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     )
                     textFieldState.selectCharsIn(newSelection)
-                    showCursorHandle = false
+                    updateTextToolbarState(TextToolbarState.Selection)
                     // For touch, set the begin offset to the adjusted selection.
                     // When char based selection is used, we want to ensure we snap the
                     // beginning offset to the start word boundary of the first selected word.
@@ -792,7 +799,8 @@ internal class TextFieldSelectionState(
             .drop(1)
             .collect {
                 showCursorHandle = false
-                showCursorHandleToolbar = false
+                // hide the toolbar any time text content changes.
+                updateTextToolbarState(TextToolbarState.None)
             }
     }
 
@@ -800,28 +808,34 @@ internal class TextFieldSelectionState(
      * Manages the visibility of text toolbar according to current state and received events from
      * various sources.
      *
-     * - Tapping the cursor handle toggles the visibility of the toolbar [showCursorHandleToolbar].
+     * - Tapping the cursor handle toggles the visibility of the toolbar [TextToolbarState.Cursor].
      * - Dragging the cursor handle or selection handles temporarily hides the toolbar
      * [draggingHandle].
-     * - Tapping somewhere on the textfield, whether it causes a cursor position change or not,
-     * fully hides the toolbar [showCursorHandleToolbar].
-     * - Scrolling the textfield temporarily hides the toolbar [getContentRect].
-     * - When cursor leaves the visible bounds, text toolbar is temporarily hidden.
+     * - Tapping somewhere on the TextField, whether it causes a cursor position change or not,
+     * fully hides the toolbar [TextToolbarState.None].
+     * - When cursor or selection leaves the visible bounds, text toolbar is temporarily hidden.
+     * [getContentRect]
+     * - When selection is initiated via long press, double click, or semantics, text toolbar shows
+     * [TextToolbarState.Selection]
      */
     private suspend fun observeTextToolbarVisibility() {
         snapshotFlow {
             val isCollapsed = textFieldState.text.selectionInChars.collapsed
-            val toolbarVisibility =
-                // either toolbar is requested specifically or selection is active
-                (showCursorHandleToolbar || !isCollapsed) &&
+            val textToolbarStateVisible =
+                isCollapsed && textToolbarState == TextToolbarState.Cursor ||
+                    !isCollapsed && textToolbarState == TextToolbarState.Selection
+
+            val textToolbarVisible =
+                // toolbar is requested specifically for the current selection state
+                textToolbarStateVisible &&
                     draggingHandle == null && // not dragging any selection handles
-                    isInTouchMode
+                    isInTouchMode // toolbar hidden when not in touch mode
 
             // final visibility decision is made by contentRect visibility.
             // if contentRect is not in visible bounds, just pass Rect.Zero to the observer so that
             // it hides the toolbar. If Rect is successfully passed to the observer, toolbar will
             // be displayed.
-            if (!toolbarVisibility) {
+            if (!textToolbarVisible) {
                 Rect.Zero
             } else {
                 // contentRect is calculated in root coordinates. VisibleBounds are in parent
@@ -1055,28 +1069,28 @@ internal class TextFieldSelectionState(
         val paste: (() -> Unit)? = if (editable && clipboardManager?.hasText() == true) {
             {
                 paste()
-                showCursorHandleToolbar = false
+                updateTextToolbarState(TextToolbarState.None)
             }
         } else null
 
         val copy: (() -> Unit)? = if (!selection.collapsed) {
             {
                 copy()
-                showCursorHandleToolbar = false
+                updateTextToolbarState(TextToolbarState.None)
             }
         } else null
 
         val cut: (() -> Unit)? = if (!selection.collapsed && editable) {
             {
                 cut()
-                showCursorHandleToolbar = false
+                updateTextToolbarState(TextToolbarState.None)
             }
         } else null
 
         val selectAll: (() -> Unit)? = if (selection.length != textFieldState.text.length) {
             {
                 textFieldState.selectAll()
-                showCursorHandleToolbar = false
+                updateTextToolbarState(TextToolbarState.Selection)
             }
         } else null
 
@@ -1095,7 +1109,7 @@ internal class TextFieldSelectionState(
         }
 
         showCursorHandle = false
-        showCursorHandleToolbar = false
+        updateTextToolbarState(TextToolbarState.None)
     }
 
     private fun hideTextToolbar() {
@@ -1188,6 +1202,21 @@ internal class TextFieldSelectionState(
 }
 
 private fun TextRange.reverse() = TextRange(end, start)
+
+/**
+ * A state that indicates when to show TextToolbar.
+ *
+ * - [None] Do not show the TextToolbar at all.
+ * - [Cursor] if selection is collapsed and all the other criteria are met, show the TextToolbar.
+ * - [Selection] if selection is expanded and all the other criteria are met, show the TextToolbar.
+ *
+ * @see [TextFieldSelectionState.observeTextToolbarVisibility]
+ */
+internal enum class TextToolbarState {
+    None,
+    Cursor,
+    Selection,
+}
 
 private const val DEBUG = false
 private const val DEBUG_TAG = "TextFieldSelectionState"

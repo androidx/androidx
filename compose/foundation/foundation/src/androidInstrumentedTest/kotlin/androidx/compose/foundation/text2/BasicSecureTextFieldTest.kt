@@ -353,7 +353,6 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun toolbarDoesNotShowCopyOrCut() {
         var copyOptionAvailable = false
@@ -378,7 +377,10 @@ internal class BasicSecureTextFieldTest {
         }
 
         rule.onNodeWithTag(Tag).requestFocus()
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
+        // We need to disable the traversalMode to show the toolbar.
+        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.SetSelection) {
+            it(0, 5, false)
+        }
 
         rule.runOnIdle {
             assertThat(showMenuRequested).isTrue()
