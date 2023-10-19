@@ -488,6 +488,7 @@ package androidx.compose.animation.core {
     method public S getCurrentState();
     method public S getTargetState();
     method public boolean isIdle();
+    method internal void setCurrentState$metalava_module(S!);
     method public void setTargetState(S!);
     property public S currentState;
     property public final boolean isIdle;
@@ -521,13 +522,14 @@ package androidx.compose.animation.core {
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalTransitionApi public final class SeekableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
-    ctor public SeekableTransitionState(S initialState, S targetState);
-    method public suspend Object? animateToCurrentState(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? animateToTargetState(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    ctor public SeekableTransitionState(S initialState);
+    method public suspend Object? animateTo(optional S targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public S getCurrentState();
     method @FloatRange(from=0.0, to=1.0) public float getFraction();
     method public S getTargetState();
-    method public suspend Object? snapToFraction(@FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method internal void setCurrentState$metalava_module(S!);
+    method internal void setTargetState$metalava_module(S!);
+    method public suspend Object? snapTo(optional S targetState, optional @FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public S currentState;
     property @FloatRange(from=0.0, to=1.0) public final float fraction;
     property public S targetState;
@@ -616,6 +618,7 @@ package androidx.compose.animation.core {
     ctor @kotlin.PublishedApi internal Transition(androidx.compose.animation.core.TransitionState<S> transitionState, optional String? label);
     method public java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> getAnimations();
     method public S getCurrentState();
+    method @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public boolean getHasInitialValueAnimations();
     method public String? getLabel();
     method public androidx.compose.animation.core.Transition.Segment<S> getSegment();
     method public S getTargetState();
@@ -624,6 +627,7 @@ package androidx.compose.animation.core {
     method public boolean isRunning();
     property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> animations;
     property public final S currentState;
+    property @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public final boolean hasInitialValueAnimations;
     property public final boolean isRunning;
     property public final String? label;
     property public final androidx.compose.animation.core.Transition.Segment<S> segment;

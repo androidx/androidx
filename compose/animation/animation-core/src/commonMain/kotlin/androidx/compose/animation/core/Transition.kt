@@ -19,6 +19,7 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.FloatRange
+import androidx.collection.MutableObjectLongMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -40,10 +41,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 import kotlin.math.roundToLong
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * This sets up a [Transition], and updates it with the target provided by [targetState]. When
@@ -78,7 +83,7 @@ fun <T> updateTransition(
         onDispose {
             // Clean up on the way out, to ensure the observers are not stuck in an in-between
             // state.
-            transition.onTransitionEnd()
+            transition.onDisposed()
         }
     }
     return transition
@@ -95,17 +100,21 @@ sealed class TransitionState<S> {
      * Current state of the transition. If there is an active transition, [currentState] and
      * [targetState] are different.
      */
-    abstract val currentState: S
+    abstract var currentState: S
+        internal set
 
     /**
      * Target state of the transition. If this is the same as [currentState], no transition is
      * active.
      */
-    abstract val targetState: S
+    abstract var targetState: S
+        internal set
 
     // Updated from Transition
     internal var isRunning: Boolean by mutableStateOf(false)
     internal abstract fun transitionConfigured(transition: Transition<S>)
+
+    internal abstract fun transitionRemoved()
 }
 
 /**
@@ -114,13 +123,19 @@ sealed class TransitionState<S> {
  * It is unlikely to be a concern, but this will alleviate any worries about expanding the
  * subclasses of [TransitionState].
  */
-internal class PreventExhaustiveWhenTransitionState : TransitionState<Any?>() {
-    override val currentState: Any?
+private class PreventExhaustiveWhenTransitionState : TransitionState<Any?>() {
+    override var currentState: Any?
         get() = null
-    override val targetState: Any?
+        set(_) {}
+
+    override var targetState: Any?
         get() = null
+        set(_) {}
 
     override fun transitionConfigured(transition: Transition<Any?>) {
+    }
+
+    override fun transitionRemoved() {
     }
 }
 
@@ -155,6 +170,7 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * animate from the current values to the new target.
      */
     override var targetState: S by mutableStateOf(initialState)
+        public set
 
     /**
      * [isIdle] returns whether the transition has finished running. This will return false once
@@ -167,18 +183,19 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
 
     override fun transitionConfigured(transition: Transition<S>) {
     }
+
+    override fun transitionRemoved() {
+    }
 }
 
 /**
+ * Default AnimationSpec used in [SeekableTransitionState].
+ */
+private val DefaultSpring = spring(stiffness = Spring.StiffnessMedium, visibilityThreshold = 0.001f)
+
+/**
  * A [TransitionState] that can manipulate the progress of the [Transition] by seeking
- * with [snapToFraction] or animating to the [targetState] with [animateToTargetState] or to the
- * [currentState] with [animateToCurrentState].
- *
- * The progress of the animation is always reset to the start ([fraction] is 0) whenever
- * [currentState] or [targetState] have changed.
- *
- * The transition will not progress until either [animateToTargetState] or [animateToCurrentState] is
- * called.
+ * with [snapTo] or animating with [animateTo].
  *
  * A [SeekableTransitionState] can only be used with one [Transition] instance. Once assigned,
  * it cannot be reassigned to a different [Transition] instance.
@@ -186,80 +203,185 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
  */
 @ExperimentalTransitionApi
 class SeekableTransitionState<S>(
-    initialState: S,
-    override val targetState: S
+    initialState: S
 ) : TransitionState<S>() {
+    override var targetState: S by mutableStateOf(initialState)
+        internal set
+    override var currentState: S by mutableStateOf(initialState)
+        internal set
+
     /**
      * The Transition that this is associated with. SeekableTransitionState can only be used
      * with one Transition.
      */
     private var transition: Transition<S>? = null
 
-    private val animatedFraction = Animatable(0f).also {
+    /**
+     * The animated fraction for the [currentState] to [targetState].
+     */
+    private var animatedFraction = Animatable(0f).also {
         it.updateBounds(lowerBound = 0f, upperBound = 1f)
     }
 
+    /**
+     * The initial value animations from when a seek or animation is interrupted.
+     * The key is the [animatedFraction] at the time of interruption and the value
+     * is the duration of the animation.
+     */
+    private val initialFractionAnimatables =
+        MutableObjectLongMap<Animatable<Float, AnimationVector1D>>()
+
     private val observer = SnapshotStateObserver { it() }
 
-    override val currentState: S = initialState
+    // Used for seekToFraction calculations to avoid allocation
+    private var totalDurationNanos = 0L
+
+    private val reseekToFraction: (Unit) -> Unit = {
+        seekToFraction()
+    }
+
+    private val recalculateTotalDurationNanos: () -> Unit = {
+        totalDurationNanos = transition?.totalDurationNanos ?: 0L
+    }
 
     /**
-     * The progress of the transition as a fraction of the entire duration. A value of 0
-     * indicates [currentState] and a value of 1 indicates [targetState].
+     * The progress of the transition from [currentState] to [targetState] as a fraction
+     * of the entire duration.
+     *
+     * If [targetState] and [currentState] are the same, [fraction] will be 0.
      */
     @get:FloatRange(from = 0.0, to = 1.0)
     val fraction: Float
-        get() = animatedFraction.value
+        get() = if (currentState == targetState) 0f else animatedFraction.value
 
     /**
-     * Seek to a fraction of the Transition. A value of 0
-     * indicates [currentState] and a value of 1 indicates [targetState]. The fraction is based
-     * on the total duration of the transition. If animations are added or removed during the
-     * transition, the [Transition.totalDurationNanos] will change, so the same [fraction] value
-     * will snap to a different position in the transition.
+     * Starts seeking the transition to [targetState] with [fraction] used to indicate the progress
+     * towards [targetState]. If the previous `targetState` was already
+     * [targetState] then [snapTo] only stops any current animation towards that state and snaps
+     * the fraction to the new value. Otherwise, the [currentState] is changed to the former
+     * `targetState` and `targetState` is changed to [targetState] and an animation is started,
+     * moving the start values towards the former `targetState`.
+     *
+     * @see animateTo
      */
-    suspend fun snapToFraction(@FloatRange(0.0, 1.0) fraction: Float) {
+    suspend fun snapTo(
+        targetState: S = this.targetState,
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 0f
+    ) {
         require(fraction in 0f..1f) {
             "Expecting fraction between 0 and 1. Got $fraction"
         }
-        if (currentState == targetState) {
-            return // setting the fraction doesn't matter if the states are the same
+        val transition = transition ?: return
+        coroutineScope {
+            if (targetState != this@SeekableTransitionState.targetState) {
+                animateInitialState(this@coroutineScope)
+                transition.updateTarget(targetState)
+                this@SeekableTransitionState.currentState = this@SeekableTransitionState.targetState
+                this@SeekableTransitionState.targetState = targetState
+            }
+            if (currentState != targetState) {
+                animatedFraction.snapTo(fraction)
+                seekToFraction()
+            }
         }
-        animatedFraction.snapTo(fraction)
-        seekToFraction()
+    }
+
+    /**
+     * Change the animatedInitialFraction to use the animatedFraction, if it needs to be used.
+     */
+    private fun animateInitialState(coroutineScope: CoroutineScope) {
+        val transition = transition ?: return
+        if (animatedFraction.value == 1f || currentState == targetState) {
+            return
+        }
+
+        val currentAnimatable = animatedFraction
+        initialFractionAnimatables[currentAnimatable] = transition.totalDurationNanos
+        animatedFraction = Animatable(0f).also {
+            it.updateBounds(lowerBound = 0f, upperBound = 1f)
+        }
+
+        // Change what it does with the animation
+        transition.setInitialAnimations(currentAnimatable)
+        initialFractionAnimatables.forEach { animatable, duration ->
+            if (!animatable.isRunning) {
+                coroutineScope.launch {
+                    animatable.animateTo(1f, animationSpec = DefaultSpring) {
+                        val initialNanos = (value * duration).roundToLong()
+                        val currentNanos =
+                            (animatedFraction.value * transition.totalDurationNanos).roundToLong()
+                        transition.updateInitialValues(this, initialNanos, currentNanos)
+                    }
+                    transition.clearInitialAnimations(animatable)
+                    initialFractionAnimatables -= animatable
+                }
+            }
+        }
+    }
+
+    /**
+     * Updates the current `targetState` to [targetState] and begins an animation to the new state
+     * with [animationSpec]. If the current `targetState` is the same as [targetState] then the
+     * current transition animation is continued using [animationSpec]. If a previous transition
+     * was interrupted, [currentState] is changed to the former `targetState` and the start values
+     * are animated toward the former `targetState`.
+     *
+     * Upon completion of the animation, [currentState] will be changed to [targetState].
+     *
+     * @param targetState The state to animate towards.
+     * @param animationSpec The [FiniteAnimationSpec] to use for animating the fraction. This
+     * defaults to a spring animation with [Spring.StiffnessLow].
+     */
+    suspend fun animateTo(
+        targetState: S = this.targetState,
+        animationSpec: FiniteAnimationSpec<Float> = DefaultSpring
+    ) {
+        val transition = transition ?: return
+        coroutineScope {
+            if (targetState != this@SeekableTransitionState.targetState) {
+                animateInitialState(this@coroutineScope)
+                animatedFraction.snapTo(0f)
+                transition.updateTarget(targetState)
+                this@SeekableTransitionState.currentState = this@SeekableTransitionState.targetState
+                this@SeekableTransitionState.targetState = targetState
+            }
+            animateToTargetState(animationSpec)
+        }
     }
 
     /**
      * Animates from the current fraction to the [targetState] (fraction = 1).
+     *
+     * Upon completion of the animation, [currentState] will be changed to [targetState].
+     *
      * @param animationSpec The [FiniteAnimationSpec] to use for animating the fraction. This
-     * defaults to a spring animation.
+     * defaults to a spring animation with [Spring.StiffnessLow].
      */
-    suspend fun animateToTargetState(
-        animationSpec: FiniteAnimationSpec<Float> = animatedFraction.defaultSpringSpec
+    private suspend fun animateToTargetState(
+        animationSpec: FiniteAnimationSpec<Float> = DefaultSpring
     ) {
-        if (transition == null || currentState == targetState) {
+        val transition = transition ?: return
+        if (currentState == targetState) {
             return
         }
 
-        animatedFraction.animateTo(targetValue = 1f, animationSpec = animationSpec) {
-            seekToFraction()
+        val animated = animatedFraction
+        animated.animateTo(targetValue = 1f, animationSpec = animationSpec) {
+            if (this === animatedFraction) {
+                seekToFraction()
+            } else {
+                val duration = initialFractionAnimatables[this]
+                val initialValueNanos = (duration * value).roundToLong()
+                val playTimeNanos =
+                    (animatedFraction.value * transition.totalDurationNanos).roundToLong()
+                transition.updateInitialValues(this, initialValueNanos, playTimeNanos)
+            }
         }
-    }
-
-    /**
-     * Animates from the current fraction to the [currentState] (fraction = 0).
-     * @param animationSpec The [FiniteAnimationSpec] to use for animating the fraction. This
-     * defaults to a spring animation.
-     */
-    suspend fun animateToCurrentState(
-        animationSpec: FiniteAnimationSpec<Float> = animatedFraction.defaultSpringSpec
-    ) {
-        if (transition == null || currentState == targetState) {
-            return
-        }
-
-        animatedFraction.animateTo(targetValue = 0f, animationSpec = animationSpec) {
-            seekToFraction()
+        if (animated === animatedFraction) {
+            currentState = targetState
+        } else {
+            transition.clearInitialAnimations(animated)
+            initialFractionAnimatables -= animated
         }
     }
 
@@ -268,23 +390,29 @@ class SeekableTransitionState<S>(
             "An instance of SeekableTransitionState has been used in different Transitions. " +
                 "Previous instance: ${this.transition}, new instance: $transition"
         }
+        if (this.transition == null) {
+            observer.start()
+        }
         this.transition = transition
-        seekToFraction()
+    }
+
+    override fun transitionRemoved() {
+        if (this.transition != null) {
+            observer.stop()
+            this.transition = null
+        }
     }
 
     private fun seekToFraction() {
         val transition = transition ?: return
-        var duration = 0L
-        observer.observeReads(Unit, onValueChangedForScope = { seekToFraction() }) {
-            duration = transition.totalDurationNanos
-        }
-        val fraction = animatedFraction.value
-        val playTimeNanos = (fraction * duration).roundToLong()
-        transition.setPlaytimeAfterInitialAndTargetStateEstablished(
-            currentState,
-            targetState,
-            playTimeNanos
+        observer.observeReads(
+            scope = Unit,
+            onValueChangedForScope = reseekToFraction,
+            block = recalculateTotalDurationNanos
         )
+        val fraction = animatedFraction.value
+        val playTimeNanos = (fraction * totalDurationNanos).roundToLong()
+        transition.seekAnimations(playTimeNanos)
     }
 }
 
@@ -318,12 +446,14 @@ fun <T> rememberTransition(
     val transition = remember(transitionState) {
         Transition(transitionState = transitionState, label)
     }
-    transition.animateTo(transitionState.targetState)
-    DisposableEffect(transition) {
-        onDispose {
-            // Clean up on the way out, to ensure the observers are not stuck in an in-between
-            // state.
-            transition.onTransitionEnd()
+    if (transitionState !is SeekableTransitionState) {
+        transition.animateTo(transitionState.targetState)
+        DisposableEffect(transition) {
+            onDispose {
+                // Clean up on the way out, to ensure the observers are not stuck in an in-between
+                // state.
+                transition.onDisposed()
+            }
         }
     }
     return transition
@@ -457,6 +587,21 @@ class Transition<S> @PublishedApi internal constructor(
     internal var lastSeekedTimeNanos = 0L
 
     /**
+     * Used internally to know when a [SeekableTransitionState] is animating initial values
+     * after [SeekableTransitionState.animateTo] or [SeekableTransitionState.snapTo] has
+     * redirected a transition prior to it completing. This is important for knowing when
+     * child transitions must be maintained after a parent target state has changed, but
+     * the child target state hasn't changed.
+     */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:Suppress("GetterSetterNames") // Don't care about Java name for this property
+    @InternalAnimationApi
+    @get:InternalAnimationApi
+    val hasInitialValueAnimations: Boolean
+        get() = _animations.fastAny { it.initialValueAnimatable != null } ||
+            _transitions.fastAny { it.hasInitialValueAnimations }
+
+    /**
      * Total duration of the [Transition], accounting for all the animations and child transitions
      * defined on the [Transition].
      *
@@ -465,6 +610,10 @@ class Transition<S> @PublishedApi internal constructor(
      * [Transition] are set up.
      */
     val totalDurationNanos: Long by derivedStateOf {
+        calculateTotalDurationNanos()
+    }
+
+    private fun calculateTotalDurationNanos(): Long {
         var maxDurationNanos = 0L
         _animations.fastForEach {
             maxDurationNanos = max(maxDurationNanos, it.durationNanos)
@@ -472,10 +621,10 @@ class Transition<S> @PublishedApi internal constructor(
         _transitions.fastForEach {
             maxDurationNanos = max(
                 maxDurationNanos,
-                it.totalDurationNanos
+                it.calculateTotalDurationNanos()
             )
         }
-        maxDurationNanos
+        return maxDurationNanos
     }
 
     @OptIn(InternalAnimationApi::class)
@@ -519,6 +668,12 @@ class Transition<S> @PublishedApi internal constructor(
     internal fun onTransitionStart(frameTimeNanos: Long) {
         startTimeNanos = frameTimeNanos
         transitionState.isRunning = true
+    }
+
+    // Called when the Transition is being disposed to clean up any state
+    internal fun onDisposed() {
+        onTransitionEnd()
+        transitionState.transitionRemoved()
     }
 
     // onTransitionStart and onTransitionEnd are symmetric. Both are called from onFrame
@@ -604,32 +759,30 @@ class Transition<S> @PublishedApi internal constructor(
     // This target state should only be used to modify "mutableState"s, as it could potentially
     // roll back. The
     @OptIn(ExperimentalTransitionApi::class, InternalAnimationApi::class)
-    @Suppress("ComposableNaming")
-    @Composable
     internal fun updateTarget(targetState: S) {
-        if (!isSeeking) {
-            // This is needed because child animations rely on this target state and the state pair to
-            // update their animation specs
-            if (this.targetState != targetState) {
-                // Starting state should be the "next" state when waypoints are impl'ed
-                segment = SegmentImpl(this.targetState, targetState)
-                if (currentState != this.targetState) {
-                    check(transitionState is MutableTransitionState) {
-                        "Can only update the current state with MutableTransitionState"
-                    }
-                    transitionState.currentState = this.targetState
-                }
-                this.targetState = targetState
-                if (!isRunning) {
-                    updateChildrenNeeded = true
-                }
-
-                // If target state is changed, reset all the animations to be re-created in the
-                // next frame w/ their new target value. Child animations target values are updated in
-                // the side effect that may not have happened when this function in invoked.
-                _animations.fastForEach { it.resetAnimation() }
+        // This is needed because child animations rely on this target state and the state pair to
+        // update their animation specs
+        if (this.targetState != targetState) {
+            // Starting state should be the "next" state when waypoints are impl'ed
+            segment = SegmentImpl(this.targetState, targetState)
+            if (currentState != this.targetState) {
+                transitionState.currentState = this.targetState
             }
+            this.targetState = targetState
+            if (!isRunning) {
+                updateChildrenNeeded = true
+            }
+
+            // If target state is changed, reset all the animations to be re-created in the
+            // next frame w/ their new target value. Child animations target values are updated in
+            // the side effect that may not have happened when this function in invoked.
+            resetAnimations()
         }
+    }
+
+    private fun resetAnimations() {
+        _animations.fastForEach { it.resetAnimation() }
+        _transitions.fastForEach { it.resetAnimations() }
     }
 
     // This should only be called if PlayTime comes from clock directly, instead of from a parent
@@ -657,6 +810,69 @@ class Transition<S> @PublishedApi internal constructor(
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Used by [SeekableTransitionState] to seek the current transition animation to
+     * [playTimeNanos].
+     */
+    internal fun seekAnimations(playTimeNanos: Long) {
+        this.playTimeNanos = playTimeNanos
+        updateChildrenNeeded = false
+
+        // Pulse new playtime
+        _animations.fastForEach {
+            it.seekTo(playTimeNanos)
+        }
+        _transitions.fastForEach {
+            if (it.targetState != it.currentState) {
+                it.seekAnimations(playTimeNanos)
+            }
+        }
+    }
+
+    /**
+     * Changes the existing animations to be initial value animations. An existing animation
+     * was interrupted, so the current animation is used only for the initial values. The
+     * current animation is then changed to an unchanging animation that is only moved by
+     * the initial value.
+     */
+    internal fun setInitialAnimations(animatable: Animatable<Float, AnimationVector1D>) {
+        _animations.fastForEach {
+            it.setInitialValueAnimation(animatable)
+        }
+        _transitions.fastForEach {
+            it.setInitialAnimations(animatable)
+        }
+    }
+
+    /**
+     * Clears the initial value animations that are governed by [animatable].
+     */
+    internal fun clearInitialAnimations(animatable: Animatable<Float, AnimationVector1D>) {
+        _animations.fastForEach {
+            it.clearInitialAnimation(animatable)
+        }
+        _transitions.fastForEach {
+            it.clearInitialAnimations(animatable)
+        }
+    }
+
+    /**
+     * Changes the progress of the initial value governed by [animatable] at the progress
+     * [initialAnimationNanos]. The current animation is governed by [playTimeNanos].
+     */
+    internal fun updateInitialValues(
+        animatable: Animatable<Float, AnimationVector1D>,
+        initialAnimationNanos: Long,
+        playTimeNanos: Long
+    ) {
+        _animations.fastForEach {
+            it.updateInitialValue(animatable, initialAnimationNanos, playTimeNanos)
+        }
+        _transitions.fastForEach {
+            it.updateInitialValues(animatable, initialAnimationNanos, playTimeNanos)
         }
     }
 
@@ -714,9 +930,24 @@ class Transition<S> @PublishedApi internal constructor(
         )
             private set
 
+        internal var initialValueAnimatable: Animatable<Float, AnimationVector1D>?
+            by mutableStateOf(null)
+            private set
+        private var initialValueAnimation: TargetBasedAnimation<T, V>? = null
+
         internal var isFinished: Boolean by mutableStateOf(true)
         private var offsetTimeNanos by mutableLongStateOf(0L)
         private var needsReset by mutableStateOf(false)
+
+        /**
+         * When the target state has changed, but the target value remains the same,
+         * the initial value animation completely controls the animated value. When
+         * this flag is `true`, the [animation] can be ignored and only the [initialValueAnimation]
+         * is needed to determine the value. When this is `false`, if there is
+         * an [initialValueAnimation], it is used only for adjusting the initial value
+         * of [animation].
+         */
+        private var useOnlyInitialValue = false
 
         // Changed during animation, no concerns of rolling back
         override var value by mutableStateOf(initialValue)
@@ -724,6 +955,7 @@ class Transition<S> @PublishedApi internal constructor(
         private var velocityVector: V = initialVelocityVector
         internal val durationNanos
             get() = animation.durationNanos
+        private var isSeeking = false
 
         internal fun onPlayTimeChanged(playTimeNanos: Long, durationScale: Float) {
             val playTime =
@@ -746,10 +978,51 @@ class Transition<S> @PublishedApi internal constructor(
         }
 
         internal fun seekTo(playTimeNanos: Long) {
-            // TODO: unlikely but need to double check that animation returns the correct values
-            // when play time is way past their durations.
-            value = animation.getValueFromNanos(playTimeNanos)
-            velocityVector = animation.getVelocityVectorFromNanos(playTimeNanos)
+            if (needsReset) {
+                return
+            }
+            isSeeking = true // SeekableTransitionState won't use interrupted animation spec
+            if (animation.targetValue == animation.initialValue) {
+                // This is likely an interrupted animation and the initial value is changing, but
+                // the target value remained the same. The initial value animation has the target
+                // value, so only the initial value animation is changing the value.
+                value = animation.targetValue
+            } else {
+                // TODO: unlikely but need to double check that animation returns the correct values
+                // when play time is way past their durations.
+                value = animation.getValueFromNanos(playTimeNanos)
+                velocityVector = animation.getVelocityVectorFromNanos(playTimeNanos)
+            }
+        }
+
+        /**
+         * Updates the initial value animation. When a SeekableTransitionState transition is
+         * interrupted, the ongoing animation is moved to changing the initial value. The starting
+         * point of the animation is then animated toward the value that would be set at the
+         * target state, while the current value is controlled by seeking or animation.
+         *
+         * @param initialValueAnimationPlayTimeNanos The play time of the initial value animation
+         * @param playTimeNanos The play time of the animation of the target
+         */
+        internal fun updateInitialValue(
+            animatable: Animatable<Float, AnimationVector1D>,
+            initialValueAnimationPlayTimeNanos: Long,
+            playTimeNanos: Long
+        ) {
+            val anim = initialValueAnimation
+            if (initialValueAnimatable !== animatable || anim == null) {
+                return
+            }
+            val initialValue = anim.getValueFromNanos(initialValueAnimationPlayTimeNanos)
+            if (useOnlyInitialValue) {
+                animation.mutableTargetValue = initialValue
+            }
+            animation.mutableInitialValue = initialValue
+            if (needsReset) {
+                value = initialValue
+            } else {
+                seekTo(playTimeNanos)
+            }
         }
 
         private val interruptionSpec: FiniteAnimationSpec<T>
@@ -766,7 +1039,20 @@ class Transition<S> @PublishedApi internal constructor(
         }
 
         private fun updateAnimation(initialValue: T = value, isInterrupted: Boolean = false) {
-            val spec = if (isInterrupted) {
+            if (initialValueAnimation?.targetValue == targetValue) {
+                // This animation didn't change the target value, so let the initial value animation
+                // take care of it.
+                animation = TargetBasedAnimation(
+                    interruptionSpec,
+                    typeConverter,
+                    initialValue,
+                    initialValue,
+                    velocityVector.newInstance() // 0 velocity
+                )
+                useOnlyInitialValue = true
+                return
+            }
+            val spec = if (isInterrupted && !isSeeking) {
                 // When interrupted, use the default spring, unless the spec is also a spring.
                 if (animationSpec is SpringSpec<*>) animationSpec else interruptionSpec
             } else {
@@ -779,6 +1065,7 @@ class Transition<S> @PublishedApi internal constructor(
                 targetValue,
                 velocityVector
             )
+            useOnlyInitialValue = false
             onChildAnimationUpdated()
         }
 
@@ -786,12 +1073,40 @@ class Transition<S> @PublishedApi internal constructor(
             needsReset = true
         }
 
+        internal fun setInitialValueAnimation(
+            animatable: Animatable<Float, AnimationVector1D>
+        ) {
+            if (animation.targetValue != animation.initialValue) {
+                // Continue the animation from the current position to the target
+                initialValueAnimation = animation
+                initialValueAnimatable = animatable
+            }
+            animation = TargetBasedAnimation(
+                interruptionSpec,
+                typeConverter,
+                value,
+                value,
+                velocityVector.newInstance() // 0 velocity
+            )
+            useOnlyInitialValue = true
+        }
+
+        internal fun clearInitialAnimation(
+            animatable: Animatable<Float, AnimationVector1D>
+        ) {
+            if (animatable === initialValueAnimatable) {
+                initialValueAnimatable = null
+                initialValueAnimation = null
+                useOnlyInitialValue = false
+            }
+        }
+
         override fun toString(): String {
             return "current value: $value, target: $targetValue, spec: $animationSpec"
         }
 
         // This gets called *during* composition
-        @OptIn(InternalAnimationApi::class)
+        @OptIn(InternalAnimationApi::class, ExperimentalTransitionApi::class)
         internal fun updateTargetValue(targetValue: T, animationSpec: FiniteAnimationSpec<T>) {
             if (this.targetValue != targetValue || needsReset) {
                 this.targetValue = targetValue
