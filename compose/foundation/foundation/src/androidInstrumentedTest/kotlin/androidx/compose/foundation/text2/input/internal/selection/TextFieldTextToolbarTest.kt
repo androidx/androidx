@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.FakeTextToolbar
+import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
@@ -798,6 +799,27 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         toggleState.value = false
+
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun toolbarDisappears_whenLongPressIsInitiated() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
+        rule.runOnIdle {
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(Offset(3 * fontSizePx * 2, fontSizePx / 2))
+        }
 
         rule.runOnIdle {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
