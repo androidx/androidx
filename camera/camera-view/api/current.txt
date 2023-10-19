@@ -107,6 +107,7 @@ package androidx.camera.view {
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
   @RequiresApi(21) public enum PreviewView.ImplementationMode {
@@ -136,6 +137,16 @@ package androidx.camera.view {
 
   public static interface RotationProvider.Listener {
     method public void onRotationChanged(int);
+  }
+
+  @RequiresApi(21) public final class ScreenFlashView extends android.view.View {
+    ctor @UiThread public ScreenFlashView(android.content.Context);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
+    ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int, int);
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
+    method @UiThread public void setController(androidx.camera.view.CameraController?);
+    method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
 }

@@ -30,6 +30,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.TorchState
@@ -49,11 +50,14 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.internal.ScreenFlashUiInfo
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executors
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -504,5 +508,77 @@ class CameraControllerTest {
 
         // Assert.
         assertThat(controller.cameraSelector.lensFacing).isEqualTo(CameraSelector.LENS_FACING_FRONT)
+    }
+
+    @Test
+    fun throwsException_whenScreenFlashModeSetWithBackCamera() {
+        controller.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            controller.imageCaptureFlashMode = ImageCapture.FLASH_MODE_SCREEN
+        }
+    }
+
+    @Test
+    fun canSetScreenFlashMode_whenScreenFlashUiInfoNotSetYet() {
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        controller.imageCaptureFlashMode = ImageCapture.FLASH_MODE_SCREEN
+
+        assertThat(controller.imageCaptureFlashMode).isEqualTo(ImageCapture.FLASH_MODE_SCREEN)
+    }
+
+    @Test
+    fun canTakePictureWithScreenFlashMode_whenFrontCameraAndScreenFlashUiInfoSet() {
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        controller.setScreenFlashUiInfo(
+            ScreenFlashUiInfo(
+                ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW,
+                object : ScreenFlashUiControl {
+                    override fun applyScreenFlashUi(
+                        screenFlashUiCompleter: ImageCapture.ScreenFlashUiCompleter
+                    ) {
+                        screenFlashUiCompleter.complete()
+                    }
+
+                    override fun clearScreenFlashUi() {
+                    }
+                }
+            )
+        )
+
+        controller.imageCaptureFlashMode = ImageCapture.FLASH_MODE_SCREEN
+        completeCameraInitialization()
+
+        controller.takePicture(
+            MoreExecutors.directExecutor(),
+            object : ImageCapture.OnImageCapturedCallback() {}
+        )
+
+        // ensure FLASH_MODE_SCREEN was retained
+        assertThat(controller.imageCaptureFlashMode).isEqualTo(ImageCapture.FLASH_MODE_SCREEN)
+    }
+
+    @Test
+    fun throwException_whenTakePictureWithScreenFlashModeButWithoutScreenFlashUiInfo() {
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        controller.imageCaptureFlashMode = ImageCapture.FLASH_MODE_SCREEN
+        completeCameraInitialization()
+
+        Assert.assertThrows(IllegalStateException::class.java) {
+            controller.takePicture(
+                MoreExecutors.directExecutor(),
+                object : ImageCapture.OnImageCapturedCallback() {}
+            )
+        }
+    }
+
+    @Test
+    fun throwsException_whenSwitchToBackCameraAfterScreenFlashSetToFrontCamera() {
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        controller.imageCaptureFlashMode = ImageCapture.FLASH_MODE_SCREEN
+
+        Assert.assertThrows(IllegalStateException::class.java) {
+            controller.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        }
     }
 }
