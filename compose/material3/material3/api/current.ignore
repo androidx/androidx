@@ -37,5 +37,9 @@ DefaultValueChange: androidx.compose.material3.SnackbarHostState#showSnackbar(St
     Attempted to remove default value from parameter arg5 in androidx.compose.material3.SnackbarHostState.showSnackbar
 
 
+RemovedClass: androidx.compose.material3.ExposedDropdownMenuKt:
+    Removed class androidx.compose.material3.ExposedDropdownMenuKt
+RemovedClass: androidx.compose.material3.SearchBarKt:
+    Removed class androidx.compose.material3.SearchBarKt
 RemovedClass: androidx.compose.material3.SwipeToDismissKt:
     Removed class androidx.compose.material3.SwipeToDismissKt
