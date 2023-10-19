@@ -19,6 +19,8 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +35,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -127,35 +127,26 @@ fun rememberVectorPainter(
     content: @Composable @VectorComposable (viewportWidth: Float, viewportHeight: Float) -> Unit
 ): VectorPainter {
     val density = LocalDensity.current
-    val defaultSize = density.obtainSizePx(defaultWidth, defaultHeight)
-    val viewport = obtainViewportSize(defaultSize, viewportWidth, viewportHeight)
+    val widthPx = with(density) { defaultWidth.toPx() }
+    val heightPx = with(density) { defaultHeight.toPx() }
+
+    val vpWidth = if (viewportWidth.isNaN()) widthPx else viewportWidth
+    val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight
+
     val intrinsicColorFilter = remember(tintColor, tintBlendMode) {
-        createColorFilter(tintColor, tintBlendMode)
-    }
-    return remember { VectorPainter() }.apply {
-        configureVectorPainter(
-            defaultSize = defaultSize,
-            viewportSize = viewport,
-            name = name,
-            intrinsicColorFilter = intrinsicColorFilter,
-            autoMirror = autoMirror
-        )
-        val compositionContext = rememberCompositionContext()
-        this.composition = remember(viewportWidth, viewportHeight, content) {
-            val curComp = this.composition
-            val next = if (curComp == null || curComp.isDisposed) {
-                Composition(
-                    VectorApplier(this.vector.root),
-                    compositionContext
-                )
-            } else {
-                curComp
-            }
-            next.setContent {
-                content(viewport.width, viewport.height)
-            }
-            next
+        if (tintColor != Color.Unspecified) {
+            ColorFilter.tint(tintColor, tintBlendMode)
+        } else {
+            null
         }
+    }
+
+    return remember { VectorPainter() }.apply {
+        // These assignments are thread safe as parameters are backed by a mutableState object
+        size = Size(widthPx, heightPx)
+        this.autoMirror = autoMirror
+        this.intrinsicColorFilter = intrinsicColorFilter
+        RenderVector(name, vpWidth, vpHeight, content)
     }
 }
 
@@ -184,7 +175,7 @@ fun rememberVectorPainter(image: ImageVector) =
  * This can be represented by either a [ImageVector] or a programmatic
  * composition of a vector
  */
-class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) : Painter() {
+class VectorPainter internal constructor() : Painter() {
 
     internal var size by mutableStateOf(Size.Zero)
 
@@ -199,19 +190,7 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
             vector.intrinsicColorFilter = value
         }
 
-    internal var viewportSize: Size
-        get() = vector.viewportSize
-        set(value) {
-            vector.viewportSize = value
-        }
-
-    internal var name: String
-        get() = vector.name
-        set(value) {
-            vector.name = value
-        }
-
-    internal val vector = VectorComponent(root).apply {
+    private val vector = VectorComponent().apply {
         invalidateCallback = {
             if (drawCount == invalidateCount) {
                 invalidateCount++
@@ -222,10 +201,55 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
     internal val bitmapConfig: ImageBitmapConfig
         get() = vector.cacheBitmapConfig
 
-    internal var composition: Composition? = null
+    private var composition: Composition? = null
+
+    @Suppress("PrimitiveInLambda")
+    private fun composeVector(
+        parent: CompositionContext,
+        composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
+    ): Composition {
+        val existing = composition
+        val next = if (existing == null || existing.isDisposed) {
+            Composition(
+                VectorApplier(vector.root),
+                parent
+            )
+        } else {
+            existing
+        }
+        composition = next
+        next.setContent {
+            composable(vector.viewportSize.width, vector.viewportSize.height)
+        }
+        return next
+    }
 
     // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
     private var invalidateCount by mutableIntStateOf(0)
+
+    @Suppress("PrimitiveInLambda")
+    @Composable
+    internal fun RenderVector(
+        name: String,
+        viewportWidth: Float,
+        viewportHeight: Float,
+        content: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
+    ) {
+        vector.apply {
+            this.name = name
+            this.viewportSize = Size(viewportWidth, viewportHeight)
+        }
+        val composition = composeVector(
+            rememberCompositionContext(),
+            content
+        )
+
+        DisposableEffect(composition) {
+            onDispose {
+                composition.dispose()
+            }
+        }
+    }
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
@@ -300,117 +324,6 @@ interface VectorConfig {
     fun <T> getOrDefault(property: VectorProperty<T>, defaultValue: T): T {
         return defaultValue
     }
-}
-
-private fun Density.obtainSizePx(defaultWidth: Dp, defaultHeight: Dp) =
-        Size(defaultWidth.toPx(), defaultHeight.toPx())
-
-/**
- * Helper method to calculate the viewport size. If the viewport width/height are not specified
- * this falls back on the default size provided
- */
-private fun obtainViewportSize(
-    defaultSize: Size,
-    viewportWidth: Float,
-    viewportHeight: Float
-) = Size(
-        if (viewportWidth.isNaN()) defaultSize.width else viewportWidth,
-        if (viewportHeight.isNaN()) defaultSize.height else viewportHeight
-    )
-
-/**
- * Helper method to conditionally create a ColorFilter to tint contents if [tintColor] is
- * specified, that is [Color.isSpecified] returns true
- */
-private fun createColorFilter(tintColor: Color, tintBlendMode: BlendMode): ColorFilter? =
-    if (tintColor.isSpecified) {
-        ColorFilter.tint(tintColor, tintBlendMode)
-    } else {
-        null
-    }
-
-/**
- * Helper method to configure the properties of a VectorPainter that maybe re-used
- */
-internal fun VectorPainter.configureVectorPainter(
-    defaultSize: Size,
-    viewportSize: Size,
-    name: String = RootGroupName,
-    intrinsicColorFilter: ColorFilter?,
-    autoMirror: Boolean = false,
-): VectorPainter = apply {
-        this.size = defaultSize
-        this.autoMirror = autoMirror
-        this.intrinsicColorFilter = intrinsicColorFilter
-        this.viewportSize = viewportSize
-        this.name = name
-    }
-
-/**
- * Helper method to create a VectorPainter instance from an ImageVector
- */
-internal fun createVectorPainterFromImageVector(
-    density: Density,
-    imageVector: ImageVector,
-    root: GroupComponent
-): VectorPainter {
-    val defaultSize = density.obtainSizePx(imageVector.defaultWidth, imageVector.defaultHeight)
-    val viewport = obtainViewportSize(
-        defaultSize,
-        imageVector.viewportWidth,
-        imageVector.viewportHeight
-    )
-    return VectorPainter(root).configureVectorPainter(
-        defaultSize = defaultSize,
-        viewportSize = viewport,
-        name = imageVector.name,
-        intrinsicColorFilter = createColorFilter(imageVector.tintColor, imageVector.tintBlendMode),
-        autoMirror = imageVector.autoMirror
-    )
-}
-
-/**
- * statically create a a GroupComponent from the VectorGroup representation provided from
- * an [ImageVector] instance
- */
-internal fun GroupComponent.createGroupComponent(currentGroup: VectorGroup): GroupComponent {
-    for (index in 0 until currentGroup.size) {
-        val vectorNode = currentGroup[index]
-        if (vectorNode is VectorPath) {
-            val pathComponent = PathComponent().apply {
-                pathData = vectorNode.pathData
-                pathFillType = vectorNode.pathFillType
-                name = vectorNode.name
-                fill = vectorNode.fill
-                fillAlpha = vectorNode.fillAlpha
-                stroke = vectorNode.stroke
-                strokeAlpha = vectorNode.strokeAlpha
-                strokeLineWidth = vectorNode.strokeLineWidth
-                strokeLineCap = vectorNode.strokeLineCap
-                strokeLineJoin = vectorNode.strokeLineJoin
-                strokeLineMiter = vectorNode.strokeLineMiter
-                trimPathStart = vectorNode.trimPathStart
-                trimPathEnd = vectorNode.trimPathEnd
-                trimPathOffset = vectorNode.trimPathOffset
-            }
-            insertAt(index, pathComponent)
-        } else if (vectorNode is VectorGroup) {
-            val groupComponent = GroupComponent().apply {
-                name = vectorNode.name
-                rotation = vectorNode.rotation
-                scaleX = vectorNode.scaleX
-                scaleY = vectorNode.scaleY
-                translationX = vectorNode.translationX
-                translationY = vectorNode.translationY
-                pivotX = vectorNode.pivotX
-                pivotY = vectorNode.pivotY
-                clipPathData = vectorNode.clipPathData
-                createGroupComponent(vectorNode)
-            }
-            insertAt(index, groupComponent)
-        }
-    }
-    return this
 }
 
 /**
