@@ -1803,18 +1803,9 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FontStyle.hasSize can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="            if (mImpl.hasSize()) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/LayoutElementBuilders.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="FontStyle.getSize can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                return DimensionBuilders.SpProp.fromProto(mImpl.getSize());"
-        errorLine2="                                                                ~~~~~~~">
+        message="FontStyle.getSizeList can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="            List&lt;DimensionProto.SpProp> sizes = mImpl.getSizeList();"
+        errorLine2="                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/LayoutElementBuilders.java"/>
     </issue>
@@ -1947,8 +1938,17 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Builder.setSize can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                mImpl.setSize(size.toProto());"
+        message="Builder.clearSize can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                mImpl.clearSize();"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/LayoutElementBuilders.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder.addSize can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                mImpl.addSize(size.toProto());"
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/LayoutElementBuilders.java"/>

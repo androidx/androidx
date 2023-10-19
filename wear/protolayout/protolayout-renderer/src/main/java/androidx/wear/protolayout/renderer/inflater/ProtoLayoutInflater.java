@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
+
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
@@ -249,6 +251,8 @@ public final class ProtoLayoutInflater {
 
     private static final int TEXT_COLOR_DEFAULT = 0xFFFFFFFF;
     private static final int TEXT_MAX_LINES_DEFAULT = 1;
+    @VisibleForTesting
+    static final int TEXT_AUTOSIZES_LIMIT = 10;
     private static final int TEXT_MIN_LINES = 1;
 
     private static final ContainerDimension CONTAINER_DIMENSION_DEFAULT =
@@ -1137,7 +1141,7 @@ public final class ProtoLayoutInflater {
 
     private float toPx(SpProp spField) {
         return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP,
+                COMPLEX_UNIT_SP,
                 spField.getValue(),
                 mUiContext.getResources().getDisplayMetrics());
     }
@@ -1146,7 +1150,8 @@ public final class ProtoLayoutInflater {
             FontStyle style,
             TextView textView,
             String posId,
-            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker,
+            boolean isAutoSizeAllowed) {
         // Note: Underline must be applied as a Span to work correctly (as opposed to using
         // TextPaint#setTextUnderline). This is applied in the caller instead.
 
@@ -1155,8 +1160,43 @@ public final class ProtoLayoutInflater {
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
-        if (style.hasSize()) {
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, style.getSize().getValue());
+        if (fontStyleHasSize(style)) {
+            List<SpProp> sizes = style.getSizeList();
+            int sizesCnt = sizes.size();
+
+            if (sizesCnt == 1) {
+                // No autosizing needed.
+                textView.setTextSize(COMPLEX_UNIT_SP, sizes.get(0).getValue());
+            } else if (isAutoSizeAllowed && sizesCnt <= TEXT_AUTOSIZES_LIMIT) {
+                // Max size is needed so that TextView leaves enough space for it. Otherwise,
+                // the text won't be able to grow.
+                int maxSize =
+                        sizes.stream().mapToInt(sp -> (int) sp.getValue()).max().getAsInt();
+                textView.setTextSize(COMPLEX_UNIT_SP, maxSize);
+
+                // No need for sorting, TextView does that.
+                textView.setAutoSizeTextTypeUniformWithPresetSizes(
+                        sizes.stream().mapToInt(spProp -> (int) spProp.getValue()).toArray(),
+                        COMPLEX_UNIT_SP);
+            } else {
+                // Fallback where multiple values can't be used and the last value would be used.
+                // This can happen in two cases.
+                if (!isAutoSizeAllowed) {
+                    // There is more than 1 size specified, but autosizing is not allowed.
+                    Log.w(
+                            TAG,
+                            "Trying to autosize text with multiple font sizes where it's not "
+                                    + "allowed. Ignoring all other sizes and using the last one.");
+                } else {
+                    Log.w(
+                            TAG,
+                            "More than " + TEXT_AUTOSIZES_LIMIT + " sizes has been added for the "
+                                    + "text autosizing. Ignoring values after the "
+                                    + TEXT_AUTOSIZES_LIMIT + " one.");
+                }
+
+                textView.setTextSize(COMPLEX_UNIT_SP, sizes.get(sizesCnt - 1).getValue());
+            }
         }
 
         if (style.hasLetterSpacing()) {
@@ -1176,10 +1216,16 @@ public final class ProtoLayoutInflater {
         // flags in Paint if they're not supported by the given typeface).
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
-        // underline. We can implement this later by drawing a line under the text ourselves though.
-
-        if (style.hasSize()) {
-            textView.setTextSize(toPx(style.getSize()));
+        if (fontStyleHasSize(style)) {
+            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // autosizing. This is the same behaviour as it was before size has made repeated.
+            if (style.getSizeList().size() > 1) {
+                Log.w(
+                        TAG,
+                        "Font size with multiple values has been used on Arc Text. Ignoring "
+                                + "all size except the first one.");
+            }
+            textView.setTextSize(toPx(style.getSize(style.getSizeCount() - 1)));
         }
     }
 
@@ -2225,12 +2271,24 @@ public final class ProtoLayoutInflater {
         }
         applyTextOverflow(textView, text.getOverflow(), text.getMarqueeParameters());
 
+        // Text auto size is not supported for dynamic text.
+        boolean isAutoSizeAllowed = !(text.hasText() && text.getText().hasDynamicValue());
         // Setting colours **must** go after setting the Text Appearance, otherwise it will get
         // immediately overridden.
         if (text.hasFontStyle()) {
-            applyFontStyle(text.getFontStyle(), textView, posId, pipelineMaker);
+            applyFontStyle(
+                    text.getFontStyle(),
+                    textView,
+                    posId,
+                    pipelineMaker,
+                    isAutoSizeAllowed);
         } else {
-            applyFontStyle(FontStyle.getDefaultInstance(), textView, posId, pipelineMaker);
+            applyFontStyle(
+                    FontStyle.getDefaultInstance(),
+                    textView,
+                    posId,
+                    pipelineMaker,
+                    isAutoSizeAllowed);
         }
 
         boolean excludeFontPadding = false;
@@ -2828,8 +2886,17 @@ public final class ProtoLayoutInflater {
 
     private void applyStylesToSpan(
             SpannableStringBuilder builder, int start, int end, FontStyle fontStyle) {
-        if (fontStyle.hasSize()) {
-            AbsoluteSizeSpan span = new AbsoluteSizeSpan(round(toPx(fontStyle.getSize())));
+        if (fontStyleHasSize(fontStyle)) {
+            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // autosizing. This is the same behaviour as it was before size has made repeated.
+            if (fontStyle.getSizeList().size() > 1) {
+                Log.w(
+                        TAG,
+                        "Font size with multiple values has been used on Span Text. Ignoring "
+                        + "all size except the first one.");
+            }
+            AbsoluteSizeSpan span = new AbsoluteSizeSpan(round(toPx(
+                    fontStyle.getSize(fontStyle.getSizeCount() - 1))));
             builder.setSpan(span, start, end, Spanned.SPAN_MARK_MARK);
         }
 
@@ -2856,6 +2923,10 @@ public final class ProtoLayoutInflater {
         ForegroundColorSpan colorSpan = new ForegroundColorSpan(extractTextColorArgb(fontStyle));
 
         builder.setSpan(colorSpan, start, end, Spanned.SPAN_MARK_MARK);
+    }
+
+    private static boolean fontStyleHasSize(FontStyle fontStyle) {
+        return !fontStyle.getSizeList().isEmpty();
     }
 
     private void applyModifiersToSpan(
@@ -3002,7 +3073,12 @@ public final class ProtoLayoutInflater {
         // Setting colours **must** go after setting the Text Appearance, otherwise it will get
         // immediately overridden.
         if (mApplyFontVariantBodyAsDefault) {
-            applyFontStyle(FontStyle.getDefaultInstance(), tv, posId, pipelineMaker);
+            applyFontStyle(
+                    FontStyle.getDefaultInstance(),
+                    tv,
+                    posId,
+                    pipelineMaker,
+                    /* isAutoSizeAllowed= */ false);
         }
 
         LayoutParams layoutParams = generateDefaultLayoutParams();

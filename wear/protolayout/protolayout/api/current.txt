@@ -553,6 +553,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.TypeBuilders.BoolProp? getItalic();
     method public androidx.wear.protolayout.DimensionBuilders.EmProp? getLetterSpacing();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getSize();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public java.util.List<androidx.wear.protolayout.DimensionBuilders.SpProp!> getSizes();
     method public androidx.wear.protolayout.TypeBuilders.BoolProp? getUnderline();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp? getVariant();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp? getWeight();
@@ -566,6 +567,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.protolayout.DimensionBuilders.EmProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.protolayout.DimensionBuilders.SpProp);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setSizes(androidx.wear.protolayout.DimensionBuilders.SpProp!...);
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setUnderline(androidx.wear.protolayout.TypeBuilders.BoolProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setUnderline(boolean);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setVariant(androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp);

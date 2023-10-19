@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.ColorBuilders.Brush;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -608,21 +609,6 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the size of the font, in scaled pixels (sp). If not specified, defaults to the size
-         * of the system's "body" font.
-         *
-         * @since 1.0
-         */
-        @Nullable
-        public SpProp getSize() {
-            if (mImpl.hasSize()) {
-                return SpProp.fromProto(mImpl.getSize());
-            } else {
-                return null;
-            }
-        }
-
-        /**
          * Gets whether the text should be rendered in a italic typeface. If not specified, defaults
          * to "false".
          *
@@ -713,6 +699,35 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets the size of the font, in scaled pixels (sp). If not specified, defaults to the size
+         * of the system's "body" font. If more than one size was originally added, it will
+         * return the last one.
+         *
+         * @since 1.0
+         */
+        @Nullable
+        public SpProp getSize() {
+            List<DimensionProto.SpProp> sizes = mImpl.getSizeList();
+            return !sizes.isEmpty() ? SpProp.fromProto(sizes.get(sizes.size() - 1)) : null;
+        }
+
+        /**
+         * Gets the available sizes of the font, in scaled pixels (sp). If not specified, defaults
+         * to the size of the system's "body" font.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        public List<SpProp> getSizes() {
+            List<SpProp> list = new ArrayList<>();
+            for (DimensionProto.SpProp item : mImpl.getSizeList()) {
+                list.add(SpProp.fromProto(item));
+            }
+            return Collections.unmodifiableList(list);
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -764,6 +779,7 @@ public final class LayoutElementBuilders {
 
         /** Builder for {@link FontStyle} */
         public static final class Builder {
+            @VisibleForTesting static final int TEXT_SIZES_LIMIT = 10;
             private final LayoutElementProto.FontStyle.Builder mImpl =
                     LayoutElementProto.FontStyle.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-374492482);
@@ -771,16 +787,48 @@ public final class LayoutElementBuilders {
             public Builder() {}
 
             /**
-             * Sets the size of the font, in scaled pixels (sp). If not specified, defaults to the
-             * size of the system's "body" font.
+             * Sets the available sizes of the font, in scaled  pixels (sp). If not specified,
+             * defaults to the size of the system's "body" font.
              *
-             * @since 1.0
+             * <p>If more than one size is specified and this {@link FontStyle} is applied to a
+             * {@link Text} element with static text, the text size will be automatically picked
+             * from the provided sizes to try to perfectly fit within its parent bounds. In other
+             * words, the largest size from the specified preset sizes that can fit the most text
+             * within the parent bounds will be used.
+             *
+             * <p>The specified sizes don't have to be sorted. The maximum number of sizes used is
+             * limited to 10.
+             *
+             * <p>Note that, if multiple sizes are set, the parent of the {@link Text} element this
+             * corresponds to shouldn't have its width and height set to wrapped, as it can lead to
+             * unexpected results.
+             *
+             * <p>If this {@link FontStyle} is set to any other element besides {@link Text} or
+             * that {@link Text} element has dynamic field, only the last added size will be use.
+             *
+             * <p>Any previously added values with this method or {@link #setSize} will be cleared.
+             *
+             * <p>While this field is accessible from 1.0 as singular, it only accepts multiple
+             * values since version 1.3 and renderers supporting version 1.3 will use the multiple
+             * values to automatically scale text. Renderers who don't support this version will
+             * use the last size among multiple values.
+             *
+             * @throws IllegalArgumentException if the number of available sizes is larger than 10.
+             * @since 1.3
              */
             @NonNull
-            public Builder setSize(@NonNull SpProp size) {
-                mImpl.setSize(size.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
+            @ProtoLayoutExperimental
+            public Builder setSizes(@NonNull SpProp... sizes) {
+                if (sizes.length > TEXT_SIZES_LIMIT) {
+                    throw new IllegalArgumentException(
+                            "Number of available sizes can't be larger than 10.");
+                }
+                mImpl.clearSize();
+                for (SpProp size: sizes) {
+                    mImpl.addSize(size.toProto());
+                    mFingerprint.recordPropertyUpdate(
+                            1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
+                }
                 return this;
             }
 
@@ -827,6 +875,23 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setUnderline(boolean underline) {
                 return setUnderline(new BoolProp.Builder().setValue(underline).build());
+            }
+
+            /**
+             * Sets the size of the font, in scaled pixels (sp). If not specified, defaults to the
+             * size of the system's "body" font.
+             *
+             * <p>Any previously added values with this method or {@link #setSizes} will be cleared.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            public Builder setSize(@NonNull SpProp size) {
+                mImpl.clearSize();
+                mImpl.addSize(size.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
+                return this;
             }
 
             /**

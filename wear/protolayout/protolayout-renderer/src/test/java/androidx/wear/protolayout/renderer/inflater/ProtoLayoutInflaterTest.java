@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.renderer.inflater;
 
 import static android.os.Looper.getMainLooper;
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_INSIDE;
@@ -31,6 +32,7 @@ import static androidx.wear.protolayout.renderer.helper.TestDsl.image;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.layout;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.row;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.text;
+import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.TEXT_AUTOSIZES_LIMIT;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getFrameLayoutGravity;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getRenderedMetadata;
 import static androidx.wear.protolayout.renderer.test.R.drawable.android_animated_24dp;
@@ -57,6 +59,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils.TruncateAt;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -112,6 +115,7 @@ import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
+import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.DimensionProto.ArcLineLength;
 import androidx.wear.protolayout.proto.DimensionProto.ArcSpacerLength;
 import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
@@ -1124,6 +1128,31 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_arc_withText_autoSize_notSet() {
+        int lastSize = 12;
+        FontStyle.Builder style = FontStyle.newBuilder()
+                .addAllSize(buildSizesList(new int[]{10, 20, lastSize}));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setText(
+                                                                ArcText.newBuilder()
+                                                                        .setText(string("text1"))
+                                                                        .setFontStyle(style))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        CurvedTextView tv = (CurvedTextView) arcLayout.getChildAt(0);
+        assertThat(tv.getText()).isEqualTo("text1");
+        expect.that(tv.getTextSize()).isEqualTo(lastSize);
+    }
+
+    @Test
     public void inflate_arc_withSpacer() {
         LayoutElement root =
                 LayoutElement.newBuilder()
@@ -1934,6 +1963,137 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_autosize_set() {
+        String text = "Test text";
+        int[] presetSizes = new int[]{12, 20, 10};
+        List<DimensionProto.SpProp> sizes = buildSizesList(presetSizes);
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+
+        // TextView sorts preset sizes.
+        Arrays.sort(presetSizes);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEqualTo(presetSizes);
+        expect.that(tv.getTextSize()).isEqualTo(20);
+    }
+
+    @Test
+    public void inflate_textView_autosize_setLimit_usesSingleSize() {
+        String text = "Test text";
+        int sizesLength = TEXT_AUTOSIZES_LIMIT + 5;
+        int[] presetSizes = new int[sizesLength];
+        int expectedLastSize = 120;
+        for (int i = 0; i < sizesLength - 1; i++) {
+            presetSizes[i] = i + 1;
+        }
+        presetSizes[sizesLength - 1] = expectedLastSize;
+        List<DimensionProto.SpProp> sizes = buildSizesList(presetSizes);
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(4))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(expectedLastSize);
+    }
+
+    @Test
+    public void inflate_textView_autosize_notSet() {
+        String text = "Test text";
+        int size = 24;
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{size});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(size);
+    }
+
+    @Test
+    public void inflate_textView_autosize_setDynamic_noop() {
+        String text = "Test text";
+        int lastSize = 24;
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{10, 30, lastSize});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(dynamicString(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArrayList<View> textChildren = new ArrayList<>();
+        rootLayout.findViewsWithText(textChildren, text, View.FIND_VIEWS_WITH_TEXT);
+        TextView tv = (TextView) textChildren.get(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(lastSize);
+    }
+
+    @Test
     public void inflate_spannable_marqueeAnimation() {
         String text = "Marquee Animation";
         LayoutElement root =
@@ -1961,6 +2121,29 @@ public class ProtoLayoutInflaterTest {
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             expect.that(tv.isSingleLine()).isTrue();
         }
+    }
+
+    @Test
+    public void inflate_spantext_ignoresMultipleSizes() {
+        String text = "Test text";
+        int firstSize = 12;
+        FontStyle.Builder style = FontStyle.newBuilder()
+                .addAllSize(buildSizesList(new int[]{firstSize, 10, 20}));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(
+                                                Span.newBuilder()
+                                                        .setText(
+                                                                SpanText.newBuilder()
+                                                                        .setText(string(text))
+                                                                        .setFontStyle(style))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
     }
 
     @Test
@@ -4452,6 +4635,11 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static DimensionProto.SpProp sp(float value) {
+        return DimensionProto.SpProp.newBuilder().setValue(value).build();
+    }
+
+    @NonNull
     private static ContainerDimension.Builder expand() {
         return ContainerDimension.newBuilder()
                 .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance());
@@ -4480,8 +4668,33 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static StringProp.Builder dynamicString(String value) {
+        return StringProp.newBuilder()
+                .setValue(value)
+                .setDynamicValue(
+                        DynamicString.newBuilder()
+                                .setFixed(FixedString.newBuilder().setValue(value)));
+    }
+
+    @NonNull
     private static ImageDimension.Builder expandImage() {
         return ImageDimension.newBuilder()
                 .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance());
+    }
+
+    @NonNull
+    private static List<DimensionProto.SpProp> buildSizesList(int[] presetSizes) {
+        List<DimensionProto.SpProp> sizes = new ArrayList<>(3);
+        for (int s: presetSizes) {
+            sizes.add(sp(s));
+        }
+        return sizes;
+    }
+
+    private static float toPx(int spValue) {
+        return TypedValue.applyDimension(
+                COMPLEX_UNIT_SP,
+                spValue,
+                getApplicationContext().getResources().getDisplayMetrics());
     }
 }

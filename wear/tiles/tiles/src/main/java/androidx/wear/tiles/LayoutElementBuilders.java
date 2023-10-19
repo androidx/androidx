@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.AlignmentProto;
+import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -622,8 +623,9 @@ public final class LayoutElementBuilders {
          */
         @Nullable
         public DimensionBuilders.SpProp getSize() {
-            if (mImpl.hasSize()) {
-                return DimensionBuilders.SpProp.fromProto(mImpl.getSize());
+            List<DimensionProto.SpProp> sizes = mImpl.getSizeList();
+            if (!sizes.isEmpty()) {
+                return DimensionBuilders.SpProp.fromProto(sizes.get(0));
             } else {
                 return null;
             }
@@ -744,7 +746,8 @@ public final class LayoutElementBuilders {
              */
             @NonNull
             public Builder setSize(@NonNull DimensionBuilders.SpProp size) {
-                mImpl.setSize(size.toProto());
+                mImpl.clearSize();
+                mImpl.addSize(size.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
                 return this;
