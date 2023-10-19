@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.internal.IoConfig;
 
@@ -60,6 +61,9 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashType", int.class);
     public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
             Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
+    public static final Option<ScreenFlashUiControl> OPTION_SCREEN_FLASH_UI_CONTROL =
+            Option.create("camerax.core.imageCapture.screenFlashUiControl",
+                    ScreenFlashUiControl.class);
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -258,6 +262,14 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @IntRange(from = 1, to = 100)
     public int getJpegQuality() {
         return retrieveOption(OPTION_JPEG_COMPRESSION_QUALITY);
+    }
+
+    /**
+     * Gets the caller provided {@link ScreenFlashUiControl}.
+     */
+    @Nullable
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return retrieveOption(OPTION_SCREEN_FLASH_UI_CONTROL, null);
     }
 
     // Implementations of IO default methods

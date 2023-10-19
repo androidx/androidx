@@ -405,4 +405,11 @@ limitations under the License.
         app:layout_constraintStart_toEndOf="@+id/seekBar"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
+    <View
+        android:id="@+id/white_color_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:alpha="0"
+        android:elevation="8dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
