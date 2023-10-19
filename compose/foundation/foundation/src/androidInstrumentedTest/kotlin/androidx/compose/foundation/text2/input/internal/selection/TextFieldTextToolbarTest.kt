@@ -32,6 +32,7 @@ import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
+import androidx.compose.foundation.text2.input.selectAll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +49,9 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -56,6 +59,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
@@ -63,6 +67,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -78,7 +83,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @LargeTest
 class TextFieldTextToolbarTest : FocusedWindowTest {
 
@@ -163,6 +168,98 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     }
 
     @Test
+    fun toolbarDoesNotAppear_ifSelectionIsInitiatedViaHardwareKeys() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        with(rule.onNodeWithTag(TAG)) {
+            requestFocus()
+            performKeyInput {
+                withKeyDown(Key.ShiftLeft) {
+                    pressKey(Key.DirectionLeft)
+                    pressKey(Key.DirectionLeft)
+                    pressKey(Key.DirectionLeft)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5, 2))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+
+        with(rule.onNodeWithTag(TAG)) {
+            performKeyInput {
+                withKeyDown(Key.CtrlLeft) {
+                    pressKey(Key.A)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun toolbarDoesNotAppear_ifSelectionIsInitiatedViaStateUpdate() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        with(rule.onNodeWithTag(TAG)) {
+            requestFocus()
+        }
+
+        rule.runOnIdle {
+            state.edit { selectAll() }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun toolbarDoesNotAppear_ifSelectionIsInitiatedViaSemantics() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        with(rule.onNodeWithTag(TAG)) {
+            requestFocus()
+            performTextInputSelection(TextRange(0, 5))
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun toolbarAppears_ifSelectionIsInitiatedViaSemantics_inNoneTraversalMode() {
+        val textToolbar = FakeTextToolbar()
+        val state = TextFieldState("Hello")
+        setupContent(state, textToolbar)
+
+        with(rule.onNodeWithTag(TAG)) {
+            requestFocus()
+            performSemanticsAction(SemanticsActions.SetSelection) {
+                it(0, 5, false)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
+    @Test
     fun toolbarDisappears_whenTextIsEntered_throughIME() {
         val textToolbar = FakeTextToolbar()
         val state = TextFieldState("Hello")
@@ -206,7 +303,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun selectionToolbarDisappears_whenTextField_getsDisabled_doesNotReappear() {
         val textToolbar = FakeTextToolbar()
@@ -214,7 +310,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar)
 
         rule.onNodeWithTag(TAG).requestFocus()
-        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(2, 4))
+        rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(2, 4))
         rule.runOnIdle {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
         }
@@ -487,7 +583,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun toolbarShowsCopyAndCut_whenSelectionIsExpanded() {
         var cutOptionAvailable = false
@@ -503,7 +598,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar, true)
 
         rule.onNodeWithTag(TAG).requestFocus()
-        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(2, 4))
+        rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(2, 4))
 
         rule.runOnIdle {
             assertThat(copyOptionAvailable).isTrue()
@@ -511,7 +606,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun copyUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion() {
         var copyOption: (() -> Unit)? = null
@@ -526,7 +620,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar, true, clipboardManager)
 
         rule.onNodeWithTag(TAG).requestFocus()
-        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(0, 5))
+        rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(0, 5))
 
         rule.runOnIdle {
             copyOption!!.invoke()
@@ -538,7 +632,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun cutUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion_removesTheCutContent() {
         var cutOption: (() -> Unit)? = null
@@ -553,7 +646,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar, true, clipboardManager)
 
         rule.onNodeWithTag(TAG).requestFocus()
-        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(1, 5))
+        rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(1, 5))
 
         rule.runOnIdle {
             cutOption!!.invoke()
@@ -566,7 +659,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun cutAppliesFilter() {
         var cutOption: (() -> Unit)? = null
@@ -586,7 +678,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.onNodeWithTag(TAG).requestFocus()
-        rule.onNodeWithTag(TAG).performTextInputSelection(TextRange(1, 5))
+        rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(1, 5))
 
         rule.runOnIdle {
             cutOption!!.invoke()
@@ -783,5 +875,17 @@ internal fun FakeClipboardManager(
 
     override fun getText(): AnnotatedString? {
         return currentText
+    }
+}
+
+/**
+ * Toolbar does not show up when text is selected with traversal mode off (relative to original
+ * text). This is an override of [SemanticsNodeInteraction.performTextInputSelection] that
+ * makes sure the toolbar shows up after selection is initiated.
+ */
+fun SemanticsNodeInteraction.performTextInputSelectionShowingToolbar(selection: TextRange) {
+    requestFocus()
+    performSemanticsAction(SemanticsActions.SetSelection) {
+        it(selection.min, selection.max, false)
     }
 }
