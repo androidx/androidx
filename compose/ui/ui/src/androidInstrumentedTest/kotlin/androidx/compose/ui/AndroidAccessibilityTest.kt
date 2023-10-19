@@ -3782,6 +3782,40 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testAccessibilityNodeInfoTreePruned_testTagOnlyDoesNotPrune() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    Box(
+                        Modifier
+                            .zIndex(1f)
+                            .testTag(childOneTag)
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText(
+                        "Child Two",
+                        Modifier
+                            .testTag(childTwoTag)
+                            .requiredSize(50.toDp())
+                    )
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
+            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
+                .isEqualTo("Child Two")
+        }
+    }
+
+    @Test
     fun testPaneAppear() {
         var isPaneVisible by mutableStateOf(false)
         val paneTestTitle by mutableStateOf("pane title")
