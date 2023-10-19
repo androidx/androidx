@@ -1168,16 +1168,32 @@ public final class ProtoLayoutInflater {
                 // No autosizing needed.
                 textView.setTextSize(COMPLEX_UNIT_SP, sizes.get(0).getValue());
             } else if (isAutoSizeAllowed && sizesCnt <= TEXT_AUTOSIZES_LIMIT) {
-                // Max size is needed so that TextView leaves enough space for it. Otherwise,
-                // the text won't be able to grow.
-                int maxSize =
-                        sizes.stream().mapToInt(sp -> (int) sp.getValue()).max().getAsInt();
-                textView.setTextSize(COMPLEX_UNIT_SP, maxSize);
+                // We need to check values so that we are certain that there's at least 1 non zero
+                // value.
+                boolean atLeastOneCorrectSize =
+                        sizes.stream()
+                                .mapToInt(sp -> (int) sp.getValue())
+                                .filter(sp -> sp > 0)
+                                .distinct()
+                                .count()
+                                > 0;
 
-                // No need for sorting, TextView does that.
-                textView.setAutoSizeTextTypeUniformWithPresetSizes(
-                        sizes.stream().mapToInt(spProp -> (int) spProp.getValue()).toArray(),
-                        COMPLEX_UNIT_SP);
+                if (atLeastOneCorrectSize) {
+                    // Max size is needed so that TextView leaves enough space for it. Otherwise,
+                    // the text won't be able to grow.
+                    int maxSize =
+                            sizes.stream().mapToInt(sp -> (int) sp.getValue()).max().getAsInt();
+                    textView.setTextSize(COMPLEX_UNIT_SP, maxSize);
+
+                    // No need for sorting, TextView does that.
+                    textView.setAutoSizeTextTypeUniformWithPresetSizes(
+                            sizes.stream().mapToInt(spProp -> (int) spProp.getValue()).toArray(),
+                            COMPLEX_UNIT_SP);
+                } else {
+                    Log.w(
+                            TAG,
+                            "Trying to autosize text but no valid font sizes has been specified.");
+                }
             } else {
                 // Fallback where multiple values can't be used and the last value would be used.
                 // This can happen in two cases.
@@ -1191,8 +1207,8 @@ public final class ProtoLayoutInflater {
                     Log.w(
                             TAG,
                             "More than " + TEXT_AUTOSIZES_LIMIT + " sizes has been added for the "
-                                    + "text autosizing. Ignoring values after the "
-                                    + TEXT_AUTOSIZES_LIMIT + " one.");
+                                    + "text autosizing. Ignoring all other sizes and using the last"
+                                    + "one.");
                 }
 
                 textView.setTextSize(COMPLEX_UNIT_SP, sizes.get(sizesCnt - 1).getValue());
