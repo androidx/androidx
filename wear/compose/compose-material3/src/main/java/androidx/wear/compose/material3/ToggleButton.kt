@@ -383,6 +383,32 @@ object ToggleButtonDefaults {
  * Represents the different container and content colors used for toggle buttons
  * ([ToggleButton], [IconToggleButton], and [TextToggleButton]) in various states,
  * that are checked, unchecked, enabled and disabled.
+ *
+ * @constructor [ToggleButtonColors] constructor to be used with [ToggleButton]
+ * @param checkedContainerColor Container or background color when the toggle button is checked
+ * @param checkedContentColor Color of the content like label when the toggle button is checked
+ * @param checkedSecondaryContentColor Color of the secondary content like secondary label when the
+ * toggle button is checked
+ * @param checkedIconColor Color of the icon when the toggle button is checked
+ * @param uncheckedContainerColor Container or background color when the toggle button is unchecked
+ * @param uncheckedContentColor Color of the content like label when the toggle button is unchecked
+ * @param uncheckedSecondaryContentColor Color of the secondary content like secondary label when
+ * the toggle button is unchecked
+ * @param uncheckedIconColor Color of the icon when the toggle button is unchecked
+ * @param disabledCheckedContainerColor Container or background color when the toggle button is
+ * disabled and checked
+ * @param disabledCheckedContentColor Color of content like label when the toggle button is
+ * disabled and checked
+ * @param disabledCheckedSecondaryContentColor Color of the secondary content like secondary label
+ * when the toggle button is disabled and checked
+ * @param disabledCheckedIconColor Icon color when the toggle button is disabled and checked
+ * @param disabledUncheckedContainerColor Container or background color when the toggle button is
+ * disabled and unchecked
+ * @param disabledUncheckedContentColor Color of the content like label when the toggle button is
+ * disabled and unchecked
+ * @param disabledUncheckedSecondaryContentColor Color of the secondary content like secondary label
+ * when the toggle button is disabled and unchecked
+ * @param disabledUncheckedIconColor Icon color when the toggle button is disabled and unchecked
  */
 @Immutable
 class ToggleButtonColors constructor(
@@ -403,6 +429,25 @@ class ToggleButtonColors constructor(
     val disabledUncheckedSecondaryContentColor: Color,
     val disabledUncheckedIconColor: Color,
 ) {
+    /**
+     * [ToggleButtonColors] constructor for [IconToggleButton] and [TextToggleButton].
+     *
+     * @param checkedContainerColor Container or background color of the toggle button when checked
+     * @param checkedContentColor Color of the content (text or icon) of the toggle button when
+     * checked
+     * @param uncheckedContainerColor Container or background color of the toggle button when
+     * unchecked
+     * @param uncheckedContentColor Color of the content (text or icon) of the toggle button when
+     * unchecked
+     * @param disabledCheckedContainerColor Container or background color of the toggle button when
+     * disabled and checked
+     * @param disabledCheckedContentColor Color of the content (icon or text) toggle button when
+     * disabled and unchecked
+     * @param disabledUncheckedContainerColor Container or background color of the toggle button
+     * when disabled and unchecked
+     * @param disabledUncheckedContentColor Color of the content (icon or text) toggle button when
+     * disabled and unchecked
+     */
     constructor(
         checkedContainerColor: Color,
         checkedContentColor: Color,
@@ -563,6 +608,39 @@ class ToggleButtonColors constructor(
 
 /**
  * Represents the different colors used in [SplitToggleButton] in different states.
+ *
+ * @constructor [SplitToggleButtonColors] constructor to be used with [SplitToggleButton]
+ * @param checkedContainerColor Container or background color when the split toggle button is
+ * checked
+ * @param checkedContentColor Color of the content like label when the split toggle button is
+ * checked
+ * @param checkedSecondaryContentColor Color of the secondary content like secondary label when the
+ * split toggle button is checked
+ * @param checkedSplitContainerColor Split container color when the split toggle button is checked
+ * @param uncheckedContainerColor Container or background color when the split toggle button is
+ * unchecked
+ * @param uncheckedContentColor Color of the content like label when the split toggle button is
+ * unchecked
+ * @param uncheckedSecondaryContentColor Color of the secondary content like secondary label when
+ * the split toggle button is unchecked
+ * @param uncheckedSplitContainerColor Split container color when the split toggle button is
+ * unchecked
+ * @param disabledCheckedContainerColor Container color when the split toggle button is disabled
+ * and checked
+ * @param disabledCheckedContentColor Color of the content like label when the split toggle button
+ * is disabled and checked
+ * @param disabledCheckedSecondaryContentColor Color of the secondary content like secondary label
+ * when the split toggle button is disabled and checked
+ * @param disabledCheckedSplitContainerColor Split container color when the split toggle button is
+ * disabled and checked
+ * @param disabledUncheckedContainerColor Container color when the split toggle button is unchecked
+ * and disabled
+ * @param disabledUncheckedContentColor Color of the content like label when the split toggle
+ * button is unchecked and disabled
+ * @param disabledUncheckedSecondaryContentColor Color of the secondary content like secondary
+ * label when the split toggle button is unchecked and disabled
+ * @param disabledUncheckedSplitContainerColor Split container color when the split toggle button
+ * is unchecked and disabled
  */
 class SplitToggleButtonColors constructor(
     val checkedContainerColor: Color,
