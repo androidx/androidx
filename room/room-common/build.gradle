@@ -41,14 +41,27 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.3.0")
+                api(projectOrArtifact(":annotation:annotation"))
+
             }
         }
+
         commonTest {
             dependencies {
                 implementation(project(":kruth:kruth"))
-                implementation(libs.junit)
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
                 implementation(libs.guava)
+                implementation(libs.kotlinTestJunit)
             }
         }
     }

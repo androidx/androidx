@@ -43,7 +43,7 @@ package androidx.annotation
 @OptionalExpectation // Need to use expect due to Java-specific target annotations on the actual.
 public expect annotation class RequiresApi(
     /** The API level to require. Alias for [.api] which allows you to leave out the `api=` part. */
-    @IntRange(from = 1) val value: Int,
+    @IntRange(from = 1) val value: Int = 1,
     /** The API level to require */
-    @IntRange(from = 1) val api: Int
+    @IntRange(from = 1) val api: Int = 1
 )
