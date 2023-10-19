@@ -268,11 +268,9 @@ public final class ImageCapture extends UseCase {
      *
      * @see #setFlashMode(int)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_MODE_SCREEN = 3;
 
     /** The timeout in seconds for {@link ScreenFlashUiCompleter} to be completed. */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final long SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS = 3;
 
     /**
@@ -581,7 +579,6 @@ public final class ImageCapture extends UseCase {
      *                             will replace the previous {@code ScreenFlashUiControl} set
      *                             with this method.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {
         mScreenFlashUiControl = screenFlashUiControl;
         setScreenFlashUiControlToCameraControl();
@@ -590,7 +587,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Returns the {@link ScreenFlashUiControl} currently set, null if none.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public ScreenFlashUiControl getScreenFlashUiControl() {
         return mScreenFlashUiControl;
@@ -1433,7 +1429,6 @@ public final class ImageCapture extends UseCase {
      * Interface to inform if application UI change has been completed for a screen flash image
      * capture.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface ScreenFlashUiCompleter {
         /**
          * Completes this {@link ScreenFlashUiCompleter} instance so that CameraX is no
@@ -1445,7 +1440,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Interface to do the application UI changes for screen flash operations. */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface ScreenFlashUiControl {
         /**
          * Applies the necessary application UI changes for a screen flash photo capture.
@@ -2195,7 +2189,6 @@ public final class ImageCapture extends UseCase {
          *                             {@link #FLASH_MODE_SCREEN}.
          * @return The current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setScreenFlashUiControl(@NonNull ScreenFlashUiControl screenFlashUiControl) {
             getMutableConfig().insertOption(OPTION_SCREEN_FLASH_UI_CONTROL, screenFlashUiControl);
