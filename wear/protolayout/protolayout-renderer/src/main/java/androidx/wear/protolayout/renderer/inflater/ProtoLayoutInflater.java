@@ -1217,7 +1217,7 @@ public final class ProtoLayoutInflater {
         textView.setTypeface(createTypeface(style), fontStyleToTypefaceStyle(style));
 
         if (fontStyleHasSize(style)) {
-            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // We are using the last added size in the FontStyle because ArcText doesn't support
             // autosizing. This is the same behaviour as it was before size has made repeated.
             if (style.getSizeList().size() > 1) {
                 Log.w(
@@ -2887,7 +2887,7 @@ public final class ProtoLayoutInflater {
     private void applyStylesToSpan(
             SpannableStringBuilder builder, int start, int end, FontStyle fontStyle) {
         if (fontStyleHasSize(fontStyle)) {
-            // We are using the first added size in the FontStyle because ArcText doesn't support
+            // We are using the last added size in the FontStyle because ArcText doesn't support
             // autosizing. This is the same behaviour as it was before size has made repeated.
             if (fontStyle.getSizeList().size() > 1) {
                 Log.w(
