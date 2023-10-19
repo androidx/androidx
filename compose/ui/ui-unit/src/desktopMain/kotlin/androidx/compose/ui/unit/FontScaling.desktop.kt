@@ -19,4 +19,4 @@ package androidx.compose.ui.unit
 /**
  * Converts [TextUnit] to [Dp] and vice-versa.
  */
-actual typealias FontScalable = FontScalableLinear
+actual typealias FontScaling = FontScalingLinear
