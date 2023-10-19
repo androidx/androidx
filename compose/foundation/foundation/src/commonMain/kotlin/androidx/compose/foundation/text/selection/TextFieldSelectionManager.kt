@@ -932,17 +932,15 @@ internal fun TextFieldSelectionHandle(
     val observer = remember(isStartHandle, manager) {
         manager.handleDragObserver(isStartHandle)
     }
-    val position = manager.getHandlePosition(isStartHandle)
 
     SelectionHandle(
-        position = position,
+        offsetProvider = { manager.getHandlePosition(isStartHandle) },
         isStartHandle = isStartHandle,
         direction = direction,
         handlesCrossed = manager.value.selection.reversed,
         modifier = Modifier.pointerInput(observer) {
             detectDownAndDragGesturesWithObserver(observer)
         },
-        content = null
     )
 }
 

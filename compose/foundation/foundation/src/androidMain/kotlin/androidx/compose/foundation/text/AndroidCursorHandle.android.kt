@@ -42,7 +42,7 @@ internal actual fun CursorHandle(
     content: @Composable (() -> Unit)?
 ) {
     HandlePopup(
-        position = handlePosition,
+        positionProvider = { handlePosition },
         handleReferencePoint = HandleReferencePoint.TopMiddle
     ) {
         if (content == null) {

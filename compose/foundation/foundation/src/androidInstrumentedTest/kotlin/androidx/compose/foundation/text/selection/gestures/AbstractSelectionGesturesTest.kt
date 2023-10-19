@@ -85,7 +85,8 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
             CompositionLocalProvider(
                 LocalDensity provides density,
                 LocalViewConfiguration provides TestViewConfiguration(
-                    minimumTouchTargetSize = DpSize.Zero
+                    minimumTouchTargetSize = DpSize.Zero,
+                    touchSlop = Float.MIN_VALUE,
                 ),
                 LocalHapticFeedback provides hapticFeedback,
             ) {

@@ -612,6 +612,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     fun handleDragObserver(isStartHandle: Boolean): TextDragObserver = object : TextDragObserver {
         override fun onDown(point: Offset) {
+            // if the handle position is null, then it is invisible, so ignore the gesture
+            (if (isStartHandle) startHandlePosition else endHandlePosition) ?: return
+
             val selection = selection ?: return
             val anchor = if (isStartHandle) selection.start else selection.end
             val selectable = getAnchorSelectable(anchor) ?: return
@@ -622,11 +625,9 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
             // The position of the character where the drag gesture should begin. This is in
             // the composable coordinates.
-            val beginCoordinates = getAdjustedCoordinates(
-                selectable.getHandlePosition(
-                    selection = selection, isStartHandle = isStartHandle
-                )
-            )
+            val handlePosition = selectable.getHandlePosition(selection, isStartHandle)
+            if (handlePosition.isUnspecified) return
+            val beginCoordinates = getAdjustedCoordinates(handlePosition)
 
             // Convert the position where drag gesture begins from composable coordinates to
             // selection container coordinates.
@@ -639,33 +640,26 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         override fun onStart(startPoint: Offset) {
+            draggingHandle ?: return
+
             val selection = selection!!
-            val startSelectable =
-                selectionRegistrar.selectableMap[selection.start.selectableId]
-            val endSelectable =
-                selectionRegistrar.selectableMap[selection.end.selectableId]
+            val anchor = if (isStartHandle) selection.start else selection.end
+            val selectable = checkNotNull(selectionRegistrar.selectableMap[anchor.selectableId]) {
+                "SelectionRegistrar should contain the current selection's selectableIds"
+            }
+
             // The LayoutCoordinates of the composable where the drag gesture should begin. This
             // is used to convert the position of the beginning of the drag gesture from the
             // composable coordinates to selection container coordinates.
-            val beginLayoutCoordinates = if (isStartHandle) {
-                startSelectable?.getLayoutCoordinates()!!
-            } else {
-                endSelectable?.getLayoutCoordinates()!!
+            val beginLayoutCoordinates = checkNotNull(selectable.getLayoutCoordinates()) {
+                "Current selectable should have layout coordinates."
             }
 
             // The position of the character where the drag gesture should begin. This is in
             // the composable coordinates.
-            val beginCoordinates = getAdjustedCoordinates(
-                if (isStartHandle) {
-                    startSelectable!!.getHandlePosition(
-                        selection = selection, isStartHandle = true
-                    )
-                } else {
-                    endSelectable!!.getHandlePosition(
-                        selection = selection, isStartHandle = false
-                    )
-                }
-            )
+            val handlePosition = selectable.getHandlePosition(selection, isStartHandle)
+            if (handlePosition.isUnspecified) return
+            val beginCoordinates = getAdjustedCoordinates(handlePosition)
 
             // Convert the position where drag gesture begins from composable coordinates to
             // selection container coordinates.
@@ -679,6 +673,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         override fun onDrag(delta: Offset) {
+            draggingHandle ?: return
+
             dragTotalDistance += delta
             val endPosition = dragBeginPosition + dragTotalDistance
             val consumed = updateSelection(
