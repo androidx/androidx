@@ -12,69 +12,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="ImageCapture.FLASH_MODE_SCREEN can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            } else if (flashMode == FLASH_MODE_SCREEN) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ImageCapture.setScreenFlashUiControl can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        getImageCapture().setScreenFlashUiControl(new ImageCapture.ScreenFlashUiControl() {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashUiControl can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        getImageCapture().setScreenFlashUiControl(new ImageCapture.ScreenFlashUiControl() {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashUiControl.applyScreenFlashUi can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            public void applyScreenFlashUi("
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashUiCompleter.complete can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                        screenFlashUiCompleter.complete();"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ScreenFlashUiControl.clearScreenFlashUi can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            public void clearScreenFlashUi() {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ImageCapture.FLASH_MODE_SCREEN can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        getImageCapture().setFlashMode(FLASH_MODE_SCREEN);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                    if (canDeviceWriteToMediaStore()) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
