@@ -135,6 +135,7 @@ class MavenUploadHelperTest {
       <groupId>androidx.compose.ui</groupId>
       <artifactId>ui-geometry-android</artifactId>
       <version>1.6.0-alpha01</version>
+      <type>aar</type>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
@@ -261,7 +262,7 @@ class MavenUploadHelperTest {
 """
         /* ktlint-enable max-line-length */
 
-        assignAarTypes(pom, androidLibrariesSet)
+        assignAarDependencyTypes(pom, androidLibrariesSet)
 
         val actual = pom.toString()
         assertEquals(expected, actual)
