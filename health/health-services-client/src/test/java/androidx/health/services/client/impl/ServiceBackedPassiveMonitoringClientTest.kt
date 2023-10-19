@@ -140,7 +140,8 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(exception).isNotNull()
         assertThat(exception?.cause).isInstanceOf(HealthServicesException::class.java)
         assertThat(exception).hasMessageThat()
-            .contains("DataType for the requested passive goal is not tracked")
+            .contains("Service registration failed: DataType for the requested " +
+                "passive goal must be tracked")
     }
 
     @Test
@@ -182,7 +183,8 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(fakeService.registerCallbackRequests).hasSize(0)
         assertThat(callback.onRegistrationFailedThrowables).hasSize(1)
         assertThat(callback.onRegistrationFailedThrowables[0]).hasMessageThat()
-            .contains("DataType for the requested passive goal is not tracked")
+            .contains("Callback registration failed: DataType for the requested " +
+                "passive goal must be tracked")
     }
 
     @Test
