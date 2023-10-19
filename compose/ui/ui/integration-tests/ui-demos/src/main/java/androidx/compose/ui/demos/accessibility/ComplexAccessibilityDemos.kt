@@ -204,7 +204,7 @@ fun ScrollColumn(padding: PaddingValues) {
 
 @Preview
 @Composable
-fun ScaffoldSample() {
+fun ScaffoldSampleDemo() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     Scaffold(
         scaffoldState = scaffoldState,
@@ -222,7 +222,7 @@ fun ScaffoldSample() {
 
 @Preview
 @Composable
-fun ScaffoldSampleScroll() {
+fun ScaffoldSampleScrollDemo() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     Scaffold(
         scaffoldState = scaffoldState,
