@@ -20,6 +20,7 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 
 internal open class TestInputMethodRequest(view: View) : BaseInputConnection(view, false),
     PlatformTextInputMethodRequest {
