@@ -52,6 +52,8 @@ import android.view.ViewStub
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.Switch
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -178,6 +180,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private lateinit var containerView: View
 
     private lateinit var textureView: TextureView
+    private lateinit var videoStabilizationToggleView: Switch
+    private lateinit var videoStabilizationModeView: TextView
 
     private var previewSurface: Surface? = null
 
@@ -389,6 +393,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         setupTextureView()
         enableUiControl(false)
         setupUiControl()
+        setupVideoStabilizationModeView()
     }
 
     private fun setupForRequestMode() {
@@ -533,6 +538,38 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         containerView = viewFinderStub.inflate()
         textureView = containerView.findViewById(R.id.textureView)
         textureView.surfaceTextureListener = surfaceTextureListener
+    }
+
+    private fun setupVideoStabilizationModeView() {
+        videoStabilizationToggleView = findViewById(R.id.videoStabilizationToggle)
+        videoStabilizationModeView = findViewById(R.id.videoStabilizationMode)
+
+        val availableModes = cameraManager.getCameraCharacteristics(currentCameraId)
+            .get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: intArrayOf()
+
+        if (availableModes
+                .contains(CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+        ) {
+            videoStabilizationToggleView.visibility = View.VISIBLE
+            videoStabilizationModeView.visibility = View.VISIBLE
+
+            videoStabilizationToggleView.setOnCheckedChangeListener { _, isChecked ->
+                val device = cameraDevice ?: return@setOnCheckedChangeListener
+                val session = cameraCaptureSession ?: return@setOnCheckedChangeListener
+
+                val mode = if (isChecked) "Preview" else "Off"
+                videoStabilizationModeView.text = "Video Stabilization Mode: $mode"
+
+                lifecycleScope.launch {
+                    suspendCancellableCoroutine<Any> { cont ->
+                        setRepeatingRequestWhenCaptureSessionConfigured(cont, device, session)
+                    }
+                }
+            }
+        } else {
+            videoStabilizationToggleView.visibility = View.GONE
+            videoStabilizationModeView.visibility = View.GONE
+        }
     }
 
     private fun enableUiControl(enabled: Boolean) {
@@ -949,11 +986,15 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         try {
             val captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             captureBuilder.addTarget(previewSurface!!)
-            // Some devices enable video stabilization mode by default. For consistent behavior we
-            // explicitly disable this.
+            val videoStabilizationMode = if (videoStabilizationToggleView.isChecked) {
+                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+            } else {
+                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+            }
+
             captureBuilder.set(
                 CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                videoStabilizationMode
             )
 
             if (captureSession is CameraCaptureSession) {
