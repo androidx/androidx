@@ -22,7 +22,7 @@ package androidx.room
  *
  * @see AutoMigration
  */
-@JvmRepeatable(DeleteColumn.Entries::class)
+@Repeatable
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
 public annotation class DeleteColumn(

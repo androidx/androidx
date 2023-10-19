@@ -18,12 +18,14 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmStatic
 
 /**
  * Schema information about Room's master table.
  *
  */
-@SuppressWarnings("WeakerAccess")
+@Suppress("WeakerAccess")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object RoomMasterTable {
     /**
