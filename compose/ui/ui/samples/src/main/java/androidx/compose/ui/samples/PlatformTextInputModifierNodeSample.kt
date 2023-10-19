@@ -22,10 +22,10 @@ import androidx.annotation.Sampled
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.runTextInputSession
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 

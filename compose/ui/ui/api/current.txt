@@ -2890,6 +2890,10 @@ package androidx.compose.ui.platform {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.input.nestedscroll.NestedScrollConnection rememberNestedScrollInteropConnection(optional android.view.View hostView);
   }
 
+  public fun interface PlatformTextInputMethodRequest {
+    method public android.view.inputmethod.InputConnection createInputConnection(android.view.inputmethod.EditorInfo outAttributes);
+  }
+
   public interface PlatformTextInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
   }
 
@@ -2899,7 +2903,7 @@ package androidx.compose.ui.platform {
 
   public interface PlatformTextInputSession {
     method public android.view.View getView();
-    method public suspend Object? startInputMethod(androidx.compose.ui.text.input.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<?>);
+    method public suspend Object? startInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<?>);
     property public abstract android.view.View view;
   }
 

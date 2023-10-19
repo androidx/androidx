@@ -22,11 +22,11 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.awaitCancellation
 
