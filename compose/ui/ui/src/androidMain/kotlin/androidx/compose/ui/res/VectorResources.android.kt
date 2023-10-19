@@ -24,8 +24,8 @@ import android.util.Xml
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.vector.GroupComponent
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.AndroidVectorParser
 import androidx.compose.ui.graphics.vector.compat.createVectorImageBuilder
 import androidx.compose.ui.graphics.vector.compat.isAtEnd
@@ -137,7 +137,7 @@ internal class ImageVectorCache {
     data class ImageVectorEntry(
         val imageVector: ImageVector,
         val configFlags: Int,
-        val rootGroup: GroupComponent?,
+        val vectorPainter: VectorPainter?,
     )
 
     private val map = HashMap<Key, WeakReference<ImageVectorEntry>>()

@@ -26,10 +26,8 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.GroupComponent
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
-import androidx.compose.ui.graphics.vector.createGroupComponent
 import androidx.compose.ui.graphics.vector.createVectorPainterFromImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -93,25 +91,21 @@ private fun obtainVectorPainter(
         ImageVectorCache.Key(theme, id, density)
     }
     val imageVectorEntry = imageVectorCache[key]
-    var imageVector = imageVectorEntry?.imageVector
-    if (imageVector == null) {
+    var vectorPainter = imageVectorEntry?.vectorPainter
+
+    if (vectorPainter == null) {
         @Suppress("ResourceType") val parser = res.getXml(id)
         if (parser.seekToStartTag().name != "vector") {
             throw IllegalArgumentException(errorMessage)
         }
-        imageVector = loadVectorResourceInner(theme, res, parser)
-    }
-
-    var rootGroup = imageVectorEntry?.rootGroup
-    if (rootGroup == null) {
-        rootGroup = GroupComponent().apply {
-            createGroupComponent(imageVector.root)
+        var imageVector = imageVectorEntry?.imageVector
+        if (imageVector == null) {
+            imageVector = loadVectorResourceInner(theme, res, parser)
         }
-        imageVectorCache[key] = ImageVectorEntry(imageVector, changingConfigurations, rootGroup)
+        vectorPainter = createVectorPainterFromImageVector(density, imageVector)
+        imageVectorCache[key] = ImageVectorEntry(imageVector, changingConfigurations, vectorPainter)
     }
-    return remember(key) {
-        createVectorPainterFromImageVector(density, imageVector, rootGroup)
-    }
+    return vectorPainter
 }
 
 /**

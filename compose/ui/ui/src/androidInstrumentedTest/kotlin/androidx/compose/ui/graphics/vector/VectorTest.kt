@@ -1127,11 +1127,10 @@ class VectorTest {
     fun testVectorPainterCacheHit() {
         var vectorInCache = false
         rule.setContent {
-            // obtaining the same painter resource should return the same instance root
-            // GroupComponent
-            val painter1 = painterResource(R.drawable.ic_triangle) as VectorPainter
-            val painter2 = painterResource(R.drawable.ic_triangle) as VectorPainter
-            vectorInCache = painter1.vector.root === painter2.vector.root
+            // obtaining the same painter resource should return the same instance
+            val painter1 = painterResource(R.drawable.ic_triangle)
+            val painter2 = painterResource(R.drawable.ic_triangle)
+            vectorInCache = painter1 === painter2
         }
 
         assertTrue(vectorInCache)
