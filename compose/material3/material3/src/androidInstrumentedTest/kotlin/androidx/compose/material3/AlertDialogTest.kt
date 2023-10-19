@@ -185,7 +185,7 @@ class AlertDialogTest {
                 maxDialogWidth = DialogMaxWidth.roundToPx()
             }
 
-            AlertDialog(onDismissRequest = {}) {
+            BasicDialog(onDismissRequest = {}) {
                 Surface(
                     modifier = Modifier
                         .onSizeChanged { dialogWidthCh.trySend(it.width) }
@@ -240,7 +240,7 @@ class AlertDialogTest {
         var minDialogWidth = 0
         rule.setContent {
             with(LocalDensity.current) { minDialogWidth = DialogMinWidth.roundToPx() }
-            AlertDialog(onDismissRequest = {}) {
+            BasicDialog(onDismissRequest = {}) {
                 Surface(
                     modifier = Modifier
                         .onSizeChanged { dialogWidthCh.trySend(it.width) }
@@ -264,7 +264,7 @@ class AlertDialogTest {
         var customMinDialogWidth = 0
         rule.setContent {
             with(LocalDensity.current) { customMinDialogWidth = 150.dp.roundToPx() }
-            AlertDialog(
+            BasicDialog(
                 onDismissRequest = {},
                 Modifier.width(width = 150.dp)
             ) {
