@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
 @Immutable
 @JvmDefaultWithCompatibility
 @OptIn(ExperimentalComposeUiApi::class)
-actual interface FontScalable {
+actual interface FontScaling {
     /**
      * Current user preference for the scaling factor for fonts.
      */

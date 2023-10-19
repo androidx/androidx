@@ -50,7 +50,7 @@ var DisableNonLinearFontScalingInCompose by mutableStateOf(false)
  */
 @Immutable
 @JvmDefaultWithCompatibility
-expect interface FontScalable {
+expect interface FontScaling {
     /**
      * Current user preference for the scaling factor for fonts.
      */
@@ -79,7 +79,7 @@ expect interface FontScalable {
 @Immutable
 @JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FontScalableLinear {
+interface FontScalingLinear {
     /**
      * Current user preference for the scaling factor for fonts.
      */
