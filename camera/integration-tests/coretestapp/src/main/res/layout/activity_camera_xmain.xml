@@ -405,11 +405,8 @@ limitations under the License.
         app:layout_constraintStart_toEndOf="@+id/seekBar"
         app:layout_constraintTop_toTopOf="@+id/seekBar" />
 
-    <View
-        android:id="@+id/white_color_overlay"
+    <androidx.camera.view.ScreenFlashView
+        android:id="@+id/screen_flash_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#FFFFFF"
-        android:alpha="0"
-        android:elevation="8dp" />
+        android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
