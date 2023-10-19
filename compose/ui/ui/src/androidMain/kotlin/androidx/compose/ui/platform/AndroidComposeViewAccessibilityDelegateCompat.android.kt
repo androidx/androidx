@@ -820,9 +820,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         //       are also non-speakable.
         // * Non-merging nodes that are empty: notably, clearAndSetSemantics {}
         //   and the root of the SemanticsNode tree.
-        info.isImportantForAccessibility =
-            semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants ||
-            semanticsNode.unmergedConfig.containsImportantForAccessibility()
+        info.isImportantForAccessibility = semanticsNode.isImportantForAccessibility()
 
         semanticsNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
@@ -3546,6 +3544,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
 private fun SemanticsNode.enabled() = (config.getOrNull(SemanticsProperties.Disabled) == null)
 
+private fun SemanticsNode.isImportantForAccessibility() =
+    unmergedConfig.isMergingSemanticsOfDescendants ||
+    unmergedConfig.containsImportantForAccessibility()
+
 @OptIn(ExperimentalComposeUiApi::class)
 private val SemanticsNode.isVisible: Boolean
     get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
@@ -3661,7 +3663,9 @@ private fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
             for (i in children.size - 1 downTo 0) {
                 findAllSemanticNodesRecursive(children[i], region)
             }
-            unaccountedSpace.op(left, top, right, bottom, Region.Op.DIFFERENCE)
+            if (currentNode.isImportantForAccessibility()) {
+                unaccountedSpace.op(left, top, right, bottom, Region.Op.DIFFERENCE)
+            }
         } else {
             if (currentNode.isFake) {
                 val parentNode = currentNode.parent
