@@ -16,24 +16,16 @@
 package androidx.work.impl.utils
 
 import androidx.work.Operation
-import androidx.work.impl.OperationImpl
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.launchOperation
 
 /**
  * Prunes work in the background.  Pruned work meets the following criteria:
  * - Is finished (succeeded, failed, or cancelled)
  * - Has zero unfinished dependents
  */
-internal fun WorkDatabase.pruneWork(executor: TaskExecutor): Operation {
-    val operation = OperationImpl()
-    executor.executeOnTaskThread {
-        try {
-            workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
-            operation.markState(Operation.SUCCESS)
-        } catch (exception: Throwable) {
-            operation.markState(Operation.State.FAILURE(exception))
-        }
+internal fun WorkDatabase.pruneWork(executor: TaskExecutor): Operation =
+    launchOperation(executor.serialTaskExecutor) {
+        workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
     }
-    return operation
-}

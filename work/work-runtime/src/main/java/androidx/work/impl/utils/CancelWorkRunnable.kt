@@ -13,225 +13,139 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("CancelWorkRunnable")
 
-package androidx.work.impl.utils;
+package androidx.work.impl.utils
 
-import static androidx.work.WorkInfo.State.FAILED;
-import static androidx.work.WorkInfo.State.SUCCEEDED;
+import android.app.job.JobParameters
+import androidx.work.Operation
+import androidx.work.WorkInfo
+import androidx.work.impl.Schedulers
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.WorkManagerImpl
+import androidx.work.launchOperation
+import java.util.UUID
 
-import android.app.job.JobParameters;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.WorkerThread;
-import androidx.work.Operation;
-import androidx.work.WorkInfo;
-import androidx.work.impl.OperationImpl;
-import androidx.work.impl.Processor;
-import androidx.work.impl.Scheduler;
-import androidx.work.impl.Schedulers;
-import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.DependencyDao;
-import androidx.work.impl.model.WorkSpecDao;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-
-/**
- * A {@link Runnable} to cancel work.
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class CancelWorkRunnable implements Runnable {
-
-    private final OperationImpl mOperation = new OperationImpl();
-
-    /**
-     * @return The {@link Operation} that encapsulates the state of the {@link CancelWorkRunnable}.
-     */
-    @NonNull
-    public Operation getOperation() {
-        return mOperation;
-    }
-
-    @Override
-    public void run() {
-        try {
-            runInternal();
-            mOperation.markState(Operation.SUCCESS);
-        } catch (Throwable throwable) {
-            mOperation.markState(new Operation.State.FAILURE(throwable));
-        }
-    }
-
-    abstract void runInternal();
-
-    void cancel(WorkManagerImpl workManagerImpl, String workSpecId) {
-        iterativelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
-
-        Processor processor = workManagerImpl.getProcessor();
-        processor.stopAndCancelWork(workSpecId, JobParameters.STOP_REASON_CANCELLED_BY_APP);
-
-        for (Scheduler scheduler : workManagerImpl.getSchedulers()) {
-            scheduler.cancel(workSpecId);
-        }
-    }
-
-    void reschedulePendingWorkers(WorkManagerImpl workManagerImpl) {
-        Schedulers.schedule(
-                workManagerImpl.getConfiguration(),
-                workManagerImpl.getWorkDatabase(),
-                workManagerImpl.getSchedulers());
-    }
-
-    private void iterativelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
-        WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-        DependencyDao dependencyDao = workDatabase.dependencyDao();
-
-        @SuppressWarnings("JdkObsolete") // TODO(b/141962522): Suppressed during upgrade to AGP 3.6.
-        LinkedList<String> idsToProcess = new LinkedList<>();
-        idsToProcess.add(workSpecId);
-        while (!idsToProcess.isEmpty()) {
-            String id = idsToProcess.remove();
-            // Don't fail already cancelled work.
-            WorkInfo.State state = workSpecDao.getState(id);
-            if (state != SUCCEEDED && state != FAILED) {
-                workSpecDao.setCancelledState(id);
-            }
-            idsToProcess.addAll(dependencyDao.getDependentWorkIds(id));
-        }
-    }
-
-    /**
-     * Creates a {@link CancelWorkRunnable} that cancels work for a specific id.
-     *
-     * @param id The id to cancel
-     * @param workManagerImpl The {@link WorkManagerImpl} to use
-     * @return A {@link CancelWorkRunnable} that cancels work for a specific id
-     */
-    @NonNull
-    public static CancelWorkRunnable forId(
-            @NonNull final UUID id,
-            @NonNull final WorkManagerImpl workManagerImpl) {
-        return new CancelWorkRunnable() {
-            @WorkerThread
-            @Override
-            void runInternal() {
-                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
-                workDatabase.beginTransaction();
-                try {
-                    cancel(workManagerImpl, id.toString());
-                    workDatabase.setTransactionSuccessful();
-                } finally {
-                    workDatabase.endTransaction();
-                }
-                reschedulePendingWorkers(workManagerImpl);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link CancelWorkRunnable} that cancels work for a specific tag.
-     *
-     * @param tag The tag to cancel
-     * @param workManagerImpl The {@link WorkManagerImpl} to use
-     * @return A {@link CancelWorkRunnable} that cancels work for a specific tag
-     */
-    @NonNull
-    public static CancelWorkRunnable forTag(
-            @NonNull final String tag,
-            @NonNull final WorkManagerImpl workManagerImpl) {
-        return new CancelWorkRunnable() {
-            @WorkerThread
-            @Override
-            void runInternal() {
-                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
-                workDatabase.beginTransaction();
-                try {
-                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithTag(tag);
-                    for (String workSpecId : workSpecIds) {
-                        cancel(workManagerImpl, workSpecId);
-                    }
-                    workDatabase.setTransactionSuccessful();
-                } finally {
-                    workDatabase.endTransaction();
-                }
-                reschedulePendingWorkers(workManagerImpl);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link CancelWorkRunnable} that cancels work labelled with a specific name.
-     *
-     * @param name The name to cancel
-     * @param workManagerImpl The {@link WorkManagerImpl} to use
-     * @param allowReschedule If {@code true}, reschedule pending workers at the end
-     * @return A {@link CancelWorkRunnable} that cancels work labelled with a specific name
-     */
-    @NonNull
-    public static CancelWorkRunnable forName(
-            @NonNull final String name,
-            @NonNull final WorkManagerImpl workManagerImpl,
-            final boolean allowReschedule) {
-        return new CancelWorkRunnable() {
-            @WorkerThread
-            @Override
-            void runInternal() {
-                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
-                workDatabase.beginTransaction();
-                try {
-                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-                    List<String> workSpecIds = workSpecDao.getUnfinishedWorkWithName(name);
-                    for (String workSpecId : workSpecIds) {
-                        cancel(workManagerImpl, workSpecId);
-                    }
-                    workDatabase.setTransactionSuccessful();
-                } finally {
-                    workDatabase.endTransaction();
-                }
-
-                if (allowReschedule) {
-                    reschedulePendingWorkers(workManagerImpl);
-                }
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link CancelWorkRunnable} that cancels all work.
-     *
-     * @param workManagerImpl The {@link WorkManagerImpl} to use
-     * @return A {@link CancelWorkRunnable} that cancels all work
-     */
-    @NonNull
-    public static CancelWorkRunnable forAll(@NonNull final WorkManagerImpl workManagerImpl) {
-        return new CancelWorkRunnable() {
-            @WorkerThread
-            @Override
-            void runInternal() {
-                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
-                workDatabase.beginTransaction();
-                try {
-                    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
-                    List<String> workSpecIds = workSpecDao.getAllUnfinishedWork();
-                    for (String workSpecId : workSpecIds) {
-                        cancel(workManagerImpl, workSpecId);
-                    }
-                    // Update the last cancelled time in Preference.
-                    new PreferenceUtils(workManagerImpl.getWorkDatabase())
-                            .setLastCancelAllTimeMillis(
-                                    workManagerImpl.getConfiguration().getClock()
-                                            .currentTimeMillis());
-                    workDatabase.setTransactionSuccessful();
-                } finally {
-                    workDatabase.endTransaction();
-                }
-                // No need to call reschedule pending workers here as we just cancelled everything.
-            }
-        };
+private fun cancel(workManagerImpl: WorkManagerImpl, workSpecId: String) {
+    iterativelyCancelWorkAndDependents(workManagerImpl.workDatabase, workSpecId)
+    val processor = workManagerImpl.processor
+    processor.stopAndCancelWork(workSpecId, JobParameters.STOP_REASON_CANCELLED_BY_APP)
+    for (scheduler in workManagerImpl.schedulers) {
+        scheduler.cancel(workSpecId)
     }
 }
+
+private fun reschedulePendingWorkers(workManagerImpl: WorkManagerImpl) {
+    Schedulers.schedule(
+        workManagerImpl.configuration,
+        workManagerImpl.workDatabase,
+        workManagerImpl.schedulers
+    )
+}
+
+private fun iterativelyCancelWorkAndDependents(workDatabase: WorkDatabase, workSpecId: String) {
+    val workSpecDao = workDatabase.workSpecDao()
+    val dependencyDao = workDatabase.dependencyDao()
+    val idsToProcess = mutableListOf(workSpecId)
+    while (idsToProcess.isNotEmpty()) {
+        val id = idsToProcess.removeLast()
+        // Don't fail already cancelled work.
+        val state = workSpecDao.getState(id)
+        if (state !== WorkInfo.State.SUCCEEDED && state !== WorkInfo.State.FAILED) {
+            workSpecDao.setCancelledState(id)
+        }
+        idsToProcess.addAll(dependencyDao.getDependentWorkIds(id))
+    }
+}
+
+/**
+ * Cancels work for a specific id.
+ *
+ * @param id The id to cancel
+ * @param workManagerImpl The [WorkManagerImpl] to use
+ * @return A [Operation]
+ */
+fun forId(
+    id: UUID,
+    workManagerImpl: WorkManagerImpl
+): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+    val workDatabase = workManagerImpl.workDatabase
+    workDatabase.runInTransaction {
+        cancel(workManagerImpl, id.toString())
+    }
+    reschedulePendingWorkers(workManagerImpl)
+}
+
+/**
+ * Cancels work for a specific tag.
+ *
+ * @param tag The tag to cancel
+ * @param workManagerImpl The [WorkManagerImpl] to use
+ * @return A [Operation]
+ */
+fun forTag(
+    tag: String,
+    workManagerImpl: WorkManagerImpl
+): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+    val workDatabase = workManagerImpl.workDatabase
+    workDatabase.runInTransaction {
+        val workSpecDao = workDatabase.workSpecDao()
+        val workSpecIds = workSpecDao.getUnfinishedWorkWithTag(tag)
+        for (workSpecId in workSpecIds) {
+            cancel(workManagerImpl, workSpecId)
+        }
+    }
+    reschedulePendingWorkers(workManagerImpl)
+}
+
+/**
+ *  Cancels work labelled with a specific name.
+ *
+ * @param name The name to cancel
+ * @param workManagerImpl The [WorkManagerImpl] to use
+ * @return A [Operation]
+ */
+fun forName(
+    name: String,
+    workManagerImpl: WorkManagerImpl
+): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+    forNameInline(name, workManagerImpl)
+    reschedulePendingWorkers(workManagerImpl)
+}
+
+fun forNameInline(
+    name: String,
+    workManagerImpl: WorkManagerImpl
+) {
+    val workDatabase = workManagerImpl.workDatabase
+    workDatabase.runInTransaction {
+        val workSpecDao = workDatabase.workSpecDao()
+        val workSpecIds = workSpecDao.getUnfinishedWorkWithName(name)
+        for (workSpecId in workSpecIds) {
+            cancel(workManagerImpl, workSpecId)
+        }
+    }
+}
+
+/**
+ * Cancels all work.
+ *
+ * @param workManagerImpl The [WorkManagerImpl] to use
+ * @return A [Operation] that cancels all work
+ */
+fun forAll(workManagerImpl: WorkManagerImpl): Operation =
+    launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+        val workDatabase = workManagerImpl.workDatabase
+        workDatabase.runInTransaction {
+            val workSpecDao = workDatabase.workSpecDao()
+            val workSpecIds = workSpecDao.getAllUnfinishedWork()
+            for (workSpecId in workSpecIds) {
+                cancel(workManagerImpl, workSpecId)
+            }
+            // Update the last cancelled time in Preference.
+            PreferenceUtils(workDatabase).setLastCancelAllTimeMillis(
+                workManagerImpl.configuration.clock.currentTimeMillis()
+            )
+        }
+        // No need to call reschedule pending workers here as we just cancelled everything.
+    }

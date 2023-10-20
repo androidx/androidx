@@ -276,7 +276,7 @@ public class EnqueueRunnable implements Runnable {
                     // the current transaction.  We want it to happen separately to avoid race
                     // conditions (see ag/4502245, which tries to avoid work trying to run before
                     // it's actually been committed to the database).
-                    CancelWorkRunnable.forName(name, workManagerImpl, false).run();
+                    CancelWorkRunnable.forNameInline(name, workManagerImpl);
                     // Because we cancelled some work but didn't allow rescheduling inside
                     // CancelWorkRunnable, we need to make sure we do schedule work at the end of
                     // this runnable.

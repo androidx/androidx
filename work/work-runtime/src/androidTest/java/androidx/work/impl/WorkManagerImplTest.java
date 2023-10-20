@@ -1905,7 +1905,7 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
 
-        CancelWorkRunnable.forAll(mWorkManagerImpl).run();
+        CancelWorkRunnable.forAll(mWorkManagerImpl);
         assertThat(preferenceUtils.getLastCancelAllTimeMillis(), is(greaterThan(0L)));
     }
 
