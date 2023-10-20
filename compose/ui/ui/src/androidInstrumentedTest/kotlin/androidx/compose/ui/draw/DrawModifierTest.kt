@@ -69,6 +69,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -170,7 +172,7 @@ class DrawModifierTest {
     @Test
     fun invalidationForDrawWithCache() {
         var size by mutableStateOf(10f)
-        var drawCount = 0
+        var drawLatch = CountDownLatch(1)
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier
@@ -180,19 +182,18 @@ class DrawModifierTest {
                         val rectSize = Size(size, size)
                         onDrawBehind {
                             drawRect(Color.Blue, Offset.Zero, rectSize)
-                            drawCount++
+                            drawLatch.countDown()
                         }
                     }
                     .graphicsLayer { }
                 )
             }
         }
-        rule.waitForIdle()
-        assertThat(drawCount).isEqualTo(1)
+        assertThat(drawLatch.await(2, TimeUnit.SECONDS)).isTrue()
 
+        drawLatch = CountDownLatch(1)
         size = 15f
-        rule.waitForIdle()
-        assertThat(drawCount).isEqualTo(2)
+        assertThat(drawLatch.await(2, TimeUnit.SECONDS)).isTrue()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -366,23 +367,28 @@ class DrawModifierTest {
     fun testCacheInvalidatedAfterLayoutDirectionChange() {
         var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
         var realLayoutDirection: LayoutDirection? = null
+        var drawLatch = CountDownLatch(1)
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 AtLeastSize(
                     size = 10,
                     modifier = Modifier.drawWithCache {
                         realLayoutDirection = layoutDirection
+                        drawLatch.countDown()
                         onDrawBehind {}
                     }
                 ) { }
             }
         }
 
+        assertThat(drawLatch.await(2, TimeUnit.SECONDS)).isTrue()
         rule.runOnIdle {
             assertEquals(LayoutDirection.Ltr, realLayoutDirection)
+            drawLatch = CountDownLatch(1)
             layoutDirection = LayoutDirection.Rtl
         }
 
+        assertThat(drawLatch.await(2, TimeUnit.SECONDS)).isTrue()
         rule.runOnIdle {
             assertEquals(LayoutDirection.Rtl, realLayoutDirection)
         }
@@ -825,6 +831,7 @@ class DrawModifierTest {
     fun testInvalidationInsideOnSizeChanged() {
         var someState by mutableStateOf(1)
         var drawCount = 0
+        val drawLatch = CountDownLatch(1)
 
         rule.setContent {
             Box(
@@ -833,6 +840,7 @@ class DrawModifierTest {
                         @Suppress("UNUSED_EXPRESSION")
                         someState
                         drawCount++
+                        drawLatch.countDown()
                     }
                     .onSizeChanged {
                         // assert that draw hasn't happened yet
@@ -842,6 +850,7 @@ class DrawModifierTest {
                     .size(10.dp)
             )
         }
+        assertThat(drawLatch.await(2, TimeUnit.SECONDS)).isTrue()
         rule.runOnIdle {
             // assert that state invalidation inside of onSizeChanged
             // doesn't schedule additional draw
