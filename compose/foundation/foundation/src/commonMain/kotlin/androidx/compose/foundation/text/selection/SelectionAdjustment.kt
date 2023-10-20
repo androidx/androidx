@@ -252,8 +252,9 @@ private fun SelectableInfo.snapToWordBoundary(
         wordBoundary.start
     } else if (currentLine >= textLayoutResult.lineCount) {
         // We cannot find the line start, because this line is not even visible.
-        // Since we cannot really select meaningfully in this area, just use the word boundary.
-        wordBoundary.start
+        // Since we cannot really select meaningfully in this area,
+        // just use the start of the last visible line.
+        textLayoutResult.getLineStart(textLayoutResult.lineCount - 1)
     } else {
         textLayoutResult.getLineStart(currentLine)
     }
@@ -263,8 +264,9 @@ private fun SelectableInfo.snapToWordBoundary(
         wordBoundary.end
     } else if (currentLine >= textLayoutResult.lineCount) {
         // We cannot find the line end, because this line is not even visible.
-        // Since we cannot really select meaningfully in this area, just use the word boundary.
-        wordBoundary.end
+        // Since we cannot really select meaningfully in this area,
+        // just use the end of the last visible line.
+        textLayoutResult.getLineEnd(textLayoutResult.lineCount - 1)
     } else {
         textLayoutResult.getLineEnd(currentLine)
     }

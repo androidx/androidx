@@ -746,8 +746,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     ) {
         previousSelectionLayout = null
         updateSelection(
-            startHandlePosition = position,
-            endHandlePosition = position,
+            position = position,
             previousHandlePosition = Offset.Unspecified,
             isStartHandle = isStartHandle,
             adjustment = adjustment
@@ -774,28 +773,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         adjustment: SelectionAdjustment,
     ): Boolean {
         if (newPosition == null) return false
-        val otherHandlePosition = selection?.let { selection ->
-            val otherSelectableId = if (isStartHandle) {
-                selection.end.selectableId
-            } else {
-                selection.start.selectableId
-            }
-            val otherSelectable =
-                selectionRegistrar.selectableMap[otherSelectableId] ?: return@let null
-            val handlePosition = otherSelectable.getHandlePosition(selection, !isStartHandle)
-            if (handlePosition.isUnspecified) return@let null
-            convertToContainerCoordinates(
-                otherSelectable.getLayoutCoordinates()!!,
-                getAdjustedCoordinates(handlePosition)
-            )
-        } ?: return false
-
-        val startHandlePosition = if (isStartHandle) newPosition else otherHandlePosition
-        val endHandlePosition = if (isStartHandle) otherHandlePosition else newPosition
-
         return updateSelection(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            position = newPosition,
             previousHandlePosition = previousPosition,
             isStartHandle = isStartHandle,
             adjustment = adjustment
@@ -809,8 +788,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * selection handle is updated each time. The only exception is that when a new selection is
      * started. In this case, [previousHandlePosition] is always null.
      *
-     * @param startHandlePosition the position of the start selection handle.
-     * @param endHandlePosition the position of the end selection handle.
+     * @param position the position of the current gesture.
      * @param previousHandlePosition the position of the moving handle before the update.
      * @param isStartHandle whether the moving selection handle is the start handle.
      * @param adjustment the [SelectionAdjustment] used to adjust the raw selection range and
@@ -824,22 +802,15 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * @see SelectionAdjustment
      */
     internal fun updateSelection(
-        startHandlePosition: Offset,
-        endHandlePosition: Offset,
+        position: Offset,
         previousHandlePosition: Offset,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
     ): Boolean {
         draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-        currentDragPosition = if (isStartHandle) startHandlePosition else endHandlePosition
+        currentDragPosition = position
 
-        val selectionLayout = getSelectionLayout(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
-            previousHandlePosition = previousHandlePosition,
-            isStartHandle = isStartHandle,
-        )
-
+        val selectionLayout = getSelectionLayout(position, previousHandlePosition, isStartHandle)
         if (!selectionLayout.shouldRecomputeSelection(previousSelectionLayout)) {
             return false
         }
@@ -853,8 +824,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     }
 
     private fun getSelectionLayout(
-        startHandlePosition: Offset,
-        endHandlePosition: Offset,
+        position: Offset,
         previousHandlePosition: Offset,
         isStartHandle: Boolean,
     ): SelectionLayout {
@@ -871,8 +841,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         // if previous handle is null, then treat this as a new selection.
         val previousSelection = if (previousHandlePosition.isUnspecified) null else selection
         val builder = SelectionLayoutBuilder(
-            startHandlePosition = startHandlePosition,
-            endHandlePosition = endHandlePosition,
+            currentPosition = position,
             previousHandlePosition = previousHandlePosition,
             containerCoordinates = containerCoordinates,
             isStartHandle = isStartHandle,

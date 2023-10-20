@@ -20,21 +20,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.gestures.util.to
+import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,6 +50,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlin.math.sign
+import kotlin.test.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -172,14 +182,73 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         }
     }
 
-    private fun characterPosition(offset: Int): Offset {
+    // Test is irrelevant if the end handle is not hidden, which is the case below api 26.
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun whenDragStartHandle_withNoEndHandle_selectionAndHandleUpdates() {
+        maxLinesState.value = 1
+        overflowState.value = TextOverflow.Clip
+        rule.waitForIdle()
+        asserter.assert()
+
+        performTouchGesture { longClick(characterPosition(4)) }
+        asserter.applyAndAssert {
+            selection = 0 to text.length
+            startSelectionHandleShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
+        withHandlePressed(Handle.SelectionStart) {
+            moveHandleToCharacter(characterOffset = 2)
+        }
+        asserter.applyAndAssert {
+            selection = 2 to text.length
+            hapticsCount++
+        }
+    }
+
+    private fun withHandlePressed(
+        handle: Handle,
+        block: SemanticsNodeInteraction.() -> Unit
+    ): SemanticsNodeInteraction = rule.onNode(isSelectionHandle(handle)).run {
+        performTouchInput { down(center) }
+        block()
+        performTouchInput { up() }
+    }
+
+    private fun SemanticsNodeInteraction.moveHandleToCharacter(characterOffset: Int) {
+        val selectionHandleInfo = fetchSemanticsNode().config[SelectionHandleInfoKey]
+        val destinationPosition = characterBox(characterOffset).run {
+            when (selectionHandleInfo.handle) {
+                Handle.SelectionStart -> bottomLeft
+                Handle.SelectionEnd -> bottomRight
+                Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+            }
+        }
+        val delta = destinationPosition - selectionHandleInfo.position
+        performTouchInput { movePastSlopBy(delta) }
+    }
+
+    private fun TouchInjectionScope.movePastSlopBy(delta: Offset) {
+        val slop = Offset(
+            x = viewConfiguration.touchSlop * delta.x.sign,
+            y = viewConfiguration.touchSlop * delta.y.sign
+        )
+        moveBy(delta + slop)
+    }
+
+    private fun characterPosition(offset: Int): Offset =
+        characterBox(offset)
+            .centerLeft
+            .nudge(HorizontalDirection.END)
+
+    private fun characterBox(offset: Int): Rect {
         val pointerAreaPosition =
             rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val textPosition = rule.onNodeWithTag(textTag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(textTag).fetchTextLayoutResult()
         return textLayoutResult.getBoundingBox(offset)
             .translate(textPosition - pointerAreaPosition)
-            .centerLeft
-            .nudge(HorizontalDirection.END)
     }
 }
