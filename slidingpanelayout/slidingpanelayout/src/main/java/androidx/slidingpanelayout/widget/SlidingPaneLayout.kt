@@ -29,6 +29,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -40,9 +41,11 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntDef
 import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.Insets
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.os.HandlerCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
@@ -419,6 +422,57 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     private val windowInfoTracker = WindowInfoTracker.getOrCreate(context)
 
+    private var userResizingDividerDrawable: Drawable? = null
+
+    /**
+     * Set a [Drawable] to display when [isUserResizingEnabled] is `true` and multiple panes are
+     * visible without overlapping. This forms the visual touch target for dragging.
+     * This may also be set from the `userResizingDividerDrawable` XML attribute during
+     * view inflation.
+     */
+    fun setUserResizingDividerDrawable(drawable: Drawable?) {
+        val old = userResizingDividerDrawable
+        if (drawable !== old) {
+            if (old != null) {
+                old.callback = null
+                unscheduleDrawable(old)
+            }
+            userResizingDividerDrawable = drawable
+            if (drawable != null) {
+                drawable.callback = this
+                if (drawable.isStateful) drawable.setState(drawableState)
+                drawable.setVisible(visibility == VISIBLE, false)
+            }
+        }
+    }
+
+    /**
+     * Set to `true` to enable user resizing of side by side panes through gestures or other inputs.
+     * This may also be set from the `isUserResizingEnabled` XML attribute during
+     * view inflation. A divider drawable must be provided; see [setUserResizingDividerDrawable]
+     * and [isUserResizable].
+     */
+    var isUserResizingEnabled: Boolean = false
+        set(value) {
+            if (value != field) {
+                field = value
+                requestLayout()
+            }
+        }
+
+    /**
+     * `true` if user resizing of side-by-side panes is currently available.
+     * This means that:
+     *
+     * - [isSlideable] is `false` (otherwise panes are overlapping, not side-by-side)
+     * - [isUserResizingEnabled] is `true`
+     * - A divider drawable has been [set][setUserResizingDividerDrawable]
+     *
+     * and not necessarily that the user themselves can change in size.
+     */
+    val isUserResizable: Boolean
+        get() = !isSlideable && isUserResizingEnabled && userResizingDividerDrawable != null
+
     init {
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
@@ -427,6 +481,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         context.withStyledAttributes(attrs, R.styleable.SlidingPaneLayout) {
             isOverlappingEnabled =
                 getBoolean(R.styleable.SlidingPaneLayout_isOverlappingEnabled, true)
+            isUserResizingEnabled =
+                getBoolean(R.styleable.SlidingPaneLayout_isUserResizingEnabled, false)
+            userResizingDividerDrawable =
+                getDrawable(R.styleable.SlidingPaneLayout_userResizingDividerDrawable)
         }
     }
 
@@ -547,6 +605,33 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 child.visibility = VISIBLE
             }
         }
+    }
+
+    override fun drawableStateChanged() {
+        super.drawableStateChanged()
+
+        userResizingDividerDrawable?.apply {
+            if (isStateful && setState(drawableState)) {
+                invalidateDrawable(this)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun drawableHotspotChanged(x: Float, y: Float) {
+        super.drawableHotspotChanged(x, y)
+
+        userResizingDividerDrawable?.let {
+            DrawableCompat.setHotspot(it, x, y)
+        }
+    }
+
+    override fun verifyDrawable(who: Drawable): Boolean =
+        super.verifyDrawable(who) || who === userResizingDividerDrawable
+
+    override fun jumpDrawablesToCurrentState() {
+        super.jumpDrawablesToCurrentState()
+        userResizingDividerDrawable?.jumpToCurrentState()
     }
 
     override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
