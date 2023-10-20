@@ -626,13 +626,6 @@ internal class AndroidComposeView(
             // Support for this feature in Compose is tracked here: b/207654434
             AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
-                this,
-                AndroidComposeViewTranslationCallback()
-            )
-        }
     }
 
     /**
@@ -1374,6 +1367,13 @@ internal class AndroidComposeView(
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.addOnTouchModeChangeListener(touchModeChangeListener)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AndroidComposeViewTranslationCallbackS.setViewTranslationCallback(
+                this,
+                AndroidComposeViewTranslationCallback()
+            )
+        }
     }
 
     override fun onDetachedFromWindow() {
@@ -1389,6 +1389,10 @@ internal class AndroidComposeView(
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
         viewTreeObserver.removeOnTouchModeChangeListener(touchModeChangeListener)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AndroidComposeViewTranslationCallbackS.clearViewTranslationCallback(this)
+        }
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
@@ -2083,6 +2087,12 @@ internal object AndroidComposeViewTranslationCallbackS {
     @RequiresApi(Build.VERSION_CODES.S)
     fun setViewTranslationCallback(view: View, translationCallback: ViewTranslationCallback) {
         view.setViewTranslationCallback(translationCallback)
+    }
+
+    @DoNotInline
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun clearViewTranslationCallback(view: View) {
+        view.clearViewTranslationCallback()
     }
 }
 
