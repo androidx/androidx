@@ -18,6 +18,8 @@ package androidx.slidingpanelayout.widget {
     method public boolean isOpen();
     method public final boolean isOverlappingEnabled();
     method public boolean isSlideable();
+    method public final boolean isUserResizable();
+    method public final boolean isUserResizingEnabled();
     method public void open();
     method public boolean openPane();
     method public void removePanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
@@ -34,11 +36,15 @@ package androidx.slidingpanelayout.widget {
     method public void setShadowResourceLeft(@DrawableRes int resId);
     method public void setShadowResourceRight(@DrawableRes int resId);
     method @Deprecated public void setSliderFadeColor(int);
+    method public final void setUserResizingDividerDrawable(android.graphics.drawable.Drawable? drawable);
+    method public final void setUserResizingEnabled(boolean);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
     property @Deprecated @ColorInt public int coveredFadeColor;
     property public final boolean isOverlappingEnabled;
     property public boolean isSlideable;
+    property public final boolean isUserResizable;
+    property public final boolean isUserResizingEnabled;
     property public final int lockMode;
     property @Px public int parallaxDistance;
     property @Deprecated @ColorInt public int sliderFadeColor;
