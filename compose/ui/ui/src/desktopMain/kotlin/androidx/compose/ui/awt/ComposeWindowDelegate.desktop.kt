@@ -93,11 +93,13 @@ internal class ComposeWindowDelegate(
 
         init {
             layout = null
+            super.add(bridge.invisibleComponent, 1)
             super.add(bridge.component, 1)
         }
 
         fun dispose() {
             super.remove(bridge.component)
+            super.remove(bridge.invisibleComponent)
         }
     }
 

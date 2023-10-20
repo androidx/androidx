@@ -54,6 +54,11 @@ import org.jetbrains.skiko.*
  * Provides a base implementation for integrating a Compose scene with AWT/Swing.
  * It allows setting Compose content by [setContent], this content should be drawn on [component].
  *
+ * This bridge contain 2 components that should be added to the view hirarachy:
+ * [component] the main visible Swing component, on which Compose will be shown
+ * [invisibleComponent] service component used to bypass Swing issues:
+ * - for forcing refocus on input methods change
+ *
  * Inheritors should call [attachComposeToComponent], so events that came to [component] will be transferred to [ComposeScene]
  */
 internal abstract class ComposeBridge(
@@ -66,7 +71,10 @@ internal abstract class ComposeBridge(
         mainOwnerProvider = { scene.mainOwner }
     )
 
+    private val _invisibleComponent = InvisibleComponent()
+
     abstract val component: JComponent
+    val invisibleComponent: Component get() = _invisibleComponent
 
     abstract val renderApi: GraphicsApi
 
@@ -86,16 +94,30 @@ internal abstract class ComposeBridge(
 
     private var window: Window? = null
 
+    private fun refocus() {
+        if (component.isFocusOwner) {
+            _invisibleComponent.requestFocusTemporary()
+            component.requestFocus()
+        }
+    }
+
     private val platformComponent: PlatformComponent = object : PlatformComponent {
         override fun enableInput(inputMethodRequests: InputMethodRequests) {
             currentInputMethodRequests = inputMethodRequests
             component.enableInputMethods(true)
-            val focusGainedEvent = FocusEvent(focusComponentDelegate, FocusEvent.FOCUS_GAINED)
-            component.inputContext.dispatchEvent(focusGainedEvent)
+            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
+            // enableInputMethods is design to used per-Swing component level at init stage,
+            // not dynamically
+            refocus()
         }
 
         override fun disableInput() {
             currentInputMethodRequests = null
+            component.enableInputMethods(false)
+            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
+            // enableInputMethods is design to used per-Swing component level at init stage,
+            // not dynamically
+            refocus()
         }
 
         override val locationOnScreen: Point
@@ -181,6 +203,7 @@ internal abstract class ComposeBridge(
 
     @OptIn(ExperimentalComposeUiApi::class)
     protected fun attachComposeToComponent() {
+        component.enableInputMethods(false)
         component.addInputMethodListener(object : InputMethodListener {
             override fun caretPositionChanged(event: InputMethodEvent?) {
                 if (isDisposed) return
@@ -391,6 +414,12 @@ internal abstract class ComposeBridge(
             override val doubleTapTimeoutMillis: Long = 300
             override val doubleTapMinTimeMillis: Long = 40
             override val touchSlop: Float get() = with(platformComponent.density) { 18.dp.toPx() }
+        }
+    }
+
+    private class InvisibleComponent : Component() {
+        fun requestFocusTemporary(): Boolean {
+            return super.requestFocus(true)
         }
     }
 }

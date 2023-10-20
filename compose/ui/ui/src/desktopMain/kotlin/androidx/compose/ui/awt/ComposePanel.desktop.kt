@@ -119,6 +119,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         if (bridge != null) {
             bridge!!.dispose()
             super.remove(bridge!!.component)
+            super.remove(bridge!!.invisibleComponent)
             bridge = null
         }
     }
@@ -193,6 +194,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         if (bridge == null) {
             bridge = createComposeBridge()
             initContent()
+            super.add(bridge!!.invisibleComponent, Integer.valueOf(1))
             super.add(bridge!!.component, Integer.valueOf(1))
         }
     }
