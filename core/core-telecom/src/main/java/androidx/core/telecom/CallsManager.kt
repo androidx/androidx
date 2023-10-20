@@ -404,17 +404,24 @@ class CallsManager constructor(context: Context) {
     ) {
         try {
             withTimeout(ADD_CALL_TIMEOUT) {
+                // This log will print once a request is sent to the platform to add a new call.
+                // It is necessary to pause execution so Core-Telecom does not run the clients
+                // CallControlScope before the call is returned from the platform.
                 Log.i(TAG, "addCall: pausing [$coroutineContext] execution" +
                     " until the CallControl or Connection is ready")
                 openResult.await()
             }
         } catch (timeout: TimeoutCancellationException) {
+            // If this block is entered, the platform failed to create the call in time and hung.
             Log.i(TAG, "addCall: timeout hit; canceling call in context=[$coroutineContext]")
             if (request != null) {
                 JetpackConnectionService.mPendingConnectionRequests.remove(request)
             }
             openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
         }
+        // This log will print once the CallControl object or Connection is returned from the
+        // the platform. This means the call was added successfully and Core-Telecom is ready to
+        // run the clients CallControlScope block.
         Log.i(TAG, "addCall: creating call session and running the clients scope")
     }
 
