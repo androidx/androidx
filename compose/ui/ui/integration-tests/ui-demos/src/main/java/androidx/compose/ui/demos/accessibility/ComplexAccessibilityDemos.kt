@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -49,19 +50,23 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.databinding.TestLayoutBinding
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
+import kotlin.math.max
 
 @Composable
 fun LastElementOverLaidColumn(
@@ -539,6 +544,87 @@ fun ReadableTraversalGroups() {
             Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
             Button(onClick = { }) {
                 Text("First button")
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SimpleRtlLayoutDemo() {
+    Column {
+        Row(Modifier.semantics { isTraversalGroup = true }) {
+            SimpleTestLayout(
+                Modifier
+                    .requiredSize(100.dp)
+            ) {
+                Text("Child 1")
+            }
+            SimpleTestLayout(
+                Modifier
+                    .requiredSize(100.dp)
+            ) {
+                Text("Child 2")
+            }
+            SimpleTestLayout(
+                Modifier
+                    .requiredSize(100.dp)
+            ) {
+                Text("Child 3")
+            }
+        }
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            // Will display rtlChild3 rtlChild2 rtlChild1, but should be read
+            // from child1 => child2 => child3.
+            Row(Modifier.semantics { isTraversalGroup = true }) {
+                SimpleTestLayout(
+                    Modifier
+                        .requiredSize(100.dp)
+                ) {
+                    Text("RTL child 1")
+                }
+                SimpleTestLayout(
+                    Modifier
+                        .requiredSize(100.dp)
+                ) {
+                    Text("RTL child 2")
+                }
+                SimpleTestLayout(
+                    Modifier
+                        .requiredSize(100.dp)
+                ) {
+                    Text("RTL child 3")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SimpleTestLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(modifier = modifier, content = content) { measurables, constraints ->
+        if (measurables.isEmpty()) {
+            layout(constraints.minWidth, constraints.minHeight) {}
+        } else {
+            val placeables = measurables.map {
+                it.measure(constraints)
+            }
+            val (width, height) = with(placeables) {
+                Pair(
+                    max(
+                        maxByOrNull { it.width }?.width ?: 0,
+                        constraints.minWidth
+                    ),
+                    max(
+                        maxByOrNull { it.height }?.height ?: 0,
+                        constraints.minHeight
+                    )
+                )
+            }
+            layout(width, height) {
+                for (placeable in placeables) {
+                    placeable.placeRelative(0, 0)
+                }
             }
         }
     }

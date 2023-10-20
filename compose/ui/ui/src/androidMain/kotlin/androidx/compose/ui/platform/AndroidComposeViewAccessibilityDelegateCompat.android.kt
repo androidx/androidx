@@ -563,13 +563,22 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // we need to fix this since this is called during sorting
             val ab = a.boundsInWindow
             val bb = b.boundsInWindow
-            var r = ab.right.compareTo(bb.right)
+            // We want to compare the right-most bounds, with the largest values first — that way
+            // the nodes will be sorted from right to left. Since `compareTo` returns a positive
+            // number if the first object is greater than the second, we want to call
+            // `b.compareTo(a)`, since we want our values in descending order, rather than
+            // ascending order.
+            var r = bb.right.compareTo(ab.right)
             if (r != 0) return r
+            // Since in RTL layouts we still read from top to bottom, we compare the top and
+            // bottom bounds as usual.
             r = ab.top.compareTo(bb.top)
             if (r != 0) return r
             r = ab.bottom.compareTo(bb.bottom)
             if (r != 0) return r
-            return ab.left.compareTo(bb.left)
+            // We also want to sort the left bounds in descending order, so call `b.compareTo(a)`
+            // here too.
+            return bb.left.compareTo(ab.left)
         }
     }
 
@@ -692,10 +701,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun geometryDepthFirstSearch(
         currNode: SemanticsNode,
-        layoutIsRtl: Boolean,
         geometryList: ArrayList<SemanticsNode>,
         containerMapToChildren: MutableMap<Int, MutableList<SemanticsNode>>
     ) {
+        val currRTL = currNode.isRtl
+
         // We only want to add children that are either traversalGroups or are
         // screen reader focusable. The child must also be in the current pruned semantics tree.
         val isTraversalGroup = currNode.isTraversalGroup
@@ -706,13 +716,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (isTraversalGroup) {
             // Recurse and record the container's children, sorted
             containerMapToChildren[currNode.id] = subtreeSortedByGeometryGrouping(
-                layoutIsRtl, currNode.children.toMutableList()
+                currRTL, currNode.children.toMutableList()
             )
         } else {
             // Otherwise, continue adding children to the list that'll be sorted regardless of
             // hierarchy
             currNode.children.fastForEach { child ->
-                geometryDepthFirstSearch(child, layoutIsRtl, geometryList, containerMapToChildren)
+                geometryDepthFirstSearch(child, geometryList, containerMapToChildren)
             }
         }
     }
@@ -734,7 +744,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val geometryList = ArrayList<SemanticsNode>()
 
         listToSort.fastForEach { node ->
-            geometryDepthFirstSearch(node, layoutIsRtl, geometryList, containerMapToChildren)
+            geometryDepthFirstSearch(node, geometryList, containerMapToChildren)
         }
 
         return sortByGeometryGroupings(layoutIsRtl, geometryList, containerMapToChildren)
@@ -747,10 +757,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val hostSemanticsNode =
             currentSemanticsNodes[AccessibilityNodeProviderCompat.HOST_VIEW_ID]
                 ?.semanticsNode!!
-        val layoutIsRtl = hostSemanticsNode.isRtl
+        val hostLayoutIsRtl = hostSemanticsNode.isRtl
 
         val semanticsOrderList = subtreeSortedByGeometryGrouping(
-            layoutIsRtl, mutableListOf(hostSemanticsNode)
+            hostLayoutIsRtl, mutableListOf(hostSemanticsNode)
         )
 
         // Iterate through our ordered list, and creating a mapping of current node to next node ID

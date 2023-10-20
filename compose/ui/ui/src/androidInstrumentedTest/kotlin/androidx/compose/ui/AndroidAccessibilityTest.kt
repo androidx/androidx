@@ -1885,68 +1885,100 @@ class AndroidAccessibilityTest {
     fun testChildrenSortedByBounds_rtl() {
         // Arrange.
         val rootTag = "root"
-        val childTag1 = "child1"
-        val childTag2 = "child2"
-        val childTag3 = "child3"
-        val rtlChildTag1 = "rtlChild1"
-        val rtlChildTag2 = "rtlChild2"
-        val rtlChildTag3 = "rtlChild3"
+        val childText1 = "child1"
+        val childText2 = "child2"
+        val childText3 = "child3"
+        val rtlChildText1 = "rtlChild1"
+        val rtlChildText2 = "rtlChild2"
+        val rtlChildText3 = "rtlChild3"
         setContent {
             Column(Modifier.testTag(rootTag)) {
-                Row {
+                // Will display child1, child2, child3, and should be read
+                // from child1 => child2 => child3.
+                Row(Modifier.semantics { isTraversalGroup = true }) {
                     SimpleTestLayout(
                         Modifier
                             .requiredSize(100.dp)
-                            .testTag(childTag1)
-                    ) {}
+                    ) {
+                        Text(childText1)
+                    }
                     SimpleTestLayout(
                         Modifier
                             .requiredSize(100.dp)
-                            .testTag(childTag2)
-                    ) {}
+                    ) {
+                        Text(childText2)
+                    }
                     SimpleTestLayout(
                         Modifier
                             .requiredSize(100.dp)
-                            .testTag(childTag3)
-                    ) {}
+                    ) {
+                        Text(childText3)
+                    }
                 }
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    // Will display rtlChild3 rtlChild2 rtlChild1
-                    Row {
+                    // Will display rtlChild3 rtlChild2 rtlChild1, but should be read
+                    // from child1 => child2 => child3.
+                    Row(Modifier.semantics { isTraversalGroup = true }) {
                         SimpleTestLayout(
                             Modifier
                                 .requiredSize(100.dp)
-                                .testTag(rtlChildTag1)
-                        ) {}
+                        ) {
+                            Text(rtlChildText1)
+                        }
                         SimpleTestLayout(
                             Modifier
                                 .requiredSize(100.dp)
-                                .testTag(rtlChildTag2)
-                        ) {}
+                        ) {
+                            Text(rtlChildText2)
+                        }
                         SimpleTestLayout(
                             Modifier
                                 .requiredSize(100.dp)
-                                .testTag(rtlChildTag3)
-                        ) {}
+                        ) {
+                            Text(rtlChildText3)
+                        }
                     }
                 }
             }
         }
         val root = rule.onNodeWithTag(rootTag).fetchSemanticsNode()
-        val rtlChild1Id = rule.onNodeWithTag(rtlChildTag1).semanticsId
-        val rtlChild2Id = rule.onNodeWithTag(rtlChildTag2).semanticsId
-        val rtlChild3Id = rule.onNodeWithTag(rtlChildTag3).semanticsId
+        val child1Id = rule.onNodeWithText(childText1).semanticsId
+        val child2Id = rule.onNodeWithText(childText2).semanticsId
+        val child3Id = rule.onNodeWithText(childText3).semanticsId
+
+        val rtlChild1Id = rule.onNodeWithText(rtlChildText1).semanticsId
+        val rtlChild2Id = rule.onNodeWithText(rtlChildText2).semanticsId
+        val rtlChild3Id = rule.onNodeWithText(rtlChildText3).semanticsId
 
         // Act.
         rule.waitForIdle()
+        val child1ANI = createAccessibilityNodeInfo(child1Id)
+        val child2ANI = createAccessibilityNodeInfo(child2Id)
+        val child3ANI = createAccessibilityNodeInfo(child3Id)
+
         val rtlChild1ANI = createAccessibilityNodeInfo(rtlChild1Id)
         val rtlChild2ANI = createAccessibilityNodeInfo(rtlChild2Id)
 
         // Assert - Rtl
         rule.runOnIdle {
-            assertThat(root.replacedChildren.size).isEqualTo(6)
-            assertThat(rtlChild1ANI.extras.traversalBefore).isLessThan(rtlChild2Id)
-            assertThat(rtlChild2ANI.extras.traversalBefore).isLessThan(rtlChild3Id)
+            // There should be two traversal groups in the scene.
+            assertThat(root.replacedChildren.size).isEqualTo(2)
+
+            assertThat(child1ANI.extras.traversalBefore).isNotEqualTo(0)
+            assertThat(child2ANI.extras.traversalBefore).isNotEqualTo(0)
+            assertThat(child3ANI.extras.traversalBefore).isNotEqualTo(0)
+
+            assertThat(rtlChild1ANI.extras.traversalBefore).isNotEqualTo(0)
+            assertThat(rtlChild2ANI.extras.traversalBefore).isNotEqualTo(0)
+
+            // The LTR children should be read from child1 => child2 => child3.
+            assertThat(child1ANI.extras.traversalBefore).isEqualTo(child2Id)
+            assertThat(child2ANI.extras.traversalBefore).isEqualTo(child3Id)
+            assertThat(child3ANI.extras.traversalBefore).isEqualTo(rtlChild1Id)
+
+            // We also want the RTL children to be read from child1 => child2 => child3.
+            assertThat(rtlChild1ANI.extras.traversalBefore).isEqualTo(rtlChild2Id)
+            assertThat(rtlChild2ANI.extras.traversalBefore).isEqualTo(rtlChild3Id)
         }
     }
 
