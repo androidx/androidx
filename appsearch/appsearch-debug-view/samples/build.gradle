@@ -44,10 +44,3 @@ dependencies {
     implementation(libs.constraintLayout)
     implementation(libs.guavaAndroid)
 }
-
-androidx {
-    name = "AppSearch Debug View Sample App"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2021"
-    description = "Contains a sample app for integrating the Androidx AppSearch Debug View"
-}
