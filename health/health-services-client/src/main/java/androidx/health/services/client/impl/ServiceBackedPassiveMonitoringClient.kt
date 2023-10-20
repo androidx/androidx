@@ -79,7 +79,8 @@ public class ServiceBackedPassiveMonitoringClient(
                     )
                 } else {
                     resultFuture.setException(HealthServicesException(
-                            "DataType for the requested passive goal is not tracked"
+                            "Service registration failed: DataType for the requested " +
+                            "passive goal must be tracked"
                         ))
                 }
             },
@@ -116,7 +117,8 @@ public class ServiceBackedPassiveMonitoringClient(
                 } else {
                     result.setException(
                         HealthServicesException(
-                            "DataType for the requested passive goal is not tracked"
+                            "Callback registration failed: DataType for the requested " +
+                            "passive goal must be tracked"
                         )
                     )
                 }
