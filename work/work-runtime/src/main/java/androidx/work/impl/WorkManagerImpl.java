@@ -496,9 +496,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
-        StatusRunnable<WorkInfo> runnable = StatusRunnable.forUUID(this, id);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forUUID(mWorkDatabase, mWorkTaskExecutor, id);
     }
 
     @NonNull
@@ -522,9 +520,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
-        StatusRunnable<List<WorkInfo>> runnable = StatusRunnable.forTag(this, tag);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forTag(mWorkDatabase, mWorkTaskExecutor, tag);
     }
 
     @Override
@@ -552,10 +548,7 @@ public class WorkManagerImpl extends WorkManager {
     @NonNull
     public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
             @NonNull String uniqueWorkName) {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forUniqueWork(this, uniqueWorkName);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forUniqueWork(mWorkDatabase, mWorkTaskExecutor,  uniqueWorkName);
     }
 
     @NonNull
@@ -582,12 +575,8 @@ public class WorkManagerImpl extends WorkManager {
 
     @NonNull
     @Override
-    public ListenableFuture<List<WorkInfo>> getWorkInfos(
-            @NonNull WorkQuery workQuery) {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forWorkQuerySpec(this, workQuery);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+    public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull WorkQuery workQuery) {
+        return StatusRunnable.forWorkQuerySpec(mWorkDatabase, mWorkTaskExecutor, workQuery);
     }
 
     @NonNull
