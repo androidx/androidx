@@ -43,11 +43,11 @@ import java.util.concurrent.Executors
  * val remoteActivityHelper = RemoteActivityHelper(context, executor)
  *
  * val result = remoteActivityHelper.startRemoteActivity(
- *     new Intent(Intent.ACTION_VIEW).setData(
- *         Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp")
- *     ),
- *     nodeId
- * )
+ *     Intent(Intent.ACTION_VIEW)
+ *         .setData(
+ *             Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp"))
+ *         .addCategory(Intent.CATEGORY_BROWSABLE),
+ *     nodeId)
  * ```
  *
  * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has
@@ -65,7 +65,8 @@ import java.util.concurrent.Executors
  * specified, default will be `Executors.newSingleThreadExecutor()`.
  */
 /* ktlint-enable max-line-length */
-public class RemoteActivityHelper(
+public class RemoteActivityHelper
+    @JvmOverloads constructor(
     private val context: Context,
     private val executor: Executor = Executors.newSingleThreadExecutor()
 ) {
