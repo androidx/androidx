@@ -39,6 +39,8 @@ import static androidx.wear.protolayout.renderer.test.R.drawable.android_animate
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -285,20 +287,19 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_textView_withEmptyValueForLayout() {
-        LayoutElement root =
-            LayoutElement.newBuilder()
-                .setText(
-                    Text.newBuilder()
-                        .setText(
-                            StringProp.newBuilder()
-                                .setValue("abcde")
-                                .setDynamicValue(
-                                    DynamicString.newBuilder()
+        StringProp stringProp =
+                StringProp.newBuilder()
+                        .setValue("abcde")
+                        .setDynamicValue(
+                                DynamicString.newBuilder()
                                         .setFixed(
-                                            FixedString.newBuilder()
-                                                .setValue("Dynamic Fixed Text")))
-                                        .setValueForLayout("")))
-                .build();
+                                                FixedString.newBuilder()
+                                                        .setValue("Dynamic Fixed Text")))
+                        .setValueForLayout("")
+                        .build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder().setText(Text.newBuilder().setText(stringProp)).build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
 
@@ -2326,23 +2327,23 @@ public class ProtoLayoutInflaterTest {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        // Shorter than 360 degrees, so should be drawn as an arc:
+                                        .setLength(
+                                                degreesDynamic(
+                                                        arcLength, /* valueForLayout= */ 180f))
+                                        .setThickness(dp(12)))
+                        .build();
+
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
                                         .setAnchorAngle(degrees(0).build())
-                                        .addContents(
-                                                ArcLayoutElement.newBuilder()
-                                                        .setLine(
-                                                                ArcLine.newBuilder()
-                                                                        // Shorter than 360 degrees,
-                                                                        // so should be drawn as an
-                                                                        // arc:
-                                                                        .setLength(
-                                                                                degreesDynamic(
-                                                                                        arcLength,
-                                                                                        180f))
-                                                                        .setThickness(dp(12)))))
+                                        .addContents(arcLine))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -2362,20 +2363,21 @@ public class ProtoLayoutInflaterTest {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        .setLength(
+                                                degreesDynamic(arcLength, /* valueForLayout= */ 0f))
+                                        .setThickness(dp(12)))
+                        .build();
+
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
                                         .setAnchorAngle(degrees(0).build())
-                                        .addContents(
-                                                ArcLayoutElement.newBuilder()
-                                                        .setLine(
-                                                                ArcLine.newBuilder()
-                                                                        .setLength(
-                                                                                degreesDynamic(
-                                                                                        arcLength,
-                                                                                        0f))
-                                                                        .setThickness(dp(12)))))
+                                        .addContents(arcLine))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -2412,23 +2414,22 @@ public class ProtoLayoutInflaterTest {
                                                                         .setSourceKey("foo"))))
                         .build();
 
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        // Shorter than 360 degrees, so should be drawn as an arc:
+                                        .setLength(
+                                                degreesDynamic(
+                                                        arcLength, /* valueForLayout= */ 180f))
+                                        .setThickness(dp(12)))
+                        .build();
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
                                         .setAnchorAngle(degrees(0).build())
-                                        .addContents(
-                                                ArcLayoutElement.newBuilder()
-                                                        .setLine(
-                                                                ArcLine.newBuilder()
-                                                                        // Shorter than 360 degrees,
-                                                                        // so should be drawn as an
-                                                                        // arc:
-                                                                        .setLength(
-                                                                                degreesDynamic(
-                                                                                        arcLength,
-                                                                                        180f))
-                                                                        .setThickness(dp(12)))))
+                                        .addContents(arcLine))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -2818,8 +2819,7 @@ public class ProtoLayoutInflaterTest {
         assertThat(tv1AfterMutation.getText().toString()).isEqualTo("Hello");
         assertThat(tv2AfterMutation.getText().toString()).isEqualTo("Mars");
         // Can't get android resource ID from image, so use the size to infer that the image has
-        // been
-        // correctly updated to a different one:
+        // been correctly updated to a different one:
         assertThat(imageAfterMutation.getDrawable().getIntrinsicHeight()).isEqualTo(120);
         assertThat(imageAfterMutation.getDrawable().getIntrinsicWidth()).isEqualTo(120);
         assertThat(imageAfterMutation.getMeasuredHeight()).isEqualTo(50);
@@ -4161,6 +4161,35 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void exitTransition_noQuota_notPlayed_withDynamicNode() {
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(
+                                fingerprintedLayout(
+                                        getDynamicTextElementWithExitAnimation(
+                                                "Hello", /* iterations= */ 1))),
+                        new FixedQuotaManagerImpl(/* quotaCap= */ 0));
+        mDataPipeline.setFullyVisible(true);
+        FrameLayout inflatedViewParent = renderer.inflate();
+        shadowOf(getMainLooper()).idle();
+
+        ViewGroupMutation mutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(textFadeIn("World")));
+
+        Runnable onEndTest = mock(Runnable.class);
+
+        mutation.mPipelineMaker
+                .get()
+                .playExitAnimations(inflatedViewParent, /* isReattaching= */ false, onEndTest);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        verify(onEndTest).run();
+    }
+
+    @Test
     public void exitTransition_noQuota_notPlayed() throws Exception {
         Renderer renderer =
                 renderer(
@@ -4402,8 +4431,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation(
-                                        "Second mutation",
-                                        /* iterations= */ 10)));
+                                        "Second mutation", /* iterations= */ 10)));
 
         ListenableFuture<Void> applySecondMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, secondMutation);
@@ -4558,6 +4586,16 @@ public class ProtoLayoutInflaterTest {
                 .build();
     }
 
+    private LayoutElement getDynamicTextElementWithExitAnimation(String text, int iterations) {
+        return LayoutElement.newBuilder()
+                .setText(
+                        dynamicTextAnimVisibility(
+                                AnimatedVisibility.newBuilder()
+                                        .setExitTransition(getFadeOutExitAnimation(iterations)),
+                                text))
+                .build();
+    }
+
     private LayoutElement getMultipleTextElementWithExitAnimation(
             List<String> texts, int iterations) {
         Column.Builder column = Column.newBuilder();
@@ -4609,6 +4647,22 @@ public class ProtoLayoutInflaterTest {
         return Text.newBuilder()
                 .setModifiers(Modifiers.newBuilder().setContentUpdateAnimation(snapTo.build()))
                 .setText(string(text).build());
+    }
+
+    @NonNull
+    private Text.Builder dynamicTextAnimVisibility(AnimatedVisibility.Builder snapTo, String text) {
+        return Text.newBuilder()
+                .setModifiers(Modifiers.newBuilder().setContentUpdateAnimation(snapTo.build()))
+                .setText(
+                        StringProp.newBuilder()
+                                .setDynamicValue(
+                                        DynamicString.newBuilder()
+                                                .setFixed(
+                                                        FixedString.newBuilder()
+                                                                .setValue(text)
+                                                                .build())
+                                                .build())
+                                .build());
     }
 
     private EnterTransition.Builder slideIn(int snapTo) {

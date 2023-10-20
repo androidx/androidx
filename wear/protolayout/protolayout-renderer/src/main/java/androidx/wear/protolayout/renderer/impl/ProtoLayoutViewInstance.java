@@ -212,13 +212,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Run any final inflation steps that need to be run on the Ui thread.
          *
+         * @param attachParent the parent view to which newly inflated layouts should attach.
+         * @param prevInflateParent the parent view for the previously inflated layout.
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
          */
         @UiThread
         @NonNull
         ListenableFuture<Void> postInflate(
-                @NonNull ViewGroup parent,
+                @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching);
     }
@@ -233,7 +235,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull
         @Override
         public ListenableFuture<Void> postInflate(
-                @NonNull ViewGroup parent,
+                @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching) {
             return Futures.immediateVoidFuture();
@@ -250,7 +252,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull
         @Override
         public ListenableFuture<Void> postInflate(
-                @NonNull ViewGroup parent,
+                @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching) {
             return Futures.immediateVoidFuture();
@@ -277,17 +279,17 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @Override
         @UiThread
         public ListenableFuture<Void> postInflate(
-                @NonNull ViewGroup parent,
+                @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching) {
             InflateResult inflateResult =
                     checkNotNull(
                             mNewInflateParentData.mInflateResult,
                             TAG
-                                    + " - inflated result was null, but inflating into new parent"
-                                    + " requested.");
-            parent.removeAllViews();
-            parent.addView(
+                                    + " - inflated result was null, but inflating into new"
+                                    + " attachParent requested.");
+            attachParent.removeAllViews();
+            attachParent.addView(
                     inflateResult.inflateParent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             inflateResult.updateDynamicDataPipeline(isReattaching);
             return Futures.immediateVoidFuture();
@@ -317,7 +319,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @Override
         @UiThread
         public ListenableFuture<Void> postInflate(
-                @NonNull ViewGroup parent,
+                @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching) {
             return mInflater.applyMutation(checkNotNull(prevInflateParent), mMutation);
@@ -463,7 +465,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /** Returns the debug logger. */
         @Nullable
         public LoggingUtils getLoggingUtils() {
-          return mLoggingUtils;
+            return mLoggingUtils;
         }
 
         /** Returns whether animations are enabled. */
@@ -626,8 +628,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @RestrictTo(Scope.LIBRARY)
             @NonNull
             public Builder setLoggingUtils(@NonNull LoggingUtils loggingUitls) {
-              this.mLoggingUtils = loggingUitls;
-              return this;
+                this.mLoggingUtils = loggingUitls;
+                return this;
             }
 
             /**
@@ -885,18 +887,17 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /**
-     * Render the layout for this layout and attach this layout instance to a parent container. Note
-     * that this method may clear all of {@code parent}'s children before attaching the layout, but
-     * only if it's not possible to update them in place.
+     * Render the layout for this layout and attach this layout instance to a {@code attachParent}
+     * container. Note that this method may clear all of {@code attachParent}'s children before
+     * attaching the layout, but only if it's not possible to update them in place.
      *
-     * <p>If the layout has not yet been inflated, it will not be attached to the parent container
-     * immediately (nor will it remove all of {@code parent}'s children); it will instead inflate
-     * the layout in the background, then attach it at some point in the future once it has been
-     * inflated.
+     * <p>If the layout has not yet been inflated, it will not be attached to the {@code
+     * attachParent} container immediately; it will instead inflate the layout in the background,
+     * then attach it at some point in the future once it has been inflated.
      *
      * <p>Note that it is safe to call {@link ProtoLayoutViewInstance#detach}, and subsequently,
-     * attach again while the layout is inflating; it will only attach to the last requested parent
-     * (or if detach was the last call, it will not be attached to anything).
+     * attach again while the layout is inflating; it will only attach to the last requested {@code
+     * attachParent} (or if detach was the last call, it will not be attached to anything).
      *
      * <p>Note also that this method must be called from the UI thread;
      */
@@ -909,20 +910,21 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     public ListenableFuture<Void> renderAndAttach(
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
-            @NonNull ViewGroup parent) {
+            @NonNull ViewGroup attachParent) {
         if (mLoggingUtils != null && mLoggingUtils.canLogD(TAG)) {
             mLoggingUtils.logD(TAG, "Layout received in #renderAndAttach:\n %s", layout.toString());
             mLoggingUtils.logD(
                     TAG, "Resources received in #renderAndAttach:\n %s", resources.toString());
         }
+
         if (mAttachParent == null) {
-            mAttachParent = parent;
+            mAttachParent = attachParent;
             mAttachParent.removeAllViews();
             // Preload it with the previous layout if we have one.
             if (mInflateParent != null) {
                 mAttachParent.addView(mInflateParent);
             }
-        } else if (mAttachParent != parent) {
+        } else if (mAttachParent != attachParent) {
             throw new IllegalStateException("ProtoLayoutViewInstance is already attached!");
         }
 
@@ -946,7 +948,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             }
         }
 
-        @Nullable ViewGroup prevInflateParent = getOnlyChildViewGroup(parent);
+        @Nullable ViewGroup prevInflateParent = getOnlyChildViewGroup(attachParent);
 
         if (mRenderFuture == null) {
             if (prevInflateParent != null
@@ -981,7 +983,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
             ViewProperties parentViewProp =
                     ViewProperties.fromViewGroup(
-                            parent,
+                            attachParent,
                             layoutParams,
                             // We need this specific ones as otherwise gravity gets lost for
                             // attachParent node.
@@ -1008,11 +1010,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         // Ensure that this inflater is attached to the same attachParent as when
                         // this listener was created. If not, something has re-attached us in the
                         // time it took for the inflater to execute.
-                        if (mAttachParent == parent) {
+                        if (mAttachParent == attachParent) {
                             try {
                                 result.setFuture(
                                         postInflate(
-                                                parent,
+                                                attachParent,
                                                 prevInflateParent,
                                                 checkNotNull(rendererFuture).get(),
                                                 /* isReattaching= */ false,
@@ -1028,7 +1030,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                             Log.w(
                                     TAG,
                                     "Layout is rendered, but inflater is no longer attached to the"
-                                            + " same parent. Cancelling inflation.");
+                                            + " same attachParent. Cancelling inflation.");
                             result.cancel(/* mayInterruptIfRunning= */ false);
                         }
                     },
@@ -1037,7 +1039,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             try {
                 result.setFuture(
                         postInflate(
-                                parent,
+                                attachParent,
                                 prevInflateParent,
                                 mRenderFuture.get(),
                                 isReattaching,
@@ -1075,7 +1077,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @SuppressWarnings("ExecutorTaskName")
     @NonNull
     private ListenableFuture<Void> postInflate(
-            @NonNull ViewGroup parent,
+            @NonNull ViewGroup attachParent,
             @Nullable ViewGroup prevInflateParent,
             @NonNull RenderResult renderResult,
             boolean isReattaching,
@@ -1096,7 +1098,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         }
 
         ListenableFuture<Void> postInflateFuture =
-                renderResult.postInflate(parent, prevInflateParent, isReattaching);
+                renderResult.postInflate(attachParent, prevInflateParent, isReattaching);
         SettableFuture<Void> result = SettableFuture.create();
         if (!postInflateFuture.isDone()) {
             postInflateFuture.addListener(
@@ -1108,7 +1110,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                 | CancellationException e) {
                             result.setFuture(
                                     handlePostInflateFailure(
-                                            e, layout, resources, prevInflateParent, parent));
+                                            e, layout, resources, prevInflateParent, attachParent));
                         }
                     },
                     mUiExecutorService);
@@ -1120,7 +1122,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                     | InterruptedException
                     | CancellationException
                     | ViewMutationException e) {
-                return handlePostInflateFailure(e, layout, resources, prevInflateParent, parent);
+                return handlePostInflateFailure(
+                        e, layout, resources, prevInflateParent, attachParent);
             }
         }
         return result;

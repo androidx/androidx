@@ -36,9 +36,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
@@ -57,7 +55,6 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
-import android.text.style.MetricAffectingSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -185,7 +182,6 @@ import androidx.wear.widget.CurvedTextView;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -494,6 +490,8 @@ public final class ProtoLayoutInflater {
 
     /** Config class for ProtoLayoutInflater */
     public static final class Config {
+        public static final String DEFAULT_CLICKABLE_ID_EXTRA =
+                "androidx.wear.protolayout.extra.CLICKABLE_ID";
         @NonNull private final Context mUiContext;
         @NonNull private final Layout mLayout;
         @NonNull private final ResourceResolvers mLayoutResourceResolvers;
@@ -507,6 +505,7 @@ public final class ProtoLayoutInflater {
         @Nullable private final LoggingUtils mLoggingUtils;
         @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
         private final boolean mAnimationEnabled;
+
         private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
         private final boolean mApplyFontVarianBodyAsDefault;
@@ -599,7 +598,10 @@ public final class ProtoLayoutInflater {
             return mDataPipeline;
         }
 
-        /** ID for the Intent extra containing the ID of a Clickable. */
+        /**
+         * ID for the Intent extra containing the ID of a Clickable. Defaults to {@link
+         * Config#DEFAULT_CLICKABLE_ID_EXTRA} if not specified.
+         */
         @NonNull
         public String getClickableIdExtra() {
             return mClickableIdExtra;
@@ -744,7 +746,10 @@ public final class ProtoLayoutInflater {
                 return this;
             }
 
-            /** Sets the ID for the Intent extra containing the ID of a Clickable. */
+            /**
+             * Sets the ID for the Intent extra containing the ID of a Clickable. Defaults to {@link
+             * Config#DEFAULT_CLICKABLE_ID_EXTRA} if not specified.
+             */
             @NonNull
             public Builder setClickableIdExtra(@NonNull String clickableIdExtra) {
                 this.mClickableIdExtra = clickableIdExtra;
@@ -760,8 +765,11 @@ public final class ProtoLayoutInflater {
 
             /**
              * Sets whether a "layout changing" data bind can be applied without the
-             * "value_for_layout" field being filled in. This is to support legacy apps which use
-             * layout-changing data binds before the full support was built. Defaults to false.
+             * "value_for_layout" field being filled in, or being set to zero / empty. Defaults to
+             * false.
+             *
+             * <p>This is to support legacy apps which use layout-changing data bind before the full
+             * support was built.
              */
             @NonNull
             public Builder setAllowLayoutChangingBindsWithoutDefault(
@@ -796,6 +804,10 @@ public final class ProtoLayoutInflater {
                 }
                 if (mProtoLayoutTheme == null) {
                     this.mProtoLayoutTheme = ProtoLayoutThemeImpl.defaultTheme(mUiContext);
+                }
+
+                if (mClickableIdExtra == null) {
+                    mClickableIdExtra = DEFAULT_CLICKABLE_ID_EXTRA;
                 }
 
                 return new Config(
@@ -1127,10 +1139,6 @@ public final class ProtoLayoutInflater {
         return Typeface.create(fontStyleToTypeface(fontStyle), fontStyleToTypefaceStyle(fontStyle));
     }
 
-    private static MetricAffectingSpan createTypefaceSpan(FontStyle fontStyle) {
-        return new StyleSpan(fontStyleToTypefaceStyle(fontStyle));
-    }
-
     /**
      * Returns whether or not the default style bits in Typeface can be used, or if we need to add
      * bold/italic flags there.
@@ -1267,13 +1275,19 @@ public final class ProtoLayoutInflater {
                         v ->
                                 checkNotNull(mLoadActionExecutor)
                                         .execute(
-                                                () ->
-                                                        mLoadActionListener.onClick(
-                                                                buildState(
-                                                                        clickable
-                                                                                .getOnClick()
-                                                                                .getLoadAction(),
-                                                                        clickable.getId()))));
+                                                () -> {
+                                                    Log.d(
+                                                            TAG,
+                                                            "Executing LoadAction listener"
+                                                                    + " with clickable id: "
+                                                                    + clickable.getId());
+                                                    mLoadActionListener.onClick(
+                                                            buildState(
+                                                                    clickable
+                                                                            .getOnClick()
+                                                                            .getLoadAction(),
+                                                                    clickable.getId()));
+                                                }));
                 break;
             case VALUE_NOT_SET:
                 break;
@@ -2022,7 +2036,7 @@ public final class ProtoLayoutInflater {
                     Log.w(
                             TAG,
                             "Spacer width's value_for_layout is not a positive value. Element won't"
-                                + " be visible.");
+                                    + " be visible.");
                 }
                 spaceWrapperLayoutParams.width = safeDpToPx(widthForLayoutDp);
             }
@@ -2032,7 +2046,7 @@ public final class ProtoLayoutInflater {
                     Log.w(
                             TAG,
                             "Spacer height's value_for_layout is not a positive value. Element"
-                                + " won't be visible.");
+                                    + " won't be visible.");
                 }
                 spaceWrapperLayoutParams.height = safeDpToPx(heightForLayoutDp);
             }
@@ -2262,8 +2276,8 @@ public final class ProtoLayoutInflater {
 
         @Nullable String valueForLayout = resolveValueForLayoutIfNeeded(text.getText());
 
-        // Use valueForLayout as a proxy for "has a dynamic size". If there's a dynamic binding
-        // for the text element, then it can only have a single line of text.
+        // Use valueForLayout as a proxy for "has a dynamic size". If there's a dynamic binding for
+        // the text element, then it can only have a single line of text.
         if (text.hasMaxLines() && valueForLayout == null) {
             textView.setMaxLines(max(TEXT_MIN_LINES, text.getMaxLines().getValue()));
         } else {
@@ -2779,7 +2793,7 @@ public final class ProtoLayoutInflater {
                 Log.w(
                         TAG,
                         "ArcLine length's value_for_layout is not a positive value. Element won't"
-                            + " be visible.");
+                                + " be visible.");
             }
             sizeWrapper.setSweepAngleDegrees(sizeForLayout);
             sizedLp.setAngularAlignment(
@@ -2906,7 +2920,7 @@ public final class ProtoLayoutInflater {
         }
 
         if (!hasDefaultTypefaceStyle(fontStyle)) {
-            MetricAffectingSpan span = createTypefaceSpan(fontStyle);
+            StyleSpan span = new StyleSpan(fontStyleToTypefaceStyle(fontStyle));
             builder.setSpan(span, start, end, Spanned.SPAN_MARK_MARK);
         }
 
@@ -3702,9 +3716,9 @@ public final class ProtoLayoutInflater {
     }
 
     /**
-     * Inflates a ProtoLayout into {@code parent}.
+     * Inflates a ProtoLayout into {@code inflateParent}.
      *
-     * @param parent The view to attach the layout into.
+     * @param inflateParent The view to attach the layout into.
      * @return The {@link InflateResult} class containing the first child that was inflated,
      *     animations to be played, and new nodes for the dynamic data pipeline. Callers should use
      *     {@link InflateResult#updateDynamicDataPipeline} to apply those changes using a UI Thread.
@@ -3712,7 +3726,7 @@ public final class ProtoLayoutInflater {
      *     or the top-level LayoutElement contains an unsupported inner type.
      */
     @Nullable
-    public InflateResult inflate(@NonNull ViewGroup parent) {
+    public InflateResult inflate(@NonNull ViewGroup inflateParent) {
 
         // This is a full re-inflation, so we don't need any previous rendering information.
         LayoutInfo.Builder layoutInfoBuilder =
@@ -3728,7 +3742,7 @@ public final class ProtoLayoutInflater {
         InflatedView firstInflatedChild =
                 inflateLayoutElement(
                         new ParentViewWrapper(
-                                parent,
+                                inflateParent,
                                 new LayoutParams(
                                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)),
                         mLayoutProto.getRoot(),
@@ -3740,11 +3754,11 @@ public final class ProtoLayoutInflater {
             return null;
         }
         if (mLayoutProto.hasFingerprint()) {
-            parent.setTag(
+            inflateParent.setTag(
                     R.id.rendered_metadata_tag,
                     new RenderedMetadata(mLayoutProto.getFingerprint(), layoutInfoBuilder.build()));
         }
-        return new InflateResult(parent, firstInflatedChild.mView, pipelineMaker);
+        return new InflateResult(inflateParent, firstInflatedChild.mView, pipelineMaker);
     }
 
     /**
@@ -3872,8 +3886,8 @@ public final class ProtoLayoutInflater {
     @UiThread
     @NonNull
     public ListenableFuture<Void> applyMutation(
-            @NonNull ViewGroup parent, @NonNull ViewGroupMutation groupMutation) {
-        RenderedMetadata prevRenderedMetadata = getRenderedMetadata(parent);
+            @NonNull ViewGroup prevInflatedParent, @NonNull ViewGroupMutation groupMutation) {
+        RenderedMetadata prevRenderedMetadata = getRenderedMetadata(prevInflatedParent);
         if (prevRenderedMetadata != null
                 && !ProtoLayoutDiffer.areNodesEquivalent(
                         prevRenderedMetadata.getTreeFingerprint().getRoot(),
@@ -3893,11 +3907,11 @@ public final class ProtoLayoutInflater {
                     .mPipelineMaker
                     .get()
                     .playExitAnimations(
-                            parent,
+                            prevInflatedParent,
                             /* isReattaching= */ false,
                             () -> {
                                 try {
-                                    applyMutationInternal(parent, groupMutation);
+                                    applyMutationInternal(prevInflatedParent, groupMutation);
                                     result.set(null);
                                 } catch (ViewMutationException ex) {
                                     result.setException(ex);
@@ -3906,7 +3920,7 @@ public final class ProtoLayoutInflater {
             return result;
         } else {
             try {
-                applyMutationInternal(parent, groupMutation);
+                applyMutationInternal(prevInflatedParent, groupMutation);
                 return immediateVoidFuture();
             } catch (ViewMutationException ex) {
                 return immediateFailedFuture(ex);
@@ -3915,14 +3929,14 @@ public final class ProtoLayoutInflater {
     }
 
     private void applyMutationInternal(
-            @NonNull ViewGroup parent, @NonNull ViewGroupMutation groupMutation) {
+            @NonNull ViewGroup prevInflatedParent, @NonNull ViewGroupMutation groupMutation) {
         for (InflatedView inflatedView : groupMutation.mInflatedViews) {
             String posId = inflatedView.getTag();
             if (posId == null) {
                 // Failed to apply the mutation. Need to update fully.
                 throw new ViewMutationException("View has no tag");
             }
-            View viewToUpdate = parent.findViewWithTag(posId);
+            View viewToUpdate = prevInflatedParent.findViewWithTag(posId);
             if (viewToUpdate == null) {
                 // Failed to apply the mutation. Need to update fully.
                 throw new ViewMutationException("Can't find view " + posId);
@@ -3955,8 +3969,9 @@ public final class ProtoLayoutInflater {
             }
         }
         groupMutation.mPipelineMaker.ifPresent(
-                pipe -> pipe.commit(parent, /* isReattaching= */ false));
-        parent.setTag(R.id.rendered_metadata_tag, groupMutation.mRenderedMetadataAfterMutation);
+                pipe -> pipe.commit(prevInflatedParent, /* isReattaching= */ false));
+        prevInflatedParent.setTag(
+                R.id.rendered_metadata_tag, groupMutation.mRenderedMetadataAfterMutation);
     }
 
     /** Returns the {@link RenderedMetadata} attached to {@code inflateParent}. */
@@ -4150,67 +4165,6 @@ public final class ProtoLayoutInflater {
         @Override
         public void updateDrawState(@NonNull TextPaint ds) {
             // Don't change the underlying text appearance.
-        }
-    }
-
-    // Android's normal ImageSpan (well, DynamicDrawableSpan) applies baseline alignment incorrectly
-    // in some cases. It incorrectly assumes that the difference between the bottom (as passed to
-    // draw) and baseline of the text is always equal to the font descent, when that doesn't always
-    // hold. Instead, the "y" parameter is the Y coordinate of the baseline, so base the baseline
-    // alignment on that rather than "bottom".
-    @VisibleForTesting
-    static class FixedImageSpan extends ImageSpan {
-        @Nullable private WeakReference<Drawable> mDrawableRef;
-
-        FixedImageSpan(@NonNull Drawable drawable) {
-            super(drawable);
-        }
-
-        FixedImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
-            super(drawable, verticalAlignment);
-        }
-
-        @Override
-        public void draw(
-                @NonNull Canvas canvas,
-                CharSequence text,
-                int start,
-                int end,
-                float x,
-                int top,
-                int y,
-                int bottom,
-                @NonNull Paint paint) {
-            Drawable b = getCachedDrawable();
-            canvas.save();
-
-            int transY = bottom - b.getBounds().bottom;
-            if (mVerticalAlignment == ALIGN_BASELINE) {
-                transY = y - b.getBounds().bottom;
-            } else if (mVerticalAlignment == ALIGN_CENTER) {
-                transY = (bottom - top) / 2 - b.getBounds().height() / 2;
-            }
-
-            canvas.translate(x, transY);
-            b.draw(canvas);
-            canvas.restore();
-        }
-
-        @VisibleForTesting
-        Drawable getCachedDrawable() {
-            WeakReference<Drawable> wr = mDrawableRef;
-            Drawable d = null;
-
-            if (wr != null) {
-                d = wr.get();
-            }
-
-            if (d == null) {
-                d = getDrawable();
-                mDrawableRef = new WeakReference<>(d);
-            }
-
-            return d;
         }
     }
 
