@@ -235,6 +235,9 @@ public final class ColorBuilders {
         /**
          * Constructor for {@link ColorStop}.
          *
+         * <p>When all {@link ColorStop} in a Gradient have no offset, the colors are evenly
+         * distributed in the gradient.
+         *
          * @param color the color for this stop.
          *     <p>Note that this parameter only supports static values.
          * @since 1.3
@@ -577,16 +580,18 @@ public final class ColorBuilders {
              *     <p>If offsets are not set, the colors are evenly distributed in the gradient.
              *     <p>If the offset values are not monotonic, the drawing may produce unexpected
              *     results.
-             * @throws IllegalArgumentException if the number of colors is less than 2.
+             * @throws IllegalArgumentException if the number of colors is less than 2 or larger
+             *     than 10.
              * @throws IllegalArgumentException if offsets in {@code colorStops} are partially set.
              *     Either all or none of the {@link ColorStop} parameters should have an offset.
              * @since 1.3
              */
             @SafeVarargs
             public Builder(@NonNull ColorStop... colorStops) {
-                if (colorStops.length < 2) {
-                    throw new IllegalArgumentException(
-                            "There must be at least 2 colors. Got " + colorStops.length);
+                if (colorStops.length < 2 || colorStops.length > 10) {
+                    throw new IllegalStateException(
+                            "Size of colorStops must not be less than 2 or greater than 10. Got "
+                                    + colorStops.length);
                 }
                 boolean offsetsShouldBePresent = colorStops[0].getOffset() != null;
                 for (ColorStop colorStop : colorStops) {
@@ -599,10 +604,20 @@ public final class ColorBuilders {
                 }
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if size of colorStops is less than 2 or greater than
+             *     10.
+             */
             @Override
             @NonNull
             public SweepGradient build() {
+                int colorStopsCount = mImpl.getColorStopsCount();
+                if (colorStopsCount < 2 || colorStopsCount > 10) {
+                    throw new IllegalStateException(
+                            "Size of colorStops must not be less than 2 or greater than 10");
+                }
                 return new SweepGradient(mImpl.build(), mFingerprint);
             }
         }
