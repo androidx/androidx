@@ -402,8 +402,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                         @Override
                         void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
-                            List<Parcel> parcelList = null;
-                            if (list != null) {
+                            List<Parcel> parcelList;
+                            if (list == null) {
+                                // A null children list here indicates that the requested parentId
+                                // is invalid. Unfortunately before API 24 the platform
+                                // MediaBrowserService's implementation of Result inside
+                                // performLoadChildren (invoked below) throws an exception if
+                                // given a null list  (b/19127753). This means there's no clear
+                                // way to communicate an invalid parentId, so in order to avoid
+                                // an exception below API 24 we transform null to an empty list
+                                // here (meaning it looks like parentId is valid but has no
+                                // children).
+                                parcelList = Build.VERSION.SDK_INT >= 24
+                                        ? null : Collections.emptyList();
+                            } else {
                                 parcelList = new ArrayList<>(list.size());
                                 for (MediaBrowserCompat.MediaItem item : list) {
                                     Parcel parcel = Parcel.obtain();
