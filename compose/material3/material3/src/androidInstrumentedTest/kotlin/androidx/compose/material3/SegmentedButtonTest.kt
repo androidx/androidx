@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -37,6 +39,7 @@ import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -196,7 +199,34 @@ class SegmentedButtonTest {
             }
         }
             .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
-            .assertHeightIsEqualTo(OutlinedSegmentedButtonTokens.ContainerHeight)
+            .assertHeightIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun segmentedButton_fontScale_correctSizing() {
+        val itemSize = 60.dp
+
+        rule.setMaterialContentForSizeAssertions(
+            parentMaxWidth = 300.dp, parentMaxHeight = 100.dp
+        ) {
+            CompositionLocalProvider(
+                LocalDensity provides Density(
+                    density = LocalDensity.current.density,
+                    fontScale = 2f
+                )
+            ) {
+                MultiChoiceSegmentedButtonRow {
+                    SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
+                        Text(modifier = Modifier.width(60.dp), text = "Day")
+                    }
+                    SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
+                        Text(modifier = Modifier.width(30.dp), text = "Month")
+                    }
+                }
+            }
+        }
+            .assertWidthIsAtLeast((itemSize + 12.dp * 2) * 2)
+            .assertHeightIsEqualTo(53.dp)
     }
 
     @Test
