@@ -98,6 +98,8 @@ import kotlinx.coroutines.withTimeout
  * @param tooltipState handles the state of the tooltip's visibility.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param containerColor [Color] that will be applied to the tooltip's container.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param content the composable that the tooltip will anchor to.
  */
@@ -112,6 +114,8 @@ fun PlainTooltipBox(
     tooltipState: PlainTooltipState = rememberPlainTooltipState(),
     shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     contentColor: Color = TooltipDefaults.plainTooltipContentColor,
     content: @Composable TooltipBoxScope.() -> Unit
 ) {
@@ -133,7 +137,8 @@ fun PlainTooltipBox(
         shape = shape,
         containerColor = containerColor,
         tooltipPositionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        elevation = 0.dp,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         maxWidth = PlainTooltipMaxWidth,
         content = content
     )
@@ -163,6 +168,8 @@ fun PlainTooltipBox(
  * @param action An optional action for the tooltip.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
  * @param content the composable that the tooltip will anchor to.
  */
 @Suppress("DEPRECATION")
@@ -178,6 +185,8 @@ fun RichTooltipBox(
     tooltipState: RichTooltipState = rememberRichTooltipState(action != null),
     shape: Shape = TooltipDefaults.richTooltipContainerShape,
     colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
+    tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
+    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     content: @Composable TooltipBoxScope.() -> Unit
 ) {
     Material3TooltipBox(
@@ -230,7 +239,8 @@ fun RichTooltipBox(
         containerColor = colors.containerColor,
         tooltipPositionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
         tooltipState = tooltipState,
-        elevation = RichTooltipTokens.ContainerElevation,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
         maxWidth = RichTooltipMaxWidth,
         modifier = modifier,
         focusable = focusable,
@@ -249,7 +259,8 @@ private fun Material3TooltipBox(
     shape: Shape,
     tooltipState: BasicTooltipState,
     containerColor: Color,
-    elevation: Dp,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
     maxWidth: Dp,
     content: @Composable TooltipBoxScope.() -> Unit,
 ) {
@@ -326,8 +337,8 @@ private fun Material3TooltipBox(
                         },
                     shape = shape,
                     color = containerColor,
-                    shadowElevation = elevation,
-                    tonalElevation = elevation,
+                    tonalElevation = tonalElevation,
+                    shadowElevation = shadowElevation,
                     content = tooltipContent
                 )
             }
@@ -603,6 +614,7 @@ interface RichTooltipState : BasicTooltipState
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
+@ExperimentalMaterial3Api
 fun TooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
@@ -632,21 +644,27 @@ fun TooltipBox(
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param content the composable that will be used to populate the tooltip's content.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@ExperimentalMaterial3Api
 fun PlainTooltip(
     modifier: Modifier = Modifier,
     contentColor: Color = TooltipDefaults.plainTooltipContentColor,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     content: @Composable () -> Unit
 ) {
     Surface(
         shape = shape,
-        color = containerColor
+        color = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation
     ) {
         Box(modifier = modifier
             .sizeIn(
@@ -677,16 +695,20 @@ fun PlainTooltip(
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param text the composable that will be used to populate the rich tooltip's text.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@ExperimentalMaterial3Api
 fun RichTooltip(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
     colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
+    tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
+    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     shape: Shape = TooltipDefaults.richTooltipContainerShape,
     text: @Composable () -> Unit
 ) {
@@ -699,8 +721,8 @@ fun RichTooltip(
             ),
         shape = shape,
         color = colors.containerColor,
-        shadowElevation = RichTooltipTokens.ContainerElevation,
-        tonalElevation = RichTooltipTokens.ContainerElevation
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation
     ) {
         val actionLabelTextStyle =
             MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
@@ -951,6 +973,7 @@ fun rememberTooltipState(
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
  * with the mutator mutex, only one will be shown on the screen at any time.
  */
+@ExperimentalMaterial3Api
 fun TooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
@@ -962,6 +985,7 @@ fun TooltipState(
         mutatorMutex = mutatorMutex
     )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private class TooltipStateImpl(
     initialIsVisible: Boolean,
@@ -1036,6 +1060,7 @@ private class TooltipStateImpl(
  * The state that is associated with a [TooltipBox].
  * Each instance of [TooltipBox] should have its own [TooltipState].
  */
+@ExperimentalMaterial3Api
 interface TooltipState : BasicTooltipState {
     /**
      * The current transition state of the tooltip.
