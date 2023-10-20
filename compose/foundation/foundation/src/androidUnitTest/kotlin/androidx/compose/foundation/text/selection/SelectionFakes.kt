@@ -113,6 +113,8 @@ internal fun getTextLayoutResultMock(
     }
 
     val multiParagraph = mock<MultiParagraph> {
+        on { lineCount }.thenAnswer { _ -> lineBreaks.size + 1 }
+
         on { getBidiRunDirection(any()) }.thenAnswer { invocation ->
             val offset = invocation.arguments[0] as Int
             if (rtlCharRanges.any { offset in it })
