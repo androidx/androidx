@@ -153,7 +153,7 @@ internal class ComposeSceneAccessible(
         }
 
         override fun getAccessibleRole(): AccessibleRole {
-            return AccessibleRole.PANEL
+            return AccessibleRole.UNKNOWN
         }
 
         override fun getAccessibleStateSet(): AccessibleStateSet {
