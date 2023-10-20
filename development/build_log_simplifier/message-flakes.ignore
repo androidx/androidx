@@ -151,3 +151,5 @@ Try \./gradlew \-\-stop if this issue persists\.
 e: Daemon compilation failed: Could not connect to Kotlin compile daemon
 java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
 Errors were stored into \$SUPPORT/\.gradle/kotlin/errors/errors\-[0-9]+\.log
+# b/306244551
+Generating lint files for.*
