@@ -83,7 +83,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -222,7 +221,8 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
             .defaultMinSize(
                 minWidth = ButtonDefaults.MinWidth,
                 minHeight = ButtonDefaults.MinHeight
-            ).semantics { role = Role.RadioButton },
+            )
+            .semantics { role = Role.RadioButton },
         selected = selected,
         onClick = onClick,
         enabled = enabled,
@@ -262,7 +262,7 @@ fun SingleChoiceSegmentedButtonRow(
     Row(
         modifier = modifier
             .selectableGroup()
-            .height(OutlinedSegmentedButtonTokens.ContainerHeight)
+            .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
             .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
         verticalAlignment = Alignment.CenterVertically
@@ -299,7 +299,7 @@ fun MultiChoiceSegmentedButtonRow(
 ) {
     Row(
         modifier = modifier
-            .height(OutlinedSegmentedButtonTokens.ContainerHeight)
+            .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
             .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
         verticalAlignment = Alignment.CenterVertically
@@ -315,7 +315,10 @@ private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Box(contentAlignment = Alignment.Center) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
+    ) {
         val typography =
             MaterialTheme.typography.fromToken(OutlinedSegmentedButtonTokens.LabelTextFont)
         ProvideTextStyle(typography) {
@@ -323,7 +326,7 @@ private fun SegmentedButtonContent(
             val measurePolicy = remember { SegmentedButtonContentMeasurePolicy(scope) }
 
             Layout(
-                modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
+                modifier = Modifier.height(IntrinsicSize.Min),
                 contents = listOf(icon, content),
                 measurePolicy = measurePolicy
             )
@@ -344,20 +347,17 @@ internal class SegmentedButtonContentMeasurePolicy(
     ): MeasureResult {
         val (iconMeasurables, contentMeasurables) = measurables
         val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
-        val iconDesiredWidth = iconMeasurables.fastFold(0) { acc, it ->
-            maxOf(acc, it.maxIntrinsicWidth(Constraints.Infinity))
-        }
         val iconWidth = iconPlaceables.fastMaxBy { it.width }?.width ?: 0
         val contentPlaceables = contentMeasurables.fastMap { it.measure(constraints) }
         val contentWidth = contentPlaceables.fastMaxBy { it.width }?.width
-        val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconDesiredWidth) +
+        val height = contentPlaceables.fastMaxBy { it.height }?.height ?: 0
+        val width = maxOf(SegmentedButtonDefaults.IconSize.roundToPx(), iconWidth) +
             IconSpacing.roundToPx() +
             (contentWidth ?: 0)
-
         val offsetX = if (iconWidth == 0) {
             -(SegmentedButtonDefaults.IconSize.roundToPx() + IconSpacing.roundToPx()) / 2
         } else {
-            iconDesiredWidth - SegmentedButtonDefaults.IconSize.roundToPx()
+            0
         }
 
         if (initialOffset == null) {
@@ -372,9 +372,9 @@ internal class SegmentedButtonContentMeasurePolicy(
             }
         }
 
-        return layout(width, constraints.maxHeight) {
+        return layout(width, height) {
             iconPlaceables.fastForEach {
-                it.place(0, (constraints.maxHeight - it.height) / 2)
+                it.place(0, (height - it.height) / 2)
             }
 
             val contentOffsetX = SegmentedButtonDefaults.IconSize.roundToPx() +
@@ -383,7 +383,7 @@ internal class SegmentedButtonContentMeasurePolicy(
             contentPlaceables.fastForEach {
                 it.place(
                     contentOffsetX,
-                    (constraints.maxHeight - it.height) / 2
+                    (height - it.height) / 2
                 )
             }
         }
