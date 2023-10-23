@@ -28,10 +28,13 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.lang.jvm.types.JvmType
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiWildcardType
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.UMethod
@@ -247,4 +250,26 @@ private fun PsiClassReferenceType.toPrimitiveName(): String? {
         }
     }
     return BoxedTypeToSuggestedPrimitive[resolvedType.qualifiedName]
+}
+
+private val JvmInlineAnnotation = JvmInline::class.qualifiedName!!
+
+private fun UMethod.isDataClassGeneratedMethod(context: JavaContext): Boolean =
+    context.evaluator.isData(containingClass) &&
+        (name.startsWith("copy") || name.startsWith("component"))
+
+private fun UVariable.isLambdaParameter(): Boolean {
+    val sourcePsi = sourcePsi
+    return ((sourcePsi == null && (javaPsi as? PsiParameter)?.name == "it") ||
+        (sourcePsi as? KtParameter)?.isLambdaParameter == true
+        )
+}
+
+private fun hasJvmInline(type: PsiClass): Boolean {
+    for (annotation in type.annotations) {
+        if (annotation.qualifiedName == JvmInlineAnnotation) {
+            return true
+        }
+    }
+    return false
 }
