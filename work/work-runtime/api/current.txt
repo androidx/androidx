@@ -575,10 +575,10 @@ package androidx.work {
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {
-    ctor public Worker(android.content.Context, androidx.work.WorkerParameters);
+    ctor public Worker(android.content.Context context, androidx.work.WorkerParameters workerParams);
     method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
     method @WorkerThread public androidx.work.ForegroundInfo getForegroundInfo();
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
   }
 
   public abstract class WorkerFactory {
