@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="PrimitiveInCollection"
         message="variable expectedSortedIndex with type List&lt;Integer>: replace with IntList"
         errorLine1="    val expectedSortedIndex = mutableListOf(0, 1, 2, 3)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;expectNumber&apos; with type Function0&lt;? extends Integer>."
-        errorLine1="    fun expectNumber(): Int {"
-        errorLine2="    ^">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in variable &apos;ensureIndexes&apos; with type Function1&lt;? super Integer, ? extends Unit>."
-        errorLine1="    fun ensureIndexes(index: Int) {"
-        errorLine2="    ^">
         <location
             file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
     </issue>

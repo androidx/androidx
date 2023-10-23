@@ -25,7 +25,9 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.lang.jvm.types.JvmType
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UImportStatement
@@ -175,3 +177,9 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
         )
     }
 }
+
+private const val FunctionPrefix = "kotlin.jvm.functions.Function"
+
+@Suppress("UnstableApiUsage")
+private fun JvmType.isLambda(): Boolean =
+    (this is PsiClassReferenceType && reference.qualifiedName.startsWith(FunctionPrefix))

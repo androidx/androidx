@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.compose
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
@@ -161,7 +160,6 @@ internal data class MotionDragState(
  * Copy of [androidx.compose.foundation.gestures.detectDragGestures] with the opportunity to decide
  * whether we consume the rest of the drag with [onAcceptFirstDown].
  */
-@SuppressLint("PrimitiveInLambda")
 private suspend fun PointerInputScope.detectDragGesturesWhenNeeded(
     onAcceptFirstDown: (Offset) -> Boolean,
     onDragStart: (Offset) -> Unit,

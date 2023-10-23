@@ -177,7 +177,6 @@ internal class RecomposeScopeImpl(
      */
     @OptIn(ExperimentalComposeRuntimeApi::class)
     fun compose(composer: Composer) {
-        @Suppress("PrimitiveInLambda")
         val block = block
         val observer = observer
         if (observer != null && block != null) {

@@ -53,7 +53,6 @@ val SnappingDemos = listOf(
     },
 )
 
-@Suppress("PrimitiveInLambda")
 @Composable
 internal fun SnappingDemoMainLayout(
     lazyListState: LazyListState,

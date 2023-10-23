@@ -203,7 +203,6 @@ class VectorPainter internal constructor() : Painter() {
 
     private var composition: Composition? = null
 
-    @Suppress("PrimitiveInLambda")
     private fun composeVector(
         parent: CompositionContext,
         composable: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
@@ -227,7 +226,6 @@ class VectorPainter internal constructor() : Painter() {
     // TODO replace with mutableStateOf(Unit, neverEqualPolicy()) after b/291647821 is addressed
     private var invalidateCount by mutableIntStateOf(0)
 
-    @Suppress("PrimitiveInLambda")
     @Composable
     internal fun RenderVector(
         name: String,
