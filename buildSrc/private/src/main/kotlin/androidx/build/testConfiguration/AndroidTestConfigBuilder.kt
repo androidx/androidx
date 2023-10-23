@@ -335,6 +335,7 @@ private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
     """
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
+    <option name="instrumentation-arg" key="androidx.benchmark.cpuEventCounter.enable" value="true" />
 
 """
         .trimIndent()
