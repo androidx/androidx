@@ -25,10 +25,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DismissValue.Default
 import androidx.compose.material3.DismissValue.DismissedToEnd
 import androidx.compose.material3.DismissValue.DismissedToStart
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
@@ -40,10 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun SwipeToDismissListItems() {
+fun SwipeDismissListItems() {
     val dismissState = rememberDismissState()
-    SwipeToDismiss(
+    SwipeDismiss(
         state = dismissState,
         background = {
             val color by animateColorAsState(
