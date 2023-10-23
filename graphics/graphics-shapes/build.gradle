@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -23,11 +22,10 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -56,11 +54,9 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                }
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
             }
         }
 
@@ -72,13 +68,11 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -110,14 +104,12 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependencies {
-                    implementation(libs.truth)
-                    implementation(libs.junit)
-                    implementation(libs.skikoCurrentOs)
-                }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
             }
         }
     }
