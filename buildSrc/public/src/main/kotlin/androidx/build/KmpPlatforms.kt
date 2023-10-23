@@ -112,6 +112,14 @@ private val Project.enabledKmpPlatforms: Set<PlatformGroup>
         return extension.enabledKmpPlatforms
     }
 
+/** Returns true if kotlin native targets should be enabled. */
+private fun Project.isKotlinNativeEnabled(): Boolean {
+    return "KMP".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
+        "INFRAROGUE".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
+        ProjectLayoutType.isPlayground(project) ||
+        project.providers.gradleProperty("androidx.kmp.native.enabled").orNull?.toBoolean() == true
+}
+
 /** Extension used to store parsed KMP configuration information. */
 private open class KmpPlatformsExtension(project: Project) {
     val enabledKmpPlatforms =
@@ -120,9 +128,11 @@ private open class KmpPlatformsExtension(project: Project) {
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
 
-fun Project.enableMac(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.MAC)
+fun Project.enableMac(): Boolean =
+    enabledKmpPlatforms.contains(PlatformGroup.MAC) || isKotlinNativeEnabled()
 
-fun Project.enableLinux(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.LINUX)
+fun Project.enableLinux(): Boolean =
+    enabledKmpPlatforms.contains(PlatformGroup.LINUX) || isKotlinNativeEnabled()
 
 fun Project.enableJvm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JVM)
 
