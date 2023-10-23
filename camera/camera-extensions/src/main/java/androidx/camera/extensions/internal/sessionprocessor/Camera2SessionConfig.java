@@ -17,6 +17,7 @@
 package androidx.camera.extensions.internal.sessionprocessor;
 
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.SessionConfiguration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -47,4 +48,11 @@ interface Camera2SessionConfig {
      * {@link android.hardware.camera2.params.SessionConfiguration#setSessionParameters}.
      */
     int getSessionTemplateId();
+
+    /**
+     * Gets the session type
+     */
+    default int getSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
 }
