@@ -72,7 +72,7 @@ fun DatePickerDialog(
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    BasicDialog(
+    AlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier.wrapContentHeight(),
         properties = properties
