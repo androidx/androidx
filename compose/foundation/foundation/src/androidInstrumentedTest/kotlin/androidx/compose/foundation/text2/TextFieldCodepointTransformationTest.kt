@@ -697,6 +697,102 @@ class TextFieldCodepointTransformationTest {
         assertVisualTextLength(5)
     }
 
+    @Test
+    fun removeNonSurrogate_fromNonSurrogateMask_usingKeyEvents_mixedInput() {
+        val state = TextFieldState("${SingleSurrogateCodepointString.repeat(2)}aa")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                codepointTransformation = MaskWithNonSurrogate
+            )
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(6))
+
+        rule.onNodeWithTag(Tag).performKeyInput {
+            pressKey(Key.Backspace)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString())
+                .isEqualTo("${SingleSurrogateCodepointString.repeat(2)}a")
+        }
+        assertVisualTextLength(3)
+    }
+
+    @Test
+    fun removeSurrogate_fromNonSurrogateMask_usingKeyEvents_mixedInput() {
+        val state = TextFieldState("aa${SingleSurrogateCodepointString.repeat(2)}")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                codepointTransformation = MaskWithNonSurrogate
+            )
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(6))
+
+        rule.onNodeWithTag(Tag).performKeyInput {
+            pressKey(Key.Backspace)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString())
+                .isEqualTo("aa$SingleSurrogateCodepointString")
+        }
+        assertVisualTextLength(3)
+    }
+
+    @Test
+    fun removeNonSurrogate_fromSurrogateMask_usingKeyEvents_mixedInput() {
+        val state = TextFieldState("a${SingleSurrogateCodepointString.repeat(2)}a")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                codepointTransformation = MaskWithSurrogate
+            )
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(6))
+
+        rule.onNodeWithTag(Tag).performKeyInput {
+            pressKey(Key.Backspace)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString())
+                .isEqualTo("a${SingleSurrogateCodepointString.repeat(2)}")
+        }
+        assertVisualTextLength(6)
+    }
+
+    @Test
+    fun removeSurrogate_fromSurrogateMask_usingKeyEvents_mixedInput() {
+        val state = TextFieldState("aa${SingleSurrogateCodepointString.repeat(2)}")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                codepointTransformation = MaskWithSurrogate
+            )
+        }
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(6))
+
+        rule.onNodeWithTag(Tag).performKeyInput {
+            pressKey(Key.Backspace)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString())
+                .isEqualTo("aa$SingleSurrogateCodepointString")
+        }
+        assertVisualTextLength(6)
+    }
+
     private fun assertLayoutText(text: String) {
         assertThat(rule.onNodeWithTag(Tag).fetchTextLayoutResult().layoutInput.text.text)
             .isEqualTo(text)
