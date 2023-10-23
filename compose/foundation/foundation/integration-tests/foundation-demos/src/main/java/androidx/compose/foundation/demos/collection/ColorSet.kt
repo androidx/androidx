@@ -28,7 +28,7 @@
     "ktlint:standard:no-unused-imports",
 )
 
-package androidx.compose.ui.graphics
+package androidx.compose.foundation.demos.collection
 
 import androidx.collection.LongSet
 import androidx.collection.MutableLongSet
@@ -51,24 +51,24 @@ import kotlin.jvm.JvmInline
 /**
  * Returns an empty, read-only [ColorSet].
  */
-public inline fun emptyColorSet(): ColorSet = ColorSet(emptyLongSet())
+internal inline fun emptyColorSet(): ColorSet = ColorSet(emptyLongSet())
 
 /**
  * Returns an empty, read-only [ColorSet].
  */
-public inline fun colorSetOf(): ColorSet = ColorSet(emptyLongSet())
+internal inline fun colorSetOf(): ColorSet = ColorSet(emptyLongSet())
 
 /**
  * Returns a new read-only [ColorSet] with only [element1] in it.
  */
-public inline fun colorSetOf(element1: Color): ColorSet =
+internal inline fun colorSetOf(element1: Color): ColorSet =
     ColorSet(mutableLongSetOf(element1.value.toLong()))
 
 /**
  * Returns a new read-only [ColorSet] with only [element1] and [element2] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun colorSetOf(
+internal fun colorSetOf(
     element1: Color,
     element2: Color
 ): ColorSet =
@@ -83,7 +83,7 @@ public fun colorSetOf(
  * Returns a new read-only [ColorSet] with only [element1], [element2], and [element3] in it.
  */
 @Suppress("UNCHECKED_CAST")
-public fun colorSetOf(
+internal fun colorSetOf(
     element1: Color,
     element2: Color,
     element3: Color
@@ -98,20 +98,20 @@ public fun colorSetOf(
 /**
  * Returns a new [MutableColorSet].
  */
-public fun mutableColorSetOf(): MutableColorSet = MutableColorSet(
+internal fun mutableColorSetOf(): MutableColorSet = MutableColorSet(
     MutableLongSet()
 )
 
 /**
  * Returns a new [MutableColorSet] with only [element1] in it.
  */
-public fun mutableColorSetOf(element1: Color): MutableColorSet =
+internal fun mutableColorSetOf(element1: Color): MutableColorSet =
     MutableColorSet(mutableLongSetOf(element1.value.toLong()))
 
 /**
  * Returns a new [MutableColorSet] with only [element1] and [element2] in it.
  */
-public fun mutableColorSetOf(
+internal fun mutableColorSetOf(
     element1: Color,
     element2: Color
 ): MutableColorSet =
@@ -125,7 +125,7 @@ public fun mutableColorSetOf(
 /**
  * Returns a new [MutableColorSet] with only [element1], [element2], and [element3] in it.
  */
-public fun mutableColorSetOf(
+internal fun mutableColorSetOf(
     element1: Color,
     element2: Color,
     element3: Color
@@ -155,7 +155,7 @@ public fun mutableColorSetOf(
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-public value class ColorSet(val set: LongSet) {
+internal value class ColorSet(val set: LongSet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
@@ -306,7 +306,7 @@ public value class ColorSet(val set: LongSet) {
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-public value class MutableColorSet(val set: MutableLongSet) {
+internal value class MutableColorSet(val set: MutableLongSet) {
     /**
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
