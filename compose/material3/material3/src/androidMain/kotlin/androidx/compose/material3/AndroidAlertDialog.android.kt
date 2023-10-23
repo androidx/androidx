@@ -71,6 +71,7 @@ import androidx.compose.ui.window.DialogProperties
  * overlay is applied on top of the container. A higher tonal elevation value will result in a
  * darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param properties typically platform specific properties to further configure the dialog.
+ * @see BasicDialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +90,7 @@ fun AlertDialog(
     textContentColor: Color = AlertDialogDefaults.textContentColor,
     tonalElevation: Dp = AlertDialogDefaults.TonalElevation,
     properties: DialogProperties = DialogProperties()
-) = AlertDialog(onDismissRequest = onDismissRequest, modifier = modifier, properties = properties) {
+) = BasicDialog(onDismissRequest = onDismissRequest, modifier = modifier, properties = properties) {
     AlertDialogContent(
         buttons = {
             AlertDialogFlowRow(
@@ -132,7 +133,7 @@ fun AlertDialog(
  * defines. If required, these constraints can be overwritten by providing a `width` or `height`
  * [Modifier]s.
  *
- * @sample androidx.compose.material3.samples.AlertDialogWithCustomContentSample
+ * @sample androidx.compose.material3.samples.BasicDialogWithCustomContentSample
  *
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
  * or pressing the back button. This is not called when the dismiss button is clicked.
@@ -142,7 +143,7 @@ fun AlertDialog(
  */
 @ExperimentalMaterial3Api
 @Composable
-fun AlertDialog(
+fun BasicDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(),
@@ -165,7 +166,45 @@ fun AlertDialog(
 }
 
 /**
- * Contains default values used for [AlertDialog]
+ * <a href="https://m3.material.io/components/dialogs/overview" class="external" target="_blank">Basic alert dialog dialog</a>.
+ *
+ * Dialogs provide important prompts in a user flow. They can require an action, communicate
+ * information, or help users accomplish a task.
+ *
+ * ![Basic dialog image](https://developer.android.com/images/reference/androidx/compose/material3/basic-dialog.png)
+ *
+ * This basic alert dialog expects an arbitrary content that is defined by the caller. Note that
+ * your content will need to define its own styling.
+ *
+ * By default, the displayed dialog has the minimum height and width that the Material Design spec
+ * defines. If required, these constraints can be overwritten by providing a `width` or `height`
+ * [Modifier]s.
+ *
+ * @sample androidx.compose.material3.samples.BasicDialogWithCustomContentSample
+ *
+ * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param modifier the [Modifier] to be applied to this dialog's content.
+ * @param properties typically platform specific properties to further configure the dialog.
+ * @param content the content of the dialog
+ */
+@Deprecated(
+    "Use BasicDialog instead",
+    replaceWith = ReplaceWith(
+        "BasicDialog(onDismissRequest, modifier, properties, content)"
+    )
+)
+@ExperimentalMaterial3Api
+@Composable
+fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit
+) = BasicDialog(onDismissRequest, modifier, properties, content)
+
+/**
+ * Contains default values used for [AlertDialog] and [BasicDialog].
  */
 object AlertDialogDefaults {
     /** The default shape for alert dialogs */
