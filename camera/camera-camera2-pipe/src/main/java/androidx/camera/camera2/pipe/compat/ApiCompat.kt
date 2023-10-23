@@ -32,6 +32,7 @@ import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
+import android.media.ImageWriter
 import android.os.Build
 import android.os.Handler
 import android.util.Size
@@ -312,6 +313,16 @@ internal object Api29Compat {
         usage: Long
     ): ImageReader {
         return ImageReader.newInstance(width, height, format, capacity, usage)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun imageWriterNewInstance(
+        surface: Surface,
+        maxImages: Int,
+        format: Int
+    ): ImageWriter {
+        return ImageWriter.newInstance(surface, maxImages, format)
     }
 }
 
