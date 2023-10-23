@@ -175,7 +175,7 @@ public final class Recorder implements VideoOutput {
     private static final String TAG = "Recorder";
 
     /**
-     * Video capabilities refers to {@link CamcorderProfile}.
+     * Video capabilities are derived from {@link CamcorderProfile}.
      *
      * <p>The {@link Quality} supported by the video capabilities of this source are determined by
      * the device's {@link CamcorderProfile}. This means that the quality of recorded videos is
@@ -184,24 +184,21 @@ public final class Recorder implements VideoOutput {
      *
      * @see Builder#setVideoCapabilitiesSource(int)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
     public static final int VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE = 0;
 
     /**
-     * Video capabilities refers to codec capabilities.
+     * Video capabilities are derived from codec capabilities.
      *
      * <p>The {@link Quality} supported by the video capabilities of this source are determined by
-     * the codec capabilities, including the {@link Quality} supported by the
-     * {@link CamcorderProfile}. However, the quality of recorded videos for those
-     * {@link Quality} supported beyond {@link CamcorderProfile} is not guaranteed. Therefore, it is
-     * recommended to use {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} unless there is a
-     * specific reason. A common use case is when the application strives to record UHD video
-     * whenever feasible, but the device's {@link CamcorderProfile} does not include a UHD quality
-     * setting, even though the codec is capable of recording UHD video.
+     * the codec capabilities. However, the recorded videos is not guaranteed. For example, there
+     * may be frame drops due to thermal throttling or memory pressure.
+     * Therefore, it is recommended to use {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE}
+     * unless there is a specific reason. A common use case is when the application strives to
+     * record UHD video whenever feasible, but the device's {@link CamcorderProfile} does not
+     * include a UHD quality setting, even though the codec is capable of recording UHD video.
      *
      * @see Builder#setVideoCapabilitiesSource(int)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
     public static final int VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES = 1;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -673,7 +670,6 @@ public final class Recorder implements VideoOutput {
      * used to create this recorder, or the default value
      * {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} if not set.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
     @VideoCapabilitiesSource
     public int getVideoCapabilitiesSource() {
         return mVideoCapabilitiesSource;
@@ -2813,6 +2809,10 @@ public final class Recorder implements VideoOutput {
      * qualities. This information can be used for things like checking if HDR is supported for
      * configuring VideoCapture to record HDR video.
      *
+     * <p>The source of the returned {@link VideoCapabilities} is
+     * {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE}. To get a {@link VideoCapabilities}
+     * from a different source, use {@link Recorder#getVideoCapabilities(CameraInfo, int)}.
+     *
      * @param cameraInfo info about the camera.
      * @return VideoCapabilities with respect to the input camera info.
      */
@@ -2838,7 +2838,6 @@ public final class Recorder implements VideoOutput {
      * @return VideoCapabilities with respect to the input camera info and video capabilities
      * source.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
     @NonNull
     public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
@@ -3353,7 +3352,6 @@ public final class Recorder implements VideoOutput {
          * @throws IllegalArgumentException if videoCapabilitiesSource is not one of the possible
          * values.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
         @NonNull
         public Builder setVideoCapabilitiesSource(
                 @VideoCapabilitiesSource int videoCapabilitiesSource) {
