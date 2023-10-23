@@ -43,6 +43,7 @@ import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
+import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 
@@ -89,23 +90,23 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         runWorker()
     }
 
-    @Suppress("DEPRECATION")
     private fun runWorker() {
         if (tryCheckForInterruptionAndResolve()) {
             return
         }
-        workDatabase.beginTransaction()
-        try {
+
+        // Needed for nested transactions, such as when we're in a dependent work request when
+        // using a SynchronousExecutor.
+        val shouldExit = workDatabase.runInTransaction(Callable {
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (workSpec.state !== WorkInfo.State.ENQUEUED) {
                 resolveIncorrectStatus()
-                workDatabase.setTransactionSuccessful()
                 Logger.get().debug(
                     TAG,
                     "${workSpec.workerClassName} is not in ENQUEUED state. Nothing more to do"
                 )
-                return
+                return@Callable true
             }
 
             // Case 1:
@@ -131,17 +132,13 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     // This is not a problem for JobScheduler because we will only reschedule
                     // work if JobScheduler is unaware of a jobId.
                     resolve(true)
-                    workDatabase.setTransactionSuccessful()
-                    return
+                    return@Callable true
                 }
             }
+            return@Callable false
+        })
 
-            // Needed for nested transactions, such as when we're in a dependent work request when
-            // using a SynchronousExecutor.
-            workDatabase.setTransactionSuccessful()
-        } finally {
-            workDatabase.endTransaction()
-        }
+        if (shouldExit) return
 
         // Merge inputs.  This can be potentially expensive code, so this should not be done inside
         // a database transaction.
@@ -290,11 +287,9 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun onWorkFinished() {
         if (!tryCheckForInterruptionAndResolve()) {
-            workDatabase.beginTransaction()
-            try {
+            workDatabase.runInTransaction {
                 val state = workSpecDao.getState(workSpecId)
                 workDatabase.workProgressDao().delete(workSpecId)
                 if (state == null) {
@@ -310,9 +305,6 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     interrupted = WorkInfo.STOP_REASON_UNKNOWN
                     rescheduleAndResolve()
                 }
-                workDatabase.setTransactionSuccessful()
-            } finally {
-                workDatabase.endTransaction()
             }
         }
     }
@@ -433,30 +425,21 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun trySetRunning(): Boolean {
-        var setToRunning = false
-        workDatabase.beginTransaction()
-        try {
+    private fun trySetRunning(): Boolean = workDatabase.runInTransaction(
+        Callable {
             val currentState = workSpecDao.getState(workSpecId)
             if (currentState === WorkInfo.State.ENQUEUED) {
                 workSpecDao.setState(WorkInfo.State.RUNNING, workSpecId)
                 workSpecDao.incrementWorkSpecRunAttemptCount(workSpecId)
                 workSpecDao.setStopReason(workSpecId, WorkInfo.STOP_REASON_NOT_STOPPED)
-                setToRunning = true
-            }
-            workDatabase.setTransactionSuccessful()
-        } finally {
-            workDatabase.endTransaction()
+                true
+            } else false
         }
-        return setToRunning
-    }
+    )
 
     @VisibleForTesting
-    @Suppress("DEPRECATION")
     fun setFailedAndResolve() {
-        workDatabase.beginTransaction()
-        try {
+        resolve(false) {
             iterativelyFailWorkAndDependents(workSpecId)
             val failure = result as ListenableWorker.Result.Failure
             // Update Data as necessary.
@@ -466,10 +449,6 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 workSpec.nextScheduleTimeOverrideGeneration
             )
             workSpecDao.setOutput(workSpecId, output)
-            workDatabase.setTransactionSuccessful()
-        } finally {
-            workDatabase.endTransaction()
-            resolve(false)
         }
     }
 
@@ -485,10 +464,8 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun rescheduleAndResolve() {
-        workDatabase.beginTransaction()
-        try {
+        resolve(true) {
             workSpecDao.setState(WorkInfo.State.ENQUEUED, workSpecId)
             workSpecDao.setLastEnqueueTime(workSpecId, clock.currentTimeMillis())
             workSpecDao.resetWorkSpecNextScheduleTimeOverride(
@@ -496,17 +473,11 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 workSpec.nextScheduleTimeOverrideGeneration
             )
             workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-            workDatabase.setTransactionSuccessful()
-        } finally {
-            workDatabase.endTransaction()
-            resolve(true)
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun resetPeriodicAndResolve() {
-        workDatabase.beginTransaction()
-        try {
+        resolve(false) {
             // The system clock may have been changed such that the lastEnqueueTime was in the past.
             // Therefore we always use the current time to determine the next run time of a Worker.
             // This way, the Schedulers will correctly schedule the next instance of the
@@ -520,17 +491,11 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             )
             workSpecDao.incrementPeriodCount(workSpecId)
             workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
-            workDatabase.setTransactionSuccessful()
-        } finally {
-            workDatabase.endTransaction()
-            resolve(false)
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun setSucceededAndResolve() {
-        workDatabase.beginTransaction()
-        try {
+        resolve(false) {
             workSpecDao.setState(WorkInfo.State.SUCCEEDED, workSpecId)
             val success = result as ListenableWorker.Result.Success
             // Update Data as necessary.
@@ -552,10 +517,14 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     workSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis)
                 }
             }
-            workDatabase.setTransactionSuccessful()
+        }
+    }
+
+    private fun resolve(reschedule: Boolean, block: () -> Unit) {
+        try {
+            workDatabase.runInTransaction(block)
         } finally {
-            workDatabase.endTransaction()
-            resolve(false)
+            resolve(reschedule)
         }
     }
 
