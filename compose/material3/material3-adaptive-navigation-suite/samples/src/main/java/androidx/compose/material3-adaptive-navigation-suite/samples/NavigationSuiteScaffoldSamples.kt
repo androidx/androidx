@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.samples
+package androidx.compose.material3.adaptive.navigation.suite.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.padding
@@ -23,10 +23,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.NavigationSuiteScaffold
-import androidx.compose.material3.adaptive.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.NavigationSuiteType
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
+import androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteType
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Preview
 @Sampled
 @Composable
@@ -67,7 +69,8 @@ fun NavigationSuiteScaffoldSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Preview
 @Sampled
 @Composable
