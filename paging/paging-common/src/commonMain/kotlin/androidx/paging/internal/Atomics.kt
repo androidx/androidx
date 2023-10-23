@@ -23,6 +23,7 @@ import kotlin.contracts.contract
 internal expect class CopyOnWriteArrayList<T>() : Iterable<T> {
     fun add(value: T): Boolean
     fun remove(value: T): Boolean
+    override fun iterator(): Iterator<T>
 }
 
 internal expect class ReentrantLock constructor() {

@@ -33,7 +33,6 @@ internal expect fun areObjectsOfSameType(a: Any, b: Any): Boolean
  */
 // TODO: For non-JVM platforms, you can revive the kotlin-reflect implementation from
 //  https://android-review.googlesource.com/c/platform/frameworks/support/+/2441379
-@OptIn(ExperimentalComposeUiApi::class)
 internal expect fun InspectorInfo.tryPopulateReflectively(
     element: ModifierNodeElement<*>
 )

@@ -36,10 +36,10 @@ import okio.BufferedSource
 actual object PreferencesSerializer : OkioSerializer<Preferences> {
     internal const val fileExtension = "preferences_pb"
 
-    override val defaultValue: Preferences
+    actual override val defaultValue: Preferences
         get() = emptyPreferences()
 
-    override suspend fun readFrom(source: BufferedSource): Preferences {
+    actual override suspend fun readFrom(source: BufferedSource): Preferences {
         val prefMap: PreferencesMap = try {
             ProtoBuf.decodeFromByteArray(source.readByteArray())
         } catch (e: SerializationException) {
@@ -55,7 +55,7 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
         return mutablePreferences.toPreferences()
     }
 
-    override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
+    actual override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val preferences = t.asMap()
         val prefMap = mutableMapOf<String, Value>()
         for ((key, value) in preferences) {

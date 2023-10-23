@@ -36,13 +36,13 @@ import okio.IOException
 actual object PreferencesSerializer : OkioSerializer<Preferences> {
     internal const val fileExtension = "preferences_pb"
 
-    override val defaultValue: Preferences
+    actual override val defaultValue: Preferences
         get() {
             return emptyPreferences()
         }
 
     @Throws(IOException::class, CorruptionException::class)
-    override suspend fun readFrom(source: BufferedSource): Preferences {
+    actual override suspend fun readFrom(source: BufferedSource): Preferences {
         val preferencesProto = PreferencesMapCompat.readFrom(source.inputStream())
 
         val mutablePreferences = mutablePreferencesOf()
@@ -56,7 +56,7 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
 
     @Suppress("InvalidNullabilityOverride") // Remove after b/232460179 is fixed
     @Throws(IOException::class, CorruptionException::class)
-    override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
+    actual override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val preferences = t.asMap()
         val protoBuilder = PreferenceMap.newBuilder()
 

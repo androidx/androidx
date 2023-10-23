@@ -263,7 +263,7 @@ internal data class ComputedStyle(
     }
 }
 
-internal expect class WeakHashMap<K, V> : MutableMap<K, V>
+internal expect class WeakHashMap<K, V>() : MutableMap<K, V>
 
 // Building of SkTextStyle is a relatively expensive operation. We enable simple caching by
 // mapping SpanStyle to SkTextStyle. To increase the efficiency of this mapping we are making

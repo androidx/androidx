@@ -185,7 +185,16 @@ internal expect class PlatformRipple(
     bounded: Boolean,
     radius: Dp,
     color: State<Color>
-) : Ripple
+) : Ripple {
+
+    @Composable override fun rememberUpdatedRippleInstance(
+        interactionSource: InteractionSource,
+        bounded: Boolean,
+        radius: Dp,
+        color: State<Color>,
+        rippleAlpha: State<RippleAlpha>
+    ): RippleIndicationInstance
+}
 
 /**
  * Abstract [IndicationInstance] that provides common functionality used by [PlatformRipple]

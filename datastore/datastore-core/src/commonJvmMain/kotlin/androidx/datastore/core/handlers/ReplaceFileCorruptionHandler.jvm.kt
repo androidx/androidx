@@ -37,7 +37,7 @@ public actual class ReplaceFileCorruptionHandler<T> constructor(
 ) : CorruptionHandler<T> {
 
     @Throws(IOException::class)
-    override suspend fun handleCorruption(ex: CorruptionException): T {
+    actual override suspend fun handleCorruption(ex: CorruptionException): T {
         return produceNewData(ex)
     }
 }

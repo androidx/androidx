@@ -2940,6 +2940,10 @@ package androidx.compose.ui.platform {
     property public Object? valueOverride;
   }
 
+  public final class JvmActuals_jvmKt {
+    method @kotlin.PublishedApi internal static inline <R> R synchronized(Object lock, kotlin.jvm.functions.Function0<? extends R> block);
+  }
+
   public final class NestedScrollInteropConnectionKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.input.nestedscroll.NestedScrollConnection rememberNestedScrollInteropConnection(optional android.view.View hostView);
   }
