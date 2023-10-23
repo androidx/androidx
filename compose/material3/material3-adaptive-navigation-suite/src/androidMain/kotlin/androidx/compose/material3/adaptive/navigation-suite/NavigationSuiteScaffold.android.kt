@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive
+package androidx.compose.material3.adaptive.navigation.suite
 
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
