@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("androidx.stableaidl")
 }
 
 dependencies {
@@ -54,6 +55,14 @@ androidx {
 
 android {
     namespace "androidx.core.uwb"
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        stableAidl {
+            version 1
+        }
+    }
     defaultConfig {
         minSdkVersion 23
         multiDexEnabled = true
