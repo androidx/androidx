@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -133,11 +134,11 @@ fun AlertDialogWithIconSample() {
 @Sampled
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlertDialogWithCustomContentSample() {
+fun BasicDialogWithCustomContentSample() {
     val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {
-        AlertDialog(
+        BasicDialog(
             onDismissRequest = {
                 // Dismiss the dialog when the user clicks outside the dialog or on the back
                 // button. If you want to disable that functionality, simply use an empty
