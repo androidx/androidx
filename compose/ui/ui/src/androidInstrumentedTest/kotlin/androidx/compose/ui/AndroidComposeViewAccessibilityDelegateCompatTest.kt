@@ -87,7 +87,6 @@ import androidx.compose.ui.semantics.isShowingTextSubstitution
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
-import androidx.compose.ui.semantics.originalText
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -103,6 +102,7 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSelectionRange
+import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
@@ -2242,7 +2242,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                             .size(10.dp)
                             .semantics {
                                 text = AnnotatedString("foo")
-                                originalText = AnnotatedString("bar")
                                 isShowingTextSubstitution = true
                                 showTextSubstitution {
                                     result = it
@@ -2402,6 +2401,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                     Modifier
                         .size(10.dp)
                         .semantics {
+                            textSubstitution = AnnotatedString("foo")
                             isShowingTextSubstitution = false
                             showTextSubstitution {
                                 result = it
@@ -2432,8 +2432,8 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         .size(10.dp)
                         .semantics {
                             text = AnnotatedString("bar")
+                            textSubstitution = AnnotatedString("foo")
                             isShowingTextSubstitution = true
-                            originalText = AnnotatedString("foo")
                             showTextSubstitution {
                                 result = it
                                 true
@@ -2463,7 +2463,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         .size(10.dp)
                         .semantics {
                             text = AnnotatedString("bar")
-                            originalText = AnnotatedString("foo")
                             isShowingTextSubstitution = true
                             clearTextSubstitution {
                                 result = true
