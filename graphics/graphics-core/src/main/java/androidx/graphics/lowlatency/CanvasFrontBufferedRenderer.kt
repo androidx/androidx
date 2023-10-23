@@ -388,7 +388,8 @@ class CanvasFrontBufferedRenderer<T>(
         buffer: HardwareBuffer,
         fence: SyncFenceCompat?
     ) {
-        if (frontBufferSurfaceControl != null && parentSurfaceControl != null) {
+        if (frontBufferSurfaceControl != null && frontBufferSurfaceControl.isValid() &&
+            parentSurfaceControl != null && parentSurfaceControl.isValid()) {
             persistedCanvasRenderer?.isVisible = false
             val transaction = SurfaceControlCompat.Transaction()
                 .setVisibility(frontBufferSurfaceControl, false)
