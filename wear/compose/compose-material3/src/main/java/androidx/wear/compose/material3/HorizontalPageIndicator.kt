@@ -181,7 +181,6 @@ internal object PageIndicatorDefaults {
 @Composable
 public fun rememberPageIndicatorState(
     maxPages: Int,
-    @Suppress("PrimitiveInLambda")
     selectedPageWithOffset: () -> Float
 ): PageIndicatorState =
     remember(maxPages, selectedPageWithOffset) {
@@ -209,7 +208,6 @@ public interface PageIndicatorState {
      *
      * Changes when a scroll (drag, swipe or fling) between pages happens in Pager.
      */
-    @Suppress("PrimitiveInLambda")
     @get:FloatRange(from = 0.0)
     public val selectedPageWithOffset: () -> Float
 
@@ -225,7 +223,6 @@ private fun LinearPageIndicator(
     modifier: Modifier,
     visibleDotIndex: Int,
     pagesOnScreen: Int,
-    @Suppress("PrimitiveInLambda")
     indicator: @Composable (Int) -> Unit,
     selectedIndicator: @Composable () -> Unit,
     spacerLeft: @Composable () -> Unit,
@@ -344,7 +341,6 @@ private fun CurvedPageIndicator(
     modifier: Modifier,
     visibleDotIndex: Int,
     pagesOnScreen: Int,
-    @Suppress("PrimitiveInLambda")
     indicator: CurvedScope.(Int) -> Unit,
     itemsSpacer: CurvedScope.() -> Unit,
     selectedIndicator: CurvedScope.() -> Unit,

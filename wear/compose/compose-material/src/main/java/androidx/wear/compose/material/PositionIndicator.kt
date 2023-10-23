@@ -518,7 +518,6 @@ value class PositionIndicatorAlignment internal constructor(internal val pos: In
  */
 @Composable
 public fun PositionIndicator(
-    @Suppress("PrimitiveInLambda")
     value: () -> Float,
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..1f,
@@ -570,7 +569,6 @@ public fun PositionIndicator(
 )
 @Composable
 public fun PositionIndicator(
-    @Suppress("PrimitiveInLambda")
     value: () -> Float,
     modifier: Modifier = Modifier,
     range: ClosedFloatingPointRange<Float> = 0f..1f,

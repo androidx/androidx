@@ -65,7 +65,6 @@ internal fun measureLazyList(
     isLookingAhead: Boolean,
     postLookaheadLayoutInfo: LazyListLayoutInfo?,
     coroutineScope: CoroutineScope,
-    @Suppress("PrimitiveInLambda")
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0) { "invalid beforeContentPadding" }

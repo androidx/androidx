@@ -104,7 +104,6 @@ internal interface LazyLayoutAnimateScrollScope {
     suspend fun scroll(block: suspend ScrollScope.() -> Unit)
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutAnimateScrollScope.isItemVisible(index: Int): Boolean {
     return index in firstVisibleItemIndex..lastVisibleItemIndex

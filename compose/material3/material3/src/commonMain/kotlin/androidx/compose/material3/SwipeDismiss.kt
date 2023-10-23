@@ -88,7 +88,6 @@ enum class DismissValue {
  * the start of a transition. It will be, depending on the direction of the interaction, added or
  * subtracted from/to the origin offset. It should always be a positive value.
  */
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalMaterial3Api::class)
 class DismissState @Deprecated(
     message = "This constructor is deprecated. " +
@@ -114,7 +113,7 @@ class DismissState @Deprecated(
      * the start of a transition. It will be, depending on the direction of the interaction, added or
      * subtracted from/to the origin offset. It should always be a positive value.
      */
-    @Suppress("Deprecation", "PrimitiveInLambda")
+    @Suppress("Deprecation")
     constructor(
         initialValue: DismissValue,
         density: Density,
@@ -268,7 +267,6 @@ class DismissState @Deprecated(
  * the start of a transition. It will be, depending on the direction of the interaction, added or
  * subtracted from/to the origin offset. It should always be a positive value.
  */
-@Suppress("PrimitiveInLambda")
 @Composable
 fun rememberDismissState(
     initialValue: DismissValue = Default,
@@ -382,7 +380,6 @@ fun SwipeDismiss(
 }
 
 /** Contains default values for [SwipeToDismiss] and [DismissState]. */
-@Suppress("PrimitiveInLambda")
 @Deprecated(
     level = DeprecationLevel.WARNING,
     message = "Use SwipeDismissDefaults instead."

@@ -99,7 +99,6 @@ interface Drag2DScope {
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-@Suppress("PrimitiveInLambda")
 @ExperimentalFoundationApi
 fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
     DefaultDraggable2DState(onDelta)
@@ -115,7 +114,6 @@ fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-@Suppress("PrimitiveInLambda")
 @ExperimentalFoundationApi
 @Composable
 fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
@@ -157,7 +155,6 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  */
-@Suppress("PrimitiveInLambda")
 @ExperimentalFoundationApi
 fun Modifier.draggable2D(
     state: Draggable2DState,
@@ -178,7 +175,6 @@ fun Modifier.draggable2D(
     canDrag = { true }
 )
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 internal class Draggable2DElement(
     private val state: Draggable2DState,
@@ -259,7 +255,6 @@ internal class Draggable2DElement(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 internal class Draggable2DNode(
     private var state: Draggable2DState,
@@ -300,7 +295,6 @@ internal class Draggable2DNode(
 
     override val pointerDirectionConfig = BidirectionalPointerDirectionConfig
 
-    @Suppress("PrimitiveInLambda")
     fun update(
         state: Draggable2DState,
         canDrag: (PointerInputChange) -> Boolean,
@@ -346,7 +340,6 @@ private val NoOpDrag2DScope: Drag2DScope = object : Drag2DScope {
     override fun dragBy(pixels: Offset) {}
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable2DState {
     private val drag2DScope: Drag2DScope = object : Drag2DScope {

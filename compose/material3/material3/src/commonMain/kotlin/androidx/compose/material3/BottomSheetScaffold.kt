@@ -218,7 +218,6 @@ fun rememberStandardBottomSheetState(
 @Composable
 private fun StandardBottomSheet(
     state: SheetState,
-    @Suppress("PrimitiveInLambda")
     calculateAnchors: (sheetSize: IntSize) -> DraggableAnchors<SheetValue>,
     peekHeight: Dp,
     sheetMaxWidth: Dp,
