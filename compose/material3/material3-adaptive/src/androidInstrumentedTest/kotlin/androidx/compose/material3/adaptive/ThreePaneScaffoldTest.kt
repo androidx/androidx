@@ -120,7 +120,7 @@ private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
     SampleThreePaneScaffold(
         MockScaffoldDirective,
         scaffoldValue,
-        ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
+        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
     )
 }
 
@@ -129,13 +129,13 @@ private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
 internal fun SampleThreePaneScaffold(
     scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
-    arrangement: ThreePaneScaffoldArrangement
+    paneOrder: ThreePaneScaffoldHorizontalOrder
 ) {
     ThreePaneScaffold(
         modifier = Modifier.fillMaxSize().testTag(ThreePaneScaffoldTestTag),
         scaffoldDirective = scaffoldDirective,
         scaffoldValue = scaffoldValue,
-        arrangement = arrangement,
+        paneOrder = paneOrder,
         secondaryPane = {
             AnimatedPane(
                 modifier = Modifier.testTag(tag = "SecondaryPane")

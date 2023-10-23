@@ -47,7 +47,7 @@ fun ListDetailPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = scaffoldState.scaffoldDirective,
         scaffoldValue = scaffoldState.scaffoldValue,
-        arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
+        paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
         primaryPane = detailPane

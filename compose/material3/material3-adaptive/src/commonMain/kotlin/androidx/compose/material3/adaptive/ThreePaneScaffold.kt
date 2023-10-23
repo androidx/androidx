@@ -54,8 +54,8 @@ import kotlin.math.min
 
 /**
  * A pane scaffold composable that can display up to three panes according to the instructions
- * provided by [ThreePaneScaffoldValue] in the order that [ThreePaneScaffoldArrangement] specifies,
- * and allocate margins and spacers according to [PaneScaffoldDirective].
+ * provided by [ThreePaneScaffoldValue] in the order that [ThreePaneScaffoldHorizontalOrder]
+ * specifies, and allocate margins and spacers according to [PaneScaffoldDirective].
  *
  * [ThreePaneScaffold] is the base composable functions of adaptive programming. Developers can
  * freely pipeline the relevant adaptive signals and use them as input of the scaffold function
@@ -68,7 +68,7 @@ import kotlin.math.min
  * @param modifier The modifier to be applied to the layout.
  * @param scaffoldDirective The top-level directives about how the scaffold should arrange its panes.
  * @param scaffoldValue The current adapted value of the scaffold.
- * @param arrangement The arrangement of the panes in the scaffold.
+ * @param paneOrder The horizontal order of the panes from start to end in the scaffold.
  * @param secondaryPane The content of the secondary pane that has a priority lower then the primary
  *                      pane but higher than the tertiary pane.
  * @param tertiaryPane The content of the tertiary pane that has the lowest priority.
@@ -80,25 +80,25 @@ fun ThreePaneScaffold(
     modifier: Modifier,
     scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
-    arrangement: ThreePaneScaffoldArrangement,
+    paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val ltrArrangement = remember(arrangement, layoutDirection) {
-        arrangement.toLtrArrangement(layoutDirection)
+    val ltrPaneOrder = remember(paneOrder, layoutDirection) {
+        paneOrder.toLtrOrder(layoutDirection)
     }
     val previousScaffoldValue = remember { ThreePaneScaffoldValueHolder(scaffoldValue) }
     val paneMotion = calculateThreePaneMotion(
         previousScaffoldValue = previousScaffoldValue.value,
         currentScaffoldValue = scaffoldValue,
-        arrangement = ltrArrangement
+        paneOrder = ltrPaneOrder
     )
     previousScaffoldValue.value = scaffoldValue
 
     // Create PaneWrappers for each of the panes and map the transitions according to each pane
-    // role and arrangement.
+    // role and order.
     val contents = listOf<@Composable () -> Unit>(
         {
             remember { ThreePaneScaffoldScopeImpl() }.apply {
@@ -106,11 +106,11 @@ fun ThreePaneScaffold(
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Primary,
-                    ltrArrangement
+                    ltrPaneOrder
                 )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Primary,
-                    ltrArrangement
+                    ltrPaneOrder
                 )
                 animationToolingLabel = "Primary"
             }.primaryPane()
@@ -121,11 +121,11 @@ fun ThreePaneScaffold(
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
                     ThreePaneScaffoldRole.Secondary,
-                    ltrArrangement
+                    ltrPaneOrder
                 )
                 exitTransition = paneMotion.exitTransition(
                     ThreePaneScaffoldRole.Secondary,
-                    ltrArrangement
+                    ltrPaneOrder
                 )
                 animationToolingLabel = "Secondary"
             }.secondaryPane()
@@ -137,11 +137,11 @@ fun ThreePaneScaffold(
                     positionAnimationSpec = paneMotion.animationSpec
                     enterTransition = paneMotion.enterTransition(
                         ThreePaneScaffoldRole.Tertiary,
-                        ltrArrangement
+                        ltrPaneOrder
                     )
                     exitTransition = paneMotion.exitTransition(
                         ThreePaneScaffoldRole.Tertiary,
-                        ltrArrangement
+                        ltrPaneOrder
                     )
                     animationToolingLabel = "Tertiary"
                 }.tertiaryPane()
@@ -150,10 +150,10 @@ fun ThreePaneScaffold(
     )
 
     val measurePolicy =
-        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, ltrArrangement) }
+        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, ltrPaneOrder) }
     measurePolicy.scaffoldDirective = scaffoldDirective
     measurePolicy.scaffoldValue = scaffoldValue
-    measurePolicy.arrangement = ltrArrangement
+    measurePolicy.paneOrder = ltrPaneOrder
 
     LookaheadScope {
         Layout(
@@ -181,16 +181,16 @@ internal class ThreePaneMotion internal constructor(
 
     /**
      * Resolves and returns the [EnterTransition] for the given [ThreePaneScaffoldRole] at the given
-     * [ThreePaneScaffoldArrangement].
+     * [ThreePaneScaffoldHorizontalOrder].
      */
     fun enterTransition(
         role: ThreePaneScaffoldRole,
-        arrangement: ThreePaneScaffoldArrangement
+        paneOrder: ThreePaneScaffoldHorizontalOrder
     ): EnterTransition {
         // Quick return in case this instance is the NoMotion one.
         if (this === NoMotion) return EnterTransition.None
 
-        return when (arrangement.indexOf(role)) {
+        return when (paneOrder.indexOf(role)) {
             0 -> firstPaneEnterTransition
             1 -> secondPaneEnterTransition
             else -> thirdPaneEnterTransition
@@ -199,16 +199,16 @@ internal class ThreePaneMotion internal constructor(
 
     /**
      * Resolves and returns the [ExitTransition] for the given [ThreePaneScaffoldRole] at the given
-     * [ThreePaneScaffoldArrangement].
+     * [ThreePaneScaffoldHorizontalOrder].
      */
     fun exitTransition(
         role: ThreePaneScaffoldRole,
-        arrangement: ThreePaneScaffoldArrangement
+        paneOrder: ThreePaneScaffoldHorizontalOrder
     ): ExitTransition {
         // Quick return in case this instance is the NoMotion one.
         if (this === NoMotion) return ExitTransition.None
 
-        return when (arrangement.indexOf(role)) {
+        return when (paneOrder.indexOf(role)) {
             0 -> firstPaneExitTransition
             1 -> secondPaneExitTransition
             else -> thirdPaneExitTransition
@@ -255,7 +255,7 @@ private class ThreePaneScaffoldValueHolder(var value: ThreePaneScaffoldValue)
 private fun calculateThreePaneMotion(
     previousScaffoldValue: ThreePaneScaffoldValue,
     currentScaffoldValue: ThreePaneScaffoldValue,
-    arrangement: ThreePaneScaffoldArrangement
+    paneOrder: ThreePaneScaffoldHorizontalOrder
 ): ThreePaneMotion {
     if (previousScaffoldValue.equals(currentScaffoldValue)) {
         return ThreePaneMotion.NoMotion
@@ -268,15 +268,15 @@ private fun calculateThreePaneMotion(
     }
     return when (previousExpandedCount) {
         1 -> when (PaneAdaptedValue.Expanded) {
-            previousScaffoldValue[arrangement.firstPane] -> {
+            previousScaffoldValue[paneOrder.firstPane] -> {
                 ThreePaneScaffoldDefaults.panesRightMotion
             }
 
-            previousScaffoldValue[arrangement.thirdPane] -> {
+            previousScaffoldValue[paneOrder.thirdPane] -> {
                 ThreePaneScaffoldDefaults.panesLeftMotion
             }
 
-            currentScaffoldValue[arrangement.thirdPane] -> {
+            currentScaffoldValue[paneOrder.thirdPane] -> {
                 ThreePaneScaffoldDefaults.panesRightMotion
             }
 
@@ -286,16 +286,16 @@ private fun calculateThreePaneMotion(
         }
 
         2 -> when {
-            previousScaffoldValue[arrangement.firstPane] != PaneAdaptedValue.Expanded -> {
+            previousScaffoldValue[paneOrder.firstPane] != PaneAdaptedValue.Expanded -> {
                 ThreePaneScaffoldDefaults.panesLeftMotion
             }
 
-            previousScaffoldValue[arrangement.thirdPane] != PaneAdaptedValue.Expanded -> {
+            previousScaffoldValue[paneOrder.thirdPane] != PaneAdaptedValue.Expanded -> {
                 ThreePaneScaffoldDefaults.panesRightMotion
             }
 
-            previousScaffoldValue[arrangement.secondPane] != PaneAdaptedValue.Expanded &&
-                currentScaffoldValue[arrangement.firstPane] != PaneAdaptedValue.Expanded -> {
+            previousScaffoldValue[paneOrder.secondPane] != PaneAdaptedValue.Expanded &&
+                currentScaffoldValue[paneOrder.firstPane] != PaneAdaptedValue.Expanded -> {
                 ThreePaneScaffoldDefaults.replaceLeftPaneMotion
             }
 
@@ -330,7 +330,7 @@ private fun getExpandedCount(scaffoldValue: ThreePaneScaffoldValue): Int {
 private class ThreePaneContentMeasurePolicy(
     var scaffoldDirective: PaneScaffoldDirective,
     var scaffoldValue: ThreePaneScaffoldValue,
-    var arrangement: ThreePaneScaffoldArrangement
+    var paneOrder: ThreePaneScaffoldHorizontalOrder
 ) : MultiContentMeasurePolicy {
 
     /**
@@ -357,7 +357,7 @@ private class ThreePaneContentMeasurePolicy(
                 return@layout
             }
             val visiblePanes = getPanesMeasurables(
-                arrangement = arrangement,
+                paneOrder = paneOrder,
                 primaryMeasurables = primaryMeasurables,
                 scaffoldValue = scaffoldValue,
                 secondaryMeasurables = secondaryMeasurables,
@@ -367,7 +367,7 @@ private class ThreePaneContentMeasurePolicy(
             }
 
             val hiddenPanes = getPanesMeasurables(
-                arrangement = arrangement,
+                paneOrder = paneOrder,
                 primaryMeasurables = primaryMeasurables,
                 scaffoldValue = scaffoldValue,
                 secondaryMeasurables = secondaryMeasurables,
@@ -504,7 +504,7 @@ private class ThreePaneContentMeasurePolicy(
 
     @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     private fun MeasureScope.getPanesMeasurables(
-        arrangement: ThreePaneScaffoldArrangement,
+        paneOrder: ThreePaneScaffoldHorizontalOrder,
         primaryMeasurables: List<Measurable>,
         scaffoldValue: ThreePaneScaffoldValue,
         secondaryMeasurables: List<Measurable>,
@@ -512,7 +512,7 @@ private class ThreePaneContentMeasurePolicy(
         predicate: (PaneAdaptedValue) -> Boolean
     ): List<PaneMeasurable> {
         return buildList {
-            arrangement.forEach { role ->
+            paneOrder.forEach { role ->
                 if (predicate(scaffoldValue[role])) {
                     when (role) {
                         ThreePaneScaffoldRole.Primary -> {
@@ -779,21 +779,23 @@ private class ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldS
 @ExperimentalMaterial3AdaptiveApi
 object ThreePaneScaffoldDefaults {
     /**
-     * Denotes [ThreePaneScaffold] to use the list-detail arrangement to arrange its panes, which
-     * allocates panes in the order of secondary, primary, and tertiary form start to end.
+     * Denotes [ThreePaneScaffold] to use the list-detail pane-order to arrange its panes
+     * horizontally, which allocates panes in the order of secondary, primary, and tertiary from
+     * start to end.
      */
     // TODO(conradchen/sgibly): Consider moving this to the ListDetailPaneScaffoldDefaults
-    val ListDetailLayoutArrangement = ThreePaneScaffoldArrangement(
+    val ListDetailLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
         ThreePaneScaffoldRole.Secondary,
         ThreePaneScaffoldRole.Primary,
         ThreePaneScaffoldRole.Tertiary
     )
 
     /**
-     * Denotes [ThreePaneScaffold] to use the supporting-pane arrangement to arrange its panes,
-     * which allocates panes in the order of secondary, primary, and tertiary form start to end.
+     * Denotes [ThreePaneScaffold] to use the supporting-pane pane-order to arrange its panes
+     * horizontally, which allocates panes in the order of primary, secondary, and tertiary from
+     * start to end.
      */
-    val SupportingPaneLayoutArrangement = ThreePaneScaffoldArrangement(
+    val SupportingPaneLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
         ThreePaneScaffoldRole.Primary,
         ThreePaneScaffoldRole.Secondary,
         ThreePaneScaffoldRole.Tertiary
