@@ -31,12 +31,16 @@ import static androidx.camera.video.internal.DebugUtils.readableUs;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioEncoderConfig;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioMimeInfo;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSettings;
+import static androidx.core.util.Preconditions.checkArgument;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.location.Location;
+import android.media.CamcorderProfile;
 import android.media.MediaMuxer;
 import android.media.MediaRecorder;
 import android.media.MediaScannerConnection;
@@ -50,6 +54,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -107,6 +112,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -167,6 +173,43 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class Recorder implements VideoOutput {
 
     private static final String TAG = "Recorder";
+
+    /**
+     * Video capabilities refers to {@link CamcorderProfile}.
+     *
+     * <p>The {@link Quality} supported by the video capabilities of this source are determined by
+     * the device's {@link CamcorderProfile}. This means that the quality of recorded videos is
+     * guaranteed by the device manufacturer. This is the recommended type for recording
+     * high-quality video.
+     *
+     * @see Builder#setVideoCapabilitiesSource(int)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
+    public static final int VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE = 0;
+
+    /**
+     * Video capabilities refers to codec capabilities.
+     *
+     * <p>The {@link Quality} supported by the video capabilities of this source are determined by
+     * the codec capabilities, including the {@link Quality} supported by the
+     * {@link CamcorderProfile}. However, the quality of recorded videos for those
+     * {@link Quality} supported beyond {@link CamcorderProfile} is not guaranteed. Therefore, it is
+     * recommended to use {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} unless there is a
+     * specific reason. A common use case is when the application strives to record UHD video
+     * whenever feasible, but the device's {@link CamcorderProfile} does not include a UHD quality
+     * setting, even though the codec is capable of recording UHD video.
+     *
+     * @see Builder#setVideoCapabilitiesSource(int)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
+    public static final int VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES = 1;
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(SOURCE)
+    @IntDef({VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+            VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES})
+    @interface VideoCapabilitiesSource {
+    }
 
     enum State {
         /**
@@ -320,6 +363,7 @@ public final class Recorder implements VideoOutput {
     private final Object mLock = new Object();
     private final boolean mEncoderNotUsePersistentInputSurface = DeviceQuirks.get(
             EncoderNotUsePersistentInputSurfaceQuirk.class) != null;
+    private final @VideoCapabilitiesSource int mVideoCapabilitiesSource;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                          Members only accessed when holding mLock                          //
@@ -448,6 +492,7 @@ public final class Recorder implements VideoOutput {
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
+            @VideoCapabilitiesSource int videoCapabilitiesSource,
             @NonNull EncoderFactory videoEncoderFactory,
             @NonNull EncoderFactory audioEncoderFactory) {
         mUserProvidedExecutor = executor;
@@ -455,6 +500,7 @@ public final class Recorder implements VideoOutput {
         mSequentialExecutor = CameraXExecutors.newSequentialExecutor(mExecutor);
 
         mMediaSpec = MutableStateObservable.withInitialState(composeRecorderMediaSpec(mediaSpec));
+        mVideoCapabilitiesSource = videoCapabilitiesSource;
         mStreamInfo = MutableStateObservable.withInitialState(
                 StreamInfo.of(mStreamId, internalStateToStreamState(mState)));
         mVideoEncoderFactory = videoEncoderFactory;
@@ -505,7 +551,7 @@ public final class Recorder implements VideoOutput {
     @Override
     @NonNull
     public VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo) {
-        return getVideoCapabilities(cameraInfo);
+        return getVideoCapabilities(cameraInfo, mVideoCapabilitiesSource);
     }
 
     /**
@@ -618,6 +664,19 @@ public final class Recorder implements VideoOutput {
     @NonNull
     public QualitySelector getQualitySelector() {
         return getObservableData(mMediaSpec).getVideoSpec().getQualitySelector();
+    }
+
+    /**
+     * Gets the video capabilities source of this Recorder.
+     *
+     * @return the value provided to {@link Builder#setVideoCapabilitiesSource(int)} on the builder
+     * used to create this recorder, or the default value
+     * {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} if not set.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
+    @VideoCapabilitiesSource
+    public int getVideoCapabilitiesSource() {
+        return mVideoCapabilitiesSource;
     }
 
     /**
@@ -2759,8 +2818,32 @@ public final class Recorder implements VideoOutput {
      */
     @NonNull
     public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
-        return new RecorderVideoCapabilities((CameraInfoInternal) cameraInfo,
-                VideoEncoderInfoImpl.FINDER);
+        return getVideoCapabilities(cameraInfo, VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE);
+    }
+
+    /**
+     * Returns the {@link VideoCapabilities} of Recorder with respect to input camera information
+     * and video capabilities source.
+     *
+     * <p>{@link VideoCapabilities} provides methods to query supported dynamic ranges and
+     * qualities. This information can be used for things like checking if HDR is supported for
+     * configuring VideoCapture to record HDR video.
+     *
+     * <p>The possible video capabilities sources include
+     * {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} and
+     * {@link #VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES}.
+     *
+     * @param cameraInfo              info about the camera.
+     * @param videoCapabilitiesSource the video capabilities source.
+     * @return VideoCapabilities with respect to the input camera info and video capabilities
+     * source.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
+    @NonNull
+    public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
+            @VideoCapabilitiesSource int videoCapabilitiesSource) {
+        return new RecorderVideoCapabilities(videoCapabilitiesSource,
+                (CameraInfoInternal) cameraInfo, VideoEncoderInfoImpl.FINDER);
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -3195,6 +3278,8 @@ public final class Recorder implements VideoOutput {
     public static final class Builder {
 
         private final MediaSpec.Builder mMediaSpecBuilder;
+        private @VideoCapabilitiesSource int mVideoCapabilitiesSource =
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE;
         private Executor mExecutor = null;
         private EncoderFactory mVideoEncoderFactory = DEFAULT_ENCODER_FACTORY;
         private EncoderFactory mAudioEncoderFactory = DEFAULT_ENCODER_FACTORY;
@@ -3250,6 +3335,33 @@ public final class Recorder implements VideoOutput {
                     "The specified quality selector can't be null.");
             mMediaSpecBuilder.configureVideo(
                     builder -> builder.setQualitySelector(qualitySelector));
+            return this;
+        }
+
+        /**
+         * Sets the video capabilities source.
+         *
+         * <p>Possible values include {@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} and
+         * {@link #VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES}. The final selected quality
+         * from the {@link QualitySelector} will be affected by the source. See the document of
+         * the constants for more detail.
+         *
+         * <p>{@link #VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE} will be the default if not set.
+         *
+         * @param videoCapabilitiesSource the video capabilities source.
+         * @return the builder instance.
+         * @throws IllegalArgumentException if videoCapabilitiesSource is not one of the possible
+         * values.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) // TODO(b/263961771): make API public
+        @NonNull
+        public Builder setVideoCapabilitiesSource(
+                @VideoCapabilitiesSource int videoCapabilitiesSource) {
+            checkArgument(videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
+                            || videoCapabilitiesSource
+                            == VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES,
+                    "Not a supported video capabilities source: " + videoCapabilitiesSource);
+            mVideoCapabilitiesSource = videoCapabilitiesSource;
             return this;
         }
 
@@ -3356,8 +3468,8 @@ public final class Recorder implements VideoOutput {
          */
         @NonNull
         public Recorder build() {
-            return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoEncoderFactory,
-                    mAudioEncoderFactory);
+            return new Recorder(mExecutor, mMediaSpecBuilder.build(), mVideoCapabilitiesSource,
+                    mVideoEncoderFactory, mAudioEncoderFactory);
         }
     }
 }
