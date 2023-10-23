@@ -709,8 +709,8 @@ internal class BasicTextField2Test {
 
         rule.runOnIdle {
             assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 1))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(1, 1))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(1, 5))
         }
     }
 
