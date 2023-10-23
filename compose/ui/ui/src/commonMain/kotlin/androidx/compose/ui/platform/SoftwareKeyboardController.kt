@@ -36,13 +36,13 @@ interface SoftwareKeyboardController {
      * such as a [TextField][androidx.compose.foundation.text.BasicTextField] when it is focused.
      * You may find it useful to ensure focus when calling this function.
      *
-     * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
-     *
      * You do not need to call this function unless you also call [hide], as the
      * keyboard is automatically shown and hidden by focus events in the BasicTextField.
      *
      * Calling this function is considered a side-effect and should not be called directly from
      * recomposition.
+     *
+     * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
      */
     fun show()
 
@@ -52,10 +52,10 @@ interface SoftwareKeyboardController {
      * This request is best effort, if the system cannot hide the software keyboard this call
      * will silently be ignored.
      *
-     * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
-     *
      * Calling this function is considered a side-effect and should not be called directly from
      * recomposition.
+     *
+     * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
      */
     fun hide()
 }
