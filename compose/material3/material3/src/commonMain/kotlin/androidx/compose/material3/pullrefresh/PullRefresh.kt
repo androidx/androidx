@@ -194,7 +194,6 @@ internal interface PullRefreshState {
 
 /** The default pull indicator for [PullRefreshContainer] */
 @Composable
-@Suppress("PrimitiveInLambda")
 private fun CircularArrowProgressIndicator(
     progress: () -> Float,
     color: Color,

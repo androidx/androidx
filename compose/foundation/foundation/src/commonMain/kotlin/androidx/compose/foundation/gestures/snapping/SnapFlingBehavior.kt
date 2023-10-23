@@ -199,7 +199,6 @@ class SnapFlingBehavior(
         return result
     }
 
-    @Suppress("PrimitiveInLambda")
     private suspend fun ScrollScope.tryApproach(
         offset: Float,
         velocity: Float,
@@ -398,7 +397,6 @@ private suspend fun ScrollScope.animateDecay(
  * @param animationSpec The [AnimationSpec] that will drive this animation
  * @param onAnimationStep Called for each new scroll delta emitted by the animation cycle.
  */
-@Suppress("PrimitiveInLambda")
 private suspend fun ScrollScope.animateWithTarget(
     targetOffset: Float,
     cancelOffset: Float,

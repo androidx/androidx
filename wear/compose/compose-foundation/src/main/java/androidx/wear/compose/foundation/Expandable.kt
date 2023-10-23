@@ -103,8 +103,8 @@ public fun <T> rememberExpandableStateMapping(
 public fun ScalingLazyListScope.expandableItems(
     state: ExpandableState,
     count: Int,
-    @Suppress("PrimitiveInLambda") key: ((index: Int) -> Any)? = null,
-    @Suppress("PrimitiveInLambda") itemContent: @Composable BoxScope.(index: Int) -> Unit
+    key: ((index: Int) -> Any)? = null,
+    itemContent: @Composable BoxScope.(index: Int) -> Unit
 ) {
     repeat(count) { itemIndex ->
         // Animations for each item start in inverse order, the first item animates last.

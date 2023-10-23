@@ -37,22 +37,4 @@
             file="src/commonMain/kotlin/androidx/compose/testutils/ModifierTestUtils.kt"/>
     </issue>
 
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method assertPixels has parameter &apos;expectedColorProvider&apos; with type Function1&lt;? super IntOffset, Color>."
-        errorLine1="    expectedColorProvider: (pos: IntOffset) -> Color?"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/testutils/ImageAssertions.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInLambda"
-        message="Use a functional interface instead of lambda syntax for lambdas with primitive values in method assertPixelColor has parameter &apos;error&apos; with type Function1&lt;? super Color, String>."
-        errorLine1="    error: (Color) -> String = { color -> &quot;Pixel($x, $y) expected to be $expected, but was $color&quot; }"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/testutils/ImageAssertions.android.kt"/>
-    </issue>
-
 </issues>

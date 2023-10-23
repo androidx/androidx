@@ -47,7 +47,6 @@ interface SurfaceScope {
      * Invokes [onChanged] when the surface's geometry (width and height) changes.
      * Always invoked on the main thread.
      */
-    @Suppress("PrimitiveInLambda")
     fun Surface.onChanged(onChanged: Surface.(width: Int, height: Int) -> Unit)
 
     /**
@@ -88,7 +87,6 @@ interface AndroidExternalSurfaceScope {
      * @param onSurface Callback invoked when a new [Surface] is created. The initial
      *                  dimensions of the surface are provided.
      */
-    @Suppress("PrimitiveInLambda")
     fun onSurface(
         onSurface: suspend SurfaceCoroutineScope.(surface: Surface, width: Int, height: Int) -> Unit
     )

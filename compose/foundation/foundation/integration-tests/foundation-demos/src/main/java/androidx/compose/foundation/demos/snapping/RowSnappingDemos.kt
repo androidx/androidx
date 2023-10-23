@@ -102,7 +102,6 @@ private fun ViewPortBasedSnappingDemo() {
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
-@Suppress("PrimitiveInLambda")
 @Composable
 private fun RowSnappingMainLayout(
     snapFlingBehavior: FlingBehavior,
@@ -149,7 +148,6 @@ private fun RowSnappingItem(position: Int) {
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberRowSnapLayoutInfoProvider(
@@ -166,7 +164,6 @@ private fun rememberRowSnapLayoutInfoProvider(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberDecayedSnappingLayoutInfoProvider(
@@ -188,7 +185,6 @@ private fun rememberDecayedSnappingLayoutInfoProvider(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberViewPortSnapLayoutInfoProvider(
@@ -212,7 +208,6 @@ private fun rememberViewPortSnapLayoutInfoProvider(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 internal class DecayedSnappingLayoutInfoProvider(
     private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
@@ -226,7 +221,6 @@ internal class DecayedSnappingLayoutInfoProvider(
     }
 }
 
-@Suppress("PrimitiveInLambda")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberScrollStateLayoutInfoProvider(
