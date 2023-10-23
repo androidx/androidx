@@ -35,3 +35,7 @@ BecameUnchecked: androidx.compose.material3.TimePickerState.Companion#Saver():
 
 DefaultValueChange: androidx.compose.material3.SnackbarHostState#showSnackbar(String, String, boolean, androidx.compose.material3.SnackbarDuration, kotlin.coroutines.Continuation<? super androidx.compose.material3.SnackbarResult>) parameter #4:
     Attempted to remove default value from parameter arg5 in androidx.compose.material3.SnackbarHostState.showSnackbar
+
+
+RemovedClass: androidx.compose.material3.SwipeToDismissKt:
+    Removed class androidx.compose.material3.SwipeToDismissKt
