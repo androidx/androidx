@@ -28,7 +28,7 @@
     "ktlint:standard:no-unused-imports",
 )
 
-package androidx.compose.ui.graphics
+package androidx.compose.foundation.demos.collection
 
 import androidx.collection.LongList
 import androidx.collection.MutableLongList
@@ -61,7 +61,7 @@ import kotlin.jvm.JvmInline
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-public value class ColorList(val list: LongList) {
+internal value class ColorList(val list: LongList) {
     /**
      * The number of elements in the [ColorList].
      */
@@ -381,7 +381,7 @@ public value class ColorList(val list: LongList) {
  */
 @OptIn(ExperimentalContracts::class)
 @JvmInline
-public value class MutableColorList(val list: MutableLongList) {
+internal value class MutableColorList(val list: MutableLongList) {
     public constructor(initialCapacity: Int = 16) : this(MutableLongList(initialCapacity))
 
     /**
@@ -856,23 +856,23 @@ public value class MutableColorList(val list: MutableLongList) {
 /**
  * @return a read-only [ColorList] with nothing in it.
  */
-public inline fun emptyColorList(): ColorList = ColorList(emptyLongList())
+internal inline fun emptyColorList(): ColorList = ColorList(emptyLongList())
 
 /**
  * @return a read-only [ColorList] with nothing in it.
  */
-public inline fun colorListOf(): ColorList = ColorList(emptyLongList())
+internal inline fun colorListOf(): ColorList = ColorList(emptyLongList())
 
 /**
  * @return a new read-only [ColorList] with [element1] as the only item in the list.
  */
-public inline fun colorListOf(element1: Color): ColorList =
+internal inline fun colorListOf(element1: Color): ColorList =
     ColorList(mutableLongListOf(element1.value.toLong()))
 
 /**
  * @return a new read-only [ColorList] with 2 elements, [element1] and [element2], in order.
  */
-public inline fun colorListOf(element1: Color, element2: Color): ColorList =
+internal inline fun colorListOf(element1: Color, element2: Color): ColorList =
     ColorList(
         mutableLongListOf(
             element1.value.toLong(),
@@ -884,7 +884,7 @@ public inline fun colorListOf(element1: Color, element2: Color): ColorList =
  * @return a new read-only [ColorList] with 3 elements, [element1], [element2], and [element3],
  * in order.
  */
-public inline fun colorListOf(
+internal inline fun colorListOf(
         element1: Color,
         element2: Color,
         element3: Color
@@ -899,19 +899,19 @@ public inline fun colorListOf(
 /**
  * @return a new empty [MutableColorList] with the default capacity.
  */
-public inline fun mutableColorListOf(): MutableColorList =
+internal inline fun mutableColorListOf(): MutableColorList =
     MutableColorList(MutableLongList())
 
 /**
  * @return a new [MutableColorList] with [element1] as the only item in the list.
  */
-public inline fun mutableColorListOf(element1: Color): MutableColorList =
+internal inline fun mutableColorListOf(element1: Color): MutableColorList =
     MutableColorList(mutableLongListOf(element1.value.toLong()))
 
 /**
  * @return a new [MutableColorList] with 2 elements, [element1] and [element2], in order.
  */
-public inline fun mutableColorListOf(
+internal inline fun mutableColorListOf(
         element1: Color,
         element2: Color
     ): MutableColorList = MutableColorList(
@@ -925,7 +925,7 @@ public inline fun mutableColorListOf(
  * @return a new [MutableColorList] with 3 elements, [element1], [element2], and [element3],
  * in order.
  */
-public inline fun mutableColorListOf(
+internal inline fun mutableColorListOf(
         element1: Color,
         element2: Color,
         element3: Color
