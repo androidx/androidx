@@ -130,14 +130,6 @@ internal class UwbClientSessionScopeAospImpl(
                         )
                     )
                 }
-
-                override fun getInterfaceVersion(): Int {
-                    return 0
-                }
-
-                override fun getInterfaceHash(): String {
-                    return ""
-                }
             }
 
         try {
