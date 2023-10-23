@@ -172,7 +172,7 @@ class AlertDialogTest {
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun alertDialog_customContentDoesNotConsumeFullScreenWidth() {
+    fun basicAlertDialog_customContentDoesNotConsumeFullScreenWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
         var maxDialogWidth = 0
         var screenWidth by mutableStateOf(0)
@@ -185,7 +185,7 @@ class AlertDialogTest {
                 maxDialogWidth = DialogMaxWidth.roundToPx()
             }
 
-            AlertDialog(onDismissRequest = {}) {
+            BasicAlertDialog(onDismissRequest = {}) {
                 Surface(
                     modifier = Modifier
                         .onSizeChanged { dialogWidthCh.trySend(it.width) }
@@ -235,12 +235,12 @@ class AlertDialogTest {
     /** Ensure a dialog with custom content has a min width. */
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun alertDialog_customContentMinWidth() {
+    fun basicAlertDialog_customContentMinWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
         var minDialogWidth = 0
         rule.setContent {
             with(LocalDensity.current) { minDialogWidth = DialogMinWidth.roundToPx() }
-            AlertDialog(onDismissRequest = {}) {
+            BasicAlertDialog(onDismissRequest = {}) {
                 Surface(
                     modifier = Modifier
                         .onSizeChanged { dialogWidthCh.trySend(it.width) }
@@ -259,12 +259,12 @@ class AlertDialogTest {
     /** Ensure a dialog with custom content has a min width. */
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun alertDialog_customContentModifiedMinWidth() {
+    fun basicAlertDialog_customContentModifiedMinWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
         var customMinDialogWidth = 0
         rule.setContent {
             with(LocalDensity.current) { customMinDialogWidth = 150.dp.roundToPx() }
-            AlertDialog(
+            BasicAlertDialog(
                 onDismissRequest = {},
                 Modifier.width(width = 150.dp)
             ) {
