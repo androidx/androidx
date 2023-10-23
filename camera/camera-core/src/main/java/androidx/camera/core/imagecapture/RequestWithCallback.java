@@ -86,6 +86,27 @@ class RequestWithCallback implements TakePictureCallback {
 
     @MainThread
     @Override
+    public void onCaptureStarted() {
+        checkMainThread();
+        if (mIsAborted) {
+            // Ignore the event if the request has been aborted.
+            return;
+        }
+
+        ImageCapture.OnImageCapturedCallback inMemoryCallback =
+                mTakePictureRequest.getInMemoryCallback();
+        if (inMemoryCallback != null) {
+            inMemoryCallback.onCaptureStarted();
+        }
+
+        ImageCapture.OnImageSavedCallback onDiskCallback = mTakePictureRequest.getOnDiskCallback();
+        if (onDiskCallback != null) {
+            onDiskCallback.onCaptureStarted();
+        }
+    }
+
+    @MainThread
+    @Override
     public void onImageCaptured() {
         checkMainThread();
         if (mIsAborted) {

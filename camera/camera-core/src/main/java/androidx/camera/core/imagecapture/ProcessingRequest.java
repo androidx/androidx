@@ -121,6 +121,14 @@ class ProcessingRequest {
     }
 
     /**
+     * @see TakePictureCallback#onCaptureStarted()
+     */
+    @MainThread
+    void onCaptureStarted() {
+        mCallback.onCaptureStarted();
+    }
+
+    /**
      * @see TakePictureCallback#onImageCaptured()
      */
     @MainThread
