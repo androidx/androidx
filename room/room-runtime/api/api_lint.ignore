@@ -59,6 +59,9 @@ NullableCollection: androidx.room.RoomDatabase.MigrationContainer#findMigrationP
     Return type of method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath(int,int) is a nullable collection (`java.util.List`); must be non-null
 
 
+PairedRegistration: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Found addCallback but not removeCallback in androidx.room.RoomDatabase.Builder
+
 RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
     Callback methods should be named register/unregister; was addCallback
 
