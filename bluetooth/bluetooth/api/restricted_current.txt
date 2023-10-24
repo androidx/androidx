@@ -194,7 +194,9 @@ package androidx.bluetooth {
     method public byte[]? getManufacturerSpecificData(int manufacturerId);
     method public long getPeriodicAdvertisingInterval();
     method public int getRssi();
+    method public java.util.Map<android.os.ParcelUuid,byte[]> getServiceData();
     method public byte[]? getServiceData(java.util.UUID serviceUuid);
+    method public java.util.List<android.os.ParcelUuid> getServiceSolicitationUuids();
     method public java.util.List<java.util.UUID> getServiceUuids();
     method public long getTimestampNanos();
     method public boolean isConnectable();
@@ -202,6 +204,8 @@ package androidx.bluetooth {
     property public final androidx.bluetooth.BluetoothAddress deviceAddress;
     property public final long periodicAdvertisingInterval;
     property public final int rssi;
+    property public final java.util.Map<android.os.ParcelUuid,byte[]> serviceData;
+    property public final java.util.List<android.os.ParcelUuid> serviceSolicitationUuids;
     property public final java.util.List<java.util.UUID> serviceUuids;
     property public final long timestampNanos;
     field public static final androidx.bluetooth.ScanResult.Companion Companion;
