@@ -149,6 +149,30 @@ class RequestWithCallbackTest {
     }
 
     @Test
+    fun sendInMemoryCallback_captureStarted() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+        // Act.
+        callback.onCaptureStarted()
+        shadowOf(getMainLooper()).idle()
+        // Assert.
+        assertThat(request.captureStarted).isTrue()
+    }
+
+    @Test
+    fun sendOnDiskCallback_captureStarted() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+        // Act.
+        callback.onCaptureStarted()
+        shadowOf(getMainLooper()).idle()
+        // Assert.
+        assertThat(request.captureStarted).isTrue()
+    }
+
+    @Test
     fun sendInMemoryResult_receiveResult() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)

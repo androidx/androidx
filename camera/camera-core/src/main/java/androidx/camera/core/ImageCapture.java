@@ -53,6 +53,7 @@ import static androidx.camera.core.internal.utils.ImageUtil.computeCropRectFromA
 import static androidx.camera.core.internal.utils.ImageUtil.isAspectRatioValid;
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
+
 import static java.util.Objects.requireNonNull;
 
 import android.content.ContentResolver;
@@ -1366,6 +1367,17 @@ public final class ImageCapture extends UseCase {
 
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
+        /**
+         * Called when the capture is started.
+         *
+         * <p>It's recommended to play shutter sound or trigger UI indicators of
+         * capture when receiving this callback.
+         */
+        // TODO(b/307277146): Promote this to a public API once it's ready.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        default void onCaptureStarted() {
+        }
+
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull OutputFileResults outputFileResults);
 
@@ -1379,9 +1391,20 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Callback for when an image capture has completed.
+     * Callback for image capture events.
      */
     public abstract static class OnImageCapturedCallback {
+        /**
+         * Callback for when the camera has started exposing a frame.
+         *
+         * <p>It's recommended to play shutter sound or trigger UI indicators of
+         * capture when receiving this callback.
+         */
+        // TODO(b/307277146): Promote this to a public API once it's ready.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public void onCaptureStarted() {
+        }
+
         /**
          * Callback for when the image has been captured.
          *

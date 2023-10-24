@@ -92,6 +92,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -725,6 +726,62 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         val imageProperties = callback.results.first()
         assertThat(imageProperties.format).isEqualTo(ImageFormat.RAW10)
+    }
+
+    @Test
+    fun takePicture_OnImageCaptureCallback_OnCaptureStarted() = runBlocking {
+        // Arrange.
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureStarted() {
+                semaphore.release()
+            }
+        }
+        useCase.takePicture(mainExecutor, callback)
+
+        // Assert: onCaptureStarted should be invoked once.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun takePicture_OnImageSaveCallback_OnCaptureStarted() = runBlocking {
+        // Arrange.
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageSavedCallback {
+            override fun onCaptureStarted() {
+                semaphore.release()
+            }
+
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+            }
+        }
+        val saveLocation = temporaryFolder.newFile("test.jpg")
+        assertThat(saveLocation.exists())
+        useCase.takePicture(
+            ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+            mainExecutor,
+            callback
+        )
+
+        // Assert: onCaptureStarted should be invoked once.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
     }
 
     private fun isRawSupported(cameraCharacteristics: CameraCharacteristics): Boolean {
