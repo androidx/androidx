@@ -94,6 +94,7 @@ public final class TimelineBuilders {
             private final TimelineProto.TimeInterval.Builder mImpl =
                     TimelineProto.TimeInterval.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -202,6 +203,7 @@ public final class TimelineBuilders {
             private final TimelineProto.TimelineEntry.Builder mImpl =
                     TimelineProto.TimelineEntry.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -309,6 +311,7 @@ public final class TimelineBuilders {
             private final TimelineProto.Timeline.Builder mImpl =
                     TimelineProto.Timeline.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

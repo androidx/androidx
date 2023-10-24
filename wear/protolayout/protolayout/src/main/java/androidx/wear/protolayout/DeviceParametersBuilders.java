@@ -242,6 +242,7 @@ public final class DeviceParametersBuilders {
             private final DeviceParametersProto.DeviceParameters.Builder mImpl =
                     DeviceParametersProto.DeviceParameters.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -406,6 +407,7 @@ public final class DeviceParametersBuilders {
             private final DeviceParametersProto.Capabilities.Builder mImpl =
                     DeviceParametersProto.Capabilities.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

@@ -41,19 +41,31 @@ public final class DimensionBuilders {
     private static final ExpandedDimensionProp EXPAND = new ExpandedDimensionProp.Builder().build();
     private static final WrappedDimensionProp WRAP = new WrappedDimensionProp.Builder().build();
 
-    /** Shortcut for building a {@link DpProp} using a measurement in DP. */
+    /**
+     * Shortcut for building a {@link DpProp} using a measurement in DP.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static DpProp dp(@Dimension(unit = DP) float valueDp) {
         return new DpProp.Builder(valueDp).build();
     }
 
-    /** Shortcut for building a {@link SpProp} using a measurement in SP. */
+    /**
+     * Shortcut for building a {@link SpProp} using a measurement in SP.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static SpProp sp(@Dimension(unit = SP) float valueSp) {
         return new SpProp.Builder().setValue(valueSp).build();
     }
 
-    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
+    /**
+     * Shortcut for building a {@link EmProp} using a measurement in EM.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static EmProp em(int valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
@@ -211,26 +223,27 @@ public final class DimensionBuilders {
         /** Builder for {@link DpProp}. */
         public static final class Builder
                 implements ContainerDimension.Builder,
-                        ImageDimension.Builder,
-                        SpacerDimension.Builder,
-                        ExtensionDimension.Builder {
+                ImageDimension.Builder,
+                SpacerDimension.Builder,
+                ExtensionDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
             /**
-             * @deprecated Use {@link #Builder(float)} instead.
-             */
-            @Deprecated
-            public Builder() {}
-
-            /**
-             * Creates a instance of {@link Builder}.
-             *
-             * @param staticValue the static value, in dp.
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
              */
             public Builder(@Dimension(unit = DP) float staticValue) {
                 setValue(staticValue);
             }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(float)}
+             */
+            @Deprecated
+            public Builder() {}
 
             /**
              * Sets the static value, in dp. If a dynamic value is also set and the renderer
@@ -240,9 +253,9 @@ public final class DimensionBuilders {
              * @since 1.0
              */
             @NonNull
-            public Builder setValue(@Dimension(unit = DP) float staticValue) {
-                mImpl.setValue(staticValue);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
+            public Builder setValue(@Dimension(unit = DP) float value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
                 return this;
             }
 
@@ -537,6 +550,7 @@ public final class DimensionBuilders {
             private final DimensionProto.SpProp.Builder mImpl = DimensionProto.SpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(631793260);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -620,6 +634,7 @@ public final class DimensionBuilders {
             private final DimensionProto.EmProp.Builder mImpl = DimensionProto.EmProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-659639046);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -729,19 +744,20 @@ public final class DimensionBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-1927567665);
 
             /**
-             * @deprecated Use {@link #Builder(float)} instead.
-             */
-            @Deprecated
-            public Builder() {}
-
-            /**
-             * Creates a instance of {@link Builder}.
-             *
-             * @param staticValue the static value, in degrees.
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
              */
             public Builder(float staticValue) {
                 setValue(staticValue);
             }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(float)}
+             */
+            @Deprecated
+            public Builder() {}
 
             /**
              * Sets the static value, in degrees. If a dynamic value is also set and the renderer
@@ -751,9 +767,9 @@ public final class DimensionBuilders {
              * @since 1.0
              */
             @NonNull
-            public Builder setValue(float staticValue) {
-                mImpl.setValue(staticValue);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
+            public Builder setValue(float value) {
+                mImpl.setValue(value);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
                 return this;
             }
 
@@ -968,7 +984,6 @@ public final class DimensionBuilders {
                     .build();
         }
 
-        /* */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -989,6 +1004,7 @@ public final class DimensionBuilders {
                     DimensionProto.ExpandedDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-997720604);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1015,6 +1031,7 @@ public final class DimensionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public ExpandedDimensionProp build() {
@@ -1102,6 +1119,7 @@ public final class DimensionBuilders {
                     DimensionProto.WrappedDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1118918114);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1117,13 +1135,13 @@ public final class DimensionBuilders {
                     throw new IllegalArgumentException(
                             "setMinimumSize doesn't support dynamic values.");
                 }
-
                 mImpl.setMinimumSize(minimumSize.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(minimumSize.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public WrappedDimensionProp build() {
@@ -1228,6 +1246,7 @@ public final class DimensionBuilders {
                     DimensionProto.ProportionalDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1725027476);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1254,6 +1273,7 @@ public final class DimensionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public ProportionalDimensionProp build() {
