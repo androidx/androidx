@@ -365,7 +365,7 @@ class FragmentStateManager {
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(TAG, "Cleaning up state of never attached fragment: " + mFragment);
                     }
-                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment, true);
                     mFragmentStore.makeInactive(this);
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(TAG, "initState called for fragment: " + mFragment);
@@ -819,7 +819,7 @@ class FragmentStateManager {
                 shouldClear = true;
             }
             if ((beingRemoved && !mFragment.mBeingSaved) || shouldClear) {
-                mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                mFragmentStore.getNonConfig().clearNonConfigState(mFragment, false);
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
