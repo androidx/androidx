@@ -1221,15 +1221,13 @@ package androidx.compose.foundation.pager {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public abstract class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public PagerState(optional int initialPage, optional float initialPageOffsetFraction);
+    ctor public PagerState(optional int currentPage, optional float currentPageOffsetFraction);
     method public final suspend Object? animateScrollToPage(int page, optional float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public final boolean getCanScrollBackward();
     method public final boolean getCanScrollForward();
     method public final int getCurrentPage();
     method public final float getCurrentPageOffsetFraction();
-    method public final int getInitialPage();
-    method public final float getInitialPageOffsetFraction();
     method public final androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public final androidx.compose.foundation.pager.PagerLayoutInfo getLayoutInfo();
     method public final float getOffsetFractionForPage(int page);
@@ -1245,8 +1243,6 @@ package androidx.compose.foundation.pager {
     property public final boolean canScrollForward;
     property public final int currentPage;
     property public final float currentPageOffsetFraction;
-    property public final int initialPage;
-    property public final float initialPageOffsetFraction;
     property public final androidx.compose.foundation.interaction.InteractionSource interactionSource;
     property public boolean isScrollInProgress;
     property public final androidx.compose.foundation.pager.PagerLayoutInfo layoutInfo;
