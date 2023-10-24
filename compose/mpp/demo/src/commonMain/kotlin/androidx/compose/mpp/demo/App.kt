@@ -100,7 +100,11 @@ class App(
             }
 
             is Screen.FullscreenExample -> {
-                screen.content { navigationStack.removeLast() }
+                screen.content {
+                    if (navigationStack.size > 1) {
+                        navigationStack.removeLast()
+                    }
+                }
             }
         }
     }
@@ -127,7 +131,7 @@ class App(
                         Icon(
                             Icons.Filled.ArrowBack,
                             contentDescription = "Back",
-                            modifier = Modifier.clickable { navigationStack.removeLast() }
+                            modifier = Modifier.backButton()
                         )
                     }
                 )
@@ -169,7 +173,7 @@ class App(
                                     Icon(
                                         Icons.Filled.ArrowBack,
                                         contentDescription = "Back",
-                                        modifier = Modifier.clickable { navigationStack.removeLast() }
+                                        modifier = Modifier.backButton()
                                     )
                                     Spacer(Modifier.width(16.dp))
                                 }
@@ -194,6 +198,12 @@ class App(
             ) {
                 content()
             }
+        }
+    }
+
+    private fun Modifier.backButton() = clickable {
+        if (navigationStack.size > 1) {
+            navigationStack.removeLast()
         }
     }
 }
