@@ -107,11 +107,18 @@ class NavControllerActivityTest {
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
-        assertThat(activity.isFinishCalled).isFalse()
-        assertThat(navController.navigateUp()).isTrue()
-        assertThat(activity.isFinishCalled).isTrue()
+        navController.navigate(R.id.start_test, null, navOptions {
+            popUpTo(R.id.second_test) { inclusive = true }
+        })
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
 
-        navController.setGraph(R.navigation.nav_simple)
+        // Create a slightly different graph to ensure we are testing the deep link handling
+        // rather than setGraph being a ~no-op when you call it multiple times
+        val navGraph = navController.navInflater.inflate(R.navigation.nav_simple).apply {
+            route = "root"
+        }
+        navController.setGraph(navGraph, null)
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.start_test)
         assertThat(navigator.backStack.size)

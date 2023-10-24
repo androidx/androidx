@@ -24,6 +24,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
+import androidx.collection.keyIterator
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.core.net.toUri
@@ -674,8 +675,7 @@ public open class NavDestination(
         val equalDeepLinks = deepLinks.intersect(other.deepLinks).size == deepLinks.size
 
         val equalActions = actions.size() == other.actions.size() &&
-            actions.valueIterator().asSequence().all { other.actions.containsValue(it) } &&
-            other.actions.valueIterator().asSequence().all { actions.containsValue(it) }
+            actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
 
         val equalArguments = arguments.size == other.arguments.size &&
             arguments.asSequence().all {
