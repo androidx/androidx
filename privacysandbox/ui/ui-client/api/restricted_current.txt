@@ -1,8 +1,8 @@
 // Signature format: 4.0
 package androidx.privacysandbox.ui.client {
 
-  public interface LocalSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> extends androidx.privacysandbox.ui.core.SdkActivityLauncher {
-    method public void dispose();
+  @Deprecated public interface LocalSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> extends androidx.privacysandbox.ui.core.SdkActivityLauncher {
+    method @Deprecated public void dispose();
   }
 
   public final class SandboxedUiAdapterFactory {
@@ -11,8 +11,8 @@ package androidx.privacysandbox.ui.client {
   }
 
   public final class SdkActivityLaunchers {
-    method public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.ui.client.LocalSdkActivityLauncher<T> createSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
-    method public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.ui.core.SdkActivityLauncher);
+    method @Deprecated public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.ui.client.LocalSdkActivityLauncher<T> createSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
+    method @Deprecated public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.ui.core.SdkActivityLauncher);
   }
 
 }
