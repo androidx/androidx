@@ -403,31 +403,23 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull Operation cancelWorkById(@NonNull UUID id) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forId(id, this);
     }
 
     @Override
     public @NonNull Operation cancelAllWorkByTag(@NonNull final String tag) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forTag(tag, this);
     }
 
     @Override
     @NonNull
     public Operation cancelUniqueWork(@NonNull String uniqueWorkName) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forName(uniqueWorkName, this);
     }
 
     @Override
     public @NonNull Operation cancelAllWork() {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forAll(this);
     }
 
     @NonNull
