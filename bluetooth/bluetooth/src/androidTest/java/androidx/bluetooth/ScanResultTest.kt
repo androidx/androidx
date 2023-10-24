@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.content.Context
+import android.os.ParcelUuid
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
@@ -31,10 +32,12 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ScanResultTest {
+
     @Rule
     @JvmField
     val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        android.Manifest.permission.BLUETOOTH_CONNECT)
+        android.Manifest.permission.BLUETOOTH_CONNECT
+    )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val bluetoothManager: BluetoothManager =
@@ -76,6 +79,8 @@ class ScanResultTest {
         assertEquals(scanResult.timestampNanos, timeStampNanos)
         assertEquals(scanResult.getManufacturerSpecificData(1), null)
         assertEquals(scanResult.serviceUuids, emptyList<UUID>())
+        assertEquals(scanResult.serviceSolicitationUuids, emptyList<UUID>())
+        assertEquals(scanResult.serviceData, emptyMap<ParcelUuid, ByteArray>())
         assertEquals(scanResult.getServiceData(serviceUuid), null)
         assertEquals(scanResult.rssi, rssi)
         assertEquals(scanResult.periodicAdvertisingInterval, expectedPeriodicAdvertisingInterval)

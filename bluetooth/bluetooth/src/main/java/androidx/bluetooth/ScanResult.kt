@@ -77,6 +77,19 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
         get() = fwkScanResult.scanRecord?.serviceUuids?.map { it.uuid }.orEmpty()
 
     /**
+     * Returns a list of service solicitation UUIDs within the advertisement that are used to
+     * identify the Bluetooth GATT services.
+     */
+    val serviceSolicitationUuids: List<ParcelUuid>
+        get() = fwkScanResult.scanRecord?.serviceSolicitationUuids.orEmpty()
+
+    /**
+     * Returns a map of service UUID and its corresponding service data.
+     */
+    val serviceData: Map<ParcelUuid, ByteArray>
+        get() = fwkScanResult.scanRecord?.serviceData.orEmpty()
+
+    /**
      * Returns the service data associated with the service UUID.
      *
      * @param serviceUuid The service UUID of the service data
