@@ -23,11 +23,10 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.TraversableNode
-import androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.traverseAncestors
-import androidx.compose.ui.node.traverseSubtree
-import androidx.compose.ui.node.traverseSubtreeIf
+import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalPointerIconService
 import androidx.compose.ui.unit.IntSize
@@ -205,14 +204,14 @@ internal class PointerHoverIconModifierNode(
         var hasIconRightsOverDescendants = true
 
         if (!overrideDescendants) {
-            traverseSubtree {
+            traverseDescendants {
                 // Descendant in bounds has rights to the icon (and has already set it),
                 // so we ignore.
                 val continueTraversal = if (it.cursorInBoundsOfNode) {
                     hasIconRightsOverDescendants = false
-                    false
+                    TraverseDescendantsAction.CancelTraversal
                 } else {
-                    true
+                    TraverseDescendantsAction.ContinueTraversal
                 }
                 continueTraversal
             }
@@ -246,15 +245,16 @@ internal class PointerHoverIconModifierNode(
     private fun findDescendantNodeWithCursorInBounds(): PointerHoverIconModifierNode? {
         var descendantNodeWithCursorInBounds: PointerHoverIconModifierNode? = null
 
-        traverseSubtreeIf {
-            var actionForSubtreeOfCurrentNode = VisitSubtreeIfAction.VisitSubtree
+        traverseDescendants {
+            var actionForSubtreeOfCurrentNode = TraverseDescendantsAction.ContinueTraversal
 
             if (it.cursorInBoundsOfNode) {
                 descendantNodeWithCursorInBounds = it
 
                 // No descendant nodes below this one are eligible to set the icon.
                 if (it.overrideDescendants) {
-                    actionForSubtreeOfCurrentNode = VisitSubtreeIfAction.SkipSubtree
+                    actionForSubtreeOfCurrentNode =
+                        TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
                 }
             }
             actionForSubtreeOfCurrentNode

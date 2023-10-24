@@ -2717,25 +2717,23 @@ package androidx.compose.ui.node {
   public static final class TraversableNode.Companion {
   }
 
-  public enum TraversableNode.Companion.VisitSubtreeIfAction {
-    method public static androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction[] values();
-    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction CancelTraversal;
-    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction SkipSubtree;
-    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction VisitSubtree;
+  public enum TraversableNode.Companion.TraverseDescendantsAction {
+    method public static androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction[] values();
+    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction CancelTraversal;
+    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction ContinueTraversal;
+    enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction SkipSubtreeAndContinueTraversal;
   }
 
   public final class TraversableNodeKt {
-    method public static <T extends androidx.compose.ui.node.TraversableNode> T? nearestTraversableAncestor(T);
-    method public static androidx.compose.ui.node.TraversableNode? nearestTraversableAncestorWithKey(androidx.compose.ui.node.DelegatableNode, Object? key);
+    method public static androidx.compose.ui.node.TraversableNode? findNearestAncestor(androidx.compose.ui.node.DelegatableNode, Object? key);
+    method public static <T extends androidx.compose.ui.node.TraversableNode> T? findNearestAncestor(T);
+    method public static void traverseAncestors(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,java.lang.Boolean> block);
     method public static <T extends androidx.compose.ui.node.TraversableNode> void traverseAncestors(T, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> block);
-    method public static void traverseAncestorsWithKey(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,java.lang.Boolean> block);
+    method public static void traverseChildren(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,java.lang.Boolean> block);
     method public static <T extends androidx.compose.ui.node.TraversableNode> void traverseChildren(T, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> block);
-    method public static void traverseChildrenWithKey(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,java.lang.Boolean> block);
-    method public static <T extends androidx.compose.ui.node.TraversableNode> void traverseSubtree(T, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> block);
-    method public static <T extends androidx.compose.ui.node.TraversableNode> void traverseSubtreeIf(T, kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction> block);
-    method public static void traverseSubtreeIfWithKey(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,? extends androidx.compose.ui.node.TraversableNode.Companion.VisitSubtreeIfAction> block);
-    method public static void traverseSubtreeWithKey(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,java.lang.Boolean> block);
+    method public static void traverseDescendants(androidx.compose.ui.node.DelegatableNode, Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,? extends androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction> block);
+    method public static <T extends androidx.compose.ui.node.TraversableNode> void traverseDescendants(T, kotlin.jvm.functions.Function1<? super T,? extends androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction> block);
   }
 
 }
