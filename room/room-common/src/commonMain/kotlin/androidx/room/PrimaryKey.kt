@@ -38,10 +38,6 @@ public annotation class PrimaryKey(
      *
      * When set to `true`, the SQLite type affinity for the field should be `INTEGER`.
      *
-     * If the field type is `Long` or `Int` (or its TypeConverter converts it to a
-     * `Long` or `Int`), [Insert] methods treat `0` as not-set while
-     * inserting the item.
-     *
      * If the field's type is [Integer] or [Long] (or its TypeConverter converts it to
      * an [Integer] or [Long]), [Insert] methods treat `null` as
      * not-set while inserting the item.
