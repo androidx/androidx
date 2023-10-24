@@ -2,8 +2,8 @@
 package androidx.bluetooth {
 
   public final class AdvertiseParams {
-    ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional @IntRange(from=0L, to=655350L) long durationMillis, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids, optional java.util.List<java.util.UUID> serviceSolicitationUuids);
-    method public long getDurationMillis();
+    ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional java.time.Duration duration, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids, optional java.util.List<java.util.UUID> serviceSolicitationUuids);
+    method public java.time.Duration getDuration();
     method public java.util.Map<java.lang.Integer,byte[]> getManufacturerData();
     method public java.util.Map<java.util.UUID,byte[]> getServiceData();
     method public java.util.List<java.util.UUID> getServiceSolicitationUuids();
@@ -12,7 +12,7 @@ package androidx.bluetooth {
     method public boolean getShouldIncludeDeviceName();
     method public boolean isConnectable();
     method public boolean isDiscoverable();
-    property public final long durationMillis;
+    property public final java.time.Duration duration;
     property public final boolean isConnectable;
     property public final boolean isDiscoverable;
     property public final java.util.Map<java.lang.Integer,byte[]> manufacturerData;

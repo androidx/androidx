@@ -18,6 +18,7 @@ package androidx.bluetooth.integration.testapp.ui.advertiser
 
 import androidx.bluetooth.AdvertiseParams
 import androidx.lifecycle.ViewModel
+import java.time.Duration
 import java.util.UUID
 
 class AdvertiserViewModel : ViewModel() {
@@ -30,7 +31,7 @@ class AdvertiserViewModel : ViewModel() {
     var includeDeviceName = false
     var connectable = false
     var discoverable = false
-    var durationMillis: Long = 0
+    var duration: Duration = Duration.ZERO
     var manufacturerDatas = mutableListOf<Pair<Int, ByteArray>>()
     var serviceDatas = mutableListOf<Pair<UUID, ByteArray>>()
     var serviceUuids = mutableListOf<UUID>()
@@ -54,7 +55,7 @@ class AdvertiserViewModel : ViewModel() {
             includeDeviceName,
             connectable,
             discoverable,
-            durationMillis,
+            duration,
             manufacturerDatas.toMap(),
             serviceDatas.toMap(),
             serviceUuids

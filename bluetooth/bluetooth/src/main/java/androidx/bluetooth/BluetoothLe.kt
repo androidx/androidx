@@ -161,7 +161,7 @@ class BluetoothLe(private val context: Context) {
 
         val advertiseSettings = with(AdvertiseSettings.Builder()) {
             setConnectable(advertiseParams.isConnectable)
-            advertiseParams.durationMillis.let {
+            advertiseParams.duration.toMillis().let {
                 if (it !in 0..655350)
                     throw IllegalArgumentException("advertise duration must be in [0, 655350]")
                 setTimeout(it.toInt())
@@ -205,8 +205,8 @@ class BluetoothLe(private val context: Context) {
         result.await().let {
             block?.invoke(it)
             if (it == ADVERTISE_STARTED) {
-                if (advertiseParams.durationMillis > 0) {
-                    delay(advertiseParams.durationMillis)
+                if (advertiseParams.duration.toMillis() > 0) {
+                    delay(advertiseParams.duration.toMillis())
                 } else {
                     awaitCancellation()
                 }
