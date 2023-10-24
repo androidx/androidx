@@ -34,7 +34,6 @@ import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.USimpleNameReferenceExpression
 
-@Suppress("UnstableApiUsage")
 class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
 
     private val UAnnotation.preferredPropertyName: String?
@@ -99,10 +98,10 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         val AutoboxingStateValueProperty = Issue.create(
             "AutoboxingStateValueProperty",
             "State access causes value to be autoboxed",
-            "Avoid using the generic value accessor when using a State objects with a " +
-                "specialized types. Usages of the generic value property result in an " +
-                "unnecessary autoboxing operation whenever the state's value is read or " +
-                "written to. Use the specialized value accessor or property delegation to " +
+            "Avoid using the generic `value` property when using a specialized State type. " +
+                "Reading or writing to the state's generic `value` property will result in an " +
+                "unnecessary autoboxing operation. Prefer the specialized value property " +
+                "(e.g. `intValue` for `MutableIntState`), or use property delegation to " +
                 "avoid unnecessary allocations.",
             Category.PERFORMANCE, 3, Severity.WARNING,
             Implementation(
