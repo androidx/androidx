@@ -31,7 +31,12 @@ import androidx.camera.core.ImageProxy;
 interface TakePictureCallback {
 
     /**
-     * Invoked when the capture is complete..
+     * Invoked when the capture is started.
+     */
+    void onCaptureStarted();
+
+    /**
+     * Invoked when the capture is complete.
      *
      * <p>Once invoked, {@link TakePictureManager} can submit the next request to camera.
      *

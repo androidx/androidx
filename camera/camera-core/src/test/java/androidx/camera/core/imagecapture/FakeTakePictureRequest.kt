@@ -41,11 +41,16 @@ class FakeTakePictureRequest() : TakePictureRequest() {
     var exceptionReceived: ImageCaptureException? = null
     var imageReceived: ImageProxy? = null
     var fileReceived: ImageCapture.OutputFileResults? = null
+    var captureStarted = false
 
     constructor(type: Type) : this() {
         when (type) {
             Type.IN_MEMORY -> {
                 imageCapturedCallback = object : OnImageCapturedCallback() {
+                    override fun onCaptureStarted() {
+                        captureStarted = true
+                    }
+
                     override fun onCaptureSuccess(image: ImageProxy) {
                         imageReceived = image
                     }
@@ -57,6 +62,10 @@ class FakeTakePictureRequest() : TakePictureRequest() {
             }
             Type.ON_DISK -> {
                 onImageSavedCallback = object : ImageCapture.OnImageSavedCallback {
+                    override fun onCaptureStarted() {
+                        captureStarted = true
+                    }
+
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                         fileReceived = outputFileResults
                     }
