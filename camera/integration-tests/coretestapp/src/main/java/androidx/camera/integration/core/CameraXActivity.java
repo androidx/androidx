@@ -1200,6 +1200,13 @@ public class CameraXActivity extends AppCompatActivity {
                     break;
                 case FLASH_MODE_SCREEN:
                     mFlashButton.setImageResource(R.drawable.ic_flash_screen);
+                    if (isLegacyDevice(getCameraInfo())) {
+                        // Set content description for ScreenFlash e2e testing.
+                        mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
+                    } else {
+                        // Reset content description if flash is ready for test.
+                        mFlashButton.setContentDescription("");
+                    }
                     break;
             }
         }
@@ -2375,6 +2382,14 @@ public class CameraXActivity extends AppCompatActivity {
                         cameraInfo).getCameraCharacteristic(CameraCharacteristics.LENS_FACING);
 
         return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
+    }
+
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    private static boolean isLegacyDevice(@NonNull CameraInfo cameraInfo) {
+        return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+        ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @NonNull
