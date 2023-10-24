@@ -1415,7 +1415,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (shouldClear) {
             for (BackStackState backStackState : mBackStackStates.values()) {
                 for (String who : backStackState.mFragments) {
-                    mFragmentStore.getNonConfig().clearNonConfigState(who);
+                    mFragmentStore.getNonConfig().clearNonConfigState(who, false);
                 }
             }
         }
