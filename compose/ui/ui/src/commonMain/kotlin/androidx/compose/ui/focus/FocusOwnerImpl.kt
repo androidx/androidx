@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import androidx.collection.MutableLongSet
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
@@ -33,6 +34,10 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -79,6 +84,15 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
     }
 
     override lateinit var layoutDirection: LayoutDirection
+
+    /**
+     * Keeps track of which keys have received DOWN events without UP events – i.e. which keys are
+     * currently down. This is used to detect UP events for keys that aren't down and ignore them.
+     *
+     * This set is lazily initialized the first time a DOWN event is received for a key.
+     */
+    // TODO(b/307580000) Factor this state out into a class to manage key inputs.
+    private var keysCurrentlyDown: MutableLongSet? = null
 
     /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it gains focus. This
@@ -186,6 +200,8 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
      * Dispatches a key event through the compose hierarchy.
      */
     override fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean {
+        if (!validateKeyEvent(keyEvent)) return false
+
         val activeFocusTarget = rootFocusNode.findActiveFocusNode()
         checkNotNull(activeFocusTarget) {
             "Event can't be processed because we do not have an active focus target."
@@ -291,5 +307,28 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
             // We only wrap-around for 1D Focus search.
             else -> return false
         }
+    }
+
+    // TODO(b/307580000) Factor this out into a class to manage key inputs.
+    private fun validateKeyEvent(keyEvent: KeyEvent): Boolean {
+        val keyCode = keyEvent.key.keyCode
+        when (keyEvent.type) {
+            KeyDown -> {
+                // It's probably rare for more than 3 hardware keys to be pressed simultaneously.
+                val keysCurrentlyDown = keysCurrentlyDown ?: MutableLongSet(initialCapacity = 3)
+                    .also { keysCurrentlyDown = it }
+                keysCurrentlyDown += keyCode
+            }
+
+            KeyUp -> {
+                if (keysCurrentlyDown?.contains(keyCode) != true) {
+                    // An UP event for a key that was never DOWN is invalid, ignore it.
+                    return false
+                }
+                keysCurrentlyDown?.remove(keyCode)
+            }
+            // Always process Unknown event types.
+        }
+        return true
     }
 }
