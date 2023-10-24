@@ -80,9 +80,14 @@ class GattServerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bluetoothLe = BluetoothLe(requireContext())
-
         _binding = FragmentGattServerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        bluetoothLe = BluetoothLe(requireContext())
 
         binding.buttonAddService.setOnClickListener {
             onAddGattService()
@@ -105,8 +110,6 @@ class GattServerFragment : Fragment() {
                 openGattServer()
             }
         }
-
-        return binding.root
     }
 
     override fun onDestroyView() {
@@ -120,9 +123,6 @@ class GattServerFragment : Fragment() {
 
         val editTextUuid = EditText(requireActivity())
         editTextUuid.hint = getString(R.string.service_uuid)
-
-        // TODO(ofy) Delete the following line
-        editTextUuid.setText(UUID.randomUUID().toString())
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.add_service))
@@ -159,9 +159,6 @@ class GattServerFragment : Fragment() {
 
         val view = layoutInflater.inflate(R.layout.dialog_add_characteristic, null)
         val editTextUuid = view.findViewById<EditText>(R.id.edit_text_uuid)
-
-        // TODO(ofy) Delete the following line
-        editTextUuid.setText(UUID.randomUUID().toString())
 
         val checkBoxPropertiesBroadcast =
             view.findViewById<CheckBox>(R.id.check_box_properties_broadcast)

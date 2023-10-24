@@ -87,9 +87,14 @@ class AdvertiserFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bluetoothLe = BluetoothLe(requireContext())
-
         _binding = FragmentAdvertiserBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        bluetoothLe = BluetoothLe(requireContext())
 
         binding.checkBoxIncludeDeviceName.setOnCheckedChangeListener { _, isChecked ->
             viewModel.includeDeviceName = isChecked
@@ -132,8 +137,6 @@ class AdvertiserFragment : Fragment() {
         }
 
         initData()
-
-        return binding.root
     }
 
     override fun onDestroyView() {
