@@ -613,13 +613,14 @@ internal fun Shadow.toSkShadow(): SkShadow {
 
 internal fun TextAlign.toSkAlignment(): SkAlignment {
     return when (this) {
+        TextAlign.Unspecified -> SkAlignment.START
         TextAlign.Left -> SkAlignment.LEFT
         TextAlign.Right -> SkAlignment.RIGHT
         TextAlign.Center -> SkAlignment.CENTER
         TextAlign.Justify -> SkAlignment.JUSTIFY
         TextAlign.Start -> SkAlignment.START
         TextAlign.End -> SkAlignment.END
-        else -> error("Invalid TextAlign")
+        else -> error("Invalid TextAlign: $this")
     }
 }
 
