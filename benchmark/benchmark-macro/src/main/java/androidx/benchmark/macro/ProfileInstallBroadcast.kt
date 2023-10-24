@@ -150,12 +150,13 @@ internal object ProfileInstallBroadcast {
         return when (val result = Shell.amBroadcast("-a $action $packageName/$receiverName")) {
             null, 0 -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
-                // receives the broadcast.
+                // receives the broadcast. This can be because the package name specified is
+                // incorrect or an old version of profile installer was used.
 
-                "The save profile broadcast event was not received. " +
-                    "This most likely means that the `androidx.profileinstaller` library " +
-                    "used by the target apk is old. Please use `1.3.0-alpha01` or newer. " +
-                    "For more information refer to the release notes at " +
+                "The save profile broadcast event was not received. This can be because the " +
+                    "specified package name is incorrect or the `androidx.profileinstaller`" +
+                    " library used by the target apk is old. Please use version `1.3.1` or " +
+                    "newer. For more information refer to the release notes at " +
                     "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
             }
             12 -> { // RESULT_SAVE_PROFILE_SIGNALLED
