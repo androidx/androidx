@@ -19,6 +19,10 @@ package androidx.compose.material.textfield
 import android.content.Context
 import android.os.Build
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_ACTION_GO
+import android.view.inputmethod.EditorInfo.TYPE_CLASS_TEXT
+import android.view.inputmethod.EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -79,14 +83,17 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -104,12 +111,9 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
@@ -120,19 +124,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
+@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldTest {
@@ -1016,12 +1018,22 @@ class TextFieldTest {
 
     @Test
     fun testTextField_imeActionAndKeyboardTypePropagatedDownstream() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
+        var editorInfo: EditorInfo? = null
+        val sessionHandler = object : PlatformTextInputSession {
+            override val view: View = View(getInstrumentation().targetContext)
+
+            override suspend fun startInputMethod(
+                request: PlatformTextInputMethodRequest
+            ): Nothing {
+                EditorInfo().also {
+                    request.createInputConnection(it)
+                    editorInfo = it
+                }
+                awaitCancellation()
+            }
+        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
+            PlatformTextInputMethodTestOverride(sessionHandler) {
                 val text = remember { mutableStateOf("") }
                 TextField(
                     modifier = Modifier.testTag(TextfieldTag),
@@ -1038,17 +1050,12 @@ class TextFieldTest {
         rule.onNodeWithTag(TextfieldTag).performClick()
 
         rule.runOnIdle {
-            verify(platformTextInputService, atLeastOnce()).startInput(
-                value = any(),
-                imeOptions = eq(
-                    ImeOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    )
-                ),
-                onEditCommand = any(),
-                onImeActionPerformed = any()
-            )
+            @Suppress("NAME_SHADOWING")
+            val editorInfo = editorInfo ?: throw AssertionError("Input session never started")
+            val expectedOptions = IME_ACTION_GO
+            val expectedInputType = TYPE_CLASS_TEXT or TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            assertThat(editorInfo.imeOptions and expectedOptions).isEqualTo(expectedOptions)
+            assertThat(editorInfo.inputType and expectedInputType).isEqualTo(expectedInputType)
         }
     }
 

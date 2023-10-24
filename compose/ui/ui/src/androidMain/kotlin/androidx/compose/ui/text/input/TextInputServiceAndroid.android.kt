@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
+@file:Suppress("DEPRECATION")
 
 package androidx.compose.ui.text.input
 
@@ -31,7 +31,6 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.input.pointer.PositionCalculator
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
@@ -52,6 +51,10 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  * @param inputCommandProcessorExecutor [Executor] used to schedule the [processInputCommands]
  * function when a input command is first requested for a frame.
  */
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal class TextInputServiceAndroid(
     val view: View,
     rootPositionCalculator: PositionCalculator,

@@ -44,7 +44,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.foundation.text.selection.isSelectionHandle
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text2.InputMethodInterceptor
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -73,7 +73,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -123,15 +122,11 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
@@ -164,12 +159,7 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -177,6 +167,7 @@ class TextFieldTest : FocusedWindowTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
     private val Tag = "textField"
 
     // This sample font provides the following features:
@@ -191,22 +182,16 @@ class TextFieldTest : FocusedWindowTest {
 
     @Test
     fun textField_focusInSemantics() {
-        val inputService = TextInputService(mock())
-
         var isFocused = false
         rule.setContent {
             val state = remember { mutableStateOf("") }
-            CompositionLocalProvider(
-                LocalTextInputService provides inputService
-            ) {
-                BasicTextField(
-                    value = state.value,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .onFocusChanged { isFocused = it.isFocused },
-                    onValueChange = { state.value = it }
-                )
-            }
+            BasicTextField(
+                value = state.value,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onFocusChanged { isFocused = it.isFocused },
+                onValueChange = { state.value = it }
+            )
         }
 
         rule.onNode(hasSetTextAction()).performClick()
@@ -216,198 +201,90 @@ class TextFieldTest : FocusedWindowTest {
         }
     }
 
-    @Composable
-    private fun TextFieldApp() {
-        val state = remember { mutableStateOf("") }
-        BasicTextField(
-            value = state.value,
-            modifier = Modifier.fillMaxSize(),
-            onValueChange = {
-                state.value = it
-            }
-        )
-    }
-
     @Test
     fun textField_commitTexts() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                TextFieldApp()
-            }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
+            BasicTextField(
+                value = state,
+                modifier = Modifier.fillMaxSize(),
+                onValueChange = {
+                    state = it
+                }
+            )
         }
-
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
-        // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("a", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("b", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("a", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("b", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val stateCaptor = argumentCaptor<TextFieldValue>()
-            verify(platformTextInputService, atLeastOnce())
-                .updateState(any(), stateCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "1a2b3".
-            assertThat(stateCaptor.lastValue.text).isEqualTo("1a2b3")
+            assertThat(state).isEqualTo("1a2b3")
         }
-    }
-
-    @Composable
-    private fun OnlyDigitsApp() {
-        val state = remember { mutableStateOf("") }
-        BasicTextField(
-            value = state.value,
-            modifier = Modifier.fillMaxSize(),
-            onValueChange = { value ->
-                if (value.all { it.isDigit() }) {
-                    state.value = value
-                }
-            }
-        )
     }
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                OnlyDigitsApp()
-            }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
+            BasicTextField(
+                value = state,
+                modifier = Modifier.fillMaxSize(),
+                onValueChange = { value ->
+                    if (value.all { it.isDigit() }) {
+                        state = value
+                    }
+                }
+            )
         }
 
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
         // Performs input events "1", "a", "2", "b", "3". Only numbers should remain.
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("a", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("b", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("a", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("b", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val stateCaptor = argumentCaptor<TextFieldValue>()
-            verify(platformTextInputService, atLeastOnce())
-                .updateState(any(), stateCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "123" since
-            // the rejects if the incoming model contains alphabets.
-            assertThat(stateCaptor.lastValue.text).isEqualTo("123")
+            assertThat(state).isEqualTo("123")
         }
     }
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
-
         val onTextLayout: (TextLayoutResult) -> Unit = mock()
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                val state = remember { mutableStateOf("") }
+        var state by mutableStateOf("")
+        inputMethodInterceptor.setContent {
                 BasicTextField(
-                    value = state.value,
+                    value = state,
                     modifier = Modifier.fillMaxSize(),
                     onValueChange = {
-                        state.value = it
+                        state = it
                     },
                     onTextLayout = onTextLayout
                 )
-            }
         }
 
         rule.onNode(hasSetTextAction()).performClick()
 
-        var onEditCommandCallback: ((List<EditCommand>) -> Unit)? = null
-        rule.runOnIdle {
-            // Verify startInput is called and capture the callback.
-            val onEditCommandCaptor = argumentCaptor<(List<EditCommand>) -> Unit>()
-            verify(platformTextInputService, times(1)).startInput(
-                value = any(),
-                imeOptions = any(),
-                onEditCommand = onEditCommandCaptor.capture(),
-                onImeActionPerformed = any()
-            )
-            assertThat(onEditCommandCaptor.allValues.size).isEqualTo(1)
-            onEditCommandCallback = onEditCommandCaptor.firstValue
-            assertThat(onEditCommandCallback).isNotNull()
-        }
-
         // Performs input events "1", "2", "3".
-        arrayOf(
-            listOf(CommitTextCommand("1", 1)),
-            listOf(CommitTextCommand("2", 1)),
-            listOf(CommitTextCommand("3", 1))
-        ).forEach {
-            // TODO: This should work only with runOnUiThread. But it seems that these events are
-            // not buffered and chaining multiple of them before composition happens makes them to
-            // get lost.
-            rule.runOnIdle { onEditCommandCallback!!.invoke(it) }
+        with(inputMethodInterceptor) {
+            withInputConnection { commitText("1", 1) }
+            withInputConnection { commitText("2", 1) }
+            withInputConnection { commitText("3", 1) }
         }
 
         rule.runOnIdle {
-            val layoutCaptor = argumentCaptor<TextLayoutResult>()
-            verify(onTextLayout, atLeastOnce()).invoke(layoutCaptor.capture())
-
-            // Don't care about the intermediate state update. It should eventually be "123"
-            assertThat(layoutCaptor.lastValue.layoutInput.text.text).isEqualTo("123")
+            assertThat(state).isEqualTo("123")
         }
     }
 

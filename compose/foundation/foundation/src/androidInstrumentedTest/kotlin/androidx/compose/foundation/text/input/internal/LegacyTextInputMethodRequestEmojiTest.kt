@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
+package androidx.compose.foundation.text.input.internal
 
-package androidx.compose.ui.input
-
-import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.InputMethodManager
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputServiceAndroid
-import androidx.compose.ui.text.input.asExecutor
 import androidx.emoji2.text.EmojiCompat
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,32 +34,26 @@ import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TextInputServiceAndroidEmojiTest {
+class LegacyTextInputMethodRequestEmojiTest {
     @After
     fun cleanup() {
         EmojiCompat.reset(null)
     }
 
     @Test
-    fun whenEmojiCompat_addsEditorInfo() {
-        val e2 = mock<EmojiCompat>()
-        EmojiCompat.reset(e2)
-        val view = View(InstrumentationRegistry.getInstrumentation().context)
-        val positionCalculator = mock<PositionCalculator>()
-        val inputMethodManager = mock<InputMethodManager>()
-        // Choreographer must be retrieved on main thread.
-        val choreographer = Espresso.onIdle { Choreographer.getInstance() }
-        val textInputService = TextInputServiceAndroid(
-            view,
-            positionCalculator,
-            inputMethodManager,
-            inputCommandProcessorExecutor = choreographer.asExecutor()
+    fun whenEmojiCompat_addsEditorInfo() = runTest {
+        val emojiCompat = mock<EmojiCompat>()
+        EmojiCompat.reset(emojiCompat)
+        val textInputService = LegacyTextInputMethodRequest(
+            view = View(getInstrumentation().targetContext),
+            localToScreen = {},
+            inputMethodManager = mock<InputMethodManager>()
         )
-
         textInputService.startInput(TextFieldValue(""), ImeOptions.Default, {}, {})
 
         val info = EditorInfo()
         textInputService.createInputConnection(info)
-        verify(e2).updateEditorInfo(eq(info))
+
+        verify(emojiCompat).updateEditorInfo(eq(info))
     }
 }

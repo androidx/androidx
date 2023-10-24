@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.foundation.text.input.internal
 
 import android.view.inputmethod.CursorAnchorInfo
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 
-@Deprecated(
-    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
-        "code. A copy of this class in foundation is used by the legacy BasicTextField."
-)
 internal class CursorAnchorInfoController(
-    private val rootPositionCalculator: PositionCalculator,
-    @Suppress("DEPRECATION")
+    private val localToScreen: (Matrix) -> Unit,
     private val inputMethodManager: InputMethodManager
 ) {
     private var monitorEnabled = false
@@ -145,10 +141,9 @@ internal class CursorAnchorInfoController(
         // Sets matrix to transform text field local coordinates to the root composable coordinates.
         textFieldToRootTransform(matrix)
         // Updates matrix to transform text field local coordinates to screen coordinates.
-        rootPositionCalculator.localToScreen(matrix)
+        localToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
-        @Suppress("DEPRECATION")
         inputMethodManager.updateCursorAnchorInfo(
             builder.build(
                 textFieldValue!!,
