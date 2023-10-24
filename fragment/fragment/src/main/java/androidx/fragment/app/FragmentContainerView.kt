@@ -151,6 +151,11 @@ public class FragmentContainerView : FrameLayout {
             }
             val containerFragment: Fragment =
                 fm.fragmentFactory.instantiate(context.classLoader, name)
+            containerFragment.mFragmentId = id
+            containerFragment.mContainerId = id
+            containerFragment.mTag = tag
+            containerFragment.mFragmentManager = fm
+            containerFragment.mHost = fm.host
             containerFragment.onInflate(context, attrs, null)
             fm.beginTransaction()
                 .setReorderingAllowed(true)
