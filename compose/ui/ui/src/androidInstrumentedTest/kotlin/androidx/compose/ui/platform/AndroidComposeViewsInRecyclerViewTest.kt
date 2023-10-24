@@ -348,11 +348,9 @@ class AndroidComposeViewsRecyclerViewTest {
     }
 
     @Test
-    fun sharedViewPool() = runBlocking {
+    fun sharedViewPool() = runBlocking(Dispatchers.Main) {
         val itemViewCacheSize = 2
-        instrumentation.runOnMainSync {
-            container.removeAllViews()
-        }
+        container.removeAllViews()
         val lp1 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         val lp2 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         val rv1: RecyclerView = recyclerView.also { it.layoutParams = lp1 }
@@ -387,15 +385,14 @@ class AndroidComposeViewsRecyclerViewTest {
             rv2.setRecycledViewPool(pool)
         }
 
-        instrumentation.runOnMainSync { }
+        awaitFrame()
+        awaitFrame()
+
         assertThat(adapter1.creations).isEqualTo(10)
         assertThat(adapter1.compositions).isEqualTo(10)
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            rv1.smoothScrollBy(0, 100)
-        }
-        rv1.awaitScrollIdle()
+        rv1.scrollBy(0, 100)
 
         // The RV keeps a couple items in its view cache before returning them to the pool
         val expectedRecycledItems = 10 - itemViewCacheSize
@@ -412,10 +409,10 @@ class AndroidComposeViewsRecyclerViewTest {
         assertThat(adapter1Compositions).isAtLeast(20)
 
         // Remove the first RecyclerView
-        instrumentation.runOnMainSync {
-            testContainer.removeView(rv1)
-        }
-        instrumentation.runOnMainSync { } // get the relayout
+        testContainer.removeView(rv1)
+        // get the relayout
+        awaitFrame()
+        awaitFrame()
 
         // After the first RecyclerView is removed, we expect everything it created to be disposed,
         // *except* for what's in the shared pool
@@ -429,9 +426,9 @@ class AndroidComposeViewsRecyclerViewTest {
         assertThat(adapter2.compositions).isEqualTo(20) // it's twice as tall with rv1 gone
         assertThat(adapter2.releases).isEqualTo(0) // it hasn't scrolled
 
-        instrumentation.runOnMainSync {
-            testContainer.removeView(rv2)
-        }
+        testContainer.removeView(rv2)
+        awaitFrame()
+
         assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just to be really sure...
         // double-check that nothing weird happened
         assertThat(adapter1.compositions).isEqualTo(20)
