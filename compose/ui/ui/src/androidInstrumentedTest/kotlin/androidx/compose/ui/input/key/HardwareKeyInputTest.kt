@@ -209,7 +209,7 @@ class HardwareKeyInputTest {
         }
 
         // Act.
-        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyUp))
+        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
 
         // Assert.
         rule.runOnIdle {
@@ -277,7 +277,7 @@ class HardwareKeyInputTest {
         }
 
         // Act.
-        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyUp))
+        rule.onRoot().performKeyPress(keyEvent(KeyCodeA, KeyDown))
 
         // Assert.
         rule.runOnIdle {
