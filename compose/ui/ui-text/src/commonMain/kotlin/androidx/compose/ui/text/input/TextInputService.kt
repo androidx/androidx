@@ -111,7 +111,9 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
-        platformTextInputService.showSoftwareKeyboard()
+        if (currentInputSession != null) {
+            platformTextInputService.showSoftwareKeyboard()
+        }
     }
 
     /**
