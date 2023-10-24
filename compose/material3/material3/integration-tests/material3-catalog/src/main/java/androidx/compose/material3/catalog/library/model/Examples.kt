@@ -26,10 +26,10 @@ import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSu
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
+import androidx.compose.material3.samples.AlertDialogWithCustomContentSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
 import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.AssistChipSample
-import androidx.compose.material3.samples.BasicDialogWithCustomContentSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
@@ -446,10 +446,10 @@ val DialogExamples =
             sourceUrl = DialogExampleSourceUrl,
         ) { AlertDialogWithIconSample() },
         Example(
-            name = ::BasicDialogWithCustomContentSample.name,
+            name = ::AlertDialogWithCustomContentSample.name,
             description = DialogExampleDescription,
             sourceUrl = DialogExampleSourceUrl,
-        ) { BasicDialogWithCustomContentSample() },
+        ) { AlertDialogWithCustomContentSample() },
     )
 
 private const val BottomAppBarsExampleDescription = "Bottom app bar examples"
