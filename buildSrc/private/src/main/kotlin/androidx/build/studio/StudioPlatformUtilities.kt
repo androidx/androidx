@@ -18,6 +18,7 @@ package androidx.build.studio
 
 import java.io.File
 import java.util.Locale
+import kotlin.jvm.optionals.getOrNull
 import org.gradle.process.ExecSpec
 
 /**
@@ -58,6 +59,9 @@ sealed class StudioPlatformUtilities(val projectRoot: File, val studioInstallati
      * TODO: this is temporary until b/135183535 is fixed
      */
     abstract fun StudioTask.updateJvmHeapSize()
+
+    /** Returns the PID of the process started by this task, or `null` if not running. */
+    abstract fun findProcess(): Int?
 
     /** Regex to match '-Xmx512m' or similar, so we can replace it with a larger heap size. */
     protected val jvmHeapRegex = "-Xmx.*".toRegex()
@@ -127,6 +131,18 @@ private class MacOsUtilities(projectRoot: File, studioInstallationDir: File) :
         val newText = vmoptions.readText().replace(jvmHeapRegex, "-Xmx8g")
         vmoptions.writeText(newText)
     }
+
+    override fun findProcess(): Int? {
+        val process = ProcessBuilder().let {
+            it.command(listOf("ps", "-x"))
+            it.start()
+        }
+        process.waitFor()
+        val projectRootPath = projectRoot.absolutePath
+        return process.inputReader().lines().filter { line ->
+            line.endsWith("Contents/MacOS/studio $projectRootPath")
+        }.findFirst().getOrNull()?.substringBefore(' ')?.toIntOrNull()
+    }
 }
 
 private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
@@ -163,5 +179,17 @@ private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
         val vmoptions64 = File(binaryDirectory, "bin/studio64.vmoptions")
         val newText64 = vmoptions64.readText().replace(jvmHeapRegex, "-Xmx8g")
         vmoptions64.writeText(newText64)
+    }
+
+    override fun findProcess(): Int? {
+        val process = ProcessBuilder().let {
+            it.command(listOf("ps", "-x"))
+            it.start()
+        }
+        process.waitFor()
+        val projectRootPath = projectRoot.absolutePath
+        return process.inputReader().lines().filter { line ->
+            line.endsWith("com.intellij.idea.Main $projectRootPath")
+        }.findFirst().getOrNull()?.substringBefore(' ')?.toIntOrNull()
     }
 }
