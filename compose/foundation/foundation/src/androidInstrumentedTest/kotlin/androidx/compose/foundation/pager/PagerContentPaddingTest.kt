@@ -962,6 +962,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
             animateScrollBy(with(rule.density) { offset.roundToPx().toFloat() }, snap())
         }
+        rule.waitForIdle()
     }
 
     private fun PagerState.scrollBy(offset: Float) {

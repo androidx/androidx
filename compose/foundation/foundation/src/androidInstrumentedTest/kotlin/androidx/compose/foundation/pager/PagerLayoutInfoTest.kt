@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -80,11 +81,13 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         }
 
         rule.runOnIdle {
-            runBlocking {
+            scope.launch {
                 pagerState.scrollToPage(1)
                 pagerState.scrollBy(10f)
             }
+        }
 
+        rule.runOnIdle {
             pagerState.layoutInfo.assertVisiblePages(
                 count = 4,
                 startIndex = 1,
