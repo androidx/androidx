@@ -16,8 +16,11 @@
 
 package androidx.recyclerview.widget
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
-import org.junit.Assert
+import org.hamcrest.MatcherAssert
 import org.junit.Test
 
 // This subclass exists to allow porting individual tests in this class to Kotlin
@@ -25,7 +28,7 @@ import org.junit.Test
 class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
     @Test
     @Throws(Throwable::class)
-    fun duplicateAdapterPositionTest2() {
+    fun duplicateAdapterPositionTest() = runBlocking(Dispatchers.Main) {
         val testAdapter = TestAdapter(10)
         val tlm: TestLayoutManager = object : TestLayoutManager() {
             override fun onLayoutChildren(
@@ -40,7 +43,6 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
                         addDisappearingView(viewHolder.itemView, 0)
                     }
                 }
-                layoutLatch.countDown()
             }
 
             override fun supportsPredictiveItemAnimations(): Boolean {
@@ -55,96 +57,94 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
         recyclerView.setLayoutManager(tlm)
         recyclerView.setAdapter(testAdapter)
         recyclerView.setItemAnimator(animator)
-        tlm.expectLayouts(1)
         setRecyclerView(recyclerView)
-        tlm.waitForLayout(2)
-        tlm.expectLayouts(2)
+        awaitFrame()
+        awaitFrame()
+
         testAdapter.mItems[2].mType += 2
         val itemId = testAdapter.mItems[2].mId
         testAdapter.changeAndNotify(2, 1)
-        tlm.waitForLayout(2)
-        BaseRecyclerViewInstrumentationTest.mActivityRule.runOnUiThread(Runnable {
-            Assert.assertThat("Assumption check", recyclerView.childCount, CoreMatchers.`is`(11))
-            // now mangle the order and run the test
-            var hidden: RecyclerView.ViewHolder? = null
-            var updated: RecyclerView.ViewHolder? = null
-            for (i in 0 until recyclerView.childCount) {
-                val view = recyclerView.getChildAt(i)
-                val vh = recyclerView.getChildViewHolder(view)
-                if (vh.getAbsoluteAdapterPosition() == 2) {
-                    if (mRecyclerView.mChildHelper.isHidden(view)) {
-                        Assert.assertThat(hidden, CoreMatchers.nullValue())
-                        hidden = vh
-                    } else {
-                        Assert.assertThat(updated, CoreMatchers.nullValue())
-                        updated = vh
-                    }
+        awaitFrame()
+        awaitFrame()
+        MatcherAssert.assertThat("Assumption check", recyclerView.childCount, CoreMatchers.`is`(11))
+
+        // now mangle the order and run the test
+        var hidden: RecyclerView.ViewHolder? = null
+        var updated: RecyclerView.ViewHolder? = null
+        for (i in 0 until recyclerView.childCount) {
+            val view = recyclerView.getChildAt(i)
+            val vh = recyclerView.getChildViewHolder(view)
+            if (vh.getAbsoluteAdapterPosition() == 2) {
+                if (mRecyclerView.mChildHelper.isHidden(view)) {
+                    MatcherAssert.assertThat(hidden, CoreMatchers.nullValue())
+                    hidden = vh
+                } else {
+                    MatcherAssert.assertThat(updated, CoreMatchers.nullValue())
+                    updated = vh
                 }
             }
-            Assert.assertThat(hidden, CoreMatchers.notNullValue())
-            Assert.assertThat(updated, CoreMatchers.notNullValue())
-            mRecyclerView.startInterceptRequestLayout()
+        }
+        MatcherAssert.assertThat(hidden, CoreMatchers.notNullValue())
+        MatcherAssert.assertThat(updated, CoreMatchers.notNullValue())
+        mRecyclerView.startInterceptRequestLayout()
 
-            // first put the hidden child back
-            val index1: Int = mRecyclerView.indexOfChild(hidden!!.itemView)
-            val index2: Int = mRecyclerView.indexOfChild(updated!!.itemView)
-            if (index1 < index2) {
-                // swap views
-                swapViewsAtIndices(recyclerView, index1, index2)
-            }
-            Assert.assertThat(
-                tlm.findViewByPosition(2), CoreMatchers.sameInstance(
-                    updated!!.itemView
-                )
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(updated)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(updated)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(updated)
-            )
-
-            // now swap back
+        // first put the hidden child back
+        val index1: Int = mRecyclerView.indexOfChild(hidden!!.itemView)
+        val index2: Int = mRecyclerView.indexOfChild(updated!!.itemView)
+        if (index1 < index2) {
+            // swap views
             swapViewsAtIndices(recyclerView, index1, index2)
-            Assert.assertThat(
-                tlm.findViewByPosition(2), CoreMatchers.sameInstance(
-                    updated!!.itemView
-                )
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(updated)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(updated)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(updated)
-            )
+        }
+        MatcherAssert.assertThat(
+            tlm.findViewByPosition(2),
+            CoreMatchers.sameInstance(updated.itemView)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForAdapterPosition(2),
+            CoreMatchers.sameInstance(updated)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForLayoutPosition(2),
+            CoreMatchers.sameInstance(updated)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForItemId(itemId.toLong()),
+            CoreMatchers.sameInstance(updated)
+        )
 
-            // now remove updated. re-assert fallback to the hidden one
-            tlm.removeView(updated!!.itemView)
-            Assert.assertThat(tlm.findViewByPosition(2), CoreMatchers.nullValue())
-            Assert.assertThat(
-                recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(hidden)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(hidden)
-            )
-            Assert.assertThat(
-                recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(hidden)
-            )
-        })
+        // now swap back
+        swapViewsAtIndices(recyclerView, index1, index2)
+        MatcherAssert.assertThat(
+            tlm.findViewByPosition(2),
+            CoreMatchers.sameInstance(updated.itemView)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForAdapterPosition(2),
+            CoreMatchers.sameInstance(updated)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForLayoutPosition(2),
+            CoreMatchers.sameInstance(updated)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForItemId(itemId.toLong()),
+            CoreMatchers.sameInstance(updated)
+        )
+
+        // now remove updated. re-assert fallback to the hidden one
+        tlm.removeView(updated.itemView)
+        MatcherAssert.assertThat(tlm.findViewByPosition(2), CoreMatchers.nullValue())
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForAdapterPosition(2),
+            CoreMatchers.sameInstance(hidden)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForLayoutPosition(2),
+            CoreMatchers.sameInstance(hidden)
+        )
+        MatcherAssert.assertThat(
+            recyclerView.findViewHolderForItemId(itemId.toLong()),
+            CoreMatchers.sameInstance(hidden)
+        )
     }
 }
