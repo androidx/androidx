@@ -1743,7 +1743,7 @@ internal class AndroidComposeView(
     override fun onCheckIsTextEditor(): Boolean {
         val parentSession = textInputSessionMutex.currentSession
             ?: return legacyTextInputServiceAndroid.isEditorFocused()
-        // Don't bring this up before the ?: – runTextInputSession has been called, but
+        // Don't bring this up before the ?: – establishTextInputSession has been called, but
         // startInputMethod has not, we're not a text editor until the session is cancelled or
         // startInputMethod is called.
         return parentSession.isReadyForConnection

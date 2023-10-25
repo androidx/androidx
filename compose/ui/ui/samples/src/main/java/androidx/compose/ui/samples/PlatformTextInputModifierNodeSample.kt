@@ -25,7 +25,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
-import androidx.compose.ui.platform.runTextInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -40,12 +40,12 @@ fun platformTextInputModifierNodeSample() {
         override fun onFocusEvent(focusState: FocusState) {
             focusedJob?.cancel()
             focusedJob = if (focusState.isFocused) {
-                // runTextInputSession is a suspend function, so it must be called from a coroutine.
-                // Launching it into this modifier node's coroutine scope ensures the session will
-                // automatically be torn down when the node is detached.
+                // establishTextInputSession is a suspend function, so it must be called from a
+                // coroutine. Launching it into this modifier node's coroutine scope ensures the
+                // session will automatically be torn down when the node is detached.
                 coroutineScope.launch {
                     // This will automatically cancel any currently-active session.
-                    runTextInputSession {
+                    establishTextInputSession {
                         launch {
                             // TODO: Observe text field state, call into system to update it as required
                             //  by the platform.
