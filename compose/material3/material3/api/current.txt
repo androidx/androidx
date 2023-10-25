@@ -1153,7 +1153,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class RangeSliderState {
-    ctor public RangeSliderState(optional float initialActiveRangeStart, optional float initialActiveRangeEnd, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.FloatRange,kotlin.Unit>? initialOnValueChange, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished);
+    ctor public RangeSliderState(optional float activeRangeStart, optional float activeRangeEnd, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public float getActiveRangeEnd();
     method public float getActiveRangeStart();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnValueChangeFinished();
@@ -1161,7 +1161,6 @@ package androidx.compose.material3 {
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
     method public void setActiveRangeEnd(float);
     method public void setActiveRangeStart(float);
-    method public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
     property public final float activeRangeEnd;
     property public final float activeRangeStart;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
@@ -1434,14 +1433,13 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
-    ctor public SliderState(optional float initialValue, optional kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? initialOnValueChange, optional @IntRange(from=0L) int steps, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished);
+    ctor public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public void dispatchRawDelta(float delta);
     method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnValueChangeFinished();
     method public int getSteps();
     method public float getValue();
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getValueRange();
-    method public void setOnValueChangeFinished(kotlin.jvm.functions.Function0<kotlin.Unit>?);
     method public void setValue(float);
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished;
     property public final int steps;
