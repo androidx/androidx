@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+@file:OptIn(ExperimentalMaterial3Api::class)
 
+package androidx.compose.material3
+
+import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.MutatorMutex
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -29,6 +33,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 
 /**
+ * NOTICE:
+ * Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
+ *
  * BasicTooltipBox that wraps a composable with a tooltip.
  *
  * Tooltip that provides a descriptive message for an anchor.
@@ -49,8 +56,7 @@ import kotlinx.coroutines.withTimeout
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
-@ExperimentalFoundationApi
-expect fun BasicTooltipBox(
+internal expect fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,
@@ -74,8 +80,7 @@ expect fun BasicTooltipBox(
  * with the mutator mutex, only one will be shown on the screen at any time.
  */
 @Composable
-@ExperimentalFoundationApi
-fun rememberBasicTooltipState(
+internal fun rememberBasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
@@ -105,8 +110,7 @@ fun rememberBasicTooltipState(
  * with the mutator mutex, only one will be shown on the screen at any time.
  */
 @Stable
-@ExperimentalFoundationApi
-fun BasicTooltipState(
+internal fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
@@ -118,7 +122,6 @@ fun BasicTooltipState(
     )
 
 @Stable
-@OptIn(ExperimentalFoundationApi::class)
 private class BasicTooltipStateImpl(
     initialIsVisible: Boolean,
     override val isPersistent: Boolean,
@@ -189,7 +192,7 @@ private class BasicTooltipStateImpl(
  * Each instance of tooltips should have its own [BasicTooltipState].
  */
 @Stable
-@ExperimentalFoundationApi
+@ExperimentalMaterial3Api
 interface BasicTooltipState {
     /**
      * [Boolean] that indicates if the tooltip is currently being shown or not.
@@ -230,8 +233,7 @@ interface BasicTooltipState {
 /**
  * BasicTooltip defaults that contain default values for tooltips created.
  */
-@ExperimentalFoundationApi
-object BasicTooltipDefaults {
+internal object BasicTooltipDefaults {
     /**
      * The global/default [MutatorMutex] used to sync Tooltips.
      */
