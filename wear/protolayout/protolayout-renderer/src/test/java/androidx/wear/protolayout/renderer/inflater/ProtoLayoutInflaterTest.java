@@ -2093,6 +2093,35 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_autosize_wrongSizes_noop() {
+        String text = "Test text";
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{0, -2, 0});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArrayList<View> textChildren = new ArrayList<>();
+        rootLayout.findViewsWithText(textChildren, text, View.FIND_VIEWS_WITH_TEXT);
+        TextView tv = (TextView) textChildren.get(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+    }
+
+    @Test
     public void inflate_spannable_marqueeAnimation() {
         String text = "Marquee Animation";
         LayoutElement root =
