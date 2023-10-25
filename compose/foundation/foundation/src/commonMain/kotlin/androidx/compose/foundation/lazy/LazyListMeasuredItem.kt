@@ -73,6 +73,12 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      */
     val crossAxisSize: Int
 
+    /**
+     * True when this item is not supposted to react on scroll delta. for example sticky header,
+     * or items being animated away out of the bounds are non scrollable.
+     */
+    var nonScrollableItem: Boolean = false
+
     private var mainAxisLayoutSize: Int = Unset
     private var minMainAxisOffset: Int = 0
     private var maxMainAxisOffset: Int = 0
@@ -134,6 +140,26 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
 
     fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+
+    fun applyScrollDelta(delta: Int) {
+        if (nonScrollableItem) {
+            return
+        }
+        offset += delta
+        repeat(placeableOffsets.size) { index ->
+            // placeableOffsets consist of x and y pairs for each placeable.
+            // if isVertical is true then the main axis offsets are located at indexes 1, 3, 5 etc.
+            if ((isVertical && index % 2 == 1) || (!isVertical && index % 2 == 0)) {
+                placeableOffsets[index] += delta
+            }
+        }
+        repeat(placeablesCount) { index ->
+            val animation = animator.getAnimation(key, index)
+            if (animation != null) {
+                animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+            }
+        }
+    }
 
     fun place(
         scope: Placeable.PlacementScope,
