@@ -729,8 +729,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    fun takePicture_OnImageCaptureCallback_OnCaptureStarted() = runBlocking {
+    fun takePicture_OnImageCaptureCallback_startedBeforeSuccess() = runBlocking {
         // Arrange.
+        var captured = false
         val useCase = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -740,19 +741,26 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val semaphore = Semaphore(0)
         val callback = object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
                 semaphore.release()
+            }
+
+            override fun onCaptureSuccess(image: ImageProxy) {
+                captured = true
             }
         }
         useCase.takePicture(mainExecutor, callback)
 
-        // Assert: onCaptureStarted should be invoked once.
+        // Assert.
         val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
         assertThat(result).isTrue()
     }
 
     @Test
-    fun takePicture_OnImageSaveCallback_OnCaptureStarted() = runBlocking {
+    fun takePicture_OnImageSaveCallback_startedBeforeSaved() = runBlocking {
         // Arrange.
+        var captured = false
         val useCase = ImageCapture.Builder().build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -762,10 +770,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val semaphore = Semaphore(0)
         val callback = object : ImageCapture.OnImageSavedCallback {
             override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
                 semaphore.release()
             }
 
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                captured = true
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -779,7 +790,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             callback
         )
 
-        // Assert: onCaptureStarted should be invoked once.
+        // Assert.
         val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
         assertThat(result).isTrue()
     }

@@ -109,7 +109,6 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                 @Override
                 public void onCaptureStarted() {
                     mainThreadExecutor().execute(() -> {
-                        // TODO(b/307277146): ensure onCaptureStarted is sent eventually
                         if (mCurrentRequest != null) {
                             mCurrentRequest.onCaptureStarted();
                         }
