@@ -108,7 +108,12 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
                 @Override
                 public void onCaptureStarted() {
-                    mainThreadExecutor().execute(() -> mCurrentRequest.onCaptureStarted());
+                    mainThreadExecutor().execute(() -> {
+                        // TODO(b/307277146): ensure onCaptureStarted is sent eventually
+                        if (mCurrentRequest != null) {
+                            mCurrentRequest.onCaptureStarted();
+                        }
+                    });
                 }
             };
             // Use MetadataImageReader if the input edge expects metadata.
