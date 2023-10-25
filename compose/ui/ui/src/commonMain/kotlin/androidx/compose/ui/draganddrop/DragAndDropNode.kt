@@ -21,10 +21,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseChildren
-import androidx.compose.ui.node.traverseSubtreeWithKey
+import androidx.compose.ui.node.traverseDescendants
 
 /**
  * A [Modifier.Node] providing low level access to platform drag and drop operations.
@@ -71,12 +72,12 @@ internal class DragAndDropNode(
             //  root drag and drop node
             if (!node.isAttached) return null
             var match: DragAndDropModifierNode? = null
-            traverseSubtreeWithKey(DragAndDropTraversableKey) { child ->
+            traverseDescendants(DragAndDropTraversableKey) { child ->
                 if (child is DragAndDropModifierNode && predicate(child)) {
                     match = child
-                    return@traverseSubtreeWithKey false
+                    return@traverseDescendants TraverseDescendantsAction.CancelTraversal
                 }
-                true
+                TraverseDescendantsAction.ContinueTraversal
             }
             return match
         }
