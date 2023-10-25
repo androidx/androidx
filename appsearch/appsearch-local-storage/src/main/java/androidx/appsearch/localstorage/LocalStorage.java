@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.AppSearchDocumentClassMap;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -348,6 +349,10 @@ public class LocalStorage {
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),
                 /*visibilityChecker=*/null);
+        // Calculate and cache AppSearchDocumentClassMap at initialization to avoid doing it at
+        // query time, since all subsequent calls to this function will just return the cached
+        // map.
+        AppSearchDocumentClassMap.getMergedMap();
 
         if (logger != null) {
             initStatsBuilder.setTotalLatencyMillis(
