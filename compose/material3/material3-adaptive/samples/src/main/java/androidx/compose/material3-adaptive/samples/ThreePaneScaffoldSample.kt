@@ -187,7 +187,7 @@ internal fun ThreePaneScaffoldSample() {
         modifier = Modifier.fillMaxSize(),
         scaffoldDirective = scaffoldDirective,
         scaffoldValue = calculateThreePaneScaffoldValue(scaffoldDirective.maxHorizontalPartitions),
-        arrangement = ThreePaneScaffoldDefaults.ListDetailLayoutArrangement,
+        paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
         secondaryPane = {
             Surface(
                 modifier = Modifier.preferredWidth(100.dp),

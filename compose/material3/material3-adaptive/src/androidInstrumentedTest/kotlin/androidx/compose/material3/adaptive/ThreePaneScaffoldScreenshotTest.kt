@@ -41,7 +41,7 @@ class ThreePaneScaffoldScreenshotTest {
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3_ADAPTIVE)
 
     @Test
-    fun threePaneScaffold_listDetailArrangement_standard() {
+    fun threePaneScaffold_listDetailPaneOrder_standard() {
         rule.setContent {
             val scaffoldDirective = calculateStandardPaneScaffoldDirective(
                 currentWindowAdaptiveInfo()
@@ -52,7 +52,7 @@ class ThreePaneScaffoldScreenshotTest {
             SampleThreePaneScaffold(
                 scaffoldDirective,
                 scaffoldValue,
-                ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
+                ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
             )
         }
 
@@ -62,7 +62,7 @@ class ThreePaneScaffoldScreenshotTest {
     }
 
     @Test
-    fun threePaneScaffold_listDetailArrangement_dense() {
+    fun threePaneScaffold_listDetailPaneOrder_dense() {
         rule.setContent {
             val scaffoldDirective = calculateDensePaneScaffoldDirective(
                 currentWindowAdaptiveInfo()
@@ -73,7 +73,7 @@ class ThreePaneScaffoldScreenshotTest {
             SampleThreePaneScaffold(
                 scaffoldDirective,
                 scaffoldValue,
-                ThreePaneScaffoldDefaults.ListDetailLayoutArrangement
+                ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
             )
         }
 

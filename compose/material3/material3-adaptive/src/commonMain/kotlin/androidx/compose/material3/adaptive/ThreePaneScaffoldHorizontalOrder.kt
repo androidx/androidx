@@ -20,32 +20,32 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Represents the pane order of [ThreePaneScaffold] from start to end. Note that the values of
- * [firstPane], [secondPane] and [thirdPane] have to be different, otherwise
+ * Represents the horizontal order of panes in a [ThreePaneScaffold] from start to end. Note that
+ * the values of [firstPane], [secondPane] and [thirdPane] have to be different, otherwise
  * [IllegalArgumentException] will be thrown.
  *
- * @constructor create an instance of [ThreePaneScaffoldArrangement]
+ * @constructor create an instance of [ThreePaneScaffoldHorizontalOrder]
  * @param firstPane The first pane from the start of the [ThreePaneScaffold]
  * @param secondPane The second pane from the start of the [ThreePaneScaffold]
  * @param thirdPane The third pane from the start of the [ThreePaneScaffold]
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-class ThreePaneScaffoldArrangement(
+class ThreePaneScaffoldHorizontalOrder(
     val firstPane: ThreePaneScaffoldRole,
     val secondPane: ThreePaneScaffoldRole,
     val thirdPane: ThreePaneScaffoldRole
 ) {
     init {
         require(firstPane != secondPane && secondPane != thirdPane && firstPane != thirdPane) {
-            "invalid ThreePaneScaffoldArrangement($firstPane, $secondPane, $thirdPane)" +
+            "invalid ThreePaneScaffoldHorizontalOrder($firstPane, $secondPane, $thirdPane)" +
                 " - panes must be unique"
         }
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ThreePaneScaffoldArrangement) return false
+        if (other !is ThreePaneScaffoldHorizontalOrder) return false
         if (firstPane != other.firstPane) return false
         if (secondPane != other.secondPane) return false
         if (thirdPane != other.thirdPane) return false
@@ -61,14 +61,14 @@ class ThreePaneScaffoldArrangement(
 }
 
 /**
- * Converts a bidirectional arrangement to a left-to-right arrangement.
+ * Converts a bidirectional order to a left-to-right order.
  */
 @ExperimentalMaterial3AdaptiveApi
-internal fun ThreePaneScaffoldArrangement.toLtrArrangement(
+internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
-): ThreePaneScaffoldArrangement {
+): ThreePaneScaffoldHorizontalOrder {
     return if (layoutDirection == LayoutDirection.Rtl) {
-        ThreePaneScaffoldArrangement(
+        ThreePaneScaffoldHorizontalOrder(
             thirdPane,
             secondPane,
             firstPane
@@ -79,7 +79,7 @@ internal fun ThreePaneScaffoldArrangement.toLtrArrangement(
 }
 
 @ExperimentalMaterial3AdaptiveApi
-internal inline fun ThreePaneScaffoldArrangement.forEach(
+internal inline fun ThreePaneScaffoldHorizontalOrder.forEach(
     action: (ThreePaneScaffoldRole) -> Unit
 ) {
     action(firstPane)
@@ -88,7 +88,7 @@ internal inline fun ThreePaneScaffoldArrangement.forEach(
 }
 
 @ExperimentalMaterial3AdaptiveApi
-internal inline fun ThreePaneScaffoldArrangement.forEachIndexed(
+internal inline fun ThreePaneScaffoldHorizontalOrder.forEachIndexed(
     action: (Int, ThreePaneScaffoldRole) -> Unit
 ) {
     action(0, firstPane)
@@ -97,7 +97,7 @@ internal inline fun ThreePaneScaffoldArrangement.forEachIndexed(
 }
 
 @ExperimentalMaterial3AdaptiveApi
-internal fun ThreePaneScaffoldArrangement.indexOf(role: ThreePaneScaffoldRole): Int {
+internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRole): Int {
     forEachIndexed { i, r ->
         if (r == role) {
             return i
