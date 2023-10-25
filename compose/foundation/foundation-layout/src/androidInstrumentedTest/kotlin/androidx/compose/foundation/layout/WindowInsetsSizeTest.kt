@@ -23,12 +23,12 @@ import android.view.ViewGroup
 import android.view.WindowInsets as AndroidWindowInsets
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -85,7 +85,9 @@ class WindowInsetsSizeTest {
                     )
                 )
                 composeView.setContent {
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    DeviceConfigurationOverride(
+                        DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+                    ) {
                         Box(Modifier
                             .wrapContentSize()
                             .onGloballyPositioned { coordinates = it }
@@ -414,7 +416,9 @@ class WindowInsetsSizeTest {
                     )
                 )
                 composeView.setContent {
-                    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    DeviceConfigurationOverride(
+                        DeviceConfigurationOverride.LayoutDirection(layoutDirection)
+                    ) {
                         Box(Modifier.wrapContentSize().onGloballyPositioned { coordinates = it }) {
                             Box(sizeModifier())
                         }
