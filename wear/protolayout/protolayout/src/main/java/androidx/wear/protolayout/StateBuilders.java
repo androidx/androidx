@@ -143,6 +143,7 @@ public final class StateBuilders {
             private final StateProto.State.Builder mImpl = StateProto.State.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-688813584);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

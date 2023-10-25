@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.protolayout.proto.TypesProto;
@@ -199,6 +200,7 @@ public final class TypeBuilders {
             private final TypesProto.Int32Prop.Builder mImpl = TypesProto.Int32Prop.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1360212989);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -236,7 +238,9 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the static value.
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, {@code null} will be used instead.
          *
          * @since 1.0
          */
@@ -246,12 +250,14 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the dynamic value.
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
          *
          * @since 1.2
          */
         @Nullable
-        public DynamicBuilders.DynamicString getDynamicValue() {
+        public DynamicString getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
                 return DynamicBuilders.dynamicStringFromProto(mImpl.getDynamicValue());
             } else {
@@ -303,21 +309,20 @@ public final class TypeBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(327834307);
 
             /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicString)} can be used to provide a dynamic value.
+             */
+            public Builder(@NonNull String staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
              * Creates an instance of {@link Builder}.
              *
              * @deprecated use {@link #Builder(String)}
              */
             @Deprecated
             public Builder() {}
-
-            /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @param staticValue the static value.
-             */
-            public Builder(@NonNull String staticValue) {
-                setValue(staticValue);
-            }
 
             /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
@@ -342,7 +347,7 @@ public final class TypeBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setDynamicValue(@NonNull DynamicBuilders.DynamicString dynamicValue) {
+            public Builder setDynamicValue(@NonNull DynamicString dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicStringProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
@@ -353,9 +358,8 @@ public final class TypeBuilders {
              * Builds an instance from accumulated values.
              *
              * @throws IllegalStateException if a dynamic value is set using {@link
-             *     #setDynamicValue(DynamicBuilders.DynamicString)} but neither {@link
-             *     #Builder(String)} nor {@link #setValue(String)} is used to provide a static
-             *     value.
+             *     #setDynamicValue(DynamicString)} but neither {@link #Builder(String)} nor {@link
+             *     #setValue(String)} is used to provide a static value.
              */
             @NonNull
             public StringProp build() {
@@ -382,7 +386,9 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, zero will be used instead.
          *
          * @since 1.0
          */
@@ -391,7 +397,9 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the dynamic value.
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
          *
          * @since 1.2
          */
@@ -448,21 +456,20 @@ public final class TypeBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-641088370);
 
             /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
+             */
+            public Builder(float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
              * Creates an instance of {@link Builder}.
              *
              * @deprecated use {@link #Builder(float)}
              */
             @Deprecated
             public Builder() {}
-
-            /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @param staticValue the static value.
-             */
-            public Builder(float staticValue) {
-                setValue(staticValue);
-            }
 
             /**
              * Sets the static value. If a dynamic value is also set and the renderer supports
