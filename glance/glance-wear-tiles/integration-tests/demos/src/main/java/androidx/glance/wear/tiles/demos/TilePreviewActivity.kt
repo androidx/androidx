@@ -71,8 +71,8 @@ class TilePreviewActivity : FragmentActivity() {
 
     private lateinit var viewPager: ViewPager2
 
-    override fun onCreate(savedInstanceBundle: Bundle?) {
-        super.onCreate(savedInstanceBundle)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         viewPager = findViewById(R.id.carousel)
 
