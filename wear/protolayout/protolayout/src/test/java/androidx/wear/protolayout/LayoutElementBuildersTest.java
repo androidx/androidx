@@ -239,11 +239,11 @@ public class LayoutElementBuildersTest {
 
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
-        assertThat(fontStyleProto.getSizeList().size()).isEqualTo(1);
+        assertThat(fontStyleProto.getSizeList()).hasSize(1);
         assertThat(fontStyleProto.getSizeList().get(0).getValue()).isEqualTo(lastSize);
         // Make sure that if 1 size is used than it's the last one.
         assertThat(fontStyle.getSize().getValue()).isEqualTo(lastSize);
-        assertThat(fontStyle.getSizes().size()).isEqualTo(1);
+        assertThat(fontStyleProto.getSizeList()).hasSize(1);
         assertThat(fontStyle.getSizes().get(0).getValue()).isEqualTo(lastSize);
     }
 
@@ -279,6 +279,15 @@ public class LayoutElementBuildersTest {
                 IllegalArgumentException.class,
                 () -> new LayoutElementBuilders.FontStyle.Builder()
                         .setSizes(sizes)
+                        .build());
+    }
+
+    @Test
+    public void testFontStyleSetSize_allNegativeOrZero_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.FontStyle.Builder()
+                        .setSizes(sp(-1), sp(0))
                         .build());
     }
 
