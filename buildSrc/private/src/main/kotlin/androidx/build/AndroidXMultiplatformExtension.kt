@@ -16,6 +16,10 @@
 
 package androidx.build
 
+import androidx.build.clang.AndroidXClang
+import androidx.build.clang.MultiTargetNativeCompilation
+import androidx.build.clang.NativeLibraryBundler
+import androidx.build.clang.configureCinterop
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -24,6 +28,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
@@ -114,6 +119,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
+    /**
+     * Helper class to access Clang functionality.
+     */
+    private val clang = AndroidXClang(project)
+
+    /**
+     * Helper class to bundle outputs of clang compilation into an AAR / JAR.
+     */
+    private val nativeLibraryBundler = NativeLibraryBundler(project)
+
     internal fun hasNativeTarget(): Boolean {
         // it is important to check initialized here not to trigger initialization
         return kotlinExtensionDelegate.isInitialized() &&
@@ -125,6 +140,116 @@ open class AndroidXMultiplatformExtension(val project: Project) {
             kotlinExtension.sourceSets.configure(closure)
         }
     }
+
+    /**
+     * Creates a multi-target native compilation with the given [archiveName].
+     *
+     * The given [configure] action can be used to add targets, sources, includes etc.
+     *
+     * The outputs of this compilation is not added to any artifact by default.
+     *  * To use the outputs via cinterop (kotlin native), use the [createCinterop] function.
+     *  * To bundle the outputs inside a JAR (to be loaded at runtime), use the
+     *  [addNativeLibrariesToResources] function.
+     *  * To bundle the outputs inside an AAR (to be loaded at runtime), use the
+     *  [addNativeLibrariesToJniLibs] function.
+     *
+     *  @param archiveName The archive file name for the native artifacts (.so, .a or .o)
+     *  @param configure Action block to configure the compilation.
+     */
+    fun createNativeCompilation(
+        archiveName: String,
+        configure: Action<MultiTargetNativeCompilation>
+    ): MultiTargetNativeCompilation {
+        return clang.createNativeCompilation(
+            archiveName = archiveName,
+            configure = configure
+        )
+    }
+
+    /**
+     * Creates a Kotlin Native cinterop configuration for the given [nativeTarget] from the outputs
+     * of [nativeCompilation].
+     *
+     * @param nativeTarget The kotlin native target for which a new cinterop will be added
+     * @param nativeCompilation The [MultiTargetNativeCompilation] which will be embedded into the
+     * generated cinterop klib.
+     * @param cinteropName The name of the cinterop definition. A matching "<cinteropName.def>" file
+     * needs to be present in the default cinterop location
+     * (src/nativeInterop/cinterop/<cinteropName.def>).
+     */
+    @JvmOverloads
+    fun createCinterop(
+        nativeTarget: KotlinNativeTarget,
+        nativeCompilation: MultiTargetNativeCompilation,
+        cinteropName: String = nativeCompilation.archiveName
+    ) {
+        nativeCompilation.configureCinterop(
+            kotlinNativeTarget = nativeTarget,
+            cinteropName = cinteropName
+        )
+    }
+
+    /**
+     * @see NativeLibraryBundler.addNativeLibrariesToJniLibs
+     */
+    @JvmOverloads
+    fun addNativeLibrariesToJniLibs(
+        androidTarget: KotlinAndroidTarget,
+        nativeCompilation: MultiTargetNativeCompilation,
+        variantBuildType: String = "debug",
+        forTest: Boolean = false
+    ) = nativeLibraryBundler.addNativeLibrariesToJniLibs(
+        androidTarget = androidTarget,
+        nativeCompilation = nativeCompilation,
+        variantBuildType = variantBuildType,
+        forTest = forTest
+    )
+
+    /**
+     * Convenience method to add native libraries to the jniLibs input of an Android instrumentation
+     * test.
+     *
+     * @see addNativeLibrariesToJniLibs
+     */
+    @JvmOverloads
+    fun addNativeLibrariesToTestJniLibs(
+        androidTarget: KotlinAndroidTarget,
+        nativeCompilation: MultiTargetNativeCompilation,
+        variantBuildType: String = "debug",
+    ) = addNativeLibrariesToJniLibs(
+        androidTarget = androidTarget,
+        nativeCompilation = nativeCompilation,
+        variantBuildType = variantBuildType,
+        forTest = true
+    )
+
+    /**
+     * Convenience method to add bundle native libraries with a test jar.
+     *
+     * @see addNativeLibrariesToResources
+     */
+    fun addNativeLibrariesToTestResources(
+        jvmTarget: KotlinJvmTarget,
+        nativeCompilation: MultiTargetNativeCompilation
+    ) = addNativeLibrariesToResources(
+        jvmTarget = jvmTarget,
+        nativeCompilation = nativeCompilation,
+        compilationName = KotlinCompilation.TEST_COMPILATION_NAME
+    )
+
+    /**
+     * @see NativeLibraryBundler.addNativeLibrariesToResources
+     */
+    @JvmOverloads
+    fun addNativeLibrariesToResources(
+        jvmTarget: KotlinJvmTarget,
+        nativeCompilation: MultiTargetNativeCompilation,
+        compilationName: String = KotlinCompilation.MAIN_COMPILATION_NAME
+    ) = nativeLibraryBundler.addNativeLibrariesToResources(
+        jvmTarget = jvmTarget,
+        nativeCompilation = nativeCompilation,
+        compilationName = compilationName
+    )
 
     /**
      * Sets the default target platform.

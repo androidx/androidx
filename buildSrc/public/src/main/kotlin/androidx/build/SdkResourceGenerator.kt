@@ -74,6 +74,10 @@ abstract class SdkResourceGenerator : DefaultTask() {
     val rootProjectRelativePath: String =
         project.rootProject.rootDir.toRelativeString(project.projectDir)
 
+    @get:Input
+    val prebuiltsRelativePath: String =
+        project.getPrebuiltsRoot().toRelativeString(project.projectDir)
+
     private val projectDir: File = project.projectDir
 
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
@@ -102,6 +106,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("minSdkVersion=${minSdkVersion.get()}\n")
             writer.write("kgpVersion=${kgpVersion.get()}\n")
             writer.write("kspVersion=$kspVersion\n")
+            writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
     }
