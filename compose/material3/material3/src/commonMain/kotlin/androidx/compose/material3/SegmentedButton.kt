@@ -132,7 +132,9 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
-    border: SegmentedButtonBorder = SegmentedButtonDefaults.Border,
+    border: BorderStroke = SegmentedButtonDefaults.borderStroke(
+        colors.borderColor(enabled, checked)
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(checked) },
     label: @Composable () -> Unit,
@@ -155,7 +157,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        border = border.borderStroke(enabled, checked, colors),
+        border = border,
         interactionSource = interactionSource
     ) {
         SegmentedButtonContent(icon, label)
@@ -205,7 +207,9 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: SegmentedButtonColors = SegmentedButtonDefaults.colors(),
-    border: SegmentedButtonBorder = SegmentedButtonDefaults.Border,
+    border: BorderStroke = SegmentedButtonDefaults.borderStroke(
+        colors.borderColor(enabled, selected)
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     icon: @Composable () -> Unit = { SegmentedButtonDefaults.Icon(selected) },
     label: @Composable () -> Unit,
@@ -229,7 +233,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        border = border.borderStroke(enabled, selected, colors),
+        border = border,
         interactionSource = interactionSource
     ) {
         SegmentedButtonContent(icon, label)
@@ -256,7 +260,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
 @ExperimentalMaterial3Api
 fun SingleChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
-    space: Dp = SegmentedButtonDefaults.Border.width,
+    space: Dp = SegmentedButtonDefaults.BorderWidth,
     content: @Composable SingleChoiceSegmentedButtonRowScope.() -> Unit
 ) {
     Row(
@@ -294,7 +298,7 @@ fun SingleChoiceSegmentedButtonRow(
 @ExperimentalMaterial3Api
 fun MultiChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
-    space: Dp = SegmentedButtonDefaults.Border.width,
+    space: Dp = SegmentedButtonDefaults.BorderWidth,
     content: @Composable MultiChoiceSegmentedButtonRowScope.() -> Unit
 ) {
     Row(
@@ -476,9 +480,6 @@ object SegmentedButtonDefaults {
         disabledInactiveBorderColor = disabledInactiveBorderColor
     )
 
-    /** The default [BorderStroke] factory used by [SegmentedButton]. */
-    val Border = SegmentedButtonBorder(width = OutlinedSegmentedButtonTokens.OutlineWidth)
-
     /**
      * The shape of the segmented button container, for correct behavior this should or the desired
      * [CornerBasedShape] should be used with [itemShape] and passed to each segmented button.
@@ -487,6 +488,9 @@ object SegmentedButtonDefaults {
         @Composable
         @ReadOnlyComposable
         get() = OutlinedSegmentedButtonTokens.Shape.value as CornerBasedShape
+
+    /** Default border width used in segmented button */
+    val BorderWidth: Dp = OutlinedSegmentedButtonTokens.OutlineWidth
 
     /**
      * A shape constructor that the button in [index] should have when there are [count] buttons in
@@ -558,25 +562,16 @@ object SegmentedButtonDefaults {
             }
         }
     }
-}
 
-/**
- * Class to create border stroke for segmented button, see [SegmentedButtonColors], for
- * customization of colors.
- */
-@ExperimentalMaterial3Api
-@Immutable
-class SegmentedButtonBorder(val width: Dp) {
-
-    /** The default [BorderStroke] used by [SegmentedButton]. */
+    /**
+     * Default factory for Segmented Button [BorderStroke] can be customized through [width],
+     * and [color]. When using a width different than default make sure to also update
+     * [MultiChoiceSegmentedButtonRow] or [SingleChoiceSegmentedButtonRow] space param.
+     */
     fun borderStroke(
-        enabled: Boolean,
-        checked: Boolean,
-        colors: SegmentedButtonColors
-    ): BorderStroke = BorderStroke(
-        width = width,
-        color = colors.borderColor(enabled, checked)
-    )
+        color: Color,
+        width: Dp = BorderWidth,
+    ): BorderStroke = BorderStroke(width = width, color = color)
 }
 
 /**
@@ -601,7 +596,7 @@ class SegmentedButtonBorder(val width: Dp) {
  */
 @Immutable
 @ExperimentalMaterial3Api
-class SegmentedButtonColors constructor(
+class SegmentedButtonColors(
     // enabled & active
     val activeContainerColor: Color,
     val activeContentColor: Color,
