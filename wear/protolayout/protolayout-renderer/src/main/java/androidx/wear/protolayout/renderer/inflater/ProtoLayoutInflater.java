@@ -2033,6 +2033,7 @@ public final class ProtoLayoutInflater {
             Spacer spacer,
             String posId,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        // TODO(b/307515493): Add support for expanded dimension.
         LayoutParams layoutParams = generateDefaultLayoutParams();
 
         // Initialize the size wrapper here, if needed. This simplifies the logic below when
@@ -3704,6 +3705,9 @@ public final class ProtoLayoutInflater {
         switch (dimension.getInnerCase()) {
             case LINEAR_DIMENSION:
                 return true;
+            case EXPANDED_DIMENSION:
+                // TODO(b/307515493): Add support for expanded dimension.
+                return false;
             case INNER_NOT_SET:
                 return false;
         }

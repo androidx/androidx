@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -47,6 +48,12 @@ public class LayoutElementBuildersTest {
             new DimensionBuilders.DpProp.Builder(10)
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
+    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_PROP = expand();
+    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_WEIGHT_PROP =
+            new DimensionBuilders.ExpandedDimensionProp.Builder()
+                    .setLayoutWeight(new TypeBuilders.FloatProp.Builder(12).build())
+                    .build();
+
     private static final DimensionBuilders.HorizontalLayoutConstraint HORIZONTAL_LAYOUT_CONSTRAINT =
             new DimensionBuilders.HorizontalLayoutConstraint.Builder(20)
                     .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_END)
@@ -183,6 +190,48 @@ public class LayoutElementBuildersTest {
         assertThrows(
                 IllegalStateException.class,
                 () -> new LayoutElementBuilders.Spacer.Builder().setHeight(DP_PROP).build());
+    }
+
+    @Test
+    public void testSpacerSetWidthSetHeightExpand() {
+        LayoutElementBuilders.Spacer spacer =
+                new LayoutElementBuilders.Spacer.Builder()
+                        .setWidth(EXPAND_PROP)
+                        .setHeight(EXPAND_PROP)
+                        .build();
+
+        LayoutElementProto.Spacer spacerProto = spacer.toProto();
+
+        assertThat(spacerProto.getWidth().hasLinearDimension()).isFalse();
+        assertThat(spacerProto.getHeight().hasLinearDimension()).isFalse();
+        assertThat(spacerProto.getWidth().hasExpandedDimension()).isTrue();
+        assertThat(spacerProto.getHeight().hasExpandedDimension()).isTrue();
+    }
+
+    @Test
+    public void testSpacerSetWidthSetHeightExpandWithWeight() {
+        LayoutElementBuilders.Spacer spacer =
+                new LayoutElementBuilders.Spacer.Builder()
+                        .setWidth(EXPAND_WEIGHT_PROP)
+                        .setHeight(EXPAND_WEIGHT_PROP)
+                        .build();
+
+        LayoutElementProto.Spacer spacerProto = spacer.toProto();
+
+        assertThat(spacerProto.getWidth().hasLinearDimension()).isFalse();
+        assertThat(spacerProto.getHeight().hasLinearDimension()).isFalse();
+        assertThat(spacerProto.getWidth().hasExpandedDimension()).isTrue();
+        assertThat(spacerProto.getHeight().hasExpandedDimension()).isTrue();
+
+        DimensionProto.ExpandedDimensionProp spacerWidth =
+                spacer.toProto().getWidth().getExpandedDimension();
+        DimensionProto.ExpandedDimensionProp spacerHeight =
+                spacer.toProto().getHeight().getExpandedDimension();
+
+        assertThat(spacerWidth.getLayoutWeight().getValue())
+                .isEqualTo(EXPAND_WEIGHT_PROP.getLayoutWeight().getValue());
+        assertThat(spacerHeight.getLayoutWeight().getValue())
+                .isEqualTo(EXPAND_WEIGHT_PROP.getLayoutWeight().getValue());
     }
 
     @Test
