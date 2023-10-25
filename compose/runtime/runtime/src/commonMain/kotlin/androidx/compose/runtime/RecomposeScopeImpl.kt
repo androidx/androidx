@@ -60,6 +60,7 @@ private const val DefaultsInvalidFlag = 0x04
 private const val RequiresRecomposeFlag = 0x08
 private const val SkippedFlag = 0x10
 private const val RereadingFlag = 0x20
+private const val ForcedRecomposeFlag = 0x40
 
 internal interface RecomposeScopeOwner {
     fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult
@@ -261,6 +262,21 @@ internal class RecomposeScopeImpl(
                 flags = flags or RereadingFlag
             } else {
                 flags = flags and RereadingFlag.inv()
+            }
+        }
+
+    /**
+     * Used to explicitly force recomposition. This is used during live edit to force a
+     * recompose scope that doesn't have a restart callback to recompose as its parent (or
+     * some parent above it) was invalidated and the path to this scope has also been forced.
+     */
+    var forcedRecompose: Boolean
+        get() = flags and ForcedRecomposeFlag != 0
+        set(value) {
+            if (value) {
+                flags = flags or ForcedRecomposeFlag
+            } else {
+                flags = flags and ForcedRecomposeFlag.inv()
             }
         }
 
