@@ -1387,7 +1387,7 @@ internal class ComposerImpl(
     @Suppress("unused")
     override val defaultsInvalid: Boolean
         get() {
-            return providersInvalid || currentRecomposeScope?.defaultsInvalid == true
+            return !skipping || providersInvalid || currentRecomposeScope?.defaultsInvalid == true
         }
 
     /**
