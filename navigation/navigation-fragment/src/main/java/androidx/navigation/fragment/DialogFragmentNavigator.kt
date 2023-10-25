@@ -312,6 +312,7 @@ public class DialogFragmentNavigator(
         }
 
         override fun equals(other: Any?): Boolean {
+            if (this === other) return true
             if (other == null || other !is Destination) return false
             return super.equals(other) && _className == other._className
         }
