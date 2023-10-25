@@ -226,10 +226,6 @@ abstract class StudioTask : DefaultTask() {
         check(vmOptions.exists()) {
             "Invalid Studio vm options file location: ${vmOptions.canonicalPath}"
         }
-        val pid = with(platformUtilities) { findProcess() }
-        check(pid == null) {
-            "Found managed instance of Studio already running as PID $pid"
-        }
         val logFile = File(System.getProperty("user.home"), ".AndroidXStudioLog")
         ProcessBuilder().apply {
             // Can't just use inheritIO due to https://github.com/gradle/gradle/issues/16719
