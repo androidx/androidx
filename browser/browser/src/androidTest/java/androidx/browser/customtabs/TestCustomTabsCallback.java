@@ -32,6 +32,7 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
     private boolean mOnMessageChannelReady;
     private ArrayList<String> mMessageList = new ArrayList<>();
     private boolean mOnResizedReceived;
+    private boolean mOnWarmupCompleted;
     private ICustomTabsCallback.Stub mWrapper = new ICustomTabsCallback.Stub() {
         @Override
         public void onNavigationEvent(final int navigationEvent, final Bundle extras) {
@@ -73,6 +74,11 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         public void onActivityResized(int height, int width, Bundle extras) throws RemoteException {
             TestCustomTabsCallback.this.onActivityResized(height, width, extras);
         }
+
+        @Override
+        public void onWarmupCompleted(Bundle extras) {
+            TestCustomTabsCallback.this.onWarmupCompleted(extras);
+        }
     };
 
     /* package */ ICustomTabsCallback getStub() {
@@ -110,5 +116,17 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
 
     public boolean hasActivityBeenResized() {
         return mOnResizedReceived;
+    }
+
+    @Override
+    public void onWarmupCompleted(Bundle extras) {
+        mOnWarmupCompleted = true;
+    }
+
+    /**
+     * @return Whether warmup process is finished.
+     */
+    public boolean wasWarmupCompleted() {
+        return mOnWarmupCompleted;
     }
 }

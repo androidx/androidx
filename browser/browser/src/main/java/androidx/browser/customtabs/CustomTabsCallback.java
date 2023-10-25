@@ -168,4 +168,11 @@ public class CustomTabsCallback {
      */
     public void onActivityResized(@Dimension(unit = PX) int height,
             @Dimension(unit = PX) int width, @NonNull Bundle extras) {}
+
+    /**
+     * Called when the browser process finished warming up initiated by
+     * {@link CustomTabsClient#warmup()}.
+     * @param extras Reserved for future use.
+     */
+    public void onWarmupCompleted(@NonNull Bundle extras) {}
 }
