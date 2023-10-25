@@ -55,3 +55,10 @@ RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
     Callback methods should be named register/unregister; was addCallback
+
+PairedRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
+    Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcher
+PairedRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcher
+PairedRegistration: androidx.activity.OnBackPressedDispatcherKt#addCallback(androidx.activity.OnBackPressedDispatcher, androidx.lifecycle.LifecycleOwner, boolean, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit>):
+    Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcherKt
