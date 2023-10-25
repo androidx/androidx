@@ -23,6 +23,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.rol
 
 internal const val SLOTS_PER_INT = 10
 private const val BITS_PER_SLOT = 3
@@ -329,7 +330,11 @@ fun composableLambda(
     tracked: Boolean,
     block: Any
 ): ComposableLambda {
-    composer.startReplaceableGroup(key)
+    // Use a rolled version of the key to avoid the key being a duplicate of the function's
+    // key. This is particularly important for live edit scenarios where the groups will be
+    // invalidated by the key number. This ensures that invalidating the function will not
+    // also invalidate its lambda.
+    composer.startReplaceableGroup(key.rol(1))
     val slot = composer.rememberedValue()
     val result = if (slot === Composer.Empty) {
         val value = ComposableLambdaImpl(key, tracked, block)
