@@ -64,8 +64,8 @@ class FragmentFinishEarlyTestActivity : FragmentActivity() {
     val onDestroyLatch = CountDownLatch(1)
     val fragment = StrictFragment()
 
-    public override fun onCreate(icicle: Bundle?) {
-        super.onCreate(icicle)
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         finish()
         supportFragmentManager.beginTransaction()
             .add(fragment, "not destroyed")
