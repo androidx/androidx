@@ -26,12 +26,14 @@ plugins {
 
 def macEnabled = KmpPlatformsKt.enableMac(project)
 def linuxEnabled = KmpPlatformsKt.enableLinux(project)
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     jvm {}
     mac()
     linux()
     ios()
+    androidNative()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -66,7 +68,7 @@ androidXMultiplatform {
             }
         }
 
-        if (macEnabled || linuxEnabled) {
+        if (macEnabled || linuxEnabled || nativeEnabled) {
             nativeMain {
                 dependsOn(commonMain)
             }
