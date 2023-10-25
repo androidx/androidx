@@ -167,6 +167,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidStringExtra.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-973795259);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -181,6 +182,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public AndroidStringExtra build() {
@@ -258,6 +260,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidIntExtra.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1199435881);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -272,6 +275,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public AndroidIntExtra build() {
@@ -349,6 +353,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidLongExtra.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-906933303);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -363,6 +368,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public AndroidLongExtra build() {
@@ -440,6 +446,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidDoubleExtra.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1104636989);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -454,6 +461,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public AndroidDoubleExtra build() {
@@ -532,6 +540,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidBooleanExtra.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1244694745);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -547,6 +556,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public AndroidBooleanExtra build() {
@@ -706,6 +716,7 @@ public final class ActionBuilders {
                     ActionProto.AndroidActivity.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1799520061);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -831,6 +842,7 @@ public final class ActionBuilders {
                     ActionProto.LaunchAction.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(2004803940);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -846,6 +858,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public LaunchAction build() {
@@ -930,6 +943,7 @@ public final class ActionBuilders {
                     ActionProto.LoadAction.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(674205536);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -947,6 +961,7 @@ public final class ActionBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public LoadAction build() {

@@ -31,7 +31,7 @@ import androidx.wear.protolayout.proto.TriggerProto;
 public final class TriggerBuilders {
     private TriggerBuilders() {}
 
-    /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded.. */
+    /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded. */
     @NonNull
     public static Trigger createOnLoadTrigger() {
         return new OnLoadTrigger.Builder().build();
@@ -106,8 +106,10 @@ public final class TriggerBuilders {
                     TriggerProto.OnLoadTrigger.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1262805599);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public OnLoadTrigger build() {
@@ -193,6 +195,7 @@ public final class TriggerBuilders {
                     TriggerProto.OnConditionMetTrigger.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756642641);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -201,13 +204,14 @@ public final class TriggerBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setCondition(@NonNull DynamicBool dynamicBool) {
-                mImpl.setCondition(dynamicBool.toDynamicBoolProto());
+            public Builder setCondition(@NonNull DynamicBool condition) {
+                mImpl.setCondition(condition.toDynamicBoolProto());
                 mFingerprint.recordPropertyUpdate(
-                        1, checkNotNull(dynamicBool.getFingerprint()).aggregateValueAsInt());
+                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public OnConditionMetTrigger build() {

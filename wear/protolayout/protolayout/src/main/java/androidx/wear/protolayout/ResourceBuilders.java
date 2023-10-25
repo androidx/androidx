@@ -153,6 +153,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -268,6 +269,7 @@ public final class ResourceBuilders {
             private final ResourceProto.InlineImageResource.Builder mImpl =
                     ResourceProto.InlineImageResource.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -409,6 +411,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidAnimatedImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidAnimatedImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -542,6 +545,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidSeekableAnimatedImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidSeekableAnimatedImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -704,6 +708,7 @@ public final class ResourceBuilders {
             private final ResourceProto.ImageResource.Builder mImpl =
                     ResourceProto.ImageResource.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -843,6 +848,7 @@ public final class ResourceBuilders {
             private final ResourceProto.Resources.Builder mImpl =
                     ResourceProto.Resources.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

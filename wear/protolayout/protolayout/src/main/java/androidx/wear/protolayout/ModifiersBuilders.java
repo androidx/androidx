@@ -436,6 +436,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.Clickable.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(812136104);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -630,6 +631,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.Semantics.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1679805809);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -841,6 +843,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.Padding.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(375605427);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -922,8 +925,6 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
-             *
-             * <p>Note that this field only supports static values.
              *
              * @since 1.0
              */
@@ -1051,6 +1052,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Border.Builder mImpl = ModifiersProto.Border.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(157094687);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1161,6 +1163,7 @@ public final class ModifiersBuilders {
             private final ModifiersProto.Corner.Builder mImpl = ModifiersProto.Corner.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-532589910);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1276,6 +1279,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.Background.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1234051555);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1383,6 +1387,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.ElementMetadata.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1401175352);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1586,6 +1591,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.Modifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1165106749);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1786,6 +1792,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.AnimatedVisibility.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1372451979);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -1907,6 +1914,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.EnterTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1732205279);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2030,6 +2038,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.FadeInTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1430024488);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2172,6 +2181,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideInTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-991346238);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2314,6 +2324,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.ExitTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-99296494);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2439,6 +2450,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.FadeOutTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-545572295);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2581,6 +2593,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideOutTransition.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(3732844);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2752,6 +2765,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SlideParentBound.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-516388675);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2767,6 +2781,7 @@ public final class ModifiersBuilders {
                 return this;
             }
 
+            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public SlideParentBound build() {
@@ -2864,6 +2879,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.ArcModifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1342182166);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -2972,6 +2988,7 @@ public final class ModifiersBuilders {
                     ModifiersProto.SpanModifiers.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-815102194);
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

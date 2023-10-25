@@ -132,14 +132,20 @@ public final class ColorBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-1955659823);
 
             /**
-             * @deprecated Use {@link #Builder(int)} instead.
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicColor)} can be used to provide a dynamic value.
+             */
+            public Builder(@ColorInt int staticValue) {
+                setArgb(staticValue);
+            }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(int)}
              */
             @Deprecated
             public Builder() {}
-
-            public Builder(@ColorInt int argb) {
-                setArgb(argb);
-            }
 
             /**
              * Sets the static color value, in ARGB format. If a dynamic value is also set and the
