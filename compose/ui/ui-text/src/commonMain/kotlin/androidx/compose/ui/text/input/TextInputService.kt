@@ -256,6 +256,8 @@ class TextInputSession(
      *
      * @return false if this session expired and no action was performed
      */
+    // TODO(b/241399013) Deprecate when out of API freeze.
+    // @Deprecated("Use SoftwareKeyboardController.show() instead.")
     fun showSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.showSoftwareKeyboard()
     }
@@ -271,6 +273,8 @@ class TextInputSession(
      *
      * @return false if this session expired and no action was performed
      */
+    // TODO(b/241399013) Deprecate when out of API freeze.
+    // @Deprecated("Use SoftwareKeyboardController.hide() instead.")
     fun hideSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.hideSoftwareKeyboard()
     }
