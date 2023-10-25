@@ -185,6 +185,7 @@ class ImageValidationActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

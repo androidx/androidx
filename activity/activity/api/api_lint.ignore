@@ -15,6 +15,10 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `dispatchKeyEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
+    Invalid nullability on parameter `event` in method `dispatchKeyShortcutEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean, android.content.res.Configuration) parameter #1:
     Invalid nullability on parameter `newConfig` in method `onMultiWindowModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean, android.content.res.Configuration) parameter #1:

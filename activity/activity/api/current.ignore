@@ -1,9 +1,11 @@
 // Baseline format: 1.0
-InvalidNullConversion: androidx.activity.result.ActivityResultCallback#onActivityResult(O) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter result in androidx.activity.result.ActivityResultCallback.onActivityResult(O result)
-InvalidNullConversion: androidx.activity.result.contract.ActivityResultContract#createIntent(android.content.Context, I) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter input in androidx.activity.result.contract.ActivityResultContract.createIntent(android.content.Context context, I input)
-InvalidNullConversion: androidx.activity.result.contract.ActivityResultContract#getSynchronousResult(android.content.Context, I) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter input in androidx.activity.result.contract.ActivityResultContract.getSynchronousResult(android.content.Context context, I input)
-InvalidNullConversion: androidx.activity.result.contract.ActivityResultContract.SynchronousResult#SynchronousResult(T) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.activity.result.contract.ActivityResultContract.SynchronousResult(T value)
+ChangedType: androidx.activity.ComponentActivity#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.ComponentActivity.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+ChangedType: androidx.activity.ComponentActivity#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.ComponentActivity.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+
+
+RemovedMethod: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean):
+    Removed method androidx.activity.ComponentActivity.onMultiWindowModeChanged(boolean)
+RemovedMethod: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean):
+    Removed method androidx.activity.ComponentActivity.onPictureInPictureModeChanged(boolean)
