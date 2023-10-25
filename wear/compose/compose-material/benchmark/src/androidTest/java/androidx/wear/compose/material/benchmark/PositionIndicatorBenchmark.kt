@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material.benchmark
 
+import androidx.compose.animation.core.snap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.PositionIndicatorDefaults
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import kotlinx.coroutines.runBlocking
@@ -157,9 +159,18 @@ internal class PositionIndicatorBenchmarkTestCase(
             indicatorHeight = 50.dp,
             indicatorWidth = 4.dp,
             paddingHorizontal = 5.dp,
-            showFadeInAnimation = animate,
-            showFadeOutAnimation = animate,
-            showPositionAnimation = animate
+            fadeInAnimationSpec = if (animate)
+                PositionIndicatorDefaults.visibilityAnimationSpec
+            else
+                snap(),
+            fadeOutAnimationSpec = if (animate)
+                PositionIndicatorDefaults.visibilityAnimationSpec
+            else
+                snap(),
+            positionAnimationSpec = if (animate)
+                PositionIndicatorDefaults.positionAnimationSpec
+            else
+                snap()
         )
     }
 
