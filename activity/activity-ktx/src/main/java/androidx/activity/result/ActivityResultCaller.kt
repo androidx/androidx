@@ -55,11 +55,11 @@ public fun <I, O> ActivityResultCaller.registerForActivityResult(
 }
 
 internal class ActivityResultCallerLauncher<I, O>(
-    val launcher: ActivityResultLauncher<I>,
+    private val launcher: ActivityResultLauncher<I>,
     val callerContract: ActivityResultContract<I, O>,
     val callerInput: I
 ) : ActivityResultLauncher<Unit>() {
-    val resultContract: ActivityResultContract<Unit, O> by lazy {
+    private val resultContract: ActivityResultContract<Unit, O> by lazy {
         object : ActivityResultContract<Unit, O>() {
             override fun createIntent(context: Context, input: Unit): Intent {
                 return callerContract.createIntent(context, callerInput)
@@ -79,7 +79,5 @@ internal class ActivityResultCallerLauncher<I, O>(
         launcher.unregister()
     }
 
-    override fun getContract(): ActivityResultContract<Unit, O> {
-        return resultContract
-    }
+    override val contract: ActivityResultContract<Unit, O> = resultContract
 }

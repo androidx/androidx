@@ -13,53 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.result
 
-
-package androidx.activity.result;
-
-import android.annotation.SuppressLint;
-
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityOptionsCompat;
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.MainThread
+import androidx.core.app.ActivityOptionsCompat
 
 /**
- * A launcher for a previously-{@link ActivityResultCaller#registerForActivityResult prepared call}
- * to start the process of executing an {@link ActivityResultContract}.
- *
- * @param <I> type of the input required to launch
+ * A launcher for a previously-[prepared call][ActivityResultCaller.registerForActivityResult]
+ * to start the process of executing an [ActivityResultContract] that takes an [I] as its required
+ * input.
  */
-public abstract class ActivityResultLauncher<I> {
-
+abstract class ActivityResultLauncher<I> {
     /**
-     * Executes an {@link ActivityResultContract}.
+     * Executes an [ActivityResultContract] given the required [input].
      *
-     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * This method throws [android.content.ActivityNotFoundException]
      * if there was no Activity found to run the given Intent.
-
-     * @param input the input required to execute an {@link ActivityResultContract}.
      *
      * @throws android.content.ActivityNotFoundException
      */
-    public void launch(@SuppressLint("UnknownNullness") I input) {
-        launch(input, null);
+    open fun launch(input: I) {
+        launch(input, null)
     }
 
     /**
-     * Executes an {@link ActivityResultContract}.
+     * Executes an [ActivityResultContract] given the required [input] and optional
+     * [options] for how the Activity should be started.
      *
-     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * This method throws [android.content.ActivityNotFoundException]
      * if there was no Activity found to run the given Intent.
-     *
-     * @param input the input required to execute an {@link ActivityResultContract}.
-     * @param options Additional options for how the Activity should be started.
      *
      * @throws android.content.ActivityNotFoundException
      */
-    public abstract void launch(@SuppressLint("UnknownNullness") I input,
-            @Nullable ActivityOptionsCompat options);
+    abstract fun launch(input: I, options: ActivityOptionsCompat?)
 
     /**
      * Unregisters this launcher, releasing the underlying result callback, and any references
@@ -69,13 +56,25 @@ public abstract class ActivityResultLauncher<I> {
      * launcher.
      */
     @MainThread
-    public abstract void unregister();
+    abstract fun unregister()
 
     /**
-     * Get the {@link ActivityResultContract} that was used to create this launcher.
-     *
-     * @return the contract that was used to create this launcher
+     * Returns the [ActivityResultContract] that was used to create this launcher.
      */
-    @NonNull
-    public abstract ActivityResultContract<I, ?> getContract();
+    abstract val contract: ActivityResultContract<I, *>
+}
+
+/**
+ * Convenience method to launch a no-argument registered call without needing to pass in `null`.
+ */
+fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) {
+    launch(null, options)
+}
+
+/**
+ * Convenience method to launch a no-argument registered call without needing to pass in `Unit`.
+ */
+@JvmName("launchUnit")
+fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
+    launch(Unit, options)
 }

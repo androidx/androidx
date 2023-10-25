@@ -24,10 +24,5 @@ package androidx.activity.result {
     method public static operator android.content.Intent? component2(androidx.activity.result.ActivityResult);
   }
 
-  public final class ActivityResultLauncherKt {
-    method public static void launch(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, optional androidx.core.app.ActivityOptionsCompat? options);
-    method public static void launchUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, optional androidx.core.app.ActivityOptionsCompat? options);
-  }
-
 }
 
