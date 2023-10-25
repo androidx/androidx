@@ -65,7 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTransfer
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.rotate
@@ -143,7 +143,7 @@ fun TextDragAndDropSourceSample(
                 detectTapGestures(
                     onLongPress = {
                         startTransfer(
-                            DragAndDropTransfer(
+                            DragAndDropTransferData(
                                 clipData = ClipData.newPlainText(label, label),
                                 flags = View.DRAG_FLAG_GLOBAL,
                             )
@@ -530,7 +530,7 @@ private data class RowAndColumn(
     val column: Int
 )
 
-private fun Color.toDragAndDropTransfer() = DragAndDropTransfer(
+private fun Color.toDragAndDropTransfer() = DragAndDropTransferData(
     clipData = ClipData.newIntent(
         "color transfer",
         colorDragAndDropTransferIntent(this)

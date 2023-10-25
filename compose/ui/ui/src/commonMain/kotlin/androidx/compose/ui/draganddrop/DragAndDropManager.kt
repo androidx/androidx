@@ -17,6 +17,8 @@
 package androidx.compose.ui.draganddrop
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
 
 internal interface DragAndDropManager {
 
@@ -28,12 +30,25 @@ internal interface DragAndDropManager {
     val modifier: Modifier
 
     /**
-     * Initiates a drag-and-drop operation containing the data in [DragAndDropInfo].
+     * Initiates a drag-and-drop operation for transferring data.
+     *
+     * @param transferData the data to be transferred after successful completion of the
+     * drag and drop gesture.
+     *
+     * @param dragDecorationSize the size of the drag decoration to be drawn.
+     *
+     * @param drawDragDecoration provides the visual representation of the item dragged during the
+     * drag and drop gesture.
+     *
      * @return true if the method completes successfully, or false if it fails anywhere.
      * Returning false means the system was unable to do a drag because of another
      * ongoing operation or some other reasons.
      */
-    fun drag(dragAndDropInfo: DragAndDropInfo): Boolean
+    fun drag(
+        transferData: DragAndDropTransferData,
+        dragDecorationSize: Size,
+        drawDragDecoration: DrawScope.() -> Unit,
+    ): Boolean
 
     /**
      * Called to notify this [DragAndDropManager] that a [DragAndDropModifierNode] is interested

@@ -74,11 +74,10 @@ import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
 import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropEventType
-import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropNode
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -90,9 +89,11 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
@@ -753,7 +754,11 @@ internal class AndroidComposeView(
         }
     }
 
-    private fun startDrag(dragAndDropInfo: DragAndDropInfo): Boolean {
+    private fun startDrag(
+        transferData: DragAndDropTransferData,
+        dragDecorationSize: Size,
+        drawDragDecoration: DrawScope.() -> Unit,
+    ): Boolean {
         val density = with(context.resources) {
             Density(
                 density = displayMetrics.density,
@@ -762,20 +767,21 @@ internal class AndroidComposeView(
         }
         val shadowBuilder = ComposeDragShadowBuilder(
             density = density,
-            dragAndDropInfo = dragAndDropInfo,
+            dragDecorationSize = dragDecorationSize,
+            drawDragDecoration = drawDragDecoration,
         )
         @Suppress("DEPRECATION")
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             AndroidComposeViewStartDragAndDropN.startDragAndDrop(
                 view = this,
-                dragAndDropInfo = dragAndDropInfo,
+                transferData = transferData,
                 dragShadowBuilder = shadowBuilder,
             )
         else startDrag(
-            dragAndDropInfo.transfer.clipData,
+            transferData.clipData,
             shadowBuilder,
-            dragAndDropInfo.transfer.localState,
-            dragAndDropInfo.transfer.flags,
+            transferData.localState,
+            transferData.flags,
         )
     }
 
@@ -2241,13 +2247,13 @@ private object AndroidComposeViewStartDragAndDropN {
     @RequiresApi(Build.VERSION_CODES.N)
     fun startDragAndDrop(
         view: View,
-        dragAndDropInfo: DragAndDropInfo,
+        transferData: DragAndDropTransferData,
         dragShadowBuilder: ComposeDragShadowBuilder
     ): Boolean = view.startDragAndDrop(
-        dragAndDropInfo.transfer.clipData,
+        transferData.clipData,
         dragShadowBuilder,
-        dragAndDropInfo.transfer.localState,
-        dragAndDropInfo.transfer.flags,
+        transferData.localState,
+        transferData.flags,
     )
 }
 
@@ -2255,15 +2261,18 @@ private object AndroidComposeViewStartDragAndDropN {
  * A Class that provides access [View.OnDragListener] APIs for a [DragAndDropNode].
  */
 private class DragAndDropModifierOnDragListener(
-    private val startDrag: (DragAndDropInfo) -> Boolean
+    private val startDrag: (
+        transferData: DragAndDropTransferData,
+        dragDecorationSize: Size,
+        drawDragDecoration: DrawScope.() -> Unit
+    ) -> Boolean
 ) : View.OnDragListener, DragAndDropManager {
 
     private val rootDragAndDropNode = DragAndDropNode { null }
 
     /**
      * A collection [DragAndDropModifierNode] instances that registered interested in a
-     * drag and drop session by returning true in [DragAndDropModifierNode.onDragAndDropEvent]
-     * with a [DragAndDropEventType.Started] type.
+     * drag and drop session by returning true in [DragAndDropModifierNode.onStarted].
      */
     private val interestedNodes = ArraySet<DragAndDropModifierNode>()
 
@@ -2284,30 +2293,46 @@ private class DragAndDropModifierOnDragListener(
     override fun onDrag(
         view: View,
         event: DragEvent
-    ): Boolean = rootDragAndDropNode.onDragAndDropEvent(
-        event = DragAndDropEvent(
-            dragEvent = event,
-        ),
-        type = when (event.action) {
-            DragEvent.ACTION_DRAG_STARTED -> DragAndDropEventType.Started
+    ): Boolean {
+        val dragAndDropEvent = DragAndDropEvent(dragEvent = event)
+        return when (event.action) {
+            DragEvent.ACTION_DRAG_STARTED -> rootDragAndDropNode.onStarted(dragAndDropEvent)
 
-            DragEvent.ACTION_DRAG_ENTERED -> DragAndDropEventType.Entered
+            DragEvent.ACTION_DROP -> rootDragAndDropNode.onDropped(dragAndDropEvent)
 
-            DragEvent.ACTION_DRAG_LOCATION -> DragAndDropEventType.Moved
-
-            DragEvent.ACTION_DRAG_EXITED -> DragAndDropEventType.Exited
-
-            DragEvent.ACTION_DROP -> DragAndDropEventType.Dropped
-
-            DragEvent.ACTION_DRAG_ENDED -> DragAndDropEventType.Ended.also {
-                interestedNodes.clear()
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                rootDragAndDropNode.onEntered(dragAndDropEvent)
+                false
             }
 
-            else -> DragAndDropEventType.Unknown
-        }
-    )
+            DragEvent.ACTION_DRAG_LOCATION -> {
+                rootDragAndDropNode.onMoved(dragAndDropEvent)
+                false
+            }
 
-    override fun drag(dragAndDropInfo: DragAndDropInfo): Boolean = startDrag(dragAndDropInfo)
+            DragEvent.ACTION_DRAG_EXITED -> {
+                rootDragAndDropNode.onExited(dragAndDropEvent)
+                false
+            }
+
+            DragEvent.ACTION_DRAG_ENDED -> {
+                rootDragAndDropNode.onEnded(dragAndDropEvent)
+                false
+            }
+
+            else -> false
+        }
+    }
+
+    override fun drag(
+        transferData: DragAndDropTransferData,
+        dragDecorationSize: Size,
+        drawDragDecoration: DrawScope.() -> Unit,
+    ): Boolean = startDrag(
+        transferData,
+        dragDecorationSize,
+        drawDragDecoration,
+    )
 
     override fun registerNodeInterest(node: DragAndDropModifierNode) {
         interestedNodes.add(node)

@@ -19,7 +19,7 @@ package androidx.compose.ui.draganddrop
 import androidx.compose.ui.geometry.Offset
 import java.awt.dnd.DropTargetEvent as AwtDropTargetEvent
 
-actual class DragAndDropTransfer
+actual class DragAndDropTransferData
 
 /**
  * AWT [DragAndDropEvent] which delegates to a [AwtDropTargetEvent]
