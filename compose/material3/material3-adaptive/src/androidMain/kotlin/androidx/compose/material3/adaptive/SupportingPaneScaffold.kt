@@ -32,7 +32,7 @@ fun SupportingPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = scaffoldState.scaffoldDirective,
         scaffoldValue = scaffoldState.scaffoldValue,
-        arrangement = ThreePaneScaffoldDefaults.SupportingPaneLayoutArrangement,
+        paneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder,
         secondaryPane = supportingPane,
         tertiaryPane = extraPane,
         primaryPane = mainPane
