@@ -72,6 +72,7 @@ class HelpActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     override fun onBackPressed() {
         super.onBackPressed()
         ActivityNavigator.applyPopAnimationsToPendingTransition(this)
