@@ -266,7 +266,7 @@ fun FilterChip(
     shape: Shape = FilterChipDefaults.shape,
     colors: SelectableChipColors = FilterChipDefaults.filterChipColors(),
     elevation: SelectableChipElevation? = FilterChipDefaults.filterChipElevation(),
-    border: SelectableChipBorder? = FilterChipDefaults.filterChipBorder(),
+    border: BorderStroke? = FilterChipDefaults.filterChipBorder(enabled, selected),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) = SelectableChip(
     selected = selected,
@@ -283,7 +283,7 @@ fun FilterChip(
     minHeight = FilterChipDefaults.Height,
     paddingValues = FilterChipPadding,
     shape = shape,
-    border = border?.borderStroke(enabled, selected)?.value,
+    border = border,
     interactionSource = interactionSource
 )
 
@@ -345,7 +345,7 @@ fun ElevatedFilterChip(
     shape: Shape = FilterChipDefaults.shape,
     colors: SelectableChipColors = FilterChipDefaults.elevatedFilterChipColors(),
     elevation: SelectableChipElevation? = FilterChipDefaults.elevatedFilterChipElevation(),
-    border: SelectableChipBorder? = null,
+    border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) = SelectableChip(
     selected = selected,
@@ -362,7 +362,7 @@ fun ElevatedFilterChip(
     minHeight = FilterChipDefaults.Height,
     paddingValues = FilterChipPadding,
     shape = shape,
-    border = border?.borderStroke(enabled, selected)?.value,
+    border = border,
     interactionSource = interactionSource
 )
 
@@ -429,7 +429,7 @@ fun InputChip(
     shape: Shape = InputChipDefaults.shape,
     colors: SelectableChipColors = InputChipDefaults.inputChipColors(),
     elevation: SelectableChipElevation? = InputChipDefaults.inputChipElevation(),
-    border: SelectableChipBorder? = InputChipDefaults.inputChipBorder(),
+    border: BorderStroke? = InputChipDefaults.inputChipBorder(enabled, selected),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     // If given, place the avatar in an InputChipTokens.AvatarShape shape before passing it into the
@@ -464,7 +464,7 @@ fun InputChip(
         shape = shape,
         colors = colors,
         elevation = elevation,
-        border = border?.borderStroke(enabled, selected)?.value,
+        border = border,
         minHeight = InputChipDefaults.Height,
         paddingValues = inputChipPadding(
             hasAvatar = shapedAvatar != null,
@@ -880,9 +880,13 @@ object FilterChipDefaults {
     )
 
     /**
-     * Creates a [SelectableChipBorder] that represents the default border used in a flat
+     * Creates a [BorderStroke] that represents the default border used in a flat
      * [FilterChip].
      *
+     * @param selected whether this chip is selected or not
+     * @param enabled controls the enabled state of this chip. When `false`, this component will not
+     * respond to user input, and it will appear visually disabled and disabled to accessibility
+     * services.
      * @param borderColor the border color of this chip when enabled and not selected
      * @param selectedBorderColor the border color of this chip when enabled and selected
      * @param disabledBorderColor the border color of this chip when not enabled and not
@@ -894,6 +898,8 @@ object FilterChipDefaults {
      */
     @Composable
     fun filterChipBorder(
+        enabled: Boolean,
+        selected: Boolean,
         borderColor: Color = FilterChipTokens.FlatUnselectedOutlineColor.value,
         selectedBorderColor: Color = Color.Transparent,
         disabledBorderColor: Color = FilterChipTokens.FlatDisabledUnselectedOutlineColor.value
@@ -901,14 +907,14 @@ object FilterChipDefaults {
         disabledSelectedBorderColor: Color = Color.Transparent,
         borderWidth: Dp = FilterChipTokens.FlatUnselectedOutlineWidth,
         selectedBorderWidth: Dp = FilterChipTokens.FlatSelectedOutlineWidth,
-    ): SelectableChipBorder = SelectableChipBorder(
-        borderColor = borderColor,
-        selectedBorderColor = selectedBorderColor,
-        disabledBorderColor = disabledBorderColor,
-        disabledSelectedBorderColor = disabledSelectedBorderColor,
-        borderWidth = borderWidth,
-        selectedBorderWidth = selectedBorderWidth
-    )
+    ): BorderStroke {
+        val color = if (enabled) {
+            if (selected) selectedBorderColor else borderColor
+        } else {
+            if (selected) disabledSelectedBorderColor else disabledBorderColor
+        }
+        return BorderStroke(if (selected) selectedBorderWidth else borderWidth, color)
+    }
 
     /**
      * Creates a [SelectableChipColors] that represents the default container and content colors
@@ -1099,8 +1105,12 @@ object InputChipDefaults {
     )
 
     /**
-     * Creates a [SelectableChipBorder] that represents the default border used in an [InputChip].
+     * Creates a [BorderStroke] that represents the default border used in an [InputChip].
      *
+     * @param selected whether this chip is selected or not
+     * @param enabled controls the enabled state of this chip. When `false`, this component will not
+     * respond to user input, and it will appear visually disabled and disabled to accessibility
+     * services.
      * @param borderColor the border color of this chip when enabled and not selected
      * @param selectedBorderColor the border color of this chip when enabled and selected
      * @param disabledBorderColor the border color of this chip when not enabled and not
@@ -1112,6 +1122,8 @@ object InputChipDefaults {
      */
     @Composable
     fun inputChipBorder(
+        enabled: Boolean,
+        selected: Boolean,
         borderColor: Color = InputChipTokens.UnselectedOutlineColor.value,
         selectedBorderColor: Color = Color.Transparent,
         disabledBorderColor: Color = InputChipTokens.DisabledUnselectedOutlineColor.value
@@ -1119,14 +1131,14 @@ object InputChipDefaults {
         disabledSelectedBorderColor: Color = Color.Transparent,
         borderWidth: Dp = InputChipTokens.UnselectedOutlineWidth,
         selectedBorderWidth: Dp = InputChipTokens.SelectedOutlineWidth,
-    ): SelectableChipBorder = SelectableChipBorder(
-        borderColor = borderColor,
-        selectedBorderColor = selectedBorderColor,
-        disabledBorderColor = disabledBorderColor,
-        disabledSelectedBorderColor = disabledSelectedBorderColor,
-        borderWidth = borderWidth,
-        selectedBorderWidth = selectedBorderWidth
-    )
+    ): BorderStroke {
+        val color = if (enabled) {
+            if (selected) selectedBorderColor else borderColor
+        } else {
+            if (selected) disabledSelectedBorderColor else disabledBorderColor
+        }
+        return BorderStroke(if (selected) selectedBorderWidth else borderWidth, color)
+    }
 
     /** Default shape of an input chip. */
     val shape: Shape @Composable get() = InputChipTokens.ContainerShape.value
@@ -1961,63 +1973,6 @@ class SelectableChipColors constructor(
         result = 31 * result + selectedLabelColor.hashCode()
         result = 31 * result + selectedLeadingIconColor.hashCode()
         result = 31 * result + selectedTrailingIconColor.hashCode()
-
-        return result
-    }
-}
-
-/**
- * Represents the border stroke used used in a selectable chip in different states.
- */
-@Immutable
-class SelectableChipBorder internal constructor(
-    private val borderColor: Color,
-    private val selectedBorderColor: Color,
-    private val disabledBorderColor: Color,
-    private val disabledSelectedBorderColor: Color,
-    private val borderWidth: Dp,
-    private val selectedBorderWidth: Dp
-) {
-    /**
-     * Represents the [BorderStroke] stroke used for this chip, depending on [enabled] and
-     * [selected].
-     *
-     * @param enabled whether the chip is enabled
-     * @param selected whether the chip is selected
-     */
-    @Composable
-    internal fun borderStroke(enabled: Boolean, selected: Boolean): State<BorderStroke?> {
-        val color = if (enabled) {
-            if (selected) selectedBorderColor else borderColor
-        } else {
-            if (selected) disabledSelectedBorderColor else disabledBorderColor
-        }
-        return rememberUpdatedState(
-            BorderStroke(if (selected) selectedBorderWidth else borderWidth, color)
-        )
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || other !is SelectableChipBorder) return false
-
-        if (borderColor != other.borderColor) return false
-        if (selectedBorderColor != other.selectedBorderColor) return false
-        if (disabledBorderColor != other.disabledBorderColor) return false
-        if (disabledSelectedBorderColor != other.disabledSelectedBorderColor) return false
-        if (borderWidth != other.borderWidth) return false
-        if (selectedBorderWidth != other.selectedBorderWidth) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = borderColor.hashCode()
-        result = 31 * result + selectedBorderColor.hashCode()
-        result = 31 * result + disabledBorderColor.hashCode()
-        result = 31 * result + disabledSelectedBorderColor.hashCode()
-        result = 31 * result + borderWidth.hashCode()
-        result = 31 * result + selectedBorderWidth.hashCode()
 
         return result
     }
