@@ -102,6 +102,10 @@ constructor(
             config.sharedCameraIds,
             graphListener,
         ) { _ -> isForeground }
+        if (camera == null) {
+            Log.error { "Failed to start Camera2CameraController: Open request submission failed" }
+            return
+        }
 
         check(currentCamera == null)
         check(currentSession == null)
