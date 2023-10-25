@@ -43,6 +43,8 @@ import kotlinx.coroutines.CancellationException
  *                      [AnimationVector]
  * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  *
+ * @param label An optional label for differentiating this animation from others in android studio.
+ *
  * @see animateTo
  * @see animateDecay
  */
