@@ -101,8 +101,8 @@ package androidx.compose.material3.adaptive {
   }
 
   public final class PaneScaffoldDirectiveKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.PaneScaffoldDirective calculateDensePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int hingePolicy);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.PaneScaffoldDirective calculateStandardPaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int hingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.PaneScaffoldDirective calculateDensePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.PaneScaffoldDirective calculateStandardPaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneScaffoldScope {
@@ -110,15 +110,21 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class Posture {
-    ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds);
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getAllHingeBounds();
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getOccludingHingeBounds();
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingHingeBounds();
+    ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingVerticalHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingVerticalHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allVerticalHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> separatingHorizontalHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> occludingHorizontalHingeBounds, optional java.util.List<androidx.compose.ui.geometry.Rect> allHorizontalHingeBounds);
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getAllHorizontalHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getAllVerticalHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getOccludingHorizontalHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getOccludingVerticalHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingHorizontalHingeBounds();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingVerticalHingeBounds();
     method public boolean isTabletop();
-    property public final java.util.List<androidx.compose.ui.geometry.Rect> allHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> allHorizontalHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> allVerticalHingeBounds;
     property public final boolean isTabletop;
-    property public final java.util.List<androidx.compose.ui.geometry.Rect> occludingHingeBounds;
-    property public final java.util.List<androidx.compose.ui.geometry.Rect> separatingHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> occludingHorizontalHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> occludingVerticalHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> separatingHorizontalHingeBounds;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> separatingVerticalHingeBounds;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneScaffoldDefaults {

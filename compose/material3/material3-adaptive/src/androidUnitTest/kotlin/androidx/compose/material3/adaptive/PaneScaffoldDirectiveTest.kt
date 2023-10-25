@@ -261,8 +261,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.AlwaysAvoid
@@ -286,8 +286,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.AvoidOccluding
@@ -311,8 +311,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.NeverAvoid
@@ -336,8 +336,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.AlwaysAvoid
@@ -361,8 +361,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.AvoidOccluding
@@ -386,8 +386,8 @@ class PaneScaffoldDirectiveTest {
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
                 Posture(
-                    allHingeBounds = allHingeBounds,
-                    occludingHingeBounds = occludingHingeBounds
+                    allVerticalHingeBounds = allHingeBounds,
+                    occludingVerticalHingeBounds = occludingHingeBounds
                 )
             ),
             HingePolicy.NeverAvoid
