@@ -71,7 +71,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     private static final String TAG = "RecyclerViewTest";
 
-    private boolean mDebug;
+    private boolean mDebug = true;
 
     protected RecyclerView mRecyclerView;
 
@@ -96,7 +96,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     }
 
     public BaseRecyclerViewInstrumentationTest(boolean debug) {
-        mDebug = debug;
+        mDebug = true;
     }
 
     void checkForMainThreadException() throws Throwable {
