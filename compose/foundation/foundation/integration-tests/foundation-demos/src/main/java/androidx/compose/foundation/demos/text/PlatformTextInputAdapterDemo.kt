@@ -66,7 +66,7 @@ import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
-import androidx.compose.ui.platform.runTextInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntSize
@@ -193,7 +193,7 @@ private class WackyTextFieldModifierNode(private val state: WackyTextState) : Mo
 
                 // In a real app, creating this session would be platform-specific code.
                 // This will cancel any previous request.
-                runTextInputSession {
+                establishTextInputSession {
                     val imm = view.context
                         .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
