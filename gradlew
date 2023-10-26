@@ -263,6 +263,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        --stacktrace\
        -Pandroidx.summarizeStderr\
        -Pandroidx.enableAffectedModuleDetection\
+       -Pandroidx.printTimestamps\
        --no-watch-fs\
        -Pandroidx.highMemory"
     fi
@@ -402,6 +403,9 @@ function runGradle() {
     processOutput=true
   fi
   if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
+    processOutput=true
+  fi
+  if [[ "${@} " =~ " -Pandroidx.printTimestamps " ]]; then
     processOutput=true
   fi
   if [ "$processOutput" == "true" ]; then

@@ -89,6 +89,11 @@ const val PLAYGROUND_SNAPSHOT_BUILD_ID = "androidx.playground.snapshotBuildId"
 const val PLAYGROUND_METALAVA_BUILD_ID = "androidx.playground.metalavaBuildId"
 
 /**
+ * Specifies to prepend the current time to each Gradle log message
+ */
+const val PRINT_TIMESTAMPS = "androidx.printTimestamps"
+
+/**
  * Filepath to the java agent of YourKit for profiling If this value is set, profiling via YourKit
  * will automatically be enabled
  */
@@ -169,6 +174,7 @@ val ALL_ANDROIDX_PROPERTIES =
         AffectedModuleDetector.BASE_COMMIT_ARG,
         PLAYGROUND_SNAPSHOT_BUILD_ID,
         PLAYGROUND_METALAVA_BUILD_ID,
+        PRINT_TIMESTAMPS,
         PROFILE_YOURKIT_AGENT_PATH,
         KMP_GITHUB_BUILD,
         ENABLED_KMP_TARGET_PLATFORMS,
