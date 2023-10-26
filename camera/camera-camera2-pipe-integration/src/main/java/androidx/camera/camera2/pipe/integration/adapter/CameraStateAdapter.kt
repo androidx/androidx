@@ -215,6 +215,7 @@ class CameraStateAdapter @Inject constructor() {
         internal fun CameraError.toCameraStateError(): CameraState.StateError =
             CameraState.StateError.create(
                 when (this) {
+                    CameraError.ERROR_UNDETERMINED -> CameraState.ERROR_CAMERA_FATAL_ERROR
                     CameraError.ERROR_CAMERA_IN_USE -> CameraState.ERROR_CAMERA_IN_USE
                     CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> CameraState.ERROR_MAX_CAMERAS_IN_USE
                     CameraError.ERROR_CAMERA_DISABLED -> CameraState.ERROR_CAMERA_DISABLED
@@ -232,6 +233,8 @@ class CameraStateAdapter @Inject constructor() {
                     CameraError.ERROR_GRAPH_CONFIG -> CameraState.ERROR_STREAM_CONFIG
                     CameraError.ERROR_DO_NOT_DISTURB_ENABLED ->
                         CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED
+
+                    CameraError.ERROR_UNKNOWN_EXCEPTION -> CameraState.ERROR_CAMERA_FATAL_ERROR
 
                     else -> throw IllegalArgumentException("Unexpected CameraError: $this")
                 }

@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.quirk.ControlZoomRatioRangeAssertionErrorQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.nearZero
 
 /**
  * Gets a [CameraCharacteristics] value with additional error handling.
@@ -59,7 +60,25 @@ fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
  */
 @RequiresApi(Build.VERSION_CODES.R)
 fun CameraMetadata.getControlZoomRatioRangeSafely(): Range<Float>? = try {
-    get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+    var range = get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+    if (range == null) {
+        Log.warn { "Failed to read CONTROL_ZOOM_RATIO_RANGE for $camera!" }
+        Range(1.0f, 1.0f)
+    } else {
+        val lower = if (nearZero(range.lower) || range.lower < 0.0f) {
+            Log.warn { "Invalid lower zoom range detected: ${range.lower}" }
+            1.0f
+        } else {
+            range.lower
+        }
+        val upper = if (nearZero(range.upper) || range.upper < 0.0f) {
+            Log.warn { "Invalid upper zoom range detected: ${range.upper}" }
+            1.0f
+        } else {
+            range.upper
+        }
+        Range(lower, upper)
+    }
 } catch (e: AssertionError) {
     if (DeviceQuirks[ControlZoomRatioRangeAssertionErrorQuirk::class.java] != null) {
         Log.debug {
