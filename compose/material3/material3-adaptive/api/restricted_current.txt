@@ -54,11 +54,6 @@ package androidx.compose.material3.adaptive {
     field public static final androidx.compose.material3.adaptive.ListDetailPaneScaffoldDefaults INSTANCE;
   }
 
-  public final class ListDetailPaneScaffoldKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void ListDetailPaneScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> listPane, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.adaptive.ListDetailPaneScaffoldState scaffoldState, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit>? extraPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> detailPane);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.ListDetailPaneScaffoldState rememberListDetailPaneScaffoldState(optional androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective, optional androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional java.util.List<? extends androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole> initialFocusHistory);
-  }
-
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum ListDetailPaneScaffoldRole {
     method public static androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole[] values();
@@ -75,6 +70,11 @@ package androidx.compose.material3.adaptive {
     method public void navigateTo(androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole pane);
     property public abstract androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective;
     property public abstract androidx.compose.material3.adaptive.ThreePaneScaffoldValue scaffoldValue;
+  }
+
+  public final class ListDetailPaneScaffold_androidKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void ListDetailPaneScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> listPane, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.adaptive.ListDetailPaneScaffoldState scaffoldState, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit>? extraPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> detailPane);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.ListDetailPaneScaffoldState rememberListDetailPaneScaffoldState(optional androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective, optional androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional java.util.List<? extends androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole> initialFocusHistory);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedValue {
@@ -132,11 +132,6 @@ package androidx.compose.material3.adaptive {
     field public static final androidx.compose.material3.adaptive.SupportingPaneScaffoldDefaults INSTANCE;
   }
 
-  public final class SupportingPaneScaffoldKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void SupportingPaneScaffold(androidx.compose.material3.adaptive.SupportingPaneScaffoldState scaffoldState, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> supportingPane, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit>? extraPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> mainPane);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.SupportingPaneScaffoldState rememberSupportingPaneScaffoldState(optional androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective, optional androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional java.util.List<? extends androidx.compose.material3.adaptive.SupportingPaneScaffoldRole> initialFocusHistory);
-  }
-
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum SupportingPaneScaffoldRole {
     method public static androidx.compose.material3.adaptive.SupportingPaneScaffoldRole valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.adaptive.SupportingPaneScaffoldRole[] values();
@@ -153,6 +148,11 @@ package androidx.compose.material3.adaptive {
     method public void navigateTo(androidx.compose.material3.adaptive.SupportingPaneScaffoldRole pane);
     property public abstract androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective;
     property public abstract androidx.compose.material3.adaptive.ThreePaneScaffoldValue scaffoldValue;
+  }
+
+  public final class SupportingPaneScaffold_androidKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void SupportingPaneScaffold(androidx.compose.material3.adaptive.SupportingPaneScaffoldState scaffoldState, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> supportingPane, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit>? extraPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.ThreePaneScaffoldScope,kotlin.Unit> mainPane);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.SupportingPaneScaffoldState rememberSupportingPaneScaffoldState(optional androidx.compose.material3.adaptive.PaneScaffoldDirective scaffoldDirective, optional androidx.compose.material3.adaptive.ThreePaneScaffoldAdaptStrategies adaptStrategies, optional java.util.List<? extends androidx.compose.material3.adaptive.SupportingPaneScaffoldRole> initialFocusHistory);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldAdaptStrategies {

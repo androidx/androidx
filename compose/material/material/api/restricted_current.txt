@@ -453,7 +453,7 @@ package androidx.compose.material {
     field public static final androidx.compose.material.ExposedDropdownMenuDefaults INSTANCE;
   }
 
-  public final class ExposedDropdownMenuKt {
+  public final class ExposedDropdownMenu_androidKt {
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void ExposedDropdownMenuBox(boolean expanded, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onExpandedChange, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material.ExposedDropdownMenuBoxScope,kotlin.Unit> content);
   }
 
