@@ -1015,6 +1015,14 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             // make sure that this group is configured to use a single version
             projectGroup.atomicGroupVersion ?: return@afterEvaluate
 
+            // Under certain circumstances, a project is allowed to override its
+            // version see ( isGroupVersionOverrideAllowed ), in which case it's
+            // not participating in the versioning policy yet,
+            // and we don't assign it any version constraints
+            if (extension.mavenVersion != null) {
+                return@afterEvaluate
+            }
+
             // We don't want to emit the same constraint into our .module file more than once,
             // and we don't want to try to apply a constraint to a configuration that doesn't accept
             // them,
