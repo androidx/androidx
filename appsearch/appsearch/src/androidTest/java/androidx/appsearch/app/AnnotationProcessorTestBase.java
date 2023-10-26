@@ -1327,9 +1327,9 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(rootGeneric.getSchemaType()).isEqualTo("InterfaceRoot");
 
         Place place = Place.createPlace("id1", "namespace", 2000, "place_loc");
-        GenericDocument placeGeneric = GenericDocument.fromDocumentClass(place);
-        placeGeneric = placeGeneric.toBuilder().setParentTypes(
-                Collections.singletonList("InterfaceRoot")).build();
+        GenericDocument placeGeneric =
+                new GenericDocument.Builder<>(GenericDocument.fromDocumentClass(place))
+                        .setParentTypes(Collections.singletonList("InterfaceRoot")).build();
         assertThat(placeGeneric.getId()).isEqualTo("id1");
         assertThat(placeGeneric.getNamespace()).isEqualTo("namespace");
         assertThat(placeGeneric.getCreationTimestampMillis()).isEqualTo(2000);
@@ -1342,9 +1342,9 @@ public abstract class AnnotationProcessorTestBase {
                 .setCreationTimestamp(3000)
                 .setOrganizationDescription("organization_dec")
                 .build();
-        GenericDocument organizationGeneric = GenericDocument.fromDocumentClass(organization);
-        organizationGeneric = organizationGeneric.toBuilder().setParentTypes(
-                Collections.singletonList("InterfaceRoot")).build();
+        GenericDocument organizationGeneric =
+                new GenericDocument.Builder<>(GenericDocument.fromDocumentClass(organization))
+                        .setParentTypes(Collections.singletonList("InterfaceRoot")).build();
         assertThat(organizationGeneric.getId()).isEqualTo("id2");
         assertThat(organizationGeneric.getNamespace()).isEqualTo("namespace");
         assertThat(organizationGeneric.getCreationTimestampMillis()).isEqualTo(3000);
@@ -1354,10 +1354,10 @@ public abstract class AnnotationProcessorTestBase {
 
         Business business = Business.createBusiness("id3", "namespace", 4000, "business_loc",
                 "business_dec", "business_name");
-        GenericDocument businessGeneric = GenericDocument.fromDocumentClass(business);
         // At runtime, business is type of BusinessImpl. As a result, the list of parent types
         // for it should contain Business.
-        businessGeneric = businessGeneric.toBuilder().setParentTypes(new ArrayList<>(
+        GenericDocument businessGeneric = new GenericDocument.Builder<>(
+                GenericDocument.fromDocumentClass(business)).setParentTypes(new ArrayList<>(
                 Arrays.asList("Business", "Place", "Organization", "InterfaceRoot"))).build();
         assertThat(businessGeneric.getId()).isEqualTo("id3");
         assertThat(businessGeneric.getNamespace()).isEqualTo("namespace");
