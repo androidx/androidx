@@ -243,7 +243,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.EmProp.Builder setValue(float);
   }
 
-  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension {
+  public static final class DimensionBuilders.ExpandedDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension androidx.wear.protolayout.DimensionBuilders.ImageDimension androidx.wear.protolayout.DimensionBuilders.SpacerDimension {
     method public androidx.wear.protolayout.TypeBuilders.FloatProp? getLayoutWeight();
   }
 

@@ -917,7 +917,8 @@ public final class DimensionBuilders {
      *
      * @since 1.0
      */
-    public static final class ExpandedDimensionProp implements ContainerDimension, ImageDimension {
+    public static final class ExpandedDimensionProp
+            implements ContainerDimension, ImageDimension, SpacerDimension {
         private final DimensionProto.ExpandedDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -992,6 +993,13 @@ public final class DimensionBuilders {
         }
 
         @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.SpacerDimension toSpacerDimensionProto() {
+            return DimensionProto.SpacerDimension.newBuilder().setExpandedDimension(mImpl).build();
+        }
+
+        @Override
         @NonNull
         public String toString() {
             return "ExpandedDimensionProp{" + "layoutWeight=" + getLayoutWeight() + "}";
@@ -999,7 +1007,8 @@ public final class DimensionBuilders {
 
         /** Builder for {@link ExpandedDimensionProp}. */
         public static final class Builder
-                implements ContainerDimension.Builder, ImageDimension.Builder {
+                implements ContainerDimension.Builder, ImageDimension.Builder,
+                SpacerDimension.Builder {
             private final DimensionProto.ExpandedDimensionProp.Builder mImpl =
                     DimensionProto.ExpandedDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-997720604);
@@ -1414,6 +1423,9 @@ public final class DimensionBuilders {
             @NonNull DimensionProto.SpacerDimension proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasLinearDimension()) {
             return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
+        }
+        if (proto.hasExpandedDimension()) {
+            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of SpacerDimension");
     }

@@ -163,6 +163,7 @@ message ImageDimension {
 message SpacerDimension {
   oneof inner {
     DpProp linear_dimension = 1;
+    ExpandedDimensionProp expanded_dimension = 2;
   }
 }
 
