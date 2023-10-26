@@ -1,11 +1,6 @@
 // Signature format: 4.0
 package androidx.compose.foundation {
 
-  public final class AndroidExternalSurfaceKt {
-    method @androidx.compose.runtime.Composable public static void AndroidEmbeddedExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, optional float[]? transform, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
-    method @androidx.compose.runtime.Composable public static void AndroidExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, optional int zOrder, optional boolean isSecure, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
-  }
-
   public interface AndroidExternalSurfaceScope {
     method public void onSurface(kotlin.jvm.functions.Function5<? super androidx.compose.foundation.SurfaceCoroutineScope,? super android.view.Surface,? super java.lang.Integer,? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> onSurface);
   }
@@ -23,6 +18,11 @@ package androidx.compose.foundation {
     property public final int Behind;
     property public final int MediaOverlay;
     property public final int OnTop;
+  }
+
+  public final class AndroidExternalSurface_androidKt {
+    method @androidx.compose.runtime.Composable public static void AndroidEmbeddedExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, optional float[]? transform, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
+    method @androidx.compose.runtime.Composable public static void AndroidExternalSurface(optional androidx.compose.ui.Modifier modifier, optional boolean isOpaque, optional long surfaceSize, optional int zOrder, optional boolean isSecure, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.AndroidExternalSurfaceScope,kotlin.Unit> onInit);
   }
 
   public final class BackgroundKt {
@@ -118,7 +118,7 @@ package androidx.compose.foundation {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static boolean isSystemInDarkTheme();
   }
 
-  public final class ExcludeFromSystemGesture_androidKt {
+  public final class ExcludeFromSystemGestureKt {
     method @Deprecated public static androidx.compose.ui.Modifier excludeFromSystemGesture(androidx.compose.ui.Modifier);
     method @Deprecated public static androidx.compose.ui.Modifier excludeFromSystemGesture(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> exclusion);
   }
@@ -163,7 +163,7 @@ package androidx.compose.foundation {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalFoundationApi {
   }
 
-  public final class MagnifierKt {
+  public final class Magnifier_androidKt {
     method public static androidx.compose.ui.Modifier magnifier(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset> sourceCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset>? magnifierCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.DpSize,kotlin.Unit>? onSizeChanged, optional float zoom, optional long size, optional float cornerRadius, optional float elevation, optional boolean clip);
   }
 
@@ -210,7 +210,7 @@ package androidx.compose.foundation {
     property public final long glowColor;
   }
 
-  public final class OverscrollConfigurationKt {
+  public final class OverscrollConfiguration_androidKt {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.OverscrollConfiguration> getLocalOverscrollConfiguration();
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.OverscrollConfiguration> LocalOverscrollConfiguration;
   }
@@ -228,7 +228,7 @@ package androidx.compose.foundation {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier overscroll(androidx.compose.ui.Modifier, androidx.compose.foundation.OverscrollEffect overscrollEffect);
   }
 
-  public final class PreferKeepClearKt {
+  public final class PreferKeepClear_androidKt {
     method public static androidx.compose.ui.Modifier preferKeepClear(androidx.compose.ui.Modifier);
     method public static androidx.compose.ui.Modifier preferKeepClear(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> rectProvider);
   }
