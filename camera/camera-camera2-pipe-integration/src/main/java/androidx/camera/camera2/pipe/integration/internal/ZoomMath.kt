@@ -47,6 +47,10 @@ object ZoomMath {
             return 0f
         }
 
+        if (nearZero(zoomRatio)) {
+            return 0f
+        }
+
         if (areFloatsEqual(zoomRatio, maxZoomRatio)) {
             return 1f
         } else if (areFloatsEqual(zoomRatio, minZoomRatio)) {
@@ -101,7 +105,7 @@ object ZoomMath {
         return nearZero(num1 - num2)
     }
 
-    private fun nearZero(num: Float): Boolean {
+    internal fun nearZero(num: Float): Boolean {
         return abs(num) < 2.0 * Math.ulp(abs(num))
     }
 }
