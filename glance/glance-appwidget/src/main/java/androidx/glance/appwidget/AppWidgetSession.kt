@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -30,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.EmittableWithChildren
@@ -43,6 +45,7 @@ import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * A session that composes UI for a single app widget.
@@ -56,28 +59,48 @@ import kotlinx.coroutines.channels.Channel
  *
  * @property widget the GlanceAppWidget that contains the composable for this session.
  * @property id identifies which widget will be updated when the UI is ready.
- * @property initialOptions options to be provided to the composition and determine sizing.
  * @property configManager used by the session to retrieve configuration state.
+ * @property lambdaReceiver the BroadcastReceiver that will receive lambda action broadcasts.
+ * @property sizeMode optional override for the widget's specified SizeMode.
+ * @property shouldPublish if true, we will publish RemoteViews with
+ * [android.appwidget.AppWidgetManager.updateAppWidget]. The [id] must be valid
+ * ([AppWidgetId.isRealId]) in that case.
+ * @param initialOptions options to be provided to the composition and determine sizing.
+ * @param initialGlanceState initial value of Glance state
  */
 internal class AppWidgetSession(
     private val widget: GlanceAppWidget,
     private val id: AppWidgetId,
-    private val initialOptions: Bundle? = null,
+    initialOptions: Bundle? = null,
     private val configManager: ConfigManager = GlanceState,
+    private val lambdaReceiver: ComponentName? = null,
+    private val sizeMode: SizeMode = widget.sizeMode,
+    private val shouldPublish: Boolean = true,
+    initialGlanceState: Any? = null,
 ) : Session(id.toSessionKey()) {
+    init {
+        if (id.isFakeId) {
+            require(lambdaReceiver != null) {
+                "If the AppWidgetSession is not created for a bound widget, you must provide " +
+                    "a lambda action receiver"
+            }
+            require(!shouldPublish) {
+                "Cannot publish RemoteViews to AppWidgetManager since we are not running for a " +
+                    "bound widget"
+            }
+        }
+    }
 
     private companion object {
         const val TAG = "AppWidgetSession"
         const val DEBUG = false
     }
 
-    private val glanceState = mutableStateOf<Any?>(null, neverEqualPolicy())
-    private val options = mutableStateOf(Bundle(), neverEqualPolicy())
+    private var glanceState by mutableStateOf(initialGlanceState, neverEqualPolicy())
+    private var options by mutableStateOf(initialOptions ?: Bundle.EMPTY, neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
 
-    @VisibleForTesting
-    internal var lastRemoteViews: RemoteViews? = null
-        private set
+    internal val lastRemoteViews = MutableStateFlow<RemoteViews?>(null)
 
     override fun createRootEmittable() = RemoteViewsRoot(MaxComposeTreeDepth)
 
@@ -85,33 +108,41 @@ internal class AppWidgetSession(
         CompositionLocalProvider(
             LocalContext provides context,
             LocalGlanceId provides id,
-            LocalAppWidgetOptions provides options.value,
-            LocalState provides glanceState.value,
+            LocalAppWidgetOptions provides options,
+            LocalState provides glanceState,
         ) {
-            val manager = remember { context.appWidgetManager }
-            val minSize = remember {
-                appWidgetMinSize(
-                    context.resources.displayMetrics,
-                    manager,
-                    id.appWidgetId
-                )
-            }
+            var minSize by remember { mutableStateOf(DpSize.Zero) }
             val configIsReady by produceState(false) {
-                options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)
-                widget.stateDefinition?.let {
-                    glanceState.value =
-                        configManager.getValue(context, it, key)
+                Snapshot.withMutableSnapshot {
+                    if (id.isRealId) {
+                        // Only get sizing info from app widget manager if we are composing for
+                        // a real bound widget.
+                        val manager = context.appWidgetManager
+                        minSize = appWidgetMinSize(
+                            context.resources.displayMetrics,
+                            manager,
+                            id.appWidgetId
+                        )
+                        options = manager.getAppWidgetOptions(id.appWidgetId)
+                    }
+                    widget.stateDefinition?.let {
+                        glanceState =
+                            configManager.getValue(context, it, key)
+                    }
+                    value = true
                 }
-                value = true
             }
-            remember { widget.runGlance(context, id) }
-                .collectAsState(null)
-                .takeIf { configIsReady }
-                ?.value?.let { ForEachSize(widget.sizeMode, minSize, it) }
-                ?: IgnoreResult()
+            if (configIsReady) {
+                remember { widget.runGlance(context, id) }
+                    .collectAsState(null)
+                    .value?.let { ForEachSize(sizeMode, minSize, it) }
+                    ?: IgnoreResult()
+            } else {
+                IgnoreResult()
+            }
             // The following line ensures that when glanceState is updated, it increases the
             // Recomposer.changeCount and triggers processEmittableTree.
-            SideEffect { glanceState.value }
+            SideEffect { glanceState }
         }
     }
 
@@ -124,9 +155,10 @@ internal class AppWidgetSession(
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
         val appWidgetManager = context.appWidgetManager
         try {
-            val receiver = requireNotNull(appWidgetManager.getAppWidgetInfo(id.appWidgetId)) {
-                "No app widget info for ${id.appWidgetId}"
-            }.provider
+            val receiver = lambdaReceiver
+                ?: requireNotNull(appWidgetManager.getAppWidgetInfo(id.appWidgetId)) {
+                    "No app widget info for ${id.appWidgetId}"
+                }.provider
             normalizeCompositionTree(root)
             lambdas = root.updateLambdaActionKeys()
             val rv = translateComposition(
@@ -138,8 +170,10 @@ internal class AppWidgetSession(
                 DpSize.Unspecified,
                 receiver
             )
-            appWidgetManager.updateAppWidget(id.appWidgetId, rv)
-            lastRemoteViews = rv
+            if (shouldPublish) {
+                appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+            }
+            lastRemoteViews.value = rv
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
@@ -163,7 +197,7 @@ internal class AppWidgetSession(
                     configManager.getValue(context, it, key)
                 }
                 Snapshot.withMutableSnapshot {
-                    glanceState.value = newGlanceState
+                    glanceState = newGlanceState
                 }
             }
             is UpdateAppWidgetOptions -> {
@@ -175,7 +209,7 @@ internal class AppWidgetSession(
                     )
                 }
                 Snapshot.withMutableSnapshot {
-                    options.value = event.newOptions
+                    options = event.newOptions
                 }
             }
             is RunLambda -> {
@@ -218,8 +252,10 @@ internal class AppWidgetSession(
         }
         logException(throwable)
         val rv = RemoteViews(context.packageName, widget.errorUiLayout)
-        context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
-        lastRemoteViews = rv
+        if (shouldPublish) {
+            context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+        }
+        lastRemoteViews.value = rv
     }
 
     // Event types that this session supports.

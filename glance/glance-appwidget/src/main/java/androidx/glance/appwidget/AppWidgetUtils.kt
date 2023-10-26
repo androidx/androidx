@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
@@ -32,6 +33,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,6 +41,8 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.ceil
 import kotlin.math.min
+import kotlin.random.Random
+import kotlin.random.nextInt
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -79,8 +83,11 @@ internal fun appWidgetMinSize(
 }
 
 // Extract the sizes from the bundle
+@SuppressLint("PrimitiveInCollection", "ListIterator")
 @Suppress("DEPRECATION")
-internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
+internal fun Bundle.extractAllSizes(
+    @SuppressLint("PrimitiveInLambda") minSize: () -> DpSize
+): List<DpSize> {
     val sizes = getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
     return if (sizes.isNullOrEmpty()) {
         estimateSizes(minSize)
@@ -92,7 +99,10 @@ internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List<DpSize> {
 // If the list of sizes is not available, estimate it from the min/max width and height.
 // We can assume that the min width and max height correspond to the portrait mode and the max
 // width / min height to the landscape mode.
-private fun Bundle.estimateSizes(minSize: () -> DpSize): List<DpSize> {
+@SuppressLint("PrimitiveInCollection")
+private fun Bundle.estimateSizes(
+    @SuppressLint("PrimitiveInLambda") minSize: () -> DpSize
+): List<DpSize> {
     val minHeight = getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
     val maxHeight = getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0)
     val minWidth = getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
@@ -119,6 +129,7 @@ private fun Bundle.extractPortraitSize(): DpSize? {
     return if (maxHeight == 0 || minWidth == 0) null else DpSize(minWidth.dp, maxHeight.dp)
 }
 
+@SuppressLint("PrimitiveInCollection")
 internal fun Bundle.extractOrientationSizes() =
     listOfNotNull(extractLandscapeSize(), extractPortraitSize())
 
@@ -136,6 +147,7 @@ private fun squareDistance(widgetSize: DpSize, layoutSize: DpSize): Float {
 }
 
 // Find the best size that fits in the available [widgetSize] or null if no layout fits.
+@SuppressLint("ListIterator")
 internal fun findBestSize(widgetSize: DpSize, layoutSizes: Collection<DpSize>): DpSize? =
     layoutSizes.mapNotNull { layoutSize ->
         if (layoutSize fitsIn widgetSize) {
@@ -168,6 +180,7 @@ internal fun AppWidgetProviderInfo.getMinSize(displayMetrics: DisplayMetrics): D
     return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
 }
 
+@SuppressLint("PrimitiveInCollection")
 internal fun Collection<DpSize>.sortedBySize() =
     sortedWith(compareBy({ it.width.value * it.height.value }, { it.width.value }))
 
@@ -249,3 +262,46 @@ internal fun GlanceAppWidget.runGlance(
     }
     withContext(receiver) { provideGlance(context, id) }
 }
+
+internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
+
+@SuppressLint("ListIterator")
+internal fun optionsBundleOf(
+    @SuppressLint("PrimitiveInCollection") sizes: List<DpSize>
+): Bundle {
+    require(sizes.isNotEmpty()) { "There must be at least one size" }
+    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+        DpSize(
+            androidx.compose.ui.unit.min(acc.first.width, s.width),
+            androidx.compose.ui.unit.min(acc.first.height, s.height)
+        ) to
+            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+    }
+    return Bundle().apply {
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
+        putInt(
+            AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
+            minSize.height.value.toInt()
+        )
+        putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, maxSize.width.value.toInt())
+        putInt(
+            AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
+            maxSize.height.value.toInt()
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val sizeList = sizes.map { it.toSizeF() }.toArrayList()
+            putParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES, sizeList)
+        }
+    }
+}
+
+// Create a fake ID that we can use for sessions that do not publish to a bound app widget.
+internal fun createFakeAppWidgetId(): AppWidgetId =
+    AppWidgetId(Random.nextInt(Int.MIN_VALUE..-2))
+
+internal val AppWidgetId.isFakeId
+    get() = appWidgetId in Int.MIN_VALUE..-2
+
+// Added as a convenience for better readability.
+internal val AppWidgetId.isRealId
+    get() = !isFakeId
