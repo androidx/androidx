@@ -17,7 +17,6 @@
 package androidx.camera.effects.opengl
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -28,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.effects.internal.Utils.lockCanvas
 import androidx.camera.testing.impl.TestImageUtil.createBitmap
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -63,12 +63,12 @@ class GlRendererDeviceTest {
     }
 
     private val input = createBitmap(WIDTH, HEIGHT)
-    private val overlay = createOverlayBitmap()
-    private val transparentOverlay = createTransparentOverlay()
 
     private lateinit var glRenderer: GlRenderer
     private lateinit var inputSurface: Surface
     private lateinit var inputTexture: SurfaceTexture
+    private lateinit var overlaySurface: Surface
+    private lateinit var overlayTexture: SurfaceTexture
     private lateinit var inputExecutor: ExecutorService
 
     private lateinit var outputSurface: Surface
@@ -93,6 +93,8 @@ class GlRendererDeviceTest {
             }
             outputTexture.release()
             outputSurface.release()
+            overlayTexture.release()
+            outputSurface.release()
         }
         inputExecutor.shutdown()
     }
@@ -109,9 +111,9 @@ class GlRendererDeviceTest {
 
     @Test
     fun drawInputToQueue_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        // Arrange: upload a overlay and create a texture queue.
+        // Arrange: draw overlay with queue.
         initGlRenderer(1)
-        glRenderer.uploadOverlay(overlay)
+        drawOverlay()
         drawInputSurface(input)
         val queue = glRenderer.createBufferTextureIds(Size(WIDTH, HEIGHT))
         // Act: draw input to the queue and then to the output.
@@ -123,10 +125,22 @@ class GlRendererDeviceTest {
     }
 
     @Test
-    fun drawInputWithoutOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
-        // Arrange: upload a transparent overlay.
+    fun drawInputWithOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
+        // Arrange: draw overlay with no queue.
         initGlRenderer(NO_QUEUE)
-        glRenderer.uploadOverlay(transparentOverlay)
+        drawOverlay()
+        drawInputSurface(input)
+        // Act.
+        val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
+        // Assert: the output is the input with overlay.
+        assertOverlayColor(output)
+    }
+
+    @Test
+    fun drawInputWithoutOverlay_snapshot() = runBlocking(inputExecutor.asCoroutineDispatcher()) {
+        // Arrange: draw transparent overlay with queue.
+        initGlRenderer(NO_QUEUE)
+        drawTransparentOverlay()
         drawInputSurface(input)
         // Act.
         val output = glRenderer.renderInputToBitmap(WIDTH, HEIGHT, identityMatrix)
@@ -160,6 +174,10 @@ class GlRendererDeviceTest {
                 setDefaultBufferSize(WIDTH, HEIGHT)
             }
             inputSurface = Surface(inputTexture)
+            overlayTexture = SurfaceTexture(glRenderer.overlayTextureId).apply {
+                setDefaultBufferSize(WIDTH, HEIGHT)
+            }
+            overlaySurface = Surface(overlayTexture)
         }
         outputTexture = SurfaceTexture(0).apply {
             setDefaultBufferSize(WIDTH, HEIGHT)
@@ -212,7 +230,7 @@ class GlRendererDeviceTest {
         }, Handler(Looper.getMainLooper()))
 
         // Draw bitmap to inputSurface.
-        val canvas = inputSurface.lockCanvas(null)
+        val canvas = lockCanvas(inputSurface)
         canvas.drawBitmap(bitmap, 0f, 0f, null)
         inputSurface.unlockCanvasAndPost(canvas)
 
@@ -223,31 +241,43 @@ class GlRendererDeviceTest {
         inputTexture.updateTexImage()
     }
 
-    /**
-     * Creates a bitmap with a white top-left quadrant.
-     */
-    private fun createOverlayBitmap(): Bitmap {
-        val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
+    private suspend fun drawOverlay() {
+        val deferredOnFrameAvailable = CompletableDeferred<Unit>()
+        overlayTexture.setOnFrameAvailableListener({
+            deferredOnFrameAvailable.complete(Unit)
+        }, Handler(Looper.getMainLooper()))
+
+        val canvas = lockCanvas(overlaySurface)
         val centerX = (WIDTH / 2).toFloat()
         val centerY = (HEIGHT / 2).toFloat()
-
-        val canvas = Canvas(bitmap)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
 
         val paint = Paint()
         paint.style = Paint.Style.FILL
         paint.color = Color.WHITE
         canvas.drawRect(0f, 0f, centerX, centerY, paint)
-        return bitmap
+        overlaySurface.unlockCanvasAndPost(canvas)
+
+        // Wait for frame available and update texture.
+        withTimeoutOrNull(5_000) {
+            deferredOnFrameAvailable.await()
+        } ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
+        overlayTexture.updateTexImage()
     }
 
-    /**
-     * Creates a transparent bitmap.
-     */
-    private fun createTransparentOverlay(): Bitmap {
-        val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
+    private suspend fun drawTransparentOverlay() {
+        val deferredOnFrameAvailable = CompletableDeferred<Unit>()
+        overlayTexture.setOnFrameAvailableListener({
+            deferredOnFrameAvailable.complete(Unit)
+        }, Handler(Looper.getMainLooper()))
+        val canvas = lockCanvas(overlaySurface)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        return bitmap
+        overlaySurface.unlockCanvasAndPost(canvas)
+
+        // Wait for frame available and update texture.
+        withTimeoutOrNull(5_000) {
+            deferredOnFrameAvailable.await()
+        } ?: Assert.fail("Timed out waiting for SurfaceTexture frame available.")
+        overlayTexture.updateTexImage()
     }
 }
