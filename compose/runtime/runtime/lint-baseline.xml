@@ -61,7 +61,7 @@
         errorLine1="            val useDefault ="
         errorLine2="            ^">
         <location
-            file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.kt"/>
+            file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.jvm.kt"/>
     </issue>
 
     <issue
