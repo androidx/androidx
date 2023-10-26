@@ -23,6 +23,7 @@ import android.graphics.ColorSpace
 import android.graphics.Paint
 import android.hardware.DataSpace
 import android.os.Build
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
@@ -39,6 +40,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.roundToInt
@@ -655,8 +657,10 @@ class CanvasFrontBufferedRendererTest {
         var scenario: ActivityScenario<SurfaceViewTestActivity>? = null
         val destroyLatch = CountDownLatch(1)
         try {
-            Assert.assertTrue(automation.setRotation(rotation))
-            automation.waitForIdle(1000, 3000)
+            if (!automation.rotateOrientation(rotation)) {
+                Log.w(TAG, "device rotation unsuccessful")
+                return
+            }
 
             scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
@@ -708,14 +712,36 @@ class CanvasFrontBufferedRendererTest {
                     bottomLeftActual == bottomLeftColor
             }
         } finally {
-            renderer.blockingRelease()
-            automation.setRotation(UiAutomation.ROTATION_UNFREEZE)
+            renderer?.blockingRelease()
+            automation.rotateOrientation(UiAutomation.ROTATION_UNFREEZE)
             automation.waitForIdle(1000, 3000)
             if (scenario != null) {
                 scenario.moveToState(Lifecycle.State.DESTROYED)
                 assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
             }
         }
+    }
+
+    /**
+     * Helper method to attempt to configure the device to the specified orientation and
+     * waits for the device to idle in the new orientation before continuing.
+     * Returns true if the request to rotate to the new orientation was successful and a timeout
+     * did not occur while waiting for the device to settle.
+     * This attempts to rotate the device 3 times before failing.
+     */
+    private fun UiAutomation.rotateOrientation(rotation: Int): Boolean {
+        var rotationCount = 0
+        var rotateSuccess = false
+        while (rotationCount < 3 && !rotateSuccess) {
+            rotateSuccess = setRotation(rotation)
+            try {
+                waitForIdle(1000, 3000)
+            } catch (timeout: TimeoutException) {
+                rotateSuccess = false
+            }
+            rotationCount++
+        }
+        return rotateSuccess
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
@@ -1325,6 +1351,10 @@ class CanvasFrontBufferedRendererTest {
     }
 
     private val executor = Executors.newSingleThreadExecutor()
+
+    private companion object {
+        val TAG = "CanvasFrontBufferTest"
+    }
 }
 
 typealias CanvasFrontBufferTestCallback<T> = (
