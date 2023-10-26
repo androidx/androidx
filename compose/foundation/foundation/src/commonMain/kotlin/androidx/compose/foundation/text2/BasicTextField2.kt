@@ -142,11 +142,14 @@ import androidx.compose.ui.unit.Density
  * specifying the [codepointTransformation] parameter, a [CodepointTransformation] is automatically
  * applied. This transformation replaces any newline characters ('\n') within the text with regular
  * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object contains paragraph information, size of the text, baselines and other
- * details. The callback can be used to add additional decoration or functionality to the text.
- * For example, to draw a cursor or selection around the text. [Density] scope is the one that was
- * used while creating the given text layout.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
@@ -176,7 +179,7 @@ fun BasicTextField2(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
@@ -285,11 +288,14 @@ fun BasicTextField2(
  * specifying the [codepointTransformation] parameter, a [CodepointTransformation] is automatically
  * applied. This transformation replaces any newline characters ('\n') within the text with regular
  * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object contains paragraph information, size of the text, baselines and other
- * details. The callback can be used to add additional decoration or functionality to the text.
- * For example, to draw a cursor or selection around the text. [Density] scope is the one that was
- * used while creating the given text layout.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
@@ -318,7 +324,7 @@ fun BasicTextField2(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     codepointTransformation: CodepointTransformation? = null,
