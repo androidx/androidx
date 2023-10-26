@@ -1,13 +1,6 @@
 // Signature format: 4.0
 package androidx.graphics.shapes {
 
-  public final class AndroidKt {
-    method public static android.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional android.graphics.Path path);
-    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon);
-    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional android.graphics.Path path);
-    method public static androidx.graphics.shapes.RoundedPolygon transformed(androidx.graphics.shapes.RoundedPolygon, android.graphics.Matrix matrix);
-  }
-
   public final class CornerRounding {
     ctor public CornerRounding(optional @FloatRange(from=0.0) float radius, optional @FloatRange(from=0.0, to=1.0) float smoothing);
     method public float getRadius();
@@ -133,6 +126,13 @@ package androidx.graphics.shapes {
     method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding);
     method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding, optional float centerX);
     method public static androidx.graphics.shapes.RoundedPolygon star(androidx.graphics.shapes.RoundedPolygon.Companion, int numVerticesPerRadius, optional float radius, optional float innerRadius, optional androidx.graphics.shapes.CornerRounding rounding, optional androidx.graphics.shapes.CornerRounding? innerRounding, optional java.util.List<androidx.graphics.shapes.CornerRounding>? perVertexRounding, optional float centerX, optional float centerY);
+  }
+
+  public final class Shapes_androidKt {
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional android.graphics.Path path);
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon);
+    method public static android.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional android.graphics.Path path);
+    method public static androidx.graphics.shapes.RoundedPolygon transformed(androidx.graphics.shapes.RoundedPolygon, android.graphics.Matrix matrix);
   }
 
 }
