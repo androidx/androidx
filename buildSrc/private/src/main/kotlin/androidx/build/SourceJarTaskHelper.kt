@@ -31,6 +31,7 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -152,7 +153,7 @@ fun Project.configureSourceJarForMultiplatform() {
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
             it.metadataFile.set(metadataFile)
-            it.sourceSetJson = createSourceSetMetadata(extension)
+            it.sourceSetMetadata = project.provider { createSourceSetMetadata(extension) }
         }
     val sourceJar =
         tasks.register("multiplatformSourceJar", Jar::class.java) { task ->
@@ -240,7 +241,7 @@ private fun KotlinTarget.mainCompilation() =
  */
 @CacheableTask
 abstract class CreateMultiplatformMetadata : DefaultTask() {
-    @Input lateinit var sourceSetJson: String
+    @Input lateinit var sourceSetMetadata: Provider<Map<String, Any>>
 
     @get:OutputFile abstract val metadataFile: RegularFileProperty
 
@@ -249,12 +250,13 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
         metadataFile.get().asFile.apply {
             parentFile.mkdirs()
             createNewFile()
-            writeText(sourceSetJson)
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            writeText(gson.toJson(sourceSetMetadata.get()))
         }
     }
 }
 
-fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
+fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String, Any> {
     val commonMain = extension.sourceSets.getByName("commonMain")
     val sourceSetsByName =
         mutableMapOf(
@@ -276,10 +278,7 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): String {
             }
         }
     }
-    val sourceSetMetadata =
-        mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
-    val gson = GsonBuilder().setPrettyPrinting().create()
-    return gson.toJson(sourceSetMetadata)
+    return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
 }
 
 internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structure-metadata.json"
