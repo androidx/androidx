@@ -30,7 +30,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
-import androidx.compose.ui.platform.runTextInputSession
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -204,7 +204,7 @@ class AndroidTextInputSessionTest {
         onImeAction: (ImeAction) -> Unit = {}
     ) {
         coroutineScope.launch {
-            textInputNode.runTextInputSession {
+            textInputNode.establishTextInputSession {
                 inputSessionWithDefaultsForTest(
                     state,
                     imeOptions,
