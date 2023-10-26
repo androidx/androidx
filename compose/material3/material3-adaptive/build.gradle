@@ -37,7 +37,6 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:foundation:foundation"))
                 implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-window-size-class"))
                 implementation(project(":compose:ui:ui-util"))
             }
@@ -82,6 +81,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
+                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:test-utils"))
                 implementation(project(":window:window-testing"))
                 implementation(libs.junit)
@@ -109,7 +109,6 @@ androidx {
     name = "Material Adaptive"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
 }
