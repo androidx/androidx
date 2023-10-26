@@ -50,7 +50,7 @@ internal data class TextFieldTextLayoutModifier(
     private val textFieldState: TransformedTextFieldState,
     private val textStyle: TextStyle,
     private val singleLine: Boolean,
-    private val onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
+    private val onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
 ) : ModifierNodeElement<TextFieldTextLayoutModifierNode>() {
     override fun create(): TextFieldTextLayoutModifierNode = TextFieldTextLayoutModifierNode(
         textLayoutState = textLayoutState,
@@ -80,7 +80,7 @@ internal class TextFieldTextLayoutModifierNode(
     textFieldState: TransformedTextFieldState,
     textStyle: TextStyle,
     private var singleLine: Boolean,
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
 ) : Modifier.Node(),
     LayoutModifierNode,
     GlobalPositionAwareModifierNode,
@@ -104,7 +104,7 @@ internal class TextFieldTextLayoutModifierNode(
         textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
         singleLine: Boolean,
-        onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit
+        onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
     ) {
         this.textLayoutState = textLayoutState
         this.textLayoutState.onTextLayout = onTextLayout

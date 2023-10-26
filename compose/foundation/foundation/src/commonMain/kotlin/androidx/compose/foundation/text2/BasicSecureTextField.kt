@@ -122,12 +122,15 @@ import kotlinx.coroutines.launch
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, there will be no cursor drawn
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
- * scope is the one that was used while creating the given text layout.
+ * provided, there will be no cursor drawn.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
@@ -149,7 +152,7 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -239,12 +242,15 @@ fun BasicSecureTextField(
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
- * provided, there will be no cursor drawn
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
- * scope is the one that was used while creating the given text layout.
+ * provided, there will be no cursor drawn.
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ * or null if it cannot. The function reads the layout result from a snapshot state object, and will
+ * invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ * paragraph information, size of the text, baselines and other details. The callback can be used to
+ * add additional decoration or functionality to the text. For example, to draw a cursor or
+ * selection around the text. [Density] scope is the one that was used while creating the given text
+ * layout.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param scrollState Used to manage the horizontal scroll when the input content exceeds the
@@ -267,7 +273,7 @@ fun BasicSecureTextField(
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    onTextLayout: Density.(getResult: () -> TextLayoutResult?) -> Unit = {},
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
