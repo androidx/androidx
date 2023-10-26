@@ -97,6 +97,18 @@ class BluetoothLe(private val context: Context) {
         }
     }
 
+    @RequiresApi(31)
+    private object BluetoothLeApi31Impl {
+        @JvmStatic
+        @DoNotInline
+        fun addServiceSolicitationUuid(
+            builder: AdvertiseData.Builder,
+            parcelUuid: ParcelUuid
+        ) {
+            builder.addServiceSolicitationUuid(parcelUuid)
+        }
+    }
+
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
@@ -183,9 +195,10 @@ class BluetoothLe(private val context: Context) {
             advertiseParams.serviceUuids.forEach {
                 addServiceUuid(ParcelUuid(it))
             }
-            advertiseParams.serviceSolicitationUuids.forEach {
-                // TODO(b/304648022) This is added in API 31. It will crash on API 30.
-                addServiceSolicitationUuid(ParcelUuid(it))
+            if (Build.VERSION.SDK_INT >= 31) {
+                advertiseParams.serviceSolicitationUuids.forEach {
+                    BluetoothLeApi31Impl.addServiceSolicitationUuid(this, ParcelUuid(it))
+                }
             }
             build()
         }

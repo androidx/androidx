@@ -107,6 +107,7 @@ class GattClient(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =
         if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
+        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31()
         else FrameworkAdapterBase()
 
     private sealed interface CallbackResult {
@@ -404,7 +405,7 @@ class GattClient(private val context: Context) {
     private open class FrameworkAdapterBase : FrameworkAdapter {
         override var bluetoothGatt: BluetoothGatt? = null
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun connectGatt(
             context: Context,
             device: FwkDevice,
@@ -414,12 +415,12 @@ class GattClient(private val context: Context) {
             return bluetoothGatt != null
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun requestMtu(mtu: Int) {
             bluetoothGatt?.requestMtu(mtu)
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun discoverServices() {
             bluetoothGatt?.discoverServices()
         }
@@ -432,13 +433,13 @@ class GattClient(private val context: Context) {
             return bluetoothGatt?.getService(uuid)
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun readCharacteristic(characteristic: FwkCharacteristic) {
             bluetoothGatt?.readCharacteristic(characteristic)
         }
 
         @Suppress("DEPRECATION")
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun writeCharacteristic(
             characteristic: FwkCharacteristic,
             value: ByteArray,
@@ -449,13 +450,13 @@ class GattClient(private val context: Context) {
         }
 
         @Suppress("DEPRECATION")
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun writeDescriptor(descriptor: FwkDescriptor, value: ByteArray) {
             descriptor.value = value
             bluetoothGatt?.writeDescriptor(descriptor)
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun setCharacteristicNotification(
             characteristic: FwkCharacteristic,
             enable: Boolean
@@ -463,15 +464,69 @@ class GattClient(private val context: Context) {
             bluetoothGatt?.setCharacteristicNotification(characteristic, enable)
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun closeGatt() {
             bluetoothGatt?.close()
             bluetoothGatt?.disconnect()
         }
     }
 
+    @RequiresApi(31)
+    private open class FrameworkAdapterApi31 : FrameworkAdapterBase() {
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun connectGatt(
+            context: Context,
+            device: FwkDevice,
+            callback: BluetoothGattCallback
+        ): Boolean {
+            return super.connectGatt(context, device, callback)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun requestMtu(mtu: Int) {
+            return super.requestMtu(mtu)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun discoverServices() {
+            return super.discoverServices()
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun readCharacteristic(characteristic: FwkCharacteristic) {
+            return super.readCharacteristic(characteristic)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeCharacteristic(
+            characteristic: FwkCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ) {
+            return super.writeCharacteristic(characteristic, value, writeType)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun writeDescriptor(descriptor: FwkDescriptor, value: ByteArray) {
+            return super.writeDescriptor(descriptor, value)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun setCharacteristicNotification(
+            characteristic: FwkCharacteristic,
+            enable: Boolean
+        ) {
+            return super.setCharacteristicNotification(characteristic, enable)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun closeGatt() {
+            return super.closeGatt()
+        }
+    }
+
     @RequiresApi(33)
-    private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
+    private open class FrameworkAdapterApi33 : FrameworkAdapterApi31() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun writeCharacteristic(
             characteristic: FwkCharacteristic,

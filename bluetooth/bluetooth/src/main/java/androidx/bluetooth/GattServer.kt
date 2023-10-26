@@ -109,6 +109,7 @@ class GattServer(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =
         if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
+        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31()
         else FrameworkAdapterBase()
 
     suspend fun <R> open(
@@ -425,7 +426,8 @@ class GattServer(private val context: Context) {
     private open class FrameworkAdapterBase : FrameworkAdapter {
         override var gattServer: BluetoothGattServer? = null
         private val isOpen = AtomicBoolean(false)
-        @RequiresPermission(BLUETOOTH_CONNECT)
+
+        @SuppressLint("MissingPermission")
         override fun openGattServer(context: Context, callback: BluetoothGattServerCallback) {
             if (!isOpen.compareAndSet(false, true))
                 throw IllegalStateException("GATT server is already opened")
@@ -433,25 +435,25 @@ class GattServer(private val context: Context) {
             gattServer = bluetoothManager?.openGattServer(context, callback)
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun closeGattServer() {
             if (!isOpen.compareAndSet(true, false))
                 throw IllegalStateException("GATT server is already closed")
             gattServer?.close()
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun clearServices() {
             gattServer?.clearServices()
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun addService(service: FwkService) {
             gattServer?.addService(service)
         }
 
         @Suppress("DEPRECATION")
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun notifyCharacteristicChanged(
             device: FwkDevice,
             characteristic: FwkCharacteristic,
@@ -464,7 +466,7 @@ class GattServer(private val context: Context) {
             }
         }
 
-        @RequiresPermission(BLUETOOTH_CONNECT)
+        @SuppressLint("MissingPermission")
         override fun sendResponse(
             device: FwkDevice,
             requestId: Int,
@@ -476,8 +478,53 @@ class GattServer(private val context: Context) {
         }
     }
 
+    @RequiresApi(31)
+    private open class FrameworkAdapterApi31 : FrameworkAdapterBase() {
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun openGattServer(context: Context, callback: BluetoothGattServerCallback) {
+            return super.openGattServer(context, callback)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun closeGattServer() {
+            return super.closeGattServer()
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun clearServices() {
+            return super.clearServices()
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun addService(service: FwkService) {
+            return super.addService(service)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun notifyCharacteristicChanged(
+            device: FwkDevice,
+            characteristic: FwkCharacteristic,
+            confirm: Boolean,
+            value: ByteArray
+        ): Int? {
+            return super.notifyCharacteristicChanged(device, characteristic, confirm, value)
+        }
+
+        @RequiresPermission(BLUETOOTH_CONNECT)
+        override fun sendResponse(
+            device: FwkDevice,
+            requestId: Int,
+            status: Int,
+            offset: Int,
+            value: ByteArray?
+        ) {
+            return super.sendResponse(device, requestId, status, offset, value)
+        }
+    }
+
     @RequiresApi(33)
-    private open class FrameworkAdapterApi33 : FrameworkAdapterBase() {
+    private open class FrameworkAdapterApi33 : FrameworkAdapterApi31() {
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun notifyCharacteristicChanged(
             device: FwkDevice,
