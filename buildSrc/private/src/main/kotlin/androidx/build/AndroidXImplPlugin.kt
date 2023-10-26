@@ -746,8 +746,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 extension.type == LibraryType.PUBLISHED_LIBRARY ||
                     extension.type == LibraryType.UNSET
             if (mavenGroup != null && isProbablyPublished && extension.shouldPublish()) {
-                validateProjectStructure(mavenGroup.group)
+                validateProjectMavenGroup(mavenGroup.group)
                 validateProjectMavenName(extension.name.get(), mavenGroup.group)
+                validateProjectStructure(mavenGroup.group)
             }
         }
     }
