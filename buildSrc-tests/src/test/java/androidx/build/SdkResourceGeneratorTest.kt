@@ -38,7 +38,9 @@ class SdkResourceGeneratorTest {
             "androidXConfiguration",
             AndroidXConfigImpl::class.java,
             project.provider { KotlinVersion.KOTLIN_1_7 },
-            project.provider { "1.7.10" }
+            project.provider { "1.7.10" },
+            project.provider { KotlinVersion.KOTLIN_1_9 },
+            project.provider { "1.9.20" }
         )
 
         project.setSupportRootFolder(File("files/support"))
@@ -68,6 +70,8 @@ class SdkResourceGeneratorTest {
 
     internal open class AndroidXConfigImpl(
         override val kotlinApiVersion: Provider<KotlinVersion>,
-        override val kotlinBomVersion: Provider<String>
+        override val kotlinBomVersion: Provider<String>,
+        override val kotlinTestApiVersion: Provider<KotlinVersion>,
+        override val kotlinTestBomVersion: Provider<String>
     ) : AndroidXConfiguration
 }
