@@ -445,6 +445,34 @@ public final class CaptureSessionTest {
         assertThat(latch1.await(2, TimeUnit.SECONDS)).isTrue();
     }
 
+    @Test
+    public void openCaptureSessionWithSessionType() {
+        // 1. Arrange
+        final int sessionTypeToVerify = 2;
+        DeferrableSurface surface = createSurfaceTextureDeferrableSurface();
+        SessionConfig.OutputConfig outputConfig0 =
+                SessionConfig.OutputConfig.builder(surface).build();
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addOutputConfig(outputConfig0)
+                        .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        .setSessionType(sessionTypeToVerify)
+                        .build();
+        FakeOpener fakeOpener = new FakeOpener();
+
+        // 2. Act
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
+        captureSession.setSessionConfig(sessionConfig); // set repeating request
+        captureSession.open(sessionConfig,
+                mCameraDeviceHolder.get(), fakeOpener);
+        ArgumentCaptor<SessionConfigurationCompat> captor =
+                ArgumentCaptor.forClass(SessionConfigurationCompat.class);
+
+        // 3. Assert
+        verify(fakeOpener.mMock).openCaptureSession(any(), captor.capture(), any());
+        assertThat(captor.getValue().getSessionType()).isEqualTo(sessionTypeToVerify);
+    }
+
     // LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID is supported since API 29
     @SdkSuppress(minSdkVersion = 29)
     @Test
