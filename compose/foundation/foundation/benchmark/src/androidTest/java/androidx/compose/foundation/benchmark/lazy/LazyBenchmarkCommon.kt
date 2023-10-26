@@ -20,12 +20,11 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
+import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.ViewRootForTest
 
 internal object NoFlingBehavior : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
@@ -97,38 +96,24 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(
 
         measureRepeated {
             runWithTimingDisabled {
-                assertNoPendingRecompositionMeasureOrLayout()
+                assertNoPendingChanges()
                 getTestCase().beforeToggle()
-                if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
+                if (hasPendingChanges()) {
                     doFrame()
                 }
-                assertNoPendingRecompositionMeasureOrLayout()
+                assertNoPendingChanges()
             }
             getTestCase().toggle()
             if (hasPendingChanges()) {
-                recompose()
-            }
-            if (hasPendingMeasureOrLayout()) {
-                measure()
-                layout()
+                doFrame()
             }
             runWithTimingDisabled {
-                assertNoPendingRecompositionMeasureOrLayout()
+                assertNoPendingChanges()
                 getTestCase().afterToggle()
-                assertNoPendingRecompositionMeasureOrLayout()
+                assertNoPendingChanges()
             }
         }
     }
-}
-
-private fun ComposeExecutionControl.assertNoPendingRecompositionMeasureOrLayout() {
-    if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
-        throw AssertionError("Expected no pending changes but there were some.")
-    }
-}
-
-private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
-    return (getHostView() as ViewRootForTest).hasPendingMeasureOrLayout
 }
 
 // TODO(b/169852102 use existing public constructs instead)

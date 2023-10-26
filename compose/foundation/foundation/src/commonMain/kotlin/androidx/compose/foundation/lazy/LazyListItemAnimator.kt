@@ -171,7 +171,6 @@ internal class LazyListItemAnimator {
                 keyToItemInfoMap.remove(key)
             } else {
                 val item = itemProvider.getAndMeasure(newIndex)
-                item.nonScrollableItem = true
                 val itemInfo = keyToItemInfoMap.getValue(key)
                 // check if we have any active placement animation on the item
                 val inProgress =
