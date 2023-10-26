@@ -257,53 +257,26 @@ package androidx.compose.ui.draganddrop {
     ctor public DragAndDropEvent(android.view.DragEvent dragEvent);
   }
 
-  @kotlin.jvm.JvmInline public final value class DragAndDropEventType {
-    field public static final androidx.compose.ui.draganddrop.DragAndDropEventType.Companion Companion;
-  }
-
-  public static final class DragAndDropEventType.Companion {
-    method public int getChanged();
-    method public int getDropped();
-    method public int getEnded();
-    method public int getEntered();
-    method public int getExited();
-    method public int getMoved();
-    method public int getStarted();
-    method public int getUnknown();
-    property public final int Changed;
-    property public final int Dropped;
-    property public final int Ended;
-    property public final int Entered;
-    property public final int Exited;
-    property public final int Moved;
-    property public final int Started;
-    property public final int Unknown;
-  }
-
-  public final class DragAndDropInfo {
-    ctor public DragAndDropInfo(long dragDecorationSize, androidx.compose.ui.draganddrop.DragAndDropTransfer transfer, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
-    method public long getDragDecorationSize();
-    method public kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> getDrawDragDecoration();
-    method public androidx.compose.ui.draganddrop.DragAndDropTransfer getTransfer();
-    property public final long dragDecorationSize;
-    property public final kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration;
-    property public final androidx.compose.ui.draganddrop.DragAndDropTransfer transfer;
-  }
-
   public interface DragAndDropModifierNode extends androidx.compose.ui.node.DelegatableNode androidx.compose.ui.draganddrop.DragAndDropTarget {
-    method public void drag(androidx.compose.ui.draganddrop.DragAndDropInfo dragAndDropInfo);
+    method public void drag(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData, long dragDecorationSize, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
   }
 
   public final class DragAndDropNodeKt {
-    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget> onDragAndDropEvent);
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget> onDragAndDropStart);
   }
 
-  public fun interface DragAndDropTarget {
-    method public boolean onDragAndDropEvent(androidx.compose.ui.draganddrop.DragAndDropEvent event, int type);
+  public interface DragAndDropTarget {
+    method public void onChanged(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public boolean onDropped(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public void onEnded(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public void onEntered(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public void onExited(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public void onMoved(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public boolean onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent event);
   }
 
-  public final class DragAndDropTransfer {
-    ctor public DragAndDropTransfer(android.content.ClipData clipData, optional Object? localState, optional int flags);
+  public final class DragAndDropTransferData {
+    ctor public DragAndDropTransferData(android.content.ClipData clipData, optional Object? localState, optional int flags);
     method public android.content.ClipData getClipData();
     method public int getFlags();
     method public Object? getLocalState();

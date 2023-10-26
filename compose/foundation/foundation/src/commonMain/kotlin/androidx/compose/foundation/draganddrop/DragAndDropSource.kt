@@ -18,9 +18,8 @@ package androidx.compose.foundation.draganddrop
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropInfo
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
-import androidx.compose.ui.draganddrop.DragAndDropTransfer
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
@@ -38,10 +37,10 @@ import androidx.compose.ui.unit.toSize
 @ExperimentalFoundationApi
 interface DragAndDropSourceScope : PointerInputScope {
     /**
-     * Starts a drag and drop session with [transfer] as the data to be transferred on gesture
+     * Starts a drag and drop session with [transferData] as the data to be transferred on gesture
      * completion
      */
-    fun startTransfer(transfer: DragAndDropTransfer)
+    fun startTransfer(transferData: DragAndDropTransferData)
 }
 
 /**
@@ -113,13 +112,11 @@ internal class DragAndDropSourceNode(
             SuspendingPointerInputModifierNode {
                 dragAndDropSourceHandler(
                     object : DragAndDropSourceScope, PointerInputScope by this {
-                        override fun startTransfer(transfer: DragAndDropTransfer) =
+                        override fun startTransfer(transferData: DragAndDropTransferData) =
                             dragAndDropModifierNode.drag(
-                                DragAndDropInfo(
-                                    transfer = transfer,
-                                    dragDecorationSize = size.toSize(),
-                                    drawDragDecoration = drawDragDecoration
-                                )
+                                transferData = transferData,
+                                dragDecorationSize = size.toSize(),
+                                drawDragDecoration = drawDragDecoration
                             )
                     }
                 )

@@ -19,7 +19,6 @@ package androidx.compose.foundation.draganddrop
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropEventType
 import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.node.DelegatingNode
@@ -38,33 +37,33 @@ import androidx.compose.ui.platform.InspectorInfo
  * returning true indicates interest in a [DragAndDropEvent], false indicates no interest. If false
  * is returned, this [Modifier] will not receive any events for this drag and drop session until the
  * [onEnded] signal. All drag and drop target modifiers in the hierarchy will receive this event.
- * @see [DragAndDropEventType.Started]
+ * @see [DragAndDropTarget.onStarted]
  *
  * @param onDropped The item has been dropped inside this Composable.
  * returning true indicates that the [DragAndDropEvent] was consumed, false indicates it was
  * rejected. Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropEventType.Dropped]
+ * @see [DragAndDropTarget.onDropped]
  *
  * @param onEntered The item being dropped has entered into this Composable's bounds.
  * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropEventType.Entered]
+ * @see [DragAndDropTarget.onEntered]
  *
  * @param onMoved The item being dropped has moved within this Composable's bounds.
  * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropEventType.Moved]
+ * @see [DragAndDropTarget.onMoved]
  *
  * @param onChanged The event in the current drag and drop session has changed within
  * this Composable's bounds.
- * @see [DragAndDropEventType.Changed]
+ * @see [DragAndDropTarget.onChanged]
  *
  * Receiving this event is prerequisite on returning true in [onStarted].
  * @param onExited The item being dropped has moved outside this Composable's bounds.
  * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropEventType.Exited]
+ * @see [DragAndDropTarget.onExited]
  *
  * @param onEnded The drag and drop gesture is complete.
  * All drag and drop target modifiers in the hierarchy will receive this event.
- * @see [DragAndDropEventType.Ended]
+ * @see [DragAndDropTarget.onEnded]
  */
 @ExperimentalFoundationApi
 fun Modifier.dragAndDropTarget(
@@ -173,16 +172,24 @@ private class DragAndDropTargetNode(
         )
     }
 
-    override fun onDragAndDropEvent(event: DragAndDropEvent, type: DragAndDropEventType): Boolean {
-        when (type) {
-            DragAndDropEventType.Started -> return onStarted.invoke(event)
-            DragAndDropEventType.Dropped -> return onDropped.invoke(event)
-            DragAndDropEventType.Entered -> onEntered.invoke(event)
-            DragAndDropEventType.Moved -> onMoved.invoke(event)
-            DragAndDropEventType.Exited -> onExited.invoke(event)
-            DragAndDropEventType.Changed -> onChanged.invoke(event)
-            DragAndDropEventType.Ended -> onEnded.invoke(event)
-        }
-        return false
-    }
+    override fun onStarted(event: DragAndDropEvent): Boolean =
+        onStarted.invoke(event)
+
+    override fun onDropped(event: DragAndDropEvent): Boolean =
+        onDropped.invoke(event)
+
+    override fun onEntered(event: DragAndDropEvent) =
+        onEntered.invoke(event)
+
+    override fun onMoved(event: DragAndDropEvent) =
+        onMoved.invoke(event)
+
+    override fun onExited(event: DragAndDropEvent) =
+        onExited.invoke(event)
+
+    override fun onChanged(event: DragAndDropEvent) =
+        onChanged.invoke(event)
+
+    override fun onEnded(event: DragAndDropEvent) =
+        onEnded.invoke(event)
 }

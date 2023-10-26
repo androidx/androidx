@@ -298,7 +298,7 @@ package androidx.compose.foundation.draganddrop {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface DragAndDropSourceScope extends androidx.compose.ui.input.pointer.PointerInputScope {
-    method public void startTransfer(androidx.compose.ui.draganddrop.DragAndDropTransfer transfer);
+    method public void startTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData);
   }
 
   public final class DragAndDropTargetKt {

@@ -19,18 +19,21 @@ package androidx.compose.ui.draganddrop
 import android.graphics.Canvas as AndroidCanvas
 import android.graphics.Point
 import android.view.View
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Draws a drag shadow for a [View.DragShadowBuilder] with the DrawScope lambda
- * provided by [DragAndDropInfo.drawDragDecoration].
+ * provided by [drawDragDecoration].
  */
 internal class ComposeDragShadowBuilder(
     private val density: Density,
-    private val dragAndDropInfo: DragAndDropInfo,
+    private val dragDecorationSize: Size,
+    private val drawDragDecoration: DrawScope.() -> Unit,
 ) : View.DragShadowBuilder() {
 
     override fun onProvideShadowMetrics(
@@ -38,8 +41,8 @@ internal class ComposeDragShadowBuilder(
         outShadowTouchPoint: Point
     ) = with(density) {
         outShadowSize.set(
-            dragAndDropInfo.dragDecorationSize.width.toDp().roundToPx(),
-            dragAndDropInfo.dragDecorationSize.height.toDp().roundToPx()
+            dragDecorationSize.width.toDp().roundToPx(),
+            dragDecorationSize.height.toDp().roundToPx()
         )
         outShadowTouchPoint.set(
             outShadowSize.x / 2,
@@ -50,10 +53,10 @@ internal class ComposeDragShadowBuilder(
     override fun onDrawShadow(canvas: AndroidCanvas) {
         CanvasDrawScope().draw(
             density = density,
-            size = dragAndDropInfo.dragDecorationSize,
+            size = dragDecorationSize,
             layoutDirection = LayoutDirection.Ltr,
             canvas = Canvas(canvas),
-            block = dragAndDropInfo.drawDragDecoration,
+            block = drawDragDecoration,
         )
     }
 }
