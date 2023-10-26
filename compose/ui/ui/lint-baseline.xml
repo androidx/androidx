@@ -70,7 +70,7 @@
         errorLine1="    val deltas = items.fastZipWithNext { el1, el2 ->"
         errorLine2="    ^">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.android.kt"/>
     </issue>
 
     <issue

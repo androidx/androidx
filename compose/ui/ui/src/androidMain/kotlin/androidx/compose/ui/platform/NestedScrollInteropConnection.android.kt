@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("NestedScrollInteropConnectionKt")
+
 package androidx.compose.ui.platform
 
 import android.view.View
