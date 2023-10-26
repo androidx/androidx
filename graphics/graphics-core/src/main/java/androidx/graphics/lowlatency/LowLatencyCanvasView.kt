@@ -259,7 +259,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
 
         val dataSpace: Int
         val colorSpace: ColorSpace
-        if (isAndroidUPlus() && supportsWideColorGamut()) {
+        if (isAndroidUPlus && supportsWideColorGamut()) {
             colorSpace = getColorSpaceFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)
             dataSpace = if (colorSpace === BufferedRendererImpl.DefaultColorSpace) {
                 DataSpace.DATASPACE_SRGB
@@ -319,7 +319,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                                 inverse
                             )
                         }
-                        if (isAndroidUPlus()) {
+                        if (isAndroidUPlus) {
                             transaction.setDataSpace(frontBufferSurfaceControl, dataSpace)
                         }
                         mCallback?.onFrontBufferedLayerRenderComplete(
@@ -328,7 +328,11 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                         syncFenceCompat?.close()
                     } else {
                         syncFenceCompat?.awaitForever()
-                        val bitmap = if (!hardwareBitmapConfigured) {
+                        // Contents of the rendered output do not update on emulators prior to
+                        // Android U so always wrap the bitmap for older API levels but only do so
+                        // once on Android U+ to avoid unnecessary allocations.
+                        val bitmap = if (!hardwareBitmapConfigured ||
+                            updatedWrappedHardwareBufferRequired) {
                             hardwareBitmapConfigured = true
                             Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
                         } else {
@@ -479,13 +483,10 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         // To address this configure the window to be wide color gamut so that the content looks
         // identical after handing off from the front buffered layer to HWUI.
         val context = this.context
-        if (supportsWideColorGamut() && context is Activity && isAndroidUPlus()) {
+        if (supportsWideColorGamut() && context is Activity && isAndroidUPlus) {
             context.window.colorMode = ActivityInfo.COLOR_MODE_WIDE_COLOR_GAMUT
         }
     }
-
-    private fun isAndroidUPlus(): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
     private fun supportsWideColorGamut(): Boolean =
         this.display?.isWideColorGamut == true
@@ -625,6 +626,15 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         ) {
             // Default implementation is a no-op
         }
+    }
+
+    private companion object {
+
+        val updatedWrappedHardwareBufferRequired: Boolean =
+            !isAndroidUPlus && Build.MODEL.contains("gphone")
+
+        val isAndroidUPlus: Boolean
+            get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 }
 
