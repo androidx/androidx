@@ -88,6 +88,9 @@ actual constructor(
 
     private val trackerLock = Any()
 
+    /** The initialization state for restarting invalidation after auto-close. */
+    private var multiInstanceClientInitState: MultiInstanceClientInitState? = null
+
     init {
         tableIdLookup = mutableMapOf()
         tablesNames = Array(tableNames.size) { id ->
@@ -161,6 +164,11 @@ actual constructor(
                 return
             }
 
+            multiInstanceClientInitState?.let {
+                // Start multi-instance invalidation, based in info from the saved initState.
+                startMultiInstanceInvalidation()
+            }
+
             // These actions are not in a transaction because temp_store is not allowed to be
             // performed on a transaction, and recursive_triggers is not affected by transactions.
             database.execSQL("PRAGMA temp_store = MEMORY;")
@@ -174,27 +182,28 @@ actual constructor(
 
     private fun onAutoCloseCallback() {
         synchronized(trackerLock) {
+            val isObserverMapEmpty = observerMap.filterNot { it.key.isRemote }.isEmpty()
+            if (multiInstanceInvalidationClient != null && isObserverMapEmpty) {
+                stopMultiInstanceInvalidation()
+            }
             initialized = false
             observedTableTracker.resetTriggerState()
             cleanupStatement?.close()
         }
     }
 
-    internal fun startMultiInstanceInvalidation(
-        context: Context,
-        name: String,
-        serviceIntent: Intent
-    ) {
+    private fun startMultiInstanceInvalidation() {
+        val state = checkNotNull(multiInstanceClientInitState)
         multiInstanceInvalidationClient = MultiInstanceInvalidationClient(
-            context = context,
-            name = name,
-            serviceIntent = serviceIntent,
+            context = state.context,
+            name = state.name,
+            serviceIntent = state.serviceIntent,
             invalidationTracker = this,
             executor = database.queryExecutor
         )
     }
 
-    internal fun stopMultiInstanceInvalidation() {
+    private fun stopMultiInstanceInvalidation() {
         multiInstanceInvalidationClient?.stop()
         multiInstanceInvalidationClient = null
     }
@@ -582,6 +591,22 @@ actual constructor(
         )
     }
 
+    internal fun initMultiInstanceInvalidation(
+        context: Context,
+        name: String,
+        serviceIntent: Intent
+    ) {
+        multiInstanceClientInitState = MultiInstanceClientInitState(
+            context = context,
+            name = name,
+            serviceIntent = serviceIntent
+        )
+    }
+
+    internal fun stop() {
+        stopMultiInstanceInvalidation()
+    }
+
     /**
      * Wraps an observer and keeps the table information.
      *
@@ -844,3 +869,12 @@ actual constructor(
         }
     }
 }
+
+/**
+ * Stores needed info to restart the invalidation after it was auto-closed.
+ */
+internal data class MultiInstanceClientInitState(
+    val context: Context,
+    val name: String,
+    val serviceIntent: Intent
+)

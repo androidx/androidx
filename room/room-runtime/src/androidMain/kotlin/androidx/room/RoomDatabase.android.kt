@@ -250,7 +250,7 @@ actual abstract class RoomDatabase {
         // Configure multi-instance invalidation, if enabled
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
             requireNotNull(configuration.name)
-            invalidationTracker.startMultiInstanceInvalidation(
+            invalidationTracker.initMultiInstanceInvalidation(
                 configuration.context,
                 configuration.name,
                 configuration.multiInstanceInvalidationServiceIntent
@@ -517,7 +517,7 @@ actual abstract class RoomDatabase {
             val closeLock: Lock = readWriteLock.writeLock()
             closeLock.lock()
             try {
-                invalidationTracker.stopMultiInstanceInvalidation()
+                invalidationTracker.stop()
                 connectionManager.close()
             } finally {
                 closeLock.unlock()

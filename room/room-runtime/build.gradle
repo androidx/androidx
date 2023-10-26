@@ -33,6 +33,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
+    id("com.google.devtools.ksp")
 }
 
 def nativeEnabled = KmpPlatformsKt.enableNative(project)
@@ -196,6 +197,11 @@ androidXMultiplatform {
 dependencies {
     lintChecks(project(":room:room-runtime-lint"))
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
+    add("kspAndroidAndroidTest", project(path: ":room:room-compiler", configuration: "shadowAndImplementation"))
+}
+
+ksp {
+    arg("room.generateKotlin", "true")
 }
 
 androidx {
