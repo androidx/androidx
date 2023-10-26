@@ -22,10 +22,10 @@ import android.view.View
 import androidx.compose.ui.geometry.Offset
 
 /**
- * [DragAndDropTransfer] representation for the Android platform.
+ * [DragAndDropTransferData] representation for the Android platform.
  * It provides the [ClipData] required for drag and drop.
  */
-actual class DragAndDropTransfer(
+actual class DragAndDropTransferData(
     /**
      * The [ClipData] being transferred.
      */
