@@ -781,8 +781,7 @@ public final class Preview extends UseCase {
             Builder builder = new Builder()
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
-                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -820,6 +819,7 @@ public final class Preview extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
             setTargetClass(Preview.class);
             mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
         }
