@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ComposableMethodKt")
+
 package androidx.compose.runtime.reflect
 
 import androidx.compose.runtime.Composer
