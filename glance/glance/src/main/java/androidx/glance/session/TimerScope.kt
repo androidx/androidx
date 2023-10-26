@@ -150,3 +150,17 @@ private fun <T> AtomicReference<T>.update(updater: (T) -> T) {
         }
     }
 }
+
+internal suspend fun <T> noopTimer(
+    block: suspend TimerScope.() -> T,
+): T = coroutineScope {
+    val timerScope = object : TimerScope, CoroutineScope by this {
+        override val timeLeft = Duration.INFINITE
+        override fun startTimer(initialTimeout: Duration) {
+        }
+
+        override fun addTime(time: Duration) {
+        }
+    }
+    timerScope.block()
+}

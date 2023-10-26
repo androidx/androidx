@@ -118,15 +118,15 @@ class GlanceRemoteViewsService : RemoteViewsService() {
         private suspend fun startSessionAndWaitUntilReady(glanceId: AppWidgetId) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val providerInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
-            if (providerInfo?.provider != null) {
-                val receiverClass = Class.forName(providerInfo.provider.className)
+            providerInfo?.provider?.className?.let { className ->
+                val receiverClass = Class.forName(className)
                 val glanceAppWidget =
                     (receiverClass.getDeclaredConstructor()
                         .newInstance() as GlanceAppWidgetReceiver).glanceAppWidget
                 AppWidgetSession(glanceAppWidget, glanceId)
                     .also { GlanceSessionManager.startSession(context, it) }
                     .waitForReady()
-            }
+            } ?: UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()
         }
 
         override fun onDestroy() {

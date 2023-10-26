@@ -34,7 +34,10 @@
             android:name=".action.ActionCallbackBroadcastReceiver"
             android:exported="false"
             android:enabled="true" />
-
+        <receiver
+            android:name=".UnmanagedSessionReceiver"
+            android:exported="false"
+            android:enabled="true" />
         <receiver
             android:name=".MyPackageReplacedReceiver"
             android:exported="false"

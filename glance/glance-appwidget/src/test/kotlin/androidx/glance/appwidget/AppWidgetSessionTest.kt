@@ -105,7 +105,7 @@ class AppWidgetSessionTest {
         }
 
         session.processEmittableTree(context, root)
-        context.applyRemoteViews(session.lastRemoteViews!!).let {
+        context.applyRemoteViews(session.lastRemoteViews.value!!).let {
             val text = assertIs<TextView>(it)
             assertThat(text.text).isEqualTo("hello")
         }
@@ -118,7 +118,7 @@ class AppWidgetSessionTest {
         }
 
         session.processEmittableTree(context, root)
-        assertThat(session.lastRemoteViews).isNull()
+        assertThat(session.lastRemoteViews.value).isNull()
     }
 
     @Test
@@ -132,7 +132,8 @@ class AppWidgetSessionTest {
             }
 
             session.processEmittableTree(context, root)
-            assertThat(session.lastRemoteViews!!.layoutId).isEqualTo(R.layout.glance_error_layout)
+            assertThat(session.lastRemoteViews.value?.layoutId)
+                .isEqualTo(R.layout.glance_error_layout)
         }
     }
 

@@ -34,6 +34,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SimpleWidgetViewer"
+            android:exported="true"
+            android:label="@string/demo_widget_viewer"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ActionDemoActivity" />
         <service
             android:name=".ActionDemoService"
