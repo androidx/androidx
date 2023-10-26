@@ -105,6 +105,10 @@ class ImageAnalysisAvailabilityTest(private val config: TestConfig) {
                 TestConfig("", "", "", "0", levelLimited, BOKEH, true, true, false),
                 TestConfig("", "", "", "0", levelLimited, BOKEH, true, false, true),
                 TestConfig("", "", "", "0", levelLimited, BOKEH, false, true, false),
+
+                // Google Pixel doesn't support ImageAnalysis.
+                TestConfig("google", "", "redfin", "0", levelLimited, BOKEH, true, true, false),
+                TestConfig("google", "", "oriole", "0", levelLimited, BOKEH, false, false, false)
             )
         }
     }
