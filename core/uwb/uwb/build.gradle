@@ -31,7 +31,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation('com.google.android.gms:play-services-base:18.0.1')
     implementation(libs.kotlinCoroutinesPlayServices)
-    implementation('com.google.android.gms:play-services-nearby:18.5.0', {
+    implementation('com.google.android.gms:play-services-nearby:19.0.0', {
         exclude group: "androidx.core"
     })
 

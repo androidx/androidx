@@ -16,22 +16,10 @@
  */
 package androidx.core.uwb.backend;
 
-import androidx.core.uwb.backend.UwbComplexChannel;
-import androidx.core.uwb.backend.UwbDevice;
-import androidx.core.uwb.backend.UwbRangeDataNtfConfig;
-
-/** Gms Reference: com.google.android.gms.nearby.uwb.RangingParameters */
+/** Gms Reference: com.google.android.gms.nearby.uwb.UwbRangeDataNtfConfig */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
-parcelable RangingParameters {
-    int uwbConfigId;
-    int sessionId;
-    int subSessionId;
-    byte[] sessionKeyInfo;
-    byte[] subSessionKeyInfo;
-    UwbComplexChannel complexChannel;
-    List<UwbDevice> peerDevices;
-    int rangingUpdateRate;
-    @nullable UwbRangeDataNtfConfig uwbRangeDataNtfConfig;
-    int slotDuration;
-    boolean isAoaDisabled;
+parcelable UwbRangeDataNtfConfig {
+    int rangeDataNtfConfigType;
+    int ntfProximityNearCm;
+    int ntfProximityFarCm;
 }
