@@ -38,6 +38,11 @@ fi
 if [[ " ${@} " =~ " ${validateArgument}=false " ]]; then
   validateNoUnrecognizedMessagesOnSuccess=false
 fi
+printTimestamps=false
+timestampsArgument="-Pandroidx.printTimestamps"
+if [[ " ${@} " =~ " ${timestampsArgument} " ]]; then
+  printTimestamps=true
+fi
 
 # identify some filepaths
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
@@ -78,7 +83,15 @@ echo "GRADLE_USER_HOME=$GRADLE_USER_HOME" | tee -a $logFile
 programName="$1"
 shift
 
-if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
+if [ "$printTimestamps" == "true" ]; then
+  # this program adds a timestamp to each line of input, and echos the result
+  timestampPrinter="$SCRIPT_PATH/ts.py"
+else
+  # this program just echos its input
+  timestampPrinter=cat
+fi
+
+if "$programName" "$@" > >(tee -a "$logFile" | "$timestampPrinter") 2>&1; then
   if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
     if $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2; then
       echo No unrecognized messages found in build log
