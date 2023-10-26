@@ -32,6 +32,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Base class for invoking Metalava. */
 @CacheableTask
@@ -56,7 +57,11 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
 
     @get:Input abstract val k2UastEnabled: Property<Boolean>
 
+    @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
+
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled.get(), workerExecutor)
+        runMetalavaWithArgs(
+            metalavaClasspath, args, k2UastEnabled.get(), kotlinSourceLevel.get(), workerExecutor
+        )
     }
 }
