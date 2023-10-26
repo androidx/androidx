@@ -117,19 +117,19 @@ constructor(
          */
         const val CONFIG_MULTICAST_DS_TWR = 2
 
-        /** Same as CONFIG_ID_1, except AoA data is not reported. */
+        /** Same as CONFIG_UNICAST_DS_TWR, except AoA data is not reported. */
         internal const val CONFIG_UNICAST_DS_TWR_NO_AOA = 3
 
-        /** Same as CONFIG_ID_1, except P-STS security mode is enabled. */
+        /** Same as CONFIG_UNICAST_DS_TWR, except P-STS security mode is enabled. */
         const val CONFIG_PROVISIONED_UNICAST_DS_TWR = 4
 
-        /** Same as CONFIG_ID_2, except P-STS security mode is enabled. */
+        /** Same as CONFIG_MULTICAST_DS_TWR, except P-STS security mode is enabled. */
         const val CONFIG_PROVISIONED_MULTICAST_DS_TWR = 5
 
-        /** Same as CONFIG_ID_3, except P-STS security mode is enabled. */
+        /** Same as CONFIG_UNICAST_DS_TWR_NO_AOA, except P-STS security mode is enabled. */
         internal const val CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA = 6
 
-        /** Same as CONFIG_ID_2, except P-STS individual controlee key mode is enabled. */
+        /** Same as CONFIG_MULTICAST_DS_TWR, except P-STS individual controlee key mode is enabled. */
         const val CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR = 7
 
         /**
