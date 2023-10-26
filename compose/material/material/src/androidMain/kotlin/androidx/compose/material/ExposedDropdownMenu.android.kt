@@ -517,7 +517,7 @@ object ExposedDropdownMenuDefaults {
 private fun Modifier.expandable(
     onExpandedChange: () -> Unit,
     menuLabel: String
-) = pointerInput(Unit) {
+) = pointerInput(onExpandedChange) {
     awaitEachGesture {
         // Must be PointerEventPass.Initial to observe events before the text field consumes them
         // in the Main pass
