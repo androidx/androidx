@@ -319,7 +319,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     SessionConfigurationCompat sessionConfigCompat =
                             mSessionOpener.createSessionConfigurationCompat(
-                                    SessionConfigurationCompat.SESSION_REGULAR, outputConfigList,
+                                    sessionConfig.getSessionType(), outputConfigList,
                                     callbacks);
 
                     if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG

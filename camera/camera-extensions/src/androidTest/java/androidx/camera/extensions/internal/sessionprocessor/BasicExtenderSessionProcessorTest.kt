@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
+import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.os.Handler
@@ -33,6 +34,8 @@ import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.Camera2CameraInfoImpl
+import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
@@ -205,6 +208,61 @@ class BasicExtenderSessionProcessorTest(
             previewSemaphore,
             analysisSemaphore
         )
+    }
+
+    private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1);
+        return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
+    }
+
+    @Test
+    fun canSetSessionTypeFromOem() {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        val sessionTypeToVerify = 4
+        fakeCaptureExtenderImpl.sessionType = sessionTypeToVerify
+        fakePreviewExtenderImpl.sessionType = sessionTypeToVerify
+
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+
+        assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
+    }
+
+    @Test
+    fun setDifferentSessionTypes_throwException() {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        fakeCaptureExtenderImpl.sessionType = 2
+        fakePreviewExtenderImpl.sessionType = 3
+
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+
+        assertThrows<IllegalArgumentException> {
+             basicExtenderSessionProcessor.initSession(
+                fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null
+            )
+        }
+    }
+
+    @Test
+    fun defaultSessionType() {
+        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        fakeCaptureExtenderImpl.sessionType = -1
+        fakePreviewExtenderImpl.sessionType = -1
+
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+
+        val sessionConfig = basicExtenderSessionProcessor.initSession(
+            fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+
+        assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
     }
 
     @Test
@@ -800,6 +858,7 @@ class BasicExtenderSessionProcessorTest(
     ) : PreviewExtenderImpl, FakeExtenderStateListener() {
         var fakePreviewImageProcessorImpl: FakePreviewImageProcessorImpl? = null
         var fakeRequestUpdateProcessor: FakeRequestUpdateProcessor? = null
+        var sessionType: Int = -1
 
         init {
             when (processorType) {
@@ -843,6 +902,10 @@ class BasicExtenderSessionProcessorTest(
             _captureStage = captureStage
         }
 
+        override fun onSessionType(): Int {
+            return sessionType
+        }
+
         override fun getProcessorType() = processorType
         override fun getProcessor() =
             when (processorType) {
@@ -869,6 +932,7 @@ class BasicExtenderSessionProcessorTest(
                 null
             }
         }
+        var sessionType = -1
 
         override fun isExtensionAvailable(
             cameraId: String,
@@ -909,7 +973,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun onSessionType(): Int {
-            return SessionConfiguration.SESSION_REGULAR
+            return sessionType
         }
 
         override fun getSupportedPostviewResolutions(captureSize: Size):
@@ -922,7 +986,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun getRealtimeCaptureLatency(): Pair<Long, Long>? {
-            return null;
+            return null
         }
 
         override fun isPostviewAvailable(): Boolean {

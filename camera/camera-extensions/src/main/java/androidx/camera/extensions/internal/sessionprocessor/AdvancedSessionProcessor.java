@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.util.Pair;
 import android.util.Size;
@@ -113,6 +114,14 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         }
         camera2SessionConfigBuilder
                 .setSessionTemplateId(sessionConfigImpl.getSessionTemplateId());
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            int sessionType = sessionConfigImpl.getSessionType();
+            if (sessionType == -1) { // -1 means using default value
+                sessionType = SessionConfiguration.SESSION_REGULAR;
+            }
+            camera2SessionConfigBuilder.setSessionType(sessionType);
+        }
         return camera2SessionConfigBuilder.build();
     }
 

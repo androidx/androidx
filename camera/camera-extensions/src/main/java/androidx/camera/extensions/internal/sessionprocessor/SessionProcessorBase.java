@@ -220,6 +220,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
         }
         sessionConfigBuilder.setImplementationOptions(camera2ConfigurationBuilder.build());
         sessionConfigBuilder.setTemplateType(camera2SessionConfig.getSessionTemplateId());
+        sessionConfigBuilder.setSessionType(camera2SessionConfig.getSessionType());
 
         mImageReaderHandlerThread = new HandlerThread(
                 CameraXThreads.TAG + "extensions_image_reader");

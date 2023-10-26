@@ -26,6 +26,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
@@ -185,6 +186,19 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                         .addOutputConfig(mPreviewOutputConfig)
                         .addOutputConfig(mCaptureOutputConfig)
                         .setSessionTemplateId(CameraDevice.TEMPLATE_PREVIEW);
+
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            int previewSessionType = mPreviewExtenderImpl.onSessionType();
+            int captureSessionType = mImageCaptureExtenderImpl.onSessionType();
+            Preconditions.checkArgument(previewSessionType == captureSessionType,
+                    "Needs same session type in both PreviewExtenderImpl and "
+                            + "ImageCaptureExtenderImpl");
+            if (previewSessionType == -1) { // -1 means using default value
+                previewSessionType = SessionConfiguration.SESSION_REGULAR;
+            }
+            builder.setSessionType(previewSessionType);
+        }
 
         if (mAnalysisOutputConfig != null) {
             builder.addOutputConfig(mAnalysisOutputConfig);
