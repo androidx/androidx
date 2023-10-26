@@ -26,4 +26,8 @@ parcelable RangingCapabilities {
     int[] supportedChannels;
     int[] supportedNtfConfigs;
     int[] supportedConfigIds;
+    @nullable int[] supportedSlotDurations;
+    @nullable int[] supportedRangingUpdateRates;
+    boolean supportsRangingIntervalReconfigure;
+    boolean hasBackgroundRangingSupport;
 }
