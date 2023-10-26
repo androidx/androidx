@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("AndroidFontKt")
+
 package androidx.compose.ui.text.font
 
 import android.content.Context

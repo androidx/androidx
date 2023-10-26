@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("EmojiSupportMatchKt")
+
 package androidx.compose.ui.text
 
 /**
