@@ -78,6 +78,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalMaterial3Api::class)
 class TabTest {
 
     private val ExpectedSmallTabHeight = 48.dp

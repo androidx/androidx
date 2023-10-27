@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.benchmark
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -51,6 +52,7 @@ class TabRowBenchmark {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 internal class TabRowTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     private var state: Int by mutableStateOf(0)
