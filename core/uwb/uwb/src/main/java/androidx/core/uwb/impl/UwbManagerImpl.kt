@@ -86,8 +86,16 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
         return createClientSessionScope(true) as UwbControllerSessionScope
     }
 
-    private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
+    override suspend fun isAvailable(): Boolean {
         checkSystemFeature(context)
+        return if (isGmsDevice()) Nearby.getUwbControllerClient(context).isAvailable.await()
+        else {
+            val client = iUwb?.controllerClient
+            client?.isAvailable ?: false
+        }
+    }
+
+    private fun isGmsDevice(): Boolean {
         val pm = context.packageManager
         val hasGmsCore =
             GoogleApiAvailability.getInstance()
@@ -96,7 +104,12 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
         val isChinaGcoreDevice =
             pm.hasSystemFeature("cn.google.services") &&
                 pm.hasSystemFeature("com.google.android.feature.services_updater")
-        return if (hasGmsCore && !isChinaGcoreDevice) createGmsClientSessionScope(isController)
+        return hasGmsCore && !isChinaGcoreDevice
+    }
+
+    private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
+        checkSystemFeature(context)
+        return if (isGmsDevice()) createGmsClientSessionScope(isController)
         else createAospClientSessionScope(isController)
     }
 

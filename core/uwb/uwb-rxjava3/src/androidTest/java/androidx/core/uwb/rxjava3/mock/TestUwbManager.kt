@@ -44,6 +44,10 @@ class TestUwbManager : UwbManager {
         return createClientSessionSCope(true) as UwbControllerSessionScope
     }
 
+    override suspend fun isAvailable(): Boolean {
+        return true
+    }
+
     private fun createClientSessionSCope(isController: Boolean): UwbClientSessionScope {
         val complexChannel = UwbComplexChannel.Builder().setPreambleIndex(10).setChannel(10).build()
         val localAddress = com.google.android.gms.nearby.uwb.UwbAddress(DEVICE_ADDRESS)
