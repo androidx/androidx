@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +67,7 @@ import androidx.compose.ui.unit.dp
 @Preview
 @Composable
 @Sampled
+@OptIn(ExperimentalMaterial3Api::class)
 fun PrimaryTextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
@@ -89,6 +91,7 @@ fun PrimaryTextTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun PrimaryIconTabs() {
     var state by remember { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
@@ -108,6 +111,7 @@ fun PrimaryIconTabs() {
 @Preview
 @Composable
 @Sampled
+@OptIn(ExperimentalMaterial3Api::class)
 fun SecondaryTextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
@@ -132,6 +136,7 @@ fun SecondaryTextTabs() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun TextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
@@ -155,6 +160,7 @@ fun TextTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun SecondaryIconTabs() {
     var state by remember { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
@@ -178,6 +184,7 @@ fun SecondaryIconTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun TextAndIconTabs() {
     var state by remember { mutableStateOf(0) }
     val titlesAndIcons = listOf(
@@ -206,6 +213,7 @@ fun TextAndIconTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun LeadingIconTabs() {
     var state by remember { mutableStateOf(0) }
     val titlesAndIcons = listOf(
@@ -234,6 +242,7 @@ fun LeadingIconTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingPrimaryTextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf(
@@ -276,6 +285,7 @@ fun ScrollingPrimaryTextTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingSecondaryTextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf(
@@ -310,6 +320,7 @@ fun ScrollingSecondaryTextTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingTextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf(
@@ -345,6 +356,7 @@ fun ScrollingTextTabs() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun FancyTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
@@ -369,6 +381,7 @@ fun FancyTabs() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun FancyIndicatorTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
@@ -405,6 +418,7 @@ fun FancyIndicatorTabs() {
 @Preview
 @Sampled
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun FancyIndicatorContainerTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
@@ -436,6 +450,7 @@ fun FancyIndicatorContainerTabs() {
 
 @Preview
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingFancyIndicatorContainerTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf(

@@ -36,8 +36,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -597,7 +597,7 @@ class AnimatedContentTest {
                         topBar = {},
                         floatingActionButton = {}
                     ) {
-                        SecondaryTabRow(selectedTabIndex = 0) {
+                        TabRow(selectedTabIndex = 0) {
                             repeat(15) {
                                 Text(it.toString(), Modifier.width(100.dp))
                             }

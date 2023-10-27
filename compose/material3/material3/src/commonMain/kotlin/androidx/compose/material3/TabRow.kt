@@ -129,6 +129,7 @@ import kotlinx.coroutines.launch
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun PrimaryTabRow(
     selectedTabIndex: Int,
@@ -185,6 +186,7 @@ fun PrimaryTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun SecondaryTabRow(
     selectedTabIndex: Int,
@@ -276,11 +278,6 @@ fun SecondaryTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This TabRow implementation is misaligned with spec. Please use PrimaryTabRow for " +
-        "primary tabs and SecondaryTabRow for secondary tabs."
-)
 @Composable
 fun TabRow(
     selectedTabIndex: Int,
@@ -400,6 +397,7 @@ private fun TabRowImpl(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun PrimaryScrollableTabRow(
     selectedTabIndex: Int,
@@ -471,6 +469,7 @@ fun PrimaryScrollableTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
+@ExperimentalMaterial3Api
 @Composable
 fun SecondaryScrollableTabRow(
     selectedTabIndex: Int,
@@ -535,11 +534,6 @@ fun SecondaryScrollableTabRow(
  * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
  * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
  */
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "This ScrollableTabRow implementation is misaligned with spec. Please use " +
-        "PrimaryScrollableTabRow for primary tabs and SecondaryScrollableTabRow for secondary tabs."
-)
 @Composable
 fun ScrollableTabRow(
     selectedTabIndex: Int,
