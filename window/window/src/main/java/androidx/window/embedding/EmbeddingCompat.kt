@@ -27,7 +27,6 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
-import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
@@ -48,7 +47,16 @@ internal class EmbeddingCompat(
     private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
 
+    private val windowSdkExtensions = WindowSdkExtensions.getInstance()
+
     private var isCustomSplitAttributeCalculatorSet: Boolean = false
+
+    private var overlayController: OverlayControllerImpl? =
+        if (windowSdkExtensions.extensionVersion >= 5) {
+            OverlayControllerImpl(embeddingExtension, adapter)
+        } else {
+            null
+        }
 
     override fun setRules(rules: Set<EmbeddingRule>) {
         var hasSplitRule = false
@@ -75,7 +83,7 @@ internal class EmbeddingCompat(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (ExtensionsUtil.safeVendorApiLevel < 2) {
+        if (windowSdkExtensions.extensionVersion < 2) {
             consumerAdapter.addConsumer(
                 embeddingExtension,
                 List::class,
@@ -99,7 +107,7 @@ internal class EmbeddingCompat(
     @RequiresWindowSdkExtension(5)
     @OptIn(ExperimentalWindowApi::class)
     override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(5)
         return embeddingExtension.pinTopActivityStack(
             taskId,
             adapter.translateSplitPinRule(
@@ -111,7 +119,7 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(5)
     override fun unpinTopActivityStack(taskId: Int) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(5)
         return embeddingExtension.unpinTopActivityStack(taskId)
     }
 
@@ -119,7 +127,7 @@ internal class EmbeddingCompat(
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+        windowSdkExtensions.requireExtensionVersion(2)
 
         embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
@@ -129,7 +137,7 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+        windowSdkExtensions.requireExtensionVersion(2)
 
         embeddingExtension.clearSplitAttributesCalculator()
         isCustomSplitAttributeCalculatorSet = false
@@ -138,7 +146,7 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(5)
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(5)
 
         val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
         embeddingExtension.finishActivityStacks(stackTokens)
@@ -147,7 +155,7 @@ internal class EmbeddingCompat(
     @OptIn(ExperimentalWindowApi::class)
     @RequiresWindowSdkExtension(5)
     override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(5)
         adapter.embeddingConfiguration = embeddingConfig
         setDefaultSplitAttributeCalculatorIfNeeded()
     }
@@ -156,7 +164,7 @@ internal class EmbeddingCompat(
     private fun setDefaultSplitAttributeCalculatorIfNeeded() {
         // Setting a default SplitAttributeCalculator if the EmbeddingConfiguration is set,
         // in order to ensure the dimArea in the SplitAttribute is up-to-date.
-        if (ExtensionsUtil.safeVendorApiLevel >= 5 && !isCustomSplitAttributeCalculatorSet &&
+        if (windowSdkExtensions.extensionVersion >= 5 && !isCustomSplitAttributeCalculatorSet &&
             adapter.embeddingConfiguration != null) {
             embeddingExtension.setSplitAttributesCalculator { params ->
                 adapter.translateSplitAttributes(adapter.translate(params.defaultSplitAttributes))
@@ -166,7 +174,7 @@ internal class EmbeddingCompat(
 
     @RequiresWindowSdkExtension(3)
     override fun invalidateTopVisibleSplitAttributes() {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+        windowSdkExtensions.requireExtensionVersion(3)
 
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
@@ -176,7 +184,7 @@ internal class EmbeddingCompat(
         splitInfo: SplitInfo,
         splitAttributes: SplitAttributes
     ) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+        windowSdkExtensions.requireExtensionVersion(3)
 
         embeddingExtension.updateSplitAttributes(
             splitInfo.token,
@@ -189,7 +197,7 @@ internal class EmbeddingCompat(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        windowSdkExtensions.requireExtensionVersion(5)
 
         return embeddingExtension.setLaunchingActivityStack(options, token)
     }
@@ -200,6 +208,22 @@ internal class EmbeddingCompat(
         overlayCreateParams: OverlayCreateParams
     ): Bundle = options.apply {
         ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    ) {
+        windowSdkExtensions.requireExtensionVersion(5)
+
+        overlayController!!.overlayAttributesCalculator = calculator
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun clearOverlayAttributesCalculator() {
+        windowSdkExtensions.requireExtensionVersion(5)
+
+        overlayController!!.overlayAttributesCalculator = null
     }
 
     companion object {

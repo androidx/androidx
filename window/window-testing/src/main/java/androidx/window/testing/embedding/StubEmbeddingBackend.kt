@@ -26,6 +26,8 @@ import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.OverlayAttributes
+import androidx.window.embedding.OverlayAttributesCalculatorParams
 import androidx.window.embedding.OverlayCreateParams
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
@@ -205,6 +207,16 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun clearOverlayAttributesCalculator() {
         TODO("Not yet implemented")
     }
 

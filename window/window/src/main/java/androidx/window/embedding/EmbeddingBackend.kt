@@ -89,6 +89,14 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 
+    @RequiresWindowSdkExtension(5)
+    fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    )
+
+    @RequiresWindowSdkExtension(5)
+    fun clearOverlayAttributesCalculator()
+
     companion object {
 
         private var decorator: (EmbeddingBackend) -> EmbeddingBackend =

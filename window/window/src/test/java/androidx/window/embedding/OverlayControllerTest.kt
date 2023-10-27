@@ -33,4 +33,17 @@ class OverlayControllerTest {
 
         verify(mockBackend).setOverlayCreateParams(options, params)
     }
+
+    @Test
+    fun test_overlayAttributesCalculator_delegates() {
+        val calculator = { _: OverlayAttributesCalculatorParams -> OverlayAttributes() }
+
+        overlayController.setOverlayAttributesCalculator(calculator)
+
+        verify(mockBackend).setOverlayAttributesCalculator(calculator)
+
+        overlayController.clearOverlayAttributesCalculator()
+
+        verify(mockBackend).clearOverlayAttributesCalculator()
+    }
 }

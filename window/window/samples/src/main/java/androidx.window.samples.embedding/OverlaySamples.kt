@@ -18,10 +18,13 @@ package androidx.window.samples.embedding
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Rect
 import androidx.annotation.Sampled
 import androidx.core.app.ActivityOptionsCompat
 import androidx.window.embedding.EmbeddingBounds
+import androidx.window.embedding.EmbeddingBounds.Dimension.Companion.ratio
 import androidx.window.embedding.OverlayAttributes
+import androidx.window.embedding.OverlayController
 import androidx.window.embedding.OverlayCreateParams
 import androidx.window.embedding.setOverlayCreateParams
 
@@ -31,9 +34,9 @@ fun launchOverlayActivityStackSample() {
     val params = OverlayCreateParams(
         overlayAttributes = OverlayAttributes(
             EmbeddingBounds(
-                EmbeddingBounds.Alignment.ALIGN_RIGHT,
-                EmbeddingBounds.Dimension.ratio(0.5f),
-                EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
+                alignment = EmbeddingBounds.Alignment.ALIGN_RIGHT,
+                width = ratio(0.5f),
+                height = EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
             )
         )
     )
@@ -44,6 +47,32 @@ fun launchOverlayActivityStackSample() {
     // Start INTENT to the overlay container specified by params.
     launchingActivity.startActivity(INTENT, optionsWithOverlayParams)
 }
+
+@Sampled
+fun overlayAttributesCalculatorSample() {
+    // A sample to show overlay on the bottom if the device is portrait, and on the right when
+    // the device is landscape.
+    OverlayController.getInstance(launchingActivity).setOverlayAttributesCalculator { params ->
+        val taskBounds = params.parentWindowMetrics.bounds
+        return@setOverlayAttributesCalculator OverlayAttributes(
+            if (taskBounds.isPortrait()) {
+                EmbeddingBounds(
+                    alignment = EmbeddingBounds.Alignment.ALIGN_BOTTOM,
+                    width = EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
+                    height = ratio(0.5f),
+                )
+            } else {
+                EmbeddingBounds(
+                    alignment = EmbeddingBounds.Alignment.ALIGN_RIGHT,
+                    width = ratio(0.5f),
+                    height = EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
+                )
+            }
+        )
+    }
+}
+
+private fun Rect.isPortrait(): Boolean = height() >= width()
 
 val launchingActivity: Activity = Activity()
 
