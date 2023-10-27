@@ -286,6 +286,7 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String BACKWARD = "BACKWARD";
     private static final String SWITCH_TEST_CASE = "switch_test_case";
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
+    private static final String DESCRIPTION_FLASH_MODE_SCREEN = "FLASH_MODE_SCREEN";
     private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
 
@@ -1205,7 +1206,7 @@ public class CameraXActivity extends AppCompatActivity {
                         mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
                     } else {
                         // Reset content description if flash is ready for test.
-                        mFlashButton.setContentDescription("");
+                        mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_SCREEN);
                     }
                     break;
             }
