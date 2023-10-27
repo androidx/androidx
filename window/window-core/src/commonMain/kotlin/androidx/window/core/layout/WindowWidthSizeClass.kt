@@ -16,6 +16,8 @@
 
 package androidx.window.core.layout
 
+import kotlin.jvm.JvmField
+
 /**
  * A class to represent the width size buckets for a viewport. The possible values are [COMPACT],
  * [MEDIUM], and [EXPANDED]. [WindowWidthSizeClass] should not be used as a proxy for the device
@@ -37,13 +39,12 @@ class WindowWidthSizeClass private constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null) return false
+        if (this::class != other::class) return false
 
-        other as WindowWidthSizeClass
+        val that = other as WindowWidthSizeClass
 
-        if (rawValue != other.rawValue) return false
-
-        return true
+        return rawValue == that.rawValue
     }
 
     override fun hashCode(): Int {
