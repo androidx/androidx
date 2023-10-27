@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.layout
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.node.LayoutNode
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -700,6 +704,59 @@ class MeasureAndLayoutDelegateTest {
         // is intended to imitate subcomposition adding new nodes during post-lookahead measure.
         root.requestRemeasure()
         delegate.measureOnly()
+    }
+
+    @Test
+    fun changeConstraintsForLookaheadRoot() {
+        val portrait = Constraints(0, 1000, 0, 2000)
+        val landscape = Constraints(0, 2000, 0, 1000)
+
+        var expectedConstraints by mutableStateOf(portrait)
+        var actualLookaheadConstraints: Constraints? = null
+        var actualPostLookaheadConstraints: Constraints? = null
+        val lookaheadRoot = node { // lookahead root
+            measurePolicy = MeasurePolicy { measurables, constraints ->
+                if (isLookingAhead) {
+                    actualLookaheadConstraints = constraints
+                } else {
+                    actualPostLookaheadConstraints = constraints
+                }
+                with(MeasureInMeasureBlock()) {
+                    // Skip measure & layout for unplaced node
+                    measure(measurables, constraints)
+                }
+            }
+            add(node())
+            add(node())
+        }
+        val root = root {
+            measurePolicy = MeasurePolicy { measurables, _ ->
+                with(MeasureInMeasureBlock()) {
+                    measure(measurables, expectedConstraints)
+                }
+            }
+            add(
+                node {
+                    add(
+                        virtualNode {
+                            isVirtualLookaheadRoot = true
+                            add(lookaheadRoot)
+                            add(node())
+                        }
+                    )
+                }
+            )
+        }
+
+        val delegate = createDelegate(root)
+        assertEquals(expectedConstraints, actualLookaheadConstraints)
+        assertEquals(expectedConstraints, actualPostLookaheadConstraints)
+
+        expectedConstraints = landscape
+        root.requestRemeasure()
+        delegate.measureOnly()
+        assertEquals(expectedConstraints, actualLookaheadConstraints)
+        assertEquals(expectedConstraints, actualPostLookaheadConstraints)
     }
 
     // different levels
