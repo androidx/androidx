@@ -335,14 +335,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
+**21** (Android 5.0, Lollipop). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **14** (Android 4.0, Ice Cream Sandwich).
+default is **19** (Android 4.4, KitKat).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
