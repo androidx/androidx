@@ -385,7 +385,7 @@ class VirtualCamera implements CameraInternal {
         int highestPriority = 0;
         for (UseCaseConfig<?> childConfig : childrenConfigs) {
             highestPriority = Math.max(highestPriority,
-                    childConfig.getSurfaceOccupancyPriority());
+                    childConfig.getSurfaceOccupancyPriority(0));
         }
         return highestPriority;
     }
