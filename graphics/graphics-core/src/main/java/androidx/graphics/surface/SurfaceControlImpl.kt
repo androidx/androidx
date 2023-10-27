@@ -328,6 +328,25 @@ internal interface SurfaceControlImpl {
         ): Transaction
 
         /**
+         * See [SurfaceControlCompat.Transaction.setFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.clearFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun clearFrameRate(
+            scImpl: SurfaceControlImpl,
+        ): Transaction
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          * This will not release any resources and [SurfaceControlImpl.Transaction.close] must be
          * called to release the transaction.
