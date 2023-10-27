@@ -67,6 +67,7 @@ import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
 import androidx.compose.ui.demos.modifier.CommunicatingModifierDemo
+import androidx.compose.ui.demos.modifier.TraverseModifierDemo
 import androidx.compose.ui.demos.recyclerview.RecyclerViewDemos
 import androidx.compose.ui.demos.viewinterop.AndroidInComposeDemos
 import androidx.compose.ui.demos.viewinterop.BottomSheetFragmentNestedScrollInteropDemo
@@ -231,7 +232,8 @@ private val ViewInteropDemos = DemoCategory(
 private val ModifierDemos = DemoCategory(
     "Modifiers",
     listOf(
-        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() }
+        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() },
+        ComposableDemo("Traversing Modifiers") { TraverseModifierDemo() }
     )
 )
 
