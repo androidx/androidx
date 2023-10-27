@@ -19,6 +19,7 @@ package androidx.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
@@ -47,7 +48,10 @@ class BluetoothLeTest {
     @Rule
     @JvmField
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+        if (Build.VERSION.SDK_INT >= 31)
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+        else
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH)
 
     private lateinit var context: Context
     private lateinit var bluetoothManager: BluetoothManager
