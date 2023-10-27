@@ -878,10 +878,11 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
      * [addOnNewIntentListener].
      */
     @CallSuper
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(
+        @Suppress("InvalidNullabilityOverride")
+        intent: Intent
+    ) {
         super.onNewIntent(intent)
-        // We should never get a null Intent, but just in case...
-        if (intent == null) return
         for (listener in onNewIntentListeners) {
             listener.accept(intent)
         }
