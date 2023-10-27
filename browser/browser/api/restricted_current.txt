@@ -84,12 +84,19 @@ package androidx.browser.customtabs {
     ctor public CustomTabsCallback();
     method public void extraCallback(String, android.os.Bundle?);
     method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
+    method public void onActivityLayout(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, int, android.os.Bundle);
     method public void onActivityResized(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, android.os.Bundle);
     method public void onMessageChannelReady(android.os.Bundle?);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
     method public void onRelationshipValidationResult(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, boolean, android.os.Bundle?);
     method public void onWarmupCompleted(android.os.Bundle);
+    field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET = 1; // 0x1
+    field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET_MAXIMIZED = 2; // 0x2
+    field public static final int ACTIVITY_LAYOUT_STATE_FULL_SCREEN = 5; // 0x5
+    field public static final int ACTIVITY_LAYOUT_STATE_SIDE_SHEET = 3; // 0x3
+    field public static final int ACTIVITY_LAYOUT_STATE_SIDE_SHEET_MAXIMIZED = 4; // 0x4
+    field public static final int ACTIVITY_LAYOUT_STATE_UNKNOWN = 0; // 0x0
     field public static final int NAVIGATION_ABORTED = 4; // 0x4
     field public static final int NAVIGATION_FAILED = 3; // 0x3
     field public static final int NAVIGATION_FINISHED = 2; // 0x2
@@ -112,13 +119,19 @@ package androidx.browser.customtabs {
 
   public final class CustomTabsIntent {
     method public static int getActivityResizeBehavior(android.content.Intent);
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getActivitySideSheetBreakpointDp(android.content.Intent);
+    method public static int getActivitySideSheetDecorationType(android.content.Intent);
+    method public static int getActivitySideSheetPosition(android.content.Intent);
+    method public static int getActivitySideSheetRoundedCornersPosition(android.content.Intent);
     method public static int getCloseButtonPosition(android.content.Intent);
     method public static androidx.browser.customtabs.CustomTabColorSchemeParams getColorSchemeParams(android.content.Intent, int);
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityHeightPx(android.content.Intent);
+    method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityWidthPx(android.content.Intent);
     method public static int getMaxToolbarItems();
     method public static android.app.PendingIntent? getSecondaryToolbarSwipeUpGesture(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
     method public static java.util.Locale? getTranslateLocale(android.content.Intent);
+    method public static boolean isActivitySideSheetMaximizationEnabled(android.content.Intent);
     method public static boolean isBackgroundInteractionEnabled(android.content.Intent);
     method public static boolean isBookmarksButtonEnabled(android.content.Intent);
     method public static boolean isDownloadButtonEnabled(android.content.Intent);
@@ -129,6 +142,16 @@ package androidx.browser.customtabs {
     field public static final int ACTIVITY_HEIGHT_ADJUSTABLE = 1; // 0x1
     field public static final int ACTIVITY_HEIGHT_DEFAULT = 0; // 0x0
     field public static final int ACTIVITY_HEIGHT_FIXED = 2; // 0x2
+    field public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT = 0; // 0x0
+    field public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER = 3; // 0x3
+    field public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_NONE = 1; // 0x1
+    field public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW = 2; // 0x2
+    field public static final int ACTIVITY_SIDE_SHEET_POSITION_DEFAULT = 0; // 0x0
+    field public static final int ACTIVITY_SIDE_SHEET_POSITION_END = 2; // 0x2
+    field public static final int ACTIVITY_SIDE_SHEET_POSITION_START = 1; // 0x1
+    field public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT = 0; // 0x0
+    field public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE = 1; // 0x1
+    field public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP = 2; // 0x2
     field public static final int CLOSE_BUTTON_POSITION_DEFAULT = 0; // 0x0
     field public static final int CLOSE_BUTTON_POSITION_END = 2; // 0x2
     field public static final int CLOSE_BUTTON_POSITION_START = 1; // 0x1
@@ -137,6 +160,11 @@ package androidx.browser.customtabs {
     field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final String EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR = "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
+    field public static final String EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_BREAKPOINT_DP";
+    field public static final String EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_DECORATION_TYPE";
+    field public static final String EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION";
+    field public static final String EXTRA_ACTIVITY_SIDE_SHEET_POSITION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_POSITION";
+    field public static final String EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION = "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
     field public static final String EXTRA_CLOSE_BUTTON_POSITION = "androidx.browser.customtabs.extra.CLOSE_BUTTON_POSITION";
     field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
@@ -149,6 +177,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
     field public static final String EXTRA_EXIT_ANIMATION_BUNDLE = "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
     field public static final String EXTRA_INITIAL_ACTIVITY_HEIGHT_PX = "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_HEIGHT_PX";
+    field public static final String EXTRA_INITIAL_ACTIVITY_WIDTH_PX = "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_WIDTH_PX";
     field public static final String EXTRA_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
     field public static final String EXTRA_NAVIGATION_BAR_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
     field public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
@@ -192,6 +221,10 @@ package androidx.browser.customtabs {
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder enableUrlBarHiding();
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetBreakpointDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetDecorationType(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetPosition(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetRoundedCornersPosition(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setBackgroundInteractionEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setBookmarksButtonEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
@@ -204,6 +237,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityHeightPx(@Dimension(unit=androidx.annotation.Dimension.PX) int, int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setInitialActivityWidthPx(@Dimension(unit=androidx.annotation.Dimension.PX) int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
