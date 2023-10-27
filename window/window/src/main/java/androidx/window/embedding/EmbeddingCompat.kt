@@ -247,6 +247,13 @@ internal class EmbeddingCompat(
         overlayController!!.overlayAttributesCalculator = null
     }
 
+    @RequiresWindowSdkExtension(5)
+    override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        windowSdkExtensions.requireExtensionVersion(5)
+
+        overlayController!!.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
     companion object {
         const val DEBUG = true
         private const val TAG = "EmbeddingCompat"

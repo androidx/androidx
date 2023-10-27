@@ -18,13 +18,16 @@ package androidx.window.embedding
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.ActivityEmbeddingOptionsImpl.getOverlayAttributes
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
+import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
@@ -38,7 +41,7 @@ import kotlin.concurrent.withLock
  */
 @SuppressLint("NewApi")
 @RequiresWindowSdkExtension(5)
-internal class OverlayControllerImpl(
+internal open class OverlayControllerImpl(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
 ) {
@@ -50,13 +53,20 @@ internal class OverlayControllerImpl(
         get() = globalLock.withLock { field }
         set(value) { globalLock.withLock { field = value } }
 
+    @GuardedBy("globalLock")
+    private val overlayTagToAttributesMap: MutableMap<String, OverlayAttributes> = ArrayMap()
+
+    @GuardedBy("globalLock")
+    private val overlayTagToContainerMap = ArrayMap<String, ActivityStack>()
+
     init {
         WindowSdkExtensions.getInstance().requireExtensionVersion(5)
 
         embeddingExtension.setActivityStackAttributesCalculator { params ->
             globalLock.withLock {
+                val parentContainerInfo = params.parentContainerInfo
                 val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(
-                    params.parentContainerInfo.windowMetrics
+                    parentContainerInfo.windowMetrics
                 )
                 val overlayAttributes = calculateOverlayAttributes(
                     params.activityStackTag,
@@ -67,18 +77,22 @@ internal class OverlayControllerImpl(
                     params.parentContainerInfo.configuration,
                     ExtensionsWindowLayoutInfoAdapter.translate(
                         windowMetrics,
-                        params.parentContainerInfo.windowLayoutInfo
+                        parentContainerInfo.windowLayoutInfo
                     ),
                 )
+                return@setActivityStackAttributesCalculator overlayAttributes
+                    .toActivityStackAttributes(parentContainerInfo)
+            }
+        }
 
-                return@setActivityStackAttributesCalculator ActivityStackAttributes.Builder()
-                    .setRelativeBounds(
-                        EmbeddingBounds.translateEmbeddingBounds(
-                            overlayAttributes.bounds,
-                            adapter.translate(params.parentContainerInfo),
-                        ).toRect()
-                    ).setWindowAttributes(adapter.translateWindowAttributes())
-                    .build()
+        embeddingExtension.registerActivityStackCallback(Runnable::run) { activityStacks ->
+            globalLock.withLock {
+                overlayTagToContainerMap.clear()
+                overlayTagToContainerMap.putAll(
+                    activityStacks.getOverlayContainers().map { overlayContainer ->
+                        Pair(overlayContainer.tag!!, overlayContainer)
+                    }
+                )
             }
         }
     }
@@ -104,7 +118,8 @@ internal class OverlayControllerImpl(
         configuration: Configuration,
         windowLayoutInfo: WindowLayoutInfo,
     ): OverlayAttributes {
-        val defaultOverlayAttrs = initialOverlayAttrs
+        val defaultOverlayAttrs = getUpdatedOverlayAttributes(tag)
+            ?: initialOverlayAttrs
             ?: throw IllegalArgumentException(
                 "Can't retrieve overlay attributes from launch options"
             )
@@ -120,4 +135,48 @@ internal class OverlayControllerImpl(
                 )
             ) ?: defaultOverlayAttrs
     }
+
+    @VisibleForTesting
+    internal open fun getUpdatedOverlayAttributes(overlayTag: String): OverlayAttributes? =
+        overlayTagToAttributesMap[overlayTag]
+
+    internal open fun updateOverlayAttributes(
+        overlayTag: String,
+        overlayAttributes: OverlayAttributes
+    ) {
+        globalLock.withLock {
+            val activityStackToken = overlayTagToContainerMap[overlayTag]?.token
+                // Users may call this API before any callback coming. Try to ask platform if
+                // this container exists.
+                ?: embeddingExtension.getActivityStackToken(overlayTag)
+                // Early return if there's no such ActivityStack associated with the tag.
+                ?: return
+
+            embeddingExtension.updateActivityStackAttributes(
+                activityStackToken,
+                overlayAttributes.toActivityStackAttributes(
+                    embeddingExtension.getParentContainerInfo(activityStackToken)!!
+                )
+            )
+
+            // TODO(b/243518738): Clear the mapping when the overlayContainer is dismissed.
+            // Update the tag-overlayAttributes map, which will be treated as the default
+            // overlayAttributes in calculator.
+            overlayTagToAttributesMap[overlayTag] = overlayAttributes
+        }
+    }
+
+    private fun OverlayAttributes.toActivityStackAttributes(
+        parentContainerInfo: ParentContainerInfo
+    ): ActivityStackAttributes = ActivityStackAttributes.Builder()
+        .setRelativeBounds(
+            EmbeddingBounds.translateEmbeddingBounds(
+                bounds,
+                adapter.translate(parentContainerInfo)
+            ).toRect()
+        ).setWindowAttributes(adapter.translateWindowAttributes())
+        .build()
+
+    private fun List<ActivityStack>.getOverlayContainers(): List<ActivityStack> =
+        filter { activityStack -> activityStack.tag != null }.toList()
 }

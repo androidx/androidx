@@ -43,7 +43,7 @@ class OverlayAttributesCalculatorParams internal constructor(
     /**
      * The overlay [ActivityStack]'s [OverlayAttributes] specified by [overlayTag], which is the
      * [OverlayAttributes] that is not calculated by calculator. It should be either initialized by
-     * [OverlayCreateParams.overlayAttributes] or the runtime API to update [OverlayAttributes].
+     * [OverlayCreateParams.overlayAttributes] or [OverlayController.updateOverlayAttributes].
      */
     val defaultOverlayAttributes: OverlayAttributes,
 ) {

@@ -90,6 +90,25 @@ class OverlayController @VisibleForTesting internal constructor(
         backend.clearOverlayAttributesCalculator()
     }
 
+    /**
+     * Updates [OverlayAttributes] of the overlay [ActivityStack] specified by [overlayTag].
+     * It's no op if there's no such overlay [ActivityStack] associated with [overlayTag].
+     *
+     * If an [OverlayAttributes] calculator function is specified, the updated [overlayAttributes]
+     * will be passed by [OverlayAttributesCalculatorParams.defaultOverlayAttributes] when the
+     * calculator function applies to the overlay [ActivityStack] specified by [overlayTag].
+     *
+     * @param overlayTag The overlay [ActivityStack]'s tag
+     * @param overlayAttributes The [OverlayAttributes] to update
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
+     *                                       is less than 5.
+     * @see androidx.window.embedding.OverlayController.setOverlayAttributesCalculator
+     */
+    @RequiresWindowSdkExtension(5)
+    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        backend.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
     companion object {
         /**
          * Obtains an instance of [OverlayController].

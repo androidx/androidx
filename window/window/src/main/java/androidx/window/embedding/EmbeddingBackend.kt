@@ -97,6 +97,9 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(5)
     fun clearOverlayAttributesCalculator()
 
+    @RequiresWindowSdkExtension(5)
+    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
+
     companion object {
 
         private var decorator: (EmbeddingBackend) -> EmbeddingBackend =

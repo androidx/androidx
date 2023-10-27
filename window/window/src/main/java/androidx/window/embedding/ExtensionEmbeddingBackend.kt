@@ -441,6 +441,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.clearOverlayAttributesCalculator()
     }
 
+    @RequiresWindowSdkExtension(5)
+    override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        embeddingExtension?.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
     @RequiresApi(31)
     private object Api31Impl {
         @DoNotInline

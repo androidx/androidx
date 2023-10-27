@@ -46,4 +46,14 @@ class OverlayControllerTest {
 
         verify(mockBackend).clearOverlayAttributesCalculator()
     }
+
+    @Test
+    fun test_updateOverlayAttributes_delegates() {
+        val tag = "test"
+        val overlayAttributes = OverlayAttributes()
+
+        overlayController.updateOverlayAttributes(tag, overlayAttributes)
+
+        verify(mockBackend).updateOverlayAttributes(tag, overlayAttributes)
+    }
 }
