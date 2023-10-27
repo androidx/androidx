@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.content.Context
+import android.os.Build
 import android.os.ParcelUuid
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
@@ -35,9 +36,11 @@ class ScanResultTest {
 
     @Rule
     @JvmField
-    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        android.Manifest.permission.BLUETOOTH_CONNECT
-    )
+    val permissionRule: GrantPermissionRule =
+        if (Build.VERSION.SDK_INT >= 31)
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_CONNECT)
+        else
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH)
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val bluetoothManager: BluetoothManager =
