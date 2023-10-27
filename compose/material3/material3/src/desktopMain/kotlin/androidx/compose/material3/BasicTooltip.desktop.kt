@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -23,7 +23,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 
 /**
- * BasicTooltipBox that wraps a composable with a tooltip.
+ * NOTICE:
+ * Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
  *
  * Tooltip that provides a descriptive message for an anchor.
  * It can be used to call the users attention to the anchor.
@@ -42,9 +43,9 @@ import androidx.compose.ui.window.PopupPositionProvider
  * long press and mouse hover to trigger the tooltip through the state provided.
  * @param content the composable that the tooltip will anchor to.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
-actual fun BasicTooltipBox(
+internal actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,
