@@ -15,7 +15,9 @@ function deleteOldPlaygroundFiles {
     rm "$OLD_PG/gradlew"
     rm "$OLD_PG/gradlew.bat"
     rm "$OLD_PG/gradle.properties"
+    rm "$OLD_PG/settings.gradle"
     rm -rf "$OLD_PG/.idea"
+
 }
 
 function createNewPlaygroundIn {

@@ -22,8 +22,6 @@ plugins {
     id "playground"
 }
 
-rootProject.name = "paging-playground"
-
 playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->

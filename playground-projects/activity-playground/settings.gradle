@@ -22,8 +22,6 @@ plugins {
     id "playground"
 }
 
-rootProject.name = "activity-playground"
-
 playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->
