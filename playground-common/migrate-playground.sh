@@ -11,13 +11,13 @@ TARGET_PG_ROOT="./playground-projects"
 
 function deleteOldPlaygroundFiles {
     OLD_PG=$(relativize $1)
-    rm "$OLD_PG/gradle"
-    rm "$OLD_PG/gradlew"
-    rm "$OLD_PG/gradlew.bat"
-    rm "$OLD_PG/gradle.properties"
-    rm "$OLD_PG/settings.gradle"
+    rm -f "$OLD_PG/gradle"
+    rm -f "$OLD_PG/gradlew"
+    rm -f "$OLD_PG/gradlew.bat"
+    rm -f "$OLD_PG/gradle.properties"
+    rm -f "$OLD_PG/settings.gradle"
+    rm -rf "$OLD_PG/buildSrc"
     rm -rf "$OLD_PG/.idea"
-
 }
 
 function createNewPlaygroundIn {
