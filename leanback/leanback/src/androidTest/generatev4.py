@@ -17,7 +17,7 @@
 import os
 import sys
 
-print "Generate v4 fragment related code for leanback"
+print("Generate v4 fragment related code for leanback")
 
 ####### generate XXXTestFragment classes #######
 
@@ -29,7 +29,7 @@ cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Erro
       'DetailsTest']
 
 for w in files:
-    print "copy {}SupportFragment to {}Fragment".format(w, w)
+    print("copy {}SupportFragment to {}Fragment".format(w, w))
 
     file = open('java/androidx/leanback/app/{}SupportFragment.java'.format(w), 'r')
     outfile = open('java/androidx/leanback/app/{}Fragment.java'.format(w), 'w')
@@ -52,7 +52,7 @@ for w in files:
 testcls = ['GuidedStep', 'Single']
 
 for w in testcls:
-    print "copy {}SupportFrgamentTestBase to {}FragmentTestBase".format(w, w)
+    print("copy {}SupportFrgamentTestBase to {}FragmentTestBase".format(w, w))
 
     file = open('java/androidx/leanback/app/{}SupportFragmentTestBase.java'.format(w), 'r')
     outfile = open('java/androidx/leanback/app/{}FragmentTestBase.java'.format(w), 'w')
@@ -79,7 +79,7 @@ testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details
 'Headers', 'Search']
 
 for w in testcls:
-    print "copy {}SupporFragmentTest to {}FragmentTest".format(w, w)
+    print("copy {}SupporFragmentTest to {}FragmentTest".format(w, w))
 
     file = open('java/androidx/leanback/app/{}SupportFragmentTest.java'.format(w), 'r')
     outfile = open('java/androidx/leanback/app/{}FragmentTest.java'.format(w), 'w')
@@ -99,9 +99,9 @@ for w in testcls:
             line = line.replace('{}TestSupportFragment'.format(w), '{}TestFragment'.format(w))
         line = line.replace('androidx.fragment.app.FragmentActivity', 'android.app.Activity')
         line = line.replace('androidx.fragment.app.Fragment', 'android.app.Fragment')
-	line = line.replace('extends FragmentActivity', 'extends Activity')
-	line = line.replace('Activity.this.getSupportFragmentManager', 'Activity.this.getFragmentManager')
-	line = line.replace('tivity.getSupportFragmentManager', 'tivity.getFragmentManager')
+        line = line.replace('extends FragmentActivity', 'extends Activity')
+        line = line.replace('Activity.this.getSupportFragmentManager', 'Activity.this.getFragmentManager')
+        line = line.replace('tivity.getSupportFragmentManager', 'tivity.getFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()
@@ -111,7 +111,7 @@ for w in testcls:
 testcls = ['Browse', 'GuidedStep', 'Single']
 
 for w in testcls:
-    print "copy {}SupportFragmentTestActivity to {}FragmentTestActivity".format(w, w)
+    print("copy {}SupportFragmentTestActivity to {}FragmentTestActivity".format(w, w))
     file = open('java/androidx/leanback/app/{}SupportFragmentTestActivity.java'.format(w), 'r')
     outfile = open('java/androidx/leanback/app/{}FragmentTestActivity.java'.format(w), 'w')
     outfile.write("// CHECKSTYLE:OFF Generated code\n")
@@ -129,7 +129,7 @@ for w in testcls:
 
 ####### generate Float parallax test #######
 
-print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
+print("copy ParallaxIntEffectTest to ParallaxFloatEffectTest")
 file = open('java/androidx/leanback/widget/ParallaxIntEffectTest.java', 'r')
 outfile = open('java/androidx/leanback/widget/ParallaxFloatEffectTest.java', 'w')
 outfile.write("// CHECKSTYLE:OFF Generated code\n")
@@ -149,7 +149,7 @@ file.close()
 outfile.close()
 
 
-print "copy ParallaxIntTest to ParallaxFloatTest"
+print("copy ParallaxIntTest to ParallaxFloatTest")
 file = open('java/androidx/leanback/widget/ParallaxIntTest.java', 'r')
 outfile = open('java/androidx/leanback/widget/ParallaxFloatTest.java', 'w')
 outfile.write("// CHECKSTYLE:OFF Generated code\n")
