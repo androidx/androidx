@@ -16,7 +16,6 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.LibraryExtension
@@ -24,12 +23,6 @@ import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.ProtobufPlugin
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.attribute.FileTime
-import org.apache.tools.zip.ZipEntry
-import org.apache.tools.zip.ZipFile
-import org.apache.tools.zip.ZipOutputStream
-import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -38,20 +31,10 @@ import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.file.FileCollection
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.StopExecutionException
-import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.register
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -202,31 +185,25 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
     libraryProject.dependencies {
         add(consumeInspector.name, inspectorProject)
     }
-
     val consumeInspectorFiles = libraryProject.files(consumeInspector)
+
     generateProguardDetectionFile(libraryProject)
-
-    val componentsExtension =
-        libraryProject.extensions.findByType(AndroidComponentsExtension::class.java)
-            ?: throw GradleException("android plugin must be used")
-    componentsExtension.onVariants { variant: Variant ->
-        val updateArtifact = libraryProject.tasks
-            .register<InspectionTransformerTask>("${variant.name}UpdateArtifact")
-        updateArtifact.configure { it.inspectorJar = consumeInspectorFiles }
-
-        variant.artifacts.use(updateArtifact)
-            .wiredWithFiles(
-                InspectionTransformerTask::aarFile,
-                InspectionTransformerTask::updatedAarFile
-            )
-            .toTransform(SingleArtifact.AAR)
+    val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
+    libExtension.libraryVariants.all { variant ->
+        variant.packageLibraryProvider.configure { zip ->
+            zip.from(consumeInspectorFiles)
+            zip.rename {
+                if (it == consumeInspectorFiles.asFileTree.singleFile.name) {
+                    "inspector.jar"
+                } else it
+            }
+        }
     }
 
     libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES) {
         it.setupReleaseAttribute()
     }
-    libraryProject.dependencies.add(
-        IMPORT_INSPECTOR_DEPENDENCIES,
+    libraryProject.dependencies.add(IMPORT_INSPECTOR_DEPENDENCIES,
         libraryProject.dependencies.project(
             mapOf(
                 "path" to inspectorProjectPath,
@@ -294,76 +271,4 @@ open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
      * Name of built inspector artifact, if not provided it is equal to project's name.
      */
     var name: String? = null
-}
-
-/**
- * This task adds inspector.jar compiled from the corresponding inspection project to
- * the aar.
- */
-@Suppress("SyntheticAccessor")
-@CacheableTask
-abstract class InspectionTransformerTask : DefaultTask() {
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val aarFile: RegularFileProperty
-
-    @get:OutputFile
-    abstract val updatedAarFile: RegularFileProperty
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract var inspectorJar: FileCollection
-
-    @TaskAction
-    fun taskAction() {
-        val aar = aarFile.get().asFile
-        val updatedAar = updatedAarFile.get().asFile
-        val tempDir = Files.createTempDirectory("${name}Unzip").toFile()
-        tempDir.deleteOnExit()
-        ZipFile(aar).use { aarFile -> aarFile.unzipTo(tempDir) }
-        ZipOutputStream(updatedAar.outputStream()).use { stream ->
-            tempDir.listFiles()?.forEach { file -> stream.addFileRecursive(null, file) }
-            stream.addFileRecursive(null, inspectorJar.singleFile, "inspector.jar")
-        }
-        tempDir.deleteRecursively()
-    }
-}
-
-private fun ZipFile.unzipTo(tempDir: File) {
-    entries.iterator().forEach { entry ->
-        if (entry.isDirectory) {
-            File(tempDir, entry.name).mkdirs()
-        } else {
-            val file = File(tempDir, entry.name)
-            file.parentFile.mkdirs()
-            getInputStream(entry).use { stream -> file.writeBytes(stream.readBytes()) }
-        }
-    }
-}
-
-private fun ZipOutputStream.addFileRecursive(
-    parentPath: String?,
-    file: File,
-    nameOverride: String? = null
-) {
-    val name = nameOverride ?: file.name
-    val entryPath = if (parentPath != null) "$parentPath/$name" else name
-    val entry = ZipEntry(file, entryPath)
-
-    // Reset creation time of entry to make it deterministic.
-    entry.time = 0
-    entry.creationTime = FileTime.fromMillis(0)
-
-    if (file.isFile) {
-        putNextEntry(entry)
-        file.inputStream().use { stream -> stream.copyTo(this) }
-        closeEntry()
-    } else if (file.isDirectory) {
-        val listFiles = file.listFiles()
-        if (!listFiles.isNullOrEmpty()) {
-            putNextEntry(entry)
-            closeEntry()
-            listFiles.forEach { containedFile -> addFileRecursive(entryPath, containedFile) }
-        }
-    }
 }
