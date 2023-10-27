@@ -102,25 +102,23 @@ public class Oscillator {
     }
 
     double getP(double time) {
-        if (time < 0) {
-            time = 0;
-        } else if (time > 1) {
-            time = 1;
+        if (time <= 0.0) {
+            return 0.0;
+        } else if (time >= 1.0) {
+            return 1.0;
         }
+        // At this point, `index` is guaranteed to be != 0 for any time value (assuming mPosition
+        // includes 0.0)
         int index = Arrays.binarySearch(mPosition, time);
-        double p = 0;
-        if (index > 0) {
-            p = 1;
-        } else if (index != 0) {
+        if (index < 0) {
             index = -index - 1;
-            double t = time;
-            double m = (mPeriod[index] - mPeriod[index - 1])
-                    / (mPosition[index] - mPosition[index - 1]);
-            p = mArea[index - 1]
-                    + (mPeriod[index - 1] - m * mPosition[index - 1]) * (t - mPosition[index - 1])
-                    + m * (t * t - mPosition[index - 1] * mPosition[index - 1]) / 2;
         }
-        return p;
+
+        double m = (mPeriod[index] - mPeriod[index - 1])
+                / (mPosition[index] - mPosition[index - 1]);
+        return mArea[index - 1]
+                + (mPeriod[index - 1] - m * mPosition[index - 1]) * (time - mPosition[index - 1])
+                + m * (time * time - mPosition[index - 1] * mPosition[index - 1]) / 2;
     }
 
     // @TODO: add description
@@ -149,24 +147,20 @@ public class Oscillator {
     }
 
     double getDP(double time) {
-        if (time <= 0) {
-            time = 0.00001;
-        } else if (time >= 1) {
-            time = .999999;
+        if (time <= 0.0) {
+            return 0.0;
+        } else if (time >= 1.0) {
+            return 1.0;
         }
+        // At this point, `index` is guaranteed to be != 0 for any time value (assuming mPosition
+        // includes 0.0)
         int index = Arrays.binarySearch(mPosition, time);
-        double p = 0;
-        if (index > 0) {
-            return 0;
-        }
-        if (index != 0) {
+        if (index < 0) {
             index = -index - 1;
-            double t = time;
-            double m = (mPeriod[index] - mPeriod[index - 1])
-                    / (mPosition[index] - mPosition[index - 1]);
-            p = m * t + (mPeriod[index - 1] - m * mPosition[index - 1]);
         }
-        return p;
+        double m = (mPeriod[index] - mPeriod[index - 1])
+                / (mPosition[index] - mPosition[index - 1]);
+        return m * time + (mPeriod[index - 1] - m * mPosition[index - 1]);
     }
 
     // @TODO: add description
