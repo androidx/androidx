@@ -479,10 +479,56 @@ class ComponentActivityCallbacksTest {
             assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
         }
     }
+
+    @Test
+    fun onUserLeaveHint() {
+        withUse(ActivityScenario.launch(OnUserLeaveHintActivity::class.java)) {
+            var receivedOnUserLeaveHint = false
+
+            val listener = Runnable { receivedOnUserLeaveHint = true }
+
+            withActivity {
+                addOnUserLeaveHintListener(listener)
+                onUserLeaveHint()
+            }
+
+            assertThat(receivedOnUserLeaveHint).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun onUserLeaveHintRemove() {
+        withUse(ActivityScenario.launch(OnUserLeaveHintActivity::class.java)) {
+            var receivedOnUserLeaveHintCount = 0
+
+            val listener = Runnable { receivedOnUserLeaveHintCount++ }
+
+            withActivity {
+                addOnUserLeaveHintListener(listener)
+                onUserLeaveHint()
+            }
+
+            assertThat(receivedOnUserLeaveHintCount).isEqualTo(1)
+
+            withActivity {
+                removeOnUserLeaveHintListener(listener)
+                onUserLeaveHint()
+            }
+
+            // should still be 1
+            assertThat(receivedOnUserLeaveHintCount).isEqualTo(1)
+        }
+    }
 }
 
 class SingleTopActivity : ComponentActivity() {
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+    }
+}
+
+class OnUserLeaveHintActivity : ComponentActivity() {
+    public override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
     }
 }

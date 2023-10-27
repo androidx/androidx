@@ -875,6 +875,11 @@ package androidx.core.app {
     method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
   }
 
+  public interface OnUserLeaveHintProvider {
+    method public void addOnUserLeaveHintListener(Runnable listener);
+    method public void removeOnUserLeaveHintListener(Runnable listener);
+  }
+
   public final class PendingIntentCompat {
     method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, android.os.Bundle?, boolean);
     method public static android.app.PendingIntent getActivities(android.content.Context, int, android.content.Intent![], int, boolean);
