@@ -209,6 +209,10 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     if (name.startsWith("desktop")) return false
     if (name.startsWith("skiko")) return false
 
+    // Doesn't affect the .pom / .module
+    // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
+    if (name == "allSourceSetsCompileDependenciesMetadata") return false
+
     return true
 }
 
