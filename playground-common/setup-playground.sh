@@ -26,8 +26,6 @@ symlink "${PLAYGROUND_REL_PATH}/gradlew" gradlew
 symlink "${PLAYGROUND_REL_PATH}/gradlew.bat" gradlew.bat
 # symlink to the properties file that is shared w/ androidx main
 symlink "${PLAYGROUND_REL_PATH}/androidx-shared.properties" gradle.properties
-# symlink to build source
-symlink "${PLAYGROUND_REL_PATH}/../buildSrc" buildSrc
 
 ANDROIDX_IDEA_DIR="${PLAYGROUND_REL_PATH}/../.idea"
 
