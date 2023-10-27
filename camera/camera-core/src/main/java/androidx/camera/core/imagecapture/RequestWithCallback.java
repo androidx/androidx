@@ -53,6 +53,7 @@ class RequestWithCallback implements TakePictureCallback {
     // Flag tracks if the request has been aborted by the UseCase. Once aborted, this class stops
     // propagating callbacks to the app.
     private boolean mIsAborted = false;
+    private boolean mIsStarted = false;
     @Nullable
     private ListenableFuture<Void> mCaptureRequestFuture;
 
@@ -88,10 +89,11 @@ class RequestWithCallback implements TakePictureCallback {
     @Override
     public void onCaptureStarted() {
         checkMainThread();
-        if (mIsAborted) {
-            // Ignore the event if the request has been aborted.
+        if (mIsAborted || mIsStarted) {
+            // Ignore the event if the request has been aborted or started.
             return;
         }
+        mIsStarted = true;
 
         ImageCapture.OnImageCapturedCallback inMemoryCallback =
                 mTakePictureRequest.getInMemoryCallback();
@@ -113,6 +115,11 @@ class RequestWithCallback implements TakePictureCallback {
             // Ignore. mCaptureFuture should have been completed by the #abort() call.
             return;
         }
+        if (!mIsStarted) {
+            // Send the started event if the capture is completed but hasn't been started yet.
+            onCaptureStarted();
+        }
+
         mCaptureCompleter.set(null);
         // TODO: send early callback to app.
     }

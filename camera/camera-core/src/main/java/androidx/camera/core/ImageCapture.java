@@ -1370,6 +1370,10 @@ public final class ImageCapture extends UseCase {
         /**
          * Called when the capture is started.
          *
+         * <p>This callback is guaranteed to be called once and before
+         * {@link #onImageSaved(OutputFileResults)} for the same invocation of
+         * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+         *
          * <p>It's recommended to play shutter sound or trigger UI indicators of
          * capture when receiving this callback.
          */
@@ -1396,6 +1400,10 @@ public final class ImageCapture extends UseCase {
     public abstract static class OnImageCapturedCallback {
         /**
          * Callback for when the camera has started exposing a frame.
+         *
+         * <p>This callback is guaranteed to be called once and before
+         * {@link #onCaptureSuccess(ImageProxy)} for the same invocation of
+         * {@link #takePicture(Executor, OnImageCapturedCallback)}.
          *
          * <p>It's recommended to play shutter sound or trigger UI indicators of
          * capture when receiving this callback.
