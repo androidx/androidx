@@ -16,8 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.foundation.BasicTooltipBox
-import androidx.compose.foundation.BasicTooltipState
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.interaction.DragInteraction
@@ -25,7 +23,6 @@ import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.rememberBasicTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -84,6 +81,7 @@ fun Label(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HandleInteractions(
     enabled: Boolean,
@@ -106,6 +104,7 @@ private fun HandleInteractions(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 private class LabelStateImpl(
     override val isVisible: Boolean = true,
     override val isPersistent: Boolean = true
