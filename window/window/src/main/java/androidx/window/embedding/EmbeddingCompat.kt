@@ -33,6 +33,7 @@ import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SP
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import java.lang.reflect.Proxy
 
@@ -83,21 +84,40 @@ internal class EmbeddingCompat(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (windowSdkExtensions.extensionVersion < 2) {
-            consumerAdapter.addConsumer(
-                embeddingExtension,
-                List::class,
-                "setSplitInfoCallback"
-            ) { values ->
-                val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+        when (windowSdkExtensions.extensionVersion) {
+            1 -> {
+                consumerAdapter.addConsumer(
+                    embeddingExtension,
+                    List::class,
+                    "setSplitInfoCallback"
+                ) { values ->
+                    val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+                    embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+                }
             }
-        } else {
-            val callback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            in 2..4 -> {
+                registerSplitInfoCallback(embeddingCallback)
             }
-            embeddingExtension.setSplitInfoCallback(callback)
+            5 -> {
+                registerSplitInfoCallback(embeddingCallback)
+
+                // Register ActivityStack callback
+                val activityStackCallback = Consumer<List<OEMActivityStack>> { activityStacks ->
+                    embeddingCallback.onActivityStackChanged(adapter.translate(activityStacks))
+                }
+                embeddingExtension.registerActivityStackCallback(
+                    Runnable::run,
+                    activityStackCallback
+                )
+            }
         }
+    }
+
+    private fun registerSplitInfoCallback(embeddingCallback: EmbeddingCallbackInterface) {
+        val splitInfoCallback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
+            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+        }
+        embeddingExtension.setSplitInfoCallback(splitInfoCallback)
     }
 
     override fun isActivityEmbedded(activity: Activity): Boolean {

@@ -43,6 +43,11 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * embedding container and associated with a [SplitInfo]. Returns `null` if there is no such
      * [ActivityStack].
      *
+     * Started from [WindowSdkExtensions.extensionVersion] 5, this method can also obtain
+     * standalone [ActivityStack], which is not associated with any [SplitInfo]. For example,
+     * an [ActivityStack] launched with [ActivityRule.alwaysExpand], or an overlay [ActivityStack]
+     * launched by [setLaunchingActivityStack] with [OverlayCreateParams].
+     *
      * @param activity The [Activity] to check.
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
      * [ActivityStack].

@@ -54,11 +54,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     @VisibleForTesting
     val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
-    private val splitInfoEmbeddingCallback = EmbeddingCallbackImpl()
+    private val embeddingCallback = EmbeddingCallbackImpl()
 
     init {
         splitChangeCallbacks = CopyOnWriteArrayList<SplitListenerWrapper>()
-        embeddingExtension?.setEmbeddingCallback(splitInfoEmbeddingCallback)
+        embeddingExtension?.setEmbeddingCallback(embeddingCallback)
     }
 
     companion object {
@@ -280,11 +280,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
             val callbackWrapper = SplitListenerWrapper(activity, executor, callback)
             splitChangeCallbacks.add(callbackWrapper)
-            if (splitInfoEmbeddingCallback.lastInfo != null) {
-                callbackWrapper.accept(splitInfoEmbeddingCallback.lastInfo!!)
-            } else {
-                callbackWrapper.accept(emptyList())
-            }
+            callbackWrapper.accept(embeddingCallback.lastInfo)
         }
     }
 
@@ -306,12 +302,19 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
      * values.
      */
     internal inner class EmbeddingCallbackImpl : EmbeddingCallbackInterface {
-        var lastInfo: List<SplitInfo>? = null
+        var lastInfo: List<SplitInfo> = emptyList()
+
+        var lastActivityStacks: List<ActivityStack> = emptyList()
+
         override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {
             lastInfo = splitInfo
             for (callbackWrapper in splitChangeCallbacks) {
                 callbackWrapper.accept(splitInfo)
             }
+        }
+
+        override fun onActivityStackChanged(activityStacks: List<ActivityStack>) {
+            lastActivityStacks = activityStacks
         }
     }
 
@@ -366,22 +369,27 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun getActivityStack(activity: Activity): ActivityStack? {
+    override fun getActivityStack(activity: Activity): ActivityStack? =
         globalLock.withLock {
-            val lastInfo: List<SplitInfo> = splitInfoEmbeddingCallback.lastInfo ?: return null
-            for (info in lastInfo) {
-                if (activity !in info) {
-                    continue
-                }
-                if (activity in info.primaryActivityStack) {
-                    return info.primaryActivityStack
-                }
-                if (activity in info.secondaryActivityStack) {
-                    return info.secondaryActivityStack
-                }
-            }
-            return null
+            embeddingCallback.lastActivityStacks.find { activityStack ->
+                activity in activityStack
+            } ?: getActivityStackFromSplitInfoList(activity)
         }
+
+    @GuardedBy("globalLock")
+    private fun getActivityStackFromSplitInfoList(activity: Activity): ActivityStack? {
+        for (info in embeddingCallback.lastInfo) {
+            if (activity !in info) {
+                continue
+            }
+            if (activity in info.primaryActivityStack) {
+                return info.primaryActivityStack
+            }
+            if (activity in info.secondaryActivityStack) {
+                return info.secondaryActivityStack
+            }
+        }
+        return null
     }
 
     @RequiresWindowSdkExtension(5)

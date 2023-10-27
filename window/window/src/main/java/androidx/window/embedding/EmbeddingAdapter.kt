@@ -45,6 +45,7 @@ import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.ParentContainerInfo as OEMParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
@@ -72,7 +73,7 @@ import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapt
 internal class EmbeddingAdapter(
     private val predicateAdapter: PredicateAdapter
 ) {
-    private val vendorApiLevel
+    private val extensionVersion
         get() = WindowSdkExtensions.getInstance().extensionVersion
     private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
     private val api2Impl = VendorApiLevel2Impl()
@@ -84,29 +85,32 @@ internal class EmbeddingAdapter(
     }
 
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
-        return when (vendorApiLevel) {
+        return when (extensionVersion) {
             1 -> api1Impl.translateCompat(splitInfo)
             2 -> api2Impl.translateCompat(splitInfo)
             else -> {
-                val primaryActivityStack = splitInfo.primaryActivityStack
-                val secondaryActivityStack = splitInfo.secondaryActivityStack
                 SplitInfo(
-                    ActivityStack(
-                        primaryActivityStack.activities,
-                        primaryActivityStack.isEmpty,
-                        primaryActivityStack.token,
-                    ),
-                    ActivityStack(
-                        secondaryActivityStack.activities,
-                        secondaryActivityStack.isEmpty,
-                        secondaryActivityStack.token,
-                    ),
+                    translate(splitInfo.primaryActivityStack),
+                    translate(splitInfo.secondaryActivityStack),
                     translate(splitInfo.splitAttributes),
                     splitInfo.token,
                 )
             }
         }
     }
+
+    private fun translate(activityStack: OEMActivityStack): ActivityStack =
+        when (extensionVersion) {
+            in 1..4 -> api1Impl.translateCompat(activityStack)
+            else -> ActivityStack(
+                activityStack.activities,
+                activityStack.isEmpty,
+                activityStack.token,
+            )
+        }
+
+    internal fun translate(activityStacks: List<OEMActivityStack>): List<ActivityStack> =
+        activityStacks.map(this::translate)
 
     internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
         SplitAttributes.Builder()
@@ -186,7 +190,7 @@ internal class EmbeddingAdapter(
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
             val activitiesPairPredicate =
@@ -247,7 +251,7 @@ internal class EmbeddingAdapter(
 
     @OptIn(ExperimentalWindowApi::class)
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
-        require(vendorApiLevel >= 2)
+        require(extensionVersion >= 2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
         val builder = OEMSplitAttributes.Builder()
@@ -264,7 +268,7 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-        if (vendorApiLevel >= 5) {
+        if (extensionVersion >= 5) {
             builder.setWindowAttributes(translateWindowAttributes())
         }
         return builder.build()
@@ -284,7 +288,7 @@ internal class EmbeddingAdapter(
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
-        require(vendorApiLevel >= 2)
+        require(extensionVersion >= 2)
         return when (splitType) {
             SPLIT_TYPE_HINGE -> OEMSplitType.HingeSplitType(
                 translateSplitType(SPLIT_TYPE_EQUAL)
@@ -307,7 +311,7 @@ internal class EmbeddingAdapter(
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateSplitPlaceholderRuleCompat(
                 context,
                 rule,
@@ -354,7 +358,7 @@ internal class EmbeddingAdapter(
         rule: ActivityRule,
         predicateClass: Class<*>
     ): OEMActivityRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateActivityRuleCompat(rule, predicateClass)
         } else {
             val activityPredicate = Predicate<Activity> { activity ->
@@ -388,27 +392,12 @@ internal class EmbeddingAdapter(
 
     /** Provides backward compatibility for Window extensions with API level 2 */
     private inner class VendorApiLevel2Impl {
-        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
-            val primaryActivityStack = splitInfo.primaryActivityStack
-            val primaryFragment = ActivityStack(
-                primaryActivityStack.activities,
-                primaryActivityStack.isEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
-            )
-
-            val secondaryActivityStack = splitInfo.secondaryActivityStack
-            val secondaryFragment = ActivityStack(
-                secondaryActivityStack.activities,
-                secondaryActivityStack.isEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
-            )
-            return SplitInfo(
-                primaryFragment,
-                secondaryFragment,
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo = SplitInfo(
+                api1Impl.translateCompat(splitInfo.primaryActivityStack),
+                api1Impl.translateCompat(splitInfo.secondaryActivityStack),
                 translate(splitInfo.splitAttributes),
                 INVALID_SPLIT_INFO_TOKEN,
             )
-        }
     }
 
     /**
@@ -568,19 +557,17 @@ internal class EmbeddingAdapter(
             }
 
         fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo = SplitInfo(
-                ActivityStack(
-                    splitInfo.primaryActivityStack.activities,
-                    splitInfo.primaryActivityStack.isEmpty,
-                    INVALID_ACTIVITY_STACK_TOKEN,
-                ),
-                ActivityStack(
-                    splitInfo.secondaryActivityStack.activities,
-                    splitInfo.secondaryActivityStack.isEmpty,
-                    INVALID_ACTIVITY_STACK_TOKEN,
-                ),
+                translateCompat(splitInfo.primaryActivityStack),
+                translateCompat(splitInfo.secondaryActivityStack),
                 getSplitAttributesCompat(splitInfo),
                 INVALID_SPLIT_INFO_TOKEN,
             )
+
+        fun translateCompat(activityStack: OEMActivityStack): ActivityStack = ActivityStack(
+            activityStack.activities,
+            activityStack.isEmpty,
+            INVALID_ACTIVITY_STACK_TOKEN,
+        )
     }
 
     internal companion object {

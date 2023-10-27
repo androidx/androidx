@@ -36,6 +36,8 @@ internal interface EmbeddingInterfaceCompat {
 
     interface EmbeddingCallbackInterface {
         fun onSplitInfoChanged(splitInfo: List<SplitInfo>)
+
+        fun onActivityStackChanged(activityStacks: List<ActivityStack>)
     }
 
     fun isActivityEmbedded(activity: Activity): Boolean
