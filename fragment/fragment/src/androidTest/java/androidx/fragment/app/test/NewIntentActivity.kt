@@ -35,7 +35,7 @@ class NewIntentActivity : FragmentActivity() {
         }
     }
 
-    public override fun onNewIntent(intent: Intent?) {
+    public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         // Test a child fragment transaction -
         supportFragmentManager
