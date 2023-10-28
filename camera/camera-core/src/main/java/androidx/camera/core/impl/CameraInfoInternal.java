@@ -137,6 +137,20 @@ public interface CameraInfoInternal extends CameraInfo {
         return this;
     }
 
+    /**
+     * Returns if postview is supported or not.
+     */
+    default boolean isPostviewSupported() {
+        return false;
+    }
+
+    /**
+     * Returns if capture process progress is supported or not.
+     */
+    default boolean isCaptureProcessProgressSupported() {
+        return false;
+    }
+
     /** {@inheritDoc} */
     @NonNull
     @Override
