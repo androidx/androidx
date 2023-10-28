@@ -177,7 +177,7 @@ internal class AppWidgetSession(
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
-            sendErrorLayoutIfPresent(context, throwable)
+            notifyWidgetOfError(context, throwable)
         } finally {
             layoutConfig.save()
             Tracing.endGlanceAppWidgetUpdate()
@@ -186,7 +186,7 @@ internal class AppWidgetSession(
     }
 
     override suspend fun onCompositionError(context: Context, throwable: Throwable) {
-        sendErrorLayoutIfPresent(context, throwable)
+        notifyWidgetOfError(context, throwable)
     }
 
     override suspend fun processEvent(context: Context, event: Any) {
@@ -246,16 +246,18 @@ internal class AppWidgetSession(
         }
     }
 
-    private fun sendErrorLayoutIfPresent(context: Context, throwable: Throwable) {
-        if (widget.errorUiLayout == 0) {
-            throw throwable
-        }
+    private fun notifyWidgetOfError(context: Context, throwable: Throwable) {
         logException(throwable)
-        val rv = RemoteViews(context.packageName, widget.errorUiLayout)
         if (shouldPublish) {
-            context.appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+            widget.onCompositionError(
+                context,
+                glanceId = id,
+                appWidgetId = id.appWidgetId,
+                throwable = throwable
+            )
+        } else {
+            throw throwable // rethrow the error if we can't display it
         }
-        lastRemoteViews.value = rv
     }
 
     // Event types that this session supports.
