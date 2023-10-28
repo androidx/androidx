@@ -29,6 +29,7 @@ import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.OverlayAttributes
 import androidx.window.embedding.OverlayAttributesCalculatorParams
 import androidx.window.embedding.OverlayCreateParams
+import androidx.window.embedding.OverlayInfo
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
@@ -221,6 +222,18 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        TODO("Not yet implemented")
+    }
+
+    override fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
         TODO("Not yet implemented")
     }
 

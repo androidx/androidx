@@ -36,6 +36,14 @@ class OverlayAttributes @JvmOverloads constructor(
             "bounds=$bounds" +
             "}"
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OverlayAttributes) return false
+        return bounds == other.bounds
+    }
+
+    override fun hashCode(): Int = bounds.hashCode()
+
     /** The [OverlayAttributes] builder. */
     class Builder {
 

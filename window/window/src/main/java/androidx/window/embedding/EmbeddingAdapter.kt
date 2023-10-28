@@ -99,7 +99,7 @@ internal class EmbeddingAdapter(
         }
     }
 
-    private fun translate(activityStack: OEMActivityStack): ActivityStack =
+    internal fun translate(activityStack: OEMActivityStack): ActivityStack =
         when (extensionVersion) {
             in 1..4 -> api1Impl.translateCompat(activityStack)
             else -> ActivityStack(

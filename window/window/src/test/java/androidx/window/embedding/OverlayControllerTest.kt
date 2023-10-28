@@ -17,13 +17,27 @@
 package androidx.window.embedding
 
 import android.os.Bundle
+import androidx.core.util.Consumer
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
-class OverlayControllerTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+internal class OverlayControllerTest {
     private val mockBackend = mock<EmbeddingBackend>()
     private val overlayController = OverlayController(mockBackend)
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
     fun testSetOverlayCreateParams() {
@@ -55,5 +69,26 @@ class OverlayControllerTest {
         overlayController.updateOverlayAttributes(tag, overlayAttributes)
 
         verify(mockBackend).updateOverlayAttributes(tag, overlayAttributes)
+    }
+
+    @Test
+    fun test_overlayInfoComesFromBackend() = testScope.runTest {
+        val tag = "test"
+        val expected = OverlayInfo(
+            overlayTag = tag,
+            currentOverlayAttributes = OverlayAttributes(),
+            activityStack = ActivityStack(emptyList(), true, mock())
+        )
+        doAnswer { invocationOnMock ->
+            @Suppress("UNCHECKED_CAST")
+            val listener = invocationOnMock.arguments.last() as Consumer<OverlayInfo>
+            listener.accept(expected)
+        }.whenever(mockBackend).addOverlayInfoCallback(any(), any(), any())
+
+        val actual = overlayController.overlayInfo(tag).take(1).toList().first()
+
+        Assert.assertEquals(expected, actual)
+        verify(mockBackend).addOverlayInfoCallback(eq(tag), any(), any())
+        verify(mockBackend).removeOverlayInfoCallback(any())
     }
 }

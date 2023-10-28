@@ -20,9 +20,11 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.os.Bundle
 import android.os.IBinder
+import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import java.util.concurrent.Executor
 
 /**
  * Adapter interface for different historical versions of activity embedding OEM interface in
@@ -86,4 +88,14 @@ internal interface EmbeddingInterfaceCompat {
 
     @RequiresWindowSdkExtension(5)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
+
+    @RequiresWindowSdkExtension(5)
+    fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>,
+    )
+
+    @RequiresWindowSdkExtension(5)
+    fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
 }
