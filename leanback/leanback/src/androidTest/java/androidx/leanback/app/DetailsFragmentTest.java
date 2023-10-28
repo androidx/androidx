@@ -45,6 +45,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import android.app.Fragment;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
@@ -60,6 +61,7 @@ import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -74,6 +76,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@FlakyTest(bugId = 207674174)
 public class DetailsFragmentTest extends SingleFragmentTestBase {
 
     static final int PARALLAX_VERTICAL_OFFSET = -300;
@@ -176,7 +179,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(0f, frameBottom.getAdapterPosition(), delta);
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/271026235
     @Test
     public void parallaxTest() throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(DetailsFragmentParallax.class,
@@ -428,12 +430,23 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsFragmentWithVideo1.class);
     }
 
+    @FlakyTest(bugId = 228336699)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsFragmentWithVideo2.class);
     }
 
@@ -1092,7 +1105,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         }
 
         @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
         }
 
@@ -1167,7 +1180,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
                 (DetailsFragmentEntranceTransition)
                         activity.getTestFragment();
 
-        if (SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < 21) {
             // when enter transition is not supported, mCanUseHost is immmediately true
             assertTrue(detailsFragment.mDetailsBackgroundController.mCanUseHost);
         } else {
