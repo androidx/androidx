@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.scanner
+package androidx.bluetooth.integration.testapp.ui.connections
 
 import android.view.LayoutInflater
 import android.view.View
