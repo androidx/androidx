@@ -114,6 +114,86 @@ fun AssistChip(
     shape: Shape = AssistChipDefaults.shape,
     colors: ChipColors = AssistChipDefaults.assistChipColors(),
     elevation: ChipElevation? = AssistChipDefaults.assistChipElevation(),
+    border: BorderStroke? = AssistChipDefaults.assistChipBorder(enabled),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+) = Chip(
+    modifier = modifier,
+    onClick = onClick,
+    enabled = enabled,
+    label = label,
+    labelTextStyle = MaterialTheme.typography.fromToken(AssistChipTokens.LabelTextFont),
+    labelColor = colors.labelColor(enabled),
+    leadingIcon = leadingIcon,
+    trailingIcon = trailingIcon,
+    shape = shape,
+    colors = colors,
+    elevation = elevation,
+    border = border,
+    minHeight = AssistChipDefaults.Height,
+    paddingValues = AssistChipPadding,
+    interactionSource = interactionSource
+)
+
+/**
+ * <a href="https://m3.material.io/components/chips/overview" class="external" target="_blank">Material Design assist chip</a>.
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Assist chips represent smart or automated actions that can span multiple apps, such as opening a
+ * calendar event from the home screen. Assist chips function as though the user asked an assistant
+ * to complete the action. They should appear dynamically and contextually in a UI.
+ *
+ * ![Assist chip image](https://developer.android.com/images/reference/androidx/compose/material3/assist-chip.png)
+ *
+ * This assist chip is applied with a flat style. If you want an elevated style, use the
+ * [ElevatedAssistChip].
+ *
+ * Example of a flat AssistChip:
+ * @sample androidx.compose.material3.samples.AssistChipSample
+ *
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param leadingIcon optional icon at the start of the chip, preceding the [label] text
+ * @param trailingIcon optional icon at the end of the chip
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ * shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ * different states. See [AssistChipDefaults.assistChipColors].
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ * This controls the size of the shadow below the chip. Additionally, when the container color is
+ * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ * [AssistChipDefaults.assistChipElevation].
+ * @param border the border to draw around the container of this chip. Pass `null` for no border.
+ * See [AssistChipDefaults.assistChipBorder].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Maintained for binary compatibility. Use version with AssistChip that take a" +
+        " BorderStroke instead",
+    replaceWith = ReplaceWith("AssistChip(onClick, label, modifier, enabled,leadingIcon," +
+        " trailingIcon, shape, colors, elevation, border, interactionSource"),
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun AssistChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    shape: Shape = AssistChipDefaults.shape,
+    colors: ChipColors = AssistChipDefaults.assistChipColors(),
+    elevation: ChipElevation? = AssistChipDefaults.assistChipElevation(),
     border: ChipBorder? = AssistChipDefaults.assistChipBorder(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = Chip(
@@ -174,6 +254,85 @@ fun AssistChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
+@Composable
+fun ElevatedAssistChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    shape: Shape = AssistChipDefaults.shape,
+    colors: ChipColors = AssistChipDefaults.elevatedAssistChipColors(),
+    elevation: ChipElevation? = AssistChipDefaults.elevatedAssistChipElevation(),
+    border: BorderStroke? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) = Chip(
+    modifier = modifier,
+    onClick = onClick,
+    enabled = enabled,
+    label = label,
+    labelTextStyle = MaterialTheme.typography.fromToken(AssistChipTokens.LabelTextFont),
+    labelColor = colors.labelColor(enabled),
+    leadingIcon = leadingIcon,
+    trailingIcon = trailingIcon,
+    elevation = elevation,
+    colors = colors,
+    minHeight = AssistChipDefaults.Height,
+    paddingValues = AssistChipPadding,
+    shape = shape,
+    border = border,
+    interactionSource = interactionSource
+)
+
+/**
+ * <a href="https://m3.material.io/components/chips/overview" class="external" target="_blank">Material Design elevated assist chip</a>.
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Assist chips represent smart or automated actions that can span multiple apps, such as opening a
+ * calendar event from the home screen. Assist chips function as though the user asked an assistant
+ * to complete the action. They should appear dynamically and contextually in a UI.
+ *
+ * ![Assist chip image](https://developer.android.com/images/reference/androidx/compose/material3/elevated-assist-chip.png)
+ *
+ * This assist chip is applied with an elevated style. If you want a flat style, use the
+ * [AssistChip].
+ *
+ * Example of an elevated AssistChip with a trailing icon:
+ * @sample androidx.compose.material3.samples.ElevatedAssistChipSample
+ *
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param leadingIcon optional icon at the start of the chip, preceding the [label] text
+ * @param trailingIcon optional icon at the end of the chip
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ * shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ * different states. See [AssistChipDefaults.elevatedAssistChipColors].
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ * This controls the size of the shadow below the chip. Additionally, when the container color is
+ * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ * [AssistChipDefaults.elevatedAssistChipElevation].
+ * @param border the border to draw around the container of this chip
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Maintained for binary compatibility. Use version with ElevatedAssistChip that take a" +
+        " BorderStroke instead",
+    replaceWith = ReplaceWith("ElevatedAssistChip(onClick, label, modifier, enabled," +
+        "leadingIcon, trailingIcon, shape, colors, elevation, border, interactionSource"),
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 fun ElevatedAssistChip(
     onClick: () -> Unit,
@@ -524,6 +683,83 @@ fun SuggestionChip(
     shape: Shape = SuggestionChipDefaults.shape,
     colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
     elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
+    border: BorderStroke = SuggestionChipDefaults.suggestionChipBorder(enabled),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+) = Chip(
+    modifier = modifier,
+    onClick = onClick,
+    enabled = enabled,
+    label = label,
+    labelTextStyle = MaterialTheme.typography.fromToken(SuggestionChipTokens.LabelTextFont),
+    labelColor = colors.labelColor(enabled),
+    leadingIcon = icon,
+    trailingIcon = null,
+    shape = shape,
+    colors = colors,
+    elevation = elevation,
+    border = border,
+    minHeight = SuggestionChipDefaults.Height,
+    paddingValues = SuggestionChipPadding,
+    interactionSource = interactionSource
+)
+
+/**
+ * <a href="https://m3.material.io/components/chips/overview" class="external" target="_blank">Material Design suggestion chip</a>.
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Suggestion chips help narrow a user's intent by presenting dynamically generated suggestions,
+ * such as possible responses or search filters.
+ *
+ * ![Suggestion chip image](https://developer.android.com/images/reference/androidx/compose/material3/suggestion-chip.png)
+ *
+ * This suggestion chip is applied with a flat style. If you want an elevated style, use the
+ * [ElevatedSuggestionChip].
+ *
+ * Example of a flat SuggestionChip with a trailing icon:
+ * @sample androidx.compose.material3.samples.SuggestionChipSample
+ *
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param icon optional icon at the start of the chip, preceding the [label] text
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ * shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ * different states. See [SuggestionChipDefaults.suggestionChipColors].
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ * This controls the size of the shadow below the chip. Additionally, when the container color is
+ * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ * [SuggestionChipDefaults.suggestionChipElevation].
+ * @param border the border to draw around the container of this chip. Pass `null` for no border.
+ * See [SuggestionChipDefaults.suggestionChipBorder].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Maintained for binary compatibility. Use version with SuggestionChip that take a" +
+        " BorderStroke instead",
+    replaceWith = ReplaceWith("SuggestionChip(onClick, label, modifier, enabled, icon," +
+        " shape, colors, elevation, border, interactionSource"),
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun SuggestionChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable (() -> Unit)? = null,
+    shape: Shape = SuggestionChipDefaults.shape,
+    colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
+    elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
     border: ChipBorder? = SuggestionChipDefaults.suggestionChipBorder(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = Chip(
@@ -582,6 +818,82 @@ fun SuggestionChip(
  * for this chip. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this chip in different states.
  */
+@Composable
+fun ElevatedSuggestionChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable (() -> Unit)? = null,
+    shape: Shape = SuggestionChipDefaults.shape,
+    colors: ChipColors = SuggestionChipDefaults.elevatedSuggestionChipColors(),
+    elevation: ChipElevation? = SuggestionChipDefaults.elevatedSuggestionChipElevation(),
+    border: BorderStroke? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+) = Chip(
+    modifier = modifier,
+    onClick = onClick,
+    enabled = enabled,
+    label = label,
+    labelTextStyle = MaterialTheme.typography.fromToken(SuggestionChipTokens.LabelTextFont),
+    labelColor = colors.labelColor(enabled),
+    leadingIcon = icon,
+    trailingIcon = null,
+    elevation = elevation,
+    colors = colors,
+    minHeight = SuggestionChipDefaults.Height,
+    paddingValues = SuggestionChipPadding,
+    shape = shape,
+    border = border,
+    interactionSource = interactionSource
+)
+
+/**
+ * <a href="https://m3.material.io/components/chips/overview" class="external" target="_blank">Material Design elevated suggestion chip</a>.
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Suggestion chips help narrow a user's intent by presenting dynamically generated suggestions,
+ * such as possible responses or search filters.
+ *
+ * ![Suggestion chip image](https://developer.android.com/images/reference/androidx/compose/material3/elevated-suggestion-chip.png)
+ *
+ * This suggestion chip is applied with an elevated style. If you want a flat style, use the
+ * [SuggestionChip].
+ *
+ * Example of an elevated SuggestionChip with a trailing icon:
+ * @sample androidx.compose.material3.samples.ElevatedSuggestionChipSample
+ *
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param icon optional icon at the start of the chip, preceding the [label] text
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ * shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ * This controls the size of the shadow below the chip. Additionally, when the container color is
+ * [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ * [Surface] and [SuggestionChipDefaults.elevatedSuggestionChipElevation].
+ * @param border the border to draw around the container of this chip
+ * different states. See [SuggestionChipDefaults.elevatedSuggestionChipColors].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "Maintained for binary compatibility. Use version with ElevatedSuggestionChip that take" +
+        " a BorderStroke instead",
+    replaceWith = ReplaceWith("ElevatedSuggestionChip(onClick, label, modifier, enabled," +
+        " icon, shape, colors, elevation, border, interactionSource"),
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 fun ElevatedSuggestionChip(
     onClick: () -> Unit,
@@ -696,10 +1008,35 @@ object AssistChipDefaults {
     /**
      * Creates a [ChipBorder] that represents the default border used in a flat [AssistChip].
      *
+     * @param enabled whether the chip is enabled
      * @param borderColor the border color of this chip when enabled
      * @param disabledBorderColor the border color of this chip when not enabled
      * @param borderWidth the border stroke width of this chip
      */
+    @Composable
+    fun assistChipBorder(
+        enabled: Boolean,
+        borderColor: Color = AssistChipTokens.FlatOutlineColor.value,
+        disabledBorderColor: Color = AssistChipTokens.FlatDisabledOutlineColor.value
+            .copy(alpha = AssistChipTokens.FlatDisabledOutlineOpacity),
+        borderWidth: Dp = AssistChipTokens.FlatOutlineWidth,
+    ): BorderStroke = BorderStroke(borderWidth, if (enabled) borderColor else disabledBorderColor)
+
+    /**
+     * Creates a [ChipBorder] that represents the default border used in a flat [AssistChip].
+     *
+     * @param borderColor the border color of this chip when enabled
+     * @param disabledBorderColor the border color of this chip when not enabled
+     * @param borderWidth the border stroke width of this chip
+     */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "Maintained for binary compatibility. Use the assistChipBorder function that returns" +
+            " BorderStroke instead",
+        replaceWith = ReplaceWith("assistChipBorder(enabled, borderColor," +
+            " disabledBorderColor, borderWidth)"),
+        level = DeprecationLevel.WARNING
+    )
     @Composable
     fun assistChipBorder(
         borderColor: Color = AssistChipTokens.FlatOutlineColor.value,
@@ -1221,12 +1558,36 @@ object SuggestionChipDefaults {
     )
 
     /**
+     * Creates a [BorderStroke] that represents the default border used in a flat [SuggestionChip].
+     *
+     * @param enabled whether the chip is enabled
+     * @param borderColor the border color of this chip when enabled
+     * @param disabledBorderColor the border color of this chip when not enabled
+     * @param borderWidth the border stroke width of this chip
+     */
+    @Composable
+    fun suggestionChipBorder(
+        enabled: Boolean,
+        borderColor: Color = SuggestionChipTokens.FlatOutlineColor.value,
+        disabledBorderColor: Color = SuggestionChipTokens.FlatDisabledOutlineColor.value
+            .copy(alpha = SuggestionChipTokens.FlatDisabledOutlineOpacity),
+        borderWidth: Dp = SuggestionChipTokens.FlatOutlineWidth,
+    ): BorderStroke = BorderStroke(borderWidth, if (enabled) borderColor else disabledBorderColor)
+
+    /**
      * Creates a [ChipBorder] that represents the default border used in a flat [SuggestionChip].
      *
      * @param borderColor the border color of this chip when enabled
      * @param disabledBorderColor the border color of this chip when not enabled
      * @param borderWidth the border stroke width of this chip
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "Maintained for binary compatibility. Use the suggestChipBorder functions instead",
+        replaceWith = ReplaceWith("suggestionChipBorder(enabled, borderColor," +
+            " disabledBorderColor, borderWidth)"),
+        level = DeprecationLevel.WARNING
+    )
     @Composable
     fun suggestionChipBorder(
         borderColor: Color = SuggestionChipTokens.FlatOutlineColor.value,
@@ -1981,6 +2342,11 @@ class SelectableChipColors constructor(
 /**
  * Represents the border stroke used in a chip in different states.
  */
+
+@Deprecated(
+    "Maintained for binary compatibility. Use the chipBorder functions instead",
+    level = DeprecationLevel.WARNING
+)
 @Immutable
 class ChipBorder internal constructor(
     private val borderColor: Color,
@@ -1999,6 +2365,7 @@ class ChipBorder internal constructor(
         )
     }
 
+    @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is ChipBorder) return false
