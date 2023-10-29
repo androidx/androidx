@@ -84,7 +84,7 @@ interface EmbeddingBackend {
     fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
 
     @RequiresWindowSdkExtension(3)
-    fun invalidateTopVisibleSplitAttributes()
+    fun invalidateVisibleActivityStacks()
 
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)

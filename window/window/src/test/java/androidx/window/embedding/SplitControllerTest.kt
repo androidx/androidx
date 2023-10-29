@@ -96,10 +96,4 @@ internal class SplitControllerTest {
         splitController.updateSplitAttributes(mockSplitInfo, mockSplitAttributes)
         verify(mockBackend).updateSplitAttributes(eq(mockSplitInfo), eq(mockSplitAttributes))
     }
-
-    @Test
-    fun test_invalidateTopVisibleSplitAttributes_delegates() {
-        splitController.invalidateTopVisibleSplitAttributes()
-        verify(mockBackend).invalidateTopVisibleSplitAttributes()
-    }
 }

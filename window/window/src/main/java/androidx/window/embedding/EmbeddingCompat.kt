@@ -34,6 +34,7 @@ import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import java.lang.reflect.Proxy
 
@@ -178,7 +179,7 @@ internal class EmbeddingCompat(
         windowSdkExtensions.requireExtensionVersion(5)
         adapter.embeddingConfiguration = embeddingConfig
         setDefaultSplitAttributeCalculatorIfNeeded()
-        invalidateTopVisibleSplitAttributes();
+        embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
     @OptIn(ExperimentalWindowApi::class)
@@ -194,10 +195,19 @@ internal class EmbeddingCompat(
     }
 
     @RequiresWindowSdkExtension(3)
-    override fun invalidateTopVisibleSplitAttributes() {
+    override fun invalidateVisibleActivityStacks() {
         windowSdkExtensions.requireExtensionVersion(3)
 
-        embeddingExtension.invalidateTopVisibleSplitAttributes()
+        embeddingExtension.invalidateVisibleActivityStacks()
+    }
+
+    /**
+     * Updates top [activityStacks][ActivityStack] layouts, which will trigger [SplitAttributes]
+     * calculator and [ActivityStackAttributes] calculator if set.
+     */
+    private fun ActivityEmbeddingComponent.invalidateVisibleActivityStacks() {
+        // Note that this API also updates overlay container regardless of its naming.
+        invalidateTopVisibleSplitAttributes()
     }
 
     @RequiresWindowSdkExtension(3)

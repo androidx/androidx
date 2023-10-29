@@ -417,8 +417,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     @RequiresWindowSdkExtension(3)
-    override fun invalidateTopVisibleSplitAttributes() {
-        embeddingExtension?.invalidateTopVisibleSplitAttributes()
+    override fun invalidateVisibleActivityStacks() {
+        embeddingExtension?.invalidateVisibleActivityStacks()
     }
 
     @RequiresWindowSdkExtension(3)

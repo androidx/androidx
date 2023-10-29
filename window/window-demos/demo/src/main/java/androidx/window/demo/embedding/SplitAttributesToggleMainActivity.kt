@@ -413,7 +413,7 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                 demoActivityEmbeddingController.customizedLayoutDirection =
                     CUSTOMIZED_LAYOUT_DIRECTIONS_VALUE[position]
         }
-        splitController.invalidateTopVisibleSplitAttributes()
+        activityEmbeddingController.invalidateTopVisibleActivityStacks()
     }
 
     override fun onNothingSelected(view: AdapterView<*>?) {
