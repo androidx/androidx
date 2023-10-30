@@ -639,7 +639,7 @@ enum StrokeCap {
   STROKE_CAP_BUTT = 1;
 
   // Begin and end contours with a semi-circle extension. The extension size is
-  // proportional to the thickness on the path.
+  // proportional to the thickness of the path.
   STROKE_CAP_ROUND = 2;
 
   // Begin and end contours with a half square extension. The extension size is
@@ -651,6 +651,10 @@ enum StrokeCap {
 message StrokeCapProp {
   // The value.
   StrokeCap value = 1;
+
+  // The stroke cap's shadow. When set, the stroke cap will be drawn with a
+  // shadow, which allows it to be visible on top of other similarly colored elements.
+  Shadow shadow = 2;
 }
 
 // A simple spacer used to provide padding between adjacent elements in an Arc.

@@ -16,12 +16,16 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.ColorBuilders.argb;
+import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+
+import android.graphics.Color;
 
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
@@ -129,9 +133,7 @@ public class LayoutElementBuildersTest {
     @Test
     public void testArcSetAnchorAngle() {
         LayoutElementBuilders.Arc arc =
-                new LayoutElementBuilders.Arc.Builder()
-                        .setAnchorAngle(DEGREES_PROP)
-                        .build();
+                new LayoutElementBuilders.Arc.Builder().setAnchorAngle(DEGREES_PROP).build();
 
         DimensionProto.DegreesProp anchorAngleProto = arc.toProto().getAnchorAngle();
 
@@ -267,12 +269,13 @@ public class LayoutElementBuildersTest {
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
         assertThat(
-                fontStyleProto.getSizeList().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                        fontStyleProto.getSizeList().stream()
+                                .mapToInt(sp -> (int) sp.getValue())
+                                .toArray())
                 .isEqualTo(expectedSizes);
         // Make sure that if 1 size is used than it's the last one.
         assertThat(fontStyle.getSize().getValue()).isEqualTo(lastSize);
-        assertThat(
-                fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+        assertThat(fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
                 .isEqualTo(expectedSizes);
     }
 
@@ -310,34 +313,34 @@ public class LayoutElementBuildersTest {
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
         assertThat(
-                fontStyleProto.getSizeList().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+                        fontStyleProto.getSizeList().stream()
+                                .mapToInt(sp -> (int) sp.getValue())
+                                .toArray())
                 .isEqualTo(expectedSizes);
         // Make sure that if 1 size is used than it's the last one.
         assertThat(fontStyle.getSize().getValue()).isEqualTo(size2);
-        assertThat(
-                fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
+        assertThat(fontStyle.getSizes().stream().mapToInt(sp -> (int) sp.getValue()).toArray())
                 .isEqualTo(expectedSizes);
     }
 
     @Test
     public void testFontStyleSetSize_tooManySizes_throws() {
         DimensionBuilders.SpProp[] sizes =
-                new DimensionBuilders.SpProp[
-                        LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
+                new DimensionBuilders.SpProp
+                        [LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new LayoutElementBuilders.FontStyle.Builder()
-                        .setSizes(sizes)
-                        .build());
+                () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(sizes).build());
     }
 
     @Test
     public void testFontStyleSetSize_allNegativeOrZero_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new LayoutElementBuilders.FontStyle.Builder()
-                        .setSizes(sp(-1), sp(0))
-                        .build());
+                () ->
+                        new LayoutElementBuilders.FontStyle.Builder()
+                                .setSizes(sp(-1), sp(0))
+                                .build());
     }
 
     @Test
@@ -345,5 +348,29 @@ public class LayoutElementBuildersTest {
         assertThrows(
                 IllegalStateException.class,
                 () -> new LayoutElementBuilders.Text.Builder().setText(STRING_PROP).build());
+    }
+
+    @Test
+    public void arcLineSetStrokeCap_withShadow() {
+        float blurRadius = 5f;
+        int color = Color.BLUE;
+        ModifiersBuilders.Shadow shadow =
+                new ModifiersBuilders.Shadow.Builder()
+                        .setBlurRadius(dp(blurRadius))
+                        .setColor(argb(color))
+                        .build();
+
+        LayoutElementBuilders.ArcLine arcLine =
+                new LayoutElementBuilders.ArcLine.Builder()
+                        .setStrokeCap(
+                                new LayoutElementBuilders.StrokeCapProp.Builder()
+                                        .setShadow(shadow)
+                                        .build())
+                        .build();
+
+        assertThat(arcLine.getStrokeCap().getShadow().getBlurRadius().getValue())
+                .isEqualTo(shadow.getBlurRadius().getValue());
+        assertThat(arcLine.getStrokeCap().getShadow().getColor().getArgb())
+                .isEqualTo(shadow.getColor().getArgb());
     }
 }

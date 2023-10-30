@@ -771,12 +771,14 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.StrokeCapProp {
+    method public androidx.wear.protolayout.ModifiersBuilders.Shadow? getShadow();
     method public int getValue();
   }
 
   public static final class LayoutElementBuilders.StrokeCapProp.Builder {
     ctor public LayoutElementBuilders.StrokeCapProp.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp.Builder setShadow(androidx.wear.protolayout.ModifiersBuilders.Shadow);
     method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp.Builder setValue(int);
   }
 
@@ -1055,6 +1057,18 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setRole(int);
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setStateDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+  }
+
+  public static final class ModifiersBuilders.Shadow {
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getBlurRadius();
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp getColor();
+  }
+
+  public static final class ModifiersBuilders.Shadow.Builder {
+    ctor public ModifiersBuilders.Shadow.Builder();
+    method public androidx.wear.protolayout.ModifiersBuilders.Shadow build();
+    method public androidx.wear.protolayout.ModifiersBuilders.Shadow.Builder setBlurRadius(androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.Shadow.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
   }
 
   @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static interface ModifiersBuilders.SlideBound {

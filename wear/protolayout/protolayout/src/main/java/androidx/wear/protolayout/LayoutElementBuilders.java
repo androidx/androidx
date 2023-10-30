@@ -44,6 +44,7 @@ import androidx.wear.protolayout.DimensionBuilders.SpacerDimension;
 import androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint;
 import androidx.wear.protolayout.ModifiersBuilders.ArcModifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.ModifiersBuilders.Shadow;
 import androidx.wear.protolayout.ModifiersBuilders.SpanModifiers;
 import androidx.wear.protolayout.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.TypeBuilders.Int32Prop;
@@ -4926,6 +4927,21 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
+        /**
+         * Gets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow, which
+         * allows it to be visible on top of other similarly colored elements.
+         *
+         * @since 1.3
+         */
+        @Nullable
+        public Shadow getShadow() {
+            if (mImpl.hasShadow()) {
+                return Shadow.fromProto(mImpl.getShadow());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -4957,7 +4973,7 @@ public final class LayoutElementBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StrokeCapProp{" + "value=" + getValue() + "}";
+            return "StrokeCapProp{" + "value=" + getValue() + ", shadow=" + getShadow() + "}";
         }
 
         /** Builder for {@link StrokeCapProp} */
@@ -4978,6 +4994,20 @@ public final class LayoutElementBuilders {
             public Builder setValue(@StrokeCap int value) {
                 mImpl.setValue(LayoutElementProto.StrokeCap.forNumber(value));
                 mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
+
+            /**
+             * Sets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow,
+             * which allows it to be visible on top of other similarly colored elements.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setShadow(@NonNull Shadow shadow) {
+                mImpl.setShadow(shadow.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(shadow.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
