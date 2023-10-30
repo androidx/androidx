@@ -26,6 +26,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +50,8 @@ class ScanResultTest {
 
     @Test
     fun constructorWithFwkInstance() {
+        Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
+
         val address = "00:01:02:03:04:05"
         val fwkBluetoothDevice = bluetoothAdapter!!.getRemoteDevice(address)
         val timeStampNanos: Long = 1
@@ -91,6 +94,8 @@ class ScanResultTest {
 
     @Test
     fun sameDeviceReturned() {
+        Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
+
         val address = "00:01:02:03:04:05"
         val fwkBluetoothDevice = bluetoothAdapter!!.getRemoteDevice(address)
         val rssi = 34

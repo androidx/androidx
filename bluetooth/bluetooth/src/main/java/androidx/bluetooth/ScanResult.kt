@@ -17,7 +17,10 @@
 package androidx.bluetooth
 
 import android.bluetooth.le.ScanResult as FwkScanResult
+import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.util.UUID
 
@@ -45,6 +48,14 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
          * Periodic advertising interval is not present in the packet.
          */
         const val PERIODIC_INTERVAL_NOT_PRESENT: Int = FwkScanResult.PERIODIC_INTERVAL_NOT_PRESENT
+    }
+
+    @RequiresApi(29)
+    private object ScanResultApi29Impl {
+        @JvmStatic
+        @DoNotInline
+        fun serviceSolicitationUuids(fwkScanResult: FwkScanResult): List<ParcelUuid> =
+            fwkScanResult.scanRecord?.serviceSolicitationUuids.orEmpty()
     }
 
     /** Remote Bluetooth device found. */
@@ -83,9 +94,16 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
     /**
      * Returns a list of service solicitation UUIDs within the advertisement that are used to
      * identify the Bluetooth GATT services.
+     *
+     * Please note that this will return an `emptyList()` on versions
+     * before [android.os.Build.VERSION_CODES.Q].
      */
     val serviceSolicitationUuids: List<ParcelUuid>
-        get() = fwkScanResult.scanRecord?.serviceSolicitationUuids.orEmpty()
+        get() = if (Build.VERSION.SDK_INT >= 29) {
+            ScanResultApi29Impl.serviceSolicitationUuids(fwkScanResult)
+        } else {
+            emptyList()
+        }
 
     /**
      * Returns a map of service UUID and its corresponding service data.
