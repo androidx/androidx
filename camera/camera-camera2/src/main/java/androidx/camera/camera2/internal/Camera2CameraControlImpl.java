@@ -213,8 +213,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
                 cameraQuirks, mExecutor, scheduler);
-        mExecutor.execute(
-                () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
     }
 
     /** Increments the use count of the control. */
@@ -512,10 +510,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     public SessionConfig getSessionConfig() {
         mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
-        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
-        if (tag instanceof Integer) {
-            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
-        }
         mSessionConfigBuilder.addTag(TAG_SESSION_UPDATE_ID, mCurrentSessionUpdateId);
         return mSessionConfigBuilder.build();
     }
@@ -549,7 +543,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * session is updated successfully.
      */
     @NonNull
-    ListenableFuture<Void> updateSessionConfigAsync() {
+    public ListenableFuture<Void> updateSessionConfigAsync() {
         ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
             mExecutor.execute(() -> {
                 long sessionUpdateId = updateSessionConfigSynchronous();
