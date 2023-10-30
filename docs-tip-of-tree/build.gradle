@@ -91,6 +91,7 @@ dependencies {
     samples(project(":compose:material3:material3-adaptive:material3-adaptive-samples"))
     kmpDocs(project(":compose:material3:material3-adaptive-navigation-suite"))
     samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
+    docs(project(":compose:material3:material3-common"))
     samples(project(":compose:material3:material3:material3-samples"))
     kmpDocs(project(":compose:material3:material3-window-size-class"))
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
