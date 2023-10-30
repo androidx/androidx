@@ -265,20 +265,20 @@ fun Slider(
 ) {
     val state = remember(
         steps,
-        valueRange
+        valueRange,
+        onValueChangeFinished
     ) {
         SliderState(
             value,
-            onValueChange,
             steps,
-            valueRange,
-            onValueChangeFinished
+            onValueChangeFinished,
+            valueRange
+
         )
     }
 
-    state.value = value
     state.onValueChange = onValueChange
-    state.onValueChangeFinished = onValueChangeFinished
+    state.value = value
 
     Slider(
         state = state,
@@ -354,7 +354,8 @@ fun Slider(
             enabled = enabled,
             sliderState = sliderState
         )
-    }
+    },
+
 ) {
     require(state.steps >= 0) { "steps should be >= 0" }
 
@@ -543,21 +544,21 @@ fun RangeSlider(
 ) {
     val state = remember(
         steps,
+        onValueChangeFinished,
         valueRange
     ) {
         RangeSliderState(
             value.start,
             value.endInclusive,
-            onValueChange,
             steps,
-            valueRange,
             onValueChangeFinished,
+            valueRange
         )
     }
+
+    state.onValueChange = onValueChange
     state.activeRangeStart = value.start
     state.activeRangeEnd = value.endInclusive
-    state.onValueChange = onValueChange
-    state.onValueChangeFinished = onValueChangeFinished
 
     RangeSlider(
         modifier = modifier,
@@ -644,7 +645,7 @@ fun RangeSlider(
             enabled = enabled,
             rangeSliderState = rangeSliderState
         )
-    }
+    },
 ) {
     require(state.steps >= 0) { "steps should be >= 0" }
 
@@ -1297,7 +1298,15 @@ private fun Modifier.sliderSemantics(
                 if (resolvedValue == state.value) {
                     false
                 } else {
-                    state.onValueChange(resolvedValue)
+                    if (resolvedValue != state.value) {
+                        if (state.onValueChange != null) {
+                            state.onValueChange?.let {
+                                it(resolvedValue)
+                            }
+                        } else {
+                            state.value = resolvedValue
+                        }
+                    }
                     state.onValueChangeFinished?.invoke()
                     true
                 }
@@ -1350,7 +1359,15 @@ private fun Modifier.rangeSliderStartThumbSemantics(
                 if (resolvedValue == state.activeRangeStart) {
                     false
                 } else {
-                    state.onValueChange(FloatRange(resolvedValue, state.activeRangeEnd))
+                    val resolvedRange = FloatRange(resolvedValue, state.activeRangeEnd)
+                    if (resolvedRange != FloatRange(state.activeRangeStart, state.activeRangeEnd)) {
+                        if (state.onValueChange != null) {
+                            state.onValueChange?.let { it(resolvedRange) }
+                        } else {
+                            state.activeRangeStart = resolvedRange.start
+                            state.activeRangeEnd = resolvedRange.endInclusive
+                        }
+                    }
                     state.onValueChangeFinished?.invoke()
                     true
                 }
@@ -1400,7 +1417,15 @@ private fun Modifier.rangeSliderEndThumbSemantics(
                 if (resolvedValue == state.activeRangeEnd) {
                     false
                 } else {
-                    state.onValueChange(FloatRange(state.activeRangeStart, resolvedValue))
+                    val resolvedRange = FloatRange(state.activeRangeStart, resolvedValue)
+                    if (resolvedRange != FloatRange(state.activeRangeStart, state.activeRangeEnd)) {
+                        if (state.onValueChange != null) {
+                            state.onValueChange?.let { it(resolvedRange) }
+                        } else {
+                            state.activeRangeStart = resolvedRange.start
+                            state.activeRangeEnd = resolvedRange.endInclusive
+                        }
+                    }
                     state.onValueChangeFinished?.invoke()
                     true
                 }
@@ -1692,10 +1717,9 @@ class SliderPositions(
 /**
  * Class that holds information about [Slider]'s active range.
  *
- * @param initialValue [Float] that indicates the initial
+ * @param value [Float] that indicates the initial
  * position of the thumb. If outside of [valueRange]
  * provided, value will be coerced to this range.
- * @param initialOnValueChange callback in which [value] should be updated.
  * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
  * between across the whole value range. If 0, range slider will behave as a continuous slider and
  * allow to choose any value from the range specified. Must not be negative.
@@ -1708,15 +1732,14 @@ class SliderPositions(
 @Stable
 @ExperimentalMaterial3Api
 class SliderState(
-    initialValue: Float = 0f,
-    initialOnValueChange: ((Float) -> Unit)? = null,
+    value: Float = 0f,
     @IntRange(from = 0)
     val steps: Int = 0,
-    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    var onValueChangeFinished: (() -> Unit)? = null
+    val onValueChangeFinished: (() -> Unit)? = null,
+    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) : DraggableState {
 
-    private var valueState by mutableFloatStateOf(initialValue)
+    private var valueState by mutableFloatStateOf(value)
 
     /**
      * [Float] that indicates the current value that the thumb
@@ -1750,17 +1773,20 @@ class SliderState(
         rawOffset = (rawOffset + delta + pressOffset)
         pressOffset = 0f
         val offsetInTrack = snapValueToTick(rawOffset, tickFractions, minPx, maxPx)
-        onValueChange(scaleToUserValue(minPx, maxPx, offsetInTrack))
+        val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetInTrack)
+        if (scaledUserValue != this.value) {
+            if (onValueChange != null) {
+                onValueChange?.let { it(scaledUserValue) }
+            } else {
+                this.value = scaledUserValue
+            }
+        }
     }
 
     /**
      * callback in which value should be updated
      */
-    internal var onValueChange: (Float) -> Unit = {
-        if (it != value) {
-            initialOnValueChange?.invoke(it) ?: defaultOnValueChange(it)
-        }
-    }
+    internal var onValueChange: ((Float) -> Unit)? = null
 
     internal val tickFractions = stepsToTickFractions(steps)
     internal var totalWidth by mutableIntStateOf(0)
@@ -1805,8 +1831,6 @@ class SliderState(
 
     private val scrollMutex = MutatorMutex()
 
-    private fun defaultOnValueChange(newVal: Float) { value = newVal }
-
     private fun scaleToUserValue(minPx: Float, maxPx: Float, offset: Float) =
         scale(minPx, maxPx, offset, valueRange.start, valueRange.endInclusive)
 
@@ -1817,14 +1841,12 @@ class SliderState(
 /**
  * Class that holds information about [RangeSlider]'s active range.
  *
- * @param initialActiveRangeStart [Float] that indicates the initial
+ * @param activeRangeStart [Float] that indicates the initial
  * start of the active range of the slider. If outside of [valueRange]
  * provided, value will be coerced to this range.
- * @param initialActiveRangeEnd [Float] that indicates the initial
+ * @param activeRangeEnd [Float] that indicates the initial
  * end of the active range of the slider. If outside of [valueRange]
  * provided, value will be coerced to this range.
- * @param initialOnValueChange callback in which [activeRangeStart] and
- * [activeRangeEnd] should be updated.
  * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
  * between across the whole value range. If 0, range slider will behave as a continuous slider and
  * allow to choose any value from the range specified. Must not be negative.
@@ -1837,20 +1859,18 @@ class SliderState(
 @Stable
 @ExperimentalMaterial3Api
 class RangeSliderState(
-    initialActiveRangeStart: Float = 0f,
-    initialActiveRangeEnd: Float = 1f,
-    initialOnValueChange: ((FloatRange) -> Unit)? = null,
+    activeRangeStart: Float = 0f,
+    activeRangeEnd: Float = 1f,
     @IntRange(from = 0)
     val steps: Int = 0,
-    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    var onValueChangeFinished: (() -> Unit)? = null,
+    val onValueChangeFinished: (() -> Unit)? = null,
+    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f
 ) {
-    private var activeRangeStartState by mutableFloatStateOf(initialActiveRangeStart)
-    private var activeRangeEndState by mutableFloatStateOf(initialActiveRangeEnd)
+    private var activeRangeStartState by mutableFloatStateOf(activeRangeStart)
+    private var activeRangeEndState by mutableFloatStateOf(activeRangeEnd)
 
     /**
-     * [Float]s that indicates the current active range for the
-     * start thumb and end thumb for a [RangeSlider].
+     * [Float] that indicates the start of the current active range for the [RangeSlider].
      */
     var activeRangeStart: Float
         set(newVal) {
@@ -1865,6 +1885,9 @@ class RangeSliderState(
         }
         get() = activeRangeStartState
 
+    /**
+     * [Float] that indicates the end of the current active range for the [RangeSlider].
+     */
     var activeRangeEnd: Float
         set(newVal) {
             val coercedValue = newVal.coerceIn(activeRangeStart, valueRange.endInclusive)
@@ -1878,11 +1901,7 @@ class RangeSliderState(
         }
         get() = activeRangeEndState
 
-    internal var onValueChange: (FloatRange) -> Unit = {
-        if (it != FloatRange(activeRangeStart, activeRangeEnd)) {
-            initialOnValueChange?.invoke(it) ?: defaultOnValueChange(it)
-        }
-    }
+    internal var onValueChange: ((FloatRange) -> Unit)? = null
 
     internal val tickFractions = stepsToTickFractions(steps)
 
@@ -1917,7 +1936,15 @@ class RangeSliderState(
             offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
             FloatRange(offsetStart, offsetEnd)
         }
-        onValueChange(scaleToUserValue(minPx, maxPx, offsetRange))
+        val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetRange)
+        if (scaledUserValue != FloatRange(activeRangeStart, activeRangeEnd)) {
+            if (onValueChange != null) {
+                onValueChange?.let { it(scaledUserValue) }
+            } else {
+                this.activeRangeStart = scaledUserValue.start
+                this.activeRangeEnd = scaledUserValue.endInclusive
+            }
+        }
     }
 
     internal val coercedActiveRangeStartAsFraction
@@ -1939,11 +1966,6 @@ class RangeSliderState(
 
     internal val endSteps
         get() = floor(steps * (1f - coercedActiveRangeStartAsFraction)).toInt()
-
-    private fun defaultOnValueChange(newRange: FloatRange) {
-        activeRangeStart = newRange.start
-        activeRangeEnd = newRange.endInclusive
-    }
 
     // scales range offset from within minPx..maxPx to within valueRange.start..valueRange.end
     private fun scaleToUserValue(

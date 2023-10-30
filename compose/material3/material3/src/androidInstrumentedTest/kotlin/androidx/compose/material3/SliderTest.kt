@@ -108,7 +108,7 @@ class SliderTest {
     @Test(expected = IllegalArgumentException::class)
     fun sliderPosition_stepsThrowWhenLessThanZero() {
         rule.setContent {
-            Slider(SliderState(initialValue = 0f, initialOnValueChange = {}, steps = -1))
+            Slider(SliderState(value = 0f, steps = -1))
         }
     }
 
@@ -480,7 +480,7 @@ class SliderTest {
             Row(modifier = Modifier.requiredWidth(rowWidth)) {
                 Spacer(Modifier.width(spacerWidth))
                 Slider(
-                    state = SliderState(0f, {}),
+                    state = SliderState(0f),
                     modifier = Modifier
                         .testTag(tag)
                         .weight(1f)
@@ -500,7 +500,7 @@ class SliderTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.requiredSize(0.dp)) {
                 Slider(
-                    state = SliderState(0f, {}),
+                    state = SliderState(0f),
                     modifier = Modifier.testTag(tag)
                 )
             }
@@ -515,7 +515,8 @@ class SliderTest {
     @Test
     fun slider_noUnwantedCallbackCalls() {
         val callCount = mutableStateOf(0f)
-        val state = SliderState(0f, { callCount.value += 1 })
+        val state = SliderState(0f)
+        state.onValueChange = { callCount.value += 1 }
 
         rule.setMaterialContent(lightColorScheme()) {
             Slider(
@@ -595,7 +596,7 @@ class SliderTest {
             Box {
                 if (emitSlider) {
                     Slider(
-                        state = SliderState(0.5f, {}),
+                        state = SliderState(0.5f),
                         modifier = Modifier.testTag(tag),
                         interactionSource = interactionSource
                     )
@@ -644,7 +645,7 @@ class SliderTest {
         var changedFlag = false
         rule.setContent {
             Slider(
-                state = SliderState(0f, {}, onValueChangeFinished = { changedFlag = true }),
+                state = SliderState(0f, onValueChangeFinished = { changedFlag = true }),
                 modifier = Modifier.testTag(tag)
             )
         }
@@ -665,7 +666,7 @@ class SliderTest {
         rule.setMaterialContentForSizeAssertions(
             parentMaxHeight = 0.dp,
             parentMaxWidth = 0.dp
-        ) { Slider(SliderState(1f, {})) }
+        ) { Slider(SliderState(1f)) }
             .assertHeightIsEqualTo(0.dp)
             .assertWidthIsEqualTo(0.dp)
     }
@@ -1089,7 +1090,7 @@ class SliderTest {
     @Test
     fun rangeSlider_weightModifier() {
         var sliderBounds = Rect(0f, 0f, 0f, 0f)
-        val state = RangeSliderState(0f, 0.5f, {})
+        val state = RangeSliderState(0f, 0.5f)
         rule.setMaterialContent(lightColorScheme()) {
             with(LocalDensity.current) {
                 Row(Modifier.width(500.toDp())) {
