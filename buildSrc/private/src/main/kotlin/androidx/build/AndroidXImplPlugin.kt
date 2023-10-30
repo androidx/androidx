@@ -143,9 +143,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(Zip::class.java).configureEach { it.configureForHermeticBuild() }
         project.tasks.withType(Copy::class.java).configureEach { it.configureForHermeticBuild() }
 
+        val allHostTests = project.tasks.register("allHostTests").get()
         // copy host side test results to DIST
         project.tasks.withType(AbstractTestTask::class.java) { task ->
-            configureTestTask(project, task)
+            configureTestTask(project, task, allHostTests)
         }
         project.tasks.withType(Test::class.java) { task -> configureJvmTestTask(project, task) }
 
@@ -241,7 +242,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun configureTestTask(project: Project, task: AbstractTestTask) {
+    private fun configureTestTask(
+        project: Project,
+        task: AbstractTestTask,
+        anchorTask: Task,
+    ) {
+        anchorTask.dependsOn(task)
         val ignoreFailuresProperty =
             project.providers.gradleProperty(TEST_FAILURES_DO_NOT_FAIL_TEST_TASK)
         val ignoreFailures = ignoreFailuresProperty.isPresent
