@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(b/307696996) Remove this file when activity library is released.
+@file:Suppress("DEPRECATION")
+
 package androidx.privacysandbox.ui.provider
 
 import android.os.Bundle
@@ -27,6 +30,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@Deprecated("Use the Privacy Sandbox Activity library version instead.",
+    ReplaceWith(
+        expression = "SdkActivityLauncherFactory",
+        imports = arrayOf("androidx.privacysandbox.activity.provider.SdkActivityLauncherFactory")))
 object SdkActivityLauncherFactory {
 
     /**
