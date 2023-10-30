@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("SystemGestureExclusionKt")
+
 package androidx.compose.foundation
 
 import android.annotation.SuppressLint
