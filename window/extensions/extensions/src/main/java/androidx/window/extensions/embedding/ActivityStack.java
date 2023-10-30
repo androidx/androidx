@@ -17,9 +17,11 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.graphics.Rect;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.util.ArrayList;
@@ -40,6 +42,12 @@ public class ActivityStack {
     @NonNull
     private final IBinder mToken;
 
+    @NonNull
+    private final Rect mRelativeBounds;
+
+    @Nullable
+    private final String mTag;
+
     /**
      * The {@code ActivityStack} constructor
      *
@@ -48,13 +56,21 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
+     * @param relativeBounds The bounds relative to its parent container
+     * @param tag A unique identifier of {@link ActivityStack}. Only specifies for the overlay
+     *            standalone {@link ActivityStack} currently.
      */
-    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token,
+            @NonNull Rect relativeBounds, @Nullable String tag) {
         Objects.requireNonNull(activities);
         Objects.requireNonNull(token);
+        Objects.requireNonNull(relativeBounds);
+
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
+        mRelativeBounds = relativeBounds;
+        mTag = tag;
     }
 
     /**
@@ -93,6 +109,22 @@ public class ActivityStack {
         return mToken;
     }
 
+    /** Returns the bounds relative to its parent container. */
+    @RequiresVendorApiLevel(level = 5)
+    @NonNull
+    public Rect getRelativeBounds() {
+        return mRelativeBounds;
+    }
+
+    /**
+     * Returns the associated tag if specified. Otherwise, returns {@code null}.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    @Nullable
+    public String getTag() {
+        return mTag;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,7 +132,9 @@ public class ActivityStack {
         ActivityStack that = (ActivityStack) o;
         return mActivities.equals(that.mActivities)
                 && mIsEmpty == that.mIsEmpty
-                && mToken.equals(that.mToken);
+                && mToken.equals(that.mToken)
+                && mRelativeBounds.equals(that.mRelativeBounds)
+                && Objects.equals(mTag, that.mTag);
     }
 
     @Override
@@ -108,6 +142,9 @@ public class ActivityStack {
         int result = (mIsEmpty ? 1 : 0);
         result = result * 31 + mActivities.hashCode();
         result = result * 31 + mToken.hashCode();
+        result = result * 31 + mRelativeBounds.hashCode();
+        result = result * 31 + Objects.hashCode(mTag);
+
         return result;
     }
 
@@ -117,6 +154,8 @@ public class ActivityStack {
         return "ActivityStack{" + "mActivities=" + mActivities
                 + ", mIsEmpty=" + mIsEmpty
                 + ", mToken=" + mToken
+                + ", mRelativeBounds=" + mRelativeBounds
+                + ", mTag=" + mTag
                 + '}';
     }
 }
