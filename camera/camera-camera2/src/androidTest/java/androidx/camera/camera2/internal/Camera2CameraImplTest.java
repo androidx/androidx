@@ -1348,6 +1348,7 @@ public final class Camera2CameraImplTest {
                     .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
 
             mCamera2CameraImpl.detachUseCases(singletonList(preview1));
+            pairedCamera2CameraImpl.detachUseCases(singletonList(preview2));
         }
     }
 
