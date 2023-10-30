@@ -29,11 +29,13 @@
     <string name="connect">Connect</string>
     <string name="reconnect">Reconnect</string>
     <string name="disconnect">Disconnect</string>
-    <string name="scan_results">Scan Results</string>
     <string name="disconnected">Disconnected</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
     <string name="generic_attribute">Generic Attribute</string>
+
+    <!-- Connections -->
+    <string name="title_connections">Connections</string>
 
     <!-- Service & Characteristic -->
     <string name="primary_service">Primary Service</string>
