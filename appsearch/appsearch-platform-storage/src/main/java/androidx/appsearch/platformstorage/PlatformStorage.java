@@ -22,7 +22,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appsearch.app.AppSearchDocumentClassMap;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -226,10 +225,6 @@ public final class PlatformStorage {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
                                         new FeaturesImpl()));
-                        // Calculate and cache AppSearchDocumentClassMap at initialization to
-                        // avoid doing it at query time, since all subsequent calls to this
-                        // function will just return the cached map.
-                        AppSearchDocumentClassMap.getMergedMap();
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -260,10 +255,6 @@ public final class PlatformStorage {
                         future.set(new GlobalSearchSessionImpl(
                                 result.getResultValue(), context.mExecutor,
                                 new FeaturesImpl()));
-                        // Calculate and cache AppSearchDocumentClassMap at initialization to
-                        // avoid doing it at query time, since all subsequent calls to this
-                        // function will just return the cached map.
-                        AppSearchDocumentClassMap.getMergedMap();
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
