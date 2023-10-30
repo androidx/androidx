@@ -7,7 +7,7 @@
         errorLine1="    val expectedSortedIndex = mutableListOf(0, 1, 2, 3)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.kt"/>
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
     </issue>
 
 </issues>
