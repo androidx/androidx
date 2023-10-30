@@ -1482,38 +1482,6 @@ class SurfaceControlCompatTest {
             }
     }
 
-    @SuppressLint("NewApi")
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
-    @Test
-    fun testSetDataSpaceThrowsOnUnsupportedPlatforms() {
-        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-
-                        assertThrows(UnsupportedOperationException::class.java) {
-                            val surfaceControl = SurfaceControlCompat.Builder()
-                                .setName("testSurfaceControl")
-                                .setParent(it.mSurfaceView)
-                                .build()
-
-                            val extendedDataspace = DataSpace.pack(
-                                DataSpace.STANDARD_BT709,
-                                DataSpace.TRANSFER_SRGB, DataSpace.RANGE_EXTENDED
-                            )
-                            SurfaceControlCompat.Transaction()
-                                .setDataSpace(surfaceControl, extendedDataspace)
-                                .commit()
-                        }
-                    }
-                }
-
-                it.addSurface(it.mSurfaceView, callback)
-            }
-    }
-
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testSetExtendedRangeBrightness() {

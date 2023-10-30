@@ -322,7 +322,6 @@ internal interface SurfaceControlImpl {
         /**
          * See [SurfaceControlCompat.Transaction.setDataSpace]
          */
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun setDataSpace(
             surfaceControl: SurfaceControlImpl,
             dataSpace: Int

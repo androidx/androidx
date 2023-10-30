@@ -287,7 +287,6 @@ internal class SurfaceControlV33 internal constructor(
         /**
          * See [SurfaceControlCompat.Transaction.setDataSpace]
          */
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun setDataSpace(
             surfaceControl: SurfaceControlImpl,
             dataSpace: Int
