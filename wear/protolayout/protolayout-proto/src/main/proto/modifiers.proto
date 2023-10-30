@@ -373,3 +373,15 @@ message SpanModifiers {
   // be executed when the element is tapped.
   Clickable clickable = 1;
 }
+
+// The shadow definition. The shadow is drawn as a blur region around the
+// element.
+message Shadow {
+  // The blur radius of the shadow. It controls the size of the blur that is
+  // drawn.
+  // When set to zero, the shadow is not drawn. Defaults to zero.
+  DpProp blur_radius = 1;
+
+  // The color used in the shadow. Defaults to Black.
+  ColorProp color = 2;
+}

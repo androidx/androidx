@@ -493,9 +493,9 @@ public final class ModifiersBuilders {
              * Sets the minimum height of the clickable area.
              *
              * <p>The default value is 48dp, following the Material design accessibility guideline.
-             * Note that this value does not affect the layout, so the minimum clickable height
-             * is not guaranteed unless there is enough space around the element within its
-             * parent bounds.
+             * Note that this value does not affect the layout, so the minimum clickable height is
+             * not guaranteed unless there is enough space around the element within its parent
+             * bounds.
              *
              * <p>Note that this field only supports static values.
              *
@@ -3009,6 +3009,137 @@ public final class ModifiersBuilders {
             @NonNull
             public SpanModifiers build() {
                 return new SpanModifiers(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * The shadow definition. The shadow is drawn as a blur region around the element.
+     *
+     * @since 1.3
+     */
+    public static final class Shadow {
+        private final ModifiersProto.Shadow mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        Shadow(ModifiersProto.Shadow impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the blur radius of the shadow. It controls the size of the blur that is drawn. When
+         * set to zero, the shadow is not drawn. Defaults to zero.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public DpProp getBlurRadius() {
+            if (mImpl.hasBlurRadius()) {
+                return DpProp.fromProto(mImpl.getBlurRadius());
+            } else {
+                return new DpProp.Builder(0).build();
+            }
+        }
+
+        /**
+         * Gets the color used in the shadow. Defaults to Black.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return new ColorProp.Builder(0xFF000000).build();
+            }
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Shadow fromProto(
+                @NonNull ModifiersProto.Shadow proto, @Nullable Fingerprint fingerprint) {
+            return new Shadow(proto, fingerprint);
+        }
+
+        @NonNull
+        static Shadow fromProto(@NonNull ModifiersProto.Shadow proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Shadow toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Shadow{" + "blurRadius=" + getBlurRadius() + ", color=" + getColor() + "}";
+        }
+
+        /** Builder for {@link Shadow} */
+        public static final class Builder {
+            private final ModifiersProto.Shadow.Builder mImpl = ModifiersProto.Shadow.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1267428773);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the blur radius of the shadow. It controls the size of the blur that is drawn.
+             * When set to zero, the shadow is not drawn. Defaults to zero.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setBlurRadius(@NonNull DpProp blurRadius) {
+                if (blurRadius.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setBlurRadius doesn't support dynamic values.");
+                }
+                mImpl.setBlurRadius(blurRadius.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(blurRadius.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color used in the shadow. Defaults to Black.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setColor(@NonNull ColorProp color) {
+                if (color.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Shadow.Builder.setColor doesn't support dynamic values.");
+                }
+                mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public Shadow build() {
+                return new Shadow(mImpl.build(), mFingerprint);
             }
         }
     }
