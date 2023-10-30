@@ -259,6 +259,45 @@ internal class KotlinxDatetimeCalendarModelTest {
     }
 
     @Test
+    fun formatDate_differentTZ() {
+
+        if (!supportsDateSkeleton)
+            return
+
+        val defaultTz = getTimeZone()
+
+        val locale = calendarLocale("en","US")
+
+        val date =
+            CalendarDate(
+                year = 2022,
+                month = 1,
+                dayOfMonth = 1,
+                utcTimeMillis = January2022Millis
+            )
+
+        val test = {
+            assertThat(model.formatWithSkeleton(date, "yMMMd", locale)).isEqualTo("Jan 1, 2022")
+            assertThat(model.formatWithSkeleton(date, "dMMMy", locale)).isEqualTo("Jan 1, 2022")
+            assertThat(model.formatWithSkeleton(date, "yMMMMEEEEd", locale))
+                .isEqualTo("Saturday, January 1, 2022")
+            // Check that the direct formatting is equal to the one the model does.
+            assertThat(model.formatWithSkeleton(date, "yMMMd", locale))
+                .isEqualTo(date.format(model, "yMMMd", locale))
+        }
+
+        setTimeZone("GMT-5")
+
+        test()
+
+        setTimeZone("GMT+5")
+
+        test()
+
+        setTimeZone(defaultTz)
+    }
+
+    @Test
     fun formatMonth() {
 
         if (!supportsDateSkeleton)
@@ -271,6 +310,36 @@ internal class KotlinxDatetimeCalendarModelTest {
         // Check that the direct formatting is equal to the one the model does.
         assertThat(model.formatWithSkeleton(month, "yMMMM", locale))
             .isEqualTo(month.format(model, "yMMMM", locale))
+    }
+
+    @Test
+    fun formatMonth_differentTz() {
+
+        if (!supportsDateSkeleton)
+            return
+        val defaultTz = getTimeZone()
+
+
+        val locale = calendarLocale("en", "US")
+        val month = model.getMonth(year = 2022, month = 3)
+
+        val test = {
+            assertThat(model.formatWithSkeleton(month, "yMMMM", locale)).isEqualTo("March 2022")
+            assertThat(model.formatWithSkeleton(month, "MMMMy", locale)).isEqualTo("March 2022")
+            // Check that the direct formatting is equal to the one the model does.
+            assertThat(model.formatWithSkeleton(month, "yMMMM", locale))
+                .isEqualTo(month.format(model, "yMMMM", locale))
+        }
+
+        setTimeZone("GMT-5")
+
+        test()
+
+        setTimeZone("GMT+5")
+
+        test()
+
+        setTimeZone(defaultTz)
     }
 
     @Test
