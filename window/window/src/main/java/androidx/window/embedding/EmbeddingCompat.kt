@@ -19,6 +19,7 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.window.RequiresWindowSdkExtension
@@ -166,6 +167,15 @@ internal class EmbeddingCompat(
         WindowSdkExtensions.getInstance().requireExtensionVersion(5)
 
         return embeddingExtension.setLaunchingActivityStack(options, token)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    @ExperimentalWindowApi
+    override fun setOverlayCreateParams(
+        options: Bundle,
+        overlayCreateParams: OverlayCreateParams
+    ): Bundle = options.apply {
+        ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
     }
 
     companion object {

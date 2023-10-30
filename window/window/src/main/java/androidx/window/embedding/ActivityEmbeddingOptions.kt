@@ -20,10 +20,13 @@ package androidx.window.embedding
 import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
+import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 
+// TODO(b/295993745): Migrate to use bundle
 /**
  * Sets the target launching [ActivityStack] to the given [android.app.ActivityOptions].
  *
@@ -45,6 +48,7 @@ fun ActivityOptions.setLaunchingActivityStack(
         .setLaunchingActivityStack(this, activityStack.token)
 }
 
+// TODO(b/295993745): Migrate to use bundle
 /**
  * Sets [android.app.ActivityOptions] target launching [ActivityStack] to match the one that the
  * provided [activity] is in. That is, the [ActivityStack] of the given [activity] is the
@@ -69,3 +73,54 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
             "The given activity may not be embedded.")
     }
 }
+
+// TODO(295803704): Pending unhide.
+/**
+ * Puts [OverlayCreateParams] to [ActivityOptions] bundle to create a singleton-per-task overlay
+ * [ActivityStack].
+ *
+ * To launch an overlay [ActivityStack], callers should call [Activity.startActivity] with the
+ * [ActivityOptions] contains [OverlayCreateParams].
+ * Below sample shows how to launch an overlay [ActivityStack].
+ *
+ * If there's an existing overlay [ActivityStack] shown, the existing overlay container may be
+ * dismissed or updated based on [OverlayCreateParams.tag] and [activity] because of following
+ * constraints:
+ *   1. A task can hold only one overlay container at most.
+ *   2. An overlay [ActivityStack] tag is unique per process.
+ *
+ * Belows are possible scenarios:
+ *
+ * 1. If there's an overlay container with the same `tag` as [OverlayCreateParams.tag] in the same
+ *   task as [activity], the overlay container's [OverlayAttributes]
+ *   will be updated to [OverlayCreateParams.overlayAttributes].
+ *
+ * 2. If there's an overlay container with different `tag` from [OverlayCreateParams.tag] in the
+ *   same task as [activity], the existing overlay container will be dismissed, and a new overlay
+ *   container will be launched with the new [OverlayCreateParams].
+ *
+ * 3. If there's an overlay container with the same `tag` as [OverlayCreateParams.tag] in a
+ *   different task from [activity], the existing overlay container in the other task will be
+ *   dismissed, and a new overlay container will be launched in the task of [activity].
+ *
+ * Note that the second and the third scenarios may happen at the same time if
+ * [activity]'s task holds an overlay container and [OverlayCreateParams.tag] matches an overlay
+ * container in a different task.
+ *
+ * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
+ *
+ * @param activity The [Activity] that is going to be used for launching activity with this
+ * [ActivityOptions], which is usually be the [Activity] of the app that hosts the task.
+ * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]
+ * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalWindowApi
+@RequiresWindowSdkExtension(5)
+fun Bundle.setOverlayCreateParams(
+    activity: Activity,
+    overlayCreateParams: OverlayCreateParams
+): Bundle = OverlayController.getInstance(activity).setOverlayCreateParams(
+    this,
+    overlayCreateParams
+)

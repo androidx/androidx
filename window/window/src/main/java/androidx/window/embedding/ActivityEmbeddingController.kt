@@ -51,6 +51,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
     fun getActivityStack(activity: Activity): ActivityStack? =
         backend.getActivityStack(activity)
 
+    // TODO(b/295993745): Migrate to use bundle
     /**
      * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
      *

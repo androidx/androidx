@@ -18,12 +18,14 @@ package androidx.window.testing.embedding
 
 import android.app.Activity
 import android.app.ActivityOptions
+import android.os.Bundle
 import android.os.IBinder
 import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.OverlayCreateParams
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
@@ -178,6 +180,14 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
+        TODO("Not yet implemented")
+    }
+
+    @ExperimentalWindowApi
+    override fun setOverlayCreateParams(
+        options: Bundle,
+        overlayCreateParams: OverlayCreateParams
+    ): Bundle {
         TODO("Not yet implemented")
     }
 

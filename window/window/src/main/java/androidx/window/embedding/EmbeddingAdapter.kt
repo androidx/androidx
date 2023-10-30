@@ -21,10 +21,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
+import android.os.Build
+import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
 import androidx.window.WindowSdkExtensions
+import androidx.window.core.Bounds
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -42,6 +45,7 @@ import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
+import androidx.window.extensions.embedding.ParentContainerInfo as OEMParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
@@ -121,6 +125,28 @@ internal class EmbeddingAdapter(
                 }
             )
             .build()
+
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @ExperimentalWindowApi
+    internal fun translate(parentContainerInfo: OEMParentContainerInfo): ParentContainerInfo {
+        val windowMetrics = WindowMetricsCalculator
+            .translateWindowMetrics(parentContainerInfo.windowMetrics)
+        val configuration = parentContainerInfo.configuration
+        return ParentContainerInfo(
+            Bounds(windowMetrics.bounds),
+            ExtensionsWindowLayoutInfoAdapter.translate(
+                windowMetrics,
+                parentContainerInfo.windowLayoutInfo
+            ),
+            windowMetrics.getWindowInsets(),
+            configuration,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                parentContainerInfo.windowMetrics.density
+            } else {
+                configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+            }
+        )
+    }
 
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes

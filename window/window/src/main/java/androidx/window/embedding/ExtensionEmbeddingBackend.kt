@@ -21,6 +21,7 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.DoNotInline
@@ -388,6 +389,14 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    @RequiresWindowSdkExtension(5)
+    @ExperimentalWindowApi
+    override fun setOverlayCreateParams(
+        options: Bundle,
+        overlayCreateParams: OverlayCreateParams,
+    ): Bundle = embeddingExtension?.setOverlayCreateParams(options, overlayCreateParams)
+        ?: options
 
     @RequiresWindowSdkExtension(5)
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
