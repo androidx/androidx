@@ -48,4 +48,10 @@ public class CustomTabsCallbackTest {
         mToken.getCallback().onActivityResized(75239, 1200, new Bundle());
         assertTrue(mCallback.hasActivityBeenResized());
     }
+
+    @Test
+    public void testOnWarmupCompleted() throws Throwable {
+        mToken.getCallback().onWarmupCompleted(null);
+        assertTrue(mCallback.wasWarmupCompleted());
+    }
 }

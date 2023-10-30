@@ -35,4 +35,5 @@ interface ICustomTabsCallback {
     // API with return value cannot be 'oneway'.
     Bundle extraCallbackWithResult(String callbackName, in Bundle args) = 6;
     oneway void onActivityResized(int height, int width, in Bundle extras) = 7;
+    oneway void onWarmupCompleted(in Bundle extras) = 8;
 }

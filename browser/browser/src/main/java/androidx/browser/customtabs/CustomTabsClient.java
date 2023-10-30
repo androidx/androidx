@@ -407,6 +407,17 @@ public class CustomTabsClient {
                     }
                 });
             }
+
+            @Override
+            public void onWarmupCompleted(final @NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onWarmupCompleted(extras);
+                    }
+                });
+            }
         };
     }
 
