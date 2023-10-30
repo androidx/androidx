@@ -225,10 +225,10 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class WindowAdaptiveInfo {
-    ctor public WindowAdaptiveInfo(androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture posture);
-    method public androidx.compose.material3.adaptive.Posture getPosture();
+    ctor public WindowAdaptiveInfo(androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture windowPosture);
+    method public androidx.compose.material3.adaptive.Posture getWindowPosture();
     method public androidx.compose.material3.windowsizeclass.WindowSizeClass getWindowSizeClass();
-    property public final androidx.compose.material3.adaptive.Posture posture;
+    property public final androidx.compose.material3.adaptive.Posture windowPosture;
     property public final androidx.compose.material3.windowsizeclass.WindowSizeClass windowSizeClass;
   }
 
