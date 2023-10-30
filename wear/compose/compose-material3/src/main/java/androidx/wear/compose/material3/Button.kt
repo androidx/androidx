@@ -17,25 +17,41 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -1188,18 +1204,29 @@ private fun Button(
     interactionSource: MutableInteractionSource,
     content: @Composable RowScope.() -> Unit
 ) {
-    androidx.wear.compose.materialcore.Chip(
-        modifier = modifier
+    val borderModifier = if (border != null)
+        modifier.border(
+            border = border,
+            shape = shape
+        ) else modifier
+    Row(
+        modifier = borderModifier
             .defaultMinSize(minHeight = ButtonDefaults.Height)
-            .height(IntrinsicSize.Min),
-        onClick = onClick,
-        background = { colors.containerPainter(enabled = it) },
-        border = { rememberUpdatedState(border) },
-        enabled = enabled,
-        contentPadding = contentPadding,
-        shape = shape,
-        interactionSource = interactionSource,
-        role = Role.Button,
+            .height(IntrinsicSize.Min)
+            .clip(shape = shape)
+            .width(intrinsicSize = IntrinsicSize.Max)
+            .paint(
+                painter = colors.containerPainter(enabled = enabled).value,
+                contentScale = ContentScale.Crop
+            )
+            .clickable(
+                enabled = enabled,
+                onClick = onClick,
+                role = Role.Button,
+                indication = rememberRipple(),
+                interactionSource = interactionSource,
+            )
+            .padding(contentPadding),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             labelFont,
@@ -1228,31 +1255,48 @@ private fun Button(
     interactionSource: MutableInteractionSource,
     label: @Composable RowScope.() -> Unit
 ) {
-    androidx.wear.compose.materialcore.Chip(
-        modifier = modifier
-            .defaultMinSize(minHeight = ButtonDefaults.Height)
-            .height(IntrinsicSize.Min),
+    Button(
         onClick = onClick,
-        background = { colors.containerPainter(enabled = it) },
-        border = { rememberUpdatedState(border) },
+        modifier = modifier,
         enabled = enabled,
-        interactionSource = interactionSource,
         shape = shape,
+        labelFont = labelFont,
+        colors = colors,
+        border = border,
         contentPadding = contentPadding,
-        label = provideScopeContent(
-            colors.contentColor(enabled),
-            labelFont,
-            label
-        ),
-        secondaryLabel = secondaryLabel?.let { provideScopeContent(
-            colors.secondaryContentColor(enabled),
-            secondaryLabelFont,
-            secondaryLabel
-        ) },
-        icon = icon?.let {
-            provideScopeContent(colors.iconColor(enabled), icon)
-        },
-        defaultIconSpacing = ButtonDefaults.IconSpacing,
-        role = Role.Button
-    )
+        interactionSource = interactionSource,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // Fill the container height but not its width as chips have fixed size height but we
+            // want them to be able to fit their content
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                    content = provideScopeContent(colors.iconColor(enabled), icon)
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+            }
+            Column {
+                Row(
+                    content = provideScopeContent(
+                        colors.contentColor(enabled),
+                        labelFont,
+                        label
+                    )
+                )
+                secondaryLabel?.let {
+                    Row(
+                        content = provideScopeContent(
+                            colors.secondaryContentColor(enabled),
+                            secondaryLabelFont,
+                            secondaryLabel
+                        )
+                    )
+                }
+            }
+        }
+    }
 }
