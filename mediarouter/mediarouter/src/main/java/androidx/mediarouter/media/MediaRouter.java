@@ -894,8 +894,11 @@ public final class MediaRouter {
      * <p>Must be called on the main thread.
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to unregister.
+     * @deprecated Call {@link #setMediaSessionCompat(MediaSessionCompat)} instead of
+     * {@link #addRemoteControlClient(Object)} so that there is no need to call this method.
      */
     @MainThread
+    @Deprecated
     public void removeRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
