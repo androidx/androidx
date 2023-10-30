@@ -364,7 +364,7 @@ package androidx.mediarouter.media {
     method @MainThread public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
     method @MainThread public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
     method @MainThread public void removeProvider(androidx.mediarouter.media.MediaRouteProvider);
-    method @MainThread public void removeRemoteControlClient(Object);
+    method @Deprecated @MainThread public void removeRemoteControlClient(Object);
     method @MainThread public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @MainThread public void setMediaSession(Object?);
     method @MainThread public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
