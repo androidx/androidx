@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ExcludeFromSystemGestureKt")
+
 package androidx.compose.foundation
 
 import android.view.View

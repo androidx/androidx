@@ -31,3 +31,7 @@ DefaultValueChange: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggered
     Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.animateScrollToItem
 DefaultValueChange: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
     Attempted to remove default value from parameter arg3 in androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.scrollToItem
+
+
+RemovedClass: androidx.compose.foundation.ExcludeFromSystemGesture_androidKt:
+    Removed class androidx.compose.foundation.ExcludeFromSystemGesture_androidKt
