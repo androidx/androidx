@@ -351,6 +351,7 @@ private fun rememberLazyListMeasurePolicy(
             coroutineScope = requireNotNull(state.coroutineScope) {
                 "coroutineScope should be not null"
             },
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),
