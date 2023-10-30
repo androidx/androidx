@@ -55,7 +55,7 @@ internal actual object PlatformDateFormat {
 
         val date = Instant
             .fromEpochMilliseconds(utcTimeMillis)
-            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .toLocalDateTime(TimeZone.UTC)
 
         val jsDate = Date(utcTimeMillis)
 

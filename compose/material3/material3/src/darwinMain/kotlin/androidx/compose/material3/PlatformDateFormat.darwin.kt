@@ -57,6 +57,7 @@ internal actual object PlatformDateFormat {
         val nsDate = NSDate.dateWithTimeIntervalSince1970(utcTimeMillis / 1000.0)
 
         return NSDateFormatter().apply {
+            setTimeZone(TimeZone.UTC.toNSTimeZone())
             setLocale(locale)
             setLocalizedDateFormatFromTemplate(skeleton)
         }.stringFromDate(nsDate)
