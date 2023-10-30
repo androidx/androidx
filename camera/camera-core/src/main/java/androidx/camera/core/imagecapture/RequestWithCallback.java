@@ -151,6 +151,16 @@ class RequestWithCallback implements TakePictureCallback {
         mTakePictureRequest.onResult(imageProxy);
     }
 
+    @Override
+    public void onCaptureProcessProgressed(int progress) {
+        checkMainThread();
+        if (mIsAborted) {
+            return;
+        }
+
+        mTakePictureRequest.onCaptureProcessProgressed(progress);
+    }
+
     @MainThread
     @Override
     public void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {

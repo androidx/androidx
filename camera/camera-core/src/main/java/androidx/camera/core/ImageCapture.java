@@ -1442,6 +1442,19 @@ public final class ImageCapture extends UseCase {
          *                  error message and the throwable that caused it.
          */
         void onError(@NonNull ImageCaptureException exception);
+
+        /**
+         * Called to notify the progress in the processing stage of the capture.
+         *
+         * <p>To know in advanced if this callback will be called or not, check the
+         * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
+         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
+         *
+         * @param progress the progress ranging from 0 to 100.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        default void onCaptureProcessProgressed(int progress) {
+        }
     }
 
     /**
@@ -1501,6 +1514,19 @@ public final class ImageCapture extends UseCase {
          *                  error message and the throwable that caused it.
          */
         public void onError(@NonNull final ImageCaptureException exception) {
+        }
+
+        /**
+         * Called to notify the progress in the processing stage of the capture.
+         *
+         * <p>To know in advanced if this callback will be called or not, check the
+         * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
+         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
+         *
+         * @param progress the progress ranging from 0 to 100.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public void onCaptureProcessProgressed(int progress) {
         }
     }
 

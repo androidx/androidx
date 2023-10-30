@@ -413,6 +413,16 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         updateParameters(mSessionOptions, mStillCaptureOptions);
         mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
             @Override
+            public void onCaptureStarted(int captureSequenceId, long timestamp) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureStarted();
+                    }
+                });
+            }
+
+            @Override
             public void onCaptureFailed(
                     int captureSequenceId) {
                 mExecutor.execute(() -> {
@@ -431,6 +441,16 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             captureConfig.getCameraCaptureCallbacks()) {
                         cameraCaptureCallback.onCaptureCompleted(
                                 new CameraCaptureResult.EmptyCameraCaptureResult());
+                    }
+                });
+            }
+
+            @Override
+            public void onCaptureProcessProgressed(int progress) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureProcessProgressed(progress);
                     }
                 });
             }

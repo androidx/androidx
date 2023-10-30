@@ -201,6 +201,16 @@ public abstract class TakePictureRequest {
                 requireNonNull(imageProxy)));
     }
 
+    void onCaptureProcessProgressed(int progress) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onCaptureProcessProgressed(progress);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onCaptureProcessProgressed(progress);
+            }
+        });
+    }
+
     /**
      * Creates a {@link TakePictureRequest} instance.
      */

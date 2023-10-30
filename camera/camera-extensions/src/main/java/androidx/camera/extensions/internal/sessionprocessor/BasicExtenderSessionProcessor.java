@@ -595,6 +595,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                             captureCallback.onCaptureCompleted(shutterTimestamp,
                                     captureSequenceId, getCaptureResultKeyMapFromList(result));
                         }
+
+                        @Override
+                        public void onCaptureProcessProgressed(int progress) {
+                            captureCallback.onCaptureProcessProgressed(progress);
+                        }
                     });
         }
         setImageProcessor(mCaptureOutputConfig.getId(),

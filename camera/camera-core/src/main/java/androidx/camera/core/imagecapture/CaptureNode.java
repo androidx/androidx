@@ -104,27 +104,38 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         Consumer<ProcessingRequest> requestConsumer;
         ImageReaderProxy wrappedImageReader;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
+        CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
+            @Override
+            public void onCaptureStarted() {
+                mainThreadExecutor().execute(() -> {
+                    if (mCurrentRequest != null) {
+                        mCurrentRequest.onCaptureStarted();
+                    }
+                });
+            }
+
+            @Override
+            public void onCaptureProcessProgressed(int progress) {
+                mainThreadExecutor().execute(() -> {
+                    if (mCurrentRequest != null) {
+                        mCurrentRequest.onCaptureProcessProgressed(progress);
+                    }
+                });
+            }
+        };
+        CameraCaptureCallback cameraCaptureCallbacks;
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
-            CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
-                @Override
-                public void onCaptureStarted() {
-                    mainThreadExecutor().execute(() -> {
-                        if (mCurrentRequest != null) {
-                            mCurrentRequest.onCaptureStarted();
-                        }
-                    });
-                }
-            };
+
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
-            CameraCaptureCallback cameraCaptureCallbacks =
+            cameraCaptureCallbacks =
                     CameraCaptureCallbacks.createComboCallback(
                             progressCallback, metadataImageReader.getCameraCaptureCallback());
-            inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
             wrappedImageReader = metadataImageReader;
             requestConsumer = this::onRequestAvailable;
         } else {
+            cameraCaptureCallbacks = progressCallback;
             // Use NoMetadataImageReader if the input edge does not expect metadata.
             NoMetadataImageReader noMetadataImageReader = new NoMetadataImageReader(
                     createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
@@ -136,6 +147,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                 noMetadataImageReader.acceptProcessingRequest(request);
             };
         }
+        inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
         inputEdge.setSurface(requireNonNull(wrappedImageReader.getSurface()));
         mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(wrappedImageReader);
 

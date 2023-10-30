@@ -46,6 +46,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
@@ -64,6 +65,10 @@ class ImageCaptureTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -129,6 +134,72 @@ class ImageCaptureTest(
             ImageCapture.OnImageCapturedCallback::class.java
         )
 
+        bindAndTakePicture(mockOnImageCapturedCallback)
+
+        // Verify the image captured.
+        val imageProxy = ArgumentCaptor.forClass(
+            ImageProxy::class.java
+        )
+
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(3000).times(1))
+            .onCaptureStarted()
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
+            imageProxy.capture()
+        )
+        assertThat(imageProxy.value).isNotNull()
+        imageProxy.value.close() // Close the image after verification.
+
+        // Verify the take picture should not have any error happen.
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.never()).onError(
+            ArgumentMatchers.any(
+                ImageCaptureException::class.java
+            )
+        )
+    }
+
+    fun canBindToLifeCycleAndTakePicture_diskIo(): Unit = runBlocking {
+        val mockOnImageSavedCallback = Mockito.mock(
+            ImageCapture.OnImageSavedCallback::class.java
+        )
+
+        bindAndTakePicture(mockOnImageSavedCallback)
+
+        // Verify the image captured.
+        val outputFileResults = ArgumentCaptor.forClass(
+            ImageCapture.OutputFileResults::class.java
+        )
+
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(3000).times(1))
+            .onCaptureStarted()
+
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(10000)).onImageSaved(
+            outputFileResults.capture()
+        )
+        assertThat(outputFileResults.value).isNotNull()
+
+        // Verify the take picture should not have any error happen.
+        Mockito.verify(mockOnImageSavedCallback, Mockito.never()).onError(
+            ArgumentMatchers.any(
+                ImageCaptureException::class.java
+            )
+        )
+    }
+
+    private fun isCaptureProcessProgressSupported(): Boolean = runBlocking {
+        val camera = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionsCameraSelector
+            )
+        }
+
+        val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
+        capabilities.isCaptureProcessProgressSupported
+    }
+
+    private suspend fun bindAndTakePicture(
+        onImageCaptureCallback: ImageCapture.OnImageCapturedCallback
+    ) {
         // To test bind/unbind and take picture.
         val imageCapture = ImageCapture.Builder().build()
         val preview = Preview.Builder().build()
@@ -161,22 +232,121 @@ class ImageCaptureTest(
 
             imageCapture.takePicture(
                 CameraXExecutors.mainThreadExecutor(),
-                mockOnImageCapturedCallback
+                onImageCaptureCallback
             )
         }
+    }
+
+    private suspend fun bindAndTakePicture(
+        onImageSavedCallback: ImageCapture.OnImageSavedCallback
+    ) {
+        // To test bind/unbind and take picture.
+        val imageCapture = ImageCapture.Builder().build()
+        val preview = Preview.Builder().build()
+        withContext(Dispatchers.Main) {
+            // To set the update listener and Preview will change to active state.
+            preview.setSurfaceProvider(
+                SurfaceTextureProvider.createSurfaceTextureProvider(
+                    object : SurfaceTextureCallback {
+                        override fun onSurfaceTextureReady(
+                            surfaceTexture: SurfaceTexture,
+                            resolution: Size
+                        ) {
+                            // No-op.
+                        }
+
+                        override fun onSafeToRelease(
+                            surfaceTexture: SurfaceTexture
+                        ) {
+                            // No-op.
+                        }
+                    })
+            )
+
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionsCameraSelector,
+                preview,
+                imageCapture
+            )
+
+            val saveLocation = temporaryFolder.newFile("test.jpg")
+            val outputFileOptions = ImageCapture.OutputFileOptions
+                .Builder(saveLocation)
+                .build()
+            imageCapture.takePicture(
+                outputFileOptions,
+                CameraXExecutors.mainThreadExecutor(),
+                onImageSavedCallback
+            )
+        }
+    }
+
+    @Test
+    fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress(): Unit = runBlocking {
+        assumeTrue(isCaptureProcessProgressSupported())
+
+        val mockOnImageCapturedCallback = Mockito.mock(
+            ImageCapture.OnImageCapturedCallback::class.java
+        )
+
+        bindAndTakePicture(mockOnImageCapturedCallback)
 
         // Verify the image captured.
         val imageProxy = ArgumentCaptor.forClass(
             ImageProxy::class.java
         )
+
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(3000).times(1))
+            .onCaptureStarted()
+
+        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).atLeastOnce())
+            .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
+
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000)).onCaptureSuccess(
             imageProxy.capture()
         )
+
         assertThat(imageProxy.value).isNotNull()
         imageProxy.value.close() // Close the image after verification.
 
         // Verify the take picture should not have any error happen.
         Mockito.verify(mockOnImageCapturedCallback, Mockito.never()).onError(
+            ArgumentMatchers.any(
+                ImageCaptureException::class.java
+            )
+        )
+    }
+
+    @Test
+    fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress_diskIo(): Unit = runBlocking {
+        assumeTrue(isCaptureProcessProgressSupported())
+
+        val mockOnImageSavedCallback = Mockito.mock(
+            ImageCapture.OnImageSavedCallback::class.java
+        )
+
+        bindAndTakePicture(mockOnImageSavedCallback)
+
+        // Verify the image captured.
+        val outputFileResults = ArgumentCaptor.forClass(
+            ImageCapture.OutputFileResults::class.java
+        )
+
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(3000).times(1))
+            .onCaptureStarted()
+
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).atLeastOnce())
+            .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
+
+        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(10000)).onImageSaved(
+            outputFileResults.capture()
+        )
+
+        assertThat(outputFileResults.value).isNotNull()
+
+        // Verify the take picture should not have any error happen.
+        Mockito.verify(mockOnImageSavedCallback, Mockito.never()).onError(
             ArgumentMatchers.any(
                 ImageCaptureException::class.java
             )

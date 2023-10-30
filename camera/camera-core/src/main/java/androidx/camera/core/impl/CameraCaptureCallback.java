@@ -59,4 +59,11 @@ public abstract class CameraCaptureCallback {
      */
     public void onCaptureCancelled() {
     }
+
+    /**
+     * This method is called to notify the client of the progress in the processing stage.
+     */
+    public void onCaptureProcessProgressed(int progress) {
+
+    }
 }

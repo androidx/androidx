@@ -527,6 +527,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
 
         @Override
         public void onCaptureProcessProgressed(int progress) {
+            mCaptureCallback.onCaptureProcessProgressed(progress);
         }
     }
 }

@@ -128,6 +128,11 @@ class ProcessingRequest {
         mCallback.onCaptureStarted();
     }
 
+    @MainThread
+    void onCaptureProcessProgressed(int progress) {
+        mCallback.onCaptureProcessProgressed(progress);
+    }
+
     /**
      * @see TakePictureCallback#onImageCaptured()
      */

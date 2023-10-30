@@ -92,6 +92,7 @@ class StillCaptureProcessor {
     TotalCaptureResult mSourceCaptureResult = null;
     @GuardedBy("mLock")
     boolean mIsClosed = false;
+
     StillCaptureProcessor(@NonNull CaptureProcessorImpl captureProcessorImpl,
             @NonNull Surface captureOutputSurface,
             @NonNull Size surfaceSize) {
@@ -166,9 +167,13 @@ class StillCaptureProcessor {
 
     interface OnCaptureResultCallback {
         void onCompleted();
+
         void onCaptureResult(long shutterTimestamp,
                 @NonNull List<Pair<CaptureResult.Key, Object>> result);
+
         void onError(@NonNull Exception e);
+
+        void onCaptureProcessProgressed(int progress);
     }
 
     void clearCaptureResults() {
@@ -180,10 +185,10 @@ class StillCaptureProcessor {
             mCaptureResults.clear();
         }
     }
+
     void startCapture(@NonNull List<Integer> captureIdList,
             @NonNull OnCaptureResultCallback onCaptureResultCallback) {
         Logger.d(TAG, "Start the processor");
-
         synchronized (mLock) {
             mOnCaptureResultCallback = onCaptureResultCallback;
             clearCaptureResults();
@@ -219,7 +224,7 @@ class StillCaptureProcessor {
                             try {
                                 if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
                                         && ClientVersion.isMinimumCompatibleVersion(
-                                                Version.VERSION_1_3)) {
+                                        Version.VERSION_1_3)) {
                                     mCaptureProcessorImpl.process(convertedResult,
                                             new ProcessResultImpl() {
                                                 @Override
@@ -234,7 +239,8 @@ class StillCaptureProcessor {
                                                 @Override
                                                 public void onCaptureProcessProgressed(
                                                         int progress) {
-
+                                                    onCaptureResultCallback
+                                                            .onCaptureProcessProgressed(progress);
                                                 }
                                             }, CameraXExecutors.ioExecutor());
                                 } else {

@@ -202,6 +202,9 @@ class StillCaptureProcessorTest {
                 result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
             ) {
             }
+
+            override fun onCaptureProcessProgressed(progress: Int) {
+            }
         })
 
         val outputJpegDeferred = CompletableDeferred<ImageProxy>()
@@ -312,6 +315,9 @@ class StillCaptureProcessorTest {
                 shutterTimestamp: Long,
                 result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
             ) {
+            }
+
+            override fun onCaptureProcessProgressed(progress: Int) {
             }
         })
 
