@@ -245,7 +245,7 @@ suspend fun awaitApplication(
 interface ApplicationScope {
     /**
      * Close all windows created inside the application and cancel all launched effects
-     * (they launch via [LaunchedEffect] adn [rememberCoroutineScope].
+     * (they launch via [LaunchedEffect] and [rememberCoroutineScope].
      */
     fun exitApplication()
 }
