@@ -15,6 +15,8 @@
  */
 
 @file:JvmName("SdkActivityLaunchers")
+// TODO(b/307696996) Remove this file when activity library is released.
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.ui.client
 
@@ -45,6 +47,10 @@ import kotlinx.coroutines.withContext
  * @param allowLaunch predicate called each time an activity is about to be launched by the
  * SDK, the activity will only be launched if it returns true.
  */
+@Deprecated("Use the Privacy Sandbox Activity library version instead.",
+    ReplaceWith(
+        expression = "createSdkActivityLauncher",
+        imports = arrayOf("androidx.privacysandbox.activity.client.createSdkActivityLauncher")))
 fun <T> T.createSdkActivityLauncher(
     allowLaunch: () -> Boolean
 ): LocalSdkActivityLauncher<T>
@@ -65,6 +71,10 @@ fun <T> T.createSdkActivityLauncher(
  * Returns a [Bundle] with the information necessary to recreate this launcher.
  * Possibly in a different process.
  */
+@Deprecated("Use the Privacy Sandbox Activity library version instead.",
+    ReplaceWith(
+        expression = "toLauncherInfo",
+        imports = arrayOf("androidx.privacysandbox.activity.client.toLauncherInfo")))
 fun SdkActivityLauncher.toLauncherInfo(): Bundle {
     val binderDelegate = SdkActivityLauncherBinderDelegate(this)
     return Bundle().also { bundle ->
@@ -77,6 +87,10 @@ fun SdkActivityLauncher.toLauncherInfo(): Bundle {
  *
  * It allows callers in the app process to dispose resources used to launch SDK activities.
  */
+@Deprecated("Use the Privacy Sandbox Activity library version instead.",
+    ReplaceWith(
+        expression = "LocalSdkActivityLauncher",
+        imports = arrayOf("androidx.privacysandbox.activity.client.LocalSdkActivityLauncher")))
 interface LocalSdkActivityLauncher<T> : SdkActivityLauncher where T : Activity, T : LifecycleOwner {
     /**
      * Clears references used to launch activities.
