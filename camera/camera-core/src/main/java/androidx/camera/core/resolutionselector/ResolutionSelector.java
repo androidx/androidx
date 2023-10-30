@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.ViewPort;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -223,6 +225,12 @@ public final class ResolutionSelector {
          *
          * <p>If the aspect ratio strategy is not specified,
          * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be used as the default.
+         *
+         * <p>{@link UseCase}s can be bound by a {@link UseCaseGroup} with a {@link ViewPort}
+         * setting. If a {@link ViewPort} is set, it is recommended that the {@link ViewPort} and
+         * the bound {@link UseCase}s should have matching aspect ratio settings. Otherwise, the
+         * output crop rectangles may be double-cropped from the full camera sensor field of view.
+         * See {@link ViewPort.Builder} for details.
          */
         @NonNull
         public Builder setAspectRatioStrategy(@NonNull AspectRatioStrategy aspectRatioStrategy) {
