@@ -1079,6 +1079,7 @@ public final class MediaRouter {
         private String mDescription;
         private Uri mIconUri;
         boolean mEnabled;
+        private final boolean mIsSystemRoute;
         private @ConnectionState int mConnectionState;
         private boolean mCanDisconnect;
         private final ArrayList<IntentFilter> mControlFilters = new ArrayList<>();
@@ -1300,10 +1301,19 @@ public final class MediaRouter {
         // Should match to SystemMediaRouteProvider.PACKAGE_NAME.
         static final String SYSTEM_MEDIA_ROUTE_PROVIDER_PACKAGE_NAME = "android";
 
-        RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
+        /* package */ RouteInfo(ProviderInfo provider, String descriptorId, String uniqueId) {
+            this(provider, descriptorId, uniqueId, /* isSystemRoute */ false);
+        }
+
+        /* package */ RouteInfo(
+                ProviderInfo provider,
+                String descriptorId,
+                String uniqueId,
+                boolean isSystemRoute) {
             mProvider = provider;
             mDescriptorId = descriptorId;
             mUniqueId = uniqueId;
+            mIsSystemRoute = isSystemRoute;
         }
 
         /**
@@ -1378,6 +1388,20 @@ public final class MediaRouter {
          */
         public boolean isEnabled() {
             return mEnabled;
+        }
+
+        /**
+         * Returns {@code true} if this route is a system route.
+         *
+         * <p>System routes are routes controlled by the system, like the device's built-in
+         * speakers, wired headsets, and bluetooth devices.
+         *
+         * <p>To use system routes, your application should write media sample data to a media
+         * framework API, typically via <a
+         * href="https://developer.android.com/reference/androidx/media3/exoplayer/ExoPlayer">Exoplayer</a>.
+         */
+        public boolean isSystemRoute() {
+            return mIsSystemRoute;
         }
 
         /**
@@ -1901,6 +1925,7 @@ public final class MediaRouter {
                     .append(", description=").append(mDescription)
                     .append(", iconUri=").append(mIconUri)
                     .append(", enabled=").append(mEnabled)
+                    .append(", isSystemRoute=").append(mIsSystemRoute)
                     .append(", connectionState=").append(mConnectionState)
                     .append(", canDisconnect=").append(mCanDisconnect)
                     .append(", playbackType=").append(mPlaybackType)

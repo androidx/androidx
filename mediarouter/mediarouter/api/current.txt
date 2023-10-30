@@ -190,6 +190,7 @@ package androidx.mediarouter.media {
     method @Deprecated public boolean isConnecting();
     method public boolean isDynamicGroupRoute();
     method public boolean isEnabled();
+    method public boolean isSystemRoute();
     method public boolean isValid();
     method public boolean isVisibilityPublic();
   }
@@ -443,6 +444,7 @@ package androidx.mediarouter.media {
     method public boolean isDeviceSpeaker();
     method public boolean isEnabled();
     method @MainThread public boolean isSelected();
+    method public boolean isSystemRoute();
     method @MainThread public boolean matchesSelector(androidx.mediarouter.media.MediaRouteSelector);
     method @MainThread public void requestSetVolume(int);
     method @MainThread public void requestUpdateVolume(int);
