@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":camera:camera-extensions"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
+    implementation(project(":camera:camera-video"))
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
