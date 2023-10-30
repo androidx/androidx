@@ -17,8 +17,10 @@
 package androidx.wear.tiles;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -27,6 +29,8 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
 import androidx.wear.protolayout.expression.proto.VersionProto.VersionInfo;
@@ -47,10 +51,13 @@ import androidx.wear.tiles.proto.TileProto;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * Base class for a service providing data for an app tile.
@@ -92,6 +99,38 @@ public abstract class TileService extends Service {
      * preview.
      */
     public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
+
+    /**
+     * Name of the SharedPreferences file used for getting the preferences from the application
+     * context. The preferences are shared by all TileService implementations from the same app and
+     * store information regarding the tiles considered to be active. The SharedPreferences key is
+     * the result retrieved from {@link ActiveTileIdentifier#flattenToString} and the value is a
+     * timestamp.
+     *
+     * <p>The presence of a tile in the SharedPreferences means the tile instance is considered to
+     * be active (in the carousel). An entry will not be added with an invalid timestamp. The
+     * timestamp value is from when the entry was first recorded and is updated once every {@code
+     * UPDATE_TILE_TIMESTAMP_PERIOD_MS} on user interactions to indicate it is still active. If the
+     * timestamp hasn't been updated for longer than {@code INACTIVE_TILE_PERIOD_MS} the tile will
+     * be considered inactive and will be removed from the preferences so that entries are not left
+     * in the app's storage indefinitely if an {@link TileService#onTileRemoveEvent} callback,
+     * signaling the tile has become inactive, is missed.
+     */
+    private static final String ACTIVE_TILES_SHARED_PREF_NAME = "active_tiles_shared_preferences";
+
+    /**
+     * 1 day in milliseconds for the timestamp refresh period indicating the tile instance stored in
+     * {@code ACTIVE_TILES_SHARED_PREF_NAME} is still active if the tile is acted upon.
+     */
+    private static final long UPDATE_TILE_TIMESTAMP_PERIOD_MS = Duration.ofDays(1).toMillis();
+
+    /**
+     * 60 days in milliseconds for the period after which a tile instances will be removed from
+     * {@code ACTIVE_TILES_SHARED_PREF_NAME} if timestamp has not been updated since.
+     */
+    private static final long INACTIVE_TILE_PERIOD_MS = Duration.ofDays(60).toMillis();
+
+    private static TimeSourceClockImpl sTimeSourceClock = new TimeSourceClockImpl();
 
     /**
      * Called when the system is requesting a new timeline from this Tile Provider. The returned
@@ -225,6 +264,50 @@ public abstract class TileService extends Service {
         return new CompositeTileUpdateRequester(requesters);
     }
 
+    /**
+     * Returns the list of active tiles belonging to the passed {@param context}'s package name. A
+     * tile is considered to be active if it is present in the carousel.
+     *
+     * <p>The result reflects the state of carousel at the time the call was made, which might've
+     * changed by the time the result is received. {@link TileService#onTileAddEvent} and {@link
+     * TileService#onTileRemoveEvent} should be used instead for live updates.
+     *
+     * <p>This method is a best-effort to match platform behavior, but may not always return all
+     * tiles present in the carousel. The possibly omitted tiles being the pre-installed tiles, all
+     * tiles if the user has cleared the app data, or the tiles a user hasn't visited in the last 60
+     * days, while tiles removed by an app update may be shown as active for 60 days afterwards.
+     *
+     * @param context The application context.
+     * @param executor The executor on which methods should be invoked. To dispatch events through
+     *     the main thread of your application, you can use {@link
+     *     android.content.Context#getMainExecutor()}.
+     * @return A list of {@link ActiveTileIdentifier} for the tiles belonging to the passed {@param
+     *     context} present in the carousel, or a value based on platform-specific fallback
+     *     behavior.
+     */
+    @NonNull
+    public static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesSnapshotAsync(
+            @NonNull Context context, @NonNull Executor executor) {
+        return getActiveTilesSnapshotAsync(context, executor, sTimeSourceClock);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesSnapshotAsync(
+            @NonNull Context context,
+            @NonNull Executor executor,
+            @NonNull TimeSourceClock timeSourceClock) {
+        return readActiveTilesSharedPref(
+                getActiveTilesSharedPreferences(context),
+                context.getPackageName(),
+                executor,
+                timeSourceClock);
+    }
+
+    TimeSourceClock getTimeSourceClock() {
+        return sTimeSourceClock;
+    }
+
     private TileProvider.Stub mBinder;
 
     @Override
@@ -270,6 +353,11 @@ public abstract class TileService extends Service {
                                 return;
                             }
 
+                            tileService.markTileAsActive(
+                                    tileId,
+                                    new ComponentName(
+                                            tileService, tileService.getClass().getName()),
+                                    tileService.getTimeSourceClock());
                             TileRequest tileRequest;
 
                             try {
@@ -351,6 +439,11 @@ public abstract class TileService extends Service {
                                 return;
                             }
 
+                            tileService.markTileAsActive(
+                                    tileId,
+                                    new ComponentName(
+                                            tileService, tileService.getClass().getName()),
+                                    tileService.getTimeSourceClock());
                             ResourcesRequest req;
 
                             try {
@@ -441,6 +534,11 @@ public abstract class TileService extends Service {
                                         TileAddEvent.fromProto(
                                                 EventProto.TileAddEvent.parseFrom(
                                                         data.getContents()));
+                                tileService.markTileAsActive(
+                                        evt.getTileId(),
+                                        new ComponentName(
+                                                tileService, tileService.getClass().getName()),
+                                        tileService.getTimeSourceClock());
                                 tileService.onTileAddEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileAddEvent payload.", ex);
@@ -469,6 +567,10 @@ public abstract class TileService extends Service {
                                         TileRemoveEvent.fromProto(
                                                 EventProto.TileRemoveEvent.parseFrom(
                                                         data.getContents()));
+                                tileService.markTileAsInactive(
+                                        evt.getTileId(),
+                                        new ComponentName(
+                                                tileService, tileService.getClass().getName()));
                                 tileService.onTileRemoveEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileRemoveEvent payload.", ex);
@@ -497,6 +599,11 @@ public abstract class TileService extends Service {
                                         TileEnterEvent.fromProto(
                                                 EventProto.TileEnterEvent.parseFrom(
                                                         data.getContents()));
+                                tileService.markTileAsActive(
+                                        evt.getTileId(),
+                                        new ComponentName(
+                                                tileService, tileService.getClass().getName()),
+                                        tileService.getTimeSourceClock());
                                 tileService.onTileEnterEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileEnterEvent payload.", ex);
@@ -525,6 +632,11 @@ public abstract class TileService extends Service {
                                         TileLeaveEvent.fromProto(
                                                 EventProto.TileLeaveEvent.parseFrom(
                                                         data.getContents()));
+                                tileService.markTileAsActive(
+                                        evt.getTileId(),
+                                        new ComponentName(
+                                                tileService, tileService.getClass().getName()),
+                                        tileService.getTimeSourceClock());
                                 tileService.onTileLeaveEvent(evt);
                             } catch (InvalidProtocolBufferException ex) {
                                 Log.e(TAG, "Error deserializing TileLeaveEvent payload.", ex);
@@ -539,6 +651,151 @@ public abstract class TileService extends Service {
             callback.updateResources(new ResourcesData(resources, ResourcesData.VERSION_PROTOBUF));
         } catch (RemoteException ex) {
             Log.e(TAG, "RemoteException while returning resources payload", ex);
+        }
+    }
+
+    /**
+     * Mark tile instance as active by adding it to the {@code ACTIVE_TILES_SHARED_PREF_NAME} shared
+     * preferences if it doesn't already exist. If the tile instance is already present the
+     * timestamp is updated if necessary to indicate the tile is still active.
+     *
+     * <p>This method is called from {@link TileService#onTileAddEvent}, {@link
+     * TileService#onTileEnterEvent}, {@link TileService#onTileLeaveEvent}, {@link
+     * TileService#onTileRequest}, {@link TileService#onTileResourcesRequest} when an interaction
+     * with the tile is observed, indicating its presence in the carousel.
+     */
+    private void markTileAsActive(
+            @NonNull Integer tileId,
+            @NonNull ComponentName componentName,
+            @NonNull TimeSourceClock timeSourceClock) {
+        SharedPreferences sharedPref = getActiveTilesSharedPreferences(this);
+        cleanupActiveTilesSharedPref(sharedPref, timeSourceClock);
+        String key = new ActiveTileIdentifier(componentName, tileId).flattenToString();
+        if (sharedPref.contains(key)
+                && !timestampNeedsUpdate(sharedPref.getLong(key, -1L), timeSourceClock)) {
+            return;
+        }
+        sharedPref.edit().putLong(key, timeSourceClock.getCurrentTimestampMillis()).apply();
+    }
+
+    /**
+     * Mark tile instance as inactive by removing it from the {@code ACTIVE_TILES_SHARED_PREF_NAME}
+     * shared preferences if it exists.
+     *
+     * <p>This method is called from {@link TileService#onTileRemoveEvent} when a tile instance is
+     * removed from the carousel.
+     */
+    private void markTileAsInactive(@NonNull Integer tileId, @NonNull ComponentName componentName) {
+        SharedPreferences sharedPref = getActiveTilesSharedPreferences(this);
+        String key = new ActiveTileIdentifier(componentName, tileId).flattenToString();
+        if (!sharedPref.contains(key)) {
+            return;
+        }
+        sharedPref.edit().remove(key).apply();
+    }
+
+    /**
+     * Clean-up method to remove entries with timestamps that haven't been updated for longer than
+     * {@code INACTIVE_TILE_PERIOD_MS}. In such cases the tiles are considered inactive and will be
+     * removed from the {@code ACTIVE_TILES_SHARED_PREF_NAME} preferences so that entries are not
+     * left in the app's storage indefinitely if an {@link TileService#onTileRemoveEvent} callback,
+     * signaling the tile was removed from the carousel, is missed.
+     *
+     * <p>This method is called on any user interactions with the tiles and before the
+     * SharedPreferences are read.
+     */
+    private static void cleanupActiveTilesSharedPref(
+            @NonNull SharedPreferences activeTilesSharedPref,
+            @NonNull TimeSourceClock timeSourceClock) {
+        for (String key : activeTilesSharedPref.getAll().keySet()) {
+            if (isTileInactive(activeTilesSharedPref.getLong(key, -1L), timeSourceClock)) {
+                activeTilesSharedPref.edit().remove(key).apply();
+            }
+        }
+    }
+
+    private static ListenableFuture<List<ActiveTileIdentifier>> readActiveTilesSharedPref(
+            @NonNull SharedPreferences activeTilesSharedPref,
+            @NonNull String packageName,
+            @NonNull Executor executor,
+            @NonNull TimeSourceClock timeSourceClock) {
+        return CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    executor.execute(
+                            () -> {
+                                if (activeTilesSharedPref != null) {
+                                    cleanupActiveTilesSharedPref(
+                                            activeTilesSharedPref, timeSourceClock);
+                                    List<ActiveTileIdentifier> activeTilesList =
+                                            activeTilesSharedPref.getAll().entrySet().stream()
+                                                    .map(
+                                                            entry ->
+                                                                    ActiveTileIdentifier
+                                                                            .unflattenFromString(
+                                                                                    entry.getKey()))
+                                                    .collect(Collectors.toList());
+                                    if (!packageNameMatches(packageName, activeTilesList)) {
+                                        completer.setException(
+                                                new IllegalArgumentException(
+                                                        "The information from the provided "
+                                                                + "context doesn't match."));
+                                    } else {
+                                        completer.set(activeTilesList);
+                                    }
+                                } else {
+                                    completer.setException(
+                                            new IllegalArgumentException(
+                                                    "The information from the provided "
+                                                            + "context doesn't match."));
+                                }
+                            });
+
+                    return "readActiveTilesSharedPref";
+                });
+    }
+
+    private static SharedPreferences getActiveTilesSharedPreferences(@NonNull Context context) {
+        return context.getSharedPreferences(ACTIVE_TILES_SHARED_PREF_NAME, MODE_PRIVATE);
+    }
+
+    /**
+     * Returns true if the timestamp hasn't been updated for longer than {@code
+     * UPDATE_TILE_TIMESTAMP_PERIOD_MS}. Returns false if the timestamp has been updated in the past
+     * {@code UPDATE_TILE_TIMESTAMP_PERIOD_MS} or if the current time cannot be obtained.
+     */
+    private static boolean timestampNeedsUpdate(
+            long timestampMs, @NonNull TimeSourceClock timeSourceClock) {
+        return timeSourceClock.getCurrentTimestampMillis() - timestampMs
+                >= UPDATE_TILE_TIMESTAMP_PERIOD_MS;
+    }
+
+    /**
+     * Returns true if the timestamp hasn't been updated for longer than {@code
+     * INACTIVE_TILE_PERIOD_MS}. Returns false if the timestamp has been updated in the past {@code
+     * INACTIVE_TILE_PERIOD_MS} or if the current time cannot be obtained.
+     */
+    private static boolean isTileInactive(
+            long timestampMs, @NonNull TimeSourceClock timeSourceClock) {
+        return timeSourceClock.getCurrentTimestampMillis() - timestampMs >= INACTIVE_TILE_PERIOD_MS;
+    }
+
+    private static boolean packageNameMatches(
+            String packageName, List<ActiveTileIdentifier> activeTileIdentifiers) {
+        return activeTileIdentifiers.stream()
+                .allMatch(i -> i.getComponentName().getPackageName().equals(packageName));
+    }
+
+    interface TimeSourceClock {
+        /**
+         * @return Time agnostic timestamp with the current time.
+         */
+        long getCurrentTimestampMillis();
+    }
+
+    static class TimeSourceClockImpl implements TimeSourceClock {
+        @Override
+        public long getCurrentTimestampMillis() {
+            return System.currentTimeMillis();
         }
     }
 
