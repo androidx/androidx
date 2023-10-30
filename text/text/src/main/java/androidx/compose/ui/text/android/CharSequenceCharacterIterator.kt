@@ -33,7 +33,7 @@ internal class CharSequenceCharacterIterator(
     private val charSequence: CharSequence,
     private val start: Int,
     private val end: Int
-) : CharacterIterator {
+) : Object(), CharacterIterator {
     private var index: Int = start
 
     /**
@@ -173,7 +173,6 @@ internal class CharSequenceCharacterIterator(
      */
     override fun clone(): Any {
         return try {
-            @Suppress("ABSTRACT_SUPER_CALL")
             super.clone()
         } catch (e: CloneNotSupportedException) {
             throw InternalError()
