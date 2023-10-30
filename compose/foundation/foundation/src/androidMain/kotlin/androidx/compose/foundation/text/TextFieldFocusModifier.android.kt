@@ -68,7 +68,7 @@ internal actual fun Modifier.interceptDPadAndMoveFocus(
                 keyEvent.isKeyCode(KEYCODE_DPAD_RIGHT) -> focusManager.moveFocus(Right)
                 keyEvent.isKeyCode(KEYCODE_DPAD_CENTER) -> {
                     // Enable keyboard on center key press
-                    state.inputSession?.showSoftwareKeyboard()
+                    state.keyboardController?.show()
                     true
                 }
                 else -> false

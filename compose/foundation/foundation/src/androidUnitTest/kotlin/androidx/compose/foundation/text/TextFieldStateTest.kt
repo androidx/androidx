@@ -31,8 +31,9 @@ internal class TextFieldStateTest {
     fun layoutResult_isSnapshotState() {
         // this is really a test about references, so just using mocks
         val subject = TextFieldState(
-            mock(), // not needed for test
-            mock(), // not needed for test
+            textDelegate = mock(), // not needed for test
+            recomposeScope = mock(), // not needed for test
+            keyboardController = null, // not needed for test
         )
         val result1 = TextLayoutResultProxy(mock())
         val snapshot = Snapshot.takeMutableSnapshot()
