@@ -101,8 +101,6 @@ public class StreamSharing extends UseCase {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
         mutableConfig.insertOption(OPTION_INPUT_FORMAT,
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-        mutableConfig.insertOption(OPTION_CAPTURE_TYPE,
-                UseCaseConfigFactory.CaptureType.STREAM_SHARING);
         List<UseCaseConfigFactory.CaptureType> captureTypes = new ArrayList<>();
         for (UseCase child : children) {
             if (child.getCurrentConfig().containsOption(OPTION_CAPTURE_TYPE)) {
