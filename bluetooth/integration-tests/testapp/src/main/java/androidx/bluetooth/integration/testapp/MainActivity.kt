@@ -32,11 +32,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.bluetooth.integration.testapp.databinding.ActivityMainBinding
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -74,14 +73,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = binding.navView
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
 
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
         val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.navigation_scanner, R.id.navigation_advertiser, R.id.navigation_gatt_server)
+            setOf(
+                R.id.navigation_scanner,
+                R.id.navigation_connections,
+                R.id.navigation_advertiser,
+                R.id.navigation_gatt_server
+            )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        binding.bottomNavigationView.setupWithNavController(navController)
 
         val bluetoothManager = getSystemService(BluetoothManager::class.java)
         isBluetoothEnabled = bluetoothManager.adapter.isEnabled
