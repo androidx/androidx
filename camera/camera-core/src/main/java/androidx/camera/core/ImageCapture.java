@@ -1545,7 +1545,6 @@ public final class ImageCapture extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE)
                     .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
@@ -2055,6 +2054,7 @@ public final class ImageCapture extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
             setTargetClass(ImageCapture.class);
         }
 
