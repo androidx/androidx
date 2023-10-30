@@ -184,6 +184,7 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     if (name.startsWith("androidDebug")) return false
     if (name.startsWith("release")) return false
     if (name.startsWith("test")) return false
+    if (name.startsWith("jvmTest")) return false
 
     // Don't check any tooling configurations.
     if (name == "annotationProcessor") return false
@@ -211,7 +212,7 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
 
     // Doesn't affect the .pom / .module
     // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
-    if (name == "allSourceSetsCompileDependenciesMetadata") return false
+    if (name.endsWith("DependenciesMetadata")) return false
 
     return true
 }
