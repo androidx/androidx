@@ -115,6 +115,9 @@ function listJavaProcesses() {
 }
 listJavaProcesses
 
+# launch a process to monitor for timeouts
+busytown/impl/monitor.sh 3600 busytown/impl/showDaemonStack.sh &
+
 # run the build
 if run ./gradlew --ci "$@"; then
   echo build passed
