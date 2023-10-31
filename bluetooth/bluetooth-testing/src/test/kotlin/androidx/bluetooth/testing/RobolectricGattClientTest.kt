@@ -163,7 +163,7 @@ class RobolectricGattClientTest {
                     // Check if awaitClose waits for the callback is finished
                     delay(100)
                     clientAdapter.callback?.onCharacteristicRead(
-                        clientAdapter.bluetoothGatt!!,
+                        clientAdapter.fwkBluetoothGatt!!,
                         char,
                         testValue.toByteArray(),
                         BluetoothGatt.GATT_SUCCESS
@@ -218,7 +218,7 @@ class RobolectricGattClientTest {
                     // For the callback being invoked after waiting
                     delay(0)
                     clientAdapter.callback?.onCharacteristicRead(
-                        clientAdapter.bluetoothGatt!!,
+                        clientAdapter.fwkBluetoothGatt!!,
                         char,
                         currentValue.get().toByteArray(),
                         BluetoothGatt.GATT_SUCCESS
@@ -232,7 +232,7 @@ class RobolectricGattClientTest {
                     delay(0)
                     currentValue.set(value.toInt())
                     clientAdapter.callback?.onCharacteristicWrite(
-                        clientAdapter.bluetoothGatt!!, char, BluetoothGatt.GATT_SUCCESS
+                        clientAdapter.fwkBluetoothGatt!!, char, BluetoothGatt.GATT_SUCCESS
                     )
                 }
         }
@@ -289,7 +289,7 @@ class RobolectricGattClientTest {
                     // For the callback being invoked after waiting
                     delay(0)
                     clientAdapter.callback?.onCharacteristicRead(
-                        clientAdapter.bluetoothGatt!!,
+                        clientAdapter.fwkBluetoothGatt!!,
                         char,
                         currentValue.get().toByteArray(),
                         BluetoothGatt.GATT_SUCCESS
@@ -303,7 +303,7 @@ class RobolectricGattClientTest {
                     delay(100)
                     currentValue.set(valueToNotify)
                     clientAdapter.callback?.onCharacteristicChanged(
-                        clientAdapter.bluetoothGatt!!,
+                        clientAdapter.fwkBluetoothGatt!!,
                         desc.characteristic,
                         valueToNotify.toByteArray()
                     )
@@ -364,7 +364,7 @@ class RobolectricGattClientTest {
                     clientAdapter.gattServices = sampleServices
                 }
                 clientAdapter.callback?.onServicesDiscovered(
-                    clientAdapter.bluetoothGatt,
+                    clientAdapter.fwkBluetoothGatt,
                     BluetoothGatt.GATT_SUCCESS
                 )
             }
@@ -373,7 +373,7 @@ class RobolectricGattClientTest {
             launch {
                 clientAdapter.gattServices = newServices
                 if (Build.VERSION.SDK_INT >= 31) {
-                    clientAdapter.callback?.onServiceChanged(clientAdapter.bluetoothGatt!!)
+                    clientAdapter.callback?.onServiceChanged(clientAdapter.fwkBluetoothGatt!!)
                 }
             }
             val servicesEmitted = servicesFlow.take(2).toList()
@@ -392,14 +392,14 @@ class RobolectricGattClientTest {
 
         clientAdapter.onRequestMtuListener =
             StubClientFrameworkAdapter.OnRequestMtuListener { mtu ->
-                clientAdapter.callback?.onMtuChanged(clientAdapter.bluetoothGatt, mtu,
+                clientAdapter.callback?.onMtuChanged(clientAdapter.fwkBluetoothGatt, mtu,
                     BluetoothGatt.GATT_SUCCESS)
             }
 
         clientAdapter.onDiscoverServicesListener =
             StubClientFrameworkAdapter.OnDiscoverServicesListener {
                 clientAdapter.gattServices = sampleServices
-                clientAdapter.callback?.onServicesDiscovered(clientAdapter.bluetoothGatt,
+                clientAdapter.callback?.onServicesDiscovered(clientAdapter.fwkBluetoothGatt,
                     BluetoothGatt.GATT_SUCCESS)
             }
     }
@@ -423,11 +423,11 @@ class RobolectricGattClientTest {
     ) : GattClient.FrameworkAdapter {
         var gattServices: List<FwkService> = listOf()
         var callback: BluetoothGattCallback? = null
-        override var bluetoothGatt: BluetoothGatt?
-            get() = baseAdapter.bluetoothGatt
-            set(value) { baseAdapter.bluetoothGatt = value }
+        override var fwkBluetoothGatt: BluetoothGatt?
+            get() = baseAdapter.fwkBluetoothGatt
+            set(value) { baseAdapter.fwkBluetoothGatt = value }
         val shadowBluetoothGatt: ShadowBluetoothGatt
-            get() = shadowOf(bluetoothGatt)
+            get() = shadowOf(fwkBluetoothGatt)
 
         var onConnectListener: OnConnectListener? = null
         var onRequestMtuListener: OnRequestMtuListener? = null
@@ -439,12 +439,12 @@ class RobolectricGattClientTest {
 
         override fun connectGatt(
             context: Context,
-            device: FwkDevice,
-            callback: BluetoothGattCallback
+            fwkDevice: FwkDevice,
+            fwkCallback: BluetoothGattCallback
         ): Boolean {
-            this.callback = callback
-            baseAdapter.connectGatt(context, device, callback)
-            return onConnectListener?.onConnect(device, callback) ?: false
+            this.callback = fwkCallback
+            baseAdapter.connectGatt(context, fwkDevice, fwkCallback)
+            return onConnectListener?.onConnect(fwkDevice, fwkCallback) ?: false
         }
 
         override fun requestMtu(mtu: Int) {
@@ -465,32 +465,36 @@ class RobolectricGattClientTest {
             return gattServices.find { it.uuid == uuid }
         }
 
-        override fun readCharacteristic(characteristic: FwkCharacteristic) {
-            baseAdapter.readCharacteristic(characteristic)
-            onReadCharacteristicListener?.onReadCharacteristic(characteristic)
+        override fun readCharacteristic(fwkCharacteristic: FwkCharacteristic) {
+            baseAdapter.readCharacteristic(fwkCharacteristic)
+            onReadCharacteristicListener?.onReadCharacteristic(fwkCharacteristic)
         }
 
         override fun writeCharacteristic(
-            characteristic: FwkCharacteristic,
+            fwkCharacteristic: FwkCharacteristic,
             value: ByteArray,
             writeType: Int
         ) {
-            baseAdapter.writeCharacteristic(characteristic, value, writeType)
-            onWriteCharacteristicListener?.onWriteCharacteristic(characteristic, value, writeType)
+            baseAdapter.writeCharacteristic(fwkCharacteristic, value, writeType)
+            onWriteCharacteristicListener?.onWriteCharacteristic(
+                fwkCharacteristic,
+                value,
+                writeType
+            )
         }
 
-        override fun writeDescriptor(descriptor: BluetoothGattDescriptor, value: ByteArray) {
-            baseAdapter.writeDescriptor(descriptor, value)
-            onWriteDescriptorListener?.onWriteDescriptor(descriptor, value)
+        override fun writeDescriptor(fwkSescriptor: BluetoothGattDescriptor, value: ByteArray) {
+            baseAdapter.writeDescriptor(fwkSescriptor, value)
+            onWriteDescriptorListener?.onWriteDescriptor(fwkSescriptor, value)
         }
 
         override fun setCharacteristicNotification(
-            characteristic: FwkCharacteristic,
+            fwkCharacteristic: FwkCharacteristic,
             enable: Boolean
         ) {
-            baseAdapter.setCharacteristicNotification(characteristic, enable)
+            baseAdapter.setCharacteristicNotification(fwkCharacteristic, enable)
             onSetCharacteristicNotifiationListener
-                ?.onSetCharacteristicNotification(characteristic, enable)
+                ?.onSetCharacteristicNotification(fwkCharacteristic, enable)
         }
 
         override fun closeGatt() {

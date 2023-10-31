@@ -16,6 +16,12 @@
 
 package androidx.bluetooth
 
+import android.bluetooth.le.AdvertiseData as FwkAdvertiseData
+import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
+import android.os.Build
+import android.os.ParcelUuid
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import java.time.Duration
 import java.util.UUID
 
@@ -65,4 +71,56 @@ class AdvertiseParams(
      * A list of service solicitation UUIDs to advertise that we invite to connect.
      */
     val serviceSolicitationUuids: List<UUID> = emptyList()
-)
+) {
+    @RequiresApi(34)
+    private object AdvertiseParamsApi34Impl {
+        @JvmStatic
+        @DoNotInline
+        fun setDiscoverable(builder: FwkAdvertiseSettings.Builder, isDiscoverable: Boolean) {
+            builder.setDiscoverable(isDiscoverable)
+        }
+    }
+
+    @RequiresApi(31)
+    private object AdvertiseParamsApi31Impl {
+        @JvmStatic
+        @DoNotInline
+        fun addServiceSolicitationUuid(builder: FwkAdvertiseData.Builder, parcelUuid: ParcelUuid) {
+            builder.addServiceSolicitationUuid(parcelUuid)
+        }
+    }
+
+    internal val fwkAdvertiseSettings: FwkAdvertiseSettings
+        get() = FwkAdvertiseSettings.Builder().run {
+            setConnectable(isConnectable)
+            duration.toMillis().let {
+                if (it !in 0..655350)
+                    throw IllegalArgumentException("Advertise duration must be in [0, 655350]")
+                setTimeout(it.toInt())
+            }
+            if (Build.VERSION.SDK_INT >= 34) {
+                AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
+            }
+            build()
+        }
+
+    internal val fwkAdvertiseData: FwkAdvertiseData
+        get() = FwkAdvertiseData.Builder().run {
+            setIncludeDeviceName(shouldIncludeDeviceName)
+            serviceData.forEach {
+                addServiceData(ParcelUuid(it.key), it.value)
+            }
+            manufacturerData.forEach {
+                addManufacturerData(it.key, it.value)
+            }
+            serviceUuids.forEach {
+                addServiceUuid(ParcelUuid(it))
+            }
+            if (Build.VERSION.SDK_INT >= 31) {
+                serviceSolicitationUuids.forEach {
+                    AdvertiseParamsApi31Impl.addServiceSolicitationUuid(this, ParcelUuid(it))
+                }
+            }
+            build()
+        }
+}

@@ -16,21 +16,16 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothManager
-import android.bluetooth.le.AdvertiseCallback
-import android.bluetooth.le.AdvertiseData
-import android.bluetooth.le.AdvertiseSettings
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
+import android.bluetooth.BluetoothManager as FwkBluetoothManager
+import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
+import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
+import android.bluetooth.le.BluetoothLeScanner as FwkBluetoothLeScanner
+import android.bluetooth.le.ScanCallback as FwkScanCallback
 import android.bluetooth.le.ScanResult as FwkScanResult
-import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.ScanSettings as FwkScanSettings
 import android.content.Context
-import android.os.Build
-import android.os.ParcelUuid
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -84,32 +79,8 @@ class BluetoothLe(context: Context) {
     )
     annotation class AdvertiseResult
 
-    @RequiresApi(34)
-    private object BluetoothLeApi34Impl {
-        @JvmStatic
-        @DoNotInline
-        fun setDiscoverable(
-            builder: AdvertiseSettings.Builder,
-            isDiscoverable: Boolean
-        ) {
-            builder.setDiscoverable(isDiscoverable)
-        }
-    }
-
-    @RequiresApi(31)
-    private object BluetoothLeApi31Impl {
-        @JvmStatic
-        @DoNotInline
-        fun addServiceSolicitationUuid(
-            builder: AdvertiseData.Builder,
-            parcelUuid: ParcelUuid
-        ) {
-            builder.addServiceSolicitationUuid(parcelUuid)
-        }
-    }
-
     private val bluetoothManager =
-        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as FwkBluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
 
     @VisibleForTesting
@@ -117,6 +88,7 @@ class BluetoothLe(context: Context) {
     val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
         GattClient(context)
     }
+
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -146,7 +118,7 @@ class BluetoothLe(context: Context) {
     ) {
         val result = CompletableDeferred<Int>()
 
-        val callback = object : AdvertiseCallback() {
+        val callback = object : FwkAdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
                 Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
 
@@ -165,41 +137,9 @@ class BluetoothLe(context: Context) {
                 }
             }
 
-            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+            override fun onStartSuccess(settingsInEffect: FwkAdvertiseSettings) {
                 result.complete(ADVERTISE_STARTED)
             }
-        }
-
-        val advertiseSettings = with(AdvertiseSettings.Builder()) {
-            setConnectable(advertiseParams.isConnectable)
-            advertiseParams.duration.toMillis().let {
-                if (it !in 0..655350)
-                    throw IllegalArgumentException("advertise duration must be in [0, 655350]")
-                setTimeout(it.toInt())
-            }
-            if (Build.VERSION.SDK_INT >= 34) {
-                BluetoothLeApi34Impl.setDiscoverable(this, advertiseParams.isDiscoverable)
-            }
-            build()
-        }
-
-        val advertiseData = with(AdvertiseData.Builder()) {
-            setIncludeDeviceName(advertiseParams.shouldIncludeDeviceName)
-            advertiseParams.serviceData.forEach {
-                addServiceData(ParcelUuid(it.key), it.value)
-            }
-            advertiseParams.manufacturerData.forEach {
-                addManufacturerData(it.key, it.value)
-            }
-            advertiseParams.serviceUuids.forEach {
-                addServiceUuid(ParcelUuid(it))
-            }
-            if (Build.VERSION.SDK_INT >= 31) {
-                advertiseParams.serviceSolicitationUuids.forEach {
-                    BluetoothLeApi31Impl.addServiceSolicitationUuid(this, ParcelUuid(it))
-                }
-            }
-            build()
         }
 
         val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
@@ -207,7 +147,11 @@ class BluetoothLe(context: Context) {
         if (bleAdvertiser == null) {
             result.complete(ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
         } else {
-            bleAdvertiser.startAdvertising(advertiseSettings, advertiseData, callback)
+            bleAdvertiser.startAdvertising(
+                advertiseParams.fwkAdvertiseSettings,
+                advertiseParams.fwkAdvertiseData,
+                callback
+            )
         }
 
         coroutineContext.job.invokeOnCompletion {
@@ -236,7 +180,7 @@ class BluetoothLe(context: Context) {
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
-        val callback = object : ScanCallback() {
+        val callback = object : FwkScanCallback() {
             override fun onScanResult(callbackType: Int, result: FwkScanResult) {
                 trySend(ScanResult(result))
             }
@@ -249,7 +193,7 @@ class BluetoothLe(context: Context) {
 
         val bleScanner = bluetoothAdapter?.bluetoothLeScanner
         val fwkFilters = filters.map { it.fwkScanFilter }
-        val scanSettings = ScanSettings.Builder().build()
+        val scanSettings = FwkScanSettings.Builder().build()
         bleScanner?.startScan(fwkFilters, scanSettings, callback)
         onStartScanListener?.onStartScan(bleScanner)
 
@@ -295,8 +239,7 @@ class BluetoothLe(context: Context) {
          * @param characteristic a remote [GattCharacteristic] to read
          * @return the value of the characteristic
          */
-        suspend fun readCharacteristic(characteristic: GattCharacteristic):
-            Result<ByteArray>
+        suspend fun readCharacteristic(characteristic: GattCharacteristic): Result<ByteArray>
 
         /**
          * Writes the characteristic value to the server.
@@ -419,6 +362,7 @@ class BluetoothLe(context: Context) {
     ) {
         val device: BluetoothDevice
             get() = session.device
+
         /**
          * Accepts the connect request and handles incoming requests after that.
          *
@@ -462,6 +406,6 @@ class BluetoothLe(context: Context) {
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun interface OnStartScanListener {
-        fun onStartScan(scanner: BluetoothLeScanner?)
+        fun onStartScan(scanner: FwkBluetoothLeScanner?)
     }
 }

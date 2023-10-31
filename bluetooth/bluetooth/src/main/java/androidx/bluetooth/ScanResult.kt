@@ -51,8 +51,10 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
     // TODO(kihongs) Find a way to get address type from framework scan result
     /** Bluetooth address for the remote device found. */
     val deviceAddress: BluetoothAddress
-        get() = BluetoothAddress(fwkScanResult.device.address,
-            BluetoothAddress.ADDRESS_TYPE_UNKNOWN)
+        get() = BluetoothAddress(
+            fwkScanResult.device.address,
+            BluetoothAddress.ADDRESS_TYPE_UNKNOWN
+        )
 
     /** Device timestamp when the advertisement was last seen. */
     val timestampNanos: Long
