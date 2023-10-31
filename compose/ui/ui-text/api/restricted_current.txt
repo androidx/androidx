@@ -172,7 +172,7 @@ package androidx.compose.ui.text {
     property public final java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders;
   }
 
-  public sealed interface Paragraph {
+  @kotlin.jvm.JvmDefaultWithCompatibility public sealed interface Paragraph {
     method public void fillBoundingBoxes(long range, float[] array, @IntRange(from=0L) int arrayStart);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
@@ -1295,6 +1295,13 @@ package androidx.compose.ui.text.intl {
 }
 
 package androidx.compose.ui.text.platform {
+
+  public final class Synchronization_jvmKt {
+    method @kotlin.PublishedApi internal static inline <R> R synchronized(androidx.compose.ui.text.platform.SynchronizedObject lock, kotlin.jvm.functions.Function0<? extends R> block);
+  }
+
+  @kotlin.PublishedApi internal final class SynchronizedObject {
+  }
 
   @SuppressCompatibility @androidx.compose.ui.text.InternalTextApi public final class URLSpanCache {
     ctor public URLSpanCache();

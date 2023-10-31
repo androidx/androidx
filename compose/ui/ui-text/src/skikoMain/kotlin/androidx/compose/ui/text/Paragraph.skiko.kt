@@ -26,9 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 
+@JvmDefaultWithCompatibility
 actual sealed interface Paragraph {
     actual val width: Float
     actual val height: Float
