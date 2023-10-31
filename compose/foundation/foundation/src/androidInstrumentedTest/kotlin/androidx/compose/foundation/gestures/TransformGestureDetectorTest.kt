@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.gesture
+package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
