@@ -445,3 +445,11 @@ dependencies {
     docs("androidx.work:work-testing:2.9.0-rc01")
 }
 
+afterEvaluate {
+  tasks["docs"].doFirst {
+    println("docs-public:docs starting")
+  }
+  tasks["docs"].doLast {
+    println("docs-public:docs completing")
+  }
+}

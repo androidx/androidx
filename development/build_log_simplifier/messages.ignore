@@ -577,3 +577,6 @@ at com\.android\.tools\.lint\.client\.api\.JarFileIssueRegistry\$Factory\.get\$d
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.registerCustomDetectors\(LintDriver\.kt:[0-9]+\)
 at com\.android\.tools\.lint\.client\.api\.LintDriver\.initializeExtraRegistries\(LintDriver\.kt:[0-9]+\)
 at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
+# temporary diagnostic for b/307738543
+docs-public:docs starting
+docs-public:docs completing
