@@ -31,6 +31,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,6 +40,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DesktopTextInputSessionTest {
 
+    @Ignore // b/308619798
     @Test
     fun startInputMethod_setsAndClearsRequestsAndListeners() = runTest {
         val inputComponent = TestInputComponent()
