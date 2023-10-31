@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 internal class ComposeDragShadowBuilder(
     private val density: Density,
-    private val dragDecorationSize: Size,
+    private val decorationSize: Size,
     private val drawDragDecoration: DrawScope.() -> Unit,
 ) : View.DragShadowBuilder() {
 
@@ -41,8 +41,8 @@ internal class ComposeDragShadowBuilder(
         outShadowTouchPoint: Point
     ) = with(density) {
         outShadowSize.set(
-            dragDecorationSize.width.toDp().roundToPx(),
-            dragDecorationSize.height.toDp().roundToPx()
+            decorationSize.width.toDp().roundToPx(),
+            decorationSize.height.toDp().roundToPx()
         )
         outShadowTouchPoint.set(
             outShadowSize.x / 2,
@@ -53,7 +53,7 @@ internal class ComposeDragShadowBuilder(
     override fun onDrawShadow(canvas: AndroidCanvas) {
         CanvasDrawScope().draw(
             density = density,
-            size = dragDecorationSize,
+            size = decorationSize,
             layoutDirection = LayoutDirection.Ltr,
             canvas = Canvas(canvas),
             block = drawDragDecoration,

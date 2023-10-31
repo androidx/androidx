@@ -36,21 +36,35 @@ import androidx.compose.ui.node.traverseDescendants
  */
 interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
     /**
-     * Begins a drag and drop operation.
+     * Begins a drag and drop session for transferring data.
      *
      * @param transferData the data to be transferred after successful completion of the
      * drag and drop gesture.
      *
-     * @param dragDecorationSize the size of the drag decoration to be drawn.
+     * @param decorationSize the size of the drag decoration to be drawn.
      *
      * @param drawDragDecoration provides the visual representation of the item dragged during the
      * drag and drop gesture.
      */
     fun drag(
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     )
+
+    /**
+     * The entry point to register interest in a drag and drop session for receiving data.
+     *
+     * @return true to indicate interest in the contents of a drag and drop session, false
+     * indicates no interest. If false is returned, this [Modifier] will not receive any
+     * [DragAndDropTarget] events.
+     *
+     * All [DragAndDropModifierNode] instances in the hierarchy will be given an opportunity
+     * to participate in a drag and drop session via this method.
+     */
+    fun acceptDragAndDropTransfer(
+        startEvent: DragAndDropEvent
+    ): Boolean
 }
 
 /**
@@ -58,15 +72,15 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
  * [DragAndDropModifierNode] instances provided by this function may start drag and drop events
  * by calling [DragAndDropModifierNode.drag].
  *
- * @param onDragAndDropStart a provider of a [DragAndDropTarget] that allows this [Modifier.Node]
- * to delegate drag and drop events on a per session basis.
+ * @param acceptDragAndDropTransfer a provider of a [DragAndDropTarget] that allows
+ * this [Modifier.Node] to receive from a drag and drop gesture on a per session basis.
  *
- * If one is not provided for a given session, all drag and drop events for that
- * session will be rejected.
+ * If one is not provided for a given session, this [DragAndDropModifierNode] will not receive
+ * [DragAndDropTarget] events for that session.
  */
 fun DragAndDropModifierNode(
-    onDragAndDropStart: (event: DragAndDropEvent) -> DragAndDropTarget? = { null }
-): DragAndDropModifierNode = DragAndDropNode(onDragAndDropStart)
+    acceptDragAndDropTransfer: (event: DragAndDropEvent) -> DragAndDropTarget? = { null }
+): DragAndDropModifierNode = DragAndDropNode(acceptDragAndDropTransfer)
 
 /**
  * Core implementation of drag and drop. This [Modifier.Node] implements tree traversal for
@@ -114,27 +128,24 @@ internal class DragAndDropNode(
         thisDragAndDropTarget = null
         lastChildDragAndDropModifierNode = null
     }
+
     // end Node
 
-    // start DragSource
+    // start DragAndDropModifierNode
 
     override fun drag(
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     ) {
         requireOwner().dragAndDropManager.drag(
             transferData = transferData,
-            dragDecorationSize = dragDecorationSize,
+            decorationSize = decorationSize,
             drawDragDecoration = drawDragDecoration
         )
     }
 
-    // end DragSource
-
-    // start DropTarget
-
-    override fun onStarted(event: DragAndDropEvent): Boolean {
+    override fun acceptDragAndDropTransfer(startEvent: DragAndDropEvent): Boolean {
         // TODO: b/303904810 unattached nodes should not be found from an attached
         //  root drag and drop node
         if (!isAttached) return false
@@ -144,13 +155,13 @@ internal class DragAndDropNode(
         }
 
         // Start receiving events
-        thisDragAndDropTarget = onDragAndDropStart(event)
+        thisDragAndDropTarget = onDragAndDropStart(startEvent)
 
         var handledByChild = false
 
         traverseChildren { child ->
-            handledByChild = handledByChild or child.onStarted(
-                event = event,
+            handledByChild = handledByChild or child.acceptDragAndDropTransfer(
+                startEvent = startEvent,
             ).also { accepted ->
                 if (accepted) requireOwner().dragAndDropManager.registerNodeInterest(child)
             }
@@ -158,6 +169,17 @@ internal class DragAndDropNode(
         }
 
         return handledByChild || thisDragAndDropTarget != null
+    }
+
+    // end DragAndDropModifierNode
+
+    // start DropTarget
+
+    override fun onStarted(event: DragAndDropEvent) {
+        when (val self = thisDragAndDropTarget) {
+            null -> lastChildDragAndDropModifierNode?.onStarted(event = event)
+            else -> self.onStarted(event = event)
+        }
     }
 
     override fun onEntered(event: DragAndDropEvent) {

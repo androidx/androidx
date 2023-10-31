@@ -115,7 +115,7 @@ internal class DragAndDropSourceNode(
                         override fun startTransfer(transferData: DragAndDropTransferData) =
                             dragAndDropModifierNode.drag(
                                 transferData = transferData,
-                                dragDecorationSize = size.toSize(),
+                                decorationSize = size.toSize(),
                                 drawDragDecoration = drawDragDecoration
                             )
                     }
