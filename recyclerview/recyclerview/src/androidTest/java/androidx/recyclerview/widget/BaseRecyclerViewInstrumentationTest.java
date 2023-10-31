@@ -79,7 +79,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
     private Throwable mMainThreadException;
 
-    private boolean mIgnoreMainThreadException = false;
+    private volatile boolean mIgnoreMainThreadException = false;
 
     Thread mInstrumentationThread;
 
@@ -204,9 +204,19 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             throw new RuntimeException(t);
         }
         if (mMainThreadException != null) {
-            Log.e(TAG, "receiving another main thread exception. dropping.", t);
+            String msg = "receiving another main thread exception. dropping.";
+            if (mIgnoreMainThreadException) {
+                Log.i(TAG, msg, t);
+            } else {
+                Log.e(TAG, msg, t);
+            }
         } else {
-            Log.e(TAG, "captured exception on main thread", t);
+            String msg = "captured exception on main thread";
+            if (mIgnoreMainThreadException) {
+                Log.i(TAG, msg, t);
+            } else {
+                Log.e(TAG, msg, t);
+            }
             mMainThreadException = t;
         }
 
