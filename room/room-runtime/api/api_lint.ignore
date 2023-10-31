@@ -62,9 +62,6 @@ NullableCollection: androidx.room.RoomDatabase.MigrationContainer#findMigrationP
 PairedRegistration: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
     Found addCallback but not removeCallback in androidx.room.RoomDatabase.Builder
 
-RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
-    Callback methods should be named register/unregister; was addCallback
-
 
 StaticFinalBuilder: androidx.room.RoomDatabase.Builder:
     Builder must be final: androidx.room.RoomDatabase.Builder
