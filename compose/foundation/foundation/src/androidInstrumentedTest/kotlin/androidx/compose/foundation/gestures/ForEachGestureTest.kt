@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.gesture
+package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
