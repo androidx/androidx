@@ -25,7 +25,7 @@
         errorLine1="    fun setClockTimes(animationTimeMillis: Map&lt;ComposeAnimation, Long>) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/PreviewAnimationClock.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/PreviewAnimationClock.android.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="    override val states = emptySet&lt;Int>()"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/UnsupportedComposeAnimation.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/UnsupportedComposeAnimation.android.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="    val values: Map&lt;Long, T> by lazy {"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.android.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="        val values: MutableMap&lt;Long, T> = mutableMapOf()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.android.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="    val values: Map&lt;Long, T> by lazy {"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.android.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="        val values: MutableMap&lt;Long, T> = mutableMapOf()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.android.kt"/>
     </issue>
 
 </issues>

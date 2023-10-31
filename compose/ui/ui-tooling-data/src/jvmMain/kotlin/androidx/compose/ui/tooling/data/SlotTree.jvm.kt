@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("SlotTreeKt")
+
 package androidx.compose.ui.tooling.data
 
 import androidx.compose.runtime.tooling.CompositionData

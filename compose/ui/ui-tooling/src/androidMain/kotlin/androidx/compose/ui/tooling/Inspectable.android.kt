@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("InspectableKt")
+
 package androidx.compose.ui.tooling
 
 import androidx.compose.runtime.Composable
