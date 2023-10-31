@@ -28,7 +28,7 @@
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava"/>
          <trusted-key id="019082bc00e0324e2aef4cf00d3b328562a119a7" group="org.openjdk.jmh"/>
-         <trusted-key id="03c123038c20aae9e286c857479d601f3a7b5c1a" group="com.github.ajalt.clikt" name="clikt-jvm" />
+         <trusted-key id="03c123038c20aae9e286c857479d601f3a7b5c1a" group="com.github.ajalt.clikt" name="clikt-jvm"/>
          <trusted-key id="042b29e928995b9db963c636c7ca19b7b620d787" group="org.apache.maven"/>
          <trusted-key id="04543577d6a9cc626239c50c7ecbd740ff06aeb5">
             <trusting group="com.sun.activation"/>
@@ -218,11 +218,12 @@
          <trusted-key id="696b6199a2a9d8c29ce78cc0d041cad2e452550f" group="com.google.protobuf"/>
          <trusted-key id="6a814b1f869c2bbeab7cb7271a2a1c94bde89688" group="org.codehaus.plexus"/>
          <trusted-key id="6bdaca2c0493cca133b372d09c4f7e9d98b1cc53" group="org.apache"/>
+         <trusted-key id="6cb87b18a453990eac9453f87d713008cc07e9ad" group="xerces" name="xercesImpl" />
          <trusted-key id="6dd3b8c64ef75253beb2c53ad908a43fb7ec07ac">
             <trusting group="com.sun.activation"/>
             <trusting group="jakarta.activation"/>
          </trusted-key>
-         <trusted-key id="6ead752b3e2b38e8e2236d7ba9321edaa5cb3202" group="ch.randelshofer" name="fastdoubleparser" />
+         <trusted-key id="6ead752b3e2b38e8e2236d7ba9321edaa5cb3202" group="ch.randelshofer" name="fastdoubleparser"/>
          <trusted-key id="6f538074ccebf35f28af9b066a0975f8b1127b83">
             <trusting group="org.jetbrains.kotlin"/>
             <trusting group="org.jetbrains.kotlin.jvm"/>
@@ -246,9 +247,9 @@
             <trusting group="org.jvnet.staxex"/>
             <trusting group="^com[.]sun($|([.].*))" regex="true"/>
          </trusted-key>
-         <trusted-key id="713da88be50911535fe716f5208b0ab1d63011c7" group="org.apache.tomcat" name="annotations-api" />
+         <trusted-key id="713da88be50911535fe716f5208b0ab1d63011c7" group="org.apache.tomcat" name="annotations-api"/>
          <trusted-key id="720746177725a89207a7075bfd5dea07fcb690a8" group="org.codehaus.mojo"/>
-         <trusted-key id="73976c9c39c1479b84e2641a5a68a2249128e2c6" group="com.google.crypto.tink" name="tink-android" />
+         <trusted-key id="73976c9c39c1479b84e2641a5a68a2249128e2c6" group="com.google.crypto.tink" name="tink-android"/>
          <trusted-key id="748f15b2cf9ba8f024155e6ed7c92b70fa1c814d" group="org.apache.logging.log4j"/>
          <trusted-key id="7615ad56144df2376f49d98b1669c4bb543e0445" group="com.google.errorprone"/>
          <trusted-key id="7616eb882daf57a11477aaf559a252fb1199d873" group="com.google.code.findbugs"/>
@@ -266,7 +267,7 @@
          <trusted-key id="808d78b17a5a2d7c3668e31fbffc9b54721244ad" group="org.apache.commons"/>
          <trusted-key id="80f6d6b0d90c6747753344cab5a9e81b565e89e0" group="org.tomlj"/>
          <trusted-key id="8254180bfc943b816e0b5e2e5e2f2b3d474efe6b" group="it.unimi.dsi"/>
-         <trusted-key id="82c9ec0e52c47a936a849e0113d979595e6d01e1" group="org.apache.maven.shared" name="maven-shared-utils" />
+         <trusted-key id="82c9ec0e52c47a936a849e0113d979595e6d01e1" group="org.apache.maven.shared" name="maven-shared-utils"/>
          <trusted-key id="82f833963889d7ed06f1e4dc6525fd70cc303655" group="org.codehaus.mojo"/>
          <trusted-key id="835a685c8c6f49c54980e5caf406f31bc1468eba" group="org.jcodec"/>
          <trusted-key id="842afb86375d805422835bfd82b5574242c20d6f" group="org.antlr"/>
@@ -275,7 +276,7 @@
             <trusting group="org.apache.maven" name="maven-parent"/>
          </trusted-key>
          <trusted-key id="8569c95cadc508b09fe90f3002216ed811210daa" group="io.github.detekt.sarif4k"/>
-         <trusted-key id="86616cd3c4f0803e73374a434dbf5995d492505d" group="org.json" name="json" />
+         <trusted-key id="86616cd3c4f0803e73374a434dbf5995d492505d" group="org.json" name="json"/>
          <trusted-key id="8756c4f765c9ac3cb6b85d62379ce192d401ab61">
             <trusting group="com.github.ajalt"/>
             <trusting group="com.github.javaparser"/>
@@ -343,7 +344,7 @@
          <trusted-key id="ae9e53fc28ff2ab1012273d0bf1518e0160788a2" group="org.apache" name="apache"/>
          <trusted-key id="afa2b1823fc021bfd08c211fd5f4c07a434ab3da" group="com.squareup"/>
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
-         <trusted-key id="b02137d875d833d9b23392ecae5a7fb608a0221c" group="org.codehaus.plexus" name="plexus-classworlds" />
+         <trusted-key id="b02137d875d833d9b23392ecae5a7fb608a0221c" group="org.codehaus.plexus" name="plexus-classworlds"/>
          <trusted-key id="b02335aa54ccf21e52bbf9abd9c565aa72ba2fdd">
             <trusting group="com.google.protobuf"/>
             <trusting group="io.grpc"/>
@@ -450,7 +451,7 @@
             <trusting group="org.codehaus.plexus"/>
          </trusted-key>
          <trusted-key id="f3184bcd55f4d016e30d4c9bf42e87f9665015c9" group="org.jsoup"/>
-         <trusted-key id="f3d15b8ff9902805de4be6b18dc6f3d0abdbd017" group="org.codehaus.plexus" name="plexus-sec-dispatcher" />
+         <trusted-key id="f3d15b8ff9902805de4be6b18dc6f3d0abdbd017" group="org.codehaus.plexus" name="plexus-sec-dispatcher"/>
          <trusted-key id="f42b96b8648b5c4a1c43a62fbb2914c1fa0811c3" group="net.bytebuddy"/>
          <trusted-key id="fa1703b1d287caea3a60f931e0130a3ed5a2079e" group="org.webjars"/>
          <trusted-key id="fa77dcfef2ee6eb2debedd2c012579464d01c06a">
@@ -565,7 +566,7 @@
       </component>
       <component group="com.google.android.libraries.identity.googleid" name="googleid" version="1.1.0">
          <artifact name="googleid-1.1.0.aar">
-             <sha256 value="194ac1fc1986dd1f62046fae37ddf77e63770fdc1f3d34baaa397cfbf4d191a2" origin="Generated by Gradle" reason="Artifact is not signed. b/300156232"/>
+            <sha256 value="194ac1fc1986dd1f62046fae37ddf77e63770fdc1f3d34baaa397cfbf4d191a2" origin="Generated by Gradle" reason="Artifact is not signed. b/300156232"/>
          </artifact>
          <artifact name="googleid-1.1.0.pom">
             <sha256 value="a8475b43e61aedc85ad9f66c47278dd4aed0c8ff426961035b72c8b8395b1921" origin="Generated by Gradle" reason="Artifact is not signed"/>
