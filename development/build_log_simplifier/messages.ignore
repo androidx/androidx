@@ -581,3 +581,8 @@ at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source
 # temporary diagnostic for b/307738543
 docs-public:docs starting
 docs-public:docs completing
+# > Task :lint-checks:compileKotlin
+w: file://\$SUPPORT/lint\-checks/src/main/java/androidx/build/lint/DeprecationMismatchDetector\.kt:[0-9]+:[0-9]+ 'annotate\(String, Boolean = \.\.\.\): LintFix\.AnnotateBuilder' is deprecated\. Use annotate\(String, Context\?, PsiElement\?, Boolean = true\) instead\.
+w: file://\$SUPPORT/lint\-checks/src/main/java/androidx/build/lint/ExperimentalPropertyAnnotationDetector\.kt:[0-9]+:[0-9]+ 'annotate\(String, Boolean = \.\.\.\): LintFix\.AnnotateBuilder' is deprecated\. Use annotate\(String, Context\?, PsiElement\?, Boolean = true\) instead\.
+w: file://\$SUPPORT/lint\-checks/src/main/java/androidx/build/lint/IgnoreClassLevelDetector\.kt:[0-9]+:[0-9]+ 'annotate\(String, Boolean = \.\.\.\): LintFix\.AnnotateBuilder' is deprecated\. Use annotate\(String, Context\?, PsiElement\?, Boolean = true\) instead\.
+w: file://\$SUPPORT/lint\-checks/src/main/java/androidx/build/lint/MissingJvmDefaultWithCompatibilityDetector\.kt:[0-9]+:[0-9]+ 'annotate\(String, Boolean = \.\.\.\): LintFix\.AnnotateBuilder' is deprecated\. Use annotate\(String, Context\?, PsiElement\?, Boolean = true\) instead\.
