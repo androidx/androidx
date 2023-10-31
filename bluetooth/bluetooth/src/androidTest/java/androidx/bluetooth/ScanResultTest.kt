@@ -54,9 +54,9 @@ class ScanResultTest {
         val timeStampNanos: Long = 1
         val serviceUuid = UUID.randomUUID()
         val rssi = 34
-        val periodicAdvertisingInterval = 6
+        val periodicAdvertisingInterval = 8
         // Framework returns interval in units of 1.25ms.
-        val expectedPeriodicAdvertisingInterval = 6 * 1.25.toLong()
+        val expectedPeriodicAdvertisingInterval = (8 * 1.25).toLong()
 
         // TODO(kihongs) Find a way to create framework ScanRecord and use in test
         val fwkScanResult = FwkScanResult(
@@ -87,5 +87,30 @@ class ScanResultTest {
         assertEquals(scanResult.getServiceData(serviceUuid), null)
         assertEquals(scanResult.rssi, rssi)
         assertEquals(scanResult.periodicAdvertisingInterval, expectedPeriodicAdvertisingInterval)
+    }
+
+    @Test
+    fun sameDeviceReturned() {
+        val address = "00:01:02:03:04:05"
+        val fwkBluetoothDevice = bluetoothAdapter!!.getRemoteDevice(address)
+        val rssi = 34
+        val periodicAdvertisingInterval = 6
+        val timeStampNanos: Long = 1
+
+        val fwkScanResult = FwkScanResult(
+            fwkBluetoothDevice,
+            1,
+            0,
+            0,
+            0,
+            0,
+            rssi,
+            periodicAdvertisingInterval,
+            null,
+            timeStampNanos
+        )
+        val scanResult = ScanResult(fwkScanResult)
+        assertEquals(scanResult.device, scanResult.device)
+        assertEquals(scanResult.deviceAddress, scanResult.deviceAddress)
     }
 }
