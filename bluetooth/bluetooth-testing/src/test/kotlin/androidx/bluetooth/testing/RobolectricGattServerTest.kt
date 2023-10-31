@@ -701,12 +701,12 @@ class RobolectricGattServerTest {
         private val baseAdapter: GattServer.FrameworkAdapter
     ) : GattServer.FrameworkAdapter {
         val shadowGattServer: ShadowBluetoothGattServer
-            get() = shadowOf(gattServer)
+            get() = shadowOf(fwkGattServer)
         val callback: BluetoothGattServerCallback
             get() = shadowGattServer.gattServerCallback
-        override var gattServer: BluetoothGattServer?
-            get() = baseAdapter.gattServer
-            set(value) { baseAdapter.gattServer = value }
+        override var fwkGattServer: BluetoothGattServer?
+            get() = baseAdapter.fwkGattServer
+            set(value) { baseAdapter.fwkGattServer = value }
 
         var onOpenGattServerListener: OnOpenGattServerListener? = null
         var onCloseGattServerListener: OnCloseGattServerListener? = null
@@ -714,8 +714,8 @@ class RobolectricGattServerTest {
         var onNotifyCharacteristicChangedListener: OnNotifyCharacteristicChangedListener? = null
         var onSendResponseListener: OnSendResponseListener? = null
 
-        override fun openGattServer(context: Context, callback: BluetoothGattServerCallback) {
-            baseAdapter.openGattServer(context, callback)
+        override fun openGattServer(context: Context, fwkCallback: BluetoothGattServerCallback) {
+            baseAdapter.openGattServer(context, fwkCallback)
             onOpenGattServerListener?.onOpenGattServer()
         }
 
@@ -728,34 +728,40 @@ class RobolectricGattServerTest {
             baseAdapter.clearServices()
         }
 
-        override fun addService(service: FwkService) {
-            baseAdapter.addService(service)
-            onAddServiceListener?.onAddService(service)
+        override fun addService(fwkService: FwkService) {
+            baseAdapter.addService(fwkService)
+            onAddServiceListener?.onAddService(fwkService)
         }
 
         override fun notifyCharacteristicChanged(
-            device: FwkDevice,
-            characteristic: FwkCharacteristic,
+            fwkDevice: FwkDevice,
+            fwkCharacteristic: FwkCharacteristic,
             confirm: Boolean,
             value: ByteArray
         ): Int? {
-            baseAdapter.notifyCharacteristicChanged(device, characteristic, confirm, value).let {
-                onNotifyCharacteristicChangedListener
-                    ?.onNotifyCharacteristicChanged(device, characteristic, confirm, value)
-                return it
-            }
+            baseAdapter.notifyCharacteristicChanged(fwkDevice, fwkCharacteristic, confirm, value)
+                .let {
+                    onNotifyCharacteristicChangedListener
+                        ?.onNotifyCharacteristicChanged(
+                            fwkDevice,
+                            fwkCharacteristic,
+                            confirm,
+                            value
+                        )
+                    return it
+                }
         }
 
         override fun sendResponse(
-            device: FwkDevice,
+            fwkDevice: FwkDevice,
             requestId: Int,
             status: Int,
             offset: Int,
             value: ByteArray?
         ) {
-            baseAdapter.sendResponse(device, requestId, status, offset, value)
+            baseAdapter.sendResponse(fwkDevice, requestId, status, offset, value)
             onSendResponseListener
-                ?.onSendResponse(device, requestId, status, offset, value)
+                ?.onSendResponse(fwkDevice, requestId, status, offset, value)
         }
 
         fun interface OnOpenGattServerListener {

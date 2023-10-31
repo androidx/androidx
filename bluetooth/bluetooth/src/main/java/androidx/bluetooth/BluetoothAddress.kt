@@ -16,7 +16,7 @@
 
 package androidx.bluetooth
 
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothAdapter as FwkBluetoothAdapter
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import java.util.Objects
@@ -44,6 +44,7 @@ class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
         /** Address type is unknown. */
         const val ADDRESS_TYPE_UNKNOWN: Int = 0xFFFF
     }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -56,7 +57,7 @@ class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
     annotation class AddressType
 
     init {
-        if (!BluetoothAdapter.checkBluetoothAddress(address)) {
+        if (!FwkBluetoothAdapter.checkBluetoothAddress(address)) {
             throw IllegalArgumentException("$address is not a valid Bluetooth address")
         }
 
@@ -66,6 +67,7 @@ class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
             ADDRESS_TYPE_RANDOM_RESOLVABLE,
             ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
             ADDRESS_TYPE_UNKNOWN -> Unit
+
             else -> throw IllegalArgumentException("$addressType is not a valid address type")
         }
     }

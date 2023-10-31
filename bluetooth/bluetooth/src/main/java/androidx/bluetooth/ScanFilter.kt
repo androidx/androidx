@@ -86,24 +86,28 @@ class ScanFilter(
         if (manufacturerDataMask != null) {
             if (manufacturerData == null) {
                 throw IllegalArgumentException(
-                    "ManufacturerData is null while manufacturerDataMask is not null")
+                    "ManufacturerData is null while manufacturerDataMask is not null"
+                )
             }
 
             if (manufacturerData.size != manufacturerDataMask.size) {
                 throw IllegalArgumentException(
-                    "Size mismatch for manufacturerData and manufacturerDataMask")
+                    "Size mismatch for manufacturerData and manufacturerDataMask"
+                )
             }
         }
 
         if (serviceDataMask != null) {
             if (serviceData == null) {
                 throw IllegalArgumentException(
-                    "ServiceData is null while serviceDataMask is not null")
+                    "ServiceData is null while serviceDataMask is not null"
+                )
             }
 
             if (serviceData.size != serviceDataMask.size) {
                 throw IllegalArgumentException(
-                    "Size mismatch for service data and service data mask")
+                    "Size mismatch for service data and service data mask"
+                )
             }
         }
 
@@ -139,8 +143,10 @@ class ScanFilter(
 
             if (serviceDataUuid != null) {
                 if (Build.VERSION.SDK_INT >= 33) {
-                    setServiceData(ParcelUuid(
-                        serviceDataUuid),
+                    setServiceData(
+                        ParcelUuid(
+                            serviceDataUuid
+                        ),
                         serviceData,
                         serviceDataMask
                     )
