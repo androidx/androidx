@@ -756,7 +756,7 @@ internal class AndroidComposeView(
 
     private fun startDrag(
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     ): Boolean {
         val density = with(context.resources) {
@@ -767,7 +767,7 @@ internal class AndroidComposeView(
         }
         val shadowBuilder = ComposeDragShadowBuilder(
             density = density,
-            dragDecorationSize = dragDecorationSize,
+            decorationSize = decorationSize,
             drawDragDecoration = drawDragDecoration,
         )
         @Suppress("DEPRECATION")
@@ -2263,7 +2263,7 @@ private object AndroidComposeViewStartDragAndDropN {
 private class DragAndDropModifierOnDragListener(
     private val startDrag: (
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit
     ) -> Boolean
 ) : View.OnDragListener, DragAndDropManager {
@@ -2296,7 +2296,11 @@ private class DragAndDropModifierOnDragListener(
     ): Boolean {
         val dragAndDropEvent = DragAndDropEvent(dragEvent = event)
         return when (event.action) {
-            DragEvent.ACTION_DRAG_STARTED -> rootDragAndDropNode.onStarted(dragAndDropEvent)
+            DragEvent.ACTION_DRAG_STARTED -> {
+                val accepted = rootDragAndDropNode.acceptDragAndDropTransfer(dragAndDropEvent)
+                interestedNodes.forEach { it.onStarted(dragAndDropEvent) }
+                accepted
+            }
 
             DragEvent.ACTION_DROP -> rootDragAndDropNode.onDropped(dragAndDropEvent)
 
@@ -2326,11 +2330,11 @@ private class DragAndDropModifierOnDragListener(
 
     override fun drag(
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     ): Boolean = startDrag(
         transferData,
-        dragDecorationSize,
+        decorationSize,
         drawDragDecoration,
     )
 

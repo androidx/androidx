@@ -35,7 +35,7 @@ internal interface DragAndDropManager {
      * @param transferData the data to be transferred after successful completion of the
      * drag and drop gesture.
      *
-     * @param dragDecorationSize the size of the drag decoration to be drawn.
+     * @param decorationSize the size of the drag decoration to be drawn.
      *
      * @param drawDragDecoration provides the visual representation of the item dragged during the
      * drag and drop gesture.
@@ -46,7 +46,7 @@ internal interface DragAndDropManager {
      */
     fun drag(
         transferData: DragAndDropTransferData,
-        dragDecorationSize: Size,
+        decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     ): Boolean
 

@@ -65,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
@@ -174,22 +175,39 @@ fun TextDragAndDropTargetSample(
     eventSummary: String?,
     onDragAndDropEventDropped: (DragAndDropEvent) -> Unit,
 ) {
+    val validMimeTypePrefixes = remember {
+        setOf(
+            ClipDescription.MIMETYPE_TEXT_INTENT,
+            "image/",
+            "text/",
+            "video/",
+            "audio/",
+        )
+    }
     var backgroundColor by remember { mutableStateOf(Color.Transparent) }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .dragAndDropTarget(
-                onStarted = {
-                    backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
-                    true
+                acceptDragAndDropTransfer = accept@{ startEvent ->
+                    val hasValidMimeType = startEvent.mimeTypes().any { eventMimeType ->
+                        validMimeTypePrefixes.any(eventMimeType::startsWith)
+                    }
+                    if (!hasValidMimeType) return@accept null
+
+                    DragAndDropTarget(
+                        onStarted = {
+                            backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
+                        },
+                        onDropped = { event ->
+                            onDragAndDropEventDropped(event)
+                            true
+                        },
+                        onEnded = {
+                            backgroundColor = Color.Transparent
+                        }
+                    )
                 },
-                onDropped = { event ->
-                    onDragAndDropEventDropped(event)
-                    true
-                },
-                onEnded = {
-                    backgroundColor = Color.Transparent
-                }
             )
             .background(backgroundColor)
             .border(
@@ -396,36 +414,41 @@ private fun Modifier.stateDragSource(
 private fun Modifier.stateDropTarget(
     state: State
 ) = dragAndDropTarget(
-    onStarted = { event ->
-        val accepts = event.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
-        if (accepts) state.onStarted()
-        accepts
-    },
-    onEntered = {
-        println("Entered ${state.name}")
-        state.onEntered()
-    },
-    onMoved = {
-        println("Moved in ${state.name}")
-    },
-    onExited = {
-        println("Exited ${state.name}")
-        state.onExited()
-    },
-    onEnded = {
-        println("Ended in ${state.name}")
-        state.onEnded()
-    },
-    onDropped = { event ->
-        println("Dropped items in ${state.name}")
-        when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
-            null -> false
-            else -> {
-                state.onDropped(transferredColor)
-                true
+    acceptDragAndDropTransfer = { startEvent ->
+        if (!startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT))
+            return@dragAndDropTarget null
+
+        DragAndDropTarget(
+            onStarted = {
+                state.onStarted()
+            },
+            onEntered = {
+                println("Entered ${state.name}")
+                state.onEntered()
+            },
+            onMoved = {
+                println("Moved in ${state.name}")
+            },
+            onExited = {
+                println("Exited ${state.name}")
+                state.onExited()
+            },
+            onEnded = {
+                println("Ended in ${state.name}")
+                state.onEnded()
+            },
+            onDropped = { event ->
+                println("Dropped items in ${state.name}")
+                when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
+                    null -> false
+                    else -> {
+                        state.onDropped(transferredColor)
+                        true
+                    }
+                }
             }
-        }
-    }
+        )
+    },
 )
 
 @Stable

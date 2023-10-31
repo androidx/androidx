@@ -33,163 +33,60 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @sample androidx.compose.foundation.samples.TextDragAndDropTargetSample
  *
- * @param onStarted Allows the Composable to decide if it wants to receive the drop gesture.
- * returning true indicates interest in a [DragAndDropEvent], false indicates no interest. If false
- * is returned, this [Modifier] will not receive any events for this drag and drop session until the
- * [onEnded] signal. All drag and drop target modifiers in the hierarchy will receive this event.
- * @see [DragAndDropTarget.onStarted]
+ * @param acceptDragAndDropTransfer Allows the Composable to decide if it wants to receive from
+ * a given drag and drop session by returning a viable [DragAndDropTarget].
  *
- * @param onDropped The item has been dropped inside this Composable.
- * returning true indicates that the [DragAndDropEvent] was consumed, false indicates it was
- * rejected. Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropTarget.onDropped]
+ * returning a [DragAndDropTarget] instance indicates interest in a drag and drop session,
+ * null indicates no interest.
  *
- * @param onEntered The item being dropped has entered into this Composable's bounds.
- * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropTarget.onEntered]
+ * All drag and drop target modifiers in the hierarchy will be given an opportunity to participate
+ * in a given drag and drop session.
  *
- * @param onMoved The item being dropped has moved within this Composable's bounds.
- * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropTarget.onMoved]
- *
- * @param onChanged The event in the current drag and drop session has changed within
- * this Composable's bounds.
- * @see [DragAndDropTarget.onChanged]
- *
- * Receiving this event is prerequisite on returning true in [onStarted].
- * @param onExited The item being dropped has moved outside this Composable's bounds.
- * Receiving this event is prerequisite on returning true in [onStarted].
- * @see [DragAndDropTarget.onExited]
- *
- * @param onEnded The drag and drop gesture is complete.
- * All drag and drop target modifiers in the hierarchy will receive this event.
- * @see [DragAndDropTarget.onEnded]
+ * @see [DragAndDropModifierNode.acceptDragAndDropTransfer]
  */
 @ExperimentalFoundationApi
 fun Modifier.dragAndDropTarget(
-    onStarted: (event: DragAndDropEvent) -> Boolean,
-    onDropped: (event: DragAndDropEvent) -> Boolean,
-    onEntered: (event: DragAndDropEvent) -> Unit = {},
-    onMoved: (event: DragAndDropEvent) -> Unit = {},
-    onChanged: (event: DragAndDropEvent) -> Unit = {},
-    onExited: (event: DragAndDropEvent) -> Unit = {},
-    onEnded: (event: DragAndDropEvent) -> Unit = {},
+    acceptDragAndDropTransfer: (event: DragAndDropEvent) -> DragAndDropTarget?,
 ): Modifier = this then DropTargetElement(
-    onStarted = onStarted,
-    onDropped = onDropped,
-    onEntered = onEntered,
-    onMoved = onMoved,
-    onChanged = onChanged,
-    onExited = onExited,
-    onEnded = onEnded
+    acceptsDragAndDropTransaction = acceptDragAndDropTransfer,
 )
 
 @ExperimentalFoundationApi
 private class DropTargetElement(
-    val onStarted: (event: DragAndDropEvent) -> Boolean,
-    val onDropped: (event: DragAndDropEvent) -> Boolean,
-    val onEntered: (event: DragAndDropEvent) -> Unit = {},
-    val onMoved: (event: DragAndDropEvent) -> Unit = {},
-    val onChanged: (event: DragAndDropEvent) -> Unit = {},
-    val onExited: (event: DragAndDropEvent) -> Unit = {},
-    val onEnded: (event: DragAndDropEvent) -> Unit = {},
+    val acceptsDragAndDropTransaction: (event: DragAndDropEvent) -> DragAndDropTarget?,
 ) : ModifierNodeElement<DragAndDropTargetNode>() {
     override fun create() = DragAndDropTargetNode(
-        onStarted = onStarted,
-        onDropped = onDropped,
-        onEntered = onEntered,
-        onMoved = onMoved,
-        onChanged = onChanged,
-        onExited = onExited,
-        onEnded = onEnded,
+        acceptsDragAndDropTransaction = acceptsDragAndDropTransaction,
     )
 
     override fun update(node: DragAndDropTargetNode) = with(node) {
-        onStarted = this@DropTargetElement.onStarted
-        onDropped = this@DropTargetElement.onDropped
-        onEntered = this@DropTargetElement.onEntered
-        onMoved = this@DropTargetElement.onMoved
-        onChanged = this@DropTargetElement.onChanged
-        onExited = this@DropTargetElement.onExited
-        onEnded = this@DropTargetElement.onEnded
+        acceptsDragAndDropTransaction = this@DropTargetElement.acceptsDragAndDropTransaction
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dropTarget"
-        properties["onDragStarted"] = onStarted
-        properties["onDropped"] = onDropped
-        properties["onEntered"] = onEntered
-        properties["onMoved"] = onMoved
-        properties["onChanged"] = onChanged
-        properties["onExited"] = onExited
-        properties["onEnded"] = onEnded
+        properties["acceptsDragAndDropTransaction"] = acceptsDragAndDropTransaction
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DropTargetElement) return false
 
-        if (onStarted != other.onStarted) return false
-        if (onDropped != other.onDropped) return false
-        if (onEntered != other.onEntered) return false
-        if (onMoved != other.onMoved) return false
-        if (onChanged != other.onChanged) return false
-        if (onExited != other.onExited) return false
-        return onEnded == other.onEnded
+        return acceptsDragAndDropTransaction == other.acceptsDragAndDropTransaction
     }
 
     override fun hashCode(): Int {
-        var result = onStarted.hashCode()
-        result = 31 * result + onDropped.hashCode()
-        result = 31 * result + onEntered.hashCode()
-        result = 31 * result + onMoved.hashCode()
-        result = 31 * result + onChanged.hashCode()
-        result = 31 * result + onExited.hashCode()
-        result = 31 * result + onEnded.hashCode()
-        return result
+        return acceptsDragAndDropTransaction.hashCode()
     }
 }
 
 @ExperimentalFoundationApi
 private class DragAndDropTargetNode(
-    var onStarted: (event: DragAndDropEvent) -> Boolean,
-    var onDropped: (event: DragAndDropEvent) -> Boolean,
-    var onEntered: (event: DragAndDropEvent) -> Unit,
-    var onMoved: (event: DragAndDropEvent) -> Unit,
-    var onChanged: (event: DragAndDropEvent) -> Unit,
-    var onExited: (event: DragAndDropEvent) -> Unit,
-    var onEnded: (event: DragAndDropEvent) -> Unit,
-) : DelegatingNode(), DragAndDropTarget {
-
+    var acceptsDragAndDropTransaction: (event: DragAndDropEvent) -> DragAndDropTarget?
+) : DelegatingNode() {
     init {
         delegate(
-            DragAndDropModifierNode { event ->
-                when {
-                    onStarted(event) -> this@DragAndDropTargetNode
-                    else -> null
-                }
-            }
+            DragAndDropModifierNode(acceptsDragAndDropTransaction)
         )
     }
-
-    override fun onStarted(event: DragAndDropEvent): Boolean =
-        onStarted.invoke(event)
-
-    override fun onDropped(event: DragAndDropEvent): Boolean =
-        onDropped.invoke(event)
-
-    override fun onEntered(event: DragAndDropEvent) =
-        onEntered.invoke(event)
-
-    override fun onMoved(event: DragAndDropEvent) =
-        onMoved.invoke(event)
-
-    override fun onExited(event: DragAndDropEvent) =
-        onExited.invoke(event)
-
-    override fun onChanged(event: DragAndDropEvent) =
-        onChanged.invoke(event)
-
-    override fun onEnded(event: DragAndDropEvent) =
-        onEnded.invoke(event)
 }
