@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -40,7 +40,6 @@ import kotlinx.coroutines.CoroutineScope
  * Measures and calculates the positions for the requested items. The result is produced
  * as a [LazyListMeasureResult] which contains all the calculations.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyList(
     itemsCount: Int,
     measuredItemProvider: LazyListMeasuredItemProvider,
@@ -65,6 +64,7 @@ internal fun measureLazyList(
     isLookingAhead: Boolean,
     postLookaheadLayoutInfo: LazyListLayoutInfo?,
     coroutineScope: CoroutineScope,
+    placementScopeInvalidator: ObservableScopeInvalidator,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     require(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
@@ -99,6 +99,7 @@ internal fun measureLazyList(
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = spaceBetweenItems,
+            remeasureNeeded = false
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -138,6 +139,11 @@ internal fun measureLazyList(
         // max of cross axis sizes of all visible items
         var maxCrossAxis = 0
 
+        // will be set to true if we composed some items only to know their size and apply scroll,
+        // while in the end this item will not end up in the visible viewport. we will need an
+        // extra remeasure in order to dispose such items.
+        var remeasureNeeded = false
+
         // we had scrolled backward or we compose items in the start padding area, which means
         // items before current firstItemScrollOffset should be visible. compose them and update
         // firstItemScrollOffset
@@ -165,9 +171,17 @@ internal fun measureLazyList(
         var currentMainAxisOffset = -currentFirstItemScrollOffset
 
         // first we need to skip items we already composed while composing backward
-        visibleItems.fastForEach {
-            index++
-            currentMainAxisOffset += it.sizeWithSpacings
+        var indexInVisibleItems = 0
+        while (indexInVisibleItems < visibleItems.size) {
+            if (currentMainAxisOffset >= maxMainAxis) {
+                // this item is out of the bounds and will not be visible.
+                visibleItems.removeAt(indexInVisibleItems)
+                remeasureNeeded = true
+            } else {
+                index++
+                currentMainAxisOffset += visibleItems[indexInVisibleItems].sizeWithSpacings
+                indexInVisibleItems++
+            }
         }
 
         // then composing visible items forward until we fill the whole viewport.
@@ -182,9 +196,10 @@ internal fun measureLazyList(
             currentMainAxisOffset += measuredItem.sizeWithSpacings
 
             if (currentMainAxisOffset <= minOffset && index != itemsCount - 1) {
-                // this item is offscreen and will not be placed. advance firstVisibleItemIndex
+                // this item is offscreen and will not be visible. advance firstVisibleItemIndex
                 currentFirstItemIndex = index + 1
                 currentFirstItemScrollOffset -= measuredItem.sizeWithSpacings
+                remeasureNeeded = true
             } else {
                 maxCrossAxis = maxOf(maxCrossAxis, measuredItem.crossAxisSize)
                 visibleItems.add(measuredItem)
@@ -354,6 +369,8 @@ internal fun measureLazyList(
                 }
                 // the header item should be placed (drawn) after all other items
                 headerItem?.place(this, isLookingAhead)
+                // we attach it during the placement so LazyListState can trigger re-placement
+                placementScopeInvalidator.attachToScope()
             },
             scrollBackAmount = scrollBackAmount,
             visibleItemsInfo = if (noExtraItems) positionedItems else positionedItems.fastFilter {
@@ -366,7 +383,8 @@ internal fun measureLazyList(
             reverseLayout = reverseLayout,
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
-            mainAxisItemSpacing = spaceBetweenItems
+            mainAxisItemSpacing = spaceBetweenItems,
+            remeasureNeeded = remeasureNeeded
         )
     }
 }
