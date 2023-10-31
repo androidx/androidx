@@ -21,7 +21,7 @@ import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE;
 import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED;
-import static androidx.camera.core.impl.utils.Threads.runOnMain;
+import static androidx.camera.core.impl.utils.Threads.runOnMainSync;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -284,13 +284,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @VisibleForTesting
     @NonNull
     public ListenableFuture<Void> shutdownAsync() {
-        ListenableFuture<Void> unbindFuture = CallbackToFutureAdapter.getFuture(completer -> {
-            runOnMain(() -> {
-                unbindAll();
-                mLifecycleCameraRepository.clear();
-                completer.set(null);
-            });
-            return "clearAllInMainThread";
+        runOnMainSync(() -> {
+            unbindAll();
+            mLifecycleCameraRepository.clear();
         });
 
         if (mCameraX != null) {
@@ -307,9 +303,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         }
         mCameraX = null;
         mContext = null;
-
-        return FutureChain.from(unbindFuture).transformAsync(input -> shutdownFuture,
-                CameraXExecutors.directExecutor());
+        return shutdownFuture;
     }
 
     private void setCameraX(CameraX cameraX) {
