@@ -122,7 +122,7 @@
     <string name="push_stack" msgid="2433062141810168976">"ଷ୍ଟାକକୁ ଆହୁରି ପୁସ କରନ୍ତୁ"</string>
     <string name="pop_to_prefix" msgid="4288884615669751608">"ଏଥିରେ ପପ କରନ୍ତୁ"</string>
     <string name="pop_to_title" msgid="3924696281273379455">"ଡେମୋ ପପ କରନ୍ତୁ"</string>
-    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପ୍ୟାକେଜ ମିଳିଲା ନାହିଁ।"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"ପେକେଜ ମିଳିଲା ନାହିଁ।"</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"ସମସ୍ତ ଅନୁମତି ଦିଆଯାଇଛି। ଦୟାକରି ସେଟିଂସରୁ ଅନୁମତିଗୁଡ଼ିକୁ ପ୍ରତ୍ୟାହାର କରନ୍ତୁ।"</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"ଏହି ଆପ ନିମ୍ନୋକ୍ତ ଅନୁମତିଗୁଡ଼ିକୁ ଆକ୍ସେସ ଆବଶ୍ୟକ କରେ:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"ଫୋନର ସ୍କ୍ରିନରେ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
