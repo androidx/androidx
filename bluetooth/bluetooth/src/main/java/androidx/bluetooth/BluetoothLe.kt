@@ -51,7 +51,7 @@ import kotlinx.coroutines.job
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
  * operations such as scanning, advertising, and connection with a respective [BluetoothDevice].
  */
-class BluetoothLe(private val context: Context) {
+class BluetoothLe(context: Context) {
 
     companion object {
         private const val TAG = "BluetoothLe"
@@ -91,9 +91,8 @@ class BluetoothLe(private val context: Context) {
         fun setDiscoverable(
             builder: AdvertiseSettings.Builder,
             isDiscoverable: Boolean
-        ): AdvertiseSettings.Builder {
+        ) {
             builder.setDiscoverable(isDiscoverable)
-            return builder
         }
     }
 
