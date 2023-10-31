@@ -32,7 +32,16 @@ class ConicConverter {
 public:
     ConicConverter() noexcept { }
 
+    const Point* toQuadratics(const Point points[3], float weight, float tolerance = 0.25f) noexcept;
+
+    int quadraticCount() const noexcept { return mQuadraticCount; }
+
+    const Point* quadratics() const noexcept {
+        return mQuadraticCount > 0 ? mStorage.data() : nullptr;
+    }
+
 private:
+    int mQuadraticCount = 0;
     std::vector<Point> mStorage{1 + 2 * kDefaultQuadraticCount};
 };
 

@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlin.math.abs
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -45,15 +46,14 @@ private fun assertPointsEquals(p1: FloatArray, offset: Int, p2: PointF) {
 }
 
 private fun compareBitmaps(b1: Bitmap, b2: Bitmap) {
-    val epsilon: Int
-    if (Build.VERSION.SDK_INT != 23) {
-        epsilon = 1
+    val epsilon: Int = if (Build.VERSION.SDK_INT != 23) {
+        1
     } else {
         // There is more AA variability between conics and cubics on API 23, leading
         // to failures on relatively small visual differences. Increase the error
         // value for just this release to avoid erroneous bitmap comparison failures.
-        epsilon = 32
-        }
+        32
+    }
 
     assertEquals(b1.width, b2.width)
     assertEquals(b1.height, b2.height)
@@ -86,20 +86,13 @@ class PathIteratorTest {
         val path = Path()
 
         val iterator = path.iterator()
-        // TODO: un-comment the hasNext() check when the platform has the behavior change
-        // which ignores final DONE ops in the value for hasNext()
-        // assertFalse(iterator.hasNext())
+        assertFalse(iterator.hasNext())
         val firstSegment = iterator.next()
         assertEquals(PathSegment.Type.Done, firstSegment.type)
 
         var count = 0
         for (segment in path) {
-            // TODO: remove condition check and just increment count when platform change
-            // is checked in which will not iterate when DONE is the only op left
-            if (segment.type != PathSegment.Type.Done) {
-                // Shouldn't get here; count should remain 0
-                count++
-            }
+            count++
         }
 
         assertEquals(0, count)
@@ -417,7 +410,9 @@ class PathIteratorTest {
     @Test
     fun convertedConics() {
         val path1 = Path().apply {
-            addRoundRect(RectF(12.0f, 12.0f, 64.0f, 64.0f), 12.0f, 12.0f, Path.Direction.CW)
+            addRoundRect(RectF(
+                12.0f, 12.0f, 64.0f, 64.0f), 12.0f, 12.0f, Path.Direction.CW
+            )
         }
 
         val path2 = Path()
@@ -444,7 +439,7 @@ class PathIteratorTest {
         val path3 = Path()
         for (segment in path1.iterator(
             conicEvaluation = PathIterator.ConicEvaluation.AsQuadratics,
-            .001f
+            0.001f
         )) {
             when (segment.type) {
                 PathSegment.Type.Move -> path3.moveTo(segment.points[0].x, segment.points[0].y)
@@ -495,12 +490,7 @@ class PathIteratorTest {
         val path = Path()
         var iterator: PathIterator = path.iterator()
 
-        if (iterator.calculateSize() > 0) {
-            assertEquals(PathSegment.Type.Done, iterator.peek())
-        }
-        // TODO: replace above check with below assertEquals after platform change is checked
-        // in which returns a size of zero when there the only op in the path is DONE
-        // assertEquals(0, iterator.size())
+        assertEquals(0, iterator.calculateSize())
 
         path.addRoundRect(RectF(12.0f, 12.0f, 64.0f, 64.0f), 8.0f, 8.0f,
                 Path.Direction.CW)
@@ -509,10 +499,7 @@ class PathIteratorTest {
         if (Build.VERSION.SDK_INT > 22) {
             // Preserve conics and count
             iterator = path.iterator(PathIterator.ConicEvaluation.AsConic)
-            assert(iterator.calculateSize() == 10 || iterator.calculateSize() == 11)
-            // TODO: replace assert() above with assertEquals below once platform change exists
-            // which does not count final DONE in the size
-            // assertEquals(10, iterator.size())
+            assertEquals(10, iterator.calculateSize())
             assertEquals(iterator.calculateSize(true), iterator.calculateSize())
         }
 
@@ -520,20 +507,13 @@ class PathIteratorTest {
         iterator = path.iterator(PathIterator.ConicEvaluation.AsQuadratics)
         if (Build.VERSION.SDK_INT > 22) {
             // simple size, not including conic conversion
-            assert(iterator.calculateSize(false) == 10 || iterator.calculateSize(false) == 11)
-            // TODO: replace assert() above with assertEquals below once platform change exists
-            // which does not count final DONE in the size
-            // assertEquals(10, iterator.size(false))
+            assertEquals(10, iterator.calculateSize(false))
         } else {
             // round rects pre-API22 used line/quad/quad for each corner
             assertEquals(14, iterator.calculateSize())
         }
         // now get the size with converted conics
-        val size = iterator.calculateSize()
-        assert(size == 14 || size == 15)
-        // TODO: replace assert() above with assertEquals below once platform change exists
-        // which does not count final DONE in the size
-        // assertEquals(14, iterator.size())
+        assertEquals(14, iterator.calculateSize())
     }
 }
 
