@@ -154,6 +154,9 @@ fun <T : Any> DraggableAnchors(
  * drag will behave like bottom to top, and a left to right drag will behave like right to left.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
+ * @param startDragImmediately when set to false, [draggable] will start dragging only when the
+ * gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
+ * widget when pressing on it. See [draggable] to learn more about startDragImmediately.
  */
 @ExperimentalFoundationApi
 fun <T> Modifier.anchoredDraggable(
@@ -161,14 +164,15 @@ fun <T> Modifier.anchoredDraggable(
     orientation: Orientation,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
+    startDragImmediately: Boolean = state.isAnimationRunning
 ) = draggable(
     state = state.draggableState,
     orientation = orientation,
     enabled = enabled,
     interactionSource = interactionSource,
     reverseDirection = reverseDirection,
-    startDragImmediately = state.isAnimationRunning,
+    startDragImmediately = startDragImmediately,
     onDragStopped = { velocity -> launch { state.settle(velocity) } }
 )
 
