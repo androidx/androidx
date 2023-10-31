@@ -338,6 +338,19 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class ChipElevation {
+    ctor public ChipElevation(float elevation, float pressedElevation, float focusedElevation, float hoveredElevation, float draggedElevation, float disabledElevation);
+    method public float getDisabledElevation();
+    method public float getDraggedElevation();
+    method public float getElevation();
+    method public float getFocusedElevation();
+    method public float getHoveredElevation();
+    method public float getPressedElevation();
+    property public final float disabledElevation;
+    property public final float draggedElevation;
+    property public final float elevation;
+    property public final float focusedElevation;
+    property public final float hoveredElevation;
+    property public final float pressedElevation;
   }
 
   public final class ChipKt {
@@ -1318,6 +1331,7 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class SelectableChipElevation {
+    ctor public SelectableChipElevation(float elevation, float pressedElevation, float focusedElevation, float hoveredElevation, float draggedElevation, float disabledElevation);
     method public float getDisabledElevation();
     method public float getDraggedElevation();
     method public float getElevation();
