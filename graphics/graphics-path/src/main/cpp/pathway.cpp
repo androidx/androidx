@@ -91,7 +91,10 @@ static jlong createPathIterator(JNIEnv* env, jobject,
         direction = PathIterator::VerbDirection::Backward;
     }
 
-    return jlong(new PathIterator(points, verbs, conicWeights, count, direction));
+    return jlong(new PathIterator(
+            points, verbs, conicWeights, count, direction,
+            PathIterator::ConicEvaluation(conicEvaluation_), tolerance_
+    ));
 }
 
 static void destroyPathIterator(JNIEnv*, jobject, jlong pathIterator_) {
@@ -103,19 +106,19 @@ static jboolean pathIteratorHasNext(JNIEnv*, jobject, jlong pathIterator_) {
 }
 
 static jint conicToQuadraticsWrapper(JNIEnv* env, jobject,
-                                      jfloatArray conicPoints, jfloatArray quadraticPoints,
-                                      jfloat weight, jfloat tolerance, jint offset) {
-    float *conicData1 = env->GetFloatArrayElements(conicPoints, JNI_FALSE);
-    float *quadData1 = env->GetFloatArrayElements(quadraticPoints, JNI_FALSE);
-    int quadDataSize = env->GetArrayLength(quadraticPoints);
+                                      jfloatArray conicPoints, jint offset,
+                                      jfloatArray quadraticPoints,
+                                      jfloat weight, jfloat tolerance) {
+    float *conicData = env->GetFloatArrayElements(conicPoints, JNI_FALSE);
+    float *quadData = env->GetFloatArrayElements(quadraticPoints, JNI_FALSE);
 
-    int count = conicToQuadratics(reinterpret_cast<Point *>(conicData1 + offset),
-                                  reinterpret_cast<Point *>(quadData1),
+    int count = conicToQuadratics(reinterpret_cast<const Point*>(conicData + offset),
+                                  reinterpret_cast<Point*>(quadData),
                                   env->GetArrayLength(quadraticPoints),
                                   weight, tolerance);
 
-    env->ReleaseFloatArrayElements(conicPoints, conicData1, 0);
-    env->ReleaseFloatArrayElements(quadraticPoints, quadData1, 0);
+    env->ReleaseFloatArrayElements(conicPoints, conicData, JNI_ABORT);
+    env->ReleaseFloatArrayElements(quadraticPoints, quadData, 0);
 
     return count;
 }
@@ -212,8 +215,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         static const JNINativeMethod methods2[] = {
                 {
                     (char *) "internalConicToQuadratics",
-                    (char *) "([F[FFFI)I",
-                    reinterpret_cast<void *>(conicToQuadraticsWrapper)
+                    (char *) "([FI[FFF)I",
+                    reinterpret_cast<void*>(conicToQuadraticsWrapper)
                 },
         };
 
