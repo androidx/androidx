@@ -215,8 +215,13 @@ package androidx.activity.result {
   }
 
   public interface ActivityResultCaller {
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultCallback<O> callback);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultRegistry registry, androidx.activity.result.ActivityResultCallback<O> callback);
+  }
+
+  public final class ActivityResultCallerKt {
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
   }
 
   public abstract class ActivityResultLauncher<I> {
