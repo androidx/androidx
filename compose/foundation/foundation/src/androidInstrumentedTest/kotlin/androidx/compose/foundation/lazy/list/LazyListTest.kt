@@ -2451,6 +2451,46 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun testSmallScrollWithLookaheadScope() {
+        val itemSize = 10
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+        val containerSizeDp = with(rule.density) { 15.toDp() }
+        val scrollDelta = 2f
+        val scrollDeltaDp = with(rule.density) { scrollDelta.toDp() }
+        val state = LazyListState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LookaheadScope {
+                LazyColumnOrRow(Modifier.mainAxisSize(containerSizeDp), state = state) {
+                    repeat(20) {
+                        item {
+                            Box(
+                                Modifier
+                                    .size(itemSizeDp)
+                                    .testTag("$it")
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                scope.launch {
+                    state.scrollBy(scrollDelta)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertMainAxisStartPositionInRootIsEqualTo(-scrollDeltaDp)
+        rule.onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+    }
+
+    @Test
     fun testLookaheadPositionWithTwoInBoundTwoOutBound() {
         testLookaheadPositionWithPlacementAnimator(
             initialList = listOf(0, 1, 2, 3, 4, 5),
