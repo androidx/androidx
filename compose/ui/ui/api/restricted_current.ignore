@@ -1,21 +1,19 @@
 // Baseline format: 1.0
-ChangedType: androidx.compose.ui.draw.DrawModifierKt#CacheDrawModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.CacheDrawScope,androidx.compose.ui.draw.DrawResult>):
-    Method androidx.compose.ui.draw.DrawModifierKt.CacheDrawModifierNode has changed return type from androidx.compose.ui.node.CacheDrawModifierNode to androidx.compose.ui.draw.CacheDrawModifierNode
+AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropModifierNode#acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent):
+    Added method androidx.compose.ui.draganddrop.DragAndDropModifierNode.acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent)
 
 
-DefaultValueChange: androidx.compose.ui.input.pointer.AwaitPointerEventScope#awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerEvent>) parameter #1:
-    Attempted to remove default value from parameter arg2 in androidx.compose.ui.input.pointer.AwaitPointerEventScope.awaitPointerEvent
+AddedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
+    Added class androidx.compose.ui.draganddrop.DragAndDropKt
+AddedClass: androidx.compose.ui.platform.JvmActuals_jvmKt:
+    Added class androidx.compose.ui.platform.JvmActuals_jvmKt
 
 
-RemovedClass: androidx.compose.ui.focus.FocusTargetNode:
-    Removed class androidx.compose.ui.focus.FocusTargetNode
+ChangedType: androidx.compose.ui.draganddrop.DragAndDropTarget#onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent):
+    Method androidx.compose.ui.draganddrop.DragAndDropTarget.onStarted has changed return type from boolean to void
 
 
-RemovedInterface: androidx.compose.ui.node.CacheDrawModifierNode:
-    Removed class androidx.compose.ui.node.CacheDrawModifierNode
-
-
-RemovedMethod: androidx.compose.ui.semantics.SemanticsActions#getPerformImeAction():
-    Removed method androidx.compose.ui.semantics.SemanticsActions.getPerformImeAction()
-RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
-    Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)
+ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropModifierNode#drag(androidx.compose.ui.draganddrop.DragAndDropTransferData, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>) parameter #1:
+    Attempted to change parameter name from dragDecorationSize to decorationSize in method androidx.compose.ui.draganddrop.DragAndDropModifierNode.drag
+ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropNodeKt#DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget>) parameter #0:
+    Attempted to change parameter name from onDragAndDropStart to acceptDragAndDropTransfer in method androidx.compose.ui.draganddrop.DragAndDropNodeKt.DragAndDropModifierNode
