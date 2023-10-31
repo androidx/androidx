@@ -54,7 +54,7 @@ suspend fun GlanceAppWidget.compose(
         context = context,
         id = id,
         options = options ?: Bundle(),
-        sizes = listOf(size ?: DpSize.Zero),
+        sizes = size?.let { listOf(size) },
         state = state
     ).first()
 
@@ -70,24 +70,35 @@ suspend fun GlanceAppWidget.compose(
  * flow is running. This currently does not support resizing (you have to run the flow again with
  * new [sizes]) or reloading the [androidx.glance.state.GlanceStateDefinition] state value.
  */
+@SuppressLint("PrimitiveInCollection")
 @ExperimentalGlanceApi
 fun GlanceAppWidget.runComposition(
     @Suppress("ContextFirst") context: Context,
     id: GlanceId = createFakeAppWidgetId(),
     options: Bundle = Bundle(),
-    @SuppressLint("PrimitiveInCollection") sizes: List<DpSize> = listOf(DpSize.Zero),
+    sizes: List<DpSize>? = null,
     state: Any? = null,
 ): Flow<RemoteViews> = flow {
     val session = AppWidgetSession(
         widget = this@runComposition,
         id = id as AppWidgetId,
-        initialOptions = optionsBundleOf(sizes).apply { putAll(options) },
+        initialOptions = sizes?.let { optionsBundleOf(it).apply { putAll(options) } } ?: options,
         initialGlanceState = state,
         lambdaReceiver = ComponentName(context, UnmanagedSessionReceiver::class.java),
-        // If not composing for a bound widget, override to SizeMode.Exact so we can use the sizes
-        // provided to this function (by setting app widget options).
-        sizeMode =
-            if (id.isFakeId && sizeMode !is SizeMode.Responsive) SizeMode.Exact else sizeMode,
+        sizeMode = if (sizes != null) {
+            // If sizes are provided to this function, override to SizeMode.Exact so we can use them.
+            SizeMode.Exact
+        } else if (sizeMode is SizeMode.Responsive || id.isRealId) {
+            // If sizes are not provided and the widget is SizeMode.Responsive, use those sizes.
+            // Else if sizes are not provided but this is a bound widget, use the widget's sizeMode
+            // (Single or Exact).
+            sizeMode
+        } else {
+            // When no sizes are provided, the widget is not SizeMode.Responsive, and we are not
+            // composing for a bound widget, use SizeMode.Exact (which means AppWidgetSession will
+            // use DpSize.Zero).
+            SizeMode.Exact
+        },
         shouldPublish = false,
     )
     coroutineScope {

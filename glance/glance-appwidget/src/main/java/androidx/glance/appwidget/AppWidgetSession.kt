@@ -97,7 +97,7 @@ internal class AppWidgetSession(
     }
 
     private var glanceState by mutableStateOf(initialGlanceState, neverEqualPolicy())
-    private var options by mutableStateOf(initialOptions ?: Bundle.EMPTY, neverEqualPolicy())
+    private var options by mutableStateOf(initialOptions, neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
 
     internal val lastRemoteViews = MutableStateFlow<RemoteViews?>(null)
@@ -108,7 +108,7 @@ internal class AppWidgetSession(
         CompositionLocalProvider(
             LocalContext provides context,
             LocalGlanceId provides id,
-            LocalAppWidgetOptions provides options,
+            LocalAppWidgetOptions provides (options ?: Bundle.EMPTY),
             LocalState provides glanceState,
         ) {
             var minSize by remember { mutableStateOf(DpSize.Zero) }
@@ -123,12 +123,17 @@ internal class AppWidgetSession(
                             manager,
                             id.appWidgetId
                         )
-                        options = manager.getAppWidgetOptions(id.appWidgetId)
+                        if (options == null) {
+                            options = manager.getAppWidgetOptions(id.appWidgetId)
+                        }
                     }
-                    widget.stateDefinition?.let {
-                        glanceState =
-                            configManager.getValue(context, it, key)
-                    }
+                    // Only get a Glance state value if we did not receive an initial value.
+                    widget.stateDefinition
+                        ?.takeIf { glanceState == null }
+                        ?.let { stateDefinition ->
+                            glanceState =
+                                configManager.getValue(context, stateDefinition, key)
+                        }
                     value = true
                 }
             }

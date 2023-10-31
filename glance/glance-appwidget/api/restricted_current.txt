@@ -12,7 +12,7 @@ package androidx.glance.appwidget {
 
   public final class AppWidgetComposerKt {
     method public static suspend Object? compose(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, optional androidx.glance.GlanceId id, optional android.os.Bundle? options, optional androidx.compose.ui.unit.DpSize? size, optional Object? state, kotlin.coroutines.Continuation<? super android.widget.RemoteViews>);
-    method @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public static kotlinx.coroutines.flow.Flow<android.widget.RemoteViews> runComposition(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, optional androidx.glance.GlanceId id, optional android.os.Bundle options, optional java.util.List<androidx.compose.ui.unit.DpSize> sizes, optional Object? state);
+    method @SuppressCompatibility @androidx.glance.ExperimentalGlanceApi public static kotlinx.coroutines.flow.Flow<android.widget.RemoteViews> runComposition(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, optional androidx.glance.GlanceId id, optional android.os.Bundle options, optional java.util.List<androidx.compose.ui.unit.DpSize>? sizes, optional Object? state);
   }
 
   public final class BackgroundKt {
