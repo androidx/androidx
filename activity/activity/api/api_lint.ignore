@@ -55,11 +55,6 @@ MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Build
     androidx.activity.result.IntentSenderRequest does not declare a `getFlags()` method matching method androidx.activity.result.IntentSenderRequest.Builder.setFlags(int,int)
 
 
-RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
-    Callback methods should be named register/unregister; was addCallback
-RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
-    Callback methods should be named register/unregister; was addCallback
-
 PairedRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
     Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcher
 PairedRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
