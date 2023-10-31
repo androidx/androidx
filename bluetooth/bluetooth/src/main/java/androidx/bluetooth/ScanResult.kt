@@ -45,16 +45,15 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
     }
 
     /** Remote Bluetooth device found. */
-    val device: BluetoothDevice
-        get() = BluetoothDevice(fwkScanResult.device)
+    val device: BluetoothDevice = BluetoothDevice(fwkScanResult.device)
 
     // TODO(kihongs) Find a way to get address type from framework scan result
     /** Bluetooth address for the remote device found. */
-    val deviceAddress: BluetoothAddress
-        get() = BluetoothAddress(
-            fwkScanResult.device.address,
-            BluetoothAddress.ADDRESS_TYPE_UNKNOWN
-        )
+
+    val deviceAddress: BluetoothAddress = BluetoothAddress(
+        fwkScanResult.device.address,
+        BluetoothAddress.ADDRESS_TYPE_UNKNOWN
+    )
 
     /** Device timestamp when the advertisement was last seen. */
     val timestampNanos: Long
@@ -122,5 +121,5 @@ class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) 
     val periodicAdvertisingInterval: Long
         // TODO(b/304870068) Cover periodicAdvertisingInterval for below API 26
         // Framework returns interval in units of 1.25ms.
-        get() = (fwkScanResult.periodicAdvertisingInterval * 1.25.toLong())
+        get() = (fwkScanResult.periodicAdvertisingInterval * 1.25).toLong()
 }
