@@ -212,6 +212,9 @@ fun SecondaryTabRow(
  *
  * Material Design fixed tabs.
  *
+ * For primary indicator tabs, use [PrimaryTabRow]. For secondary indicator tabs, use
+ * [SecondaryTabRow].
+ *
  * Fixed tabs display all tabs in a set simultaneously. They are best for switching between related
  * content quickly, such as between transportation methods in a map. To navigate between fixed tabs,
  * tap an individual tab, or swipe left or right in the content area.
@@ -505,6 +508,9 @@ fun SecondaryScrollableTabRow(
  * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
  *
  * Material Design scrollable tabs.
+ *
+ * For primary indicator tabs, use [PrimaryScrollableTabRow]. For secondary indicator tabs, use
+ * [SecondaryScrollableTabRow].
  *
  * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
  * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
