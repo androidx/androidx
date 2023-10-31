@@ -263,6 +263,47 @@ class LifecycleEffectTest {
     }
 
     @Test
+    fun lifecycleStartEffectTest_disposal_onLifecycleOwner() {
+        val secondLifecycleOwner = TestLifecycleOwner()
+        val ownerToUse = mutableStateOf("first")
+        val startedLifecycles = mutableListOf<Lifecycle>()
+        val stoppedLifecycles = mutableListOf<Lifecycle>()
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides
+                if (ownerToUse.value == "first") lifecycleOwner else secondLifecycleOwner) {
+                LifecycleStartEffect(key1 = null) {
+                    startedLifecycles += lifecycle
+
+                    onStopOrDispose {
+                        stoppedLifecycles += lifecycle
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should be started")
+                .that(startedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle)
+
+            ownerToUse.value = "second"
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Swapped out LifecycleOwner should be stopped")
+                .that(stoppedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle)
+
+            assertWithMessage("Swapped in LifecycleOwner should be started")
+                .that(startedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle, secondLifecycleOwner.lifecycle)
+                .inOrder()
+        }
+    }
+
+    @Test
     fun lifecycleStartEffectTest_effectsLambdaUpdate() {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         val state = mutableStateOf("default")
@@ -471,6 +512,48 @@ class LifecycleEffectTest {
             assertWithMessage("Lifecycle should never have been paused (only disposed)")
                 .that(pauseCount)
                 .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun lifecycleResumeEffectTest_disposal_onLifecycleOwnerChange() {
+        lifecycleOwner.currentState = Lifecycle.State.RESUMED
+        val secondLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val ownerToUse = mutableStateOf("first")
+        val resumedLifecycles = mutableListOf<Lifecycle>()
+        val pausedLifecycles = mutableListOf<Lifecycle>()
+
+        composeTestRule.waitForIdle()
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides
+                if (ownerToUse.value == "first") lifecycleOwner else secondLifecycleOwner) {
+                LifecycleResumeEffect(key1 = null) {
+                    resumedLifecycles += lifecycle
+
+                    onPauseOrDispose {
+                        pausedLifecycles += lifecycle
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Lifecycle should be resumed")
+                .that(resumedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle)
+
+            ownerToUse.value = "second"
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Swapped out LifecycleOwner should be paused")
+                .that(pausedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle)
+
+            assertWithMessage("Swapped in LifecycleOwner should be resumed")
+                .that(resumedLifecycles)
+                .containsExactly(lifecycleOwner.lifecycle, secondLifecycleOwner.lifecycle)
+                .inOrder()
         }
     }
 
