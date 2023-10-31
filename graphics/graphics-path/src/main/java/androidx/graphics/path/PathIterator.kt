@@ -36,18 +36,11 @@ class PathIterator constructor(
     val tolerance: Float = 0.25f
 ) : Iterator<PathSegment> {
 
-    internal val implementation: PathIteratorImpl
-    init {
-        implementation =
-            when {
-                Build.VERSION.SDK_INT >= 34 -> {
-                    PathIteratorApi34Impl(path, conicEvaluation, tolerance)
-                }
-                else -> {
-                    PathIteratorPreApi34Impl(path, conicEvaluation, tolerance)
-                }
-            }
-    }
+    private val implementation: PathIteratorImpl =
+        when {
+            Build.VERSION.SDK_INT >= 34 -> PathIteratorApi34Impl(path, conicEvaluation, tolerance)
+            else -> PathIteratorPreApi34Impl(path, conicEvaluation, tolerance)
+        }
 
     enum class ConicEvaluation {
         /**
@@ -97,11 +90,11 @@ class PathIterator constructor(
      * the [points] array represents a point for the given segment. The number of pairs of floats
      * depends on the [PathSegment.Type]:
      * - [Move][PathSegment.Type.Move]: 1 pair (indices 0 to 1)
-     * - [Move][PathSegment.Type.Line]: 2 pairs (indices 0 to 3)
-     * - [Move][PathSegment.Type.Quadratic]: 3 pairs (indices 0 to 5)
-     * - [Move][PathSegment.Type.Conic]: 4 pairs (indices 0 to 7), the last pair contains the
+     * - [Line][PathSegment.Type.Line]: 2 pairs (indices 0 to 3)
+     * - [Quadratic][PathSegment.Type.Quadratic]: 3 pairs (indices 0 to 5)
+     * - [Conic][PathSegment.Type.Conic]: 4 pairs (indices 0 to 7), the last pair contains the
      *   [weight][PathSegment.weight] twice
-     * - [Move][PathSegment.Type.Cubic]: 4 pairs (indices 0 to 7)
+     * - [Cubic][PathSegment.Type.Cubic]: 4 pairs (indices 0 to 7)
      * - [Close][PathSegment.Type.Close]: 0 pair
      * - [Done][PathSegment.Type.Done]: 0 pair
      * This method does not allocate any memory.

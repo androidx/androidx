@@ -64,6 +64,25 @@ int conicToQuadratics(
     return quadraticCount;
 }
 
+const Point* ConicConverter::toQuadratics(
+        const Point points[3], float weight, float tolerance
+) noexcept {
+    Conic conic(points[0], points[1], points[2], weight);
+
+    int count = conic.computeQuadraticCount(tolerance);
+    mQuadraticCount = 1 << count;
+
+    int newSize = 1 + 2 * mQuadraticCount;
+    if (newSize > mStorage.size()) {
+        mStorage.resize(newSize);
+    }
+
+    Point* data = mStorage.data();
+    mQuadraticCount = conic.splitIntoQuadratics(data, count);
+
+    return data;
+}
+
 int Conic::computeQuadraticCount(float tolerance) const noexcept {
     if (tolerance <= 0.0f || !isFinite(tolerance) || !isFinite(points, 3)) return 0;
 
@@ -146,7 +165,7 @@ int Conic::splitIntoQuadratics(Point dstPoints[], int count) const noexcept {
         split(dst);
 
         if (equals(dst[0].points[1], dst[0].points[2]) &&
-                equals(dst[1].points[0], dst[1].points[1])) {
+            equals(dst[1].points[0], dst[1].points[1])) {
             dstPoints[1] = dstPoints[2] = dstPoints[3] = dst[0].points[1];
             dstPoints[4] = dst[1].points[2];
             count = 1;
@@ -156,7 +175,7 @@ int Conic::splitIntoQuadratics(Point dstPoints[], int count) const noexcept {
 
     subdivide(*this, dstPoints + 1, count);
 
-commonFinitePointCheck:
+    commonFinitePointCheck:
     const int quadCount = 1 << count;
     const int pointCount = 2 * quadCount + 1;
 
