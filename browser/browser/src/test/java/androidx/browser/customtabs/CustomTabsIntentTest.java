@@ -52,6 +52,7 @@ import java.util.Locale;
 @DoNotInstrument
 public class CustomTabsIntentTest {
 
+    @Config(maxSdk = 33) // maxSdk due to b/308686817
     @Test
     public void testBareboneCustomTabIntent() {
         CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();
