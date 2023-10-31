@@ -1809,16 +1809,29 @@ private fun ChipContent(
 }
 
 /**
- * Represents the elevation for a chip in different states.
+ * Represents the elevation used in a selectable chip in different states.
+ *
+ * Note that this default implementation does not take into consideration the `selectable` state
+ * passed into its [tonalElevation] and [shadowElevation]. If you wish to apply that state, use a
+ * different [SelectableChipElevation].
+ *
+ * Note that its [tonalElevation] implementation only depends on [elevation] and [disabledElevation]
+ *
+ * @param elevation the elevation used when the chip is enabled.
+ * @param pressedElevation the elevation used when the chip is pressed.
+ * @param focusedElevation the elevation used when the chip is focused
+ * @param hoveredElevation the elevation used when the chip is hovered
+ * @param draggedElevation the elevation used when the chip is dragged
+ * @param disabledElevation the elevation used when the chip is not enabled
  */
 @Immutable
-class ChipElevation internal constructor(
-    private val elevation: Dp,
-    private val pressedElevation: Dp,
-    private val focusedElevation: Dp,
-    private val hoveredElevation: Dp,
-    private val draggedElevation: Dp,
-    private val disabledElevation: Dp
+class ChipElevation(
+    val elevation: Dp,
+    val pressedElevation: Dp,
+    val focusedElevation: Dp,
+    val hoveredElevation: Dp,
+    val draggedElevation: Dp,
+    val disabledElevation: Dp
 ) {
     /**
      * Represents the tonal elevation used in a chip, depending on its [enabled] state.
@@ -1966,18 +1979,17 @@ class ChipElevation internal constructor(
 /**
  * Represents the elevation used in a selectable chip in different states.
  *
- * Note that this default implementation does not take into consideration the `selectable` state
- * passed into its [tonalElevation] and [shadowElevation]. If you wish to apply that state, use a
- * different [SelectableChipElevation].
+ * Note that its [tonalElevation] implementation only depends on [elevation] and [disabledElevation]
  *
+ * @param elevation the elevation used when the chip is enabled.
  * @param pressedElevation the elevation used when the chip is pressed.
  * @param focusedElevation the elevation used when the chip is focused
- * @param hoveredElevation the elevation used when the chip is hovered
+ * @param hoveredElevation the elevation used when the chip is hovered.
  * @param draggedElevation the elevation used when the chip is dragged
  * @param disabledElevation the elevation used when the chip is not enabled
  */
 @Immutable
-class SelectableChipElevation internal constructor(
+class SelectableChipElevation(
     val elevation: Dp,
     val pressedElevation: Dp,
     val focusedElevation: Dp,
