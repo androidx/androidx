@@ -27,6 +27,7 @@ import kotlinx.coroutines.awaitCancellation
 /**
  * Runs desktop-specific text input session logic.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     imeOptions: ImeOptions,

@@ -31,6 +31,13 @@ internal actual object Trace {
 }
 
 // TODO(igotti): do we need actual processing for those?
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(AnnotationRetention.BINARY)
+@MustBeDocumented
 actual annotation class CheckResult(actual val suggest: String)
 
 /**

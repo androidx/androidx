@@ -34,7 +34,7 @@ public actual class ReplaceFileCorruptionHandler<T> constructor(
     private val produceNewData: (CorruptionException) -> T
 ) : CorruptionHandler<T> {
 
-    override suspend fun handleCorruption(ex: CorruptionException): T {
+    actual override suspend fun handleCorruption(ex: CorruptionException): T {
         return produceNewData(ex)
     }
 }

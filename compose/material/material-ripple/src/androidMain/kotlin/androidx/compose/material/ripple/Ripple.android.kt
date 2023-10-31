@@ -55,7 +55,7 @@ internal actual class PlatformRipple actual constructor(
     color: State<Color>
 ) : Ripple(bounded, radius, color) {
     @Composable
-    override fun rememberUpdatedRippleInstance(
+    actual override fun rememberUpdatedRippleInstance(
         interactionSource: InteractionSource,
         bounded: Boolean,
         radius: Dp,
