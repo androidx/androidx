@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,17 @@ package androidx.room
  *
  * @see AutoMigration
  */
-@Repeatable
+@JvmRepeatable(DeleteColumn.Entries::class)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@OptIn(ExperimentalMultiplatform::class)
-@OptionalExpectation
-public expect annotation class DeleteColumn(
+actual annotation class DeleteColumn actual constructor(
+    actual val tableName: String,
+    actual val columnName: String
+) {
     /**
-     * Name of the table in the [AutoMigration.from] version of the database the column was
-     * deleted from.
-     *
-     * @return Name of the table
+     * Container annotation for the repeatable annotation [DeleteColumn].
      */
-    val tableName: String,
-
-    /**
-     * Name of the column deleted in the [AutoMigration.to] version of the database.
-     *
-     * @return Name of the column.
-     */
-    val columnName: String,
-)
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(vararg val value: DeleteColumn)
+}
