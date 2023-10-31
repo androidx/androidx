@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.integration.testapp.MainViewModel
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
@@ -21,6 +20,7 @@ import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentConnectionsBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.toast
+import androidx.bluetooth.integration.testapp.ui.main.MainViewModel
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -53,7 +53,7 @@ class ConnectionsFragment : Fragment() {
 
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
-    private val connectScope = CoroutineScope(Dispatchers.Default + Job())
+    private val connectScope = CoroutineScope(Dispatchers.Main + Job())
 
     private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab) {
@@ -121,8 +121,8 @@ class ConnectionsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         connectScope.cancel()
+        _binding = null
     }
 
     private fun initData() {
@@ -185,9 +185,7 @@ class ConnectionsFragment : Fragment() {
 
         deviceConnection.job = connectScope.launch {
             deviceConnection.status = Status.CONNECTING
-            launch(Dispatchers.Main) {
-                updateDeviceUI(deviceConnection)
-            }
+            updateDeviceUI(deviceConnection)
 
             try {
                 Log.d(
@@ -200,9 +198,7 @@ class ConnectionsFragment : Fragment() {
 
                     deviceConnection.status = Status.CONNECTED
                     deviceConnection.services = services
-                    launch(Dispatchers.Main) {
-                        updateDeviceUI(deviceConnection)
-                    }
+                    updateDeviceUI(deviceConnection)
 
                     deviceConnection.onCharacteristicActionClick =
                         object : OnCharacteristicActionClick {
@@ -250,9 +246,7 @@ class ConnectionsFragment : Fragment() {
                 }
 
                 deviceConnection.status = Status.DISCONNECTED
-                launch(Dispatchers.Main) {
-                    updateDeviceUI(deviceConnection)
-                }
+                updateDeviceUI(deviceConnection)
             }
         }
     }
@@ -269,9 +263,7 @@ class ConnectionsFragment : Fragment() {
             Log.d(TAG, "readCharacteristic() result: result = $result")
 
             deviceConnection.storeValueFor(characteristic, result.getOrNull())
-            launch(Dispatchers.Main) {
-                updateDeviceUI(deviceConnection)
-            }
+            updateDeviceUI(deviceConnection)
         }
     }
 
@@ -299,9 +291,7 @@ class ConnectionsFragment : Fragment() {
                     val result = gattClientScope.writeCharacteristic(characteristic, value)
                     Log.d(TAG, "writeCharacteristic() result: result = $result")
 
-                    launch(Dispatchers.Main) {
-                        toast("Called write with: $editTextValueString, result = $result").show()
-                    }
+                    toast("Called write with: $editTextValueString, result = $result").show()
                 }
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -339,6 +329,8 @@ class ConnectionsFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun updateDeviceUI(deviceConnection: DeviceConnection) {
+        if (_binding == null) return
+
         binding.progressIndicatorDeviceConnection.isVisible = false
         binding.buttonReconnect.isVisible = false
         binding.buttonDisconnect.isVisible = false

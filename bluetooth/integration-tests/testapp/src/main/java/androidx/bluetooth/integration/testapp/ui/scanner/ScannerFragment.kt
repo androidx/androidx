@@ -24,14 +24,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
-import androidx.bluetooth.integration.testapp.MainViewModel
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
+import androidx.bluetooth.integration.testapp.ui.main.MainViewModel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -108,8 +107,8 @@ class ScannerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         isScanning = false
+        _binding = null
     }
 
     @SuppressLint("MissingPermission")
@@ -118,7 +117,6 @@ class ScannerFragment : Fragment() {
 
         scanJob = scanScope.launch {
             Log.d(TAG, "bluetoothLe.scan() called")
-
             isScanning = true
 
             try {
@@ -144,6 +142,6 @@ class ScannerFragment : Fragment() {
         isScanning = false
 
         mainViewModel.selectedBluetoothDevice = bluetoothDevice
-        findNavController().navigate(R.id.action_navigation_scanner_to_navigation_connections)
+        mainViewModel.navigateToConnections()
     }
 }
