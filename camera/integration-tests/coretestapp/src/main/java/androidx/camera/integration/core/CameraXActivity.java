@@ -287,6 +287,8 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String SWITCH_TEST_CASE = "switch_test_case";
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
     private static final String DESCRIPTION_FLASH_MODE_SCREEN = "FLASH_MODE_SCREEN";
+    private static final String DESCRIPTION_SCREEN_FLASH_NOT_SUPPORTED_LEGACY =
+            "SCREEN_FLASH_NOT_SUPPORTED_LEGACY";
     private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
 
@@ -1203,7 +1205,8 @@ public class CameraXActivity extends AppCompatActivity {
                     mFlashButton.setImageResource(R.drawable.ic_flash_screen);
                     if (isLegacyDevice(getCameraInfo())) {
                         // Set content description for ScreenFlash e2e testing.
-                        mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
+                        mFlashButton.setContentDescription(
+                                DESCRIPTION_SCREEN_FLASH_NOT_SUPPORTED_LEGACY);
                     } else {
                         // Reset content description if flash is ready for test.
                         mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_SCREEN);
