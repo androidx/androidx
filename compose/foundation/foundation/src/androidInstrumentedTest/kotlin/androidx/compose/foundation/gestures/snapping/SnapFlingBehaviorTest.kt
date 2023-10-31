@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.gesture.snapping
+package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
 import androidx.compose.animation.core.AnimationSpec
@@ -32,13 +32,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.snapping.FinalSnappingItem
-import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
-import androidx.compose.foundation.gestures.snapping.NoVelocity
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.foundation.gestures.snapping.calculateFinalOffset
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth

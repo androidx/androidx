@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.gesture
+package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier
