@@ -37,7 +37,9 @@ class IncrementalAnnotationProcessingTest {
         private const val SOURCE_DIR = "$MAIN_DIR/java/androidx/lifecycle/incap"
         private const val GENERATED_SOURCE_DIR = BUILD_DIR +
             "/generated/ap_generated_sources/debug/out/androidx/lifecycle/incap"
-        private const val CLASSES_DIR = "$BUILD_DIR/intermediates/javac/debug/classes"
+        private const val COMPILE_TASK_NAME = "compileDebugJavaWithJavac"
+        private const val CLASSES_DIR =
+            "$BUILD_DIR/intermediates/javac/debug/$COMPILE_TASK_NAME/classes"
         private const val GENERATED_PROGUARD_DIR = "$CLASSES_DIR/META-INF/proguard"
         private const val APP_CLASS_DIR = "$CLASSES_DIR/androidx/lifecycle/incap"
     }
@@ -110,7 +112,7 @@ class IncrementalAnnotationProcessingTest {
     @Test
     fun checkModifySource() {
         gradleRunner()
-            .withArguments("clean", "compileDebugJavaWithJavac")
+            .withArguments("clean", COMPILE_TASK_NAME)
             .build()
 
         val fooAdapterFirstBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
@@ -129,7 +131,7 @@ class IncrementalAnnotationProcessingTest {
         searchAndReplace(fooObserver.toPath(), "FooObserver_Log", "Modified_FooObserver_Log")
 
         gradleRunner()
-            .withArguments("compileDebugJavaWithJavac")
+            .withArguments(COMPILE_TASK_NAME)
             .build()
 
         val fooAdapterSecondBuild = Files.getLastModifiedTime(genFooAdapter.toPath()).toMillis()
@@ -162,9 +164,8 @@ class IncrementalAnnotationProcessingTest {
     @Test
     fun checkDeleteOneSource() {
         gradleRunner()
-            .withArguments("clean", "compileDebugJavaWithJavac")
+            .withArguments("clean", COMPILE_TASK_NAME)
             .build()
-
         val barAdapterFirstBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()
         val barProguardFirstBuild = Files.getLastModifiedTime(genBarProguard.toPath()).toMillis()
         val barObserverClassFirstBuild =
@@ -178,7 +179,7 @@ class IncrementalAnnotationProcessingTest {
         fooObserver.delete()
 
         gradleRunner()
-            .withArguments("compileDebugJavaWithJavac")
+            .withArguments(COMPILE_TASK_NAME)
             .build()
 
         val barAdapterSecondBuild = Files.getLastModifiedTime(genBarAdapter.toPath()).toMillis()

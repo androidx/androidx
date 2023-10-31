@@ -16,14 +16,9 @@
 
 package androidx.baselineprofile.gradle.utils
 
-internal const val TEST_AGP_VERSION_8_0_0 = "8.0.0"
-internal const val TEST_AGP_VERSION_8_1_0 = "8.1.0"
-internal const val TEST_AGP_VERSION_8_2_0 = "8.2.0-alpha04"
-internal val TEST_AGP_VERSION_CURRENT = null
-
-internal val TEST_AGP_VERSION_ALL = arrayOf<String?>(
-    TEST_AGP_VERSION_8_0_0,
-    TEST_AGP_VERSION_8_1_0,
-    TEST_AGP_VERSION_8_2_0,
-    TEST_AGP_VERSION_CURRENT,
-)
+enum class TestAgpVersion(val versionString: String?) {
+    TEST_AGP_VERSION_8_0_0("8.0.0"),
+    TEST_AGP_VERSION_8_1_0("8.1.0"),
+    TEST_AGP_VERSION_8_2_0("8.2.0-alpha04"),
+    TEST_AGP_VERSION_CURRENT(null)
+}

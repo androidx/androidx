@@ -17,9 +17,9 @@
 package androidx.baselineprofile.gradle.apptarget
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
+import androidx.baselineprofile.gradle.utils.TestAgpVersion
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import com.google.common.truth.Truth.assertThat
@@ -66,15 +66,15 @@ private val buildGradle = """
     """.trimIndent()
 
 @RunWith(Parameterized::class)
-class BaselineProfileAppTargetPluginTest(agpVersion: String?) {
+class BaselineProfileAppTargetPluginTest(agpVersion: TestAgpVersion) {
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion)
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TEST_AGP_VERSION_ALL
+        fun parameters() = TestAgpVersion.values()
     }
 
     @Test
@@ -134,7 +134,7 @@ class BaselineProfileAppTargetPluginTestWithAgp80 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_0_0
+        forceAgpVersion = TEST_AGP_VERSION_8_0_0.versionString
     )
 
     @Test
@@ -172,7 +172,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0
+        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
     )
 
     @Test
