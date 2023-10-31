@@ -257,6 +257,8 @@ class LowLatencyCanvasView @JvmOverloads constructor(
             .setName("FrontBufferedLayer")
             .build()
 
+        FrontBufferUtils.configureFrontBufferLayerFrameRate(frontBufferSurfaceControl)?.commit()
+
         val dataSpace: Int
         val colorSpace: ColorSpace
         if (isAndroidUPlus && supportsWideColorGamut()) {
