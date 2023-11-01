@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,10 @@ package androidx.room
  *
  * @see AutoMigration
  */
-@Repeatable
+@JvmRepeatable(RenameColumn.Entries::class)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@OptIn(ExperimentalMultiplatform::class)
-@OptionalExpectation
-public expect annotation class RenameColumn(
+public actual annotation class RenameColumn(
     /**
      * Name of the table in the [AutoMigration.from] version of the database the renamed
      * column is found in. The name in [AutoMigration.from] version is used in case the table
@@ -35,19 +33,28 @@ public expect annotation class RenameColumn(
      *
      * @return Name of the table
      */
-    val tableName: String,
+    actual val tableName: String,
 
     /**
      * Name of the column in the [AutoMigration.from] version of the database.
      *
      * @return Name of the column.
      */
-    val fromColumnName: String,
+    actual val fromColumnName: String,
 
     /**
      * Name of the column in the [AutoMigration.to] version of the database.
      *
      * @return Name of the column.
      */
-    val toColumnName: String,
-)
+    actual val toColumnName: String,
+) {
+    /**
+     * Container annotation for the repeatable annotation [RenameColumn].
+     */
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: RenameColumn
+    )
+}
