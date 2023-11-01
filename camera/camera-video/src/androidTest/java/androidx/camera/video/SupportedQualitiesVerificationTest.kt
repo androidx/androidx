@@ -49,6 +49,7 @@ import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.core.util.Consumer
@@ -88,6 +89,9 @@ class SupportedQualitiesVerificationTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L
