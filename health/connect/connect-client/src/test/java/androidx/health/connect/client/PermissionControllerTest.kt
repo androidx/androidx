@@ -41,6 +41,7 @@ class PermissionControllerTest {
     }
 
     @Test
+    @Config(maxSdk = 33) // maxSdk due to b/308687857
     fun createIntent_permissionStrings() {
         val requestPermissionContract =
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
