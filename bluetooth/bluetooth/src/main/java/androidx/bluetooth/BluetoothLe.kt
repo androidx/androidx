@@ -86,13 +86,13 @@ class BluetoothLe(context: Context) {
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        GattClient(context)
+        GattClient(context.applicationContext)
     }
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        GattServer(context)
+        GattServer(context.applicationContext)
     }
 
     @VisibleForTesting
