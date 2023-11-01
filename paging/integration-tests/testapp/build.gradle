@@ -41,6 +41,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(libs.kotlinStdlib)
 
+    // Only needed to ensure version of annotation:annotation matches in impl
+    // and androidTestImpl, for both AOSP and playground builds.
+    implementation(project(":annotation:annotation"))
+
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
