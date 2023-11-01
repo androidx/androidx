@@ -394,19 +394,20 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
     ): ExitTransition
 
     /**
-     * [ExitTransition.Hold] defers the disposal of the exiting content till both enter and
-     * exit animations have finished. It can be combined with other [ExitTransition]s using
+     * [KeepUntilTransitionsFinished] defers the disposal of the exiting content till both enter and
+     * exit transitions have finished. It can be combined with other [ExitTransition]s using
      * [+][ExitTransition.plus].
      *
-     * **Important**: [ExitTransition.Hold] works the best when the
+     * **Important**: [KeepUntilTransitionsFinished] works the best when the
      * [zIndex][ContentTransform.targetContentZIndex] for the incoming and outgoing content are
      * specified. Otherwise, if the content gets interrupted from entering and switching to exiting
-     * using [ExitTransition.Hold], the holding pattern may render exiting content on top of the
-     * entering content, unless the z-order is specified.
+     * using [KeepUntilTransitionsFinished], the holding pattern may render exiting content on top
+     * of the entering content, unless the z-order is specified.
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
      */
-    val ExitTransition.Companion.Hold: ExitTransition get() = Hold
+    val ExitTransition.Companion.KeepUntilTransitionsFinished: ExitTransition
+        get() = KeepUntilTransitionsFinished
 
     /**
      * This returns the [Alignment] specified on [AnimatedContent].

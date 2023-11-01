@@ -290,7 +290,7 @@ fun SlideIntoContainerSample() {
             // Going from parent menu to child menu, slide towards left
             slideIntoContainer(towards = SlideDirection.Left) togetherWith
                 // Keep exiting content in place while sliding in the incoming content.
-                ExitTransition.Hold
+                ExitTransition.KeepUntilTransitionsFinished
         } else {
             // Going from child menu to parent menu, slide towards right.
             // Slide parent by half amount compared to child menu to create an interesting

@@ -18,7 +18,7 @@ package androidx.compose.animation {
 
   public sealed interface AnimatedContentTransitionScope<S> extends androidx.compose.animation.core.Transition.Segment<S> {
     method public androidx.compose.ui.Alignment getContentAlignment();
-    method public default androidx.compose.animation.ExitTransition getHold(androidx.compose.animation.ExitTransition.Companion);
+    method public default androidx.compose.animation.ExitTransition getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion);
     method @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi public androidx.compose.animation.EnterTransition scaleInToFitContainer(optional androidx.compose.ui.Alignment alignment, optional androidx.compose.ui.layout.ContentScale contentScale);
     method @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi public androidx.compose.animation.ExitTransition scaleOutToFitContainer(optional androidx.compose.ui.Alignment alignment, optional androidx.compose.ui.layout.ContentScale contentScale);
     method public androidx.compose.animation.EnterTransition slideIntoContainer(int towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> initialOffset);
