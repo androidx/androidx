@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.max
@@ -48,7 +47,8 @@ internal class RowColumnMeasureHelperResult(
  */
 internal class RowColumnMeasurementHelper(
     val orientation: LayoutOrientation,
-    val arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
+    val horizontalArrangement: Arrangement.Horizontal?,
+    val verticalArrangement: Arrangement.Vertical?,
     val arrangementSpacing: Dp,
     val crossAxisSize: SizeMode,
     val crossAxisAlignment: CrossAxisAlignment,
@@ -267,13 +267,24 @@ internal class RowColumnMeasurementHelper(
         mainAxisPositions: IntArray,
         measureScope: MeasureScope
     ): IntArray {
-        arrangement(
-            mainAxisLayoutSize,
-            childrenMainAxisSize,
-            measureScope.layoutDirection,
-            measureScope,
-            mainAxisPositions
-        )
+        if (orientation == LayoutOrientation.Vertical) {
+            with(requireNotNull(verticalArrangement) { "null verticalArrangement in Column" }) {
+                measureScope.arrange(
+                    mainAxisLayoutSize,
+                    childrenMainAxisSize,
+                    mainAxisPositions
+                )
+            }
+        } else {
+            with(requireNotNull(horizontalArrangement) { "null horizontalArrangement in Row" }) {
+                measureScope.arrange(
+                    mainAxisLayoutSize,
+                    childrenMainAxisSize,
+                    measureScope.layoutDirection,
+                    mainAxisPositions
+                )
+            }
+        }
         return mainAxisPositions
     }
 
