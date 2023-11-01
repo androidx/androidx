@@ -1,0 +1,61 @@
+// Signature format: 4.0
+package androidx.graphics.path {
+
+  public final class PathIterator implements java.util.Iterator<androidx.graphics.path.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public PathIterator(android.graphics.Path path, optional androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
+    method public int calculateSize(optional boolean includeConvertedConics);
+    method public androidx.graphics.path.PathIterator.ConicEvaluation getConicEvaluation();
+    method public android.graphics.Path getPath();
+    method public float getTolerance();
+    method public boolean hasNext();
+    method public androidx.graphics.path.PathSegment next();
+    method public androidx.graphics.path.PathSegment.Type next(float[] points);
+    method public androidx.graphics.path.PathSegment.Type next(float[] points, optional int offset);
+    method public androidx.graphics.path.PathSegment.Type peek();
+    property public final androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation;
+    property public final android.graphics.Path path;
+    property public final float tolerance;
+  }
+
+  public enum PathIterator.ConicEvaluation {
+    method public static androidx.graphics.path.PathIterator.ConicEvaluation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.graphics.path.PathIterator.ConicEvaluation[] values();
+    enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsConic;
+    enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsQuadratics;
+  }
+
+  public final class PathSegment {
+    method public android.graphics.PointF![] getPoints();
+    method public androidx.graphics.path.PathSegment.Type getType();
+    method public float getWeight();
+    property public final android.graphics.PointF![] points;
+    property public final androidx.graphics.path.PathSegment.Type type;
+    property public final float weight;
+  }
+
+  public enum PathSegment.Type {
+    method public static androidx.graphics.path.PathSegment.Type valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.graphics.path.PathSegment.Type[] values();
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Close;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Conic;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Cubic;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Done;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Line;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Move;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Quadratic;
+  }
+
+  public final class PathSegmentUtilities {
+    method public static androidx.graphics.path.PathSegment getCloseSegment();
+    method public static androidx.graphics.path.PathSegment getDoneSegment();
+    property public static final androidx.graphics.path.PathSegment CloseSegment;
+    property public static final androidx.graphics.path.PathSegment DoneSegment;
+  }
+
+  public final class PathUtilities {
+    method public static operator androidx.graphics.path.PathIterator iterator(android.graphics.Path);
+    method public static androidx.graphics.path.PathIterator iterator(android.graphics.Path, androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
+  }
+
+}
+
