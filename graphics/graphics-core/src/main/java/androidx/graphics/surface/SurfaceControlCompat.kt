@@ -18,18 +18,19 @@ package androidx.graphics.surface
 
 import android.graphics.Rect
 import android.graphics.Region
-import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import android.view.Window
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.utils.JniVisible
+import androidx.hardware.DataSpace
 import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
@@ -212,6 +213,7 @@ class SurfaceControlCompat internal constructor(
     /**
      * An atomic set of changes to a set of [SurfaceControlCompat].
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     class Transaction : AutoCloseable {
         /**
          * internal mapping of buffer transforms used for testing purposes
@@ -536,21 +538,25 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Set the dataspace for the SurfaceControl. This will control how the buffer
+         * Set the [DataSpace] for the SurfaceControl. This will control how the buffer
          * set with [setBuffer] is displayed.
          *
+         * **NOTE** it is strongly recommended to verify that the display supports the corresponding
+         * [DataSpace] in advance before configuring the data space. For example, if
+         * [DataSpace.DATASPACE_DISPLAY_P3] is desired, consumers should verify that
+         * [Window.isWideGamut] returns true before proceeding.
+         *
          * @param surfaceControl The SurfaceControl to update
-         * @param dataSpace The dataspace to set it to. Must be one of named
+         * @param dataSpace The [DataSpace] to set it to. Must be one of named
          * [android.hardware.DataSpace] types.
          *
          * @see [android.view.SurfaceControl.Transaction.setDataSpace]
          *
          * @return this
          */
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun setDataSpace(
             surfaceControl: SurfaceControlCompat,
-            dataSpace: Int
+            @DataSpace.NamedDataSpace dataSpace: Int
         ): Transaction {
             mImpl.setDataSpace(surfaceControl.scImpl, dataSpace)
             return this

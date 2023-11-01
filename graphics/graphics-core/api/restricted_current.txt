@@ -342,7 +342,7 @@ package androidx.graphics.surface {
   public static final class SurfaceControlCompat.Companion {
   }
 
-  public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
     ctor public SurfaceControlCompat.Transaction();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
     method public void close();
@@ -357,7 +357,7 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBufferTransform(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int transformation);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setCrop(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Rect? crop);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction setDataSpace(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int dataSpace);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDataSpace(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int dataSpace);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.graphics.surface.SurfaceControlCompat.Transaction setExtendedRangeBrightness(androidx.graphics.surface.SurfaceControlCompat surfaceControl, @FloatRange(from=1.0, fromInclusive=true) float currentBufferRatio, @FloatRange(from=1.0, fromInclusive=true) float desiredRatio);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
@@ -373,6 +373,36 @@ package androidx.graphics.surface {
 }
 
 package androidx.hardware {
+
+  public final class DataSpace {
+    field public static final androidx.hardware.DataSpace.Companion Companion;
+    field public static final int DATASPACE_ADOBE_RGB = 151715840; // 0x90b0000
+    field public static final int DATASPACE_BT2020 = 147193856; // 0x8c60000
+    field public static final int DATASPACE_BT2020_HLG = 168165376; // 0xa060000
+    field public static final int DATASPACE_BT2020_PQ = 163971072; // 0x9c60000
+    field public static final int DATASPACE_BT601_525 = 281280512; // 0x10c40000
+    field public static final int DATASPACE_BT601_625 = 281149440; // 0x10c20000
+    field public static final int DATASPACE_BT709 = 281083904; // 0x10c10000
+    field public static final int DATASPACE_DCI_P3 = 155844608; // 0x94a0000
+    field public static final int DATASPACE_DEPTH = 4096; // 0x1000
+    field public static final int DATASPACE_DISPLAY_P3 = 143261696; // 0x88a0000
+    field public static final int DATASPACE_DYNAMIC_DEPTH = 4098; // 0x1002
+    field public static final int DATASPACE_HEIF = 4100; // 0x1004
+    field public static final int DATASPACE_JFIF = 146931712; // 0x8c20000
+    field public static final int DATASPACE_JPEG_R = 4101; // 0x1005
+    field public static final int DATASPACE_SCRGB = 411107328; // 0x18810000
+    field public static final int DATASPACE_SCRGB_LINEAR = 406913024; // 0x18410000
+    field public static final int DATASPACE_SRGB = 142671872; // 0x8810000
+    field public static final int DATASPACE_SRGB_LINEAR = 138477568; // 0x8410000
+    field public static final int DATASPACE_UNKNOWN = 0; // 0x0
+    field public static final int RANGE_EXTENDED = 402653184; // 0x18000000
+    field public static final int RANGE_FULL = 134217728; // 0x8000000
+    field public static final int RANGE_LIMITED = 268435456; // 0x10000000
+    field public static final int RANGE_UNSPECIFIED = 0; // 0x0
+  }
+
+  public static final class DataSpace.Companion {
+  }
 
   @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class SyncFenceCompat implements java.lang.AutoCloseable {
     method public boolean await(long timeoutNanos);

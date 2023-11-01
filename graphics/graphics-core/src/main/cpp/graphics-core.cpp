@@ -27,6 +27,7 @@
 #include <android/api-level.h>
 #include <android/native_window_jni.h>
 #include <android/hardware_buffer_jni.h>
+#include <android/data_space.h>
 #include <android/log.h>
 #include <android/sync.h>
 #include <sys/system_properties.h>
@@ -427,6 +428,16 @@ void JniBindings_nSetBufferTransform(JNIEnv *env,
     ASurfaceTransaction_setBufferTransform(st, sc, transformation);
 }
 
+void JniBindings_nSetDataSpace(JNIEnv *env,
+                                jclass,
+                                jlong surfaceTransaction,
+                                jlong surfaceControl,
+                                jint dataspace) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+
+    ASurfaceTransaction_setBufferDataSpace(st, sc, static_cast<ADataSpace>(dataspace));
+}
 
 void JniBindings_nSetGeometry(JNIEnv *env, jclass,
                                                                        jlong surfaceTransaction,
@@ -590,6 +601,11 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
                 "nSetBufferTransform",
                 "(JJI)V",
                 (void *) JniBindings_nSetBufferTransform
+        },
+        {
+                "nSetDataSpace",
+                "(JJI)V",
+                (void *) JniBindings_nSetDataSpace
         },
         {
                 "nSetGeometry",

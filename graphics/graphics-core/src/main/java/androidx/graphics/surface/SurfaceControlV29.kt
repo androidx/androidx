@@ -396,9 +396,8 @@ internal class SurfaceControlV29 internal constructor(
             surfaceControl: SurfaceControlImpl,
             dataSpace: Int
         ): SurfaceControlImpl.Transaction {
-            throw UnsupportedOperationException(
-                "Configuring the data space is only available on Android T+"
-            )
+            transaction.setDataSpace(surfaceControl.asWrapperSurfaceControl(), dataSpace)
+            return this
         }
 
         /**
