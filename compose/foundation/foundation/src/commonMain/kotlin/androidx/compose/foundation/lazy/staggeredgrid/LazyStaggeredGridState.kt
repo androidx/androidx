@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
@@ -338,7 +337,7 @@ class LazyStaggeredGridState private constructor(
      */
     internal fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyLayoutItemProvider,
-        firstItemIndex: IntArray = Snapshot.withoutReadObservation { scrollPosition.indices }
+        firstItemIndex: IntArray
     ): IntArray =
         scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 

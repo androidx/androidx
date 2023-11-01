@@ -511,7 +511,7 @@ class LazyListState constructor(
      */
     internal fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyListItemProvider,
-        firstItemIndex: Int = Snapshot.withoutReadObservation { scrollPosition.index }
+        firstItemIndex: Int
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {
