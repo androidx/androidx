@@ -44,7 +44,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 
 /**
- * The directions in which a [SwipeDismiss] can be dismissed.
+ * The directions in which a [SwipeToDismissBox] can be dismissed.
  */
 enum class DismissDirection {
     /**
@@ -79,7 +79,7 @@ enum class DismissValue {
 }
 
 /**
- * State of the [SwipeDismiss] composable.
+ * State of the [SwipeToDismissBox] composable.
  *
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
@@ -103,7 +103,7 @@ class DismissState @Deprecated(
 ) {
 
     /**
-     * State of the [SwipeDismiss] composable.
+     * State of the [SwipeToDismissBox] composable.
      *
      * @param initialValue The initial value of the state.
      * @param density The density that this state can use to convert values to and from dp.
@@ -161,7 +161,7 @@ class DismissState @Deprecated(
      * The direction (if any) in which the composable has been or is being dismissed.
      *
      * If the composable is settled at the default state, then this will be null. Use this to
-     * change the background of the [SwipeDismiss] if you want different actions on each side.
+     * change the background of the [SwipeToDismissBox] if you want different actions on each side.
      */
     val dismissDirection: DismissDirection?
         get() = if (offset == 0f || offset.isNaN())
@@ -268,11 +268,12 @@ class DismissState @Deprecated(
  * subtracted from/to the origin offset. It should always be a positive value.
  */
 @Composable
+@ExperimentalMaterial3Api
 fun rememberDismissState(
     initialValue: DismissValue = Default,
     confirmValueChange: (DismissValue) -> Boolean = { true },
     positionalThreshold: (totalDistance: Float) -> Float =
-        SwipeDismissDefaults.fixedPositionalThreshold,
+        SwipeToDismissBoxDefaults.fixedPositionalThreshold,
 ): DismissState {
     val density = LocalDensity.current
     return rememberSaveable(
@@ -289,7 +290,7 @@ fun rememberDismissState(
 /**
  * A composable that can be dismissed by swiping left or right.
  *
- * @sample androidx.compose.material3.samples.SwipeDismissListItems
+ * @sample androidx.compose.material3.samples.SwipeToDismissListItems
  *
  * @param state The state of this component.
  * @param background A composable that is stacked behind the content and is exposed when the
@@ -301,9 +302,9 @@ fun rememberDismissState(
 @Composable
 @Deprecated(
     level = DeprecationLevel.WARNING,
-    message = "Use SwipeDismiss instead",
+    message = "Use SwipeToDismissBox instead",
     replaceWith =
-        ReplaceWith("SwipeDismiss(state, background, dismissContent, modifier, directions)")
+        ReplaceWith("SwipeToDismissBox(state, background, modifier, directions, dismissContent)")
 )
 @ExperimentalMaterial3Api
 fun SwipeToDismiss(
@@ -312,30 +313,29 @@ fun SwipeToDismiss(
     dismissContent: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     directions: Set<DismissDirection> = setOf(EndToStart, StartToEnd),
-) = SwipeDismiss(state, background, dismissContent, modifier, directions)
+) = SwipeToDismissBox(state, background, modifier, directions, dismissContent)
 
 /**
  * A composable that can be dismissed by swiping left or right.
  *
- * @sample androidx.compose.material3.samples.SwipeDismissListItems
+ * @sample androidx.compose.material3.samples.SwipeToDismissListItems
  *
  * @param state The state of this component.
- * @param background A composable that is stacked behind the content and is exposed when the
+ * @param backgroundContent A composable that is stacked behind the content and is exposed when the
  * content is swiped. You can/should use the [state] to have different backgrounds on each side.
- * @param dismissContent The content that can be dismissed.
+ * @param content The content that can be dismissed.
  * @param modifier Optional [Modifier] for this component.
  * @param directions The set of directions in which the component can be dismissed.
  */
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun SwipeDismiss(
+@ExperimentalMaterial3Api
+fun SwipeToDismissBox(
     state: DismissState,
-    background: @Composable RowScope.() -> Unit,
-    dismissContent: @Composable RowScope.() -> Unit,
+    backgroundContent: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     directions: Set<DismissDirection> = setOf(EndToStart, StartToEnd),
+    content: @Composable RowScope.() -> Unit,
 ) {
-
     // b/278692145 Remove this once deprecated methods without density are removed
     val density = LocalDensity.current
     SideEffect {
@@ -369,34 +369,20 @@ fun SwipeDismiss(
             }
     ) {
         Row(
-            content = background,
+            content = backgroundContent,
             modifier = Modifier.matchParentSize()
         )
         Row(
-            content = dismissContent,
+            content = content,
             modifier = Modifier.offset { IntOffset(state.requireOffset().roundToInt(), 0) }
         )
     }
 }
 
-/** Contains default values for [SwipeToDismiss] and [DismissState]. */
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "Use SwipeDismissDefaults instead."
-)
+/** Contains default values for [SwipeToDismissBox] and [DismissState]. */
 @ExperimentalMaterial3Api
-object SwipeToDismissDefaults {
+object SwipeToDismissBoxDefaults {
     /** Default positional threshold of 56.dp for [DismissState]. */
-    val fixedPositionalThreshold: (totalDistance: Float) -> Float
-        @Composable get() = with(LocalDensity.current) {
-            { 56.dp.toPx() }
-        }
-}
-
-/** Contains default values for [SwipeDismiss] and [DismissState]. */
-object SwipeDismissDefaults {
-    /** Default positional threshold of 56.dp for [DismissState]. */
-    @Suppress("PrimitiveInLambda")
     val fixedPositionalThreshold: (totalDistance: Float) -> Float
         @Composable get() = with(LocalDensity.current) {
             { 56.dp.toPx() }
