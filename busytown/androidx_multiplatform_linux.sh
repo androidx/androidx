@@ -15,6 +15,6 @@ export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
 # run build in a sandbox
 ../development/sandbox/run-without-network.sh impl/build.sh buildOnServer \
-    allTests \
+    allHostTests \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false
