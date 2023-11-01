@@ -91,6 +91,7 @@ internal fun FocusTargetNode.customFocusSearch(
  *
  * @param focusDirection The requested direction to move focus.
  * @param layoutDirection Whether the layout is RTL or LTR.
+ * @param previouslyFocusedRect The bounds of the previously focused item.
  * @param onFound This lambda is invoked if focus search finds the next focus node.
  * @return if no focus node is found, we return false. If we receive a cancel, we return null
  * otherwise we return the result of [onFound].
@@ -99,16 +100,19 @@ internal fun FocusTargetNode.customFocusSearch(
 internal fun FocusTargetNode.focusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection,
+    previouslyFocusedRect: Rect?,
     onFound: (FocusTargetNode) -> Boolean
-): Boolean {
+): Boolean? {
     return when (focusDirection) {
         Next, Previous -> oneDimensionalFocusSearch(focusDirection, onFound)
-        Left, Right, Up, Down -> twoDimensionalFocusSearch(focusDirection, onFound) ?: false
+        Left, Right, Up, Down ->
+            twoDimensionalFocusSearch(focusDirection, previouslyFocusedRect, onFound)
         @OptIn(ExperimentalComposeUiApi::class)
         Enter -> {
             // we search among the children of the active item.
             val direction = when (layoutDirection) { Rtl -> Left; Ltr -> Right }
-            findActiveFocusNode()?.twoDimensionalFocusSearch(direction, onFound) ?: false
+            findActiveFocusNode()
+                ?.twoDimensionalFocusSearch(direction, previouslyFocusedRect, onFound)
         }
         @OptIn(ExperimentalComposeUiApi::class)
         Exit -> findActiveFocusNode()?.findNonDeactivatedParent().let {

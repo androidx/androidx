@@ -81,7 +81,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -96,6 +98,11 @@ class ClickableTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    private val InstanceOf = Correspondence.from<Any, KClass<*>>(
+        { obj, clazz -> clazz?.isInstance(obj) ?: false },
+        "is an instance of"
+    )
 
     @Before
     fun before() {
@@ -1054,22 +1061,19 @@ class ClickableTest {
         val focusRequester = FocusRequester()
         lateinit var focusManager: FocusManager
         lateinit var inputModeManager: InputModeManager
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current
-                Box {
-                    BasicText(
-                        "ClickableText",
-                        modifier = Modifier
-                            .testTag("myClickable")
-                            .focusRequester(focusRequester)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
-                    )
-                }
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .clickable(interactionSource = interactionSource, indication = null) {}
+                )
+            }
         }
         rule.runOnIdle {
             @OptIn(ExperimentalComposeUiApi::class)
@@ -1092,8 +1096,9 @@ class ClickableTest {
 
         // Keyboard mode, so we should now be focused and see an interaction
         rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions)
+                .comparingElementsUsing(InstanceOf)
+                .containsExactly(FocusInteraction.Focus::class)
         }
 
         rule.runOnIdle {
@@ -1101,12 +1106,12 @@ class ClickableTest {
         }
 
         rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
-            assertThat(interactions[1])
-                .isInstanceOf(FocusInteraction.Unfocus::class.java)
-            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
-                .isEqualTo(interactions[0])
+            // TODO(b/308811852): Simplify the other assertions in FocusableTest, ClickableTest and
+            //  CombinedClickable by using InstanceOf (like we do here).
+            assertThat(interactions)
+                .comparingElementsUsing(InstanceOf)
+                .containsExactly(FocusInteraction.Focus::class, FocusInteraction.Unfocus::class)
+                .inOrder()
         }
     }
 

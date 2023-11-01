@@ -17,6 +17,10 @@
 package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldBuffer
@@ -44,6 +48,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
@@ -95,14 +100,14 @@ internal class BasicTextField2ImmIntegrationTest {
     @Test
     fun stopsBeingTextEditor_whenFocusLost() {
         val state = TextFieldState()
-        var focusManager: FocusManager? = null
+        lateinit var focusManager: FocusManager
         inputMethodInterceptor.setTextFieldTestContent {
             focusManager = LocalFocusManager.current
             BasicTextField2(state, Modifier.testTag(Tag))
         }
         requestFocus(Tag)
         rule.runOnIdle {
-            focusManager!!.clearFocus()
+            focusManager.clearFocus()
         }
         inputMethodInterceptor.assertNoSessionActive()
     }
@@ -215,6 +220,7 @@ internal class BasicTextField2ImmIntegrationTest {
 
             commitText("hello", 1)
 
+            @Suppress("SpellCheckingInspection")
             assertThat(state.text.toString()).isEqualTo("helloworld")
         }
 
@@ -408,6 +414,12 @@ internal fun InputMethodInterceptor.setTextFieldTestContent(
         override val isWindowFocused = true
     }
     this.setContent {
-        CompositionLocalProvider(LocalWindowInfo provides windowInfo, content)
+        CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+            Row {
+                // Extra focusable that takes initial focus when focus is cleared.
+                Box(Modifier.size(10.dp).focusable())
+                Box { content() }
+            }
+        }
     }
 }

@@ -37,13 +37,13 @@ class ClearFocusExitTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val focusRequester = FocusRequester()
-    var clearTriggered = false
-    lateinit var focusState: FocusState
-    lateinit var focusManager: FocusManager
+    private val focusRequester = FocusRequester()
+    private var clearTriggered = false
+    private lateinit var focusState: FocusState
+    private lateinit var focusManager: FocusManager
 
     @Test
-    fun clearFocus_doesNotTriggersExit() {
+    fun clearFocus_doesNotTriggerExit() {
         // Arrange.
         rule.setFocusableContent {
             focusManager = LocalFocusManager.current

@@ -97,7 +97,7 @@ class FocusableTest {
 
     @Test
     fun focusable_defaultSemantics() {
-        rule.setContent {
+        rule.setFocusableContent {
             Box {
                 BasicText(
                     "focusableText",
@@ -115,7 +115,7 @@ class FocusableTest {
 
     @Test
     fun focusable_disabledSemantics() {
-        rule.setContent {
+        rule.setFocusableContent {
             Box {
                 BasicText(
                     "focusableText",
@@ -133,7 +133,7 @@ class FocusableTest {
     @Test
     fun focusable_focusAcquire() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
-        rule.setContent {
+        rule.setFocusableContent {
             Box {
                 BasicText(
                     "focusableText",
@@ -176,7 +176,7 @@ class FocusableTest {
 
         lateinit var scope: CoroutineScope
 
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             Box {
                 BasicText(
@@ -236,7 +236,7 @@ class FocusableTest {
 
         lateinit var scope: CoroutineScope
 
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             Box {
                 if (emitFocusableText) {
@@ -284,7 +284,6 @@ class FocusableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun focusable_pins_whenItIsFocused() {
         // Arrange.
@@ -296,7 +295,7 @@ class FocusableTest {
                 return PinnedHandle {}
             }
         }
-        rule.setContent {
+        rule.setFocusableContent {
             CompositionLocalProvider(LocalPinnableContainer provides pinnableContainer) {
                 Box(
                     Modifier
@@ -318,7 +317,6 @@ class FocusableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun focusable_unpins_whenItIsUnfocused() {
         // Arrange.
@@ -330,7 +328,7 @@ class FocusableTest {
                 return PinnedHandle { onUnpinInvoked = true }
             }
         }
-        rule.setContent {
+        rule.setFocusableContent {
             CompositionLocalProvider(LocalPinnableContainer provides pinnableContainer) {
                 Box(
                     Modifier
@@ -386,7 +384,7 @@ class FocusableTest {
         }
         val focusRequester = FocusRequester()
 
-        rule.setContent {
+        rule.setFocusableContent {
             with(rule.density) {
                 Box(
                     Modifier
@@ -422,7 +420,7 @@ class FocusableTest {
         lateinit var state: LazyListState
         lateinit var coroutineScope: CoroutineScope
         var items by mutableStateOf((1..20).toList())
-        rule.setContent {
+        rule.setFocusableContent {
             state = rememberLazyListState()
             coroutineScope = rememberCoroutineScope()
             LazyRow(
@@ -457,7 +455,7 @@ class FocusableTest {
         // Arrange.
         var hasFocus = false
         var itemVisible by mutableStateOf(true)
-        rule.setContent {
+        rule.setFocusableContent {
             SubcomposeLayout(
                 modifier = Modifier
                     .requiredSize(100.dp)
@@ -490,7 +488,6 @@ class FocusableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun focusable_updatePinnableContainer_staysPinned() {
         // Arrange.
@@ -510,7 +507,7 @@ class FocusableTest {
             }
         }
         var pinnableContainer by mutableStateOf<PinnableContainer>(pinnableContainer1)
-        rule.setContent {
+        rule.setFocusableContent {
             CompositionLocalProvider(LocalPinnableContainer provides pinnableContainer) {
                 Box(
                     Modifier
@@ -544,7 +541,7 @@ class FocusableTest {
         val focusRequester = FocusRequester()
         lateinit var state: FocusState
         var key by mutableStateOf(0)
-        rule.setContent {
+        rule.setFocusableContent {
             ReusableContent(key) {
                 BasicText(
                     "focusableText",
@@ -594,7 +591,7 @@ class FocusableTest {
             )
         }
 
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             if (moveContent) {
                 Box(Modifier.size(5.dp)) {

@@ -84,13 +84,22 @@ internal class FocusTargetNode :
             // Clear focus from the current FocusTarget.
             // This currently clears focus from the entire hierarchy, but we can change the
             // implementation so that focus is sent to the immediate focus parent.
-            Active, Captured -> requireOwner().focusOwner.clearFocus(force = true)
-
-            // If an ActiveParent is deactivated, the entire subtree containing focus is
-            // deactivated, which means the Active node will also receive an onReset() call.
-            // This triggers a clearFocus call, which will notify all the focus event nodes
-            // associated with this FocusTargetNode.
-            ActiveParent, Inactive -> {}
+            Active, Captured -> {
+                requireOwner().focusOwner.clearFocus(
+                    force = true,
+                    refreshFocusEvents = true,
+                    clearOwnerFocus = false
+                )
+                // We don't clear the owner's focus yet, because this could trigger an initial
+                // focus scenario after the focus is cleared. Instead, we schedule invalidation
+                // after onApplyChanges. The FocusInvalidationManager contains the invalidation
+                // logic and calls clearFocus() on the owner after all the nodes in the hierarchy
+                // are invalidated.
+                invalidateFocusTarget()
+            }
+            // This node might be reused, so reset the state to Inactive.
+            ActiveParent -> requireTransactionManager().withNewTransaction { focusState = Inactive }
+            Inactive -> {}
         }
         // This node might be reused, so we reset its state.
         committedFocusState = null

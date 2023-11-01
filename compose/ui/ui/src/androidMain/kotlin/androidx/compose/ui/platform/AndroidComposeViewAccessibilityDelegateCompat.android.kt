@@ -355,8 +355,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     internal var idToBeforeMap = HashMap<Int, Int>()
     internal var idToAfterMap = HashMap<Int, Int>()
     internal val ExtraDataTestTraversalBeforeVal =
+        @Suppress("SpellCheckingInspection")
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
     internal val ExtraDataTestTraversalAfterVal =
+        @Suppress("SpellCheckingInspection")
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL"
 
     private val urlSpanCache = URLSpanCache()
@@ -1847,7 +1849,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
             AccessibilityNodeInfoCompat.ACTION_CLEAR_FOCUS -> {
                 return if (node.unmergedConfig.getOrNull(SemanticsProperties.Focused) == true) {
-                    view.focusOwner.clearFocus()
+                    view.focusOwner.clearFocus(
+                        force = false,
+                        refreshFocusEvents = true,
+                        clearOwnerFocus = true
+                    )
                     true
                 } else {
                     false
@@ -2219,7 +2225,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * recent layout changes and sends events to the accessibility and content capture framework in
      * batches separated by a 100ms delay.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     internal suspend fun boundsUpdatesEventLoop() {
         try {
             val subtreeChangedSemanticsNodesIds = ArraySet<Int>()

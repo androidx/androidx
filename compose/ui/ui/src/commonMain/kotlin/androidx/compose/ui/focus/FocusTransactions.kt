@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.Nodes.FocusTarget
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireOwner
 
 /**
  * Request focus for this node.
@@ -39,12 +40,14 @@ import androidx.compose.ui.node.observeReads
  * [FocusNode][FocusTargetNode]'s parent [FocusNode][FocusTargetNode].
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetNode.requestFocus(): Boolean {
+internal fun FocusTargetNode.requestFocus(): Boolean = requestFocus(Enter) ?: false
+
+internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
     return requireTransactionManager().withNewTransaction {
-        when (performCustomRequestFocus(Enter)) {
+        when (performCustomRequestFocus(focusDirection)) {
             None -> performRequestFocus()
             Redirected -> true
-            Cancelled, RedirectCancelled -> false
+            Cancelled, RedirectCancelled -> null
         }
     }
 }
@@ -244,7 +247,7 @@ private fun FocusTargetNode.requestFocusForChild(
 }
 
 private fun FocusTargetNode.requestFocusForOwner(): Boolean {
-    return coordinator?.layoutNode?.owner?.requestFocus() ?: error("Owner not initialized.")
+    return requireOwner().focusOwner.requestFocusForOwner(null, null)
 }
 
 private fun FocusTargetNode.requireActiveChild(): FocusTargetNode {
