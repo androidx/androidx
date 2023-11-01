@@ -1157,6 +1157,18 @@ public class GenericDocument {
         }
 
         /**
+         * Creates a new {@link GenericDocument.Builder} from the given GenericDocument.
+         *
+         * <p>The GenericDocument is deep copied, i.e. changes to the new GenericDocument
+         * returned by this function will NOT affect the original GenericDocument.
+         * <!--@exportToFramework:hide-->
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull GenericDocument document) {
+            this(BundleUtil.deepCopy(document.getBundle()));
+        }
+
+        /**
          * Sets the app-defined namespace this document resides in, changing the value provided
          * in the constructor. No special values are reserved or understood by the infrastructure.
          *
