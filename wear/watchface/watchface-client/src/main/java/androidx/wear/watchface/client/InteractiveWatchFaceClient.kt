@@ -564,8 +564,9 @@ internal constructor(
         }
     }
 
-    override val previewReferenceInstant: Instant
-        get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
+    override val previewReferenceInstant: Instant by lazy {
+        Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)
+    }
 
     @Suppress("Deprecation")
     @Deprecated("OverlayStyle will be removed in a future release.")
