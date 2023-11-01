@@ -29,6 +29,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ConnectionsFragment : Fragment() {
 
     internal companion object {
@@ -45,7 +48,8 @@ class ConnectionsFragment : Fragment() {
         internal const val MANUAL_DISCONNECT = "MANUAL_DISCONNECT"
     }
 
-    private lateinit var bluetoothLe: BluetoothLe
+    @Inject
+    lateinit var bluetoothLe: BluetoothLe
 
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
@@ -95,8 +99,6 @@ class ConnectionsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bluetoothLe = BluetoothLe(requireContext())
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 

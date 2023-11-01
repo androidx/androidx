@@ -34,19 +34,23 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ScannerFragment : Fragment() {
 
     internal companion object {
         private const val TAG = "ScannerFragment"
     }
 
-    private lateinit var bluetoothLe: BluetoothLe
+    @Inject
+    lateinit var bluetoothLe: BluetoothLe
 
     private val scanScope = CoroutineScope(Dispatchers.Main + Job())
     private var scanJob: Job? = null
@@ -83,8 +87,6 @@ class ScannerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bluetoothLe = BluetoothLe(requireContext())
 
         val scannerAdapter = ScannerAdapter(::onClickScanResult)
         binding.recyclerViewScanResults.adapter = scannerAdapter
