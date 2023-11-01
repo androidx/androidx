@@ -40,11 +40,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.SessionPlayer.TrackInfo;
-import androidx.media2.session.MediaController;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
@@ -61,8 +56,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaControlView} with a {@link SessionPlayer} or a {@link MediaController}.
+ * Test {@link MediaControlView} with a {@link androidx.media2.common.SessionPlayer} or a {@link
+ * androidx.media2.session.MediaController}.
  */
+@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 @LargeTest
 public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
@@ -77,7 +74,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     private String mPlayerType;
     private MediaControlViewTestActivity mActivity;
     private MediaControlView mMediaControlView;
-    private MediaItem mFileSchemeMediaItem;
+    private androidx.media2.common.MediaItem mFileSchemeMediaItem;
 
     @SuppressWarnings("deprecation")
     @Rule
@@ -120,16 +117,25 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     public void setPlayerOrController_PausedState() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForPausedState.countDown();
-                } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
-                    latchForPlayingState.countDown();
-                }
-            }
-        }, mFileSchemeMediaItem, null);
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PAUSED) {
+                                    latchForPausedState.countDown();
+                                } else if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PLAYING) {
+                                    latchForPlayingState.countDown();
+                                }
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
@@ -148,25 +154,39 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         final CountDownLatch latchForPreparedState = new CountDownLatch(1);
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            private int mState = SessionPlayer.PLAYER_STATE_IDLE;
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            private int mState =
+                                    androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (mState == SessionPlayer.PLAYER_STATE_IDLE
-                        && state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForPreparedState.countDown();
-                }
-                if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
-                    latchForPlayingState.countDown();
-                }
-                if (mState == SessionPlayer.PLAYER_STATE_PLAYING
-                        && state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForPausedState.countDown();
-                }
-                mState = state;
-            }
-        }, mFileSchemeMediaItem, null);
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (mState == androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE
+                                        && state
+                                                == androidx.media2.common.SessionPlayer
+                                                        .PLAYER_STATE_PAUSED) {
+                                    latchForPreparedState.countDown();
+                                }
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PLAYING) {
+                                    latchForPlayingState.countDown();
+                                }
+                                if (mState
+                                                == androidx.media2.common.SessionPlayer
+                                                        .PLAYER_STATE_PLAYING
+                                        && state
+                                                == androidx.media2.common.SessionPlayer
+                                                        .PLAYER_STATE_PAUSED) {
+                                    latchForPausedState.countDown();
+                                }
+                                mState = state;
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         assertTrue(latchForPreparedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         playerWrapper.play();
         assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -234,21 +254,29 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     public void ffwdButtonClick() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            public void onSeekCompleted(@NonNull PlayerWrapper player, long position) {
-                if (position >= FFWD_MS) {
-                    latchForFfwd.countDown();
-                }
-            }
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            @Override
+                            public void onSeekCompleted(
+                                    @NonNull PlayerWrapper player, long position) {
+                                if (position >= FFWD_MS) {
+                                    latchForFfwd.countDown();
+                                }
+                            }
 
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForPausedState.countDown();
-                }
-            }
-        }, mFileSchemeMediaItem, null);
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PAUSED) {
+                                    latchForPausedState.countDown();
+                                }
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.ffwd), isCompletelyDisplayed())).perform(click());
@@ -259,37 +287,47 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     public void rewButtonClick() throws Throwable {
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final CountDownLatch latchForRew = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            long mExpectedPosition = FFWD_MS;
-            final long mDelta = 1000L;
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            long mExpectedPosition = FFWD_MS;
+                            final long mDelta = 1000L;
 
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    mExpectedPosition = FFWD_MS;
-                    player.seekTo(mExpectedPosition);
-                }
-            }
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PAUSED) {
+                                    mExpectedPosition = FFWD_MS;
+                                    player.seekTo(mExpectedPosition);
+                                }
+                            }
 
-            @Override
-            public void onSeekCompleted(@NonNull PlayerWrapper player, long position) {
-                // Ignore the initial seek. Internal MediaPlayer behavior can be changed.
-                if (position == 0 && mExpectedPosition == FFWD_MS) {
-                    return;
-                }
-                assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
-                if (mExpectedPosition == FFWD_MS) {
-                    mExpectedPosition = position - REW_MS;
-                    latchForFfwd.countDown();
-                } else {
-                    latchForRew.countDown();
-                }
-            }
+                            @Override
+                            public void onSeekCompleted(
+                                    @NonNull PlayerWrapper player, long position) {
+                                // Ignore the initial seek. Internal MediaPlayer behavior can be
+                                // changed.
+                                if (position == 0 && mExpectedPosition == FFWD_MS) {
+                                    return;
+                                }
+                                assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
+                                if (mExpectedPosition == FFWD_MS) {
+                                    mExpectedPosition = position - REW_MS;
+                                    latchForFfwd.countDown();
+                                } else {
+                                    latchForRew.countDown();
+                                }
+                            }
 
-            private boolean equalsSeekPosition(long expected, long actual, long delta) {
-                return (actual < expected + delta) && (actual > expected - delta);
-            }
-        }, mFileSchemeMediaItem, null);
+                            private boolean equalsSeekPosition(
+                                    long expected, long actual, long delta) {
+                                return (actual < expected + delta) && (actual > expected - delta);
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.rew), isCompletelyDisplayed())).perform(click());
@@ -299,7 +337,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void prevNextButtonClick() throws Throwable {
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
-        final List<MediaItem> playlist = createTestPlaylist();
+        final List<androidx.media2.common.MediaItem> playlist = createTestPlaylist();
         final PlayerWrapper playerWrapper = createPlayerWrapper(callback, null, playlist);
         setPlayerWrapper(playerWrapper);
 
@@ -338,26 +376,37 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         final String title = "BigBuckBunny";
         final CountDownLatch latch = new CountDownLatch(1);
 
-        MediaMetadata existingMetadata = mFileSchemeMediaItem.getMetadata();
-        MediaMetadata.Builder metadataBuilder = existingMetadata == null
-                ? new MediaMetadata.Builder()
-                : new MediaMetadata.Builder(existingMetadata);
-        MediaMetadata metadata = metadataBuilder
-                .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-                .build();
+        androidx.media2.common.MediaMetadata existingMetadata = mFileSchemeMediaItem.getMetadata();
+        androidx.media2.common.MediaMetadata.Builder metadataBuilder =
+                existingMetadata == null
+                        ? new androidx.media2.common.MediaMetadata.Builder()
+                        : new androidx.media2.common.MediaMetadata.Builder(existingMetadata);
+        androidx.media2.common.MediaMetadata metadata =
+                metadataBuilder
+                        .putString(androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE, title)
+                        .build();
         mFileSchemeMediaItem.setMetadata(metadata);
 
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            public void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
-                    @Nullable MediaItem item) {
-                if (item != null) {
-                    assertNotNull(item.getMetadata());
-                    assertEquals(title, metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
-                    latch.countDown();
-                }
-            }
-        }, mFileSchemeMediaItem, null);
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            @Override
+                            public void onCurrentMediaItemChanged(
+                                    @NonNull PlayerWrapper player,
+                                    @Nullable androidx.media2.common.MediaItem item) {
+                                if (item != null) {
+                                    assertNotNull(item.getMetadata());
+                                    assertEquals(
+                                            title,
+                                            metadata.getString(
+                                                    androidx.media2.common.MediaMetadata
+                                                            .METADATA_KEY_TITLE));
+                                    latch.countDown();
+                                }
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.title_text)).check(matches(withText(title)));
@@ -366,20 +415,29 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void subtitleButtonVisibilityForMusicFile() throws Throwable {
         Uri uri = getResourceUri(androidx.media2.widget.test.R.raw.test_music);
-        final MediaItem uriMediaItem = createTestMediaItem(uri);
+        final androidx.media2.common.MediaItem uriMediaItem = createTestMediaItem(uri);
 
         final CountDownLatch latch = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
-                assertNotNull(tracks);
-                if (tracks.isEmpty()) {
-                    // This callback can be called before tracks are available after setMediaItem
-                    return;
-                }
-                latch.countDown();
-            }
-        }, uriMediaItem, null);
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            @Override
+                            void onTracksChanged(
+                                    @NonNull PlayerWrapper player,
+                                    @NonNull
+                                            List<androidx.media2.common.SessionPlayer.TrackInfo>
+                                                    tracks) {
+                                assertNotNull(tracks);
+                                if (tracks.isEmpty()) {
+                                    // This callback can be called before tracks are available after
+                                    // setandroidx.media2.common.MediaItem
+                                    return;
+                                }
+                                latch.countDown();
+                            }
+                        },
+                        uriMediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.subtitle)).check(matches(not(isDisplayed())));
@@ -395,52 +453,73 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         final String subtitleTrack1Text = mContext.getResources().getString(
                 R.string.MediaControlView_subtitle_track_number_text, 1);
 
-        final MediaItem mediaItem = createTestMediaItem(uri);
+        final androidx.media2.common.MediaItem mediaItem = createTestMediaItem(uri);
 
         final CountDownLatch latchForReady = new CountDownLatch(1);
         final CountDownLatch latchForTrackUpdate = new CountDownLatch(1);
         final CountDownLatch latchForSubtitleSelect = new CountDownLatch(1);
         final CountDownLatch latchForSubtitleDeselect = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            private TrackInfo mFirstSubtitleTrack;
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            private androidx.media2.common.SessionPlayer.TrackInfo
+                                    mFirstSubtitleTrack;
 
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForReady.countDown();
-                }
-            }
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PAUSED) {
+                                    latchForReady.countDown();
+                                }
+                            }
 
-            @Override
-            void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
-                if (mFirstSubtitleTrack != null) {
-                    return;
-                }
-                assertNotNull(tracks);
-                for (int i = 0; i < tracks.size(); i++) {
-                    TrackInfo trackInfo = tracks.get(i);
-                    if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
-                        mFirstSubtitleTrack = trackInfo;
-                        latchForTrackUpdate.countDown();
-                        break;
-                    }
-                }
-            }
+                            @Override
+                            void onTracksChanged(
+                                    @NonNull PlayerWrapper player,
+                                    @NonNull
+                                            List<androidx.media2.common.SessionPlayer.TrackInfo>
+                                                    tracks) {
+                                if (mFirstSubtitleTrack != null) {
+                                    return;
+                                }
+                                assertNotNull(tracks);
+                                for (int i = 0; i < tracks.size(); i++) {
+                                    androidx.media2.common.SessionPlayer.TrackInfo trackInfo =
+                                            tracks.get(i);
+                                    if (trackInfo.getTrackType()
+                                            == androidx.media2.common.SessionPlayer.TrackInfo
+                                                    .MEDIA_TRACK_TYPE_SUBTITLE) {
+                                        mFirstSubtitleTrack = trackInfo;
+                                        latchForTrackUpdate.countDown();
+                                        break;
+                                    }
+                                }
+                            }
 
-            @Override
-            public void onTrackSelected(@NonNull PlayerWrapper player,
-                    @NonNull TrackInfo trackInfo) {
-                assertEquals(mFirstSubtitleTrack, trackInfo);
-                latchForSubtitleSelect.countDown();
-            }
+                            @Override
+                            public void onTrackSelected(
+                                    @NonNull PlayerWrapper player,
+                                    @NonNull
+                                            androidx.media2.common.SessionPlayer.TrackInfo
+                                                    trackInfo) {
+                                assertEquals(mFirstSubtitleTrack, trackInfo);
+                                latchForSubtitleSelect.countDown();
+                            }
 
-            @Override
-            public void onTrackDeselected(@NonNull PlayerWrapper player,
-                    @NonNull TrackInfo trackInfo) {
-                assertEquals(mFirstSubtitleTrack, trackInfo);
-                latchForSubtitleDeselect.countDown();
-            }
-        }, mediaItem, null);
+                            @Override
+                            public void onTrackDeselected(
+                                    @NonNull PlayerWrapper player,
+                                    @NonNull
+                                            androidx.media2.common.SessionPlayer.TrackInfo
+                                                    trackInfo) {
+                                assertEquals(mFirstSubtitleTrack, trackInfo);
+                                latchForSubtitleDeselect.countDown();
+                            }
+                        },
+                        mediaItem,
+                        null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForReady.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         // MediaPlayer needs a surface to be set in order to produce subtitle tracks
@@ -466,16 +545,25 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     public void attachViewAndPlayAfterSetPlayerOrController() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
-            @Override
-            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                    latchForPausedState.countDown();
-                } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
-                    latchForPlayingState.countDown();
-                }
-            }
-        }, mFileSchemeMediaItem, null);
+        final PlayerWrapper playerWrapper =
+                createPlayerWrapper(
+                        new PlayerWrapper.PlayerCallback() {
+                            @Override
+                            public void onPlayerStateChanged(
+                                    @NonNull PlayerWrapper player, int state) {
+                                if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PAUSED) {
+                                    latchForPausedState.countDown();
+                                } else if (state
+                                        == androidx.media2.common.SessionPlayer
+                                                .PLAYER_STATE_PLAYING) {
+                                    latchForPlayingState.countDown();
+                                }
+                            }
+                        },
+                        mFileSchemeMediaItem,
+                        null);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -514,8 +602,10 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         });
     }
 
-    private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
+    private PlayerWrapper createPlayerWrapper(
+            @NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable androidx.media2.common.MediaItem item,
+            @Nullable List<androidx.media2.common.MediaItem> playlist) {
         return createPlayerWrapperOfType(callback, item, playlist, mPlayerType);
     }
 }

@@ -46,11 +46,15 @@ import java.util.List;
 
 /**
  * Defines a command that a {@link MediaController} can send to a {@link MediaSession}.
- * <p>
- * If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command.
- * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
- * {@link #getCustomAction()} shouldn't be {@code null}.
+ *
+ * <p>If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command. If
+ * {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and {@link
+ * #getCustomAction()} shouldn't be {@code null}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class SessionCommand implements VersionedParcelable {
     /**

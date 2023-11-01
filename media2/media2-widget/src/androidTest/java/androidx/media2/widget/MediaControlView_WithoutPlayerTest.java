@@ -43,9 +43,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaControlView} without any {@link androidx.media2.common.SessionPlayer} or
- * {@link androidx.media2.session.MediaController}.
+ * Test {@link MediaControlView} without any {@link androidx.media2.common.SessionPlayer} or {@link
+ * androidx.media2.session.MediaController}.
  */
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {

@@ -27,24 +27,26 @@ import java.util.Arrays;
 import java.util.concurrent.Executor;
 
 /**
- * Class encapsulating subtitle data, as received through the
- * {@link SessionPlayer.PlayerCallback#onSubtitleData} interface.
- * The subtitle data includes:
+ * Class encapsulating subtitle data, as received through the {@link
+ * SessionPlayer.PlayerCallback#onSubtitleData} interface. The subtitle data includes:
+ *
  * <ul>
- * <li> the start time (in microseconds) of the data</li>
- * <li> the duration (in microseconds) of the data</li>
- * <li> the actual data.</li>
+ *   <li>the start time (in microseconds) of the data
+ *   <li>the duration (in microseconds) of the data
+ *   <li>the actual data.
  * </ul>
- * The data is stored in a byte-array, and is encoded in one of the supported in-band
- * subtitle formats. The subtitle encoding is determined by the MIME type of the
- * {@link SessionPlayer.TrackInfo} of the subtitle track, one of
- * {@link android.media.MediaFormat#MIMETYPE_TEXT_CEA_608} or
- * {@link android.media.MediaFormat#MIMETYPE_TEXT_CEA_708}.
+ *
+ * The data is stored in a byte-array, and is encoded in one of the supported in-band subtitle
+ * formats. The subtitle encoding is determined by the MIME type of the {@link
+ * SessionPlayer.TrackInfo} of the subtitle track, one of {@link
+ * android.media.MediaFormat#MIMETYPE_TEXT_CEA_608} or {@link
+ * android.media.MediaFormat#MIMETYPE_TEXT_CEA_708}.
+ *
+ * <p>Here is an example of iterating over the tracks of a {@link SessionPlayer}, and checking which
+ * encoding is used for the subtitle tracks:
  *
  * <p>
- * Here is an example of iterating over the tracks of a {@link SessionPlayer}, and checking which
- * encoding is used for the subtitle tracks:
- * <p>
+ *
  * <pre class="prettyprint">
  * // Initialize instance of player that extends SessionPlayer
  * SessionPlayerExtension player = new SessionPlayerExtension();
@@ -61,11 +63,16 @@ import java.util.concurrent.Executor;
  *     }
  * }
  * </pre>
+ *
  * <p>
+ *
  * @see SessionPlayer#registerPlayerCallback(Executor, SessionPlayer.PlayerCallback)
  * @see SessionPlayer.PlayerCallback#onSubtitleData(SessionPlayer, MediaItem,
- *      SessionPlayer.TrackInfo, SubtitleData)
+ *     SessionPlayer.TrackInfo, SubtitleData)
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 @VersionedParcelize
 public final class SubtitleData implements VersionedParcelable {
     private static final String TAG = "SubtitleData";
