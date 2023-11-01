@@ -43,90 +43,91 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-internal fun rowColumnMeasurePolicy(
-    orientation: LayoutOrientation,
-    arrangement: (Int, IntArray, LayoutDirection, Density, IntArray) -> Unit,
-    arrangementSpacing: Dp,
-    crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment
-): MeasurePolicy {
-    return object : MeasurePolicy {
-        override fun MeasureScope.measure(
-            measurables: List<Measurable>,
-            constraints: Constraints
-        ): MeasureResult {
-            val placeables = arrayOfNulls<Placeable?>(measurables.size)
-            val rowColumnMeasureHelper =
-                RowColumnMeasurementHelper(
-                    orientation,
-                    arrangement,
-                    arrangementSpacing,
-                    crossAxisSize,
-                    crossAxisAlignment,
-                    measurables,
-                    placeables
-                )
+internal data class RowColumnMeasurePolicy(
+    private val orientation: LayoutOrientation,
+    private val horizontalArrangement: Arrangement.Horizontal?,
+    private val verticalArrangement: Arrangement.Vertical?,
+    private val arrangementSpacing: Dp,
+    private val crossAxisSize: SizeMode,
+    private val crossAxisAlignment: CrossAxisAlignment
+) : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeables = arrayOfNulls<Placeable?>(measurables.size)
+        val rowColumnMeasureHelper =
+            RowColumnMeasurementHelper(
+                orientation,
+                horizontalArrangement,
+                verticalArrangement,
+                arrangementSpacing,
+                crossAxisSize,
+                crossAxisAlignment,
+                measurables,
+                placeables
+            )
 
-            val measureResult = rowColumnMeasureHelper
-                .measureWithoutPlacing(this,
-                    constraints, 0, measurables.size
-                )
+        val measureResult = rowColumnMeasureHelper
+            .measureWithoutPlacing(
+                this,
+                constraints, 0, measurables.size
+            )
 
-            val layoutWidth: Int
-            val layoutHeight: Int
-            if (orientation == LayoutOrientation.Horizontal) {
-                layoutWidth = measureResult.mainAxisSize
-                layoutHeight = measureResult.crossAxisSize
-            } else {
-                layoutWidth = measureResult.crossAxisSize
-                layoutHeight = measureResult.mainAxisSize
-            }
-            return layout(layoutWidth, layoutHeight) {
-                rowColumnMeasureHelper.placeHelper(
-                    this,
-                    measureResult,
-                    0,
-                    layoutDirection
-                )
-            }
+        val layoutWidth: Int
+        val layoutHeight: Int
+        if (orientation == LayoutOrientation.Horizontal) {
+            layoutWidth = measureResult.mainAxisSize
+            layoutHeight = measureResult.crossAxisSize
+        } else {
+            layoutWidth = measureResult.crossAxisSize
+            layoutHeight = measureResult.mainAxisSize
         }
-
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = MinIntrinsicWidthMeasureBlock(orientation)(
-            measurables,
-            height,
-            arrangementSpacing.roundToPx()
-        )
-
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = MinIntrinsicHeightMeasureBlock(orientation)(
-            measurables,
-            width,
-            arrangementSpacing.roundToPx()
-        )
-
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = MaxIntrinsicWidthMeasureBlock(orientation)(
-            measurables,
-            height,
-            arrangementSpacing.roundToPx()
-        )
-
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = MaxIntrinsicHeightMeasureBlock(orientation)(
-            measurables,
-            width,
-            arrangementSpacing.roundToPx()
-        )
+        return layout(layoutWidth, layoutHeight) {
+            rowColumnMeasureHelper.placeHelper(
+                this,
+                measureResult,
+                0,
+                layoutDirection
+            )
+        }
     }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ) = MinIntrinsicWidthMeasureBlock(orientation)(
+        measurables,
+        height,
+        arrangementSpacing.roundToPx()
+    )
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ) = MinIntrinsicHeightMeasureBlock(orientation)(
+        measurables,
+        width,
+        arrangementSpacing.roundToPx()
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ) = MaxIntrinsicWidthMeasureBlock(orientation)(
+        measurables,
+        height,
+        arrangementSpacing.roundToPx()
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ) = MaxIntrinsicHeightMeasureBlock(orientation)(
+        measurables,
+        width,
+        arrangementSpacing.roundToPx()
+    )
 }
 
 /**
@@ -283,7 +284,7 @@ internal sealed class CrossAxisAlignment {
         }
     }
 
-    private class VerticalCrossAxisAlignment(
+    private data class VerticalCrossAxisAlignment(
         val vertical: Alignment.Vertical
     ) : CrossAxisAlignment() {
         override fun align(
@@ -296,7 +297,7 @@ internal sealed class CrossAxisAlignment {
         }
     }
 
-    private class HorizontalCrossAxisAlignment(
+    private data class HorizontalCrossAxisAlignment(
         val horizontal: Alignment.Horizontal
     ) : CrossAxisAlignment() {
         override fun align(
