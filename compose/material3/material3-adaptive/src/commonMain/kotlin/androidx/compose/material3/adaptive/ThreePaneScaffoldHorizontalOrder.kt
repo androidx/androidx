@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-class ThreePaneScaffoldHorizontalOrder(
+internal class ThreePaneScaffoldHorizontalOrder(
     val firstPane: ThreePaneScaffoldRole,
     val secondPane: ThreePaneScaffoldRole,
     val thirdPane: ThreePaneScaffoldRole

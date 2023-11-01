@@ -76,7 +76,7 @@ import kotlin.math.min
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun ThreePaneScaffold(
+internal fun ThreePaneScaffold(
     modifier: Modifier,
     scaffoldDirective: PaneScaffoldDirective,
     scaffoldValue: ThreePaneScaffoldValue,
@@ -777,7 +777,7 @@ private class ThreePaneScaffoldScopeImpl : ThreePaneScaffoldScope, PaneScaffoldS
  * [ThreePaneScaffoldValue].
  */
 @ExperimentalMaterial3AdaptiveApi
-object ThreePaneScaffoldDefaults {
+internal object ThreePaneScaffoldDefaults {
     /**
      * Denotes [ThreePaneScaffold] to use the list-detail pane-order to arrange its panes
      * horizontally, which allocates panes in the order of secondary, primary, and tertiary from
@@ -795,6 +795,7 @@ object ThreePaneScaffoldDefaults {
      * horizontally, which allocates panes in the order of primary, secondary, and tertiary from
      * start to end.
      */
+    // TODO(conradchen/sgibly): Consider moving this to the SupportingPaneScaffoldDefaults
     val SupportingPaneLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
         ThreePaneScaffoldRole.Primary,
         ThreePaneScaffoldRole.Secondary,
@@ -814,12 +815,12 @@ object ThreePaneScaffoldDefaults {
     val TertiaryPanePreferredWidth = 412.dp
 
     // TODO(conradchen): maybe remove this after addressing unspecified preferred width issue
-    internal val PrimaryPanePreferredWidth = 600.dp
+    val PrimaryPanePreferredWidth = 600.dp
 
     // TODO(conradchen): consider declaring a value class for priority
-    internal const val PrimaryPanePriority = 10
-    internal const val SecondaryPanePriority = 5
-    internal const val TertiaryPanePriority = 1
+    const val PrimaryPanePriority = 10
+    const val SecondaryPanePriority = 5
+    const val TertiaryPanePriority = 1
 
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies].
@@ -843,7 +844,7 @@ object ThreePaneScaffoldDefaults {
      * A default [SpringSpec] for the panes motion.
      */
     // TODO(conradchen): open this to public when we support motion customization
-    internal val PaneSpringSpec: SpringSpec<IntOffset> =
+    val PaneSpringSpec: SpringSpec<IntOffset> =
         spring(
             dampingRatio = 0.7f,
             stiffness = 600f,
@@ -855,7 +856,7 @@ object ThreePaneScaffoldDefaults {
     private val slideOutToLeft = slideOutHorizontally(PaneSpringSpec) { -it }
     private val slideOutToRight = slideOutHorizontally(PaneSpringSpec) { it }
 
-    internal val panesLeftMotion = ThreePaneMotion(
+    val panesLeftMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromLeft,
         slideOutToRight,
@@ -865,7 +866,7 @@ object ThreePaneScaffoldDefaults {
         slideOutToRight
     )
 
-    internal val panesRightMotion = ThreePaneMotion(
+    val panesRightMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromRight,
         slideOutToLeft,
@@ -876,7 +877,7 @@ object ThreePaneScaffoldDefaults {
     )
 
     // TODO(conradchen): figure out how to add delay and zOffset to spring animations
-    internal val replaceLeftPaneMotion = ThreePaneMotion(
+    val replaceLeftPaneMotion = ThreePaneMotion(
         PaneSpringSpec,
         slideInFromLeft,
         slideOutToLeft,
@@ -887,7 +888,7 @@ object ThreePaneScaffoldDefaults {
     )
 
     // TODO(conradchen): figure out how to add delay and zOffset to spring animations
-    internal val replaceRightPaneMotion = ThreePaneMotion(
+    val replaceRightPaneMotion = ThreePaneMotion(
         PaneSpringSpec,
         EnterTransition.None,
         ExitTransition.None,
