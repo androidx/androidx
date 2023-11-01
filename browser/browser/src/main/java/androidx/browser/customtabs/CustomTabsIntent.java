@@ -434,6 +434,146 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
 
     /**
+     * Extra that, if set, makes the Custom Tab Activity's width to be x pixels, the Custom Tab
+     * will behave as a side sheet. A minimum width will be enforced, thus the width will be
+     * clamped as such (based on the window size classes as defined by the Android documentation):
+     * <ul>
+     *     <li>Compact, window width <600dp - a side sheet will not be displayed.</li>
+     *     <li>Medium, window width >=600dp and <840 dp - between 50% and 100% of the window's
+     *     width.</li>
+     *     <li>Expanded, window width >=840dp - between 33% and 100% of the window's width.</li>
+     * </ul>
+     *
+     * <a
+     * href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes">Android
+     * Size Classes</a>
+     */
+    public static final String EXTRA_INITIAL_ACTIVITY_WIDTH_PX =
+            "androidx.browser.customtabs.extra.INITIAL_ACTIVITY_WIDTH_PX";
+
+    /** Extra that enables the maximization button on the side sheet Custom Tab toolbar. */
+    public static final String EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION =
+            "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION";
+
+    /**
+     * Extra that, if set, allows you to set a custom breakpoint for the Custom Tab -
+     * a value, x, for which if the screen's width is higher than x, the Custom Tab will behave as a
+     * side sheet (if {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX} is set), otherwise
+     * it will behave as a bottom sheet (if
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX} is set).
+     *
+     * If this Intent Extra is not set the browser implementation should set as default value
+     * 840dp. If x is set to <600dp the browser implementation should default it to 600dp.
+     */
+    public static final String EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP =
+            "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_BREAKPOINT_DP";
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ACTIVITY_SIDE_SHEET_POSITION_DEFAULT, ACTIVITY_SIDE_SHEET_POSITION_START,
+            ACTIVITY_SIDE_SHEET_POSITION_END})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActivitySideSheetPosition {}
+
+    /**
+     * Applies the default position for the Custom Tab Activity when it behaves as a
+     * side sheet. Same as {@link #ACTIVITY_SIDE_SHEET_POSITION_END}.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_POSITION_DEFAULT = 0;
+
+    /** Position the side sheet on the start side of the screen. */
+    public static final int ACTIVITY_SIDE_SHEET_POSITION_START = 1;
+
+    /** Position the side sheet on the end side of the screen. */
+    public static final int ACTIVITY_SIDE_SHEET_POSITION_END = 2;
+
+    /**
+     * Maximum value for the ACTIVITY_SIDE_SHEET_POSITION_* configuration options. For validation
+     * purposes only.
+     */
+    private static final int ACTIVITY_SIDE_SHEET_POSITION_MAX = 2;
+
+    /**
+     * Extra that specifies the position of the side sheet. By default it is set to
+     * {@link #ACTIVITY_SIDE_SHEET_POSITION_END}, which is on the right side in left-to-right
+     * layout.
+     */
+    public static final String EXTRA_ACTIVITY_SIDE_SHEET_POSITION =
+            "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_POSITION";
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT, ACTIVITY_SIDE_SHEET_DECORATION_TYPE_NONE,
+            ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW,
+            ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActivitySideSheetDecorationType {}
+    /**
+     * Side sheet's default decoration type. Same as
+     * {@link CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW}.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT = 0;
+    /**
+     * Side sheet with no decorations - the activity is not bordered by any shadow or divider line.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_NONE = 1;
+    /**
+     * Side sheet with shadow decoration - the activity is bordered by a shadow effect.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW = 2;
+    /**
+     * Side sheet with a divider line - the activity is bordered by a thin opaque line.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER = 3;
+
+    /**
+     * Maximum value for the ACTIVITY_SIDE_SHEET_DECORATION_TYPE_* configuration options. For
+     * validation purposes only.
+     */
+    private static final int ACTIVITY_SIDE_SHEET_DECORATION_TYPE_MAX = 3;
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT,
+            ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE,
+            ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActivitySideSheetRoundedCornersPosition {}
+
+    /**
+     * Side sheet's default rounded corner configuration. Same as
+     * {@link CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE}
+     */
+    public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT = 0;
+    /**
+     * Side sheet with no rounded corners.
+     */
+    public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE = 1;
+    /**
+     * Side sheet with the inner top corner rounded (if positioned on the right of the screen, this
+     * will be the top left corner)
+     */
+    public static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP = 2;
+
+    /**
+     * Maximum value for the ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_* configuration options.
+     * For validation purposes only.
+     */
+    private static final int ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_MAX = 2;
+
+    /**
+     * Extra that, if set, allows you to set how you want to distinguish the Partial Custom Tab
+     * side sheet from the rest of the display. Options include shadow, a divider line, or no
+     * decoration.
+     */
+    public static final String EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE =
+            "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_DECORATION_TYPE";
+
+    /**
+     *  Extra that, if set, allows you to choose which side sheet corners should be rounded, if any
+     *  at all. Options include top or none.
+     */
+    public static final String EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION =
+            "androidx.browser.customtabs.extra.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION";
+
+    /**
      * Extra that sets the toolbar's top corner radii in dp. This will only have
      * effect if the custom tab is behaving as a bottom sheet. Currently, this is capped at 16dp.
      */
@@ -1034,7 +1174,9 @@ public final class CustomTabsIntent {
 
         /**
          * Sets the Custom Tab Activity's initial height in pixels and the desired resize behavior.
-         * The Custom Tab will behave as a bottom sheet.
+         * The Custom Tab will behave as a bottom sheet if the screen's width is smaller than
+         * the breakpoint value set by
+         * {@link CustomTabsIntent.Builder#setActivitySideSheetBreakpointDp(int)}.
          *
          * @param initialHeightPx The Custom Tab Activity's initial height in pixels.
          * @param activityHeightResizeBehavior Desired height behavior.
@@ -1064,13 +1206,124 @@ public final class CustomTabsIntent {
 
         /**
          * Sets the Custom Tab Activity's initial height in pixels with default resize behavior.
-         * The Custom Tab will behave as a bottom sheet.
+         * The Custom Tab will behave as a bottom sheet if the screen's width is smaller than
+         * the breakpoint value set by
+         * {@link CustomTabsIntent.Builder#setActivitySideSheetBreakpointDp(int)}.
          *
          * @see CustomTabsIntent.Builder#setInitialActivityHeightPx(int, int)
          */
         @NonNull
         public Builder setInitialActivityHeightPx(@Dimension(unit = PX) int initialHeightPx) {
             return setInitialActivityHeightPx(initialHeightPx, ACTIVITY_HEIGHT_DEFAULT);
+        }
+
+        /**
+         * Sets the Custom Tab Activity's initial width in pixels. The Custom Tab will behave as
+         * a side sheet if the screen's width is bigger than the breakpoint value set by
+         * {@link CustomTabsIntent.Builder#setActivitySideSheetBreakpointDp(int)} and the screen is
+         * big enough, see doc for {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX}.
+         * @param initialWidthPx  The Custom Tab Activity's initial width in pixels.
+         * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX
+         */
+        @NonNull
+        public Builder setInitialActivityWidthPx(@Dimension(unit = PX) int initialWidthPx) {
+            if (initialWidthPx <= 0) {
+                throw new IllegalArgumentException("Invalid value for the initialWidthPx "
+                        + "argument");
+            }
+
+            mIntent.putExtra(EXTRA_INITIAL_ACTIVITY_WIDTH_PX, initialWidthPx);
+            return this;
+        }
+
+        /**
+         * Sets the Custom Tab Activity's transition breakpoint in DP.
+         * @param breakpointDp The Custom Tab Activity's breakpoint in DP.
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP
+         */
+        @NonNull
+        public Builder setActivitySideSheetBreakpointDp(@Dimension(unit = DP) int breakpointDp) {
+            if (breakpointDp <= 0) {
+                throw new IllegalArgumentException("Invalid value for the initialWidthPx "
+                        + "argument");
+            }
+
+            mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP, breakpointDp);
+            return this;
+        }
+
+        /**
+         * Enables or disables the maximization button for when the Custom Tab Activity is acting
+         * as a side sheet. The button is disabled by default.
+         * @param enabled Whether the maximization button is enabled.
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION
+         */
+        @NonNull Builder setActivitySideSheetEnableMaximization(boolean enabled) {
+            mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the Custom Tab Activity's position when acting as a side sheet.
+         * @param position The Custom Tab Activity's position.
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_POSITION
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_DEFAULT
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_START
+         * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_END
+         */
+        @NonNull
+        public Builder setActivitySideSheetPosition(@ActivitySideSheetPosition int position) {
+            if (position < 0 || position > ACTIVITY_SIDE_SHEET_POSITION_MAX) {
+                throw new IllegalArgumentException(
+                        "Invalid value for the sideSheetPosition argument");
+            }
+
+            mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_POSITION, position);
+            return this;
+        }
+
+        /**
+         * Sets the Custom Tab Activity's decoration type that will be displayed when it is
+         * acting as a side sheet.
+         * @param decorationType The Custom Tab Activity's decoration type.
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_NONE
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER
+         */
+        @NonNull
+        public Builder setActivitySideSheetDecorationType(
+                @ActivitySideSheetDecorationType int decorationType) {
+            if (decorationType < 0 || decorationType > ACTIVITY_SIDE_SHEET_DECORATION_TYPE_MAX) {
+                throw new IllegalArgumentException("Invalid value for the decorationType argument");
+            }
+
+            mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE, decorationType);
+            return this;
+        }
+
+        /**
+         * Sets the Custom Tab Activity's rounded corners position when it is acting as a
+         * side sheet.
+         * @param roundedCornersPosition The Custom Tab Activity's rounded corners position.
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE
+         * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP
+         */
+        @NonNull
+        public Builder setActivitySideSheetRoundedCornersPosition(
+                @ActivitySideSheetDecorationType int roundedCornersPosition) {
+            if (roundedCornersPosition < 0
+                    || roundedCornersPosition > ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_MAX) {
+                throw new IllegalArgumentException("Invalid value for the roundedCornersPosition./"
+                        + " argument");
+            }
+
+            mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION,
+                    roundedCornersPosition);
+            return this;
         }
 
         /**
@@ -1359,6 +1612,88 @@ public final class CustomTabsIntent {
     @Dimension(unit = PX)
     public static int getInitialActivityHeightPx(@NonNull Intent intent) {
         return intent.getIntExtra(EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0);
+    }
+
+    /**
+     * Gets the Custom Tab Activity's initial width.
+     *
+     * @param intent Intent to retrieve the initial Custom Tab Activity's width from.
+     * @return The initial Custom Tab Activity's width or 0 if it is not set.
+     * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_WIDTH_PX
+     */
+    @Dimension(unit = PX)
+    public static int getInitialActivityWidthPx(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_INITIAL_ACTIVITY_WIDTH_PX, 0);
+    }
+
+    /**
+     * Gets the breakpoint value in dp that will be used to decide if the Custom Tab will be
+     * displayed as a bottom sheet or as a side sheet.
+     *
+     * @param intent Intent to retrieve the breakpoint value from.
+     * @return The breakpoint value or 0 if it is not set.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP
+     */
+    @Dimension(unit = DP)
+    public static int getActivitySideSheetBreakpointDp(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP, 0);
+    }
+
+    /**
+     * Whether the Custom Tab Activity, when acting as a side sheet, can be maximized.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION
+     */
+    public static boolean isActivitySideSheetMaximizationEnabled(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION, false);
+    }
+
+    /**
+     * Gets the position where the side sheet should be displayed on the screen.
+     *
+     * @param intent Intent to retrieve the side sheet position from.
+     * @return The position of the side sheet or the default value if it is not set.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_POSITION
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_POSITION_DEFAULT
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_POSITION_START
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_POSITION_END
+     */
+    @ActivitySideSheetPosition
+    public static int getActivitySideSheetPosition(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_ACTIVITY_SIDE_SHEET_POSITION,
+                ACTIVITY_SIDE_SHEET_POSITION_DEFAULT);
+    }
+
+    /**
+     * Gets the type of the decoration that will be used to separate the side sheet from the
+     * Custom Tabs embedder.
+     *
+     * @param intent Intent to retrieve the decoration type from.
+     * @return The position of the side sheet or the default value if it is not set.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_NONE
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER
+     */
+    @ActivitySideSheetDecorationType
+    public static int getActivitySideSheetDecorationType(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE,
+                ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT);
+    }
+
+    /**
+     * Gets the type of rounded corners that will be used for the side sheet.
+     * @param intent Intent to retrieve the decoration type from.
+     * @return The position of the side sheet or the default value if it is not set.
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_NONE
+     * @see CustomTabsIntent#ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP
+     */
+    @ActivitySideSheetRoundedCornersPosition
+    public static int getActivitySideSheetRoundedCornersPosition(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION,
+                ACTIVITY_SIDE_SHEET_POSITION_DEFAULT);
     }
 
     /**
