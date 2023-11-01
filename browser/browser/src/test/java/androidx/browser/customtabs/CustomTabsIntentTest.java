@@ -618,6 +618,223 @@ public class CustomTabsIntentTest {
         assertEquals(pendingIntent, CustomTabsIntent.getSecondaryToolbarSwipeUpGesture(intent));
     }
 
+    @Test
+    public void testInitialActivityWidthPx() {
+        // Intent Extra is set to a correct value.
+        int initialActivityWidthPx = 200;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setInitialActivityWidthPx(initialActivityWidthPx)
+                .build()
+                .intent;
+
+        assertEquals("The width should be the same as the one that was set.",
+                initialActivityWidthPx,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_WIDTH_PX, 0));
+        assertEquals("The width returned by the getter should be the same.",
+                initialActivityWidthPx,
+                CustomTabsIntent.getInitialActivityWidthPx(intent));
+
+
+        // Intent Extra is not set, default value should be returned for the getter.
+        int defaultInitialActivityWidth = 0;
+        intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_INITIAL_ACTIVITY_WIDTH_PX should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_WIDTH_PX));
+        assertEquals("The getter should return the default value.",
+                defaultInitialActivityWidth,
+                CustomTabsIntent.getInitialActivityWidthPx(intent));
+
+        // Intent Extra is trying to be set to an invalid value.
+        try {
+            new CustomTabsIntent.Builder().setInitialActivityWidthPx(-1);
+            fail("The width of the activity should be higher than 0.");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testActivitySideSheetRoundedCornersPosition() {
+        // Intent Extra is set to a correct value.
+        int roundedCornersPosition =
+                CustomTabsIntent.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setActivitySideSheetRoundedCornersPosition(roundedCornersPosition)
+                .build()
+                .intent;
+
+        assertEquals("The rounded corners position should be the same as the one that was set.",
+                roundedCornersPosition,
+                intent.getIntExtra(
+                        CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION,
+                        CustomTabsIntent.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_DEFAULT));
+        assertEquals("The rounded corners position returned by the getter should be the same.",
+                roundedCornersPosition,
+                CustomTabsIntent.getActivitySideSheetRoundedCornersPosition(intent));
+
+        // Intent Extra is not set, default value should be returned for the getter.
+        int defaultPosition = CustomTabsIntent.CLOSE_BUTTON_POSITION_DEFAULT;
+        intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION should not be set.",
+                intent.hasExtra(
+                        CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION));
+        assertEquals("The getter should return the default value.",
+                defaultPosition,
+                CustomTabsIntent.getActivitySideSheetRoundedCornersPosition(intent));
+
+        // Intent Extra is trying to be set to an invalid value.
+        try {
+            new CustomTabsIntent.Builder().setActivitySideSheetRoundedCornersPosition(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder()
+                    .setActivitySideSheetRoundedCornersPosition(
+                            CustomTabsIntent.ACTIVITY_SIDE_SHEET_ROUNDED_CORNERS_POSITION_TOP + 1);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testActivitySideSheetDecorationType() {
+        // Intent Extra is set to a correct value.
+        int decorationType = CustomTabsIntent.ACTIVITY_SIDE_SHEET_DECORATION_TYPE_SHADOW;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setActivitySideSheetDecorationType(decorationType)
+                .build()
+                .intent;
+
+        assertEquals("The decoration type should be the same as the one that was set.",
+                decorationType,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE,
+                        CustomTabsIntent.ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT));
+        assertEquals("The decoration type returned by the getter should be the same.",
+                decorationType,
+                CustomTabsIntent.getActivitySideSheetDecorationType(intent));
+
+        // Intent Extra is not set, default value should be returned for the getter.
+        int defaultDecorationType = CustomTabsIntent.ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DEFAULT;
+        intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_DECORATION_TYPE));
+        assertEquals("The getter should return the default value.",
+                defaultDecorationType,
+                CustomTabsIntent.getActivitySideSheetDecorationType(intent));
+
+        // Intent Extra is trying to be set to an invalid value.
+        try {
+            new CustomTabsIntent.Builder().setActivitySideSheetDecorationType(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder()
+                    .setActivitySideSheetDecorationType(
+                            CustomTabsIntent.ACTIVITY_SIDE_SHEET_DECORATION_TYPE_DIVIDER + 1);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testActivitySideSheetPosition() {
+        // Intent Extra is set to a correct value.
+        int position = CustomTabsIntent.ACTIVITY_SIDE_SHEET_POSITION_END;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setActivitySideSheetPosition(position)
+                .build()
+                .intent;
+
+        assertEquals("The position should be the same as the one that was set.",
+                position,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_POSITION,
+                        CustomTabsIntent.ACTIVITY_SIDE_SHEET_POSITION_DEFAULT));
+        assertEquals("The position returned by the getter should be the same.",
+                position,
+                CustomTabsIntent.getActivitySideSheetPosition(intent));
+
+        // Intent Extra is not set, default value should be returned for the getter.
+        int defaultPosition = CustomTabsIntent.ACTIVITY_SIDE_SHEET_POSITION_DEFAULT;
+        intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_ACTIVITY_SIDE_SHEET_POSITION should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_POSITION));
+        assertEquals("The getter should return the default value.",
+                defaultPosition,
+                CustomTabsIntent.getActivitySideSheetPosition(intent));
+
+        // Intent Extra is trying to be set to an invalid value.
+        try {
+            new CustomTabsIntent.Builder().setActivitySideSheetPosition(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder()
+                    .setActivitySideSheetPosition(
+                            CustomTabsIntent.ACTIVITY_SIDE_SHEET_POSITION_END + 1);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testActivitySideSheetBreakpointDp() {
+        // Intent Extra is set to a correct value.
+        int breakpointDp = 200;
+        int defaultBreakpointDp = 0;
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .setActivitySideSheetBreakpointDp(breakpointDp)
+                .build()
+                .intent;
+
+        assertEquals("The breakpoint should be the same as the one that was set.",
+                breakpointDp,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_SIDE_SHEET_BREAKPOINT_DP,
+                        defaultBreakpointDp));
+        assertEquals("The breakpoint returned by the getter should be the same.",
+                breakpointDp,
+                CustomTabsIntent.getActivitySideSheetBreakpointDp(intent));
+
+        // Intent Extra is not set, default value should be returned for the getter.
+        intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertFalse("The EXTRA_INITIAL_ACTIVITY_WIDTH_PX should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_WIDTH_PX));
+        assertEquals("The getter should return the default value.",
+                defaultBreakpointDp,
+                CustomTabsIntent.getActivitySideSheetBreakpointDp(intent));
+
+        // Intent Extra is trying to be set to an invalid value.
+        try {
+            new CustomTabsIntent.Builder().setActivitySideSheetBreakpointDp(-1);
+            fail("The breakpoint of the activity should be higher than 0.");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testActivitySideSheetEnableMaximization() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertFalse(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder().setActivitySideSheetEnableMaximization(
+                true).build().intent;
+        assertTrue(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
+
+        intent = new CustomTabsIntent.Builder().setActivitySideSheetEnableMaximization(
+                false).build().intent;
+        assertFalse(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
+    }
+
     private void assertNullSessionInExtras(Intent intent) {
         assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
         assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
