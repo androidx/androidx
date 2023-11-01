@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,30 @@ package androidx.room
  * @see [AutoMigration]
  *
  */
-@Repeatable
+@JvmRepeatable(RenameTable.Entries::class)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@OptIn(ExperimentalMultiplatform::class)
-@OptionalExpectation
-public expect annotation class RenameTable(
+public actual annotation class RenameTable(
     /**
      * Name of the table in the [AutoMigration.from] version of the database.
      *
      * @return Name of the table to rename from.
      */
-    val fromTableName: String,
+    actual val fromTableName: String,
 
     /**
      * Name of the table in the [AutoMigration.to] version of the database.
      *
      * @return Name of the table to rename to.
      */
-    val toTableName: String,
-)
+    actual val toTableName: String,
+) {
+    /**
+     * Container annotation for the repeatable annotation [RenameTable].
+     */
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    public annotation class Entries(
+        vararg val value: RenameTable
+    )
+}

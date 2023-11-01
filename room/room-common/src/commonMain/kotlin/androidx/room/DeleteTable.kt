@@ -25,20 +25,13 @@ package androidx.room
 @Repeatable
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-public annotation class DeleteTable(
+@OptIn(ExperimentalMultiplatform::class)
+@OptionalExpectation
+public expect annotation class DeleteTable(
     /**
      * Name of the table in the [AutoMigration.from] version of the database to be deleted.
      *
      * @return Name of the table.
      */
     val tableName: String
-) {
-    /**
-     * Container annotation for the repeatable annotation [DeleteTable].
-     */
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.BINARY)
-    public annotation class Entries(
-        vararg val value: DeleteTable
-    )
-}
+)
