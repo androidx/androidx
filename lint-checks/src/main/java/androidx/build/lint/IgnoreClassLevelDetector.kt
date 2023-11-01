@@ -75,8 +75,7 @@ class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
                 val methodFix = fix()
                     // The replace param on annotate doesn't work: if @Ignore is already present on
                     // the method, the annotation is added again instead of being replaced.
-                    .annotate("org.junit.Ignore", true)
-                    .range(context.getLocation(method))
+                    .annotate("org.junit.Ignore", context, method, true)
                     .build()
                 fix.add(methodFix)
             }
