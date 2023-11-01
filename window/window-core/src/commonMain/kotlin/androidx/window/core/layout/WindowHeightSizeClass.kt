@@ -19,6 +19,7 @@ package androidx.window.core.layout
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.COMPACT
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.EXPANDED
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.MEDIUM
+import kotlin.jvm.JvmField
 
 /**
  * A class to represent the height size buckets for a viewport. The possible values are [COMPACT],
@@ -42,13 +43,12 @@ class WindowHeightSizeClass private constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null) return false
+        if (this::class != other::class) return false
 
-        other as WindowHeightSizeClass
+        val that = other as WindowHeightSizeClass
 
-        if (rawValue != other.rawValue) return false
-
-        return true
+        return rawValue == that.rawValue
     }
 
     override fun hashCode(): Int {
@@ -82,7 +82,6 @@ class WindowHeightSizeClass private constructor(
          * @return A recommended size class for the height
          * @throws IllegalArgumentException if the height is negative
          */
-        @JvmStatic
         internal fun compute(dpHeight: Float): WindowHeightSizeClass {
             require(dpHeight > 0) { "Height must be positive, received $dpHeight" }
             return when {

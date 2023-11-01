@@ -19,8 +19,9 @@ package androidx.window.core.layout
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.COMPACT
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.EXPANDED
 import androidx.window.core.layout.WindowHeightSizeClass.Companion.MEDIUM
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class WindowHeightSizeClassTest {
 
@@ -41,8 +42,10 @@ class WindowHeightSizeClassTest {
         assertEquals(expected, actual)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun testInvalidSizeBucket() {
-        WindowHeightSizeClass.compute(-1f)
+        assertFailsWith(IllegalArgumentException::class) {
+            WindowHeightSizeClass.compute(-1f)
+        }
     }
 }

@@ -16,6 +16,8 @@
 
 package androidx.window.core.layout
 
+import kotlin.jvm.JvmStatic
+
 /**
  * [WindowSizeClass] provides breakpoints for a viewport. Designers should design around the
  * different combinations of width and height buckets. Developers should use the different buckets
@@ -47,12 +49,13 @@ class WindowSizeClass private constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null) return false
+        if (this::class != other::class) return false
 
-        other as WindowSizeClass
+        val that = other as WindowSizeClass
 
-        if (windowWidthSizeClass != other.windowWidthSizeClass) return false
-        if (windowHeightSizeClass != other.windowHeightSizeClass) return false
+        if (windowWidthSizeClass != that.windowWidthSizeClass) return false
+        if (windowHeightSizeClass != that.windowHeightSizeClass) return false
 
         return true
     }
