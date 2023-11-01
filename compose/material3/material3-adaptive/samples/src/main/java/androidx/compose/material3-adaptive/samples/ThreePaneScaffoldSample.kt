@@ -33,11 +33,6 @@ import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.ThreePaneScaffold
-import androidx.compose.material3.adaptive.ThreePaneScaffoldDefaults
-import androidx.compose.material3.adaptive.calculateStandardPaneScaffoldDirective
-import androidx.compose.material3.adaptive.calculateThreePaneScaffoldValue
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -174,42 +169,6 @@ fun ListDetailExtraPaneScaffoldSample() {
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Preview
-@Composable
-internal fun ThreePaneScaffoldSample() {
-    val scaffoldDirective = calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo())
-    ThreePaneScaffold(
-        modifier = Modifier.fillMaxSize(),
-        scaffoldDirective = scaffoldDirective,
-        scaffoldValue = calculateThreePaneScaffoldValue(scaffoldDirective.maxHorizontalPartitions),
-        paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
-        secondaryPane = {
-            Surface(
-                modifier = Modifier.preferredWidth(100.dp),
-                color = MaterialTheme.colorScheme.secondary
-            ) {
-                Text("Secondary")
-            }
-        },
-        tertiaryPane = {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.tertiary
-            ) {
-                Text("Tertiary")
-            }
-        }
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.primary
-        ) {
-            Text("Primary")
         }
     }
 }
