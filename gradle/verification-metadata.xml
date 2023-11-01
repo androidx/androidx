@@ -257,6 +257,7 @@
          <trusted-key id="78da3333f653b1c54a938be24db7bc57dfdbcea4" group="net.java.dev.jna"/>
          <trusted-key id="78df98ef7f95578fd545b9a159a7c2a1bd98c013" group="org.jdom"/>
          <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer"/>
+         <trusted-key id="7b121b76a7ed6ce6e60ad51784e913a8e3a748c0" group="org.bouncycastle"/>
          <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7cb548acfe3d47e92afa566dc29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng"/>
