@@ -135,7 +135,7 @@ fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = remember(key1) {
+    val lifecycleStartStopEffectScope = remember(key1, lifecycleOwner) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
@@ -198,7 +198,7 @@ fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = remember(key1, key2) {
+    val lifecycleStartStopEffectScope = remember(key1, key2, lifecycleOwner) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
@@ -263,7 +263,7 @@ fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = remember(key1, key2, key3) {
+    val lifecycleStartStopEffectScope = remember(key1, key2, key3, lifecycleOwner) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
@@ -324,7 +324,7 @@ fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
 ) {
-    val lifecycleStartStopEffectScope = remember(*keys) {
+    val lifecycleStartStopEffectScope = remember(*keys, lifecycleOwner) {
         LifecycleStartStopEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleStartEffectImpl(lifecycleOwner, lifecycleStartStopEffectScope, effects)
@@ -447,7 +447,7 @@ fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = remember(key1) {
+    val lifecycleResumePauseEffectScope = remember(key1, lifecycleOwner) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
@@ -510,7 +510,7 @@ fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = remember(key1, key2) {
+    val lifecycleResumePauseEffectScope = remember(key1, key2, lifecycleOwner) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
@@ -575,7 +575,7 @@ fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = remember(key1, key2, key3) {
+    val lifecycleResumePauseEffectScope = remember(key1, key2, key3, lifecycleOwner) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
@@ -636,7 +636,7 @@ fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
 ) {
-    val lifecycleResumePauseEffectScope = remember(*keys) {
+    val lifecycleResumePauseEffectScope = remember(*keys, lifecycleOwner) {
         LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle)
     }
     LifecycleResumeEffectImpl(lifecycleOwner, lifecycleResumePauseEffectScope, effects)
