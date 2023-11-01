@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.glance.appwidget.component
+package androidx.glance.material3
 
 import android.os.Build
 import androidx.annotation.DimenRes
@@ -34,7 +34,6 @@ import androidx.glance.action.Action
 import androidx.glance.action.NoRippleOverride
 import androidx.glance.action.action
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.R
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.enabled
 import androidx.glance.background

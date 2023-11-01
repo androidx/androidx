@@ -26,14 +26,14 @@ import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.component.CircleIconButton
-import androidx.glance.appwidget.component.TitleBar
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
+import androidx.glance.material3.CircleIconButton
+import androidx.glance.material3.TitleBar
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 
