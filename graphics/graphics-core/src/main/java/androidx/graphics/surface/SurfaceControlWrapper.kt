@@ -178,6 +178,14 @@ internal class JniBindings {
 
         @JvmStatic
         @JniVisible
+        external fun nSetDataSpace(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            dataSpace: Int
+        )
+
+        @JvmStatic
+        @JniVisible
         external fun nGetDisplayOrientation(): String
 
         @JvmStatic
@@ -327,6 +335,21 @@ internal class SurfaceControlWrapper {
                 surfaceControl.mNativeSurfaceControl,
                 hardwareBuffer,
                 syncFence
+            )
+            return this
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        fun setDataSpace(
+            surfaceControl: SurfaceControlWrapper,
+            dataSpace: Int
+        ): Transaction {
+            JniBindings.nSetDataSpace(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                dataSpace
             )
             return this
         }

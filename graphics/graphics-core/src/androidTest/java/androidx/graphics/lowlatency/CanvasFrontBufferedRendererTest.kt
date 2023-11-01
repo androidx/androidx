@@ -891,11 +891,10 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferRenderWithDisplayP3() {
-
-        val displayP3ColorSpace = ColorSpace.getFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)!!
+        val displayP3ColorSpace = ColorSpace.get(ColorSpace.Named.DISPLAY_P3)
         val darkRed = Color.pack(0x6F / 255f, 0f, 0f, 1f, displayP3ColorSpace)
         val converted = Color.convert(
             Color.red(darkRed),
@@ -981,43 +980,46 @@ class CanvasFrontBufferedRendererTest {
             target.colorSpace = displayP3ColorSpace
         }
         try {
+            var supportsWideColorGamut = false
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
+                    supportsWideColorGamut = it.window.isWideColorGamut
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
                 }
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            if (supportsWideColorGamut) {
+                scenario.moveToState(Lifecycle.State.RESUMED)
 
-            assertTrue(multiBufferLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertTrue(multiBufferLatch.await(3000, TimeUnit.MILLISECONDS))
 
-            renderer?.renderFrontBufferedLayer(Any())
+                renderer?.renderFrontBufferedLayer(Any())
 
-            assertTrue(frontBufferLatch.await(3000, TimeUnit.MILLISECONDS))
+                assertTrue(frontBufferLatch.await(3000, TimeUnit.MILLISECONDS))
 
-            val coords = IntArray(2)
-            val width: Int
-            val height: Int
-            with(surfaceView!!) {
-                getLocationOnScreen(coords)
-                width = this.width
-                height = this.height
-            }
-            SurfaceControlUtils.validateOutput { bitmap ->
-                argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                val coords = IntArray(2)
+                val width: Int
+                val height: Int
+                with(surfaceView!!) {
+                    getLocationOnScreen(coords)
+                    width = this.width
+                    height = this.height
+                }
+                SurfaceControlUtils.validateOutput { bitmap ->
+                    argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                }
             }
         } finally {
             renderer.blockingRelease()
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMultiBufferedLayerRenderWithDisplayP3() {
-
-        val displayP3ColorSpace = ColorSpace.getFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)!!
+        val displayP3ColorSpace = ColorSpace.get(ColorSpace.Named.DISPLAY_P3)
         val darkRed = Color.pack(0x6F / 255f, 0f, 0f, 1f, displayP3ColorSpace)
         val converted = Color.convert(
             Color.red(darkRed),
@@ -1084,34 +1086,38 @@ class CanvasFrontBufferedRendererTest {
             target.colorSpace = displayP3ColorSpace
         }
         try {
+            var supportsWideColorGamut = false
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
+                    supportsWideColorGamut = it.window.isWideColorGamut
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
                 }
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            if (supportsWideColorGamut) {
+                scenario.moveToState(Lifecycle.State.RESUMED)
 
-            assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+                assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
 
-            renderLatch.set(CountDownLatch(1))
-            renderer?.renderFrontBufferedLayer(Any())
-            renderer?.commit()
+                renderLatch.set(CountDownLatch(1))
+                renderer?.renderFrontBufferedLayer(Any())
+                renderer?.commit()
 
-            Assert.assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+                Assert.assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
 
-            val coords = IntArray(2)
-            val width: Int
-            val height: Int
-            with(surfaceView!!) {
-                getLocationOnScreen(coords)
-                width = this.width
-                height = this.height
-            }
-            SurfaceControlUtils.validateOutput { bitmap ->
-                argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                val coords = IntArray(2)
+                val width: Int
+                val height: Int
+                with(surfaceView!!) {
+                    getLocationOnScreen(coords)
+                    width = this.width
+                    height = this.height
+                }
+                SurfaceControlUtils.validateOutput { bitmap ->
+                    argb == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                }
             }
         } finally {
             renderer.blockingRelease()
