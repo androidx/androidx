@@ -17,6 +17,7 @@
 package androidx.window.extensions.embedding;
 
 import androidx.annotation.Nullable;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Function;
 
 import java.util.Objects;
@@ -40,9 +41,8 @@ public abstract class EmbeddingRule {
      * example, it can be used to compute the {@link SplitAttributes} for the specific
      * {@link SplitRule} in the {@link Function} set with
      * {@link ActivityEmbeddingComponent#setSplitAttributesCalculator(Function)}.
-     *
-     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
      */
+    @RequiresVendorApiLevel(level = 2)
     @Nullable
     public String getTag() {
         return mTag;

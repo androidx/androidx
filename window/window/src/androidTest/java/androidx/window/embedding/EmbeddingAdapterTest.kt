@@ -26,7 +26,6 @@ import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_ACTIVITY_STA
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
@@ -51,7 +50,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithDefaultAttrs() {
-        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(2)
 
         val oemSplitInfo = createTestOEMSplitInfo(
             createTestOEMActivityStack(ArrayList(), true),
@@ -72,7 +71,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithExpandingContainers() {
-        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(2)
 
         val oemSplitInfo = createTestOEMSplitInfo(
             createTestOEMActivityStack(ArrayList(), true),
@@ -96,7 +95,7 @@ class EmbeddingAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun testTranslateSplitInfoWithApiLevel1() {
-        WindowTestUtils.assumeBeforeVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeBeforeVendorApiLevel(2)
 
         val activityStack = createTestOEMActivityStack(ArrayList(), true)
         val expectedSplitRatio = 0.3f
@@ -121,7 +120,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithApiLevel2() {
-        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_2)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(2)
 
         val oemSplitInfo = createTestOEMSplitInfo(
             createTestOEMActivityStack(ArrayList(), true),
@@ -145,7 +144,7 @@ class EmbeddingAdapterTest {
 
     @Test
     fun testTranslateSplitInfoWithApiLevel3() {
-        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_3)
+        WindowTestUtils.assumeAtLeastVendorApiLevel(3)
         val testStackToken = Binder()
         val testSplitInfoToken = Binder()
         val oemSplitInfo = createTestOEMSplitInfo(
@@ -178,10 +177,10 @@ class EmbeddingAdapterTest {
         return mock<OEMSplitInfo>().apply {
             whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
             whenever(secondaryActivityStack).thenReturn(testSecondaryActivityStack)
-            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
+            if (ExtensionsUtil.safeVendorApiLevel >= 2) {
                 whenever(splitAttributes).thenReturn(testSplitAttributes)
             }
-            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3) {
+            if (ExtensionsUtil.safeVendorApiLevel >= 3) {
                 whenever(token).thenReturn(testToken)
             }
         }
@@ -195,7 +194,7 @@ class EmbeddingAdapterTest {
         return mock<OEMActivityStack>().apply {
             whenever(activities).thenReturn(testActivities)
             whenever(isEmpty).thenReturn(testIsEmpty)
-            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3) {
+            if (ExtensionsUtil.safeVendorApiLevel >= 3) {
                 whenever(token).thenReturn(testToken)
             }
         }

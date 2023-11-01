@@ -21,7 +21,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
-import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.RequiresVendorApiLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,6 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
         Objects.requireNonNull(activities);
@@ -62,10 +61,7 @@ public class ActivityStack {
         mToken = token;
     }
 
-    /**
-     * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
-     */
+    /** @deprecated Use {@link ActivityStack#ActivityStack(List, boolean, IBinder)}. */
     @Deprecated
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
         this(activities, isEmpty, INVALID_ACTIVITY_STACK_TOKEN);
@@ -100,8 +96,8 @@ public class ActivityStack {
 
     /**
      * Returns a token uniquely identifying the container.
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_5}
      */
+    @RequiresVendorApiLevel(level = 5)
     @NonNull
     public IBinder getToken() {
         return mToken;
