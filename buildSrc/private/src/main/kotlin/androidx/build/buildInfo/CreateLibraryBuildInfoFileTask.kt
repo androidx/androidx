@@ -293,7 +293,7 @@ private fun Project.createBuildInfoTask(
         variant =
             VariantPublishPlan(
                 artifactId = artifactId,
-                taskSuffix = computeTaskSuffix(artifactId),
+                taskSuffix = computeTaskSuffix(name, artifactId),
                 dependencies =
                     pub.component.map { component ->
                         val usageDependencies =
@@ -322,7 +322,10 @@ class BuildInfoVariantDependency(group: String, name: String, version: String) :
 
 // For examples, see CreateLibraryBuildInfoFileTaskTest
 @VisibleForTesting
-fun computeTaskSuffix(artifactId: String) =
-    artifactId.split("-").drop(1).joinToString("") { word ->
+fun computeTaskSuffix(
+    projectName: String,
+    artifactId: String
+) =
+    artifactId.substringAfter(projectName).split("-").joinToString("") { word ->
         word.replaceFirstChar { it.uppercase() }
     }
