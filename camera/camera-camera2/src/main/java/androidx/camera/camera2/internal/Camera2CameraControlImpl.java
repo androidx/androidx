@@ -661,11 +661,14 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mZoomControl.addZoomOption(builder);
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
+
+        if (mFocusMeteringControl.isExternalFlashAeModeEnabled()) {
+            aeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
+        }
+
         if (mIsTorchOn) {
             builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_MODE,
                     CaptureRequest.FLASH_MODE_TORCH, Config.OptionPriority.REQUIRED);
-        } else if (mFocusMeteringControl.isExternalFlashAeModeEnabled()) {
-            aeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
         } else {
             switch (mFlashMode) {
                 case FLASH_MODE_OFF:
