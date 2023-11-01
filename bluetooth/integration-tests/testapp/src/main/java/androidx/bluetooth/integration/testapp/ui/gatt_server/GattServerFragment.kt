@@ -37,19 +37,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class GattServerFragment : Fragment() {
 
     private companion object {
         private const val TAG = "GattServerFragment"
     }
 
-    private lateinit var bluetoothLe: BluetoothLe
+    @Inject
+    lateinit var bluetoothLe: BluetoothLe
 
     private val gattServerScope = CoroutineScope(Dispatchers.Main + Job())
     private var gattServerJob: Job? = null
@@ -86,8 +90,6 @@ class GattServerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bluetoothLe = BluetoothLe(requireContext())
 
         binding.buttonAddService.setOnClickListener {
             onAddGattService()

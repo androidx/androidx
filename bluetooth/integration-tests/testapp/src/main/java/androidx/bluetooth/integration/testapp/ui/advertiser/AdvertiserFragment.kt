@@ -39,19 +39,23 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class AdvertiserFragment : Fragment() {
 
     private companion object {
         private const val TAG = "AdvertiserFragment"
     }
 
-    private lateinit var bluetoothLe: BluetoothLe
+    @Inject
+    lateinit var bluetoothLe: BluetoothLe
 
     private var advertiseDataAdapter: AdvertiseDataAdapter? = null
 
@@ -93,8 +97,6 @@ class AdvertiserFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bluetoothLe = BluetoothLe(requireContext())
 
         binding.checkBoxIncludeDeviceName.setOnCheckedChangeListener { _, isChecked ->
             viewModel.includeDeviceName = isChecked
