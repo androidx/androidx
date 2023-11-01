@@ -3622,7 +3622,8 @@ internal class ComposerImpl(
         // composition and not become visible outside of the composition process until composition
         // succeeds.
         private var compositionLocalScope by mutableStateOf<PersistentCompositionLocalMap>(
-            persistentCompositionLocalHashMapOf()
+            persistentCompositionLocalHashMapOf(),
+            referentialEqualityPolicy()
         )
 
         override fun getCompositionLocalScope(): PersistentCompositionLocalMap =
