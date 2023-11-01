@@ -826,10 +826,12 @@ public class UiObject2 implements Searchable {
                     mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe);
             if (Boolean.TRUE.equals(scrollFinishedResult)) {
                 // Scroll has finished.
+                Log.i(TAG, "scrollUntil reached the end.");
                 break;
             } else if (scrollFinishedResult == null) {
                 // Couldn't determine whether scroll finished after retries.
                 if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    Log.i(TAG, "scrollUntil reached max retries for null events.");
                     break;
                 }
                 Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
@@ -894,11 +896,15 @@ public class UiObject2 implements Searchable {
                     DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
             if (mGestureController.performGestureAndWait(combinedEventCondition, SCROLL_TIMEOUT,
                     swipe)) {
+                if (Boolean.TRUE.equals(scrollFinished.getResult())) {
+                    Log.i(TAG, "scrollUntil reached the end.");
+                }
                 // Either scroll has finished or the accessibility event has appeared.
                 break;
             } else if (scrollFinished.getResult() == null) {
                 // Couldn't determine whether scroll finished after retries.
                 if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                    Log.i(TAG, "scrollUntil reached max retries for null events.");
                     break;
                 }
                 Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
