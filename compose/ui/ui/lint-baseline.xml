@@ -201,7 +201,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable var43bc1b5b with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        message="variable var43bc1850 with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
         errorLine1="                    val oldLines = oldAlignmentLines"
         errorLine2="                                   ^">
         <location

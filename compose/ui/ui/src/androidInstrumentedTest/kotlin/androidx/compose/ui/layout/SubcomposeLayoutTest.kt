@@ -46,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.testutils.expectAssertionError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.composed
@@ -59,6 +60,7 @@ import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
@@ -1456,13 +1458,12 @@ class SubcomposeLayoutTest {
     fun reusableNodeIsKeptAsReusableAfterStateUpdate() {
         val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
         val needChild = mutableStateOf(true)
-        var coordinates: LayoutCoordinates? = null
 
         rule.setContent {
             SubcomposeLayout(state = layoutState.value) { constraints ->
                 val node = if (needChild.value) {
                     subcompose(Unit) {
-                        Box(Modifier.onGloballyPositioned { coordinates = it })
+                        Box(Modifier.testTag("child"))
                     }.first().measure(constraints)
                 } else {
                     null
@@ -1473,34 +1474,30 @@ class SubcomposeLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertThat(coordinates!!.isAttached).isTrue()
-            needChild.value = false
-        }
+        rule.onNodeWithTag("child")
+            .assertExists()
 
-        rule.runOnIdle {
-            // the modifier is still attached
-            assertThat(coordinates!!.isAttached).isTrue()
-            layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
-        }
+        needChild.value = false
 
-        rule.runOnIdle {
-            // the modifier is still attached
-            assertThat(coordinates!!.isAttached).isTrue()
-        }
+        rule.onNodeWithTag("child")
+            .assertIsDeactivated()
+
+        layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+
+        rule.onNodeWithTag("child")
+            .assertIsDeactivated()
     }
 
     @Test
     fun passingSmallerMaxSlotsToRetainForReuse() {
         val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
         val needChild = mutableStateOf(true)
-        var coordinates: LayoutCoordinates? = null
 
         rule.setContent {
             SubcomposeLayout(state = layoutState.value) { constraints ->
                 val node = if (needChild.value) {
                     subcompose(Unit) {
-                        Box(Modifier.onGloballyPositioned { coordinates = it })
+                        Box(Modifier.testTag("child"))
                     }.first().measure(constraints)
                 } else {
                     null
@@ -1513,16 +1510,13 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle { needChild.value = false }
 
-        rule.runOnIdle {
-            // the node  in the reusable pool is still attached
-            assertThat(coordinates!!.isAttached).isTrue()
-            layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(0))
-        }
+        rule.onNodeWithTag("child")
+            .assertIsDeactivated()
 
-        rule.runOnIdle {
-            // detached as the new state has 0 as maxSlotsToRetainForReuse
-            assertThat(coordinates!!.isAttached).isFalse()
-        }
+        layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(0))
+
+        rule.onNodeWithTag("child")
+            .assertIsDetached()
     }
 
     @Test
@@ -1560,7 +1554,6 @@ class SubcomposeLayoutTest {
         val layoutState = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
         val needChild = mutableStateOf(true)
         var composed = false
-        var coordinates: LayoutCoordinates? = null
 
         rule.setContent {
             SubcomposeLayout(state = layoutState) { constraints ->
@@ -1573,9 +1566,7 @@ class SubcomposeLayoutTest {
                                     composed = false
                                 }
                             }
-                            onGloballyPositioned {
-                                coordinates = it
-                            }
+                            testTag("child")
                         })
                     }.first().measure(constraints)
                 } else {
@@ -1587,22 +1578,20 @@ class SubcomposeLayoutTest {
             }
         }
 
-        rule.runOnIdle {
-            assertThat(composed).isTrue()
-            assertThat(coordinates!!.isAttached).isTrue()
-            needChild.value = false
-        }
+        rule.onNodeWithTag("child")
+            .assertExists()
 
-        rule.runOnIdle {
-            assertThat(composed).isFalse()
-            assertThat(coordinates!!.isAttached).isTrue()
-            needChild.value = true
-        }
+        assertThat(composed).isTrue()
+        needChild.value = false
 
-        rule.runOnIdle {
-            assertThat(composed).isTrue()
-            assertThat(coordinates!!.isAttached).isTrue()
-        }
+        rule.onNodeWithTag("child")
+            .assertIsDeactivated()
+        assertThat(composed).isFalse()
+        needChild.value = true
+
+        rule.onNodeWithTag("child")
+            .assertExists()
+        assertThat(composed).isTrue()
     }
 
     @Test
@@ -2691,6 +2680,14 @@ class SubcomposeLayoutTest {
         disposed.forEach {
             rule.onNodeWithTag("$it")
                 .assertDoesNotExist()
+        }
+    }
+
+    private fun SemanticsNodeInteraction.assertIsDetached() {
+        assertDoesNotExist()
+        // we want to verify the node is not deactivated, but such API does not exist yet
+        expectAssertionError(true) {
+            assertIsDeactivated()
         }
     }
 }

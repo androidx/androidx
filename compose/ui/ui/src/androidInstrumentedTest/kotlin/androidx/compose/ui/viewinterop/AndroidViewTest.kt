@@ -66,6 +66,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -85,6 +86,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -1395,10 +1397,24 @@ class AndroidViewTest {
         var attached by mutableStateOf(true)
         rule.setContent {
             ReusableContentHost(attached) {
-                ReusableAndroidViewWithLifecycleTracking(
-                    factory = { TextView(it).apply { text = "Test" } },
-                    onLifecycleEvent = lifecycleEvents::add
-                )
+                val content = @Composable {
+                    ReusableAndroidViewWithLifecycleTracking(
+                        factory = { TextView(it).apply { text = "Test" } },
+                        onLifecycleEvent = lifecycleEvents::add
+                    )
+                }
+
+                // Placing items when they are in reused state is not supported for now.
+                // Reusing only happens in SubcomposeLayout atm which never places reused nodes
+                Layout(content) { measurables, constraints ->
+                    val placeables = measurables.map { it.measure(constraints) }
+                    val firstPlaceable = placeables.first()
+                    layout(firstPlaceable.width, firstPlaceable.height) {
+                        if (attached) {
+                            placeables.forEach { it.place(IntOffset.Zero) }
+                        }
+                    }
+                }
             }
         }
 

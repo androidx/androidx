@@ -16,19 +16,26 @@
 
 package androidx.compose.foundation.benchmark.lazy
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.setupContent
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
+import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
+import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.unit.IntOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.FixMethodOrder
@@ -44,19 +51,6 @@ class ReuseBenchmark {
 
     @get:Rule
     val rule = ComposeBenchmarkRule()
-
-    @Test
-    fun a_test_for_warmup() {
-        rule.benchmarkCreateFor {
-            LazyColumn {
-                items(10) {
-                    Button(onClick = {}) {
-                        Text("Hello")
-                    }
-                }
-            }
-        }
-    }
 
     @Test
     fun create_button() {
@@ -127,7 +121,7 @@ class ReuseBenchmark {
     @Test
     fun dispose_lazy_column() {
         rule.disposeBenchmark {
-            CreateTestCase {
+            ReuseTestCase(reusableSlots = 0) {
                 LazyColumn {
                     items(10) {
                         Button(onClick = {}) {
@@ -142,7 +136,7 @@ class ReuseBenchmark {
     @Test
     fun deactivate_lazy_column() {
         rule.disposeBenchmark {
-            ReuseTestCase {
+            ReuseTestCase(reusableSlots = 1) {
                 LazyColumn {
                     items(10) {
                         Button(onClick = {}) {
@@ -157,110 +151,99 @@ class ReuseBenchmark {
 
 private fun ComposeBenchmarkRule.benchmarkCreateFor(content: @Composable () -> Unit) {
     createBenchmark {
-        CreateTestCase(content)
+        ReuseTestCase(reusableSlots = 0, content)
     }
 }
 
 private fun ComposeBenchmarkRule.benchmarkReuseFor(content: @Composable () -> Unit) {
     createBenchmark {
-        ReuseTestCase(content)
+        ReuseTestCase(reusableSlots = 1, content)
     }
 }
 
 private fun ComposeBenchmarkRule.createBenchmark(
-    testCase: () -> BaseReuseTestCase,
+    testCase: () -> ReuseTestCase,
 ) {
     runBenchmarkFor(testCase) {
         setupContent()
-        while (hasPendingChanges()) {
-            doFrame()
-        }
+        doFramesUntilIdle()
 
         measureRepeated {
             runWithTimingDisabled {
                 assertNoPendingChanges()
                 getTestCase().clearContent()
-                while (hasPendingChanges()) {
-                    doFrame()
-                }
+                doFramesUntilIdle()
                 assertNoPendingChanges()
             }
 
             getTestCase().initContent()
-            while (hasPendingChanges()) {
-                doFrame()
-            }
+            doFramesUntilIdle()
         }
     }
 }
 
 private fun ComposeBenchmarkRule.disposeBenchmark(
-    testCase: () -> BaseReuseTestCase,
+    testCase: () -> ReuseTestCase,
 ) {
     runBenchmarkFor(testCase) {
         setupContent()
-        while (hasPendingChanges()) {
-            doFrame()
-        }
+        doFramesUntilIdle()
         assertNoPendingChanges()
 
         measureRepeated {
             getTestCase().clearContent()
-            while (hasPendingChanges()) {
-                doFrame()
-            }
+            doFramesUntilIdle()
 
             runWithTimingDisabled {
                 assertNoPendingChanges()
                 getTestCase().initContent()
-                while (hasPendingChanges()) {
-                    doFrame()
-                }
+                doFramesUntilIdle()
                 assertNoPendingChanges()
             }
         }
     }
 }
 
-private interface BaseReuseTestCase : ComposeTestCase {
-    fun clearContent()
-    fun initContent()
-}
-
-private class CreateTestCase(private val content: @Composable () -> Unit) : BaseReuseTestCase {
+private class ReuseTestCase(
+    private val reusableSlots: Int = 0,
+    private val content: @Composable () -> Unit
+) : ComposeTestCase {
     private var active by mutableStateOf(true)
 
     @Composable
     override fun Content() {
-        if (active) {
-            content()
+        SubcomposeLayout(
+            SubcomposeLayoutState(SubcomposeSlotReusePolicy(reusableSlots)),
+            Modifier.fillMaxSize()
+        ) { constraints ->
+            val measurables = if (active) {
+                subcompose(Unit) { content() }
+            } else {
+                null
+            }
+
+            val placeable = measurables?.single()?.measure(constraints)
+            layout(placeable?.width ?: 0, placeable?.height ?: 0) {
+                placeable?.place(IntOffset.Zero)
+            }
         }
     }
 
-    override fun clearContent() {
+    fun clearContent() {
         active = false
     }
 
-    override fun initContent() {
+    fun initContent() {
         active = true
     }
 }
 
-private class ReuseTestCase(private val content: @Composable () -> Unit) : BaseReuseTestCase {
-    private var active by mutableStateOf(true)
+private fun ComposeExecutionControl.doFramesUntilIdle() {
+    do {
+        doFrame()
+    } while (hasPendingChanges() || hasPendingMeasureOrLayout())
+}
 
-    @Composable
-    override fun Content() {
-        ReusableContentHost(active = active) {
-            content()
-        }
-    }
-
-    override fun clearContent() {
-        active = false
-    }
-
-    override fun initContent() {
-        active = true
-    }
+private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
+    return (getHostView() as ViewRootForTest).hasPendingMeasureOrLayout
 }
