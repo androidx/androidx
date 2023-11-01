@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import kotlin.math.min
 
 /**
  * Performs text layout using [MultiParagraph].
@@ -170,6 +171,7 @@ internal class MultiParagraphLayoutCache(
         finalConstraints: Constraints,
         multiParagraph: MultiParagraph
     ): TextLayoutResult {
+        val layoutWidth = min(multiParagraph.intrinsics.maxIntrinsicWidth, multiParagraph.width)
         return TextLayoutResult(
             TextLayoutInput(
                 text,
@@ -186,7 +188,7 @@ internal class MultiParagraphLayoutCache(
             multiParagraph,
             finalConstraints.constrain(
                 IntSize(
-                    multiParagraph.width.ceilToIntPx(),
+                    layoutWidth.ceilToIntPx(),
                     multiParagraph.height.ceilToIntPx()
                 )
             )
