@@ -25,9 +25,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DismissValue.Default
 import androidx.compose.material3.DismissValue.DismissedToEnd
 import androidx.compose.material3.DismissValue.DismissedToStart
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SwipeDismiss
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
@@ -39,11 +40,12 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-fun SwipeDismissListItems() {
+@ExperimentalMaterial3Api
+fun SwipeToDismissListItems() {
     val dismissState = rememberDismissState()
-    SwipeDismiss(
+    SwipeToDismissBox(
         state = dismissState,
-        background = {
+        backgroundContent = {
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
                     Default -> Color.LightGray
@@ -52,17 +54,16 @@ fun SwipeDismissListItems() {
                 }
             )
             Box(Modifier.fillMaxSize().background(color))
-        },
-        dismissContent = {
-            Card {
-                ListItem(
-                    headlineContent = {
-                        Text("Cupcake")
-                    },
-                    supportingContent = { Text("Swipe me left or right!") }
-                )
-                HorizontalDivider()
-            }
         }
-    )
+    ) {
+        Card {
+            ListItem(
+                headlineContent = {
+                    Text("Cupcake")
+                },
+                supportingContent = { Text("Swipe me left or right!") }
+            )
+            HorizontalDivider()
+        }
+    }
 }
