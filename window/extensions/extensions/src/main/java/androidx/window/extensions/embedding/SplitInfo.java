@@ -16,7 +16,6 @@
 
 package androidx.window.extensions.embedding;
 
-import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -27,9 +26,6 @@ import java.util.Objects;
 
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
-
-    /** Only used for compatibility with the deprecated constructor. */
-    private static final IBinder INVALID_SPLIT_INFO_TOKEN = new Binder();
 
     @NonNull
     private final ActivityStack mPrimaryActivityStack;
@@ -61,18 +57,6 @@ public class SplitInfo {
         mSecondaryActivityStack = secondaryActivityStack;
         mSplitAttributes = splitAttributes;
         mToken = token;
-    }
-
-    /**
-     * @deprecated Use
-     * {@link SplitInfo#SplitInfo(ActivityStack, ActivityStack, SplitAttributes, IBinder)}
-     */
-    @Deprecated
-    SplitInfo(@NonNull ActivityStack primaryActivityStack,
-            @NonNull ActivityStack secondaryActivityStack,
-            @NonNull SplitAttributes splitAttributes) {
-        this(primaryActivityStack, secondaryActivityStack, splitAttributes,
-                INVALID_SPLIT_INFO_TOKEN);
     }
 
     @NonNull

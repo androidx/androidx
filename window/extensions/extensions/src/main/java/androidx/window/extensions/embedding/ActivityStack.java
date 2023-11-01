@@ -17,7 +17,6 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
-import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
@@ -32,9 +31,6 @@ import java.util.Objects;
  * container, all within the same task.
  */
 public class ActivityStack {
-
-    /** Only used for compatibility with the deprecated constructor. */
-    private static final IBinder INVALID_ACTIVITY_STACK_TOKEN = new Binder();
 
     @NonNull
     private final List<Activity> mActivities;
@@ -59,12 +55,6 @@ public class ActivityStack {
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
-    }
-
-    /** @deprecated Use {@link ActivityStack#ActivityStack(List, boolean, IBinder)}. */
-    @Deprecated
-    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
-        this(activities, isEmpty, INVALID_ACTIVITY_STACK_TOKEN);
     }
 
     /**
