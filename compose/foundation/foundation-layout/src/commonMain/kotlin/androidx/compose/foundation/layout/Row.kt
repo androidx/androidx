@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.Measured
 
 /**
@@ -99,11 +100,10 @@ inline fun Row(
  * MeasureBlocks to use when horizontalArrangement and verticalAlignment are not provided.
  */
 @PublishedApi
-internal val DefaultRowMeasurePolicy = rowColumnMeasurePolicy(
+internal val DefaultRowMeasurePolicy: MeasurePolicy = RowColumnMeasurePolicy(
     orientation = LayoutOrientation.Horizontal,
-    arrangement = { totalSize, size, layoutDirection, density, outPosition ->
-        with(Arrangement.Start) { density.arrange(totalSize, size, layoutDirection, outPosition) }
-    },
+    horizontalArrangement = Arrangement.Start,
+    verticalArrangement = null,
     arrangementSpacing = Arrangement.Start.spacing,
     crossAxisAlignment = CrossAxisAlignment.vertical(Alignment.Top),
     crossAxisSize = SizeMode.Wrap
@@ -114,17 +114,15 @@ internal val DefaultRowMeasurePolicy = rowColumnMeasurePolicy(
 internal fun rowMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal,
     verticalAlignment: Alignment.Vertical
-) = if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
+): MeasurePolicy =
+    if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
         DefaultRowMeasurePolicy
     } else {
         remember(horizontalArrangement, verticalAlignment) {
-            rowColumnMeasurePolicy(
+            RowColumnMeasurePolicy(
                 orientation = LayoutOrientation.Horizontal,
-                arrangement = { totalSize, size, layoutDirection, density, outPosition ->
-                    with(horizontalArrangement) {
-                        density.arrange(totalSize, size, layoutDirection, outPosition)
-                    }
-                },
+                horizontalArrangement = horizontalArrangement,
+                verticalArrangement = null,
                 arrangementSpacing = horizontalArrangement.spacing,
                 crossAxisAlignment = CrossAxisAlignment.vertical(verticalAlignment),
                 crossAxisSize = SizeMode.Wrap
