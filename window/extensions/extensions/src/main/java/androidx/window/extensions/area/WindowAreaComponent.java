@@ -19,7 +19,6 @@ package androidx.window.extensions.area;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;
-import android.util.ArrayMap;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.IntDef;
@@ -118,13 +117,6 @@ public interface WindowAreaComponent {
     })
     @interface WindowAreaSessionState {}
 
-    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
-    // the latest library.
-    @SuppressLint({"NewApi", "ClassVerificationFailure"})
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    ArrayMap<java.util.function.Consumer<Integer>, Consumer<Integer>> JAVA_TO_EXTENSIONS_MAP =
-            new ArrayMap<>();
-
     /**
      * Adds a listener interested in receiving updates on the RearDisplayStatus
      * of the device. Because this is being called from the OEM provided
@@ -139,51 +131,12 @@ public interface WindowAreaComponent {
     @RequiresVendorApiLevel(level = 2)
     void addRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
 
-    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
-    // the latest library.
-    /**
-     * @deprecated Use {@link #addRearDisplayStatusListener(Consumer)}.
-     */
-    @RequiresVendorApiLevel(level = 2)
-    @Deprecated
-    @SuppressLint("ClassVerificationFailure")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    default void addRearDisplayStatusListener(
-            @NonNull java.util.function.Consumer<Integer> consumer) {
-        if (JAVA_TO_EXTENSIONS_MAP.containsKey(consumer)) {
-            return;
-        }
-        final Consumer<Integer> extensionsConsumer = consumer::accept;
-        JAVA_TO_EXTENSIONS_MAP.put(consumer, extensionsConsumer);
-        addRearDisplayStatusListener(extensionsConsumer);
-    }
-
     /**
      * Removes a listener no longer interested in receiving updates.
      * @param consumer no longer interested in receiving updates to WindowAreaStatus
      */
     @RequiresVendorApiLevel(level = 2)
     void removeRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
-
-    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
-    // the latest library.
-    /**
-     * @deprecated Use {@link #removeRearDisplayStatusListener(Consumer)}.
-     */
-    @RequiresVendorApiLevel(level = 2)
-    @Deprecated
-    @SuppressLint("ClassVerificationFailure")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    default void removeRearDisplayStatusListener(
-            @NonNull java.util.function.Consumer<Integer> consumer) {
-        if (!JAVA_TO_EXTENSIONS_MAP.containsKey(consumer)) {
-            return;
-        }
-        final Consumer<Integer> extensionsConsumer = JAVA_TO_EXTENSIONS_MAP.remove(consumer);
-        removeRearDisplayStatusListener(extensionsConsumer);
-    }
 
     /**
      * Creates and starts a rear display session and sends state updates to the
