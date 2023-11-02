@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp
+package androidx.bluetooth.integration.testapp.ui.main
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -28,7 +28,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.ActivityMainBinding
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -67,6 +69,8 @@ class MainActivity : AppCompatActivity() {
             binding.layoutBluetoothDisabled.isVisible = value.not()
         }
 
+    private val viewModel by viewModels<MainViewModel>()
+
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +104,10 @@ class MainActivity : AppCompatActivity() {
             ) {
                 startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             }
+        }
+
+        viewModel.navigateToConnections.observe(this) {
+            binding.bottomNavigationView.selectedItemId = R.id.navigation_connections
         }
     }
 

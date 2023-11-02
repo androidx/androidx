@@ -143,8 +143,8 @@ class AdvertiserFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         isAdvertising = false
+        _binding = null
     }
 
     private fun initData() {
@@ -261,7 +261,6 @@ class AdvertiserFragment : Fragment() {
                 TAG, "bluetoothLe.advertise() called with: " +
                     "viewModel.advertiseParams = ${viewModel.advertiseParams}"
             )
-
             isAdvertising = true
 
             bluetoothLe.advertise(viewModel.advertiseParams) {

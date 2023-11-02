@@ -116,8 +116,8 @@ class GattServerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         isGattServerOpen = false
+        _binding = null
     }
 
     private fun onAddGattService() {
@@ -234,7 +234,6 @@ class GattServerFragment : Fragment() {
                 TAG, "bluetoothLe.openGattServer() called with: " +
                     "viewModel.gattServerServices = ${viewModel.gattServerServices}"
             )
-
             isGattServerOpen = true
 
             bluetoothLe.openGattServer(viewModel.gattServerServices) {
