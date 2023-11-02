@@ -102,7 +102,7 @@ class AndroidImageReader private constructor(
         // One of the worst cases observed is the HAL reserving 10 images, which gives a maximum
         // capacity of 54 (64 - 10). For safety and compatibility reasons, set the maximum capacity
         // to be 54, which leaves headroom for an app configured limit of 50.
-        internal const val IMAGERREADER_MAX_CAPACITY = 54
+        internal const val IMAGEREADER_MAX_CAPACITY = 54
 
         /**
          * Create and configure a new ImageReader instance as an [ImageReaderWrapper].
@@ -121,9 +121,9 @@ class AndroidImageReader private constructor(
             require(width > 0) { "Width ($width) must be > 0" }
             require(height > 0) { "Height ($height) must be > 0" }
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
-            require(capacity <= IMAGERREADER_MAX_CAPACITY) {
+            require(capacity <= IMAGEREADER_MAX_CAPACITY) {
                 "Capacity for creating new ImageSources is restricted to " +
-                    "$IMAGERREADER_MAX_CAPACITY. Android has undocumented internal limits that " +
+                    "$IMAGEREADER_MAX_CAPACITY. Android has undocumented internal limits that " +
                     "are different depending on which device the ImageReader is created on."
             }
 
@@ -231,9 +231,9 @@ class AndroidMultiResolutionImageReader(
             executor: Executor
         ): ImageReaderWrapper {
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
-            require(capacity <= AndroidImageReader.IMAGERREADER_MAX_CAPACITY) {
+            require(capacity <= AndroidImageReader.IMAGEREADER_MAX_CAPACITY) {
                 "Capacity for creating new ImageSources is restricted to " +
-                    "${AndroidImageReader.IMAGERREADER_MAX_CAPACITY}. Android has undocumented " +
+                    "${AndroidImageReader.IMAGEREADER_MAX_CAPACITY}. Android has undocumented " +
                     "internal limits that are different depending on which device the " +
                     "MultiResolutionImageReader is created on."
             }
