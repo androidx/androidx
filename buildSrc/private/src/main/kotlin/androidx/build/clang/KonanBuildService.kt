@@ -16,6 +16,8 @@
 
 package androidx.build.clang
 
+import androidx.build.KonanPrebuiltsSetup
+import androidx.build.clang.KonanBuildService.Companion.obtain
 import androidx.build.getKonanPrebuiltsFolder
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
@@ -29,8 +31,8 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.process.ExecOperations
 import org.gradle.process.ExecSpec
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
-import org.jetbrains.kotlin.konan.target.Distribution
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.jetbrains.kotlin.konan.target.Platform
 import org.jetbrains.kotlin.konan.target.PlatformManager
@@ -49,12 +51,9 @@ abstract class KonanBuildService @Inject constructor(
     private val execOperations: ExecOperations
 ) : BuildService<KonanBuildService.Parameters> {
     private val dist by lazy {
-        Distribution(
-            konanHome = parameters.konanHome.get().asFile.absolutePath,
-            onlyDefaultProfiles = false,
-            propertyOverrides = mapOf(
-                "dependenciesUrl" to "file://${parameters.prebuilts.get().asFile}"
-            )
+        KonanPrebuiltsSetup.createKonanDistribution(
+            prebuiltsDirectory = parameters.prebuilts.get().asFile,
+            konanHome = parameters.konanHome.get().asFile
         )
     }
 
@@ -220,6 +219,14 @@ abstract class KonanBuildService @Inject constructor(
                 KEY,
                 KonanBuildService::class.java
             ) {
+                check(
+                    project.plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)
+                ) {
+                    "KonanBuildService can only be used in projects that applied the KMP plugin"
+                }
+                check(KonanPrebuiltsSetup.isConfigured(project)) {
+                    "Konan prebuilt directories are not configured for project \"${project.path}\""
+                }
                 val nativeCompilerDownloader = NativeCompilerDownloader(project)
                 nativeCompilerDownloader.downloadIfNeeded()
 
