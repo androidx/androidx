@@ -32,6 +32,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
@@ -68,6 +70,9 @@ class CallsManager constructor(context: Context) {
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
+    // Capabilities to be set by the VOIP app which will be used in addCall.
+    private var mCapabilities: MutableList<androidx.core.telecom.extensions.Capability> =
+        mutableListOf()
 
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -87,11 +92,12 @@ class CallsManager constructor(context: Context) {
         @Target(AnnotationTarget.TYPE)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(PARTICIPANT, CALL_SILENCE)
+        @IntDef(PARTICIPANT, CALL_ICON, CALL_SILENCE)
         annotation class ExtensionType
 
         internal const val PARTICIPANT = 1
-        internal const val CALL_SILENCE = 2
+        internal const val CALL_ICON = 2
+        internal const val CALL_SILENCE = 3
         // Todo: Support additional capabilities
 
         /**
@@ -298,6 +304,11 @@ class CallsManager constructor(context: Context) {
         Utils.verifyBuildVersion()
         // Setup channels for the CallEventCallbacks that only provide info updates
         val callChannels = CallChannels()
+        // Setup passed in capabilities in CapabilityManager. This will also be leveraged in the
+        // call session to sync the capabilities with the client during capability exchange
+        // negotiation.
+        var voipExtensionManager = VoipExtensionManager(mContext, coroutineContext,
+            callChannels, mCapabilities)
         callAttributes.mHandle = getPhoneAccountHandleForPackage()
         // This variable controls the addCall execution in the calling activity. AddCall will block
         // for the duration of the session.  When the session is terminated via a disconnect or
@@ -345,7 +356,8 @@ class CallsManager constructor(context: Context) {
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 CallSession.CallControlCallbackImpl(callSession),
-                CallSession.CallEventCallbackImpl(callChannels, coroutineContext)
+                CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
+                    voipExtensionManager)
             )
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult)
@@ -358,6 +370,10 @@ class CallsManager constructor(context: Context) {
                     blockingSessionExecution,
                     coroutineContext
                 )
+
+            // Set up extension manager to register the VOIP supported extensions.
+            voipExtensionManager.initializeSession(scope)
+            voipExtensionManager.initializeExtensions()
 
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
@@ -377,7 +393,8 @@ class CallsManager constructor(context: Context) {
                 onDisconnect,
                 onSetActive,
                 onSetInactive,
-                blockingSessionExecution
+                blockingSessionExecution,
+                voipExtensionManager
             )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
@@ -391,11 +408,17 @@ class CallsManager constructor(context: Context) {
                 coroutineContext
             )
 
+            // Set up extension manager to register the VOIP supported extensions.
+            voipExtensionManager.initializeSession(scope)
+            voipExtensionManager.initializeExtensions()
+
             // Run the clients code with the session active and exposed via the
             // CallControlScope interface implementation declared above.
             scope.block()
         }
         blockingSessionExecution.await()
+        voipExtensionManager.tearDownExtensions()
+        mCapabilities.clear()
     }
 
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(
@@ -443,5 +466,11 @@ class CallsManager constructor(context: Context) {
 
     internal fun getBuiltPhoneAccount(): PhoneAccount? {
         return mPhoneAccount
+    }
+
+    internal fun setVoipCapabilities(
+        capabilities: List<androidx.core.telecom.extensions.Capability>
+    ) {
+        mCapabilities = capabilities.toMutableList()
     }
 }
