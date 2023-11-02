@@ -16,19 +16,18 @@
 
 package androidx.sqliteMultiplatform.driver
 
-import androidx.sqliteMultiplatform.BaseConformanceTest
-import androidx.sqliteMultiplatform.SQLiteDriver
-import kotlin.test.BeforeTest
-import platform.posix.remove
+import android.database.sqlite.SQLiteDatabase
+import androidx.sqliteMultiplatform.SQLiteConnection
+import androidx.sqliteMultiplatform.SQLiteStatement
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
-
-    @BeforeTest
-    fun before() {
-        remove("test.db")
+internal class AndroidSQLiteConnection(
+    private val db: SQLiteDatabase
+) : SQLiteConnection {
+    override fun prepare(sql: String): SQLiteStatement {
+        return AndroidSQLiteStatement.create(db, sql)
     }
 
-    override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver("test.db")
+    override fun close() {
+        db.close()
     }
 }

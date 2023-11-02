@@ -16,19 +16,26 @@
 
 package androidx.sqliteMultiplatform.driver
 
+import android.content.Context
+import androidx.kruth.assertThat
 import androidx.sqliteMultiplatform.BaseConformanceTest
 import androidx.sqliteMultiplatform.SQLiteDriver
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.BeforeTest
-import platform.posix.remove
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
+class AndroidSQLiteDriverTest : BaseConformanceTest() {
+
+    private val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @BeforeTest
     fun before() {
-        remove("test.db")
+        context.deleteDatabase("test.db")
     }
 
     override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver("test.db")
+        val file = context.getDatabasePath("test.db")
+            .also { it.parentFile?.mkdirs() }
+        assertThat(file.exists()).isFalse()
+        return AndroidSQLiteDriver(file.absolutePath)
     }
 }

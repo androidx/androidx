@@ -30,8 +30,8 @@ import sqlite3.sqlite3_open_v2
 
 /**
  * TODO:
- *  * more open flags
- *  * busy handler registering
+ *  * (b/307917398) more open flags
+ *  * (b/304295573) busy handler registering
  */
 class NativeSQLiteDriver(
     val filename: String
