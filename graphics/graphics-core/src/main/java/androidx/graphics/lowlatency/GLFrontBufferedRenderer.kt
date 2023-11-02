@@ -463,6 +463,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 .setName("FrontBufferedSurfaceControl")
                 .build()
 
+            FrontBufferUtils.configureFrontBufferLayerFrameRate(frontSurfaceControl)?.commit()
+
             val multiBufferedRenderer = GLFrameBufferRenderer.Builder(
                 parentSurfaceControl,
                 width,

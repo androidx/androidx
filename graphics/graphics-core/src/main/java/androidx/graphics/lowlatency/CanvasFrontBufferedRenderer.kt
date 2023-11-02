@@ -206,6 +206,8 @@ class CanvasFrontBufferedRenderer<T>(
                 .setName("FrontBufferedLayer")
                 .build()
 
+            FrontBufferUtils.configureFrontBufferLayerFrameRate(frontBufferSurfaceControl)?.commit()
+
             var singleBufferedCanvasRenderer: SingleBufferedCanvasRenderer<T>? = null
             singleBufferedCanvasRenderer = SingleBufferedCanvasRenderer.create(
                 width,
