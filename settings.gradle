@@ -26,6 +26,8 @@ buildscript {
     repos.addMavenRepositories(repositories)
 
     dependencies {
+        // upgrade protobuf to be compatible with AGP
+        classpath("com.google.protobuf:protobuf-java:3.22.3")
         // upgrade okio for gcpbuildcache that is compatible with the wire plugin used by androidx
         classpath("com.squareup.okio:okio:3.3.0")
         classpath("com.gradle:gradle-enterprise-gradle-plugin:3.14.1")
