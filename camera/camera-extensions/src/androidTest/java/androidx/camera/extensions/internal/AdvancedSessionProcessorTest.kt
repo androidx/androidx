@@ -54,6 +54,7 @@ import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OutputSurface
+import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
@@ -396,7 +397,9 @@ class AdvancedSessionProcessorTest {
 
         // 2. Act.
         val sessionConfig = advancedSessionProcessor
-            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+            .initSession(fakeCameraInfo,
+                OutputSurfaceConfiguration.create(
+                    previewOutputSurface, imageCaptureSurface, null, null));
 
         // 3. Assert.
         assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
@@ -415,7 +418,9 @@ class AdvancedSessionProcessorTest {
 
         // 2. Act.
         val sessionConfig = advancedSessionProcessor
-            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+            .initSession(fakeCameraInfo,
+                OutputSurfaceConfiguration.create(
+                    previewOutputSurface, imageCaptureSurface, null, null));
 
         // 3. Assert.
         assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)

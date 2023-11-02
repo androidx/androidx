@@ -42,6 +42,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
@@ -87,8 +88,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private volatile Camera2OutputConfig mCaptureOutputConfig;
     @Nullable
     private volatile Camera2OutputConfig mAnalysisOutputConfig = null;
-    private volatile OutputSurface mPreviewOutputSurfaceConfig;
-    private volatile OutputSurface mCaptureOutputSurfaceConfig;
+    private volatile OutputSurface mPreviewOutputSurface;
+    private volatile OutputSurface mCaptureOutputSurface;
     private volatile RequestProcessor mRequestProcessor;
     volatile boolean mIsCapturing = false;
     private final AtomicInteger mNextCaptureSequenceId = new AtomicInteger(0);
@@ -115,9 +116,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     protected Camera2SessionConfig initSessionInternal(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> cameraCharacteristicsMap,
-            @NonNull OutputSurface previewSurfaceConfig,
-            @NonNull OutputSurface imageCaptureSurfaceConfig,
-            @Nullable OutputSurface imageAnalysisSurfaceConfig) {
+            @NonNull OutputSurfaceConfiguration outputSurfaceConfiguration) {
         Logger.d(TAG, "PreviewExtenderImpl.onInit");
         mPreviewExtenderImpl.onInit(cameraId, cameraCharacteristicsMap.get(cameraId),
                 mContext);
@@ -125,8 +124,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mImageCaptureExtenderImpl.onInit(cameraId, cameraCharacteristicsMap.get(cameraId),
                 mContext);
 
-        mPreviewOutputSurfaceConfig = previewSurfaceConfig;
-        mCaptureOutputSurfaceConfig = imageCaptureSurfaceConfig;
+        mPreviewOutputSurface = outputSurfaceConfiguration.getPreviewOutputSurface();
+        mCaptureOutputSurface = outputSurfaceConfiguration.getImageCaptureOutputSurface();
 
         // Preview
         PreviewExtenderImpl.ProcessorType processorType =
@@ -135,24 +134,24 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         if (processorType == PROCESSOR_TYPE_IMAGE_PROCESSOR) {
             mPreviewOutputConfig = ImageReaderOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSize(),
+                    mPreviewOutputSurface.getSize(),
                     ImageFormat.YUV_420_888,
                     PREVIEW_PROCESS_MAX_IMAGES);
             PreviewImageProcessorImpl previewImageProcessor =
                     (PreviewImageProcessorImpl) mPreviewExtenderImpl.getProcessor();
             mPreviewProcessor = new PreviewProcessor(
-                    previewImageProcessor, mPreviewOutputSurfaceConfig.getSurface(),
-                    mPreviewOutputSurfaceConfig.getSize());
+                    previewImageProcessor, mPreviewOutputSurface.getSurface(),
+                    mPreviewOutputSurface.getSize());
         } else if (processorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY) {
             mPreviewOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSurface());
+                    mPreviewOutputSurface.getSurface());
             mRequestUpdateProcessor =
                     (RequestUpdateProcessorImpl) mPreviewExtenderImpl.getProcessor();
         } else {
             mPreviewOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSurface());
+                    mPreviewOutputSurface.getSurface());
         }
 
         // Image Capture
@@ -162,23 +161,24 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         if (captureProcessor != null) {
             mCaptureOutputConfig = ImageReaderOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageCaptureSurfaceConfig.getSize(),
+                    mCaptureOutputSurface.getSize(),
                     ImageFormat.YUV_420_888,
                     mImageCaptureExtenderImpl.getMaxCaptureStage());
             mStillCaptureProcessor = new StillCaptureProcessor(
-                    captureProcessor, mCaptureOutputSurfaceConfig.getSurface(),
-                    mCaptureOutputSurfaceConfig.getSize());
+                    captureProcessor, mCaptureOutputSurface.getSurface(),
+                    mCaptureOutputSurface.getSize());
         } else {
             mCaptureOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageCaptureSurfaceConfig.getSurface());
+                    mCaptureOutputSurface.getSurface());
         }
 
         // Image Analysis
-        if (imageAnalysisSurfaceConfig != null) {
+        if (outputSurfaceConfiguration.getImageAnalysisOutputSurface() != null) {
             mAnalysisOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageAnalysisSurfaceConfig.getSurface());
+                    outputSurfaceConfiguration.getImageAnalysisOutputSurface()
+                            .getSurface());
         }
 
         Camera2SessionConfigBuilder builder =
@@ -483,7 +483,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     }
 
     @Override
-    public int startCapture(@NonNull CaptureCallback captureCallback) {
+    public int startCapture(boolean postviewEnabled, @NonNull CaptureCallback captureCallback) {
         int captureSequenceId = mNextCaptureSequenceId.getAndIncrement();
 
         if (mRequestProcessor == null || mIsCapturing) {

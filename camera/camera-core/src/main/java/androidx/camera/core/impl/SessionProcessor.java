@@ -54,19 +54,14 @@ public interface SessionProcessor {
      * SessionProcessor is responsible to write the output to this given output surfaces.
      *
      * @param cameraInfo                 cameraInfo for querying the camera info
-     * @param previewSurfaceConfig       output surface for preview. This is mandatory.
-     * @param imageCaptureSurfaceConfig  output surface for image capture. This is mandatory.
-     * @param imageAnalysisSurfaceConfig output surface for image analysis. This is optional.
-     *                                   Passing null if image analysis output is not needed.
+     * @param outputSurfaceConfig output surface configuration for preview, image capture,
+     *                                  image analysis and the postview.
      * @return a {@link SessionConfig} that contains the surfaces and the session parameters and
      * should be used to configure the camera session.
      */
     @NonNull
-    SessionConfig initSession(
-            @NonNull CameraInfo cameraInfo,
-            @NonNull OutputSurface previewSurfaceConfig,
-            @NonNull OutputSurface imageCaptureSurfaceConfig,
-            @Nullable OutputSurface imageAnalysisSurfaceConfig);
+    SessionConfig initSession(@NonNull CameraInfo cameraInfo,
+            @NonNull OutputSurfaceConfiguration outputSurfaceConfig);
 
     /**
      * De-initializes the session. This is called after the camera session is closed.
@@ -111,11 +106,11 @@ public interface SessionProcessor {
      * Requests the SessionProcessor to start the still image capture. The capture task can only
      * perform one at a time.
      *
+     * @param postviewEnabled if postview is enabled or not.
      * @param callback callback to notify the status.
      * @return the id of the capture sequence.
      */
-    int startCapture(
-            @NonNull CaptureCallback callback);
+    int startCapture(boolean postviewEnabled, @NonNull CaptureCallback callback);
 
     /**
      * Aborts the pending capture.

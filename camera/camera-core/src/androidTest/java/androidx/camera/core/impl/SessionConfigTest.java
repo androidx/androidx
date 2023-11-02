@@ -218,6 +218,14 @@ public class SessionConfigTest {
     }
 
     @Test
+    public void builderSetPostviewSurface() {
+        SessionConfig.Builder builder = new SessionConfig.Builder()
+                .setPostviewSurface(mMockSurface0);
+        SessionConfig sessionConfig = builder.build();
+        assertThat(sessionConfig.getPostviewOutputConfig().getSurface()).isEqualTo(mMockSurface0);
+    }
+
+    @Test
     public void prioritizeTemplateType_previewHigherThanUnsupportedType() {
         SessionConfig.Builder builderPreview = new SessionConfig.Builder();
         builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -446,6 +454,45 @@ public class SessionConfigTest {
         // 3. Assert.
         assertThat(validatingBuilder.build().getSessionType()).isEqualTo(sessionTypeToVerify);
         assertThat(validatingBuilder.isValid()).isTrue();
+    }
+
+    @Test
+    public void addPostviewSurfaceTo_validatingBuilder() {
+        // 1. Arrange.
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        SessionConfig sessionConfig1 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface0)
+                .build();
+
+        // 2. Act.
+        validatingBuilder.add(sessionConfig1);
+
+        // 3. Assert.
+        assertThat(validatingBuilder.build().getPostviewOutputConfig().getSurface())
+                .isEqualTo(mMockSurface0);
+        assertThat(validatingBuilder.isValid()).isTrue();
+    }
+
+    @Test
+    public void addDifferentPostviewSurfacesTo_validatingBuilder() {
+        // 1. Arrange.
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        SessionConfig sessionConfig1 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface0)
+                .build();
+        SessionConfig sessionConfig2 = new SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface1)
+                .build();
+
+        // 2. Act.
+        validatingBuilder.add(sessionConfig1);
+        validatingBuilder.add(sessionConfig2);
+
+        // 3. Assert.
+        assertThat(validatingBuilder.isValid()).isFalse();
     }
 
     @Test

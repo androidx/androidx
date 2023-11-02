@@ -56,6 +56,7 @@ import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OutputSurface
+import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.Exif
@@ -228,7 +229,9 @@ class BasicExtenderSessionProcessorTest(
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         val sessionConfig = basicExtenderSessionProcessor.initSession(
-            fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
 
         assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
     }
@@ -246,7 +249,8 @@ class BasicExtenderSessionProcessorTest(
 
         assertThrows<IllegalArgumentException> {
              basicExtenderSessionProcessor.initSession(
-                fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null
+                fakeCameraInfo, OutputSurfaceConfiguration.create(
+                     previewOutputSurface, imageCaptureSurface, null, null)
             )
         }
     }
@@ -263,7 +267,9 @@ class BasicExtenderSessionProcessorTest(
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         val sessionConfig = basicExtenderSessionProcessor.initSession(
-            fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
+            fakeCameraInfo,
+            OutputSurfaceConfiguration.create(previewOutputSurface, imageCaptureSurface, null, null)
+        )
 
         assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
     }
@@ -554,8 +560,8 @@ class BasicExtenderSessionProcessorTest(
 
             basicExtenderSessionProcessor.startRepeating(object :
                 SessionProcessor.CaptureCallback {})
-            basicExtenderSessionProcessor.startCapture(object : SessionProcessor.CaptureCallback {})
-
+            basicExtenderSessionProcessor.startCapture(false,
+                object : SessionProcessor.CaptureCallback {})
             val submittedRequests = withTimeout(2000) {
                 fakeRequestProcessor.awaitRequestSubmitted()
             }
@@ -662,10 +668,10 @@ class BasicExtenderSessionProcessorTest(
 
         basicExtenderSessionProcessor.initSession(
             cameraInfo,
-            previewOutputSurface,
-            captureOutputSurface,
-            null
-        )
+            OutputSurfaceConfiguration.create(
+                previewOutputSurface, captureOutputSurface, null, null
+            )
+        );
 
         return AutoCloseable {
             jpegImageReader.close()

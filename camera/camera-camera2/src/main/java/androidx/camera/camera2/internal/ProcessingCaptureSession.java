@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +40,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
@@ -177,28 +177,36 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             OutputSurface previewOutputSurface = null;
                             OutputSurface captureOutputSurface = null;
                             OutputSurface analysisOutputSurface = null;
+                            OutputSurface postviewOutputSurface = null;
 
                             for (int i = 0; i < sessionConfig.getSurfaces().size(); i++) {
                                 DeferrableSurface dSurface = sessionConfig.getSurfaces().get(i);
                                 if (isPreview(dSurface) || isStreamSharing(dSurface)) {
                                     previewOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
                                 } else if (isImageCapture(dSurface)) {
                                     captureOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
                                 } else if (isImageAnalysis(dSurface)) {
                                     analysisOutputSurface = OutputSurface.create(
                                             dSurface.getSurface().get(),
-                                            new Size(dSurface.getPrescribedSize().getWidth(),
-                                                    dSurface.getPrescribedSize().getHeight()),
+                                            dSurface.getPrescribedSize(),
                                             dSurface.getPrescribedStreamFormat());
                                 }
+                            }
+
+                            if (sessionConfig.getPostviewOutputConfig() != null) {
+                                DeferrableSurface postviewDeferrableSurface =
+                                        sessionConfig.getPostviewOutputConfig().getSurface();
+                                postviewOutputSurface = OutputSurface.create(
+                                        postviewDeferrableSurface.getSurface().get(),
+                                        postviewDeferrableSurface.getPrescribedSize(),
+                                        postviewDeferrableSurface.getPrescribedStreamFormat()
+                                );
                             }
 
                             mProcessorState = ProcessorState.SESSION_INITIALIZED;
@@ -211,11 +219,15 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             try {
                                 mProcessorSessionConfig = mSessionProcessor.initSession(
                                         mCamera2CameraInfoImpl,
-                                        previewOutputSurface,
-                                        captureOutputSurface,
-                                        analysisOutputSurface
+                                        OutputSurfaceConfiguration.create(
+                                                previewOutputSurface,
+                                                captureOutputSurface,
+                                                analysisOutputSurface,
+                                                postviewOutputSurface
+                                        )
                                 );
                             } catch (Throwable e) {
+                                Logger.e(TAG, "initSession failed", e);
                                 // Ensure we decrement the output surfaces if initSession failed.
                                 DeferrableSurfaces.decrementAll(mOutputSurfaces);
                                 throw e;
@@ -411,7 +423,8 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
 
         mStillCaptureOptions = builder.build();
         updateParameters(mSessionOptions, mStillCaptureOptions);
-        mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
+        mSessionProcessor.startCapture(captureConfig.isPostviewEnabled(),
+                new SessionProcessor.CaptureCallback() {
             @Override
             public void onCaptureStarted(int captureSequenceId, long timestamp) {
                 mExecutor.execute(() -> {

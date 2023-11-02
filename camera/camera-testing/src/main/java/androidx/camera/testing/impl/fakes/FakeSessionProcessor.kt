@@ -31,13 +31,14 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.OptionsBundle
-import androidx.camera.core.impl.OutputSurface
+import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.withTimeout
@@ -65,11 +66,14 @@ class FakeSessionProcessor(
 
     // Values of these Deferred are the timestamp to complete.
     private val initSessionCalled = CompletableDeferred<Long>()
+    private val initSessionOutputSurfaceConfiguration =
+        CompletableDeferred<OutputSurfaceConfiguration>()
     private val deInitSessionCalled = CompletableDeferred<Long>()
     private val onCaptureSessionStartCalled = CompletableDeferred<Long>()
     private val onCaptureSessionEndCalled = CompletableDeferred<Long>()
     private val startRepeatingCalled = CompletableDeferred<Long>()
     private val startCaptureCalled = CompletableDeferred<Long>()
+    private val startCapturePostviewEnabled = CompletableDeferred<Boolean>()
     private val setParametersCalled = CompletableDeferred<Config>()
     private val startTriggerCalled = CompletableDeferred<Config>()
     private val stopRepeatingCalled = CompletableDeferred<Long>()
@@ -93,12 +97,15 @@ class FakeSessionProcessor(
 
     override fun initSession(
         cameraInfo: CameraInfo,
-        previewSurfaceConfig: OutputSurface,
-        imageCaptureSurfaceConfig: OutputSurface,
-        imageAnalysisSurfaceConfig: OutputSurface?
+        outputSurfaceConfig: OutputSurfaceConfiguration
     ): SessionConfig {
         initSessionCalled.complete(SystemClock.elapsedRealtimeNanos())
+        initSessionOutputSurfaceConfiguration.complete(outputSurfaceConfig)
         val sessionBuilder = SessionConfig.Builder()
+
+        val previewSurfaceConfig = outputSurfaceConfig.previewOutputSurface
+        val imageCaptureSurfaceConfig = outputSurfaceConfig.imageCaptureOutputSurface
+        val imageAnalysisSurfaceConfig = outputSurfaceConfig.imageAnalysisOutputSurface
 
         // Preview
         lateinit var previewTransformedSurface: Surface
@@ -282,8 +289,12 @@ class FakeSessionProcessor(
         stopRepeatingCalled.complete(SystemClock.elapsedRealtimeNanos())
     }
 
-    override fun startCapture(callback: SessionProcessor.CaptureCallback): Int {
+    override fun startCapture(
+        postviewEnabled: Boolean,
+        callback: SessionProcessor.CaptureCallback
+    ): Int {
         startCaptureCalled.complete(SystemClock.elapsedRealtimeNanos())
+        startCapturePostviewEnabled.complete(postviewEnabled)
         val request = RequestProcessorRequest.Builder().apply {
             addTargetOutputConfigId(captureOutputConfigId)
             setParameters(latestParameters)
@@ -345,9 +356,8 @@ class FakeSessionProcessor(
         return initSessionCalled.awaitWithTimeout(3000)
     }
 
-    suspend fun wasInitSessionInvoked(): Boolean {
-        val result = withTimeoutOrNull(3000) { initSessionCalled.await() }
-        return result != null
+    suspend fun awaitInitSessionOutputSurfaceConfiguration(): OutputSurfaceConfiguration {
+        return initSessionOutputSurfaceConfiguration.awaitWithTimeout(3000)
     }
 
     suspend fun assertDeInitSessionInvoked(): Long {
@@ -373,6 +383,10 @@ class FakeSessionProcessor(
 
     suspend fun assertStartCaptureInvoked(): Long {
         return startCaptureCalled.awaitWithTimeout(3000)
+    }
+
+    suspend fun assertStartCapturePostviewEnabled() {
+        assertThat(startCapturePostviewEnabled.awaitWithTimeout(3000)).isTrue()
     }
 
     suspend fun assertSetParametersInvoked(): Config {

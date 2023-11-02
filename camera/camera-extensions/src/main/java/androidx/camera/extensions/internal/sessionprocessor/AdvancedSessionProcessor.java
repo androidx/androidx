@@ -40,12 +40,14 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl;
 import androidx.camera.extensions.impl.advanced.ImageProcessorImpl;
 import androidx.camera.extensions.impl.advanced.ImageReferenceImpl;
+import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl;
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl;
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl;
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl;
@@ -64,7 +66,10 @@ import java.util.Map;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AdvancedSessionProcessor extends SessionProcessorBase {
+    private static final String TAG = "AdvancedSessionProcessor";
+    @NonNull
     private final SessionProcessorImpl mImpl;
+    @NonNull
     private final Context mContext;
 
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
@@ -80,19 +85,31 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     protected Camera2SessionConfig initSessionInternal(
             @NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> cameraCharacteristicsMap,
-            @NonNull OutputSurface previewSurfaceConfig,
-            @NonNull OutputSurface imageCaptureSurfaceConfig,
-            @Nullable OutputSurface imageAnalysisSurfaceConfig) {
-        Camera2SessionConfigImpl sessionConfigImpl =
-                mImpl.initSession(
-                        cameraId,
-                        cameraCharacteristicsMap,
-                        mContext,
-                        new OutputSurfaceImplAdapter(previewSurfaceConfig),
-                        new OutputSurfaceImplAdapter(imageCaptureSurfaceConfig),
-                        imageAnalysisSurfaceConfig == null
-                                ? null : new OutputSurfaceImplAdapter(imageAnalysisSurfaceConfig));
+            @NonNull OutputSurfaceConfiguration outputSurfaceConfig) {
+        Camera2SessionConfigImpl sessionConfigImpl;
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            sessionConfigImpl =
+                    mImpl.initSession(
+                            cameraId,
+                            cameraCharacteristicsMap,
+                            mContext,
+                            new OutputSurfaceConfigurationImplAdapter(outputSurfaceConfig));
 
+        } else {
+            sessionConfigImpl =
+                    mImpl.initSession(
+                            cameraId,
+                            cameraCharacteristicsMap,
+                            mContext,
+                            new OutputSurfaceImplAdapter(
+                                    outputSurfaceConfig.getPreviewOutputSurface()),
+                            new OutputSurfaceImplAdapter(
+                                    outputSurfaceConfig.getImageCaptureOutputSurface()),
+                            outputSurfaceConfig.getImageAnalysisOutputSurface() == null
+                                    ? null : new OutputSurfaceImplAdapter(
+                                    outputSurfaceConfig.getImageAnalysisOutputSurface()));
+        }
         // Convert Camera2SessionConfigImpl(implemented in OEM) into Camera2SessionConfig
         return convertToCamera2SessionConfig(sessionConfigImpl);
     }
@@ -171,6 +188,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
 
     @Override
     public int startCapture(
+            boolean postviewEnabled,
             @NonNull SessionProcessor.CaptureCallback callback) {
         return mImpl.startCapture(new SessionProcessorImplCaptureCallbackAdapter(callback));
     }
@@ -237,6 +255,54 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         @Override
         public int getImageFormat() {
             return mOutputSurface.getImageFormat();
+        }
+    }
+
+    private static class OutputSurfaceConfigurationImplAdapter implements
+            OutputSurfaceConfigurationImpl {
+        private final OutputSurfaceImpl mPreviewOutputSurface;
+        private final OutputSurfaceImpl mCaptureOutputSurface;
+        private final OutputSurfaceImpl mAnalysisOutputSurface;
+        private final OutputSurfaceImpl mPostviewOutputSurface;
+
+        OutputSurfaceConfigurationImplAdapter(
+                @NonNull OutputSurfaceConfiguration outputSurfaceConfig) {
+            mPreviewOutputSurface = new OutputSurfaceImplAdapter(
+                    outputSurfaceConfig.getPreviewOutputSurface());
+            mCaptureOutputSurface = new OutputSurfaceImplAdapter(
+                    outputSurfaceConfig.getImageCaptureOutputSurface());
+            mAnalysisOutputSurface =
+                    outputSurfaceConfig.getImageAnalysisOutputSurface() != null
+                            ? new OutputSurfaceImplAdapter(
+                                    outputSurfaceConfig.getImageAnalysisOutputSurface()) : null;
+            mPostviewOutputSurface =
+                    outputSurfaceConfig.getPostviewOutputSurface() != null
+                            ? new OutputSurfaceImplAdapter(
+                                    outputSurfaceConfig.getPostviewOutputSurface()) : null;
+        }
+
+        @NonNull
+        @Override
+        public OutputSurfaceImpl getPreviewOutputSurface() {
+            return mPreviewOutputSurface;
+        }
+
+        @NonNull
+        @Override
+        public OutputSurfaceImpl getImageCaptureOutputSurface() {
+            return mCaptureOutputSurface;
+        }
+
+        @Nullable
+        @Override
+        public OutputSurfaceImpl getImageAnalysisOutputSurface() {
+            return mAnalysisOutputSurface;
+        }
+
+        @Nullable
+        @Override
+        public OutputSurfaceImpl getPostviewOutputSurface() {
+            return mPostviewOutputSurface;
         }
     }
 
