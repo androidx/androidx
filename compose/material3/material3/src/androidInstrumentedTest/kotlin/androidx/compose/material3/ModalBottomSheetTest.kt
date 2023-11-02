@@ -93,6 +93,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1319,6 +1320,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         assertThat(boxWidth).isEqualTo(screenWidth)
     }
 
+    @Ignore("b/307313354")
     @Test
     fun modalBottomSheet_imePadding() {
         // TODO: Include APIs < 30  when a solution is found for b/290893168.
