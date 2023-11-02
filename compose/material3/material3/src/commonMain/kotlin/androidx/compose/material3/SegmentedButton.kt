@@ -625,8 +625,8 @@ class SegmentedButtonColors(
         return when {
             enabled && active -> activeBorderColor
             enabled && !active -> inactiveBorderColor
-            !enabled && active -> disabledActiveContentColor
-            else -> disabledInactiveContentColor
+            !enabled && active -> disabledActiveBorderColor
+            else -> disabledInactiveBorderColor
         }
     }
 
