@@ -597,7 +597,7 @@ package androidx.compose.material3 {
     property public abstract kotlin.ranges.IntRange yearRange;
   }
 
-  public enum DismissDirection {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum DismissDirection {
     method public static androidx.compose.material3.DismissDirection valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.DismissDirection[] values();
     enum_constant public static final androidx.compose.material3.DismissDirection EndToStart;
@@ -628,7 +628,7 @@ package androidx.compose.material3 {
     method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.DismissState,androidx.compose.material3.DismissValue> Saver(kotlin.jvm.functions.Function1<? super androidx.compose.material3.DismissValue,java.lang.Boolean> confirmValueChange, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> positionalThreshold, androidx.compose.ui.unit.Density density);
   }
 
-  public enum DismissValue {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum DismissValue {
     method public static androidx.compose.material3.DismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.material3.DismissValue[] values();
     enum_constant public static final androidx.compose.material3.DismissValue Default;

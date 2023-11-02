@@ -46,6 +46,7 @@ import kotlinx.coroutines.CancellationException
 /**
  * The directions in which a [SwipeToDismissBox] can be dismissed.
  */
+@ExperimentalMaterial3Api
 enum class DismissDirection {
     /**
      * Can be dismissed by swiping in the reading direction.
@@ -61,6 +62,7 @@ enum class DismissDirection {
 /**
  * Possible values of [DismissState].
  */
+@ExperimentalMaterial3Api
 enum class DismissValue {
     /**
      * Indicates the component has not been dismissed yet.
