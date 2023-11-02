@@ -305,6 +305,41 @@ internal class SurfaceControlV33 internal constructor(
             return this
         }
 
+        override fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                SurfaceControlVerificationHelperV31.setFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl(),
+                    frameRate,
+                    compatibility,
+                    changeFrameRateStrategy
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SurfaceControlVerificationHelperV30.setFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl(),
+                    frameRate,
+                    compatibility
+                )
+            }
+            return this
+        }
+
+        override fun clearFrameRate(scImpl: SurfaceControlImpl): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                SurfaceControlVerificationHelperV34.clearFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl()
+                )
+            }
+            return this
+        }
+
         /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
@@ -365,5 +400,44 @@ private object SurfaceControlTransactionVerificationHelperV33 {
     @androidx.annotation.DoNotInline
     fun setDataSpace(transaction: Transaction, surfaceControl: SurfaceControl, dataspace: Int) {
         transaction.setDataSpace(surfaceControl, dataspace)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object SurfaceControlVerificationHelperV31 {
+    @androidx.annotation.DoNotInline
+    fun setFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        frameRate: Float,
+        compatibility: Int,
+        strategy: Int
+    ) {
+        transaction.setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+private object SurfaceControlVerificationHelperV30 {
+    @androidx.annotation.DoNotInline
+    fun setFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        frameRate: Float,
+        compatibility: Int
+    ) {
+        transaction.setFrameRate(surfaceControl, frameRate, compatibility)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object SurfaceControlVerificationHelperV34 {
+
+    @androidx.annotation.DoNotInline
+    fun clearFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl
+    ) {
+        transaction.clearFrameRate(surfaceControl)
     }
 }

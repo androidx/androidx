@@ -28,6 +28,8 @@ import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOW
 import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
+import androidx.graphics.surface.SurfaceControlCompat.Companion.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+import androidx.graphics.surface.SurfaceControlCompat.Companion.FRAME_RATE_COMPATIBILITY_DEFAULT
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV19
@@ -397,6 +399,37 @@ internal class SurfaceControlV29 internal constructor(
             dataSpace: Int
         ): SurfaceControlImpl.Transaction {
             transaction.setDataSpace(surfaceControl.asWrapperSurfaceControl(), dataSpace)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setFrameRate]
+         */
+        override fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction {
+            transaction.setFrameRate(
+                scImpl.asWrapperSurfaceControl(),
+                frameRate,
+                compatibility,
+                changeFrameRateStrategy
+            )
+            return this
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.clearFrameRate]
+         */
+        override fun clearFrameRate(scImpl: SurfaceControlImpl): SurfaceControlImpl.Transaction {
+            setFrameRate(
+                scImpl,
+                0f,
+                FRAME_RATE_COMPATIBILITY_DEFAULT,
+                CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+            )
             return this
         }
 

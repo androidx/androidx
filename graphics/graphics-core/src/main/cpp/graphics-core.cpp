@@ -486,6 +486,28 @@ jint JniBindings_nGetPreviousReleaseFenceFd(JNIEnv *env, jclass,
     return static_cast<jint>(fd);
 }
 
+void JniBindings_nSetFrameRate(JNIEnv *env, jclass,
+                               jlong surfaceTransaction,
+                               jlong surfaceControl,
+                               jfloat framerate,
+                               jint compatibility,
+                               jint changeFrameRateStrategy) {
+    auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+    auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+
+    if (android_get_device_api_level() >= 31) {
+        ASurfaceTransaction_setFrameRateWithChangeStrategy(
+                st,
+                sc,
+                framerate,
+                compatibility,
+                changeFrameRateStrategy
+        );
+    } else if (android_get_device_api_level() >= 30) {
+        ASurfaceTransaction_setFrameRate(st, sc, framerate, compatibility);
+    }
+}
+
 void loadRectInfo(JNIEnv *env) {
     gRectInfo.clazz = env->FindClass("android/graphics/Rect");
 
@@ -621,6 +643,11 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
             "nGetPreviousReleaseFenceFd",
                 "(JJ)I",
                 (void *)JniBindings_nGetPreviousReleaseFenceFd
+        },
+        {
+            "nSetFrameRate",
+                "(JJFII)V",
+                (void *) JniBindings_nSetFrameRate
         }
 };
 

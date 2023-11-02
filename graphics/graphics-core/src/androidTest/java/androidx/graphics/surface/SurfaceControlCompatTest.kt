@@ -1482,6 +1482,137 @@ class SurfaceControlCompatTest {
             }
     }
 
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRate120WithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            120f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateNegativeWithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            -50f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateZeroWithDefaultCompatibilityAndAlwaysChangeStrategy() {
+        testFrameRate(
+            0f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateInvalidCompatibility() {
+        testFrameRate(
+            120f,
+            42,
+            SurfaceControlCompat.CHANGE_FRAME_RATE_ALWAYS
+        )
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testSetFrameRateInvalidStrategy() {
+        testFrameRate(
+            120f,
+            SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
+            108
+        )
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testClearFrameRate() {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+
+                        val surfaceControl = SurfaceControlCompat.Builder()
+                            .setName("testSurfaceControl")
+                            .setParent(it.mSurfaceView)
+                            .build()
+                        SurfaceControlCompat.Transaction()
+                            .clearFrameRate(surfaceControl)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+    }
+
+    private fun testFrameRate(frameRate: Float, compatibility: Int, strategy: Int) {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+
+                        val surfaceControl = SurfaceControlCompat.Builder()
+                            .setName("testSurfaceControl")
+                            .setParent(it.mSurfaceView)
+                            .build()
+                        SurfaceControlCompat.Transaction()
+                            .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+    }
+
+    @SuppressLint("NewApi")
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
+    @Test
+    fun testSetDataSpaceThrowsOnUnsupportedPlatforms() {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+
+                        assertThrows(UnsupportedOperationException::class.java) {
+                            val surfaceControl = SurfaceControlCompat.Builder()
+                                .setName("testSurfaceControl")
+                                .setParent(it.mSurfaceView)
+                                .build()
+
+                            val extendedDataspace = DataSpace.pack(
+                                DataSpace.STANDARD_BT709,
+                                DataSpace.TRANSFER_SRGB, DataSpace.RANGE_EXTENDED
+                            )
+                            SurfaceControlCompat.Transaction()
+                                .setDataSpace(surfaceControl, extendedDataspace)
+                                .commit()
+                        }
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testSetExtendedRangeBrightness() {

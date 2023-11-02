@@ -192,6 +192,16 @@ internal class JniBindings {
         @JniVisible
         external fun nGetPreviousReleaseFenceFd(surfaceControl: Long, transactionStats: Long): Int
 
+        @JvmStatic
+        @JniVisible
+        external fun nSetFrameRate(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+            )
+
         init {
             System.loadLibrary("graphics-core")
         }
@@ -654,6 +664,22 @@ internal class SurfaceControlWrapper {
                 dstWidth,
                 dstHeight,
                 transformation
+            )
+            return this
+        }
+
+        fun setFrameRate(
+            surfaceControl: SurfaceControlWrapper,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction {
+            JniBindings.nSetFrameRate(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                frameRate,
+                compatibility,
+                changeFrameRateStrategy
             )
             return this
         }
