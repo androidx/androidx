@@ -28,7 +28,7 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
-import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
+import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.function.Consumer
@@ -81,7 +81,8 @@ internal class CallSession(
 
     class CallEventCallbackImpl(
         private val callChannels: CallChannels,
-        private val coroutineContext: CoroutineContext
+        private val coroutineContext: CoroutineContext,
+        private val voipExtensionManager: VoipExtensionManager
     ) :
         android.telecom.CallEventCallback {
         private val CALL_EVENT_CALLBACK_TAG = CallEventCallbackImpl::class.simpleName
@@ -123,7 +124,7 @@ internal class CallSession(
                         "beginning capability exchange.")
                 // Launch a new coroutine from the context of the current coroutine
                 CoroutineScope(coroutineContext).launch {
-                        CapabilityExchangeUtils.initiateVoipAppCapabilityExchange(
+                        voipExtensionManager.initiateVoipAppCapabilityExchange(
                             extras, supportedCapabilities, CALL_EVENT_CALLBACK_TAG)
                 }
             }
