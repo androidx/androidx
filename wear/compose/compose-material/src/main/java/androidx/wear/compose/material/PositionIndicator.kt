@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -665,6 +666,11 @@ public fun PositionIndicator(
     val alphaValue = remember { mutableFloatStateOf(0f) }
     val animateAlphaChannel = remember { Channel<Float>(2, BufferOverflow.DROP_OLDEST) }
 
+    var highlightAlpha by remember { mutableFloatStateOf(0f) }
+    val highlightChannel = remember { Channel<Boolean>(2, BufferOverflow.DROP_OLDEST) }
+    // Showing white highlight only when color is not White
+    val shouldShowHighlight = color != Color.White
+
     val positionFractionAnimatable = remember { Animatable(0f) }
     val sizeFractionAnimatable = remember { Animatable(0f) }
 
@@ -743,6 +749,14 @@ public fun PositionIndicator(
                                 animationSpec = updatedPositionAnimationSpec
                             )
                     }
+
+                    if (shouldShowHighlight) {
+                        launch {
+                            highlightChannel.trySend(true)
+                            delay(150)
+                            highlightChannel.trySend(false)
+                        }
+                    }
                 }
 
                 when (it.visibility) {
@@ -781,7 +795,42 @@ public fun PositionIndicator(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(shouldShowHighlight, positionAnimationSpec) {
+        // Listens to events in [highlightChannel] and triggers
+        // highlight animations to specified value.
+        if (shouldShowHighlight && positionAnimationSpec !is SnapSpec) {
+            launch {
+                highlightChannel
+                    .receiveAsFlow()
+                    .distinctUntilChanged()
+                    .collectLatest { showHighlight ->
+                        if (showHighlight) {
+                            animate(
+                                highlightAlpha,
+                                0.33f,
+                                animationSpec = tween(
+                                    durationMillis = 150,
+                                    easing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
+                                )
+                            ) { value, _ ->
+                                highlightAlpha = value
+                            }
+                        } else {
+                            animate(
+                                highlightAlpha,
+                                0f,
+                                animationSpec = tween(
+                                    durationMillis = 500,
+                                    easing = CubicBezierEasing(0.25f, 0f, 0.75f, 1f)
+                                )
+                            ) { value, _ ->
+                                highlightAlpha = value
+                            }
+                        }
+                    }
+            }
+        }
+
         // Listens to events in [animateAlphaChannel] and triggers
         // alpha animations to specified value.
         animateAlphaChannel
@@ -849,6 +898,7 @@ public fun PositionIndicator(
                                 indicatorWidthPx,
                                 indicatorStart,
                                 sizeFractionAnimatable.value,
+                                highlightAlpha
                             )
                         } else {
                             drawStraightIndicator(
@@ -860,6 +910,7 @@ public fun PositionIndicator(
                                 indicatorHeight.toPx(),
                                 indicatorStart,
                                 sizeFractionAnimatable.value,
+                                highlightAlpha
                             )
                         }
                     }
@@ -1380,7 +1431,8 @@ private fun ContentDrawScope.drawCurvedIndicator(
     sweepDegrees: Float,
     indicatorWidthPx: Float,
     indicatorStart: Float,
-    indicatorSize: Float
+    indicatorSize: Float,
+    highlightAlpha: Float
 ) {
     val diameter = max(size.width, size.height)
     val arcSize = Size(
@@ -1402,7 +1454,7 @@ private fun ContentDrawScope.drawCurvedIndicator(
         style = Stroke(width = indicatorWidthPx, cap = StrokeCap.Round)
     )
     drawArc(
-        color = color,
+        lerp(color, Color.White, highlightAlpha),
         startAngle = startAngleOffset + sweepDegrees * (-0.5f + indicatorStart),
         sweepAngle = sweepDegrees * indicatorSize,
         useCenter = false,
@@ -1420,7 +1472,8 @@ private fun ContentDrawScope.drawStraightIndicator(
     indicatorWidthPx: Float,
     indicatorHeightPx: Float,
     indicatorStart: Float,
-    indicatorSize: Float
+    indicatorSize: Float,
+    highlightAlpha: Float
 ) {
     val x = if (indicatorOnTheRight) {
         size.width - paddingHorizontalPx - indicatorWidthPx / 2
@@ -1437,7 +1490,7 @@ private fun ContentDrawScope.drawStraightIndicator(
         cap = StrokeCap.Round
     )
     drawLine(
-        color,
+        lerp(color, Color.White, highlightAlpha),
         lerp(lineTop, lineBottom, indicatorStart),
         lerp(lineTop, lineBottom, indicatorStart + indicatorSize),
         strokeWidth = indicatorWidthPx,
