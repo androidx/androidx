@@ -339,9 +339,9 @@ dependencies {
     docs("androidx.startup:startup-runtime:1.2.0-alpha02")
     docs("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     // androidx.test is not hosted in androidx\
-    docsWithoutApiSince("androidx.test:core:1.6.0-alpha01")
-    docsWithoutApiSince("androidx.test:core-ktx:1.6.0-alpha01")
-    docsWithoutApiSince("androidx.test:monitor:1.7.0-alpha01")
+    docsWithoutApiSince("androidx.test:core:1.6.0-alpha02")
+    docsWithoutApiSince("androidx.test:core-ktx:1.6.0-alpha02")
+    docsWithoutApiSince("androidx.test:monitor:1.7.0-alpha02")
     docsWithoutApiSince("androidx.test:rules:1.6.0-alpha01")
     docsWithoutApiSince("androidx.test:runner:1.6.0-alpha01")
     docsWithoutApiSince("androidx.test.espresso:espresso-accessibility:3.6.0-alpha01")
