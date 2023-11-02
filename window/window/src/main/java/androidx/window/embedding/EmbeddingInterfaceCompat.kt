@@ -20,6 +20,7 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.os.IBinder
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 
 /**
@@ -37,6 +38,13 @@ internal interface EmbeddingInterfaceCompat {
     }
 
     fun isActivityEmbedded(activity: Activity): Boolean
+
+    @RequiresWindowSdkExtension(5)
+    @OptIn(ExperimentalWindowApi::class)
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
+
+    @RequiresWindowSdkExtension(5)
+    fun unpinTopActivityStack(taskId: Int)
 
     @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(

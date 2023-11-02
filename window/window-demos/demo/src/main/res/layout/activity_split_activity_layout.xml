@@ -193,5 +193,32 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Launch Expanded Dialog" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/pin_top_activity_stack_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Pin Top ActivityStack" />
+
+        <CheckBox
+            android:id="@+id/stickyPinRule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Pin Rule Sticky" />
+
+        <Button
+            android:id="@+id/unpin_top_activity_stack_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Unpin Top ActivityStack" />
     </LinearLayout>
 </ScrollView>

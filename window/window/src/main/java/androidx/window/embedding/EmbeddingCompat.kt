@@ -25,6 +25,7 @@ import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -90,6 +91,25 @@ internal class EmbeddingCompat(
 
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension.isActivityEmbedded(activity)
+    }
+
+    @RequiresWindowSdkExtension(5)
+    @OptIn(ExperimentalWindowApi::class)
+    override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return embeddingExtension.pinTopActivityStack(
+            taskId,
+            adapter.translateSplitPinRule(
+                applicationContext,
+                splitPinRule
+            )
+        )
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun unpinTopActivityStack(taskId: Int) {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return embeddingExtension.unpinTopActivityStack(taskId)
     }
 
     @RequiresWindowSdkExtension(2)

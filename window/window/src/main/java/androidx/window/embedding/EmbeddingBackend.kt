@@ -23,6 +23,7 @@ import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 /**
@@ -50,6 +51,13 @@ interface EmbeddingBackend {
     val splitSupportStatus: SplitController.SplitSupportStatus
 
     fun isActivityEmbedded(activity: Activity): Boolean
+
+    @RequiresWindowSdkExtension(5)
+    @OptIn(ExperimentalWindowApi::class)
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
+
+    @RequiresWindowSdkExtension(5)
+    fun unpinTopActivityStack(taskId: Int)
 
     @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
