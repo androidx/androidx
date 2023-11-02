@@ -16,12 +16,21 @@ package androidx.compose.ui.util {
   }
 
   public final class InlineClassHelperKt {
+    method public static double doubleFromBits(long bits);
+    method public static float floatFromBits(int bits);
     method public static inline long packFloats(float val1, float val2);
     method public static inline long packInts(int val1, int val2);
+    method public static inline float unpackAbsFloat1(long value);
+    method public static inline float unpackAbsFloat2(long value);
     method public static inline float unpackFloat1(long value);
     method public static inline float unpackFloat2(long value);
     method public static inline int unpackInt1(long value);
     method public static inline int unpackInt2(long value);
+  }
+
+  public final class InlineClassHelper_jvmKt {
+    method public static inline double doubleFromBits(long bits);
+    method public static inline float floatFromBits(int bits);
   }
 
   public final class ListUtilsKt {

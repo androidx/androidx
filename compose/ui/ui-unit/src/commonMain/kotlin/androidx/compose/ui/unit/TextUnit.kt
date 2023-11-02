@@ -20,6 +20,7 @@ package androidx.compose.ui.unit
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.util.floatFromBits
 import androidx.compose.ui.util.lerp
 
 /**
@@ -239,7 +240,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      * For example, the value of 3.sp equals to 3, and value of 5.em equals to 5. The value of
      * [TextUnit]s whose [TextUnitType] is [TextUnitType.Unspecified] is undefined.
      */
-    val value get() = Float.fromBits((packedValue and 0xFFFF_FFFFL).toInt())
+    val value get() = floatFromBits((packedValue and 0xFFFF_FFFFL).toInt())
 }
 
 /**

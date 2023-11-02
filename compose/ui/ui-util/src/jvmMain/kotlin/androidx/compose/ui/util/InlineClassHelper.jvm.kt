@@ -16,10 +16,9 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.compose.ui.graphics.vector
+package androidx.compose.ui.util
 
 // See explanation in FastFloatParser.kt
-internal actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
+actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
 
-internal actual inline fun doubleFromBits(bits: Long): Double =
-    java.lang.Double.longBitsToDouble(bits)
+actual inline fun doubleFromBits(bits: Long): Double = java.lang.Double.longBitsToDouble(bits)
