@@ -1,3 +1,7 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.animation.AnimatedContentTransitionScope#getContentAlignment():
-    Added method androidx.compose.animation.AnimatedContentTransitionScope.getContentAlignment()
+AddedMethod: androidx.compose.animation.AnimatedContentTransitionScope#getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion):
+    Added method androidx.compose.animation.AnimatedContentTransitionScope.getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion)
+
+
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope#getHold(androidx.compose.animation.ExitTransition.Companion):
+    Removed method androidx.compose.animation.AnimatedContentTransitionScope.getHold(androidx.compose.animation.ExitTransition.Companion)
