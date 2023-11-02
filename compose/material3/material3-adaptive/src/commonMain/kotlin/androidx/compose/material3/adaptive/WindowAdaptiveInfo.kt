@@ -25,25 +25,25 @@ import androidx.compose.runtime.Immutable
  *
  * @constructor create an instance of [WindowAdaptiveInfo]
  * @param windowSizeClass [WindowSizeClass] of the current window.
- * @param posture [Posture] of the current window.
+ * @param windowPosture [Posture] of the current window.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class WindowAdaptiveInfo(
     val windowSizeClass: WindowSizeClass,
-    val posture: Posture
+    val windowPosture: Posture
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is WindowAdaptiveInfo) return false
         if (windowSizeClass != other.windowSizeClass) return false
-        if (posture != other.posture) return false
+        if (windowPosture != other.windowPosture) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = windowSizeClass.hashCode()
-        result = 31 * result + posture.hashCode()
+        result = 31 * result + windowPosture.hashCode()
         return result
     }
 }

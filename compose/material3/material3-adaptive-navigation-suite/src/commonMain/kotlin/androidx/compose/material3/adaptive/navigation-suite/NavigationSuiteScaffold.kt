@@ -374,7 +374,7 @@ object NavigationSuiteScaffoldDefaults {
     @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationSuiteType {
         return with(adaptiveInfo) {
-            if (posture.isTabletop || windowSizeClass.heightSizeClass == Compact) {
+            if (windowPosture.isTabletop || windowSizeClass.heightSizeClass == Compact) {
                 NavigationSuiteType.NavigationBar
             } else if (windowSizeClass.widthSizeClass == Expanded ||
                 windowSizeClass.widthSizeClass == Medium

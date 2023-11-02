@@ -84,7 +84,9 @@ class CurrentWindowAdaptiveInfoTest {
                     with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
                 )
             )
-            assertThat(actualAdaptiveInfo.posture).isEqualTo(calculatePosture(MockFoldingFeatures1))
+            assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
+                calculatePosture(MockFoldingFeatures1)
+            )
         }
 
         layoutInfoRule.overrideWindowLayoutInfo(
@@ -98,7 +100,9 @@ class CurrentWindowAdaptiveInfoTest {
                     with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
                 )
             )
-            assertThat(actualAdaptiveInfo.posture).isEqualTo(calculatePosture(MockFoldingFeatures2))
+            assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
+                calculatePosture(MockFoldingFeatures2)
+            )
         }
     }
 
