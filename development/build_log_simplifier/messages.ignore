@@ -581,3 +581,5 @@ at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source
 # temporary diagnostic for b/307738543
 docs-public:docs starting
 docs-public:docs completing
+docs-tip-of-tree:docs starting
+docs-tip-of-tree:docs completing
