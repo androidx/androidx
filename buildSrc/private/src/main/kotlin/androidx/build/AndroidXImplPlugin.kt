@@ -1216,7 +1216,7 @@ fun Project.getProjectsMap(): ConcurrentHashMap<String, String> {
  * Configures all non-Studio tasks in a project (see b/153193718 for background) to time out after
  * [TASK_TIMEOUT_MINUTES].
  */
-private fun Project.configureTaskTimeouts() {
+internal fun Project.configureTaskTimeouts() {
     tasks.configureEach { t ->
         // skip adding a timeout for some tasks that both take a long time and
         // that we can count on the user to monitor

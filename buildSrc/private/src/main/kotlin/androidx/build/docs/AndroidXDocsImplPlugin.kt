@@ -17,6 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.PROJECT_STRUCTURE_METADATA_FILENAME
+import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
@@ -168,6 +169,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             multiplatformDocsSourcesConfiguration,
             mergedProjectMetadata
         )
+
+        project.configureTaskTimeouts()
     }
 
     /**
