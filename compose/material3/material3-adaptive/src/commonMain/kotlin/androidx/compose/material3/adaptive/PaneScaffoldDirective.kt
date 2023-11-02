@@ -67,7 +67,7 @@ fun calculateStandardPaneScaffoldDirective(
     val horizontalSpacerSize: Dp
 
     // TODO(conradchen): Confirm the table top mode settings
-    if (windowAdaptiveInfo.posture.isTabletop) {
+    if (windowAdaptiveInfo.windowPosture.isTabletop) {
         maxVerticalPartitions = 2
         horizontalSpacerSize = 24.dp
     } else {
@@ -79,7 +79,7 @@ fun calculateStandardPaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
-        getExcludedVerticalBounds(windowAdaptiveInfo.posture, verticalHingePolicy)
+        getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
 
@@ -126,7 +126,7 @@ fun calculateDensePaneScaffoldDirective(
     val maxVerticalPartitions: Int
     val horizontalSpacerSize: Dp
 
-    if (windowAdaptiveInfo.posture.isTabletop) {
+    if (windowAdaptiveInfo.windowPosture.isTabletop) {
         maxVerticalPartitions = 2
         horizontalSpacerSize = 24.dp
     } else {
@@ -138,7 +138,7 @@ fun calculateDensePaneScaffoldDirective(
         maxHorizontalPartitions,
         GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
         maxVerticalPartitions,
-        getExcludedVerticalBounds(windowAdaptiveInfo.posture, verticalHingePolicy)
+        getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
 

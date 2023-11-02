@@ -27,5 +27,5 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 internal actual val WindowAdaptiveInfoDefault: WindowAdaptiveInfo = WindowAdaptiveInfo(
     windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(1000.dp, 1000.dp)),
-    posture = Posture()
+    windowPosture = Posture()
 )
