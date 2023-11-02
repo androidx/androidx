@@ -425,3 +425,11 @@ dependencies {
     docs(project(":work:work-rxjava3"))
     docs(project(":work:work-testing"))
 }
+afterEvaluate {
+  tasks["docs"].doFirst {
+    println("docs-tip-of-tree:docs starting")
+  }
+  tasks["docs"].doLast {
+    println("docs-tip-of-tree:docs completing")
+  }
+}
