@@ -52,6 +52,263 @@ internal expect class ComposableLambdaImpl(
     block: Any?,
 ) : ComposableLambda {
     fun update(block: Any)
+
+    override operator fun invoke(c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, p2: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, p2: Any?, p3: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        p18: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
 }
 
 internal fun RecomposeScope?.replacableWith(other: RecomposeScope) =

@@ -26,6 +26,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
 import org.junit.Rule
@@ -51,6 +52,8 @@ class KonanBuildServiceTest {
             "prebuiltsRoot",
             File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
         )
+        // register components required by NativeCompilerDownloader
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
         buildService = KonanBuildService.obtain(project).get()
     }
 

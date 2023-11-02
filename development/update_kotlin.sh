@@ -20,8 +20,9 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-parcelize-runtime:$KOTLIN_VE
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-annotation-processing-gradle:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-parcelize-compiler:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-bom:$KOTLIN_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION,"
 
 ./development/importMaven/importMaven.sh --allow-jetbrains-dev "$ARTIFACTS_TO_DOWNLOAD"
 
 # Import konan binaries
-./development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version "$KOTLIN_VERSION"
+./development/importMaven/importMaven.sh --allow-jetbrains-dev import-konan-binaries --konan-compiler-version "$KOTLIN_VERSION"

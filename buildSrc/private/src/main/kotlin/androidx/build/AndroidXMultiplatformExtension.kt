@@ -22,11 +22,12 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
@@ -110,9 +111,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
             field = value
         }
 
-    val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>>
-        get() = kotlinExtension.presets
-
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
@@ -159,11 +157,18 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         }
     }
 
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     @JvmOverloads
     fun android(block: Action<KotlinAndroidTarget>? = null): KotlinAndroidTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
-            kotlinExtension.androidTarget { block?.execute(this) }
+            kotlinExtension.androidTarget {
+                // we need to allow instrumented test to depend on commonTest/jvmTest, which is not
+                // default.
+                // see https://youtrack.jetbrains.com/issue/KT-62594
+                instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+                block?.execute(this)
+            }
         } else {
             null
         }

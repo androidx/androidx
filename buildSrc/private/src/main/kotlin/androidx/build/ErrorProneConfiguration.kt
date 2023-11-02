@@ -35,6 +35,7 @@ import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.process.CommandLineArgumentProvider
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 const val ERROR_PRONE_TASK = "runErrorProne"
 
@@ -49,9 +50,14 @@ fun Project.configureErrorProneForJava() {
             errorProneConfiguration
         )
     }
+    val kmpExtension = project.multiplatformExtension
+    if (kmpExtension?.targets?.any { it is KotlinJvmTarget && it.withJavaEnabled } == false) {
+        // only configure error prone when Kotlin adds compileJava task
+        return
+    }
+
     val javaCompileProvider = project.tasks.named(COMPILE_JAVA_TASK_NAME, JavaCompile::class.java)
     log.info("Configuring error-prone for ${project.path}")
-    val kmpExtension = project.multiplatformExtension
     if (kmpExtension != null) {
         val jvmJarProvider = tasks.named(kmpExtension.jvm().artifactsTaskName, Jar::class.java)
         makeKmpErrorProneTask(
