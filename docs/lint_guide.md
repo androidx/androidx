@@ -464,7 +464,7 @@ override fun visitElement(context: XmlContext, element: Element) {
     val incident = Incident(context)
         .fix(lintFix)
         .issue(ISSUE)
-        .location(context.getLocation(node))
+        .location(context.getLocation(element))
         .message("My issue message")
         .scope(context.getNameLocation(element))
 
