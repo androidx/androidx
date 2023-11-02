@@ -327,7 +327,11 @@ package androidx.graphics.surface {
     field public static final int BUFFER_TRANSFORM_ROTATE_180 = 3; // 0x3
     field public static final int BUFFER_TRANSFORM_ROTATE_270 = 7; // 0x7
     field public static final int BUFFER_TRANSFORM_ROTATE_90 = 4; // 0x4
+    field public static final int CHANGE_FRAME_RATE_ALWAYS = 1; // 0x1
+    field public static final int CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS = 0; // 0x0
     field public static final androidx.graphics.surface.SurfaceControlCompat.Companion Companion;
+    field public static final int FRAME_RATE_COMPATIBILITY_DEFAULT = 0; // 0x0
+    field public static final int FRAME_RATE_COMPATIBILITY_FIXED_SOURCE = 1; // 0x1
   }
 
   public static final class SurfaceControlCompat.Builder {
@@ -344,6 +348,7 @@ package androidx.graphics.surface {
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final class SurfaceControlCompat.Transaction implements java.lang.AutoCloseable {
     ctor public SurfaceControlCompat.Transaction();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction clearFrameRate(androidx.graphics.surface.SurfaceControlCompat surfaceControl);
     method public void close();
     method public void commit();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
@@ -358,6 +363,7 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDataSpace(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int dataSpace);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public androidx.graphics.surface.SurfaceControlCompat.Transaction setExtendedRangeBrightness(androidx.graphics.surface.SurfaceControlCompat surfaceControl, @FloatRange(from=1.0, fromInclusive=true) float currentBufferRatio, @FloatRange(from=1.0, fromInclusive=true) float desiredRatio);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setFrameRate(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float frameRate, int compatibility, int changeFrameRateStrategy);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
     method public androidx.graphics.surface.SurfaceControlCompat.Transaction setPosition(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float x, float y);

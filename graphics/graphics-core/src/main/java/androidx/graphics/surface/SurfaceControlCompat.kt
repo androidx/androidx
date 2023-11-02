@@ -53,12 +53,13 @@ class SurfaceControlCompat internal constructor(
     internal val scImpl: SurfaceControlImpl
 ) {
 
-    /**
-     * Constants for [Transaction.setBufferTransform].
-     *
-     * Various transformations that can be applied to a buffer.
-     */
     companion object {
+
+        /**
+         * Constants for [Transaction.setBufferTransform].
+         *
+         * Various transformations that can be applied to a buffer.
+         */
         @Suppress("AcronymName")
         @IntDef(
             value = [BUFFER_TRANSFORM_IDENTITY, BUFFER_TRANSFORM_MIRROR_HORIZONTAL,
@@ -96,6 +97,55 @@ class SurfaceControlCompat internal constructor(
          * Rotates the buffer 270 degrees clockwise. Maps a point (x, y) to (y, -x)
          */
         const val BUFFER_TRANSFORM_ROTATE_270 = 7
+
+        /**
+         * Constants for [Transaction.setFrameRate]
+         */
+        @IntDef(
+            value = [CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS, CHANGE_FRAME_RATE_ALWAYS]
+        )
+        internal annotation class ChangeFrameRateStrategy
+
+        /**
+         * Change the frame rate only if the transition is going to be seamless.
+         */
+        const val CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS = 0
+
+        /**
+         * Change the frame rate even if the transition is going to be non-seamless, i.e.
+         * with visual interruptions for the user.
+         */
+        const val CHANGE_FRAME_RATE_ALWAYS = 1
+
+        /**
+         * Constants for configuring compatibility for [Transaction.setFrameRate]
+         */
+        @IntDef(
+            value = [FRAME_RATE_COMPATIBILITY_DEFAULT, FRAME_RATE_COMPATIBILITY_FIXED_SOURCE]
+        )
+        internal annotation class FrameRateCompatibility
+
+        /**
+         * There are no inherent restrictions on the frame rate. When the system selects a frame
+         * rate other than what the app requested, the app will be able to run at the system frame
+         * rate without requiring pull down (the mechanical process of "pulling", physically moving,
+         * frame content downward to advance it from one frame to the next at a repetitive rate).
+         * This value should be used when displaying game content, UIs, and anything that isn't
+         * video.
+         */
+        const val FRAME_RATE_COMPATIBILITY_DEFAULT = 0
+
+        /**
+         * This compositing layer is being used to display content with an inherently fixed frame
+         * rate, e.g. a video that has a specific frame rate. When the system selects a frame rate
+         * other than what the app requested, the app will need to do pull down or use some other
+         * technique to adapt to the system's frame rate. Pull down involves the mechanical process
+         * of "pulling", physically moving, frame content downward to advance it from one frame to
+         * the next at a repetitive rate). The user experience is likely to be worse
+         * (e.g. more frame stuttering) than it would be if the system had chosen the app's
+         * requested frame rate. This value should be used for video content.
+         */
+        const val FRAME_RATE_COMPATIBILITY_FIXED_SOURCE = 1
     }
 
     /**
@@ -482,6 +532,74 @@ class SurfaceControlCompat internal constructor(
         ): Transaction {
             mBufferTransforms[surfaceControl] = transformation
             mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
+            return this
+        }
+
+        /**
+         * Sets the intended frame rate for [SurfaceControlCompat].
+         *
+         * On devices that are capable of running the display at different refresh rates, the
+         * system may choose a display refresh rate to better match this surface's frame rate.
+         * Usage of this API won't directly affect the application's frame production pipeline.
+         * However, because the system may change the display refresh rate, calls to this function
+         * may result in changes to Choreographer callback timings, and changes to the time interval
+         * at which the system releases buffers back to the application.
+         *
+         * This method is only supported on Android R+ and is ignored on older platform versions.
+         *
+         * @param surfaceControl The target [SurfaceControlCompat] that will have it's frame rate
+         * changed
+         * @param frameRate The intended frame rate of this surface, in frames per second. 0 is a
+         * special value that indicates the app will accept the system's choice for the display
+         * frame rate, which is the default behavior if this function isn't called. Must be
+         * greater than or equal to 0.
+         * The frameRate param does not need to be a valid refresh rate for this device's display
+         * - e.g., it's fine to pass 30fps to a device that can only run the display at 60fps.
+         * @param compatibility The frame rate compatibility of this surface. The compatibility
+         * value may influence the system's choice of display frame rate. This must be either
+         * [FRAME_RATE_COMPATIBILITY_DEFAULT] or [FRAME_RATE_COMPATIBILITY_FIXED_SOURCE]
+         * This parameter is ignored when frameRate is 0.
+         * @param changeFrameRateStrategy Whether display refresh rate transitions should be
+         * seamless. A seamless transition does not have any visual interruptions, such as a black
+         * screen for a second or two. Must be either [CHANGE_FRAME_RATE_ALWAYS] or
+         * [CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS]. This parameter is only supported on Android S and
+         * when [frameRate] is not 0. This is ignored on older Android versions and when [frameRate]
+         * is 0.
+         */
+        fun setFrameRate(
+            surfaceControl: SurfaceControlCompat,
+            frameRate: Float,
+            @FrameRateCompatibility compatibility: Int,
+            @ChangeFrameRateStrategy changeFrameRateStrategy: Int
+        ): Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mImpl.setFrameRate(
+                    surfaceControl.scImpl,
+                    frameRate,
+                    compatibility,
+                    changeFrameRateStrategy
+                )
+            }
+            return this
+        }
+
+        /**
+         * Clears the frame rate which was set for the surface SurfaceControl.
+         *
+         * This is equivalent to calling [setFrameRate] with 0 for the framerate and
+         * [FRAME_RATE_COMPATIBILITY_DEFAULT]
+         *
+         * Note that this only has an effect for surfaces presented on the display. If this surface
+         * is consumed by something other than the system compositor, e.g. a media codec, this call
+         * has no effect.
+         *
+         * This is only supported on Android R and above. This is ignored on older Android versions.
+         * @param surfaceControl [SurfaceControlCompat] to clear the frame rate
+         */
+        fun clearFrameRate(surfaceControl: SurfaceControlCompat): Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                mImpl.clearFrameRate(surfaceControl.scImpl)
+            }
             return this
         }
 
