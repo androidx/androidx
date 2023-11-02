@@ -21,6 +21,7 @@ import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -101,12 +102,12 @@ androidXMultiplatform {
                 def test = target.compilations["test"]
                 test.defaultSourceSet {
                     dependsOn(nativeTest)
-                }
-                if (target.preset != presets.linuxX64) {
-                    // For tests in Mac host, link to shared library included in MacOS
-                    test.kotlinOptions.freeCompilerArgs += [
-                            "-linker-options", "-lsqlite3"
-                    ]
+                    if (target.konanTarget != KonanTarget.LINUX_X64) {
+                        // For tests in Mac host, link to shared library included in MacOS
+                        test.kotlinOptions.freeCompilerArgs += [
+                                "-linker-options", "-lsqlite3"
+                        ]
+                    }
                 }
             }
         }

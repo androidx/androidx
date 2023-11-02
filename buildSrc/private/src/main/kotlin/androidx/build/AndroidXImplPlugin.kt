@@ -40,7 +40,6 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.api.variant.ResourcesPackaging
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
@@ -95,6 +94,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
@@ -395,12 +395,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     task.kotlinOptions.jvmTarget = "11"
                 } else if (
                     extension.type.compilationTarget == CompilationTarget.HOST &&
-                        extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+                    extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
                 ) {
                     task.kotlinOptions.jvmTarget = "17"
                 } else {
                     task.kotlinOptions.jvmTarget = "1.8"
                 }
+
                 val kotlinCompilerArgs =
                     mutableListOf(
                         "-Xskip-metadata-version-check",
@@ -443,10 +444,18 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
         if (plugin is KotlinMultiplatformPluginWrapper) {
             project.configureKonanDirectory()
-            project.extensions.findByType<LibraryExtension>()?.apply {
-                configureAndroidLibraryWithMultiplatformPluginOptions()
+
+            val libraryExtension = project.extensions.findByType<LibraryExtension>()
+            if (libraryExtension != null) {
+                libraryExtension.configureAndroidLibraryWithMultiplatformPluginOptions()
+            } else {
+                // Kotlin MPP does not apply java plugin anymore, but we still want to configure
+                // all java-related tasks.
+                // We only need to do this when project does not have Android plugin, which already
+                // configures Java tasks.
+                configureWithJavaPlugin(project, extension)
             }
-            project.configureKmpTests()
+            project.configureKmp()
             project.configureSourceJarForMultiplatform()
 
             // Disable any source JAR task(s) added by KotlinMultiplatformPlugin.
@@ -666,7 +675,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             } else if (
                 extension.type.compilationTarget == CompilationTarget.HOST &&
-                    extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
+                extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
             ) {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_17
@@ -699,6 +708,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             } else {
                 JavaApiTaskConfig
             }
+
         project.configureProjectForApiTasks(apiTaskConfig, extension)
 
         project.afterEvaluate {
@@ -713,7 +723,17 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             configuration.resolutionStrategy.preferProjectModules()
         }
 
-        project.addToBuildOnServer("jar")
+        if (project.multiplatformExtension == null) {
+            project.addToBuildOnServer("jar")
+        } else {
+            val multiplatformExtension = project.multiplatformExtension!!
+            multiplatformExtension.targets.forEach {
+                if (it.platformType == KotlinPlatformType.jvm) {
+                    val task = project.tasks.named(it.artifactsTaskName, Jar::class.java)
+                    project.addToBuildOnServer(task)
+                }
+            }
+        }
 
         project.addToProjectMap(extension)
     }
@@ -962,7 +982,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         extensions.extraProperties["kotlin.native.distribution.baseDownloadUrl"] = url
     }
 
-    private fun Project.configureKmpTests() {
+    private fun Project.configureKmp() {
         val kmpExtension =
             checkNotNull(project.extensions.findByType<KotlinMultiplatformExtension>()) {
                 """
@@ -971,6 +991,15 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             """
                     .trimIndent()
             }
+
+        // Configure all KMP targets to allow expect/actual classes that are not stable.
+        // (see https://youtrack.jetbrains.com/issue/KT-61573)
+        kmpExtension.targets.all { kotlinTarget ->
+            kotlinTarget.compilations.all {
+                it.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+
         kmpExtension.testableTargets.all { kotlinTarget ->
             if (kotlinTarget is KotlinNativeTargetWithSimulatorTests) {
                 kotlinTarget.binaries.all {

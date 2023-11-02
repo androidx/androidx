@@ -522,13 +522,13 @@ thread\.resume\(\);
 thread\.suspend\(\);
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
+\(KonanProperties\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
 Download kotlin\-native\-prebuilt\-.*.gz finished\, took [0-9]+ s [0-9]+ ms
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
-Extracting dependency: .*\.konan/cache.*
+Extracting dependency: .*\.konan/dependencies/cache.*
 # > Task :commonizeNativeDistribution
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
