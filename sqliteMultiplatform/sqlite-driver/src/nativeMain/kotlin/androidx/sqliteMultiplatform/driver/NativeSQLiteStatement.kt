@@ -49,38 +49,32 @@ import sqlite3.sqlite3_step
 
 /**
  * TODO:
- *  * (b/304297717) step non-OK code handling
- *  * (b/307917224) index out of bounds handling
- *  * (b/304295573) busy / locked handling
+ *  * step non-OK code handling
+ *  * index out of bounds handling
+ *  * busy / locked handling
  */
 internal class NativeSQLiteStatement(
     private val dbStruct: sqlite3,
     private val stmtStruct: sqlite3_stmt
 ) : SQLiteStatement {
     override fun bindBlob(index: Int, value: ByteArray) {
-        sqlite3_bind_blob(
-            stmtStruct.ptr,
-            index + 1,
-            value.toCValues(),
-            value.size,
-            SQLITE_TRANSIENT
-        )
+        sqlite3_bind_blob(stmtStruct.ptr, index, value.toCValues(), value.size, SQLITE_TRANSIENT)
     }
 
     override fun bindLong(index: Int, value: Long) {
-        sqlite3_bind_int64(stmtStruct.ptr, index + 1, value)
+        sqlite3_bind_int64(stmtStruct.ptr, index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        sqlite3_bind_double(stmtStruct.ptr, index + 1, value)
+        sqlite3_bind_double(stmtStruct.ptr, index, value)
     }
 
     override fun bindText(index: Int, value: String) {
-        sqlite3_bind_text(stmtStruct.ptr, index + 1, value, value.length, SQLITE_TRANSIENT)
+        sqlite3_bind_text(stmtStruct.ptr, index, value, value.length, SQLITE_TRANSIENT)
     }
 
     override fun bindNull(index: Int) {
-        sqlite3_bind_null(stmtStruct.ptr, index + 1)
+        sqlite3_bind_null(stmtStruct.ptr, index)
     }
 
     override fun getText(index: Int): String {

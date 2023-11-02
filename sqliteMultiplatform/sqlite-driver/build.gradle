@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    android()
     // TODO(b/300666074): Enable linux target once we can compile sqlite3.c
     // linux()
     mac()
@@ -41,9 +37,10 @@ androidXMultiplatform {
         }
     }
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
+        }
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
@@ -52,24 +49,9 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(project(":sqliteMultiplatform:conformanceTest"))
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
             }
-        }
-        androidMain {
-            dependsOn(commonMain)
-        }
-        androidUnitTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
-        }
-        androidInstrumentedTest {
-            dependsOn(androidUnitTest)
         }
         if (enableNative) {
             nativeMain {
@@ -85,9 +67,6 @@ androidXMultiplatform {
                 main.defaultSourceSet {
                     dependsOn(nativeMain)
                 }
-                // For usage of sqlite3.h C APIs
-                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
-                main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
                     sqlite3 {
                         def externalSQLiteDir = new File(
@@ -111,10 +90,6 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-android {
-    namespace "androidx.sqliteMultiplatform.driver"
 }
 
 androidx {

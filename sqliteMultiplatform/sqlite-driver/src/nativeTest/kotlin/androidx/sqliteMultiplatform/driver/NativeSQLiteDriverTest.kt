@@ -16,19 +16,28 @@
 
 package androidx.sqliteMultiplatform.driver
 
-import androidx.sqliteMultiplatform.BaseConformanceTest
-import androidx.sqliteMultiplatform.SQLiteDriver
-import kotlin.test.BeforeTest
+import androidx.kruth.assertThat
+import kotlin.test.AfterTest
+import kotlin.test.Test
 import platform.posix.remove
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
+class NativeSQLiteDriverTest {
 
-    @BeforeTest
-    fun before() {
+    @AfterTest
+    fun after() {
         remove("test.db")
     }
 
-    override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver("test.db")
+    @Test
+    fun smokeTest() {
+        val driver = NativeSQLiteDriver("test.db")
+        val connection = driver.open()
+        connection.prepare("PRAGMA journal_mode").let { statement ->
+            statement.step()
+            // Default journal mode is 'delete'
+            assertThat(statement.getText(0)).isEqualTo("delete")
+            statement.close()
+        }
+        connection.close()
     }
 }
