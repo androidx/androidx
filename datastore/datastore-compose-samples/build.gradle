@@ -54,7 +54,7 @@ android {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.19.4"
+        artifact = libs.protobufCompiler.get()
     }
     generateProtoTasks {
         all().each { task ->
