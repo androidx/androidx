@@ -3,6 +3,14 @@ set -e
 
 KOTLIN_VERSION="$1"
 
+ALLOW_JETBRAINS_DEV=""
+for arg in "$@"
+do
+    if [ "$arg" == "--allow-jetbrains-dev" ]; then
+      ALLOW_JETBRAINS_DEV="--allow-jetbrains-dev"
+    fi
+done
+
 # Download maven artifacts
 ARTIFACTS_TO_DOWNLOAD="org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:$KOTLIN_VERSION,"
@@ -22,7 +30,7 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-parcelize-compiler:$KOTLIN_V
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-bom:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION,"
 
-./development/importMaven/importMaven.sh --allow-jetbrains-dev "$ARTIFACTS_TO_DOWNLOAD"
+./development/importMaven/importMaven.sh "$ALLOW_JETBRAINS_DEV" "$ARTIFACTS_TO_DOWNLOAD"
 
 # Import konan binaries
-./development/importMaven/importMaven.sh --allow-jetbrains-dev import-konan-binaries --konan-compiler-version "$KOTLIN_VERSION"
+./development/importMaven/importMaven.sh "$ALLOW_JETBRAINS_DEV" import-konan-binaries --konan-compiler-version "$KOTLIN_VERSION"
