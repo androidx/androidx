@@ -24,20 +24,13 @@
         android:id="@+id/navigation_scanner"
         android:name="androidx.bluetooth.integration.testapp.ui.scanner.ScannerFragment"
         android:label="@string/title_scanner"
-        tools:layout="@layout/fragment_scanner" >
-        <action
-            android:id="@+id/action_navigation_scanner_to_navigation_connections"
-            app:destination="@id/navigation_connections"
-            app:popUpTo="@id/navigation_scanner"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/fragment_scanner" />
 
     <fragment
         android:id="@+id/navigation_connections"
         android:name="androidx.bluetooth.integration.testapp.ui.connections.ConnectionsFragment"
         android:label="@string/title_connections"
-        tools:layout="@layout/fragment_connections">
-    </fragment>
+        tools:layout="@layout/fragment_connections" />
 
     <fragment
         android:id="@+id/navigation_advertiser"

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp
+package androidx.bluetooth.integration.testapp.ui.main
 
 import androidx.bluetooth.BluetoothDevice
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kotlin.random.Random
 
 class MainViewModel : ViewModel() {
 
@@ -26,4 +29,12 @@ class MainViewModel : ViewModel() {
     }
 
     var selectedBluetoothDevice: BluetoothDevice? = null
+
+    val navigateToConnections: LiveData<Int>
+        get() = _navigateToConnections
+    private val _navigateToConnections = MutableLiveData<Int>()
+
+    fun navigateToConnections() {
+        _navigateToConnections.value = Random.nextInt()
+    }
 }
