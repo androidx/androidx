@@ -733,6 +733,17 @@ class Camera2CapturePipeline {
                             uiAppliedFuture),
                     mExecutor
             ).transformAsync(
+                    // Won't have any effect if CONTROL_AE_MODE_ON_EXTERNAL_FLASH is supported
+                    input -> CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                Logger.d(TAG, "ScreenFlashTask#preCapture: enable torch");
+                                // TODO: Enable torch only if actual flash unit doesn't exist
+                                mCameraControl.enableTorchInternal(true);
+                                completer.set(null);
+                                return "EnableTorchInternal";
+                            }),
+                    mExecutor
+            ).transformAsync(
                     input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
                     mExecutor
             ).transformAsync(
@@ -751,6 +762,7 @@ class Camera2CapturePipeline {
         @Override
         public void postCapture() {
             Logger.d(TAG, "ScreenFlashTask#postCapture");
+            mCameraControl.enableTorchInternal(false);
             mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(false).addListener(
                     () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor
             );
