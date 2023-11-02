@@ -108,6 +108,16 @@ val taskNamesKnownToDuplicateOutputs =
     setOf(
         // Instead of adding new elements to this set, prefer to disable unused tasks when possible
 
+        // b/308798582
+        "transformNonJvmMainCInteropDependenciesMetadataForIde",
+        "transformDarwinTestCInteropDependenciesMetadataForIde",
+        "transformDarwinMainCInteropDependenciesMetadataForIde",
+        "transformCommonMainCInteropDependenciesMetadataForIde",
+        "transformCommonTestCInteropDependenciesMetadataForIde",
+        "transformIosMainCInteropDependenciesMetadataForIde",
+        "transformIosTestCInteropDependenciesMetadataForIde",
+        "transformNativeTestCInteropDependenciesMetadataForIde",
+
         // The following tests intentionally have the same output of golden images
         "updateGoldenDesktopTest",
         "updateGoldenDebugUnitTest"
