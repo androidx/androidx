@@ -116,11 +116,15 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
                 .setSessionTemplateId(sessionConfigImpl.getSessionTemplateId());
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            int sessionType = sessionConfigImpl.getSessionType();
-            if (sessionType == -1) { // -1 means using default value
-                sessionType = SessionConfiguration.SESSION_REGULAR;
+            try {
+                int sessionType = sessionConfigImpl.getSessionType();
+                if (sessionType == -1) { // -1 means using default value
+                    sessionType = SessionConfiguration.SESSION_REGULAR;
+                }
+                camera2SessionConfigBuilder.setSessionType(sessionType);
+            } catch (NoSuchMethodError e) {
+                camera2SessionConfigBuilder.setSessionType(SessionConfiguration.SESSION_REGULAR);
             }
-            camera2SessionConfigBuilder.setSessionType(sessionType);
         }
         return camera2SessionConfigBuilder.build();
     }
