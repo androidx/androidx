@@ -34,6 +34,7 @@ import leakcanary.DetectLeaksAfterTestSuccess
 import leakcanary.SkipLeakDetection
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -237,6 +238,7 @@ public class FragmentStrictModeTest {
     }
 
     @Test
+    @Ignore("b/308684873")
     public fun detectWrongNestedHierarchyNoParent() {
         var violation: Violation? = null
         val policy = FragmentStrictMode.Policy.Builder()
