@@ -744,7 +744,7 @@ class AnimatedContentTest {
                 targetState = target,
                 transitionSpec = {
                     fadeIn(tween(200)) togetherWith
-                        fadeOut(tween(5)) + ExitTransition.Hold
+                        fadeOut(tween(5)) + ExitTransition.KeepUntilTransitionsFinished
                 }
             ) {
                 if (it) {
@@ -1141,7 +1141,7 @@ class AnimatedContentTest {
                             targetContentEnter = slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.End
                             ),
-                            initialContentExit = ExitTransition.Hold,
+                            initialContentExit = ExitTransition.KeepUntilTransitionsFinished,
                             targetContentZIndex = 0.0f,
                             sizeTransform = SizeTransform(clip = false)
                         )
@@ -1266,7 +1266,7 @@ class AnimatedContentTest {
             outerTransition.AnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(160)) togetherWith
-                        fadeOut(tween(5)) + ExitTransition.Hold using
+                        fadeOut(tween(5)) + ExitTransition.KeepUntilTransitionsFinished using
                         SizeTransform { _, _ ->
                             tween(300)
                         }
