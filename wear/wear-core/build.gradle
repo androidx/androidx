@@ -30,8 +30,15 @@ plugins {
 }
 
 dependencies {
+    api("androidx.annotation:annotation:1.2.0")
+
     api(libs.kotlinStdlib)
-    // Add dependencies here
+
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.mockitoCore4)
+
+    compileOnly(fileTree(dir: "../wear_sdk", include: ["wear-sdk.jar"]))
 }
 
 android {
