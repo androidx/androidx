@@ -3010,6 +3010,7 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    @Ignore("b/307823561")
     fun selectionEventBeforeTraverseEvent_whenTraverseTextField() {
         val text = "h"
         setContent {
