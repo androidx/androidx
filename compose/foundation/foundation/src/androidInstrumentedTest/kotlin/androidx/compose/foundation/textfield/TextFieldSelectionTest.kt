@@ -204,6 +204,7 @@ class TextFieldSelectionTest : FocusedWindowTest {
         )
     }
 
+    @Ignore("b/308895081")
     @Test
     fun textField_noSelectionHandles_whenWindowLosesFocus() {
         val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))
@@ -246,6 +247,7 @@ class TextFieldSelectionTest : FocusedWindowTest {
         assertHandlesNotExist()
     }
 
+    @Ignore("b/308895081")
     @Test
     fun textField_redisplaysSelectionHandlesAndToolbar_whenWindowRegainsFocus() {
         val textFieldValue = mutableStateOf(TextFieldValue("texttexttext"))

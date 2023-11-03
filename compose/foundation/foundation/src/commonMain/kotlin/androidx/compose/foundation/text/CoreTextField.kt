@@ -86,6 +86,7 @@ import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
@@ -416,7 +417,7 @@ internal fun CoreTextField(
         state.layoutResult?.innerTextFieldCoordinates = it
         if (enabled) {
             if (state.handleState == HandleState.Selection) {
-                if (state.showFloatingToolbar && windowInfo.isWindowFocused) {
+                if (state.showFloatingToolbar && isWindowFocusedBehindFlag(windowInfo)) {
                     manager.showSelectionToolbar()
                 } else {
                     manager.hideSelectionToolbar()
@@ -582,7 +583,7 @@ internal fun CoreTextField(
         }
     }
 
-    val showCursor = enabled && !readOnly && windowInfo.isWindowFocused
+    val showCursor = enabled && !readOnly && isWindowFocusedBehindFlag(windowInfo)
     val cursorModifier = Modifier.cursor(state, value, offsetMapping, cursorBrush, showCursor)
 
     DisposableEffect(manager) {
@@ -631,7 +632,7 @@ internal fun CoreTextField(
         }
 
     val showHandleAndMagnifier =
-        enabled && state.hasFocus && state.isInTouchMode && windowInfo.isWindowFocused
+        enabled && state.hasFocus && state.isInTouchMode && isWindowFocusedBehindFlag(windowInfo)
     val magnifierModifier = if (showHandleAndMagnifier) {
         Modifier.textFieldMagnifier(manager)
     } else {
@@ -1185,3 +1186,8 @@ private fun notifyFocusedRect(
         )
     }
 }
+
+// (b/308895081) Temporary disable use of Window Focus for cursor blinking state
+internal const val USE_WINDOW_FOCUS_ENABLED = false
+internal fun isWindowFocusedBehindFlag(windowInfo: WindowInfo) =
+    if (USE_WINDOW_FOCUS_ENABLED) windowInfo.isWindowFocused else true
