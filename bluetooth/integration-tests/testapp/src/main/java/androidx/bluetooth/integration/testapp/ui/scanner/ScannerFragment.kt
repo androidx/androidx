@@ -16,14 +16,12 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.bluetooth.BluetoothDevice
-import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
@@ -31,14 +29,11 @@ import androidx.bluetooth.integration.testapp.ui.main.MainViewModel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -48,25 +43,7 @@ class ScannerFragment : Fragment() {
         private const val TAG = "ScannerFragment"
     }
 
-    @Inject
-    lateinit var bluetoothLe: BluetoothLe
-
-    private val scanScope = CoroutineScope(Dispatchers.Main + Job())
-    private var scanJob: Job? = null
-
-    private var isScanning: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                _binding?.buttonScan?.text = getString(R.string.stop_scanning)
-                _binding?.buttonScan?.backgroundTintList = getColor(R.color.red_500)
-            } else {
-                _binding?.buttonScan?.text = getString(R.string.start_scanning)
-                _binding?.buttonScan?.backgroundTintList = getColor(R.color.indigo_500)
-                scanJob?.cancel()
-                scanJob = null
-            }
-        }
+    private lateinit var scannerAdapter: ScannerAdapter
 
     private val viewModel by viewModels<ScannerViewModel>()
 
@@ -87,59 +64,48 @@ class ScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val scannerAdapter = ScannerAdapter(::onClickScanResult)
+        scannerAdapter = ScannerAdapter(::onClickScanResult)
         binding.recyclerViewScanResults.adapter = scannerAdapter
         binding.recyclerViewScanResults.addItemDecoration(
             DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
         )
 
         binding.buttonScan.setOnClickListener {
-            if (scanJob?.isActive == true) {
-                isScanning = false
+            if (viewModel.scanJob?.isActive == true) {
+                viewModel.scanJob?.cancel()
             } else {
-                startScan()
+                viewModel.startScan()
             }
         }
 
-        viewModel.scanResults
-            .observe(viewLifecycleOwner) { scannerAdapter.submitList(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collect(::updateUi)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        isScanning = false
         _binding = null
     }
 
-    @SuppressLint("MissingPermission")
-    private fun startScan() {
-        Log.d(TAG, "startScan() called")
+    private fun updateUi(scannerUiState: ScannerUiState) {
+        scannerAdapter.submitList(scannerUiState.scanResults)
 
-        scanJob = scanScope.launch {
-            Log.d(TAG, "bluetoothLe.scan() called")
-            isScanning = true
-
-            try {
-                bluetoothLe.scan()
-                    .collect {
-                        Log.d(TAG, "bluetoothLe.scan() collected: ScanResult = $it")
-
-                        viewModel.addScanResultIfNew(it)
-                    }
-            } catch (exception: Exception) {
-                isScanning = false
-
-                if (exception is CancellationException) {
-                    Log.e(TAG, "bluetoothLe.scan() CancellationException", exception)
-                }
-            }
+        if (scannerUiState.isScanning) {
+            binding.buttonScan.text = getString(R.string.stop_scanning)
+            binding.buttonScan.backgroundTintList = getColor(R.color.red_500)
+        } else {
+            binding.buttonScan.text = getString(R.string.start_scanning)
+            binding.buttonScan.backgroundTintList = getColor(R.color.indigo_500)
         }
     }
 
     private fun onClickScanResult(bluetoothDevice: BluetoothDevice) {
         Log.d(TAG, "onClickScanResult() called with: bluetoothDevice = $bluetoothDevice")
 
-        isScanning = false
+        viewModel.scanJob?.cancel()
 
         mainViewModel.selectedBluetoothDevice = bluetoothDevice
         mainViewModel.navigateToConnections()
