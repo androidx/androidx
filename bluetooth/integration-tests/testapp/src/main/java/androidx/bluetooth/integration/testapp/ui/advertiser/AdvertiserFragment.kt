@@ -123,6 +123,28 @@ class AdvertiserFragment : Fragment() {
         _binding = null
     }
 
+    private fun updateUi(advertiserUiState: AdvertiserUiState) {
+        val isAdvertising = advertiserUiState.isAdvertising
+
+        if (isAdvertising) {
+            binding.buttonAdvertise.text = getString(R.string.stop_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.red_500)
+        } else {
+            binding.buttonAdvertise.text = getString(R.string.start_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.indigo_500)
+        }
+        binding.checkBoxIncludeDeviceName.isEnabled = !isAdvertising
+        binding.checkBoxConnectable.isEnabled = !isAdvertising
+        binding.checkBoxDiscoverable.isEnabled = !isAdvertising
+        binding.buttonAddData.isEnabled = !isAdvertising
+        binding.viewRecyclerViewOverlay.isVisible = isAdvertising
+
+        advertiserUiState.resultMessage?.let {
+            toast(it).show()
+            viewModel.resultMessageShown()
+        }
+    }
+
     private fun initData() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -225,27 +247,5 @@ class AdvertiserFragment : Fragment() {
         viewModel.removeAdvertiseDataAtIndex(index)
         advertiseDataAdapter?.advertiseData = viewModel.advertiseData
         advertiseDataAdapter?.notifyItemRemoved(index)
-    }
-
-    private fun updateUi(advertiserUiState: AdvertiserUiState) {
-        val isAdvertising = advertiserUiState.isAdvertising
-
-        if (isAdvertising) {
-            binding.buttonAdvertise.text = getString(R.string.stop_advertising)
-            binding.buttonAdvertise.backgroundTintList = getColor(R.color.red_500)
-        } else {
-            binding.buttonAdvertise.text = getString(R.string.start_advertising)
-            binding.buttonAdvertise.backgroundTintList = getColor(R.color.indigo_500)
-        }
-        binding.checkBoxIncludeDeviceName.isEnabled = !isAdvertising
-        binding.checkBoxConnectable.isEnabled = !isAdvertising
-        binding.checkBoxDiscoverable.isEnabled = !isAdvertising
-        binding.buttonAddData.isEnabled = !isAdvertising
-        binding.viewRecyclerViewOverlay.isVisible = isAdvertising
-
-        advertiserUiState.resultMessage?.let {
-            toast(it).show()
-            viewModel.resultMessageShown()
-        }
     }
 }
