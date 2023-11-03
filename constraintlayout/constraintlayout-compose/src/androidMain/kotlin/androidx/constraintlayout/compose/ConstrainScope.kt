@@ -444,12 +444,11 @@ class ConstrainScope internal constructor(
     }
 
     /**
-     * Convenience extension variable to parse a [Dp] as a [Dimension] object.
+     * Convenience extension method to parse a [Dp] as a [Dimension] object.
      *
      * @see Dimension.value
      */
-    val Dp.asDimension: Dimension
-        get() = Dimension.value(this)
+    fun Dp.asDimension(): Dimension = Dimension.value(this)
 
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {

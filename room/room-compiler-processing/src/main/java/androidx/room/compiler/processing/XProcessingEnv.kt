@@ -19,9 +19,8 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
@@ -206,15 +205,11 @@ interface XProcessingEnv {
         @JvmStatic
         @JvmOverloads
         fun create(
-            options: Map<String, String>,
+            symbolProcessorEnvironment: SymbolProcessorEnvironment,
             resolver: Resolver,
-            codeGenerator: CodeGenerator,
-            logger: KSPLogger,
             config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT
         ): XProcessingEnv = KspProcessingEnv(
-            options = options,
-            codeGenerator = codeGenerator,
-            logger = logger,
+            delegate = symbolProcessorEnvironment,
             config = config
         ).also { it.resolver = resolver }
     }
@@ -230,5 +225,14 @@ interface XProcessingEnv {
      */
     fun getTypeElementsFromPackage(packageName: String): List<XTypeElement>
 
-    // TODO: Add support for getting top level members in a package
+    /**
+     * Returns [XElement]s with the given package name. Note that this call can be expensive.
+     *
+     * @param packageName the package name to look up.
+     *
+     * @return A list of [XElement] with matching package name. This will return declarations
+     * from both dependencies and source. If the package is not found an empty list will be
+     * returned.
+     */
+    fun getElementsFromPackage(packageName: String): List<XElement>
 }

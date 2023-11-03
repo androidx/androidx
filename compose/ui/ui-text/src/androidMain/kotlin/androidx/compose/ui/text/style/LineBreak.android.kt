@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.style.LineBreak.Strategy
 import androidx.compose.ui.text.style.LineBreak.Strictness
 import androidx.compose.ui.text.style.LineBreak.WordBreak
@@ -103,10 +104,13 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Simple: LineBreak = LineBreak(
-            strategy = Strategy.Simple,
-            strictness = Strictness.Normal,
-            wordBreak = WordBreak.Default
+            packBytes(
+                Strategy.Simple.value,
+                Strictness.Normal.value,
+                WordBreak.Default.value
+            )
         )
 
         /**
@@ -127,10 +131,13 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Heading: LineBreak = LineBreak(
-            strategy = Strategy.Balanced,
-            strictness = Strictness.Loose,
-            wordBreak = WordBreak.Phrase
+            packBytes(
+                Strategy.Balanced.value,
+                Strictness.Loose.value,
+                WordBreak.Phrase.value
+            )
         )
 
         /**
@@ -151,11 +158,21 @@ actual value class LineBreak private constructor(
          * +---------+
          * </pre>
          */
+        @Stable
         actual val Paragraph: LineBreak = LineBreak(
-            strategy = Strategy.HighQuality,
-            strictness = Strictness.Strict,
-            wordBreak = WordBreak.Default
+            packBytes(
+                Strategy.HighQuality.value,
+                Strictness.Strict.value,
+                WordBreak.Default.value
+            )
         )
+
+        /**
+         * This represents an unset value, a usual replacement for "null" when a primitive value
+         * is desired.
+         */
+        @Stable
+        actual val Unspecified: LineBreak = LineBreak(0)
     }
 
     /**
@@ -206,12 +223,19 @@ actual value class LineBreak private constructor(
              * </pre>
              */
             val Balanced: Strategy = Strategy(3)
+
+            /**
+             * This represents an unset value, a usual replacement for "null" when a primitive value
+             * is desired.
+             */
+            val Unspecified: Strategy = Strategy(0)
         }
 
         override fun toString(): String = when (this) {
             Simple -> "Strategy.Simple"
             HighQuality -> "Strategy.HighQuality"
             Balanced -> "Strategy.Balanced"
+            Unspecified -> "Strategy.Unspecified"
             else -> "Invalid"
         }
     }
@@ -250,6 +274,12 @@ actual value class LineBreak private constructor(
              * small hiragana (ぁ), small katakana (ァ), halfwidth variants (ｧ).
              */
             val Strict: Strictness = Strictness(4)
+
+            /**
+             * This represents an unset value, a usual replacement for "null" when a primitive value
+             * is desired.
+             */
+            val Unspecified: Strictness = Strictness(0)
         }
 
         override fun toString(): String = when (this) {
@@ -257,6 +287,7 @@ actual value class LineBreak private constructor(
             Loose -> "Strictness.Loose"
             Normal -> "Strictness.Normal"
             Strict -> "Strictness.Strict"
+            Unspecified -> "Strictness.Unspecified"
             else -> "Invalid"
         }
     }
@@ -310,11 +341,18 @@ actual value class LineBreak private constructor(
              * </pre>
              */
             val Phrase: WordBreak = WordBreak(2)
+
+            /**
+             * This represents an unset value, a usual replacement for "null" when a primitive value
+             * is desired.
+             */
+            val Unspecified: WordBreak = WordBreak(0)
         }
 
         override fun toString(): String = when (this) {
             Default -> "WordBreak.None"
             Phrase -> "WordBreak.Phrase"
+            Unspecified -> "WordBreak.Unspecified"
             else -> "Invalid"
         }
     }

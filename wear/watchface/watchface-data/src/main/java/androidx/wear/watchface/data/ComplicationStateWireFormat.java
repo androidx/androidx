@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * Data sent over AIDL for {@link IWatchFaceCommand#setComplicationDetails}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

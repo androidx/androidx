@@ -50,7 +50,6 @@ public final class CarZone {
     /**
      * Possible row values.
      *
-     * @hide
      */
     @IntDef({
             CAR_ZONE_ROW_ALL,
@@ -87,7 +86,6 @@ public final class CarZone {
     /**
      * Possible column values.
      *
-     * @hide
      */
     @IntDef({
             CAR_ZONE_COLUMN_ALL,

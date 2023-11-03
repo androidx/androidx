@@ -23,6 +23,7 @@ import androidx.lifecycle.livedata.core.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Ignore
@@ -38,7 +39,7 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
         mutableListOf(NonNullableMutableLiveDataDetector.ISSUE)
 
     private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *STUBS)
+        return lint().files(*files, *STUBS).testModes(TestMode.DEFAULT)
             .run()
     }
 
@@ -101,7 +102,6 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
         ).expectClean()
     }
 
-    @Ignore("b/196832482")
     @Test
     fun helperMethodFails() {
         check(
@@ -132,7 +132,6 @@ src/com/example/test.kt:7: Error: Expected non-nullable value [NullSafeMutableLi
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun variableAssignmentFails() {
         check(
@@ -170,7 +169,6 @@ Fix for src/com/example/test.kt line 8: Add non-null asserted (!!) call:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailField() {
         check(
@@ -197,7 +195,6 @@ src/com/example/test.kt:8: Error: Cannot set non-nullable LiveData value to null
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailMultipleFields() {
         check(
@@ -255,7 +252,6 @@ src/com/example/test.kt:12: Error: Cannot set non-nullable LiveData value to nul
         ).expectClean()
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailMultipleAssignment() {
         check(
@@ -283,7 +279,6 @@ src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailFieldAndIgnore() {
         check(
@@ -356,7 +351,6 @@ src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null
         ).expectClean()
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralFailFieldAndLocalVariable() {
         check(
@@ -388,7 +382,6 @@ src/com/example/test.kt:10: Error: Cannot set non-nullable LiveData value to nul
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nullLiteralQuickFix() {
         check(
@@ -414,7 +407,6 @@ Fix for src/com/example/test.kt line 7: Change `LiveData` type to nullable:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun classHierarchyTest() {
         check(
@@ -457,7 +449,6 @@ Fix for src/com/example/test.kt line 6: Add non-null asserted (!!) call:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun differentClassSameFieldTestFirstNull() {
         check(
@@ -508,7 +499,6 @@ Fix for src/com/example/MyClass1.kt line 9: Change `LiveData` type to nullable:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun differentClassSameFieldTestSecondNull() {
         check(
@@ -559,7 +549,6 @@ Fix for src/com/example/MyClass2.kt line 9: Change `LiveData` type to nullable:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun nestedClassSameFieldTest() {
         check(
@@ -603,7 +592,6 @@ Fix for src/com/example/MyClass1.kt line 16: Change `LiveData` type to nullable:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun modifiersFieldTest() {
         check(
@@ -644,7 +632,6 @@ Fix for src/com/example/MyClass1.kt line 12: Change `LiveData` type to nullable:
         )
     }
 
-    @Ignore("b/196832482")
     @Test
     fun implementationClassTest() {
         check(
@@ -819,5 +806,50 @@ Fix for src/com/example/MyClass2.kt line 30: Change `LiveData` type to nullable:
             """
             ).indented()
         ).expectClean()
+    }
+
+    @Test
+    fun suspendFunction() {
+        check(kotlin("""
+            package com.example
+
+            import androidx.lifecycle.MutableLiveData
+
+            class Foo(
+                var target: MutableLiveData<Boolean>
+            ) {
+
+                suspend fun foo() {
+                    target.value = nonNullable()
+                }
+
+                suspend fun nonNullable() = true
+            }
+        """).indented()).expectClean()
+    }
+
+    @Test
+    fun nullableSuspendFunction() {
+        check(kotlin("""
+            package com.example
+
+            import androidx.lifecycle.MutableLiveData
+
+            class Foo(
+                var target: MutableLiveData<String>
+            ) {
+
+                suspend fun foo() {
+                    target.value = nullable()
+                }
+
+                suspend fun nullable(): String? = null
+            }
+        """).indented()).expect("""
+src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLiveData]
+        target.value = nullable()
+                       ~~~~~~~~~~
+1 errors, 0 warnings
+        """)
     }
 }

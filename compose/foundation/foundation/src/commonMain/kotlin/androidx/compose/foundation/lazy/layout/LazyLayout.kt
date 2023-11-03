@@ -37,6 +37,12 @@ import androidx.compose.ui.unit.Constraints
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
  */
+@Deprecated(
+    message = "Use an overload accepting a lambda prodicing an item provider instead",
+    replaceWith = ReplaceWith(
+        "LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)"
+    )
+)
 @ExperimentalFoundationApi
 @Composable
 fun LazyLayout(
@@ -45,11 +51,36 @@ fun LazyLayout(
     prefetchState: LazyLayoutPrefetchState? = null,
     measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult
 ) {
+    LazyLayout({ itemProvider }, modifier, prefetchState, measurePolicy)
+}
+
+/**
+ * A layout that only composes and lays out currently needed items. Can be used to build
+ * efficient scrollable layouts.
+ *
+ * @param itemProvider lambda producing an item provider containing all the needed info about
+ * the items which could be used to compose and measure items as part of [measurePolicy].
+ * @param modifier to apply on the layout
+ * @param prefetchState allows to schedule items for prefetching
+ * @param measurePolicy Measure policy which allows to only compose and measure needed items.
+ *
+ * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
+ */
+@ExperimentalFoundationApi
+@Composable
+fun LazyLayout(
+    itemProvider: () -> LazyLayoutItemProvider,
+    modifier: Modifier = Modifier,
+    prefetchState: LazyLayoutPrefetchState? = null,
+    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult
+) {
     val currentItemProvider = rememberUpdatedState(itemProvider)
 
     LazySaveableStateHolderProvider { saveableStateHolder ->
         val itemContentFactory = remember {
-            LazyLayoutItemContentFactory(saveableStateHolder) { currentItemProvider.value }
+            LazyLayoutItemContentFactory(saveableStateHolder) { currentItemProvider.value() }
         }
         val subcomposeLayoutState = remember {
             SubcomposeLayoutState(LazyLayoutItemReusePolicy(itemContentFactory))
@@ -67,7 +98,12 @@ fun LazyLayout(
             modifier,
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    with(LazyLayoutMeasureScopeImpl(itemContentFactory, this)) {
+                    with(
+                        LazyLayoutMeasureScopeImpl(
+                            itemContentFactory,
+                            this
+                        )
+                    ) {
                         measurePolicy(constraints)
                     }
                 }

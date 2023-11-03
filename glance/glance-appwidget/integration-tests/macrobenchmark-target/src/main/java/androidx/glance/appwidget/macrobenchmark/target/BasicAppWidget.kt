@@ -53,12 +53,6 @@ open class BasicAppWidget : GlanceAppWidget() {
     }
 }
 
-class BasicAppWidgetWithSession : BasicAppWidget()
-
 class BasicAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = BasicAppWidget()
-}
-
-class BasicAppWidgetWithSessionReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = BasicAppWidgetWithSession()
 }

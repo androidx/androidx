@@ -18,6 +18,7 @@ package androidx.window.demo.embedding;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_AVAILABLE;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ADJACENT;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
 import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
@@ -37,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
+import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.R;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
@@ -50,6 +52,7 @@ import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
 import androidx.window.embedding.SplitPairRule;
 import androidx.window.embedding.SplitPlaceholderRule;
+import androidx.window.java.embedding.SplitControllerCallbackAdapter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -67,7 +70,11 @@ public class SplitActivityBase extends AppCompatActivity
     static final float SPLIT_RATIO = 0.3f;
     static final String EXTRA_LAUNCH_C_TO_SIDE = "launch_c_to_side";
 
-    private SplitController mSplitController;
+    /**
+     * The {@link SplitController} adapter to use callback shaped APIs to get {@link SplitInfo}
+     *  changes
+     */
+    private SplitControllerCallbackAdapter mSplitControllerAdapter;
     private RuleController mRuleController;
     private SplitInfoCallback mCallback;
 
@@ -90,8 +97,13 @@ public class SplitActivityBase extends AppCompatActivity
             bStartIntent.putExtra(EXTRA_LAUNCH_C_TO_SIDE, true);
             startActivity(bStartIntent);
         });
-        mViewBinding.launchE.setOnClickListener((View v) ->
-                startActivity(new Intent(this, SplitActivityE.class)));
+        mViewBinding.launchE.setOnClickListener((View v) -> {
+            Bundle bundle = null;
+            startActivity(new Intent(this, SplitActivityE.class), bundle);
+        });
+        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 3) {
+            mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
+        }
         mViewBinding.launchF.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityF.class)));
         mViewBinding.launchFPendingIntent.setOnClickListener((View v) -> {
@@ -157,8 +169,9 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
-        mSplitController = SplitController.getInstance(this);
-        if (!mSplitController.isSplitSupported()) {
+        final SplitController splitController = SplitController.getInstance(this);
+        mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
+        if (splitController.getSplitSupportStatus() != SPLIT_AVAILABLE) {
             Toast.makeText(this, R.string.toast_split_not_support,
                     Toast.LENGTH_SHORT).show();
             finish();
@@ -171,13 +184,13 @@ public class SplitActivityBase extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mCallback = new SplitInfoCallback();
-        mSplitController.addSplitListener(this, Runnable::run, mCallback);
+        mSplitControllerAdapter.addSplitListener(this, Runnable::run, mCallback);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mSplitController.removeSplitListener(mCallback);
+        mSplitControllerAdapter.removeSplitListener(mCallback);
         mCallback = null;
     }
 

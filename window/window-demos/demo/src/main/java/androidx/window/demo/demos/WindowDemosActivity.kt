@@ -19,14 +19,20 @@ package androidx.window.demo.demos
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.window.demo.DisplayFeaturesLetterboxLandscapeSlimActivity
+import androidx.window.demo.DisplayFeaturesLetterboxPortraitSlimActivity
 import androidx.window.demo.DisplayFeaturesNoConfigChangeActivity
 import androidx.window.demo.ImeActivity
 import androidx.window.demo.PresentationActivity
 import androidx.window.demo.R
 import androidx.window.demo.R.string.display_features_config_change
 import androidx.window.demo.R.string.display_features_no_config_change
+import androidx.window.demo.R.string.display_features_slim_landscape
+import androidx.window.demo.R.string.display_features_slim_portrait
 import androidx.window.demo.R.string.show_all_display_features_config_change_description
+import androidx.window.demo.R.string.show_all_display_features_landscape_slim
 import androidx.window.demo.R.string.show_all_display_features_no_config_change_description
+import androidx.window.demo.R.string.show_all_display_features_portrait_slim
 import androidx.window.demo.SplitLayoutActivity
 import androidx.window.demo.WindowMetricsActivity
 import androidx.window.demo.common.DisplayFeaturesActivity
@@ -49,6 +55,16 @@ class WindowDemosActivity : AppCompatActivity() {
                 buttonTitle = getString(display_features_no_config_change),
                 description = getString(show_all_display_features_no_config_change_description),
                 clazz = DisplayFeaturesNoConfigChangeActivity::class.java
+            ),
+            DemoItem(
+                buttonTitle = getString(display_features_slim_portrait),
+                description = getString(show_all_display_features_portrait_slim),
+                clazz = DisplayFeaturesLetterboxPortraitSlimActivity::class.java
+            ),
+            DemoItem(
+                buttonTitle = getString(display_features_slim_landscape),
+                description = getString(show_all_display_features_landscape_slim),
+                clazz = DisplayFeaturesLetterboxLandscapeSlimActivity::class.java
             ),
             DemoItem(
                 buttonTitle = getString(R.string.window_metrics),

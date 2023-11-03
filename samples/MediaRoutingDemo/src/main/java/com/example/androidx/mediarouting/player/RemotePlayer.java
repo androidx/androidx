@@ -127,6 +127,8 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "released.");
         }
+
+        super.release();
     }
 
     // basic playback operations that are always supported
@@ -371,6 +373,31 @@ public class RemotePlayer extends Player {
     @Override
     public Bitmap getSnapshot() {
         return mSnapshot;
+    }
+
+    /**
+     * Caches the remote state of the given playlist item and returns an updated copy through a
+     * {@link ListenableFuture}.
+     */
+    @NonNull
+    public ListenableFuture<PlaylistItem> cacheRemoteState(@NonNull PlaylistItem item) {
+        ListenableFuture<MediaItemStatus> remoteStatus = getRemoteItemStatus(item);
+
+        return Futures.transform(
+                remoteStatus,
+                (itemStatus) -> convertMediaItemStatusToPlayListItem(item, itemStatus),
+                Runnable::run);
+    }
+
+    private static PlaylistItem convertMediaItemStatusToPlayListItem(
+            @NonNull PlaylistItem playlistItem, @NonNull MediaItemStatus itemStatus) {
+        PlaylistItem updatedPlaylistItem = new PlaylistItem(playlistItem);
+        updatedPlaylistItem.setState(itemStatus.getPlaybackState());
+        updatedPlaylistItem.setPosition(itemStatus.getContentPosition());
+        updatedPlaylistItem.setDuration(itemStatus.getContentDuration());
+        updatedPlaylistItem.setTimestamp(itemStatus.getTimestamp());
+
+        return updatedPlaylistItem;
     }
 
     private void enqueueInternal(final PlaylistItem item) {

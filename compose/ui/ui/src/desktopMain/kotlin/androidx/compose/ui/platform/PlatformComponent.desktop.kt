@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Density
 import java.awt.Cursor
 import java.awt.Point
 import java.awt.im.InputMethodRequests
+import kotlinx.coroutines.awaitCancellation
 
 internal actual interface PlatformComponent : PlatformInputComponent, PlatformComponentWithCursor
 
@@ -33,7 +34,17 @@ internal actual object DummyPlatformComponent : PlatformComponent {
     override fun enableInput(inputMethodRequests: InputMethodRequests) {
         enabledInput = inputMethodRequests
     }
-    override fun disableInput() { enabledInput = null }
+
+    override fun disableInput(inputMethodRequests: InputMethodRequests?) {
+        enabledInput = null
+    }
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        awaitCancellation()
+    }
+
     override val locationOnScreen = Point(0, 0)
     override val density: Density
         get() = Density(1f, 1f)

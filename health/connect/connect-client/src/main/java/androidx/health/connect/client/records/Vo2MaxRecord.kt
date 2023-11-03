@@ -81,6 +81,7 @@ public class Vo2MaxRecord(
         @JvmField
         val MEASUREMENT_METHOD_STRING_TO_INT_MAP: Map<String, Int> =
             mapOf(
+                MeasurementMethod.OTHER to MEASUREMENT_METHOD_OTHER,
                 MeasurementMethod.METABOLIC_CART to MEASUREMENT_METHOD_METABOLIC_CART,
                 MeasurementMethod.HEART_RATE_RATIO to MEASUREMENT_METHOD_HEART_RATE_RATIO,
                 MeasurementMethod.COOPER_TEST to MEASUREMENT_METHOD_COOPER_TEST,
@@ -106,7 +107,6 @@ public class Vo2MaxRecord(
 
     /**
      * VO2 max (maximal aerobic capacity) measurement method.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

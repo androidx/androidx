@@ -55,6 +55,9 @@ internal annotation class DefaultCameraBackend
 @Qualifier
 internal annotation class CameraPipeContext
 
+@Qualifier
+internal annotation class ForGraphLifecycleManager
+
 @Singleton
 @Component(
     modules =
@@ -158,5 +161,9 @@ internal abstract class CameraPipeModules {
             }
             return CameraBackendsImpl(defaultBackendId, allBackends, cameraPipeContext, threads)
         }
+
+        @Singleton
+        @Provides
+        fun provideCameraSurfaceManager() = CameraSurfaceManager()
     }
 }

@@ -30,9 +30,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 16
-    }
     namespace "androidx.media2.test.client"
 }
 

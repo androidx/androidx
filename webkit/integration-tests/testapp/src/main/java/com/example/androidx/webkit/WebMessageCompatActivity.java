@@ -52,8 +52,8 @@ public class WebMessageCompatActivity extends AppCompatActivity {
     private static final String TYPE_STRING = "String";
     private static final String TYPE_ARRAY_BUFFER = "ArrayBuffer";
     private static final String[] MESSAGE_TYPES = {TYPE_STRING, TYPE_ARRAY_BUFFER};
-    private static final boolean PAYLOAD_FEATURE_ENABLED =
-            WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD);
+    private static final boolean ARRAY_BUFFER_FEATURE_ENABLED =
+            WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER);
 
     private WebView mWebView;
     private TextView mTextView, mPerfTextView;
@@ -96,7 +96,7 @@ public class WebMessageCompatActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_dropdown_item, MESSAGE_TYPES);
         mSpinner.setAdapter(adapter);
         // If GET_PAYLOAD feature is not supported, disable the type selection spinner.
-        mSpinner.setEnabled(PAYLOAD_FEATURE_ENABLED);
+        mSpinner.setEnabled(ARRAY_BUFFER_FEATURE_ENABLED);
 
         try (InputStream is = getAssets().open("www/web_message_compat.html")) {
             String webContent = new String(ByteStreams.toByteArray(is), Charsets.UTF_8);
@@ -174,7 +174,7 @@ public class WebMessageCompatActivity extends AppCompatActivity {
                 }
                 if (mMessageCount == mExpectedCount) {
                     refreshPerfText();
-                    mSpinner.setEnabled(PAYLOAD_FEATURE_ENABLED);
+                    mSpinner.setEnabled(ARRAY_BUFFER_FEATURE_ENABLED);
                 }
                 sendMessage();
             }

@@ -47,18 +47,29 @@ class ActivityRule internal constructor(
         private var alwaysExpand: Boolean = false
 
         /**
-         * Whether the activity should always be expanded on launch. Some activities are supposed to
-         * expand to the full task bounds, independent of the state of the split. An example is an
-         * activity that blocks all user interactions, such as a warning dialog.
+         * Sets whether the activity should always be expanded on launch. Some activities are
+         * supposed to expand to the full task bounds, independent of the state of the split. An
+         * example is an activity that blocks all user interactions, such as a warning dialog.
+         *
+         * @param alwaysExpand whether the activity should always be expanded on launch.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
             apply { this.alwaysExpand = alwaysExpand }
 
-        /** @see ActivityRule.tag */
-        fun setTag(tag: String): Builder =
+        /**
+         * Sets a unique string to identify this [ActivityRule], which defaults to `null`.
+         *
+         * @param tag unique string to identify this [ActivityRule].
+         */
+        fun setTag(tag: String?): Builder =
             apply { this.tag = tag }
 
+        /**
+         * Builds an `ActivityRule` instance.
+         *
+         * @return The new `ActivityRule` instance.
+         */
         fun build() = ActivityRule(tag, filters, alwaysExpand)
     }
 

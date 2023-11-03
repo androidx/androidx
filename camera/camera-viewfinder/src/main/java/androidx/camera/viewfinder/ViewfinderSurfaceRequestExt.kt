@@ -26,7 +26,7 @@ import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
 /**
  * Populates [ViewfinderSurfaceRequest.Builder] from [CameraCharacteristics].
  *
- * <p>The [CameraCharacteristics] will be used to populate information including lens facing,
+ * The [CameraCharacteristics] will be used to populate information including lens facing,
  * sensor orientation and [ImplementationMode]. If the hardware level is legacy,
  * the [ImplementationMode] will be set to [ImplementationMode.COMPATIBLE].
  */

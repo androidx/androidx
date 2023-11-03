@@ -346,7 +346,7 @@ public final class LocationManagerCompat {
      * Returns the model name (including vendor and hardware/software version) of the GNSS
      * hardware driver, or null if this information is not available.
      *
-     * No device-specific serial number or ID is returned from this API.
+     * <p>No device-specific serial number or ID is returned from this API.
      */
     @Nullable
     public static String getGnssHardwareModelName(@NonNull LocationManager locationManager) {
@@ -374,6 +374,9 @@ public final class LocationManagerCompat {
         @GuardedBy("sGnssStatusListeners")
         static final SimpleArrayMap<Object, Object> sGnssStatusListeners =
                 new SimpleArrayMap<>();
+        @GuardedBy("sGnssMeasurementListeners")
+        static final SimpleArrayMap<GnssMeasurementsEvent.Callback, GnssMeasurementsEvent.Callback>
+                sGnssMeasurementListeners = new SimpleArrayMap<>();
     }
 
     /**
@@ -389,12 +392,23 @@ public final class LocationManagerCompat {
     @RequiresPermission(ACCESS_FINE_LOCATION)
     public static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
             @NonNull GnssMeasurementsEvent.Callback callback, @NonNull Handler handler) {
-        if (VERSION.SDK_INT != VERSION_CODES.R) {
+        if (VERSION.SDK_INT > VERSION_CODES.R) {
             return Api24Impl.registerGnssMeasurementsCallback(locationManager, callback, handler);
-        } else {
+        } else if (VERSION.SDK_INT == VERSION_CODES.R) {
             return registerGnssMeasurementsCallbackOnR(locationManager,
                     ExecutorCompat.create(handler),
                     callback);
+        } else {
+            synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
+                unregisterGnssMeasurementsCallback(locationManager, callback);
+                if (Api24Impl.registerGnssMeasurementsCallback(locationManager, callback,
+                        handler)) {
+                    GnssListenersHolder.sGnssMeasurementListeners.put(callback, callback);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 
@@ -402,21 +416,34 @@ public final class LocationManagerCompat {
      * Registers a GNSS measurement callback. See
      * {@link LocationManager#registerGnssMeasurementsCallback(Executor, GnssMeasurementsEvent.Callback)}.
      *
-     * <p>The primary purpose for this compatibility method is to help avoid crashes when delivering
-     * GNSS measurements to client on Android R. This bug was fixed in Android R QPR1, but since
-     * it's possible not all Android R devices have upgraded to QPR1, this compatibility method is
-     * provided to ensure GNSS measurements can be delivered successfully on all platforms.
+     * <p>In addition to allowing the use of Executors on older platforms, this compatibility method
+     * also helps avoid crashes when delivering GNSS measurements to clients on Android R. This
+     * bug was fixed in Android R QPR1, but since it's possible not all Android R devices have
+     * upgraded to QPR1, this compatibility method is provided to ensure GNSS measurements can be
+     * delivered successfully on all platforms.
      */
-    @RequiresApi(VERSION_CODES.R)
+    @RequiresApi(VERSION_CODES.N)
     @RequiresPermission(ACCESS_FINE_LOCATION)
     public static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
             @NonNull Executor executor, @NonNull GnssMeasurementsEvent.Callback callback) {
         if (VERSION.SDK_INT > VERSION_CODES.R) {
             return Api31Impl.registerGnssMeasurementsCallback(locationManager, executor, callback);
-        } else {
+        } else if (VERSION.SDK_INT == VERSION_CODES.R) {
             return registerGnssMeasurementsCallbackOnR(locationManager,
                     executor,
                     callback);
+        } else {
+            synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
+                GnssMeasurementsTransport newTransport = new GnssMeasurementsTransport(callback,
+                        executor);
+                unregisterGnssMeasurementsCallback(locationManager, callback);
+                if (Api24Impl.registerGnssMeasurementsCallback(locationManager, newTransport)) {
+                    GnssListenersHolder.sGnssMeasurementListeners.put(callback, newTransport);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 
@@ -427,7 +454,20 @@ public final class LocationManagerCompat {
     @RequiresApi(VERSION_CODES.N)
     public static void unregisterGnssMeasurementsCallback(@NonNull LocationManager locationManager,
             @NonNull GnssMeasurementsEvent.Callback callback) {
-        Api24Impl.unregisterGnssMeasurementsCallback(locationManager, callback);
+        if (VERSION.SDK_INT >= VERSION_CODES.R) {
+            Api24Impl.unregisterGnssMeasurementsCallback(locationManager, callback);
+        } else {
+            synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
+                GnssMeasurementsEvent.Callback transport =
+                        GnssListenersHolder.sGnssMeasurementListeners.remove(callback);
+                if (transport != null) {
+                    if (transport instanceof GnssMeasurementsTransport) {
+                        ((GnssMeasurementsTransport) transport).unregister();
+                    }
+                    Api24Impl.unregisterGnssMeasurementsCallback(locationManager, transport);
+                }
+            }
+        }
     }
 
     // Android R without QPR1 has a bug where the default version of this method will always
@@ -752,6 +792,53 @@ public final class LocationManagerCompat {
                     return;
                 }
                 key.mListener.onProviderDisabled(provider);
+            });
+        }
+    }
+
+    @RequiresApi(24)
+    private static class GnssMeasurementsTransport extends GnssMeasurementsEvent.Callback {
+
+        final GnssMeasurementsEvent.Callback mCallback;
+        @Nullable volatile Executor mExecutor;
+
+        GnssMeasurementsTransport(@NonNull GnssMeasurementsEvent.Callback callback,
+                @NonNull Executor executor) {
+            mCallback = callback;
+            mExecutor = executor;
+        }
+
+        public void unregister() {
+            mExecutor = null;
+        }
+
+        @Override
+        public void onGnssMeasurementsReceived(GnssMeasurementsEvent gnssMeasurementsEvent) {
+            final Executor executor = mExecutor;
+            if (executor == null) {
+                return;
+            }
+
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
+                }
+                mCallback.onGnssMeasurementsReceived(gnssMeasurementsEvent);
+            });
+        }
+
+        @Override
+        public void onStatusChanged(int status) {
+            final Executor executor = mExecutor;
+            if (executor == null) {
+                return;
+            }
+
+            executor.execute(() -> {
+                if (mExecutor != executor) {
+                    return;
+                }
+                mCallback.onStatusChanged(status);
             });
         }
     }
@@ -1290,6 +1377,13 @@ public final class LocationManagerCompat {
     static class Api24Impl {
         private Api24Impl() {
             // This class is not instantiable.
+        }
+
+        @RequiresPermission(ACCESS_FINE_LOCATION)
+        @DoNotInline
+        static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
+                @NonNull GnssMeasurementsEvent.Callback callback) {
+            return locationManager.registerGnssMeasurementsCallback(callback);
         }
 
         @RequiresPermission(ACCESS_FINE_LOCATION)

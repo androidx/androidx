@@ -16,7 +16,6 @@
 package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import kotlin.math.ceil
 
 /**
@@ -26,11 +25,8 @@ import kotlin.math.ceil
  * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  * @param lineHeight The specified line height in pixel unit, which is the space between the
  * baseline of adjacent lines.
- *
- * @suppress
  */
-@InternalPlatformTextApi
-class LineHeightSpan(
+internal class LineHeightSpan(
     val lineHeight: Float
 ) : android.text.style.LineHeightSpan {
 

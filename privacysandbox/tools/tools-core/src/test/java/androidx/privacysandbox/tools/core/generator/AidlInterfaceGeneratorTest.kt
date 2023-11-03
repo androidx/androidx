@@ -72,7 +72,15 @@ class AidlInterfaceGeneratorTest {
                             parameters = listOf(),
                             returnType = Type("com.mysdk", "MyInterface"),
                             isSuspend = true,
-                        )
+                        ),
+                        Method(
+                            name = "methodWithActivityLauncherParam",
+                            parameters = listOf(
+                                Parameter("activityLauncher", Types.sdkActivityLauncher)
+                            ),
+                            returnType = Types.unit,
+                            isSuspend = false,
+                        ),
                     )
                 )
             )

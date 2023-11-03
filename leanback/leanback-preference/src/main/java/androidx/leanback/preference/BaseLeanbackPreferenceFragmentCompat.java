@@ -80,7 +80,6 @@ public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFra
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

@@ -194,6 +194,9 @@ package androidx.compose.ui.unit {
     property public final long Zero;
   }
 
+  @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalUnitApi {
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
     method @androidx.compose.runtime.Stable public operator int component1();
     method @androidx.compose.runtime.Stable public operator int component2();
@@ -322,7 +325,7 @@ package androidx.compose.ui.unit {
   }
 
   public enum LayoutDirection {
-    method public static androidx.compose.ui.unit.LayoutDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.ui.unit.LayoutDirection valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.unit.LayoutDirection[] values();
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Ltr;
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Rtl;

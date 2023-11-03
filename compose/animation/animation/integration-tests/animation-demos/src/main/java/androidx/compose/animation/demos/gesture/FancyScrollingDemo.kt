@@ -27,11 +27,11 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -42,8 +42,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 const val DEBUG = false
 
@@ -57,7 +57,7 @@ fun FancyScrollingDemo() {
             modifier = Modifier.padding(40.dp)
         )
         val animScroll = remember { Animatable(0f) }
-        val itemWidth = remember { mutableStateOf(0f) }
+        val itemWidth = remember { mutableFloatStateOf(0f) }
         val scope = rememberCoroutineScope()
         val modifier = Modifier.draggable(
             orientation = Orientation.Horizontal,
@@ -77,9 +77,9 @@ fun FancyScrollingDemo() {
                     val decay = exponentialDecay<Float>()
                     val target = decay.calculateTargetValue(animScroll.value, velocity)
                     // Adjust the target position to center align the item
-                    var rem = target % itemWidth.value
+                    var rem = target % itemWidth.floatValue
                     if (rem < 0) {
-                        rem += itemWidth.value
+                        rem += itemWidth.floatValue
                     }
                     animScroll.animateTo(
                         targetValue = target - rem,
@@ -93,7 +93,7 @@ fun FancyScrollingDemo() {
         Canvas(modifier.fillMaxWidth().height(400.dp)) {
             val width = size.width / 2f
             val scroll = animScroll.value + width / 2
-            itemWidth.value = width
+            itemWidth.floatValue = width
             if (DEBUG) {
                 Log.w(
                     "Anim",

@@ -59,7 +59,6 @@ import java.util.List;
  *
  * @see MediaRouteButton
  * @see MediaRouteActionProvider
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaRouteDynamicChooserDialog extends AppCompatDialog {

@@ -52,7 +52,6 @@ public class UserStyleFlavor(
         complications: Map<Int, DefaultComplicationDataSourcePolicy>
     ) : this(id, style.toUserStyleData(), complications) {}
 
-    /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
@@ -63,7 +62,6 @@ public class UserStyleFlavor(
         wireFormat.mComplications.mapValues { DefaultComplicationDataSourcePolicy(it.value) }
     ) {}
 
-    /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() =
@@ -96,7 +94,6 @@ public class UserStyleFlavor(
     }
 
     internal companion object {
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
@@ -182,14 +179,12 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
     /** Constructs empty flavors collection. */
     constructor() : this(emptyList()) {}
 
-    /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
         wireFormat: UserStyleFlavorsWireFormat
     ) : this(wireFormat.mFlavors.map { UserStyleFlavor(it) }) {}
 
-    /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() = UserStyleFlavorsWireFormat(flavors.map { it.toWireFormat() })
@@ -211,9 +206,8 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
         return flavors.hashCode()
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
             resources: Resources,

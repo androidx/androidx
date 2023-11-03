@@ -54,7 +54,7 @@ public final class MasterKeys {
     public static final KeyGenParameterSpec AES256_GCM_SPEC =
             createAES256GCMKeyGenParameterSpec(MASTER_KEY_ALIAS);
 
-    private static Object sLock = new Object();
+    private static final Object sLock = new Object();
 
     /**
      * Provides a safe and easy to use KenGenParameterSpec with the settings.
@@ -82,7 +82,7 @@ public final class MasterKeys {
     /**
      * Creates or gets the master key provided
      *
-     * The encryption scheme is required fields to ensure that the type of
+     * <p>The encryption scheme is required fields to ensure that the type of
      * encryption used is clear to developers.
      *
      * @param keyGenParameterSpec The key encryption scheme

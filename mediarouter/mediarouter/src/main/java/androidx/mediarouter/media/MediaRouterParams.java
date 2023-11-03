@@ -48,7 +48,6 @@ public class MediaRouterParams {
     public static final int DIALOG_TYPE_DYNAMIC_GROUP = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({DIALOG_TYPE_DEFAULT, DIALOG_TYPE_DYNAMIC_GROUP})
@@ -68,7 +67,6 @@ public class MediaRouterParams {
      * Bundle key used for setting the cast icon fixed regardless of its connection state.
      *
      * <p>TYPE: boolean
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String EXTRAS_KEY_FIXED_CAST_ICON =
@@ -132,7 +130,6 @@ public class MediaRouterParams {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -260,7 +257,6 @@ public class MediaRouterParams {
         /**
          * Set extras. Default value is {@link Bundle#EMPTY} if not set.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull

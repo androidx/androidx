@@ -24,10 +24,13 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s.
@@ -43,8 +46,11 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
 
     override val id: CameraBackendId
         get() = FAKE_CAMERA_BACKEND_ID
+    override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
+        get() = MutableSharedFlow()
 
     override fun awaitCameraIds(): List<CameraId> = fakeCameraIds
+    override fun awaitConcurrentCameraIds(): Set<Set<CameraId>> = emptySet()
 
     override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? = fakeCameras[cameraId]
 

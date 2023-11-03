@@ -155,7 +155,6 @@ public class WatchState(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState() {
     public val interruptionFilter: MutableStateFlow<Int> =
@@ -176,6 +175,7 @@ public class MutableWatchState() {
         set(@Px value) {
             field = value
         }
+
     public var isHeadless: Boolean = false
 
     public fun asWatchState(): WatchState =

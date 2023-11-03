@@ -24,10 +24,12 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
 import androidx.core.util.Preconditions;
 
+import java.util.Arrays;
+
 /**
  * Translates between Platform and Jetpack versions of {@link GenericDocument}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -113,6 +115,15 @@ public final class GenericDocumentToPlatformConverter {
                 .setCreationTimestampMillis(platformDocument.getCreationTimestampMillis());
         for (String propertyName : platformDocument.getPropertyNames()) {
             Object property = platformDocument.getProperty(propertyName);
+            if (propertyName.equals(GenericDocument.PARENT_TYPES_SYNTHETIC_PROPERTY)) {
+                if (!(property instanceof String[])) {
+                    throw new IllegalStateException(
+                            String.format("Parents list must be of String[] type, but got %s",
+                                    property.getClass().toString()));
+                }
+                jetpackBuilder.setParentTypes(Arrays.asList((String[]) property));
+                continue;
+            }
             if (property instanceof String[]) {
                 jetpackBuilder.setPropertyString(propertyName, (String[]) property);
             } else if (property instanceof long[]) {

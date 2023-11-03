@@ -69,6 +69,11 @@ class BadConfigurationProviderIssueDetector : Detector(), SourceCodeScanner {
             return
         }
 
+        // Ignore abstract classes.
+        if (context.evaluator.isAbstract(declaration)) {
+            return
+        }
+
         val isApplication = context.evaluator.inheritsFrom(
             declaration.javaPsi, "android.app.Application", true
         )
@@ -91,10 +96,11 @@ class BadConfigurationProviderIssueDetector : Detector(), SourceCodeScanner {
     }
 
     override fun afterCheckRootProject(context: Context) {
+        val location = location ?: return
         if (hasApplicableTypes && !correct) {
             context.report(
                 issue = ISSUE,
-                location = location ?: Location.create(context.file),
+                location = location,
                 message = "Expected Application subtype to implement Configuration.Provider"
             )
         }

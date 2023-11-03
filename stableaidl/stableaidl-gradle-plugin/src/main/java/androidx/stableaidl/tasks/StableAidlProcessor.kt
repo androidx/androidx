@@ -16,8 +16,8 @@
 
 package androidx.stableaidl.tasks
 
+import androidx.stableaidl.internal.compiling.DependencyFileProcessor
 import androidx.stableaidl.internal.process.GradleProcessExecutor
-import com.android.builder.compiling.DependencyFileProcessor
 import com.android.ide.common.process.ProcessException
 import com.android.ide.common.process.ProcessInfoBuilder
 import com.android.ide.common.process.ProcessOutputHandler

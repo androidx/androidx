@@ -19,6 +19,8 @@ package androidx.window.layout
 import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
+import androidx.annotation.VisibleForTesting
+import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
@@ -31,8 +33,6 @@ import androidx.window.reflection.ReflectionUtils.validateReflection
 import androidx.window.reflection.WindowExtensionsConstants.FOLDING_FEATURE_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.JAVA_CONSUMER
 import androidx.window.reflection.WindowExtensionsConstants.WINDOW_CONSUMER
-import androidx.window.reflection.WindowExtensionsConstants.WINDOW_EXTENSIONS_CLASS
-import androidx.window.reflection.WindowExtensionsConstants.WINDOW_EXTENSIONS_PROVIDER_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.WINDOW_LAYOUT_COMPONENT_CLASS
 
 /**
@@ -44,6 +44,7 @@ internal class SafeWindowLayoutComponentProvider(
     private val loader: ClassLoader,
     private val consumerAdapter: ConsumerAdapter
 ) {
+    private val safeWindowExtensionsProvider = SafeWindowExtensionsProvider(loader)
 
     val windowLayoutComponent: WindowLayoutComponent?
         get() {
@@ -59,10 +60,7 @@ internal class SafeWindowLayoutComponentProvider(
         }
 
     private fun canUseWindowLayoutComponent(): Boolean {
-        if (!isWindowExtensionsValid() ||
-            !isWindowLayoutProviderValid() ||
-            !isFoldingFeatureValid()
-        ) {
+        if (!isWindowLayoutComponentAccessible()) {
             return false
         }
         // TODO(b/267831038): can fallback to VendorApiLevel1 when level2 is not match
@@ -75,42 +73,36 @@ internal class SafeWindowLayoutComponentProvider(
         }
     }
 
+    @VisibleForTesting
+    internal fun isWindowLayoutComponentAccessible(): Boolean =
+        safeWindowExtensionsProvider.isWindowExtensionsValid() &&
+            isWindowLayoutProviderValid() &&
+            isFoldingFeatureValid()
+
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_1] includes the following methods
      *  - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Activity] and
      * [java.util.function.Consumer]
      *  - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [java.util.function.Consumer]
      */
-    private fun hasValidVendorApiLevel1(): Boolean {
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel1(): Boolean {
         return isMethodWindowLayoutInfoListenerJavaConsumerValid()
     }
 
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_2] includes the following methods
-     *  - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Context] and
-     * [java.util.function.Consumer]
      *  - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Context] and [Consumer]
      *  - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [Consumer]
      */
-    private fun hasValidVendorApiLevel2(): Boolean {
-        return hasValidVendorApiLevel1() &&
-            isMethodWindowLayoutInfoListenerJavaConsumerUiContextValid() &&
-            isMethodWindowLayoutInfoListenerWindowConsumerValid()
-    }
-
-    private fun isWindowExtensionsValid(): Boolean {
-        return validateReflection("WindowExtensionsProvider#getWindowExtensions is not valid") {
-            val providerClass = windowExtensionsProviderClass
-            val getWindowExtensionsMethod = providerClass.getDeclaredMethod("getWindowExtensions")
-            val windowExtensionsClass = windowExtensionsClass
-            getWindowExtensionsMethod.doesReturn(windowExtensionsClass) &&
-                getWindowExtensionsMethod.isPublic
-        }
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel2(): Boolean {
+        return hasValidVendorApiLevel1() && isMethodWindowLayoutInfoListenerWindowConsumerValid()
     }
 
     private fun isWindowLayoutProviderValid(): Boolean {
         return validateReflection("WindowExtensions#getWindowLayoutComponent is not valid") {
-            val extensionsClass = windowExtensionsClass
+            val extensionsClass = safeWindowExtensionsProvider.windowExtensionsClass
             val getWindowLayoutComponentMethod =
                 extensionsClass.getMethod("getWindowLayoutComponent")
             val windowLayoutComponentClass = windowLayoutComponentClass
@@ -171,34 +163,6 @@ internal class SafeWindowLayoutComponentProvider(
             addListenerMethod.isPublic && removeListenerMethod.isPublic
         }
     }
-
-    private fun isMethodWindowLayoutInfoListenerJavaConsumerUiContextValid(): Boolean {
-        return validateReflection(
-            "WindowLayoutComponent#addWindowLayoutInfoListener" +
-                "(${Context::class.java.name}, $JAVA_CONSUMER) is not valid"
-        ) {
-            val consumerClass =
-                consumerAdapter.consumerClassOrNull() ?: return@validateReflection false
-            val windowLayoutComponent = windowLayoutComponentClass
-            val addListenerMethod = windowLayoutComponent
-                .getMethod(
-                    "addWindowLayoutInfoListener",
-                    Context::class.java,
-                    consumerClass
-                )
-            addListenerMethod.isPublic
-        }
-    }
-
-    private val windowExtensionsProviderClass: Class<*>
-        get() {
-            return loader.loadClass(WINDOW_EXTENSIONS_PROVIDER_CLASS)
-        }
-
-    private val windowExtensionsClass: Class<*>
-        get() {
-            return loader.loadClass(WINDOW_EXTENSIONS_CLASS)
-        }
 
     private val foldingFeatureClass: Class<*>
         get() {

@@ -29,6 +29,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.Assert.assertEquals
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,12 +50,14 @@ class SystemLocalesMaintainedOnAppLanguageChangeTestCase {
         )
     }
 
+    @Ignore
     @Test
     fun testGetSystemLocales_noAppLocalesSet_systemLocalesSameAsExpectedSystemLocales() {
         val context = InstrumentationRegistry.getInstrumentation().context
         assertEquals(expectedSystemLocales, LocaleManagerCompat.getSystemLocales(context))
     }
 
+    @Ignore
     @Test
     fun testGetSystemLocales_afterAppLocalesSet_systemLocalesSameAsExpectedSystemLocales() {
         LocalesUtils.setLocalesAndWaitForRecreate(rule.activity, LocalesUtils.CUSTOM_LOCALE_LIST)

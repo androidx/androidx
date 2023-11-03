@@ -18,14 +18,16 @@ package androidx.compose.integration.demos
 
 import androidx.compose.animation.demos.AnimationDemos
 import androidx.compose.foundation.demos.FoundationDemos
+import androidx.compose.foundation.demos.performance.PerformanceDemos
+import androidx.compose.foundation.demos.text.TextDemos
 import androidx.compose.foundation.layout.demos.LayoutDemos
 import androidx.compose.integration.demos.common.DemoCategory
-import androidx.compose.foundation.demos.text.TextDemos
 import androidx.compose.material.demos.MaterialDemos
 import androidx.compose.material3.demos.Material3Demos
-import androidx.compose.ui.demos.CoreDemos
 import androidx.compose.ui.demos.AccessibilityDemos
+import androidx.compose.ui.demos.CoreDemos
 import androidx.navigation.compose.demos.NavigationDemos
+import androidx.paging.compose.demos.PagingFoundationDemos
 
 /**
  * [DemoCategory] containing all the top level demo categories.
@@ -40,7 +42,9 @@ val AllDemosCategory = DemoCategory(
         MaterialDemos,
         Material3Demos,
         NavigationDemos,
+        PagingFoundationDemos,
         TextDemos,
-        AccessibilityDemos
+        AccessibilityDemos,
+        PerformanceDemos
     )
 )

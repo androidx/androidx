@@ -235,12 +235,10 @@ public class ViewPager extends ViewGroup {
     private boolean mFakeDragging;
     private long mFakeDragBeginTime;
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public EdgeEffect mLeftEdge;
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull

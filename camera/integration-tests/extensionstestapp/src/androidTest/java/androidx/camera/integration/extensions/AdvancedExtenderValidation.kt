@@ -46,7 +46,7 @@ import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
@@ -108,7 +108,7 @@ class AdvancedExtenderValidation(
         }
         withContext(Dispatchers.Main) {
             extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 
@@ -204,8 +204,8 @@ class AdvancedExtenderValidation(
     private fun createAnalysisOutput(
         impl: AdvancedExtenderImpl,
         sizeCategory: SizeCategory
-    ): OutputSurfaceImpl {
-        val analysisSizes = impl.getSupportedYuvAnalysisResolutions(cameraId)
+    ): OutputSurfaceImpl? {
+        val analysisSizes = impl.getSupportedYuvAnalysisResolutions(cameraId) ?: return null
         assertThat(analysisSizes).isNotEmpty()
 
         var analysisSize = getSizeByClass(analysisSizes, sizeCategory)
@@ -338,8 +338,8 @@ class AdvancedExtenderValidation(
             outputConfiguration.setPhysicalCameraId(outputConfigImpl.physicalCameraId)
         }
 
-        if (outputConfigImpl.surfaceSharingOutputConfigs != null) {
-            for (surfaceSharingOutputConfig in outputConfigImpl.surfaceSharingOutputConfigs) {
+        outputConfigImpl.surfaceSharingOutputConfigs?.let {
+            for (surfaceSharingOutputConfig in it) {
                 val sharingOutputConfiguration = getOutputConfiguration(surfaceSharingOutputConfig)
                 outputConfiguration.addSurface(sharingOutputConfiguration.surface!!)
                 outputConfiguration.enableSurfaceSharing()

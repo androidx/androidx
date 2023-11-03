@@ -66,6 +66,7 @@ import static android.content.Context.WALLPAPER_SERVICE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,6 +87,7 @@ import android.app.DownloadManager;
 import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.app.SearchManager;
+import android.app.UiAutomation;
 import android.app.UiModeManager;
 import android.app.WallpaperManager;
 import android.app.admin.DevicePolicyManager;
@@ -137,6 +139,7 @@ import android.telecom.TelecomManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
@@ -144,17 +147,22 @@ import android.view.accessibility.CaptioningManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
-import androidx.annotation.OptIn;
+import androidx.core.app.AppLocalesStorageHelper;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.os.BuildCompat;
+import androidx.core.hardware.display.DisplayManagerCompat;
+import androidx.core.os.ConfigurationCompat;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.test.R;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @LargeTest
@@ -176,6 +184,11 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     public void setup() {
         mContext = mActivityTestRule.getActivity();
         mPermission = mContext.getPackageName() + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
+    }
+
+    @After
+    public void tearDown() {
+        setAppLocales(mContext, "");
     }
 
     @Test
@@ -517,11 +530,15 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32)
     public void testRegisterReceiverPermissionNotGrantedApi26() {
-        InstrumentationRegistry
-                .getInstrumentation().getUiAutomation().adoptShellPermissionIdentity();
-        assertThrows(RuntimeException.class,
-                () -> ContextCompat.registerReceiver(mContext,
-                        mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
+        UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        uiAutomation.adoptShellPermissionIdentity();
+        try {
+            assertThrows(RuntimeException.class,
+                    () -> ContextCompat.registerReceiver(mContext,
+                            mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
+        } finally {
+            uiAutomation.dropShellPermissionIdentity();
+        }
     }
 
     @Test
@@ -585,9 +602,8 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void testCheckSelfPermissionNotificationPermission() {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             assertEquals(
                     mContext.checkCallingPermission(Manifest.permission.POST_NOTIFICATIONS),
                     ContextCompat.checkSelfPermission(
@@ -600,5 +616,86 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
                     ContextCompat.checkSelfPermission(mContext,
                             Manifest.permission.POST_NOTIFICATIONS));
         }
+    }
+
+    @Test
+    public void testGetDisplayFromActivity() {
+        final Display actualDisplay = ContextCompat.getDisplayOrDefault(mContext);
+        if (Build.VERSION.SDK_INT >= 30) {
+            assertEquals(mContext.getDisplay(), actualDisplay);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
+            assertEquals(actualDisplay, windowManager.getDefaultDisplay());
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 17)
+    public void testGetDisplayFromDisplayContext() {
+        final DisplayManagerCompat displayManagerCompat = DisplayManagerCompat
+                .getInstance(mContext);
+        final Display defaultDisplay =  displayManagerCompat.getDisplay(Display.DEFAULT_DISPLAY);
+        final Context displayContext = mContext.createDisplayContext(defaultDisplay);
+
+        assertEquals(ContextCompat.getDisplayOrDefault(displayContext), defaultDisplay);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testGetDisplayFromWindowContext() {
+        final Context windowContext = mContext.createWindowContext(TYPE_APPLICATION_OVERLAY, null);
+
+        assertEquals(ContextCompat.getDisplayOrDefault(windowContext), windowContext.getDisplay());
+    }
+
+    @Test
+    public void testGetDisplayFromApplication() {
+        final Context applicationContext = ApplicationProvider.getApplicationContext();
+        final Context spyContext = spy(applicationContext);
+        final Display actualDisplay = ContextCompat.getDisplayOrDefault(spyContext);
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            verify(spyContext).getSystemService(eq(DisplayManager.class));
+
+            final Display defaultDisplay = DisplayManagerCompat.getInstance(spyContext)
+                    .getDisplay(Display.DEFAULT_DISPLAY);
+            assertEquals(defaultDisplay, actualDisplay);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) spyContext.getSystemService(WINDOW_SERVICE);
+            // Don't verify if the returned display is the same instance because Application is
+            // not a DisplayContext and the framework always create a fallback Display for
+            // the Context that not associated with a Display.
+            assertEquals(windowManager.getDefaultDisplay().getDisplayId(),
+                    actualDisplay.getDisplayId());
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
+    public void testGetContextForLanguage17() {
+        setAppLocales(mContext, LocaleListCompat.create(Locale.JAPAN).toLanguageTags());
+
+        // verify the context that respects the per-app locales
+        Context newContext = ContextCompat.getContextForLanguage(mContext);
+        LocaleListCompat locales = ConfigurationCompat.getLocales(
+                newContext.getResources().getConfiguration());
+        assertEquals(1, locales.size());
+        assertEquals(Locale.JAPAN, locales.get(0));
+    }
+
+    private void setAppLocales(Context context, String locales) {
+        AppLocalesStorageHelper.persistLocales(context, locales);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    public void testCreateAttributionContext() {
+        Context attributionContext = ContextCompat.createAttributionContext(mContext, "tag");
+        assertEquals("tag", attributionContext.getAttributionTag());
+
+        Context attributionContextNull = ContextCompat.createAttributionContext(mContext, null);
+        assertNull(attributionContextNull.getAttributionTag());
     }
 }

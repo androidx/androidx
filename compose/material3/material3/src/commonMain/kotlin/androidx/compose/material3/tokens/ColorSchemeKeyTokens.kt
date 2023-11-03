@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_162
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -30,22 +30,41 @@ internal enum class ColorSchemeKeyTokens {
     OnErrorContainer,
     OnPrimary,
     OnPrimaryContainer,
+    OnPrimaryFixed,
+    OnPrimaryFixedVariant,
     OnSecondary,
     OnSecondaryContainer,
+    OnSecondaryFixed,
+    OnSecondaryFixedVariant,
     OnSurface,
     OnSurfaceVariant,
     OnTertiary,
     OnTertiaryContainer,
+    OnTertiaryFixed,
+    OnTertiaryFixedVariant,
     Outline,
     OutlineVariant,
     Primary,
     PrimaryContainer,
+    PrimaryFixed,
+    PrimaryFixedDim,
     Scrim,
     Secondary,
     SecondaryContainer,
+    SecondaryFixed,
+    SecondaryFixedDim,
     Surface,
+    SurfaceBright,
+    SurfaceContainer,
+    SurfaceContainerHigh,
+    SurfaceContainerHighest,
+    SurfaceContainerLow,
+    SurfaceContainerLowest,
+    SurfaceDim,
     SurfaceTint,
     SurfaceVariant,
     Tertiary,
     TertiaryContainer,
+    TertiaryFixed,
+    TertiaryFixedDim,
 }

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_CONTENT_FORMAT_DARK_MODE_LARGE_ICON_URI:
+    Removed field androidx.car.app.mediaextensions.MetadataExtras.KEY_CONTENT_FORMAT_DARK_MODE_LARGE_ICON_URI
+RemovedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_CONTENT_FORMAT_DARK_MODE_SMALL_ICON_URI:
+    Removed field androidx.car.app.mediaextensions.MetadataExtras.KEY_CONTENT_FORMAT_DARK_MODE_SMALL_ICON_URI
+RemovedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_CONTENT_FORMAT_LIGHT_MODE_LARGE_ICON_URI:
+    Removed field androidx.car.app.mediaextensions.MetadataExtras.KEY_CONTENT_FORMAT_LIGHT_MODE_LARGE_ICON_URI
+RemovedField: androidx.car.app.mediaextensions.MetadataExtras#KEY_CONTENT_FORMAT_LIGHT_MODE_SMALL_ICON_URI:
+    Removed field androidx.car.app.mediaextensions.MetadataExtras.KEY_CONTENT_FORMAT_LIGHT_MODE_SMALL_ICON_URI

@@ -36,6 +36,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.extensions.Camera2ExtensionsActivity
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION
+import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERAX_EXTENSION
 import androidx.camera.integration.extensions.INVALID_EXTENSION_MODE
 import androidx.camera.integration.extensions.INVALID_LENS_FACING
@@ -184,6 +185,7 @@ class ImageValidationActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -317,22 +319,18 @@ class ImageValidationActivity : AppCompatActivity() {
 
     private fun startImageCaptureActivity(testType: String, cameraId: String, mode: Int) {
         val intent =
-            if (Build.VERSION.SDK_INT >= 31 && testType == TEST_TYPE_CAMERA2_EXTENSION) Intent(
-                this,
-                Camera2ExtensionsActivity::class.java
-            ) else Intent(this, ImageCaptureActivity::class.java)
+            if (Build.VERSION.SDK_INT >= 31 &&
+                (testType == TEST_TYPE_CAMERA2_EXTENSION ||
+                    testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY))
+                Intent(this, Camera2ExtensionsActivity::class.java)
+            else Intent(this, ImageCaptureActivity::class.java)
 
         intent.putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
         intent.putExtra(INTENT_EXTRA_KEY_LENS_FACING, lensFacing)
         intent.putExtra(INTENT_EXTRA_KEY_EXTENSION_MODE, mode)
         intent.putExtra(INTENT_EXTRA_KEY_REQUEST_CODE, imageCaptureActivityRequestCode)
 
-        ActivityCompat.startActivityForResult(
-            this,
-            intent,
-            imageCaptureActivityRequestCode,
-            null
-        )
+        ActivityCompat.startActivityForResult(this, intent, imageCaptureActivityRequestCode, null)
     }
 
     /** Adapter class used to present a fragment containing one photo or video as a page */

@@ -117,7 +117,6 @@ public class IconCompat extends CustomVersionedParcelable {
     public static final int TYPE_URI_ADAPTIVE_BITMAP = Icon.TYPE_URI_ADAPTIVE_BITMAP;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({TYPE_UNKNOWN, TYPE_BITMAP, TYPE_RESOURCE, TYPE_DATA, TYPE_URI, TYPE_ADAPTIVE_BITMAP,
@@ -152,7 +151,6 @@ public class IconCompat extends CustomVersionedParcelable {
     static final String EXTRA_STRING1 = "string1";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(value = 1,
@@ -171,14 +169,12 @@ public class IconCompat extends CustomVersionedParcelable {
     Object          mObj1;
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
     @ParcelField(value = 2, defaultValue = "null")
     public byte[]          mData = null;
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -188,7 +184,6 @@ public class IconCompat extends CustomVersionedParcelable {
     // TYPE_RESOURCE: resId
     // TYPE_DATA: data offset
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @ParcelField(value = 4, defaultValue = "0")
@@ -196,14 +191,12 @@ public class IconCompat extends CustomVersionedParcelable {
 
     // TYPE_DATA: data length
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @ParcelField(value = 5, defaultValue = "0")
     public int             mInt2 = 0;
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -214,7 +207,6 @@ public class IconCompat extends CustomVersionedParcelable {
     @NonParcelField
     PorterDuff.Mode mTintMode = DEFAULT_TINT_MODE;
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -222,7 +214,6 @@ public class IconCompat extends CustomVersionedParcelable {
     public String mTintModeStr = null;
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -243,7 +234,6 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -370,7 +360,6 @@ public class IconCompat extends CustomVersionedParcelable {
 
     /**
      * Used for VersionedParcelable.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public IconCompat() {
@@ -446,7 +435,6 @@ public class IconCompat extends CustomVersionedParcelable {
      * Note: This bitmap may not be available in the future, and it is
      * up to the caller to ensure safety if this bitmap is re-used and/or persisted.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -546,7 +534,6 @@ public class IconCompat extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void checkResource(@NonNull Context context) {
@@ -658,7 +645,6 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * Create an input stream for bitmap by resolving corresponding content uri.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP)
@@ -706,7 +692,6 @@ public class IconCompat extends CustomVersionedParcelable {
 
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressWarnings("deprecation")
@@ -988,7 +973,6 @@ public class IconCompat extends CustomVersionedParcelable {
 
     /**
      * Creates an IconCompat from an Icon.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(23)
@@ -1000,7 +984,6 @@ public class IconCompat extends CustomVersionedParcelable {
     /**
      * Creates an IconCompat from an Icon, or returns null if the given Icon is created from
      * resource 0.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(23)

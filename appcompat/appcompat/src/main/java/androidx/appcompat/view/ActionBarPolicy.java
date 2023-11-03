@@ -32,7 +32,6 @@ import androidx.appcompat.R;
  * Allows components to query for various configuration policy decisions about how the action bar
  * should lay out and behave on the current device.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActionBarPolicy {

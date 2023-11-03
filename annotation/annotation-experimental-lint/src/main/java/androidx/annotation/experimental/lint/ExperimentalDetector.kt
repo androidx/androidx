@@ -20,7 +20,9 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.detector.api.AnnotationUsageType.ASSIGNMENT_RHS
 import com.android.tools.lint.detector.api.AnnotationUsageType.FIELD_REFERENCE
+import com.android.tools.lint.detector.api.AnnotationUsageType.METHOD_CALL_PARAMETER
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -35,16 +37,19 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.PsiPackage
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.jetbrains.uast.UAnnotated
@@ -439,9 +444,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
-        // Are we visiting a Kotlin property as a field reference when it's actually a method?
-        // Ignore it, since we'll also visit it as a method.
-        if (isKotlin(usage.sourcePsi) && type == FIELD_REFERENCE && referenced is PsiMethod) {
+        // Don't visit values assigned to annotated fields or properties, parameters passed to
+        // annotated methods, or annotated properties being referenced as fields. We'll visit the
+        // annotated fields and methods separately.
+        if (referenced is PsiField && type == ASSIGNMENT_RHS ||
+            referenced is PsiMethod && type == ASSIGNMENT_RHS ||
+            referenced is PsiMethod && type == FIELD_REFERENCE ||
+            referenced is PsiMethod && type == METHOD_CALL_PARAMETER) {
             return
         }
 
@@ -579,6 +588,15 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             return true
         }
 
+        // For property accessors, check the property's annotation w/o use-site
+        // which is landed on the backing field if any
+        if (sourcePsi is KtProperty && this is UMethod) {
+            val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
+            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
+                return true
+            }
+        }
+
         return false
     }
 
@@ -615,6 +633,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     ): LintFix {
         val propagateAnnotation = "@$annotation"
         val lintFixes = fix().alternatives()
+        var addedFix = false
         usage.getContainingUMethod()?.let { containingMethod ->
             val isKotlin = isKotlin(usage.sourcePsi)
             val optInAnnotation = if (isKotlin) {
@@ -624,9 +643,12 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             }
             lintFixes.add(createAnnotateFix(context, containingMethod, optInAnnotation))
             lintFixes.add(createAnnotateFix(context, containingMethod, propagateAnnotation))
+            addedFix = true
         }
-        usage.getContainingUClass()?.let { containingClass ->
-            lintFixes.add(createAnnotateFix(context, containingClass, propagateAnnotation))
+        if (!addedFix) { // workaround for b/301598518 : don't add all three fixes at once
+            usage.getContainingUClass()?.let { containingClass ->
+                lintFixes.add(createAnnotateFix(context, containingClass, propagateAnnotation))
+            }
         }
         return lintFixes.build()
     }
@@ -643,21 +665,35 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             else -> throw IllegalArgumentException("Unsupported element type")
         }
 
-        // If the element has a modifier list, e.g. not an anonymous class or lambda, then place the
-        // insertion point at the beginning of the modifiers list. This ensures that we don't insert
-        // the annotation in an invalid position, such as after the "public" or "fun" keywords. We
-        // also don't want to place it on the element range itself, since that would place it before
-        // the comments.
-        val elementLocation = context.getLocation(element.modifierList ?: element as UElement)
+        // If the element can include modifiers, e.g. not an anonymous class or lambda, find the
+        // where the list should start. This ensures that we don't insert the annotation in an
+        // invalid position, such as after the `public` or `fun` keywords. We also don't want to
+        // place it on the element range itself, since that would place it before the comments.
+        val elementSourcePsi = element.sourcePsi
+        val elementForInsert = if (elementSourcePsi is PsiModifierListOwner) {
+            elementSourcePsi.asIterable().firstOrNull { child ->
+                child !is PsiWhiteSpace && child !is PsiComment
+            } ?: throw IllegalArgumentException("Failed to locate element declaration")
+        } else {
+            element
+        }
 
         return fix()
-            .replace()
             .name("Add '$annotation' annotation to $elementLabel")
-            .range(elementLocation)
-            .beginning()
-            .shortenNames()
-            .with("$annotation ")
+            .annotate(annotation, true)
+            .range(context.getLocation(elementForInsert))
             .build()
+    }
+
+    /**
+     * Returns an iterable of child elements.
+     */
+    private fun PsiElement.asIterable(): Iterable<PsiElement> = object : Iterable<PsiElement> {
+        override fun iterator(): Iterator<PsiElement> = object : Iterator<PsiElement> {
+            private var current = firstChild
+            override fun hasNext(): Boolean = current != null
+            override fun next(): PsiElement = current.apply { current = nextSibling }
+        }
     }
 
     /**

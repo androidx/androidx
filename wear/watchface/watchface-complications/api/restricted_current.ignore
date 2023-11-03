@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.wear.watchface.complications.ComplicationDataSourceInfoRetrieverKt:
-    Removed class androidx.wear.watchface.complications.ComplicationDataSourceInfoRetrieverKt
-
-
-RemovedMethod: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#DefaultComplicationDataSourcePolicy(androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat):
-    Removed constructor androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy(androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat)
-RemovedMethod: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#toWireFormat():
-    Removed method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.toWireFormat()

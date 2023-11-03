@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
@@ -50,6 +51,10 @@ class ExternalCameraController(
         GraphRequestProcessor.from(sequenceProcessor)
     private var started = atomic(false)
 
+    override val cameraId: CameraId
+        get() = graphConfig.camera
+    override var isForeground = false
+
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {
             graphListener.onGraphStarted(graphProcessor)
@@ -60,6 +65,11 @@ class ExternalCameraController(
         if (started.compareAndSet(expect = true, update = false)) {
             graphListener.onGraphStopped(graphProcessor)
         }
+    }
+
+    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+        // This is intentionally made a no-op for now as CameraPipe external doesn't support
+        // camera status monitoring and camera controller restart.
     }
 
     override fun close() {

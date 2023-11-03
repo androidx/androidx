@@ -32,11 +32,12 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager RxJava2 Support"
+    name = "WorkManager RxJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }
 
 android {

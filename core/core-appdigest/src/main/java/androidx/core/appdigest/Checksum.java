@@ -83,6 +83,7 @@ public final class Checksum {
      *
      * @see Checksums#getChecksums
      */
+    @Deprecated
     public static final int TYPE_WHOLE_SHA256 = 0x00000008;
 
     /**
@@ -93,6 +94,7 @@ public final class Checksum {
      *
      * @see Checksums#getChecksums
      */
+    @Deprecated
     public static final int TYPE_WHOLE_SHA512 = 0x00000010;
 
     /**
@@ -113,7 +115,6 @@ public final class Checksum {
      */
     public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512 = 0x00000040;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(flag = true, value = {
             TYPE_WHOLE_MERKLE_ROOT_4K_SHA256,

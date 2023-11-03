@@ -18,17 +18,27 @@
 
 package androidx.camera.camera2.pipe.integration.config
 
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.params.StreamConfigurationMap
+import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
 import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
+import androidx.camera.camera2.pipe.integration.compat.CameraCompatModule
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuckQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -36,6 +46,7 @@ import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
+import androidx.camera.camera2.pipe.integration.impl.StillCaptureRequestControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -49,6 +60,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import javax.inject.Named
 import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -62,15 +74,16 @@ annotation class CameraScope
 @OptIn(ExperimentalCamera2Interop::class)
 @Module(
     includes = [
-        ZoomCompat.Bindings::class,
-        ZoomControl.Bindings::class,
+        Camera2CameraControlCompat.Bindings::class,
         EvCompCompat.Bindings::class,
         EvCompControl.Bindings::class,
         FlashControl.Bindings::class,
         FocusMeteringControl.Bindings::class,
         State3AControl.Bindings::class,
+        StillCaptureRequestControl.Bindings::class,
         TorchControl.Bindings::class,
-        Camera2CameraControlCompat.Bindings::class,
+        ZoomCompat.Bindings::class,
+        ZoomControl.Bindings::class,
     ],
     subcomponents = [UseCaseCameraComponent::class]
 )
@@ -113,9 +126,48 @@ abstract class CameraModule {
             requestListener
         )
 
+        @CameraScope
+        @Nullable
         @Provides
-        fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata =
-            checkNotNull(cameraPipe.cameras().awaitCameraMetadata(config.cameraId))
+        fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata? {
+            try {
+                return cameraPipe.cameras().awaitCameraMetadata(config.cameraId)
+            } catch (exception: DoNotDisturbException) {
+                Log.error { "Failed to inject camera metadata: Do Not Disturb mode is on." }
+            }
+            return null
+        }
+
+        @CameraScope
+        @Provides
+        @Named("CameraId")
+        fun provideCameraIdString(config: CameraConfig): String = config.cameraId.value
+
+        @CameraScope
+        @Nullable
+        @Provides
+        fun provideStreamConfigurationMap(
+            cameraMetadata: CameraMetadata?
+        ): StreamConfigurationMap? {
+            return cameraMetadata?.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        }
+
+        @CameraScope
+        @Provides
+        fun provideCameraGraphFlags(cameraQuirks: CameraQuirks): CameraGraph.Flags {
+            if (cameraQuirks.quirks.contains(CaptureSessionStuckQuirk::class.java)) {
+                Log.debug { "CameraPipe should be enabling CaptureSessionStuckQuirk" }
+            }
+            // TODO(b/276354253): Set quirkWaitForRepeatingRequestOnDisconnect flag for overrides.
+
+            // TODO(b/277310425): When creating a CameraGraph, this flag should be turned OFF when
+            //  this behavior is not needed based on the use case interaction and the device on
+            //  which the test is running.
+            val quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseQuirk.getBehavior()
+            return CameraGraph.Flags(
+                quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
+            )
+        }
     }
 
     @Binds
@@ -143,7 +195,8 @@ class CameraConfig(val cameraId: CameraId) {
 @Subcomponent(
     modules = [
         CameraModule::class,
-        CameraConfig::class
+        CameraConfig::class,
+        CameraCompatModule::class,
     ]
 )
 interface CameraComponent {

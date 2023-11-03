@@ -48,20 +48,14 @@ public enum class ComplicationType(private val wireType: Int) {
      * Converts this value to the integer value used for serialization.
      *
      * This is only needed internally to convert to the underlying communication protocol.
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) public fun toWireComplicationType(): Int = wireType
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Converts the integer value used for serialization into a [ComplicationType].
          *
          * This is only needed internally to convert to the underlying communication protocol.
-         *
-         * @hide
          */
         @OptIn(ComplicationExperimental::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -91,8 +85,6 @@ public enum class ComplicationType(private val wireType: Int) {
          * This is only needed internally to convert to the underlying communication protocol.
          *
          * Needed to access this conveniently in Java.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -105,8 +97,6 @@ public enum class ComplicationType(private val wireType: Int) {
          * This is only needed internally to convert to the underlying communication protocol.
          *
          * Needed to access this conveniently in Java.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -116,8 +106,6 @@ public enum class ComplicationType(private val wireType: Int) {
         /**
          * Converts an array of integer values used for serialization into the corresponding list of
          * [ComplicationType].
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -131,8 +119,6 @@ public enum class ComplicationType(private val wireType: Int) {
  * types.
  *
  * This is only needed internally to convert to the underlying communication protocol.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Collection<ComplicationType>.toWireTypes(): IntArray =
@@ -143,8 +129,6 @@ public fun Collection<ComplicationType>.toWireTypes(): IntArray =
  * [ComplicationType] to .
  *
  * This is only needed internally to convert to the underlying communication protocol.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun IntArray.toApiComplicationTypes(): Array<ComplicationType> =

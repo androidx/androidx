@@ -21,16 +21,19 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
 /**
  * A [FrameNumber] is the identifier that represents a specific exposure by the Camera. FrameNumbers
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class FrameNumber(val value: Long)
 
 /** [FrameInfo] is a wrapper around [TotalCaptureResult]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameInfo : UnsafeWrapper {
     val metadata: FrameMetadata
 
@@ -46,6 +49,7 @@ interface FrameInfo : UnsafeWrapper {
 }
 
 /** [FrameMetadata] is a wrapper around [CaptureResult]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameMetadata : Metadata, UnsafeWrapper {
     operator fun <T> get(key: CaptureResult.Key<T>): T?
     fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
@@ -67,6 +71,7 @@ interface FrameMetadata : Metadata, UnsafeWrapper {
  * [Request.Listener.onComplete] method to be delayed so that the transform can be run on future
  * metadata.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class MetadataTransform(
     /**
      * This defines the number of historical [TotalCaptureResult] objects this transform is allowed

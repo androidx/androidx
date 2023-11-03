@@ -28,15 +28,23 @@
         <ignore path="**/src/test/**" />
         <ignore path="**/src/androidTest/**" />
         <!-- Required for Kotlin multi-platform tests. -->
-        <ignore path="**/src/androidAndroidTest/**" />
+        <ignore path="**/src/androidInstrumentedTest/**" />
+        <ignore path="**/src/androidUnitTest/**" />
         <ignore path="**/src/jvmTest/**" />
         <ignore path="**/src/commonTest/**" />
         <!-- Required for AppSearch icing tests. -->
         <ignore path="**/java/tests/**" />
     </issue>
     <!-- Re-enable high-priority checks for tests (and everything else). -->
+    <issue id="BanThreadSleep" severity="fatal" />
     <issue id="NewApi" severity="fatal" />
     <issue id="WrongThread" severity="fatal" />
     <issue id="MissingTestSizeAnnotation" severity="fatal" />
     <issue id="IgnoreClassLevelDetector" severity="fatal" />
+    <!-- Disable all lint checks on transformed classes by default. b/283812176 -->
+    <issue id="all">
+        <ignore path="**/.transforms/**" />
+        <!-- playground builds have dependency files in "transformed" instead of ".transforms" -->
+        <ignore path="**/.gradle/**/transforms*/**/transformed/**" />
+    </issue>
 </lint>

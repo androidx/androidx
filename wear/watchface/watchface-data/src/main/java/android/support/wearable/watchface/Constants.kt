@@ -19,11 +19,7 @@ package android.support.wearable.watchface
 import android.app.WallpaperManager
 import androidx.annotation.RestrictTo
 
-/**
- * Shared constants between client and implementation.
- *
- * @hide
- */
+/** Shared constants between client and implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Constants {
     // Not instantiable.

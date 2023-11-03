@@ -47,13 +47,14 @@ public actual object DataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
+    @kotlin.jvm.JvmOverloads // annotation has to match common
     public actual fun <T> create(
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope,
     ): DataStore<T> =
-        SingleProcessDataStore(
+        DataStoreImpl(
             storage = storage,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),

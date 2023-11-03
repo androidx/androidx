@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.integration.macrobenchmark.target.motionlayout.newmessage
+package androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf

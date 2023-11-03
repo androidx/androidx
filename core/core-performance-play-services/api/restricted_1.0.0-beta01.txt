@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.core.performance.play.services {
+
+  public final class PlayServicesDevicePerformance implements androidx.core.performance.DevicePerformance {
+    ctor public PlayServicesDevicePerformance(android.content.Context context);
+    method public int getMediaPerformanceClass();
+    property public int mediaPerformanceClass;
+  }
+
+}
+

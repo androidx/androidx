@@ -3,6 +3,7 @@ package androidx.car.app.testing {
 
   public class FakeHost {
     method public void performNotificationActionClick(android.app.PendingIntent);
+    method @androidx.car.app.annotations.ExperimentalCarApi public void setMicrophoneInputData(java.io.InputStream);
   }
 
   public class ScreenController {

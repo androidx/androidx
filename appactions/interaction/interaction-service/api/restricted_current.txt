@@ -1,1 +1,30 @@
 // Signature format: 4.0
+package androidx.appactions.interaction.service {
+
+  public abstract class AppInteractionService extends android.app.Service {
+    ctor public AppInteractionService();
+    method protected abstract java.util.List<androidx.appactions.interaction.service.AppVerificationInfo> getAllowedApps();
+    method public abstract java.util.List<androidx.appactions.interaction.capabilities.core.Capability> getRegisteredCapabilities();
+    method protected io.grpc.binder.SecurityPolicy getSecurityPolicy();
+    method public android.os.IBinder onBind(android.content.Intent? intent);
+    property protected abstract java.util.List<androidx.appactions.interaction.service.AppVerificationInfo> allowedApps;
+    property public abstract java.util.List<androidx.appactions.interaction.capabilities.core.Capability> registeredCapabilities;
+    property protected io.grpc.binder.SecurityPolicy securityPolicy;
+  }
+
+  public final class AppVerificationInfo {
+    method public String getPackageName();
+    method public java.util.List<byte[]> getSignatures();
+    property public final String packageName;
+    property public final java.util.List<byte[]> signatures;
+  }
+
+  public static final class AppVerificationInfo.Builder {
+    ctor public AppVerificationInfo.Builder();
+    method public androidx.appactions.interaction.service.AppVerificationInfo.Builder addSignature(byte[] signatures);
+    method public androidx.appactions.interaction.service.AppVerificationInfo build();
+    method public androidx.appactions.interaction.service.AppVerificationInfo.Builder setPackageName(String packageName);
+  }
+
+}
+

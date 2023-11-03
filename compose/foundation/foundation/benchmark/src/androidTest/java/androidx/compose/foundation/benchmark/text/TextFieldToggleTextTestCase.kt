@@ -32,8 +32,8 @@ import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalTextInputService
-import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions

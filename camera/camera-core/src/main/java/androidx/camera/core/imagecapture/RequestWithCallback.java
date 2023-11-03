@@ -53,6 +53,7 @@ class RequestWithCallback implements TakePictureCallback {
     // Flag tracks if the request has been aborted by the UseCase. Once aborted, this class stops
     // propagating callbacks to the app.
     private boolean mIsAborted = false;
+    private boolean mIsStarted = false;
     @Nullable
     private ListenableFuture<Void> mCaptureRequestFuture;
 
@@ -86,12 +87,39 @@ class RequestWithCallback implements TakePictureCallback {
 
     @MainThread
     @Override
+    public void onCaptureStarted() {
+        checkMainThread();
+        if (mIsAborted || mIsStarted) {
+            // Ignore the event if the request has been aborted or started.
+            return;
+        }
+        mIsStarted = true;
+
+        ImageCapture.OnImageCapturedCallback inMemoryCallback =
+                mTakePictureRequest.getInMemoryCallback();
+        if (inMemoryCallback != null) {
+            inMemoryCallback.onCaptureStarted();
+        }
+
+        ImageCapture.OnImageSavedCallback onDiskCallback = mTakePictureRequest.getOnDiskCallback();
+        if (onDiskCallback != null) {
+            onDiskCallback.onCaptureStarted();
+        }
+    }
+
+    @MainThread
+    @Override
     public void onImageCaptured() {
         checkMainThread();
         if (mIsAborted) {
             // Ignore. mCaptureFuture should have been completed by the #abort() call.
             return;
         }
+        if (!mIsStarted) {
+            // Send the started event if the capture is completed but hasn't been started yet.
+            onCaptureStarted();
+        }
+
         mCaptureCompleter.set(null);
         // TODO: send early callback to app.
     }
@@ -149,13 +177,19 @@ class RequestWithCallback implements TakePictureCallback {
             // Fail silently if the request has been aborted.
             return;
         }
-        if (mTakePictureRequest.decrementRetryCounter()) {
-            mRetryControl.retryRequest(mTakePictureRequest);
-        } else {
+
+        boolean isRetryAllowed = mTakePictureRequest.decrementRetryCounter();
+        if (!isRetryAllowed) {
             onFailure(imageCaptureException);
         }
         markComplete();
         mCaptureCompleter.setException(imageCaptureException);
+
+        if (isRetryAllowed) {
+            // retry after all the cleaning up works are done via mCaptureCompleter.setException,
+            // e.g. removing previous request from CaptureNode, SingleBundlingNode etc.
+            mRetryControl.retryRequest(mTakePictureRequest);
+        }
     }
 
     @MainThread

@@ -62,7 +62,8 @@ public class CameraSelectionOptimizerTest {
                 spy(new Camera2CameraFactory(ApplicationProvider.getApplicationContext(),
                         CameraThreadConfig.create(CameraXExecutors.mainThreadExecutor(),
                                 new Handler(Looper.getMainLooper())),
-                        null));
+                        null,
+                        -1L));
     }
 
     void setupNormalCameras() throws Exception {

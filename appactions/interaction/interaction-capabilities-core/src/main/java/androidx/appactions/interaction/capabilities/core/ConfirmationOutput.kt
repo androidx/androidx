@@ -16,14 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
  * Class that represents the response after all slots are filled and accepted and the task is ready
  * to enter the confirmation turn.
- *
- * @param <ConfirmationT>
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: ConfirmationT?) {
     override fun toString() =
         "ConfirmationOutput(confirmation=$confirmation)"
@@ -36,8 +36,6 @@ class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: C
 
     /**
      * Builder for ConfirmationOutput.
-     *
-     * @param <ConfirmationT>
      */
     class Builder<ConfirmationT> {
         private var confirmation: ConfirmationT? = null
@@ -49,12 +47,5 @@ class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: C
 
         /** Builds and returns the ConfirmationOutput instance. */
         fun build() = ConfirmationOutput(confirmation)
-    }
-
-    companion object {
-        /** Returns a default ExecutionResult instance. */
-        @JvmStatic
-        fun <ConfirmationT> getDefaultInstance() = ConfirmationOutput.Builder<ConfirmationT>()
-            .build()
     }
 }

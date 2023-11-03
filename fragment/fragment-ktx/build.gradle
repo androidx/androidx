@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.activity:activity-ktx:1.5.1") {
+    api(projectOrArtifact(":activity:activity-ktx")) {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.2.0") {
@@ -34,11 +34,11 @@ dependencies {
     api("androidx.collection:collection-ktx:1.1.0") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.5.1") {
+    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.1") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    api("androidx.savedstate:savedstate-ktx:1.2.0") {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    api("androidx.savedstate:savedstate-ktx:1.2.1") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
     api(libs.kotlinStdlib)
@@ -58,6 +58,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'fragment' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

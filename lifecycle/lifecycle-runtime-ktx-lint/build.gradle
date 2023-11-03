@@ -35,7 +35,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycles Lint Checks"
+    name = "Lifecycles Lint Checks"
     type = LibraryType.LINT
     inceptionYear = "2019"
     description = "Android Lifecycles Lint Checks"

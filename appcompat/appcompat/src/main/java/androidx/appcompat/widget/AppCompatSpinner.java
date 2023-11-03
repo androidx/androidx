@@ -276,7 +276,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                     }
 
                     @Override
-                    @SuppressLint("SyntheticAccessor")
                     public boolean onForwardingStarted() {
                         if (!getInternalPopup().isShowing()) {
                             showPopup();
@@ -501,7 +500,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View,
      * ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -515,7 +513,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -530,7 +527,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View,
      * PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -544,7 +540,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * This should be accessed via
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

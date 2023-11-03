@@ -16,6 +16,9 @@
   -->
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
+
+    <!-- Rules for SplitActivityList -->
+
     <SplitPairRule
         window:finishPrimaryWithSecondary="always"
         window:finishSecondaryWithPrimary="adjacent">
@@ -29,5 +32,13 @@
         window:finishPrimaryWithSecondary="adjacent">
         <ActivityFilter
             window:activityName="androidx.window.demo.embedding.SplitActivityList"/>
+    </SplitPlaceholderRule>
+
+    <!-- Rules for SplitImeActivityMain -->
+
+    <SplitPlaceholderRule
+        window:placeholderActivityName="androidx.window.demo.embedding.SplitImeActivityPlaceholder">
+        <ActivityFilter
+            window:activityName="androidx.window.demo.embedding.SplitImeActivityMain"/>
     </SplitPlaceholderRule>
 </resources>

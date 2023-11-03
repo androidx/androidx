@@ -253,6 +253,9 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         view = null
         testCase = null
         simulationState = SimulationState.Initialized
+    }
+
+    override fun close() {
         recomposer.close()
     }
 

@@ -22,11 +22,11 @@ import java.lang.annotation.ElementType.PACKAGE
 import java.lang.annotation.ElementType.TYPE
 
 /**
- * Denotes that the annotated element should only be called if the given
- * extension is at least the given version.
+ * Denotes that the annotated element should only be called if the given extension is at least the
+ * given version.
  *
- * This annotation is repeatable, and if specified multiple times, you are
- * required to have one of (not all of) the specified extension versions.
+ * This annotation is repeatable, and if specified multiple times, you are required to have one of
+ * (not all of) the specified extension versions.
  *
  * Example:
  * ```
@@ -34,9 +34,8 @@ import java.lang.annotation.ElementType.TYPE
  * fun methodUsingApisFromR() { ... }
  * ```
  *
- * For the special case of [extension] == 0, you can instead use the
- * [RequiresApi] annotation; `@RequiresApi(30)` is equivalent to
- * `@RequiresExtension(extension=0, version=30)`.
+ * For the special case of [extension] == 0, you can instead use the [RequiresApi] annotation;
+ * `@RequiresApi(30)` is equivalent to `@RequiresExtension(extension=0, version=30)`.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -58,10 +57,10 @@ import java.lang.annotation.ElementType.TYPE
 public annotation class RequiresExtension(
     /**
      * The extension SDK ID. This corresponds to the extension id's allowed by
-     * [android.os.ext.SdkExtensions.getExtensionVersion], and for id values
-     * less than 1_000_000 is one of the [android.os.Build.VERSION_CODES].
+     * [android.os.ext.SdkExtensions.getExtensionVersion], and for id values less than 1_000_000 is
+     * one of the [android.os.Build.VERSION_CODES].
      */
     @IntRange(from = 1) val extension: Int,
-    /** The minimum version to require  */
+    /** The minimum version to require */
     @IntRange(from = 1) val version: Int
 )

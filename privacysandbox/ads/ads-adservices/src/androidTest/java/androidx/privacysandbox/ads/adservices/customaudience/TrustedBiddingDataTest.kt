@@ -28,6 +28,7 @@ import org.junit.runner.RunWith
 class TrustedBiddingDataTest {
     private val uri = Uri.parse("abc.com")
     private val keys = listOf("key1", "key2")
+
     @Test
     fun testToString() {
         val result = "TrustedBiddingData: trustedBiddingUri=abc.com trustedBiddingKeys=[key1, key2]"

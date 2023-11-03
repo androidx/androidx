@@ -21,6 +21,6 @@ package androidx.collection
 internal actual object CollectionPlatformUtils {
 
     internal actual inline fun createIndexOutOfBoundsException(): IndexOutOfBoundsException {
-        return ArrayIndexOutOfBoundsException()
+        return IndexOutOfBoundsException()
     }
 }

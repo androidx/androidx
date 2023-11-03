@@ -33,11 +33,12 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX AppDigest Library"
+    name = "AppDigest"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_APPDIGEST
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"
+    metalavaK2UastEnabled = true
 }
 
 android {

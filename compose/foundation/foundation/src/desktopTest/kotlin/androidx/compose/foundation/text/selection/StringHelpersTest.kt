@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findPrecedingBreak
 import com.google.common.truth.Truth.assertThat
-
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

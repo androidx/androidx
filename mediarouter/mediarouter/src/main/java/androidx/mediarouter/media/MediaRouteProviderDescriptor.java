@@ -42,9 +42,13 @@ public final class MediaRouteProviderDescriptor {
     final List<MediaRouteDescriptor> mRoutes;
     final boolean mSupportsDynamicGroupRoute;
 
-    MediaRouteProviderDescriptor(List<MediaRouteDescriptor> routes,
+    MediaRouteProviderDescriptor(@NonNull List<MediaRouteDescriptor> routes,
                                  boolean supportsDynamicGroupRoute) {
-        mRoutes = (routes == null) ? Collections.emptyList() : routes;
+        if (routes.isEmpty()) {
+            mRoutes = Collections.emptyList();
+        } else {
+            mRoutes = Collections.unmodifiableList(new ArrayList<>(routes));
+        }
         mSupportsDynamicGroupRoute = supportsDynamicGroupRoute;
     }
 
@@ -108,9 +112,9 @@ public final class MediaRouteProviderDescriptor {
             return mBundle;
         }
         mBundle = new Bundle();
-        if (mRoutes != null && !mRoutes.isEmpty()) {
+        if (!mRoutes.isEmpty()) {
             final int count = mRoutes.size();
-            ArrayList<Bundle> routeBundles = new ArrayList<Bundle>(count);
+            ArrayList<Bundle> routeBundles = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 routeBundles.add(mRoutes.get(i).asBundle());
             }
@@ -131,12 +135,10 @@ public final class MediaRouteProviderDescriptor {
         if (bundle == null) {
             return null;
         }
-        List<MediaRouteDescriptor> routes = null;
+        List<MediaRouteDescriptor> routes = new ArrayList<>();
         ArrayList<Bundle> routeBundles = bundle.getParcelableArrayList(KEY_ROUTES);
-        if (routeBundles != null && !routeBundles.isEmpty()) {
-            final int count = routeBundles.size();
-            routes = new ArrayList<MediaRouteDescriptor>(count);
-            for (int i = 0; i < count; i++) {
+        if (routeBundles != null) {
+            for (int i = 0; i < routeBundles.size(); i++) {
                 routes.add(MediaRouteDescriptor.fromBundle(routeBundles.get(i)));
             }
         }
@@ -149,7 +151,7 @@ public final class MediaRouteProviderDescriptor {
      * Builder for {@link MediaRouteProviderDescriptor}.
      */
     public static final class Builder {
-        private List<MediaRouteDescriptor> mRoutes;
+        private final List<MediaRouteDescriptor> mRoutes = new ArrayList<>();
         private boolean mSupportsDynamicGroupRoute = false;
 
         /**
@@ -166,7 +168,7 @@ public final class MediaRouteProviderDescriptor {
             if (descriptor == null) {
                 throw new IllegalArgumentException("descriptor must not be null");
             }
-            mRoutes = descriptor.mRoutes;
+            mRoutes.addAll(descriptor.getRoutes());
             mSupportsDynamicGroupRoute = descriptor.mSupportsDynamicGroupRoute;
         }
 
@@ -179,9 +181,7 @@ public final class MediaRouteProviderDescriptor {
                 throw new IllegalArgumentException("route must not be null");
             }
 
-            if (mRoutes == null) {
-                mRoutes = new ArrayList<MediaRouteDescriptor>();
-            } else if (mRoutes.contains(route)) {
+            if (mRoutes.contains(route)) {
                 throw new IllegalArgumentException("route descriptor already added");
             }
             mRoutes.add(route);
@@ -210,10 +210,9 @@ public final class MediaRouteProviderDescriptor {
          */
         @NonNull
         Builder setRoutes(@Nullable Collection<MediaRouteDescriptor> routes) {
-            if (routes == null || routes.isEmpty()) {
-                mRoutes = null;
-            } else {
-                mRoutes = new ArrayList<>(routes);
+            mRoutes.clear();
+            if (routes != null) {
+                mRoutes.addAll(routes);
             }
             return this;
         }

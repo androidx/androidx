@@ -375,4 +375,23 @@ public class DragStartHelperTest {
                 eq(mDragSource), eq(helper), argThat(new TouchPositionMatcher(0, 0)));
         verifyNoMoreInteractions(listener);
     }
+
+    @LargeTest
+    @Test
+    public void mouseDragThenLongPress() throws Throwable {
+        final DragStartListener listener = createListener(true);
+        final DragStartHelper helper = createDragStartHelper(listener);
+        helper.attach();
+
+        sendMouseEvent(MotionEvent.ACTION_DOWN, MotionEvent.BUTTON_PRIMARY, mDragSource, 0, 0);
+        sendMouseEvent(MotionEvent.ACTION_MOVE, MotionEvent.BUTTON_PRIMARY, mDragSource, 1, 2);
+
+        verify(listener, times(1)).onDragStart(
+                eq(mDragSource), eq(helper), argThat(new TouchPositionMatcher(mDragSource, 1, 2)));
+
+        waitForLongPress();
+
+        // Long press doesn't triggers OnDragStart for a second time.
+        verifyNoMoreInteractions(listener);
+    }
 }

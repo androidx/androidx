@@ -17,6 +17,7 @@
 
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -27,12 +28,12 @@ plugins {
 def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
-    jvm() {
-        withJava()
-    }
+    jvm()
     mac()
     linux()
     ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         all {
@@ -45,7 +46,6 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.okio)
-                api(libs.atomicFu)
             }
         }
         jvmMain {
@@ -56,12 +56,12 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
         jvmTest {
@@ -70,7 +70,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
 
@@ -79,12 +79,6 @@ androidXMultiplatform {
                 dependencies {
                     implementation(libs.atomicFu)
                 }
-            }
-        }
-
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
             }
         }
 
@@ -99,7 +93,7 @@ androidXMultiplatform {
 }
 
 androidx {
-    name = "Android DataStore Core Okio"
+    name = "DataStore Core Okio"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"

@@ -14,30 +14,47 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
-import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("kotlin-multiplatform")
 }
 
-dependencies {
-}
 
-kotlin {
+androidXMultiplatform {
+    // Compose Desktop is qualified on "desktop" but actually builds as "jvm".
     jvm()
 
     sourceSets {
-        jvmMain {
-            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
-            resources.srcDirs += "src/jvmMain/res"
+        commonMain {
+            dependencies {
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(libs.skikoCurrentOs)
-            implementation(project(":compose:desktop:desktop"))
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
+                    "noto-fonts/other/")
+            resources.srcDirs += "src/jvmMain/res"
+
+            dependencies {
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:desktop:desktop"))
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
         }
     }
 }
@@ -48,8 +65,8 @@ task run1(type: JavaExec) {
     systemProperty("skiko.fps.enabled", "true")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task run2(type: JavaExec) {
@@ -57,8 +74,8 @@ task run2(type: JavaExec) {
     main = "androidx.compose.desktop.examples.example2.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task run3(type: JavaExec) {
@@ -66,8 +83,8 @@ task run3(type: JavaExec) {
     main = "androidx.compose.desktop.examples.popupexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task run4(type: JavaExec) {
@@ -75,8 +92,8 @@ task run4(type: JavaExec) {
     main = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task runVsync(type: JavaExec) {
@@ -85,8 +102,8 @@ task runVsync(type: JavaExec) {
     jvmArgs("-verbose:gc")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task runWindowApi(type: JavaExec) {
@@ -96,13 +113,13 @@ task runWindowApi(type: JavaExec) {
     systemProperty("skiko.rendering.laf.global", "true")
     systemProperty("skiko.rendering.useScreenMenuBar", "true")
     classpath =
-        compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
 }
 
 task run {
     dependsOn("run1")
 }
 
-
+// Validate desktop build by explicitly building the jvmJar task as part of bOS.
 BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

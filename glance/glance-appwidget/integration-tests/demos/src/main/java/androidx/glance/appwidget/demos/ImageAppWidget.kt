@@ -31,6 +31,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -86,17 +87,27 @@ class ImageAppWidget : GlanceAppWidget() {
     @Composable
     private fun Header() {
         val context = LocalContext.current
+        var shouldTintHeaderIcon by remember { mutableStateOf(true) }
+
         Row(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically,
             modifier = GlanceModifier.fillMaxWidth().background(Color.White)
         ) {
+            // Demonstrates toggling application of color filter on an image
             Image(
                 provider = ImageProvider(R.drawable.ic_android),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(
-                    ColorProvider(day = Color.Green, night = Color.Blue)
-                ),
+                colorFilter = if (shouldTintHeaderIcon) {
+                    ColorFilter.tint(
+                        ColorProvider(day = Color.Green, night = Color.Blue)
+                    )
+                } else {
+                    null
+                },
+                modifier = GlanceModifier.clickable {
+                    shouldTintHeaderIcon = !shouldTintHeaderIcon
+                }
             )
             Text(
                 text = context.getString(R.string.image_widget_name),

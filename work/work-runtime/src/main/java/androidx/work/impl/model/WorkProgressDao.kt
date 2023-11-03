@@ -25,7 +25,6 @@ import androidx.work.Data
 /**
  * A DAO for [WorkProgress].
  *
- * @hide
  */
 @Dao
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

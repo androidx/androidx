@@ -97,8 +97,6 @@ InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_
     Inconsistent interface constant; expected 'androidx.mediarouter.media.MediaRouteProviderService'`
 
 
-InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteButton#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyDown(int, android.view.KeyEvent) parameter #1:
     Invalid nullability on parameter `event` in method `onKeyDown`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyUp(int, android.view.KeyEvent) parameter #1:
@@ -137,6 +135,10 @@ MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteSelector.Buil
 
 MissingNullability: androidx.mediarouter.media.MediaRouteSelector#EMPTY:
     Missing nullability on field `EMPTY` in class `class androidx.mediarouter.media.MediaRouteSelector`
+
+
+NotCloseable: androidx.mediarouter.media.RemotePlaybackClient:
+    Classes that release resources (release(), stop()) should implement AutoCloseable and CloseGuard: class androidx.mediarouter.media.RemotePlaybackClient
 
 
 NullableCollection: androidx.mediarouter.media.MediaItemStatus#getExtras():

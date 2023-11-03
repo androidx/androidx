@@ -19,7 +19,6 @@ package androidx.compose.ui.text.benchmark.font
 import android.content.Context
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.benchmark.cartesian
 import androidx.compose.ui.text.font.FontFamily
@@ -61,7 +60,7 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
 
     private val context: Context = InstrumentationRegistry.getInstrumentation().context
 
-    @OptIn(ExperimentalTextApi::class, InternalTextApi::class)
+    @OptIn(InternalTextApi::class)
     @Test
     fun forceUncached() {
         benchmarkRule.measureRepeated {

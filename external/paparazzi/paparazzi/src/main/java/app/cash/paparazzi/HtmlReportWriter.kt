@@ -18,13 +18,6 @@ package app.cash.paparazzi
 import app.cash.paparazzi.SnapshotHandler.FrameHandler
 import app.cash.paparazzi.internal.PaparazziJson
 import com.google.common.base.CharMatcher
-import okio.BufferedSink
-import okio.HashingSink
-import okio.blackholeSink
-import okio.buffer
-import okio.sink
-import okio.source
-import org.jcodec.api.awt.AWTSequenceEncoder
 import java.awt.image.BufferedImage
 import java.io.File
 import java.text.SimpleDateFormat
@@ -32,6 +25,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import javax.imageio.ImageIO
+import okio.BufferedSink
+import okio.HashingSink
+import okio.blackholeSink
+import okio.buffer
+import okio.sink
+import okio.source
+import org.jcodec.api.awt.AWTSequenceEncoder
 
 /**
  * Creates an HTML report that avoids writing files that have already been written.

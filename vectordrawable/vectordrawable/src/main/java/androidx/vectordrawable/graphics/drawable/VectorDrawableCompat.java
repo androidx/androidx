@@ -613,7 +613,6 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * The size of a pixel when scaled from the intrinsic dimension to the viewport dimension. This
      * is used to calculate the path animation accuracy.
      *
-     * @hide
      */
     @SuppressWarnings("unused")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1724,8 +1723,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         public String nodesToString(PathParser.PathDataNode[] nodes) {
             StringBuilder result = new StringBuilder(" ");
             for (PathParser.PathDataNode node : nodes) {
-                result.append(node.mType).append(":");
-                float[] params = node.mParams;
+                result.append(node.getType()).append(":");
+                float[] params = node.getParams();
                 for (float param : params) {
                     result.append(param).append(",");
                 }

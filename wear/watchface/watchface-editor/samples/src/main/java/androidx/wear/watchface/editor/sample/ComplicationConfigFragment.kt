@@ -36,7 +36,6 @@ import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /** This fragment lets the user select a non-background complication to configure. */
@@ -60,11 +59,7 @@ internal class ComplicationConfigFragment : Fragment() {
     }
 }
 
-/**
- * Configuration view for watch faces with multiple complicationSlots.
- *
- * @hide
- */
+/** Configuration view for watch faces with multiple complicationSlots. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings(
     "ViewConstructor", // Internal view, not intended for use by tools.

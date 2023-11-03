@@ -94,6 +94,9 @@ public class CameraQuirks {
         if (ImageCaptureFailWithAutoFlashQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureFailWithAutoFlashQuirk());
         }
+        if (IncorrectCaptureStateQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new IncorrectCaptureStateQuirk());
+        }
 
         return new Quirks(quirks);
     }

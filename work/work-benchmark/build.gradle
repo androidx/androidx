@@ -38,7 +38,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager Benchmarks"
+    name = "WorkManager Benchmarks"
      publish = Publish.NONE
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"

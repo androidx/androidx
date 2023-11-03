@@ -21,11 +21,11 @@ import com.google.testing.compile.Compilation
 import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
-import org.intellij.lang.annotations.Language
-import org.junit.Test
 import java.io.File
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
+import org.intellij.lang.annotations.Language
+import org.junit.Test
 
 /** Integration and unit tests for [ResourceInspectionProcessor]. */
 class ResourceInspectionProcessorTest {
@@ -74,7 +74,6 @@ class ResourceInspectionProcessorTest {
                 /**
                  * Inspection companion for {@link TrivialTestView}.
                  *
-                 * @hide
                  */
                 @RequiresApi(29)
                 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -171,7 +170,6 @@ class ResourceInspectionProcessorTest {
                         /**
                          * Inspection companion for {@link TrivialTestView}.
                          *
-                         * @hide
                          */
                         @RequiresApi(29)
                         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -353,7 +351,6 @@ class ResourceInspectionProcessorTest {
                         /**
                          * Inspection companion for {@link SimpleTypesTestView}.
                          *
-                         * @hide
                          */
                         @RequiresApi(29)
                         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -533,7 +530,6 @@ class ResourceInspectionProcessorTest {
                         /**
                          * Inspection companion for {@link IntEnumTestView}.
                          *
-                         * @hide
                          */
                         @RequiresApi(29)
                         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -642,7 +638,6 @@ class ResourceInspectionProcessorTest {
                         /**
                          * Inspection companion for {@link IntFlagTestView}.
                          *
-                         * @hide
                          */
                         @RequiresApi(29)
                         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1010,7 +1005,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link BackgroundTintTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1104,7 +1098,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link AutoSizeTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1220,7 +1213,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link CheckMarkTintTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1309,7 +1301,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link CompoundButtonTintTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1398,7 +1389,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link CompoundDrawablesTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -1487,7 +1477,6 @@ class ResourceInspectionProcessorTest {
                     /**
                      * Inspection companion for {@link ImageTintTestView}.
                      *
-                     * @hide
                      */
                     @RequiresApi(29)
                     @RestrictTo(RestrictTo.Scope.LIBRARY)

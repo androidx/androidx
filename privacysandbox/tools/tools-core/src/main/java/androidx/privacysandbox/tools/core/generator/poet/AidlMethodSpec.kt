@@ -16,11 +16,35 @@
 
 package androidx.privacysandbox.tools.core.generator.poet
 
-internal data class AidlMethodSpec(val name: String, val parameters: List<AidlParameterSpec>) {
-    override fun toString() = "void $name(${parameters.joinToString(", ")});"
+import com.google.common.hash.Hashing
+
+private val AIDL_MAX_TRANSACTION_ID = 16777114UL
+
+/** The number of transaction IDs that we reserve for our own purposes. */
+private val RESERVED_ID_COUNT = 100UL
+
+private val JAVA_MAX_METHOD_COUNT = 65535UL
+
+internal data class AidlMethodSpec(
+    val name: String,
+    val parameters: List<AidlParameterSpec>,
+    val transactionId: Int,
+) {
+    constructor(name: String, parameters: List<AidlParameterSpec>) : this(
+        name,
+        parameters,
+        aidlTransactionId(name, parameters)
+    )
+
+    override fun toString(): String {
+        val params = parameters.joinToString(", ")
+
+        return "void $name($params) = $transactionId;"
+    }
 
     class Builder(val name: String) {
-        val parameters = mutableListOf<AidlParameterSpec>()
+        private val parameters = mutableListOf<AidlParameterSpec>()
+        private var transactionId: Int? = null
 
         fun addParameter(parameter: AidlParameterSpec) {
             parameters.add(parameter)
@@ -30,6 +54,35 @@ internal data class AidlMethodSpec(val name: String, val parameters: List<AidlPa
             addParameter(AidlParameterSpec(name, type, isIn = type.isList || type.isParcelable))
         }
 
-        fun build() = AidlMethodSpec(name, parameters)
+        fun build(): AidlMethodSpec {
+            val txId = transactionId
+            if (txId == null) {
+                return AidlMethodSpec(name, parameters)
+            }
+            // TODO(b/271114359): Add special handling for manually-supplied transaction IDs
+            return AidlMethodSpec(name, parameters, txId)
+        }
     }
 }
+
+// This method must remain backwards-compatible to ensure SDK compatibility.
+internal fun aidlTransactionId(name: String, parameters: List<AidlParameterSpec>): Int {
+    val hash = Hashing.farmHashFingerprint64().hashString(
+        signature(name, parameters),
+        Charsets.UTF_8,
+    ).asLong().toULong()
+    val maxValue = AIDL_MAX_TRANSACTION_ID - RESERVED_ID_COUNT - JAVA_MAX_METHOD_COUNT + 1UL
+
+    // toInt is safe because $maxValue is well under 2^32 (in fact, under 2^24)
+    return (hash % maxValue).toInt()
+}
+
+// This method must remain backwards-compatible to ensure SDK compatibility.
+private fun signature(name: String, parameters: List<AidlParameterSpec>): String {
+    val params = parameters.joinToString(",") { it.type.signature() }
+    return "$name($params)"
+}
+
+// This method must remain backwards-compatible to ensure SDK compatibility.
+private fun AidlTypeSpec.signature(): String =
+    innerType.qualifiedName + (if (isList) "[]" else "")

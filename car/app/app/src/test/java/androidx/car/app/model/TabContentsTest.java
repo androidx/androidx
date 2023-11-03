@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
 import androidx.car.app.navigation.model.MapTemplate;
+import androidx.car.app.navigation.model.NavigationTemplate;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +69,17 @@ public class TabContentsTest {
                                 .setTitle("Click")
                                 .build())
                 .build();
+        TabContents tabContents = new TabContents.Builder(template).build();
+
+        assertEquals(template, tabContents.getTemplate());
+    }
+
+    @Test
+    public void createInstance_navigationTemplate() {
+        NavigationTemplate template =
+                new NavigationTemplate.Builder().setActionStrip(new ActionStrip.Builder().addAction(
+                        new Action.Builder().setTitle("test").build()).build()).build();
+
         TabContents tabContents = new TabContents.Builder(template).build();
 
         assertEquals(template, tabContents.getTemplate());

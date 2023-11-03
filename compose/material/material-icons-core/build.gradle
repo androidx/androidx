@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import androidx.compose.material.icons.generator.tasks.IconGenerationTask
 
 plugins {
@@ -25,55 +24,82 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+androidXMultiplatform {
+    android()
+    desktop()
 
-if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-        api("androidx.compose.ui:ui:1.2.1")
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation(libs.kotlinStdlib)
-
-        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
-    }
-}
-
-if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:ui:ui"))
             }
+        }
 
-            androidMain.dependencies {
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
             }
         }
-    }
-    dependencies {
-        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
+
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:ui:ui"))
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+            }
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+            }
+        }
     }
 }
 
 IconGenerationTask.registerCoreIconProject(
         project,
         android,
-        AndroidXComposePlugin.isMultiplatformEnabled(project)
+        true
 )
 
 androidx {

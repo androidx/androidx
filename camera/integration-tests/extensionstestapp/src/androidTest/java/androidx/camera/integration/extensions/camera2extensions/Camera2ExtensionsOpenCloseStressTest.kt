@@ -22,8 +22,8 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.StressTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress

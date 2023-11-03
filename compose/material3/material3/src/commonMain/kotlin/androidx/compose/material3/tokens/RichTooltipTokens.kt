@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// VERSION: v0_162
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
@@ -24,7 +26,7 @@ internal object RichTooltipTokens {
     val ActionPressedLabelTextColor = ColorSchemeKeyTokens.Primary
     val ContainerColor = ColorSchemeKeyTokens.Surface
     val ContainerElevation = ElevationTokens.Level2
-    val ContainerShape = ShapeKeyTokens.CornerSmall
+    val ContainerShape = ShapeKeyTokens.CornerMedium
     val ContainerSurfaceTintLayerColor = ColorSchemeKeyTokens.SurfaceTint
     val SubheadColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val SubheadFont = TypographyKeyTokens.TitleSmall

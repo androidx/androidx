@@ -49,6 +49,7 @@ package androidx.wear.input {
     method public static android.graphics.drawable.Drawable? getButtonIcon(android.content.Context, int);
     method public static androidx.wear.input.WearableButtons.ButtonInfo? getButtonInfo(android.content.Context, int);
     method public static CharSequence? getButtonLabel(android.content.Context, int);
+    method @VisibleForTesting public static void setWearableButtonsProvider(androidx.wear.input.WearableButtonsProvider);
     field public static final int LOCATION_BOTTOM_CENTER = 107; // 0x6b
     field public static final int LOCATION_BOTTOM_LEFT = 106; // 0x6a
     field public static final int LOCATION_BOTTOM_RIGHT = 108; // 0x6c

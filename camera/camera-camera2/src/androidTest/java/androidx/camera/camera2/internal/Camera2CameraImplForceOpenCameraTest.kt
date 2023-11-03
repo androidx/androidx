@@ -27,12 +27,14 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraInternal.State
 import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -155,15 +157,20 @@ class Camera2CameraImplForceOpenCameraTest {
             cameraManagerCompat
         )
 
+        val cameraCoordinator = FakeCameraCoordinator()
+
         // Initialize camera instance
         val camera = Camera2CameraImpl(
+            ApplicationProvider.getApplicationContext(),
             cameraManagerCompat,
             camId,
             camera2CameraInfo,
+            cameraCoordinator,
             cameraRegistry,
             cameraExecutor,
             cameraHandler,
-            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+            -1L
         )
 
         // Open the camera
@@ -208,7 +215,9 @@ class Camera2CameraImplForceOpenCameraTest {
         private lateinit var cameraHandlerThread: HandlerThread
         private lateinit var cameraHandler: Handler
         private lateinit var cameraExecutor: ExecutorService
-        private val cameraRegistry: CameraStateRegistry by lazy { CameraStateRegistry(1) }
+        private lateinit var cameraCoordinator: CameraCoordinator
+        private val cameraRegistry: CameraStateRegistry by lazy { CameraStateRegistry(
+            cameraCoordinator, 1) }
 
         @BeforeClass
         @JvmStatic
@@ -217,6 +226,7 @@ class Camera2CameraImplForceOpenCameraTest {
             cameraHandlerThread.start()
             cameraHandler = HandlerCompat.createAsync(cameraHandlerThread.looper)
             cameraExecutor = CameraXExecutors.newHandlerExecutor(cameraHandler)
+            cameraCoordinator = FakeCameraCoordinator()
         }
 
         @AfterClass

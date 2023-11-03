@@ -20,24 +20,31 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.FileMover.moveTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object Outputs {
+object Outputs {
 
     private val formatter: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 
     /**
+     * Matches substrings to be removed from filenames.
+     *
+     * We only allow digits, ascii letters, `_` and `-` to remain.
+     *
+     * Note `-` is important for baseline profiles, see b/303034735
+     */
+    private val sanitizerRegex = Regex("([^0-9a-zA-Z_-]+)")
+
+    /**
      * The intended output directory that respects the `additionalTestOutputDir`.
      */
-    public val outputDirectory: File
+    val outputDirectory: File
 
     /**
      * The usable output directory, given permission issues with `adb shell` on Android R.
@@ -46,7 +53,7 @@ public object Outputs {
      * This dir can be read/written by app
      * This dir can be read by shell (see [forceFilesForShellAccessible] for API 21/22!)
      */
-    public val dirUsableByAppAndShell: File
+    val dirUsableByAppAndShell: File
 
     /**
      * Any file created by this process for the shell to use must be explicitly made filesystem
@@ -69,10 +76,12 @@ public object Outputs {
                 // Media directory. (b/216588251)
                 context.getFirstMountedMediaDir()
             }
+
             Build.VERSION.SDK_INT <= 22 -> {
                 // prior to API 23, shell didn't have access to externalCacheDir
                 context.cacheDir
             }
+
             else -> context.externalCacheDir
         } ?: throw IllegalStateException(
             "Unable to select a directory for writing files, " +
@@ -93,6 +102,15 @@ public object Outputs {
             ?: dirUsableByAppAndShell
 
         Log.d(BenchmarkState.TAG, "Output Directory: $outputDirectory")
+
+        // Clear all the existing files in the output directories
+        listOf(outputDirectory, dirUsableByAppAndShell).forEach {
+            it.listFiles()?.forEach { file ->
+                if (file.isFile) file.delete()
+            }
+        }
+
+        // Ensure output dir is created
         outputDirectory.mkdirs()
     }
 
@@ -104,9 +122,8 @@ public object Outputs {
      *
      * @return The absolute path of the output [File].
      */
-    public fun writeFile(
+    fun writeFile(
         fileName: String,
-        reportKey: String,
         reportOnRunEndOnly: Boolean = false,
         block: (file: File) -> Unit,
     ): String {
@@ -122,34 +139,44 @@ public object Outputs {
         if (dirUsableByAppAndShell != outputDirectory) {
             // We need to copy files over anytime `dirUsableByAppAndShell` is different from
             // `outputDirectory`.
-            Log.d(BenchmarkState.TAG, "Copying $file to $destination")
-            file.copyTo(destination, overwrite = true)
+            Log.d(BenchmarkState.TAG, "Moving $file to $destination")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                file.moveTo(destination, overwrite = true)
+            } else {
+                file.copyTo(destination, overwrite = true)
+                file.delete()
+            }
         }
 
         InstrumentationResults.reportAdditionalFileToCopy(
-            key = reportKey,
+            key = sanitizedName,
             absoluteFilePath = destination.absolutePath,
             reportOnRunEndOnly = reportOnRunEndOnly
         )
         return destination.absolutePath
     }
 
-    public fun sanitizeFilename(filename: String): String {
-        return filename
-            .replace(" ", "")
-            .replace("(", "[")
-            .replace(")", "]")
+    fun sanitizeFilename(filename: String): String {
+        val index = filename.lastIndexOf('.')
+        return if (index <= 0) {
+            filename.replace(sanitizerRegex, "_")
+        } else {
+            val name = filename.substring(0 until index)
+            val extension = filename.substring(index)
+            val sanitized = name.replace(sanitizerRegex, "_")
+            "$sanitized$extension"
+        }
     }
 
-    public fun testOutputFile(filename: String): File {
+    fun testOutputFile(filename: String): File {
         return File(outputDirectory, filename)
     }
 
-    public fun dateToFileName(date: Date = Date()): String {
+    fun dateToFileName(date: Date = Date()): String {
         return formatter.format(date)
     }
 
-    public fun relativePathFor(path: String): String {
+    fun relativePathFor(path: String): String {
         val hasOutputDirectoryPrefix = path.startsWith(outputDirectory.absolutePath)
         val relativePath = when {
             hasOutputDirectoryPrefix -> path.removePrefix("${outputDirectory.absolutePath}/")

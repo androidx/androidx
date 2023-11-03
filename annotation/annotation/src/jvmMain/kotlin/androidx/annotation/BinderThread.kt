@@ -16,9 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated method should only be called on the binder thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on the binder thread.
+ * Denotes that the annotated method should only be called on the binder thread. If the annotated
+ * element is a class, then all methods in the class should be called on the binder thread.
  *
  * Example:
  * ```

@@ -23,13 +23,11 @@ package androidx.credentials.exceptions
  * be the limiting factor.
  *
  * @see CreateCredentialException
- * @hide
  */
 class CreateCredentialUnsupportedException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
-    /** @hide */
-    companion object {
+) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
+    internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION"
     }

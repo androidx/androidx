@@ -45,7 +45,8 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         return new AutoValue_VideoEncoderConfig.Builder()
                 .setProfile(EncoderConfig.CODEC_PROFILE_NONE)
                 .setIFrameInterval(VIDEO_INTRA_FRAME_INTERVAL_DEFAULT)
-                .setColorFormat(VIDEO_COLOR_FORMAT_DEFAULT);
+                .setColorFormat(VIDEO_COLOR_FORMAT_DEFAULT)
+                .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED);
     }
 
     @Override
@@ -65,6 +66,10 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
 
     /** Gets the color format. */
     public abstract int getColorFormat();
+
+    /** Gets the color data space. */
+    @NonNull
+    public abstract VideoEncoderDataSpace getDataSpace();
 
     /** Gets the frame rate. */
     public abstract int getFrameRate();
@@ -88,6 +93,16 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, getIFrameInterval());
         if (getProfile() != EncoderConfig.CODEC_PROFILE_NONE) {
             format.setInteger(MediaFormat.KEY_PROFILE, getProfile());
+        }
+        VideoEncoderDataSpace dataSpace = getDataSpace();
+        if (dataSpace.getStandard() != VideoEncoderDataSpace.VIDEO_COLOR_STANDARD_UNSPECIFIED) {
+            format.setInteger(MediaFormat.KEY_COLOR_STANDARD, dataSpace.getStandard());
+        }
+        if (dataSpace.getTransfer() != VideoEncoderDataSpace.VIDEO_COLOR_TRANSFER_UNSPECIFIED) {
+            format.setInteger(MediaFormat.KEY_COLOR_TRANSFER, dataSpace.getTransfer());
+        }
+        if (dataSpace.getRange() != VideoEncoderDataSpace.VIDEO_COLOR_RANGE_UNSPECIFIED) {
+            format.setInteger(MediaFormat.KEY_COLOR_RANGE, dataSpace.getRange());
         }
         return format;
     }
@@ -118,6 +133,10 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         /** Sets the color format. */
         @NonNull
         public abstract Builder setColorFormat(int colorFormat);
+
+        /** Sets the color data space. */
+        @NonNull
+        public abstract Builder setDataSpace(@NonNull VideoEncoderDataSpace dataSpace);
 
         /** Sets the frame rate. */
         @NonNull

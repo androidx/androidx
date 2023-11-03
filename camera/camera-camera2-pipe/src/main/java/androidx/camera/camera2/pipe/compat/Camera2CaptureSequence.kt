@@ -30,9 +30,11 @@ import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.StreamId
+import kotlinx.coroutines.CompletableDeferred
 
 /**
  * This class responds to events from a set of one or more requests. It uses the tag field on a
@@ -49,8 +51,10 @@ internal class Camera2CaptureSequence(
     override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     private val requestNumberMap: Map<RequestNumber, RequestMetadata>,
     private val surfaceMap: Map<Surface, StreamId>,
-) : CameraCaptureSession.CaptureCallback(), CaptureSequence<CaptureRequest> {
+) : Camera2CaptureCallback, CameraCaptureSession.CaptureCallback(),
+    CaptureSequence<CaptureRequest> {
     private val debugId = captureSequenceDebugIds.incrementAndGet()
+    private val hasStarted = CompletableDeferred<Unit>()
 
     @Volatile
     private var _sequenceNumber: Int? = null
@@ -83,6 +87,12 @@ internal class Camera2CaptureSequence(
         captureRequest: CaptureRequest,
         captureTimestamp: Long,
         captureFrameNumber: Long
+    ) = onCaptureStarted(captureRequest, captureFrameNumber, captureTimestamp)
+
+    override fun onCaptureStarted(
+        captureRequest: CaptureRequest,
+        captureFrameNumber: Long,
+        captureTimestamp: Long
     ) {
         val requestNumber = readRequestNumber(captureRequest)
         val timestamp = CameraTimestamp(captureTimestamp)
@@ -92,11 +102,17 @@ internal class Camera2CaptureSequence(
         // normal circumstances this should never happen.
         val request = readRequestMetadata(requestNumber)
 
+        hasStarted.complete(Unit)
         invokeOnRequest(request) { it.onStarted(request, frameNumber, timestamp) }
     }
 
     override fun onCaptureProgressed(
         captureSession: CameraCaptureSession,
+        captureRequest: CaptureRequest,
+        partialCaptureResult: CaptureResult
+    ) = onCaptureProgressed(captureRequest, partialCaptureResult)
+
+    override fun onCaptureProgressed(
         captureRequest: CaptureRequest,
         partialCaptureResult: CaptureResult
     ) {
@@ -115,11 +131,16 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult
+    ) = onCaptureCompleted(captureRequest, captureResult, FrameNumber(captureResult.frameNumber))
+
+    override fun onCaptureCompleted(
+        captureRequest: CaptureRequest,
+        captureResult: TotalCaptureResult,
+        frameNumber: FrameNumber
     ) {
         sequenceListener.onCaptureSequenceComplete(this)
 
         val requestNumber = readRequestNumber(captureRequest)
-        val frameNumber = FrameNumber(captureResult.frameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
@@ -139,16 +160,51 @@ internal class Camera2CaptureSequence(
         captureRequest: CaptureRequest,
         captureFailure: CaptureFailure
     ) {
-        sequenceListener.onCaptureSequenceComplete(this)
-
         val requestNumber = readRequestNumber(captureRequest)
-        val frameNumber = FrameNumber(captureFailure.frameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
         val request = readRequestMetadata(requestNumber)
 
-        invokeOnRequest(request) { it.onFailed(request, frameNumber, captureFailure) }
+        val androidCaptureFailure = AndroidCaptureFailure(request, captureFailure)
+
+        invokeCaptureFailure(
+            request,
+            FrameNumber(captureFailure.frameNumber),
+            androidCaptureFailure
+        )
+    }
+
+    private fun invokeCaptureFailure(
+        request: RequestMetadata,
+        frameNumber: FrameNumber,
+        requestFailure: RequestFailure
+    ) {
+        sequenceListener.onCaptureSequenceComplete(this)
+        invokeOnRequest(request) {
+            it.onFailed(request, frameNumber, requestFailure)
+        }
+    }
+
+    override fun onCaptureFailed(
+        captureRequest: CaptureRequest,
+        frameNumber: FrameNumber
+    ) {
+        val requestNumber = readRequestNumber(captureRequest)
+
+        // Load the request and throw if we are not able to find an associated request. Under
+        // normal circumstances this should never happen.
+        val request = readRequestMetadata(requestNumber)
+
+        val simpleCaptureFailure = SimpleCaptureFailure(
+            request,
+            false,
+            frameNumber,
+            CaptureFailure.REASON_ERROR,
+            null
+        )
+
+        invokeCaptureFailure(request, frameNumber, simpleCaptureFailure)
     }
 
     override fun onCaptureBufferLost(
@@ -175,6 +231,11 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureSequenceId: Int,
         captureFrameNumber: Long
+    ) = onCaptureSequenceCompleted(captureSequenceId, captureFrameNumber)
+
+    override fun onCaptureSequenceCompleted(
+        captureSequenceId: Int,
+        captureFrameNumber: Long
     ) {
         sequenceListener.onCaptureSequenceComplete(this)
 
@@ -192,7 +253,9 @@ internal class Camera2CaptureSequence(
     override fun onCaptureSequenceAborted(
         captureSession: CameraCaptureSession,
         captureSequenceId: Int
-    ) {
+    ) = onCaptureSequenceAborted(captureSequenceId)
+
+    override fun onCaptureSequenceAborted(captureSequenceId: Int) {
         sequenceListener.onCaptureSequenceComplete(this)
 
         check(sequenceNumber == captureSequenceId) {
@@ -200,6 +263,7 @@ internal class Camera2CaptureSequence(
                 "$captureSequenceId!"
         }
 
+        hasStarted.complete(Unit)
         invokeOnRequests { request, _, listener -> listener.onRequestSequenceAborted(request) }
     }
 
@@ -211,6 +275,8 @@ internal class Camera2CaptureSequence(
             "Unable to find the request for $requestNumber!"
         }
     }
+
+    internal suspend fun awaitStarted() = hasStarted.await()
 
     override fun toString(): String = "Camera2CaptureSequence-$debugId"
 }

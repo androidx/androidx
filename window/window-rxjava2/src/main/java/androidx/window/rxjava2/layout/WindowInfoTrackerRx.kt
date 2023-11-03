@@ -20,6 +20,7 @@ package androidx.window.rxjava2.layout
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.UiContext
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import io.reactivex.Flowable
@@ -51,6 +52,7 @@ fun WindowInfoTracker.windowLayoutInfoFlowable(
  * Return an [Observable] stream of [WindowLayoutInfo].
  * @see WindowInfoTracker.windowLayoutInfo
  */
+@OptIn(ExperimentalWindowApi::class)
 fun WindowInfoTracker.windowLayoutInfoObservable(
     @UiContext context: Context
 ): Observable<WindowLayoutInfo> {
@@ -61,6 +63,7 @@ fun WindowInfoTracker.windowLayoutInfoObservable(
  * Return a [Flowable] stream of [WindowLayoutInfo].
  * @see WindowInfoTracker.windowLayoutInfo
  */
+@OptIn(ExperimentalWindowApi::class)
 fun WindowInfoTracker.windowLayoutInfoFlowable(
     @UiContext context: Context
 ): Flowable<WindowLayoutInfo> {

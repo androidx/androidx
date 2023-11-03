@@ -16,24 +16,41 @@
 
 package androidx.compose.material3.catalog.library
 
+import androidx.compose.material3.catalog.library.data.UserPreferencesRepository
+import androidx.compose.material3.catalog.library.model.Component
 import androidx.compose.material3.catalog.library.model.Components
+import androidx.compose.material3.catalog.library.model.Example
 import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.ui.component.Component
 import androidx.compose.material3.catalog.library.ui.example.Example
 import androidx.compose.material3.catalog.library.ui.home.Home
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
 
 @Composable
 fun NavGraph(
+    initialFavoriteRoute: String?,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit
 ) {
+    val context = LocalContext.current
     val navController = rememberNavController()
+    val coroutineScope = rememberCoroutineScope()
+    val userPreferencesRepository = remember { UserPreferencesRepository(context) }
+    var favoriteRoute by rememberSaveable { mutableStateOf(initialFavoriteRoute) }
     NavHost(
         navController = navController,
         startDestination = HomeRoute
@@ -43,10 +60,13 @@ fun NavGraph(
                 components = Components,
                 theme = theme,
                 onThemeChange = onThemeChange,
-                onComponentClick = { component ->
-                    val componentId = component.id
-                    val route = "$ComponentRoute/$componentId"
-                    navController.navigate(route)
+                onComponentClick = { component -> navController.navigate(component.route()) },
+                favorite = favoriteRoute == HomeRoute,
+                onFavoriteClick = {
+                    favoriteRoute = if (favoriteRoute == HomeRoute) null else HomeRoute
+                    coroutineScope.launch {
+                        userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
+                    }
                 }
             )
         }
@@ -60,16 +80,20 @@ fun NavGraph(
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
             val component = Components.first { component -> component.id == componentId }
+            val componentRoute = component.route()
             Component(
                 component = component,
                 theme = theme,
                 onThemeChange = onThemeChange,
-                onExampleClick = { example ->
-                    val exampleIndex = component.examples.indexOf(example)
-                    val route = "$ExampleRoute/$componentId/$exampleIndex"
-                    navController.navigate(route)
-                },
-                onBackClick = { navController.popBackStack() }
+                onExampleClick = { example -> navController.navigate(example.route(component)) },
+                onBackClick = { navController.popBackStack() },
+                favorite = favoriteRoute == componentRoute,
+                onFavoriteClick = {
+                    favoriteRoute = if (favoriteRoute == componentRoute) null else componentRoute
+                    coroutineScope.launch {
+                        userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
+                    }
+                }
             )
         }
         composable(
@@ -86,16 +110,50 @@ fun NavGraph(
             val exampleIndex = arguments.getInt(ExampleIndexArgName)
             val component = Components.first { component -> component.id == componentId }
             val example = component.examples[exampleIndex]
+            val exampleRoute = example.route(component)
             Example(
                 component = component,
                 example = example,
                 theme = theme,
                 onThemeChange = onThemeChange,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                favorite = favoriteRoute == exampleRoute,
+                onFavoriteClick = {
+                    favoriteRoute = if (favoriteRoute == exampleRoute) null else exampleRoute
+                    coroutineScope.launch {
+                        userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
+                    }
+                }
             )
         }
     }
+
+    var initialLaunch by rememberSaveable { mutableStateOf(true) }
+    if (initialLaunch) {
+        // Navigate to the favorite route only on initial launch, if there is one saved.
+        maybeNavigate(navController, initialFavoriteRoute)
+        initialLaunch = false
+    }
 }
+
+private fun maybeNavigate(navController: NavHostController, route: String?) {
+    if (route == null || navController.currentDestination?.route == route) {
+        // Never navigate to a null route or the current route if we're already there.
+        return
+    }
+    if (route.startsWith(ExampleRoute)) {
+        // Navigate to the Component screen first so it's in the back stack as expected.
+        val componentRoute =
+            route.replace(ExampleRoute, ComponentRoute).substringBeforeLast("/")
+        navController.navigate(componentRoute)
+    }
+    navController.navigate(route)
+}
+
+private fun Component.route() = "$ComponentRoute/$id"
+
+private fun Example.route(component: Component) =
+    "$ExampleRoute/${component.id}/${component.examples.indexOf(this)}"
 
 const val Material3Route = "material3"
 private const val HomeRoute = "home"

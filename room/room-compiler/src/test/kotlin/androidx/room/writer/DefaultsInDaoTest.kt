@@ -20,7 +20,7 @@ import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runKaptTest
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
@@ -129,7 +129,7 @@ class DefaultsInDaoTest(
         )
         compileInEachDefaultsMode(source) { generated ->
             generated.contains("public Object upsert(final User obj, " +
-                "final Continuation<? super Unit> continuation)")
+                "final Continuation<? super Unit> \$completion)")
             if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
             } else {
@@ -141,14 +141,44 @@ class DefaultsInDaoTest(
         }
     }
 
+    @Test
+    fun interfaceDao_private() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            import androidx.room.*
+            @Dao
+            interface SubjectDao {
+                private fun upsert() {
+                    TODO("")
+                }
+
+                private suspend fun suspendUpsert() {
+                    TODO("")
+                }
+            }
+            """.trimIndent()
+        )
+        compileInEachDefaultsMode(
+            source = source,
+            jvmTarget = "11" // private functions in interface require target jvm 9+
+        ) {}
+    }
+
     private fun compileInEachDefaultsMode(
         source: Source,
+        jvmTarget: String = "1.8",
         handler: (StringSubject) -> Unit
     ) {
-        // TODO should run these with KSP as well. https://github.com/google/ksp/issues/627
-        runKaptTest(
+        runProcessorTest(
             sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
-            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
+            javacArguments = listOf(
+                "-source", jvmTarget
+            ),
+            kotlincArguments = listOf(
+                "-jvm-target=$jvmTarget",
+                "-Xjvm-default=${jvmDefaultMode.description}"
+            )
         ) { invocation ->
             invocation.roundEnv
                 .getElementsAnnotatedWith(

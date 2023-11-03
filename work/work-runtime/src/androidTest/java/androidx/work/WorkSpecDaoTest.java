@@ -27,7 +27,11 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+import android.app.job.JobParameters;
+import android.provider.MediaStore.Images.Media;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -217,5 +221,79 @@ public class WorkSpecDaoTest extends DatabaseTest {
         assertThat(eligibleWorkSpecs.size(), is(1));
         // Not using contains in any order as the scheduleRequestedAt changes post reset.
         assertThat(eligibleWorkSpecs.get(0).id, is(enqueued.getStringId()));
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    @SmallTest
+    public void testEligibleWorkForSchedulingWithContentUris() {
+        long startTime = System.currentTimeMillis();
+        Constraints constraints = new Constraints.Builder().addContentUriTrigger(
+                Media.EXTERNAL_CONTENT_URI, true).build();
+        OneTimeWorkRequest enqueuedNoUris = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest enqueuedWithUris = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
+                .setConstraints(constraints)
+                .build();
+        insertWork(enqueuedNoUris);
+        insertWork(enqueuedWithUris);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        List<WorkSpec> workSpecs =
+                workSpecDao.getEligibleWorkForSchedulingWithContentUris();
+        assertThat(workSpecs.size(), is(1));
+        assertThat(workSpecs.get(0).id, is(enqueuedWithUris.getStringId()));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    @SmallTest
+    public void testCountNonFinishedContentUriTriggerWorkers() {
+        OneTimeWorkRequest request1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        Constraints constraints = new Constraints.Builder().addContentUriTrigger(
+                Media.EXTERNAL_CONTENT_URI, true).build();
+        OneTimeWorkRequest request2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setConstraints(constraints)
+                .build();
+        OneTimeWorkRequest request3 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(SUCCEEDED)
+                .setConstraints(constraints)
+                .build();
+        OneTimeWorkRequest request4 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(FAILED)
+                .setConstraints(constraints)
+                .build();
+        OneTimeWorkRequest request5 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setConstraints(constraints)
+                .build();
+        mDatabase.workSpecDao().insertWorkSpec(request1.getWorkSpec());
+        mDatabase.workSpecDao().insertWorkSpec(request2.getWorkSpec());
+        mDatabase.workSpecDao().insertWorkSpec(request3.getWorkSpec());
+        mDatabase.workSpecDao().insertWorkSpec(request4.getWorkSpec());
+        mDatabase.workSpecDao().insertWorkSpec(request5.getWorkSpec());
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        int count = workSpecDao.countNonFinishedContentUriTriggerWorkers();
+        assertThat(count, is(2));
+    }
+
+    @Test
+    @SmallTest
+    public void checkSetCancelled() {
+        OneTimeWorkRequest request1 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build();
+        OneTimeWorkRequest request2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.insertWorkSpec(request1.getWorkSpec());
+        workSpecDao.insertWorkSpec(request2.getWorkSpec());
+        workSpecDao.setCancelledState(request1.getStringId());
+        workSpecDao.setCancelledState(request2.getStringId());
+        WorkSpec workSpec = workSpecDao.getWorkSpec(request1.getStringId());
+        WorkSpec workSpec2 = workSpecDao.getWorkSpec(request2.getStringId());
+        assertThat(workSpec.getStopReason(), is(JobParameters.STOP_REASON_CANCELLED_BY_APP));
+        assertThat(workSpec2.getStopReason(), is(WorkInfo.STOP_REASON_NOT_STOPPED));
     }
 }

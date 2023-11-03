@@ -19,14 +19,27 @@ package androidx.compose.material.catalog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.catalog.library.data.UserPreferencesRepository
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent {
-            CatalogApp()
+
+        // Load the favorite route before displaying any content, so we can navigate directly to the
+        // appropriate screen without flashing the UI at all.
+        CoroutineScope(Dispatchers.Default).launch {
+            val favoriteRoute = UserPreferencesRepository(this@CatalogActivity).getFavoriteRoute()
+            withContext(Dispatchers.Main) {
+                setContent {
+                    CatalogApp(initialFavoriteRoute = favoriteRoute)
+                }
+            }
         }
     }
 }

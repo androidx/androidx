@@ -281,7 +281,8 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @Override
-    public boolean isUseCasesCombinationSupported(@NonNull UseCase... useCases) {
-        return mCameraUseCaseAdapter.isUseCasesCombinationSupported(useCases);
+    public boolean isUseCasesCombinationSupported(boolean withStreamSharing,
+            @NonNull UseCase... useCases) {
+        return mCameraUseCaseAdapter.isUseCasesCombinationSupported(withStreamSharing, useCases);
     }
 }

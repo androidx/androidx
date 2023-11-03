@@ -25,12 +25,17 @@ import androidx.camera.core.ImageProxy
  */
 internal class FakeTakePictureCallback : TakePictureCallback {
 
+    var onCaptureStarted = false
     var onImageCapturedCalled = false
     var inMemoryResult: ImageProxy? = null
     var captureFailure: ImageCaptureException? = null
     var processFailure: ImageCaptureException? = null
     var onDiskResult: OutputFileResults? = null
     var aborted = false
+
+    override fun onCaptureStarted() {
+        onCaptureStarted = true
+    }
 
     override fun onImageCaptured() {
         onImageCapturedCalled = true

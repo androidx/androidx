@@ -17,11 +17,11 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.layout.RootMeasurePolicy.minIntrinsicWidth
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.util.fastMap
 
 /**
  * Defines the measure and layout behavior of a [Layout]. [Layout] and [MeasurePolicy] are the way

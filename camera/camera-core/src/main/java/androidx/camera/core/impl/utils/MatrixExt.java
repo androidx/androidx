@@ -39,10 +39,10 @@ public final class MatrixExt {
      * <p>The pivot point is the coordinate that should remain unchanged by the specified
      * transformation.
      *
-     * @param matrix the matrix to rotate
+     * @param matrix  the matrix to rotate
      * @param degrees the rotation degrees
-     * @param px px of pivot point at (px, py)
-     * @param py py of pivot point at (px, py)
+     * @param px      px of pivot point at (px, py)
+     * @param py      py of pivot point at (px, py)
      */
     public static void setRotate(@NonNull float[] matrix, float degrees, float px, float py) {
         Matrix.setIdentityM(matrix, 0);
@@ -55,10 +55,10 @@ public final class MatrixExt {
      * <p>The pivot point is the coordinate that should remain unchanged by the specified
      * transformation.
      *
-     * @param matrix the matrix to rotate
+     * @param matrix  the matrix to rotate
      * @param degrees the rotation degrees
-     * @param px px of pivot point at (px, py)
-     * @param py py of pivot point at (px, py)
+     * @param px      px of pivot point at (px, py)
+     * @param py      py of pivot point at (px, py)
      */
     public static void preRotate(@NonNull float[] matrix, float degrees, float px, float py) {
         normalize(matrix, px, py);
@@ -72,10 +72,10 @@ public final class MatrixExt {
      * <p>The pivot point is the coordinate that should remain unchanged by the specified
      * transformation.
      *
-     * @param matrix the matrix to rotate
+     * @param matrix  the matrix to rotate
      * @param degrees the rotation degrees
-     * @param px px of pivot point at (px, py)
-     * @param py py of pivot point at (px, py)
+     * @param px      px of pivot point at (px, py)
+     * @param py      py of pivot point at (px, py)
      */
     public static void postRotate(@NonNull float[] matrix, float degrees, float px, float py) {
         synchronized (sTemp) {
@@ -85,6 +85,18 @@ public final class MatrixExt {
             denormalize(sTemp, px, py);
             Matrix.multiplyMM(matrix, 0, sTemp, 0, matrix, 0);
         }
+    }
+
+    /**
+     * Preconcats the matrix with a vertical flip operation.
+     *
+     * @param matrix the matrix to flip
+     * @param y      the horizontal line to flip along
+     */
+    public static void preVerticalFlip(@NonNull float[] matrix, float y) {
+        normalize(matrix, 0, y);
+        Matrix.scaleM(matrix, 0, 1f, -1f, 1f);
+        denormalize(matrix, 0, y);
     }
 
     /**

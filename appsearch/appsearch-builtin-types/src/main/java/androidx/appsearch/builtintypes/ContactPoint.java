@@ -57,12 +57,13 @@ public class ContactPoint extends Thing {
             @Nullable String description,
             @Nullable String image,
             @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
             @NonNull String label,
             @NonNull List<String> addresses,
             @NonNull List<String> emails,
             @NonNull List<String> telephones) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mLabel = label;
         mAddresses = Collections.unmodifiableList(addresses);
         mEmails = Collections.unmodifiableList(emails);
@@ -101,6 +102,7 @@ public class ContactPoint extends Thing {
     }
 
     /** Builder for {@link ContactPoint}. */
+    @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link ContactPoint.Builder}.
@@ -181,6 +183,7 @@ public class ContactPoint extends Thing {
                     /*description=*/ mDescription,
                     /*image=*/ mImage,
                     /*url=*/ mUrl,
+                    /*potentialActions=*/ mPotentialActions,
                     /*label=*/ mLabel,
                     /*addresses=*/ new ArrayList<>(mAddresses),
                     /*emails=*/ new ArrayList<>(mEmails),

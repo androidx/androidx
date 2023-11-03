@@ -31,6 +31,7 @@ import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
+import leakcanary.SkipLeakDetection
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -359,6 +360,7 @@ public class FragmentStrictModeTest {
         )
     }
 
+    @SkipLeakDetection("This test throws an exception and can end in an invalid state")
     @Suppress("DEPRECATION")
     @Test
     public fun detectTargetFragmentUsage() {

@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.fastFilter
+import androidx.compose.ui.util.fastFilter
 
 /**
  * Given a [FontFamily], [FontWeight] and [FontStyle], matches the best font in the [FontFamily]

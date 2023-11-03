@@ -16,7 +16,6 @@
 
 package androidx.wear.phone.interactions.authentication
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -143,7 +142,6 @@ public class RemoteAuthClient internal constructor(
         /**
          * Errors returned in [Callback.onAuthorizationError].
          *
-         * @hide
          */
         @IntDef(NO_ERROR, ERROR_UNSUPPORTED, ERROR_PHONE_UNAVAILABLE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -162,11 +160,11 @@ public class RemoteAuthClient internal constructor(
             return RemoteAuthClient(
                 object : ServiceBinder {
                     override fun bindService(
-                        intent: Intent?,
-                        connection: ServiceConnection?,
+                        intent: Intent,
+                        connection: ServiceConnection,
                         flags: Int
                     ): Boolean {
-                        return appContext.bindService(intent, connection!!, flags)
+                        return appContext.bindService(intent, connection, flags)
                     }
 
                     override fun unbindService(connection: ServiceConnection?) {
@@ -277,7 +275,7 @@ public class RemoteAuthClient internal constructor(
 
     internal interface ServiceBinder {
         /** See [Context.bindService].  */
-        fun bindService(intent: Intent?, connection: ServiceConnection?, flags: Int): Boolean
+        fun bindService(intent: Intent, connection: ServiceConnection, flags: Int): Boolean
 
         /** See [Context.unbindService].  */
         fun unbindService(connection: ServiceConnection?)
@@ -346,7 +344,6 @@ public class RemoteAuthClient internal constructor(
             onResult(OAuthResponse(errorCode, responseUrl))
         }
 
-        @SuppressLint("SyntheticAccessor")
         private fun onResult(response: OAuthResponse) {
             @ErrorCode val error = response.errorCode
             uiThreadExecutor.execute(

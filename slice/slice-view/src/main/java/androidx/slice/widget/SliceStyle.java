@@ -41,10 +41,10 @@ import java.util.List;
 /**
  * Holds style information shared between child views of a slice
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceStyle {
     private int mTintColor = -1;
     private final int mTitleColor;

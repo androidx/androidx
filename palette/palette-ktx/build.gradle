@@ -23,11 +23,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":palette:palette"))
-    }
-
     api(project(":palette:palette"))
     api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
@@ -41,6 +36,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

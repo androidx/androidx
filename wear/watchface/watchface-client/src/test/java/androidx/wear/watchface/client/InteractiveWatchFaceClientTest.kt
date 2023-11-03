@@ -18,6 +18,7 @@ package androidx.wear.watchface.client
 
 import android.os.IBinder
 import androidx.wear.watchface.control.IInteractiveWatchFace
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
@@ -53,5 +54,31 @@ class InteractiveWatchFaceClientTest {
 
         // But only one should be sent to the listener.
         verify(listener, times(1)).onClientDisconnected(any())
+    }
+
+    @Test
+    fun renderWatchFaceToSurfaceSupported_oldApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(8)
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
+
+        Assert.assertFalse(client.isRemoteWatchFaceViewHostSupported)
+    }
+
+    @Test
+    fun renderWatchFaceToSurfaceSupported_currentApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(IInteractiveWatchFace.API_VERSION)
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
+
+        Assert.assertTrue(client.isRemoteWatchFaceViewHostSupported)
     }
 }

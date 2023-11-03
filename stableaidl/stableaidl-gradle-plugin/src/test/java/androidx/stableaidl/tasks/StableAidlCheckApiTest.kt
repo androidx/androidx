@@ -21,7 +21,6 @@ import com.android.build.gradle.internal.fixtures.FakeGradleExecOperations
 import com.android.build.gradle.internal.fixtures.FakeGradleWorkExecutor
 import com.android.build.gradle.internal.fixtures.FakeInjectableService
 import com.google.common.truth.Truth
-import java.io.File
 import kotlin.reflect.jvm.javaMethod
 import org.gradle.api.DefaultTask
 import org.gradle.testfixtures.ProjectBuilder
@@ -42,12 +41,6 @@ class StableAidlCheckApiTest {
 
     private lateinit var workers: WorkerExecutor
     private lateinit var instantiatorTask: DefaultTask
-
-    private fun createFile(name: String, parent: File): File {
-        val newFile = parent.resolve(name)
-        newFile.createNewFile()
-        return newFile
-    }
 
     @Before
     fun setup() {
@@ -88,6 +81,7 @@ class StableAidlCheckApiTest {
                 expectedApiDir.absolutePath,
                 actualApiDir.absolutePath
             ),
+            listOf(),
             listOf()
         )
 

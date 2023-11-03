@@ -110,36 +110,40 @@ object Stubs {
         """
     ).indented().within("src")
 
-    val PERIODIC_WORK_REQUEST: TestFile = java(
-        "androidx/work/PeriodicWorkRequest.java",
+    val PERIODIC_WORK_REQUEST: TestFile = kotlin(
+        "androidx/work/PeriodicWorkRequest.kt",
         """
-            package androidx.work;
+            package androidx.work
 
-            import androidx.work.ListenableWorker;
-            import java.time.Duration;
-            import java.util.concurrent.TimeUnit;
+            import androidx.work.ListenableWorker
+            import java.time.Duration
+            import java.util.concurrent.TimeUnit
 
-            class PeriodicWorkRequest extends WorkRequest {
-                static class Builder {
-                    public Builder(ListenableWorker worker, long interval, TimeUnit unit) {
-                        
-                    }
-                    public Builder(ListenableWorker worker, Duration duration) {
-                        
-                    }
-                    public Builder(
-                        ListenableWorker worker,
-                        long interval, TimeUnit intervalUnit, 
-                        long flex,
-                        TimeUnit flexUnits) {
-                        
-                    }
-                    public Builder(
-                        ListenableWorker worker,
-                        Duration intervalDuration,
-                        Duration flexDuration) {
+            class PeriodicWorkRequest: WorkRequest {
+                class Builder {
+                    constructor(
+                        workerClass: Class<out ListenableWorker?>,
+                        repeatInterval: Duration
+                    )
+                    constructor(
+                        workerClass: Class<out ListenableWorker?>,
+                        repeatInterval: Long,
+                        repeatIntervalTimeUnit: TimeUnit
+                    ){}
 
-                    }
+                    constructor(
+                        workerClass: Class<out ListenableWorker?>,
+                        repeatInterval: Long,
+                        repeatIntervalTimeUnit: TimeUnit,
+                        flexInterval: Long,
+                        flexIntervalTimeUnit: TimeUnit
+                    )
+
+                    constructor(
+                        workerClass: Class<out ListenableWorker?>,
+                        repeatInterval: Duration,
+                        flexInterval: Duration
+                    )
                 }
             }
         """
@@ -184,17 +188,18 @@ object Stubs {
         """
     ).indented().within("src")
 
-    val FOREGROUND_INFO: TestFile = kotlin(
-        "androidx/work/ForegroundInfo.kt",
+    val FOREGROUND_INFO: TestFile = java(
+        "androidx/work/ForegroundInfo.java",
         """
-            package androidx.work
+            package androidx.work;
 
-            import android.app.Notification
+            import android.app.Notification;
 
-            class ForegroundInfo(id: Int, notification: Notification, serviceType: Int) {
-                constructor(id: Int, notification: Notification) {
-                   this(id, notification, 0)
-                }
+            public class ForegroundInfo {
+                 public ForegroundInfo(
+                    int notificationId,
+                    Notification notification,
+                    int foregroundServiceType) { }
             }
         """
     ).indented().within("src")

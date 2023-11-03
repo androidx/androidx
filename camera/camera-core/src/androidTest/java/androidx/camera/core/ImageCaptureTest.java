@@ -16,8 +16,11 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.testing.impl.AndroidUtil.isEmulatorAndAPI21;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -36,21 +39,26 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureMetaData;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.CoreAppTestUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -87,12 +95,14 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
 public class ImageCaptureTest {
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Matrix mSensorToBufferTransformMatrix;
 
     @Before
     public void setup() {
+        CoreAppTestUtil.assumeCompatibleDevice();
         FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
@@ -102,9 +112,10 @@ public class ImageCaptureTest {
                 StreamSpec.builder(new Size(640, 480)).build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
-
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+                mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory);
 
@@ -135,11 +146,11 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
-            fakeCameraControl.notifyAllRequestOnCaptureCancelled();
+            fakeCameraControl.notifyAllRequestsOnCaptureCancelled();
         });
 
         mInstrumentation.runOnMainSync(
@@ -166,7 +177,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -302,6 +313,11 @@ public class ImageCaptureTest {
         assertThat(hasJpegQuality(captureConfigs, jpegQuality)).isTrue();
     }
 
+    private FakeCameraControl getCameraControlImplementation(CameraControl cameraControl) {
+        CameraControlInternal impl = ((CameraControlInternal) cameraControl).getImplementation();
+        return (FakeCameraControl) impl;
+    }
+
     @NonNull
     private List<CaptureConfig> captureImage(@NonNull ImageCapture imageCapture,
             @NonNull Class<?> callbackClass) {
@@ -335,7 +351,7 @@ public class ImageCaptureTest {
         }
 
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
         fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
@@ -391,6 +407,7 @@ public class ImageCaptureTest {
     @Test
     public void dispatchImage_cropRectIsUpdatedBasedOnExifOrientation()
             throws InterruptedException, IOException {
+        assumeFalse(isEmulatorAndAPI21());
         // Arrange: assume the sensor buffer is 6x4, the crop rect is (0, 0) - (2, 1) and the
         // rotation degrees is 90°.
         Semaphore semaphore = new Semaphore(0);
@@ -502,7 +519,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         CountDownLatch latch = new CountDownLatch(1);
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             latch.countDown();
@@ -520,6 +537,9 @@ public class ImageCaptureTest {
 
         // Act.
         // Complete the picture taken, then new flash mode should be applied.
+        CaptureFailedRetryEnabler retryEnabler = new CaptureFailedRetryEnabler();
+        // Because of retry in some devices, we may need to notify capture failures multiple times.
+        addExtraFailureNotificationsForRetry(fakeCameraControl, retryEnabler.getRetryCount());
         fakeCameraControl.notifyAllRequestsOnCaptureFailed();
 
         // Assert.
@@ -527,12 +547,22 @@ public class ImageCaptureTest {
         assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
+    private void addExtraFailureNotificationsForRetry(FakeCameraControl cameraControl,
+            int retryCount) {
+        if (retryCount > 0) {
+            cameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+                addExtraFailureNotificationsForRetry(cameraControl, retryCount - 1);
+                cameraControl.notifyAllRequestsOnCaptureFailed();
+            });
+        }
+    }
+
     @Test
     public void correctViewPortRectInResolutionInfo_withCropAspectRatioSetting() {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setCaptureOptionUnpacker((config, builder) -> {
                 })
-                .setSessionOptionUnpacker((config, builder) -> {
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
                 }).build();
         imageCapture.setCropAspectRatio(new Rational(16, 9));
 

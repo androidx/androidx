@@ -35,6 +35,7 @@
     <string name="color_mode" description=" Material 3 Color Mode. [CHAR_LIMIT=NONE]">Color mode</string>
     <string name="font_scale" description="Font scale. [CHAR_LIMIT=NONE]">Font scale</string>
     <string name="text_direction" description="Text direction. [CHAR_LIMIT=NONE]">Text direction</string>
+    <string name="reset_all" description="Reset all. [CHAR_LIMIT=NONE]">Reset all</string>
 
     <string name="scale">%.2f</string>
 

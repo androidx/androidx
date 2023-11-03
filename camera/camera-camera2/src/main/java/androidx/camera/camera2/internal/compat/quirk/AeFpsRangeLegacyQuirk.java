@@ -64,8 +64,8 @@ public class AeFpsRangeLegacyQuirk implements Quirk {
     /**
      * Returns the fps range whose upper is 30 and whose lower is the smallest, or null if no
      * range has an upper equal to 30.  The rational is:
-     * (1) Range upper is always 30 so that a smooth frame rate is guaranteed.
-     * (2) Range lower contains the smallest supported value so that it can adapt as much as
+     * 1. Range upper is always 30 so that a smooth frame rate is guaranteed.
+     * 2. Range lower contains the smallest supported value so that it can adapt as much as
      * possible to low light conditions.
      */
     @Nullable

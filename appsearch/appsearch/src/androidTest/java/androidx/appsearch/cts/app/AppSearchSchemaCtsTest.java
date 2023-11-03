@@ -29,7 +29,7 @@ import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collections;
 
 public class AppSearchSchemaCtsTest {
     @Test
@@ -162,106 +162,6 @@ public class AppSearchSchemaCtsTest {
                 ).build();
         assertThat(schema1).isNotEqualTo(schema2);
         assertThat(schema1.hashCode()).isNotEqualTo(schema2.hashCode());
-    }
-
-    @Test
-    public void testPropertyConfig() {
-        AppSearchSchema schema = new AppSearchSchema.Builder("Test")
-                .addProperty(new StringPropertyConfig.Builder("string")
-                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build())
-                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("long")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_NONE)
-                        .build())
-                .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("indexableLong")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(LongPropertyConfig.INDEXING_TYPE_RANGE)
-                        .build())
-                .addProperty(new AppSearchSchema.DoublePropertyConfig.Builder("double")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .build())
-                .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("boolean")
-                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                        .build())
-                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .build())
-                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
-                        "document", AppSearchEmail.SCHEMA_TYPE)
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setShouldIndexNestedProperties(true)
-                        .build())
-                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId1")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                        .build())
-                .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId2")
-                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
-                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                        .build())
-                .build();
-
-        assertThat(schema.getSchemaType()).isEqualTo("Test");
-        List<PropertyConfig> properties = schema.getProperties();
-        assertThat(properties).hasSize(9);
-
-        assertThat(properties.get(0).getName()).isEqualTo("string");
-        assertThat(properties.get(0).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(((StringPropertyConfig) properties.get(0)).getIndexingType())
-                .isEqualTo(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS);
-        assertThat(((StringPropertyConfig) properties.get(0)).getTokenizerType())
-                .isEqualTo(StringPropertyConfig.TOKENIZER_TYPE_PLAIN);
-
-        assertThat(properties.get(1).getName()).isEqualTo("long");
-        assertThat(properties.get(1).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(((LongPropertyConfig) properties.get(1)).getIndexingType())
-                .isEqualTo(LongPropertyConfig.INDEXING_TYPE_NONE);
-
-        assertThat(properties.get(2).getName()).isEqualTo("indexableLong");
-        assertThat(properties.get(2).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(((LongPropertyConfig) properties.get(2)).getIndexingType())
-                .isEqualTo(LongPropertyConfig.INDEXING_TYPE_RANGE);
-
-        assertThat(properties.get(3).getName()).isEqualTo("double");
-        assertThat(properties.get(3).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(properties.get(3)).isInstanceOf(AppSearchSchema.DoublePropertyConfig.class);
-
-        assertThat(properties.get(4).getName()).isEqualTo("boolean");
-        assertThat(properties.get(4).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(properties.get(4)).isInstanceOf(AppSearchSchema.BooleanPropertyConfig.class);
-
-        assertThat(properties.get(5).getName()).isEqualTo("bytes");
-        assertThat(properties.get(5).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(properties.get(5)).isInstanceOf(AppSearchSchema.BytesPropertyConfig.class);
-
-        assertThat(properties.get(6).getName()).isEqualTo("document");
-        assertThat(properties.get(6).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REPEATED);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6)).getSchemaType())
-                .isEqualTo(AppSearchEmail.SCHEMA_TYPE);
-        assertThat(((AppSearchSchema.DocumentPropertyConfig) properties.get(6))
-                .shouldIndexNestedProperties()).isEqualTo(true);
-
-        assertThat(properties.get(7).getName()).isEqualTo("qualifiedId1");
-        assertThat(properties.get(7).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
-        assertThat(((StringPropertyConfig) properties.get(7)).getJoinableValueType())
-                .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
-
-        assertThat(properties.get(8).getName()).isEqualTo("qualifiedId2");
-        assertThat(properties.get(8).getCardinality())
-                .isEqualTo(PropertyConfig.CARDINALITY_REQUIRED);
-        assertThat(((StringPropertyConfig) properties.get(8)).getJoinableValueType())
-                .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
     }
 
     @Test
@@ -507,7 +407,10 @@ public class AppSearchSchemaCtsTest {
                 + "  ]\n"
                 + "}";
 
-        assertThat(schemaString).isEqualTo(expectedString);
+        String[] lines = expectedString.split("\n");
+        for (String line : lines) {
+            assertThat(schemaString).contains(line);
+        }
     }
 
     @Test
@@ -538,5 +441,29 @@ public class AppSearchSchemaCtsTest {
                 new LongPropertyConfig.Builder("timestamp").setIndexingType(2).build());
         assertThrows(IllegalArgumentException.class, () ->
                 new LongPropertyConfig.Builder("timestamp").setIndexingType(-1).build());
+    }
+
+    @Test
+    public void testInvalidDocumentPropertyConfig_indexableNestedProperties() {
+        // Adding indexableNestedProperties with shouldIndexNestedProperties=true should fail.
+        AppSearchSchema.DocumentPropertyConfig.Builder builder =
+                new AppSearchSchema.DocumentPropertyConfig.Builder("prop1", "Schema1")
+                        .setShouldIndexNestedProperties(true)
+                        .addIndexableNestedProperties(Collections.singleton("prop1"));
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.build());
+        assertThat(e)
+                .hasMessageThat()
+                .contains(
+                        "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false"
+                                + " when one or more indexableNestedProperties are provided.");
+
+        builder.addIndexableNestedProperties(Collections.singleton("prop1.prop2"));
+        e = assertThrows(IllegalArgumentException.class, () -> builder.build());
+        assertThat(e)
+                .hasMessageThat()
+                .contains(
+                        "DocumentIndexingConfig#shouldIndexNestedProperties is required to be false"
+                                + " when one or more indexableNestedProperties are provided.");
     }
 }

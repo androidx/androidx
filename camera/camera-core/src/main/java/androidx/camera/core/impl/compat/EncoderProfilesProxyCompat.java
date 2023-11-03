@@ -22,6 +22,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 
 /**
@@ -30,6 +31,8 @@ import androidx.camera.core.impl.EncoderProfilesProxy;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class EncoderProfilesProxyCompat {
+
+    private static final String TAG = "EncoderProfilesProxyCompat";
 
     /** Creates an EncoderProfilesProxy instance from {@link EncoderProfiles}. */
     @RequiresApi(31)
@@ -50,13 +53,11 @@ public final class EncoderProfilesProxyCompat {
     @NonNull
     public static EncoderProfilesProxy from(@NonNull CamcorderProfile camcorderProfile) {
         if (Build.VERSION.SDK_INT >= 31) {
-            throw new RuntimeException(
-                    "Should not use from(CamcorderProfile) on API " + Build.VERSION.SDK_INT
-                            + ". CamcorderProfile is deprecated on API 31, use "
-                            + "from(EncoderProfiles) instead.");
-        } else {
-            return EncoderProfilesProxyCompatBaseImpl.from(camcorderProfile);
+            Logger.w(TAG, "Should use from(EncoderProfiles) on API " + Build.VERSION.SDK_INT
+                    + "instead. CamcorderProfile is deprecated on API 31.");
         }
+
+        return EncoderProfilesProxyCompatBaseImpl.from(camcorderProfile);
     }
 
     // Class should not be instantiated.

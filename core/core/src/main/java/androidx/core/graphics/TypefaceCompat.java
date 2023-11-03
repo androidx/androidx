@@ -74,7 +74,6 @@ public class TypefaceCompat {
      * Find from internal cache.
      *
      * @return null if not found.
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -87,7 +86,6 @@ public class TypefaceCompat {
      * Find from internal cache.
      *
      * @return null if not found.
-     * @hide
      * @deprecated Use {@link #findFromCache(Resources, int, String, int, int)} method
      */
     @Nullable
@@ -138,7 +136,6 @@ public class TypefaceCompat {
      * Create Typeface from XML resource which root node is font-family.
      *
      * @return null if failed to create.
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -195,7 +192,6 @@ public class TypefaceCompat {
      * Create Typeface from XML resource which root node is font-family.
      *
      * @return null if failed to create.
-     * @hide
      * @deprecated Use {@link #createFromResourcesFamilyXml(Context, FamilyResourceEntry,
      * Resources, int, String, int, int, ResourcesCompat.FontCallback, Handler, boolean)} method
      */
@@ -213,7 +209,6 @@ public class TypefaceCompat {
 
     /**
      * Used by Resources to load a font resource of type font file.
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -231,7 +226,6 @@ public class TypefaceCompat {
 
     /**
      * Used by Resources to load a font resource of type font file.
-     * @hide
      * @deprecated Use {@link #createFromResourcesFontFile(Context, Resources, int, String,
      * int, int)} method
      */
@@ -246,7 +240,6 @@ public class TypefaceCompat {
 
     /**
      * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -322,6 +315,7 @@ public class TypefaceCompat {
      * This method is thread safe.
      * </p>
      *
+     * @param context context to use for the creation.
      * @param family An existing {@link Typeface} object. In case of {@code null}, the default
      *               typeface is used instead.
      * @param weight The desired weight to be drawn.
@@ -346,7 +340,6 @@ public class TypefaceCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
@@ -361,7 +354,6 @@ public class TypefaceCompat {
      * RestrictTo(LIBRARY) since it is used by the deprecated
      * {@link FontsContractCompat#getFontSync} function.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class ResourcesCallbackAdapter extends FontsContractCompat.FontRequestCallback {

@@ -92,6 +92,12 @@ public class DeviceQuirksLoader {
         if (ExtraSupportedResolutionQuirk.load()) {
             quirks.add(new ExtraSupportedResolutionQuirk());
         }
+        if (StretchedVideoResolutionQuirk.load()) {
+            quirks.add(new StretchedVideoResolutionQuirk());
+        }
+        if (CodecStuckOnFlushQuirk.load()) {
+            quirks.add(new CodecStuckOnFlushQuirk());
+        }
 
         return quirks;
     }

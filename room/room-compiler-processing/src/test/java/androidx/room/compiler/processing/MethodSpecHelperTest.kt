@@ -16,34 +16,35 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.javac.JavacMethodElement
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.testutils.generateAllEnumerations
 import androidx.room.compiler.processing.util.javaTypeUtils
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.testutils.generateAllEnumerations
 import com.google.auto.common.MoreTypes
-import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import java.io.File
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.Types
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class MethodSpecHelperTest(
     // if true, pre-compile sources then run the test to account for changes between .class files
     // and source files
     val preCompiledCode: Boolean,
-    val shouldMarkParamsFinal: Boolean
+    val shouldMarkParamsFinal: Boolean,
+    val ignoreOwner: Boolean
 ) {
     @Test
     fun javaOverrides() {
@@ -460,17 +461,15 @@ class MethodSpecHelperTest(
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
-                val func = if (shouldMarkParamsFinal)
-                    MethodSpecHelper::overridingWithFinalParams
-                else
-                    MethodSpecHelper::overriding
+                val subject =
+                    if (ignoreOwner)
+                        MethodSpecHelper.overriding(method)
+                    else if (shouldMarkParamsFinal)
+                        MethodSpecHelper.overridingWithFinalParams(method, target.type)
+                    else
+                        MethodSpecHelper.overriding(method, target.type)
 
-                val subject = func(
-                    method,
-                    target.type
-                ).toSignature()
-
-                assertThat(subject).isEqualTo(golden[index])
+                assertThat(subject.toSignature()).isEqualTo(golden[index])
             }
         }
     }
@@ -573,6 +572,9 @@ class MethodSpecHelperTest(
         owner: DeclaredType,
         typeUtils: Types
     ): MethodSpec.Builder {
+        if (ignoreOwner) {
+          return MethodSpec.overriding(elm)
+        }
         val baseSpec = MethodSpec.overriding(elm, owner, typeUtils)
             .build()
 
@@ -600,7 +602,10 @@ class MethodSpecHelperTest(
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "preCompiledCode={0}, shouldMarkParamsFinal={1}")
-        fun params() = generateAllEnumerations(listOf(false, true), listOf(false, true))
+        @Parameterized.Parameters(
+            name = "preCompiledCode={0}, shouldMarkParamsFinal={1}, ignoreOwner={2}")
+        fun params() =
+            generateAllEnumerations(
+                listOf(false, true), listOf(false, true), listOf(false, true))
     }
 }

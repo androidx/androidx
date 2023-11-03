@@ -59,9 +59,6 @@ public open class DynamicInstallManager(
         }
     }
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun performInstall(
         backStackEntry: NavBackStackEntry,
@@ -93,7 +90,6 @@ public open class DynamicInstallManager(
     /**
      * @param module The module to install.
      * @return Whether the requested module needs installation.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun needsInstall(module: String): Boolean {

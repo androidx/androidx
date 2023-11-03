@@ -13,77 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
 }
 
+BundleInsideHelper.forInsideAar(
+        project,
+        [
+            new BundleInsideHelper.Relocation(
+                /* from = */ "io.grpc.protobuf",
+                /* to =   */ "androidx.appactions.interaction.grpc.protobuf"),
+            new BundleInsideHelper.Relocation(
+                /* from = */ "com.google.protobuf",
+                /* to =   */ "androidx.appactions.interaction.protobuf")
+        ],
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
+)
+
 dependencies {
+    bundleInside(project(":appactions:interaction:interaction-service-proto"))
+
+    implementation(project(":appactions:interaction:interaction-capabilities-core"))
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(libs.grpcAndroid)
     implementation(libs.grpcBinder)
     implementation(libs.grpcStub)
-    implementation(libs.protobufLite)
-    implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.wear.tiles:tiles:1.1.0")
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
-    // TODO(b/268709908): Bump this to version 1.52.0 and make available from libs.grpcProtobufLite
-    implementation("io.grpc:grpc-protobuf-lite:1.45.1")
-    implementation(project(":appactions:interaction:interaction-capabilities-core"))
-    implementation(project(":appactions:interaction:interaction-proto"))
+    implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinStdlib)
+    implementation(libs.jsr250)
 
-    testImplementation(libs.kotlinStdlib)
+    // Force upgrade since 1.2.0 is not compatible with latest lint.
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
+
+    testImplementation(project(":appactions:interaction:interaction-capabilities-core"))
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
+    testImplementation(project(":appactions:interaction:interaction-service-proto"))
+    testImplementation(libs.grpcTesting)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.protobufLite)
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    // Configure the codegen plugins
-    plugins {
-        grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.52.0'
-        }
-    }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-            task.plugins {
-                grpc {
-                    option 'lite'
-                }
-            }
-        }
-    }
+    testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }
 
 android {
     namespace "androidx.appactions.interaction.service"
     defaultConfig {
-        // TODO(b/266649259): Temporary bump to 33 to support capabilities-core. Lower back to 25 to
-        // support wear:tiles
-        minSdkVersion 33
+        minSdkVersion 26
     }
     defaultConfig {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -100,4 +92,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Library for integrating with Google Assistant via GRPC binder channel."
+    metalavaK2UastEnabled = true
 }

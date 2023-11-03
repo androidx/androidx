@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.Layout
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.Density
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
  * [androidx.compose.ui.layout.ParentDataModifier]
  */
-@ExperimentalComposeUiApi
 interface ParentDataModifierNode : DelegatableNode {
     /**
      * Provides a parentData, given the [parentData] already provided through the modifier's chain.
@@ -43,5 +41,4 @@ interface ParentDataModifierNode : DelegatableNode {
  * This invalidates the current node's parent data, and ensures that layouts that utilize it will be
  * scheduled to relayout for the next frame.
  */
-@ExperimentalComposeUiApi
 fun ParentDataModifierNode.invalidateParentData() = requireLayoutNode().invalidateParentData()

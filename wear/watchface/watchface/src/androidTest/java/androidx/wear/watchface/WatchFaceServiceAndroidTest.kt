@@ -21,24 +21,30 @@ import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.test.SimpleWatchFaceTestService
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class WatchFaceServiceAndroidTest {
+    @After
+    public fun tearDown() {
+        InteractiveInstanceManager.setParameterlessEngine(null)
+    }
+
     @Test
     fun measuresWatchFaceIconsFromCustomContext() {
         val context: Context = ApplicationProvider.getApplicationContext()
         val serviceSpy =
             object : SimpleWatchFaceTestService() {
-                override val resourcesContext: Context
-                    get() =
-                        this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
+                override fun getResourcesContext(runtimePackage: String): Context =
+                    this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
             }
         val engine = serviceSpy.onCreateEngine() as WatchFaceService.EngineWrapper
 

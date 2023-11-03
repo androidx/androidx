@@ -56,6 +56,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.DifferentialMotionFlingController;
+import androidx.core.view.DifferentialMotionFlingTarget;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingChildHelper;
@@ -124,13 +126,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
     public EdgeEffect mEdgeGlowTop;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
@@ -227,6 +227,14 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private float mVerticalScrollFactor;
 
     private OnScrollChangeListener mOnScrollChangeListener;
+
+    @VisibleForTesting
+    final DifferentialMotionFlingTargetImpl mDifferentialMotionFlingTarget =
+            new DifferentialMotionFlingTargetImpl();
+
+    @VisibleForTesting
+    DifferentialMotionFlingController mDifferentialMotionFlingController =
+            new DifferentialMotionFlingController(getContext(), mDifferentialMotionFlingTarget);
 
     public NestedScrollView(@NonNull Context context) {
         this(context, null);
@@ -706,21 +714,33 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_UP);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_UP);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_UP);
                     }
                     break;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_DOWN);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_DOWN);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_DOWN);
                     }
+                    break;
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    handled = fullScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                    handled = fullScroll(View.FOCUS_DOWN);
                     break;
                 case KeyEvent.KEYCODE_SPACE:
                     pageScroll(event.isShiftPressed() ? View.FOCUS_UP : View.FOCUS_DOWN);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                    pageScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_END:
+                    pageScroll(View.FOCUS_DOWN);
                     break;
             }
         }
@@ -1157,7 +1177,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         if (hitScrollBarrier && (touchType == ViewCompat.TYPE_TOUCH)) {
             // Break our velocity if we hit a scroll barrier.
-            mVelocityTracker.clear();
+            if (mVelocityTracker != null) {
+                mVelocityTracker.clear();
+            }
         }
 
         /*
@@ -1306,10 +1328,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (motionEvent.getAction() == MotionEvent.ACTION_SCROLL && !mIsBeingDragged) {
             final float verticalScroll;
             final int x;
+            final int flingAxis;
 
             if (MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_CLASS_POINTER)) {
                 verticalScroll = motionEvent.getAxisValue(MotionEvent.AXIS_VSCROLL);
                 x = (int) motionEvent.getX();
+                flingAxis = MotionEvent.AXIS_VSCROLL;
             } else if (
                     MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_ROTARY_ENCODER)
             ) {
@@ -1317,9 +1341,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 // Since a Wear rotary event doesn't have a true X and we want to support proper
                 // overscroll animations, we put the x at the center of the screen.
                 x = getWidth() / 2;
+                flingAxis = MotionEvent.AXIS_SCROLL;
             } else {
                 verticalScroll = 0;
                 x = 0;
+                flingAxis = 0;
             }
 
             if (verticalScroll != 0) {
@@ -1330,6 +1356,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                         MotionEventCompat.isFromSource(motionEvent, InputDevice.SOURCE_MOUSE);
 
                 scrollBy(-invertedDelta, x, ViewCompat.TYPE_NON_TOUCH, isSourceMouse);
+                if (flingAxis != 0) {
+                    mDifferentialMotionFlingController.onMotionEvent(motionEvent, flingAxis);
+                }
 
                 return true;
             }
@@ -1346,7 +1375,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 || (mode == OVER_SCROLL_IF_CONTENT_SCROLLS && getScrollRange() > 0);
     }
 
-    private float getVerticalScrollFactorCompat() {
+    @VisibleForTesting
+    float getVerticalScrollFactorCompat() {
         if (mVerticalScrollFactor == 0) {
             TypedValue outValue = new TypedValue();
             final Context context = getContext();
@@ -1827,7 +1857,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     /**
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -1852,35 +1881,30 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return scrollRange;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollExtent() {
@@ -2545,6 +2569,28 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             event.setScrollY(nsvHost.getScrollY());
             AccessibilityRecordCompat.setMaxScrollX(event, nsvHost.getScrollX());
             AccessibilityRecordCompat.setMaxScrollY(event, nsvHost.getScrollRange());
+        }
+    }
+
+    class DifferentialMotionFlingTargetImpl implements DifferentialMotionFlingTarget {
+        @Override
+        public boolean startDifferentialMotionFling(float velocity) {
+            if (velocity == 0) {
+                return false;
+            }
+            stopDifferentialMotionFling();
+            fling((int) velocity);
+            return true;
+        }
+
+        @Override
+        public void stopDifferentialMotionFling() {
+            mScroller.abortAnimation();
+        }
+
+        @Override
+        public float getScaledScrollFactor() {
+            return -getVerticalScrollFactorCompat();
         }
     }
 

@@ -34,10 +34,11 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Autofill"
+    name = "Autofill"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "AndroidX Autofill"
+    metalavaK2UastEnabled = true
 }
 
 android {

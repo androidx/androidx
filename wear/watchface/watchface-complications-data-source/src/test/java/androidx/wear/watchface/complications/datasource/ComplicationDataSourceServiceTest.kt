@@ -15,23 +15,24 @@
  */
 package androidx.wear.watchface.complications.datasource
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
-import androidx.wear.protolayout.expression.DynamicBuilders
+import androidx.annotation.RequiresApi
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationText
-import androidx.wear.watchface.complications.data.ComplicationTextExpression
 import androidx.wear.watchface.complications.data.ComplicationType
+import androidx.wear.watchface.complications.data.DynamicComplicationText
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.RangedValueComplicationData
@@ -48,7 +49,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
@@ -75,8 +75,11 @@ class ComplicationDataSourceServiceTest {
                 complicationSlotId: Int,
                 data: WireComplicationData?
             ) {
-                mRemoteManager.updateComplicationData(complicationSlotId, data)
-                mUpdateComplicationDataLatch.countDown()
+                try {
+                    mRemoteManager.updateComplicationData(complicationSlotId, data)
+                } finally {
+                    mUpdateComplicationDataLatch.countDown()
+                }
             }
         }
     private lateinit var mProvider: IComplicationProvider.Stub
@@ -110,6 +113,8 @@ class ComplicationDataSourceServiceTest {
         /** Last type provided to [previewData]. */
         var lastPreviewType: ComplicationType? = null
 
+        val lastPreviewOrErrorLatch = CountDownLatch(1)
+
         override fun createMainThreadHandler(): Handler = mPretendMainThreadHandler
 
         override fun onComplicationRequest(
@@ -130,6 +135,7 @@ class ComplicationDataSourceServiceTest {
 
         override fun getPreviewData(type: ComplicationType): ComplicationData? {
             lastPreviewType = type
+            lastPreviewOrErrorLatch.countDown()
             return previewData
         }
     }
@@ -163,96 +169,67 @@ class ComplicationDataSourceServiceTest {
                 .build()
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
 
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("hello")
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace)
+            .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
     }
 
     @Test
     fun testOnComplicationRequest_isForSafeWatchFace() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val id = 123
 
         @Suppress("NewApi") // onUpdate2
         mProvider.onUpdate2(
-            id, ComplicationType.LONG_TEXT.toWireComplicationType(),
-            /* isForSafeWatchFace= */ true, mLocalManager
-        )
-
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        @Suppress("NewApi") // isForSafeWatchFace
-        assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
-    fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicBuilders.DynamicString.constant("hello")
-                            .concat(DynamicBuilders.DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
+            id,
             ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
-        )
-
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                eq(
-                    LongTextComplicationData.Builder(
-                            ComplicationTextExpression(
-                                DynamicBuilders.DynamicString.constant("hello")
-                                    .concat(DynamicBuilders.DynamicString.constant(" world"))
-                            ),
-                            ComplicationText.EMPTY
-                        )
-                        .build()
-                        .asWireComplicationData()
+            mLocalManager,
+            Bundle().apply {
+                putInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.SAFE
                 )
-            )
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.S])
-    fun testOnComplicationRequestWithExpressionPreT_evaluatesExpression() {
-        mService.responseData =
-            LongTextComplicationData.Builder(
-                    ComplicationTextExpression(
-                        DynamicBuilders.DynamicString.constant("hello")
-                            .concat(DynamicBuilders.DynamicString.constant(" world"))
-                    ),
-                    ComplicationText.EMPTY
-                )
-                .build()
-
-        mProvider.onUpdate(
-            /* complicationInstanceId = */ 123,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            mLocalManager
+            }
         )
 
         runUiThreadTasksWhileAwaitingDataLatch(1000)
-        verify(mRemoteManager)
-            .updateComplicationData(
-                eq(123),
-                argThat { data ->
-                    data.longText!!.getTextAt(Resources.getSystem(), 0) == "hello world"
-                }
-            )
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace).isEqualTo(TargetWatchFaceSafety.SAFE)
+    }
+
+    @Test
+    fun testOnComplicationRequest_isForSafeWatchFace_malformedBundle() {
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
+        val id = 123
+
+        @Suppress("NewApi") // onUpdate2
+        mProvider.onUpdate2(
+            id,
+            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            mLocalManager,
+            Bundle()
+        )
+
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace)
+            .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
     }
 
     @Test
@@ -276,6 +253,31 @@ class ComplicationDataSourceServiceTest {
 
         assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get())
+            .hasMessageThat()
+            .isEqualTo(
+                "Complication data should match the requested type. " +
+                    "Expected SHORT_TEXT got LONG_TEXT."
+            )
+    }
+
+    @Test
+    fun testOnComplicationRequest_invalidData() {
+        mService.responseData = INVALID_DATA
+        val id = 123
+        val exception = AtomicReference<Throwable>()
+        val exceptionLatch = CountDownLatch(1)
+
+        mPretendMainThread.uncaughtExceptionHandler =
+            Thread.UncaughtExceptionHandler { _, throwable ->
+                exception.set(throwable)
+                exceptionLatch.countDown()
+            }
+        mProvider.onUpdate(id, INVALID_DATA.type.toWireComplicationType(), mLocalManager)
+
+        assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
     }
 
     @Test
@@ -284,7 +286,7 @@ class ComplicationDataSourceServiceTest {
 
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
 
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
@@ -309,60 +311,76 @@ class ComplicationDataSourceServiceTest {
             .isEqualTo("hello preview")
     }
 
-    enum class DataWithExpressionScenario(val data: ComplicationData) {
-        RANGED_VALUE(
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    enum class GetComplicationPreviewDataInvalidScenario(
+        val data: ComplicationData,
+        val message: String
+    ) {
+        INVALID_PREVIEW_DATA(INVALID_DATA, INVALID_DATA_ERROR_MESSAGE),
+        DYNAMIC_RANGED_VALUE(
             RangedValueComplicationData.Builder(
-                    valueExpression = DynamicFloat.constant(1f),
+                    dynamicValue = DynamicFloat.constant(1f),
+                    fallbackValue = 0f,
                     min = 0f,
                     max = 10f,
                     contentDescription = ComplicationText.EMPTY
                 )
                 .setText(ComplicationText.EMPTY)
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        LONG_TEXT(
+        DYNAMIC_LONG_TEXT(
             LongTextComplicationData.Builder(
-                    text = ComplicationTextExpression(DynamicString.constant("Long Text")),
+                    text = DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        LONG_TITLE(
+        DYNAMIC_LONG_TITLE(
             LongTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
                 )
-                .setTitle(ComplicationTextExpression(DynamicString.constant("Long Title")))
-                .build()
+                .setTitle(DynamicComplicationText(DynamicString.constant("Long Title"), "fallback"))
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        SHORT_TEXT(
+        DYNAMIC_SHORT_TEXT(
             ShortTextComplicationData.Builder(
-                    text = ComplicationTextExpression(DynamicString.constant("Short Text")),
+                    text =
+                        DynamicComplicationText(DynamicString.constant("Short Text"), "fallback"),
                     contentDescription = ComplicationText.EMPTY
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        SHORT_TITLE(
+        DYNAMIC_SHORT_TITLE(
             ShortTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription = ComplicationText.EMPTY
                 )
-                .setTitle(ComplicationTextExpression(DynamicString.constant("Short Title")))
-                .build()
+                .setTitle(
+                    DynamicComplicationText(DynamicString.constant("Short Title"), "fallback")
+                )
+                .build(),
+            "Preview data must not have dynamic values."
         ),
-        CONTENT_DESCRIPTION(
+        DYNAMIC_CONTENT_DESCRIPTION(
             LongTextComplicationData.Builder(
                     text = ComplicationText.EMPTY,
                     contentDescription =
-                        ComplicationTextExpression(DynamicString.constant("Long Text")),
+                        DynamicComplicationText(DynamicString.constant("Long Text"), "fallback"),
                 )
-                .build()
+                .build(),
+            "Preview data must not have dynamic values."
         ),
     }
 
     @Test
-    fun testGetComplicationPreviewData_withExpression_fails() {
-        for (scenario in DataWithExpressionScenario.values()) {
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    fun testGetComplicationPreviewData_invalid_fails() {
+        for (scenario in GetComplicationPreviewDataInvalidScenario.values()) {
             mService.previewData = scenario.data
 
             val exception =
@@ -376,12 +394,12 @@ class ComplicationDataSourceServiceTest {
                 .withMessage(scenario.name)
                 .that(exception)
                 .hasMessageThat()
-                .isEqualTo("Preview data must not have expressions.")
+                .isEqualTo(scenario.message)
         }
     }
 
     @Test
-    fun testTimelineTestService() {
+    fun testTimeline() {
         mService.respondWithTimeline = true
         val timeline = ArrayList<TimelineEntry>()
         timeline.add(
@@ -416,7 +434,7 @@ class ComplicationDataSourceServiceTest {
 
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))
@@ -432,6 +450,26 @@ class ComplicationDataSourceServiceTest {
         assertThat(timeLineEntries[1]!!.timelineEndEpochSecond).isEqualTo(8000)
         assertThat(timeLineEntries[1]!!.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("B")
+    }
+
+    @Test
+    fun testTimeline_invalidData() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val id = 123
+        val exception = AtomicReference<Throwable>()
+        val exceptionLatch = CountDownLatch(1)
+
+        mPretendMainThread.uncaughtExceptionHandler =
+            Thread.UncaughtExceptionHandler { _, throwable ->
+                exception.set(throwable)
+                exceptionLatch.countDown()
+            }
+        mProvider.onUpdate(id, INVALID_DATA.type.toWireComplicationType(), mLocalManager)
+
+        assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
     }
 
     @Test
@@ -467,6 +505,9 @@ class ComplicationDataSourceServiceTest {
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(response.get().longText!!.getTextAt(Resources.getSystem(), 0))
                 .isEqualTo("hello")
+            @Suppress("NewApi") // isForSafeWatchFace
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
         } finally {
             thread.quitSafely()
         }
@@ -476,10 +517,12 @@ class ComplicationDataSourceServiceTest {
     @Suppress("NewApi") // onSynchronousComplicationRequest2
     fun testImmediateRequest_isForSafeWatchFace() {
         val id = 123
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val thread = HandlerThread("testThread")
         try {
             thread.start()
@@ -493,8 +536,13 @@ class ComplicationDataSourceServiceTest {
                     response.set(
                         mProvider.onSynchronousComplicationRequest2(
                             id,
-                            /* isForSafeWatchFace= */ true,
-                            ComplicationType.LONG_TEXT.toWireComplicationType()
+                            ComplicationType.LONG_TEXT.toWireComplicationType(),
+                            Bundle().apply {
+                                putInt(
+                                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                                    TargetWatchFaceSafety.SAFE
+                                )
+                            }
                         )
                     )
                     doneLatch.countDown()
@@ -505,7 +553,166 @@ class ComplicationDataSourceServiceTest {
 
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             @Suppress("NewApi") // isForSafeWatchFace
-            assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.SAFE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    @Suppress("NewApi") // onSynchronousComplicationRequest2
+    fun testImmediateRequest_isForSafeWatchFace_malformedBundle() {
+        val id = 123
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
+        val thread = HandlerThread("testThread")
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response =
+                AtomicReference<android.support.wearable.complications.ComplicationData>()
+            val doneLatch = CountDownLatch(1)
+            threadHandler.post {
+                try {
+                    @Suppress("NewApi") // onSynchronousComplicationRequest2
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest2(
+                            id,
+                            ComplicationType.LONG_TEXT.toWireComplicationType(),
+                            Bundle()
+                        )
+                    )
+                    doneLatch.countDown()
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            @Suppress("NewApi") // isForSafeWatchFace
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    fun testImmediateRequest_invalidData() {
+        mService.responseData = INVALID_DATA
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
+    fun testImmediateRequest_invalidTimelineData() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(exception.get()).isInstanceOf(IllegalArgumentException::class.java)
+            assertThat(exception.get()).hasMessageThat().isEqualTo(INVALID_DATA_ERROR_MESSAGE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    fun testImmediateRequest_invalidTimelineData_preT() {
+        mService.respondWithTimeline = true
+        mService.responseDataTimeline = ComplicationDataTimeline(INVALID_DATA, listOf())
+        val thread = HandlerThread("testThread")
+
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response = AtomicReference<WireComplicationData>()
+            val exception = AtomicReference<Throwable>()
+            val exceptionLatch = CountDownLatch(1)
+
+            mPretendMainThread.uncaughtExceptionHandler =
+                Thread.UncaughtExceptionHandler { _, throwable ->
+                    exception.set(throwable)
+                    exceptionLatch.countDown()
+                }
+            threadHandler.post {
+                try {
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest(
+                            123,
+                            INVALID_DATA.type.toWireComplicationType()
+                        )
+                    )
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(exceptionLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         } finally {
             thread.quitSafely()
         }
@@ -522,5 +729,17 @@ class ComplicationDataSourceServiceTest {
 
     companion object {
         private const val TAG = "ComplicationDataSourceServiceTest"
+
+        private val INVALID_DATA =
+            RangedValueComplicationData.Builder(
+                    value = 100f, // Higher than max.
+                    min = 0f,
+                    max = 10f,
+                    contentDescription = ComplicationText.EMPTY
+                )
+                .setText(ComplicationText.EMPTY)
+                .build()
+        private val INVALID_DATA_ERROR_MESSAGE =
+            "From T API onwards, value must be between min and max"
     }
 }

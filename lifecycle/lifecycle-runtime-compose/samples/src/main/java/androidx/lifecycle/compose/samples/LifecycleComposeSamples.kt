@@ -21,6 +21,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,4 +62,61 @@ fun FlowCollectAsStateWithLifecycle() {
     val state = remember { ExampleState() }
     val count by state.counter.collectAsStateWithLifecycle(initialValue = 0)
     Text(text = "$count")
+}
+
+private interface TimeAnalytics {
+    fun stopTimeTracking(): TimeAnalytics
+}
+
+private interface DataAnalytics {
+    fun trackScreenView(screenName: String)
+    fun startTimeTracking(): TimeAnalytics
+    fun sendDisposalAnalytics(timeAnalytics: TimeAnalytics)
+}
+
+@Sampled
+@Composable
+fun lifecycleEventEffectSample() {
+    @Composable
+    fun Analytics(dataAnalytics: DataAnalytics) {
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+            dataAnalytics.trackScreenView("screen1")
+        }
+
+        // ...
+    }
+}
+
+@Sampled
+@Composable
+fun lifecycleStartEffectSample() {
+    @Composable
+    fun Analytics(dataAnalytics: DataAnalytics) {
+        LifecycleStartEffect {
+            val timeTracker = dataAnalytics.startTimeTracking()
+
+            onStopOrDispose {
+                timeTracker.stopTimeTracking()
+            }
+        }
+
+        // ...
+    }
+}
+
+@Sampled
+@Composable
+fun lifecycleResumeEffectSample() {
+    @Composable
+    fun Analytics(dataAnalytics: DataAnalytics) {
+        LifecycleResumeEffect {
+            val timeTracker = dataAnalytics.startTimeTracking()
+
+            onPauseOrDispose {
+                timeTracker.stopTimeTracking()
+            }
+        }
+
+        // ...
+    }
 }

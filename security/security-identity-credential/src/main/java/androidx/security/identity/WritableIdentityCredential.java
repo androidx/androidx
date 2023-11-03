@@ -30,14 +30,11 @@ import java.util.Collection;
  *
  * <p>Once persisted, the PII in a credential can be updated using
  * {@link IdentityCredential#update(PersonalizationData)}.
- *
+ * <p>
  * Use {@link IdentityCredentialStore#createCredential(String, String)} to create a new credential.
  */
 public abstract class WritableIdentityCredential {
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected WritableIdentityCredential() {}
 
     /**

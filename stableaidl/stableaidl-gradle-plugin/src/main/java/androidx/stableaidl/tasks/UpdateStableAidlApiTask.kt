@@ -16,22 +16,22 @@
 
 package androidx.stableaidl.tasks
 
+import java.io.File
+import java.security.MessageDigest
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.logging.Logger
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
-import java.security.MessageDigest
-import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputDirectories
-import org.apache.commons.io.FileUtils
-import org.gradle.api.file.DirectoryProperty
 
 /**
  * Task for updating the public Android resource surface, e.g. `public.xml`.

@@ -34,6 +34,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
+import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.core.CameraSelector
@@ -48,10 +49,10 @@ import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.CameraDeviceHolder
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.CameraDeviceHolder
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -132,7 +133,7 @@ class ProcessingCaptureSessionTest(
 
     private lateinit var cameraDeviceHolder: CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
-    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
+    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSession.OpenerBuilder
     private lateinit var sessionProcessor: FakeSessionProcessor
     private lateinit var executor: Executor
     private lateinit var handler: Handler
@@ -159,7 +160,7 @@ class ProcessingCaptureSessionTest(
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         camera2CameraInfo = Camera2CameraInfoImpl(cameraId, cameraManagerCompat)
         captureSessionRepository = CaptureSessionRepository(executor)
-        captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
+        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
             executor,
             executor as ScheduledExecutorService,
             handler,
@@ -195,9 +196,16 @@ class ProcessingCaptureSessionTest(
 
         val cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
         val camera2Info = Camera2CameraInfoImpl(cameraId, cameraManagerCompat)
+        val dynamicRangesCompat = cameraManagerCompat.getCameraCharacteristicsCompat(cameraId).let {
+            DynamicRangesCompat.fromCameraCharacteristics(it)
+        }
 
         return ProcessingCaptureSession(
-            sessionProcessor, camera2Info, executor, executor as ScheduledExecutorService
+            sessionProcessor,
+            camera2Info,
+            dynamicRangesCompat,
+            executor,
+            executor as ScheduledExecutorService
         )
     }
 
@@ -271,6 +279,29 @@ class ProcessingCaptureSessionTest(
                 captureSession.sessionConfig!!.implementationOptions
             )
         ).isTrue()
+    }
+
+    @Test
+    fun setSessionConfigWithoutSurface_stopPreviewFrame(): Unit = runBlocking(Dispatchers.Main) {
+        // Arrange
+        val cameraDevice = cameraDeviceHolder.get()!!
+        val captureSession = createProcessingCaptureSession()
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+        captureSession.open(
+            sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
+            captureSessionOpenerBuilder.build()
+        ).awaitWithTimeout(3000)
+        sessionConfigParameters.assertPreviewImageReceived()
+
+        // Act.  set SessionConfig without the surface.
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating(
+                includePreviewSurface = false
+            )
+
+        // Assert: ensure stopRepeating is invoked.
+        sessionProcessor.assertStopRepeatingInvoked()
     }
 
     private fun areParametersConfigIdentical(config1: Config, config2: Config): Boolean {
@@ -816,8 +847,13 @@ class ProcessingCaptureSessionTest(
             return sessionBuilder.build()
         }
 
-        fun getActiveSessionConfigForRepeating(): SessionConfig {
+        fun getActiveSessionConfigForRepeating(
+            includePreviewSurface: Boolean = true
+        ): SessionConfig {
             return SessionConfig.Builder().apply {
+                if (includePreviewSurface) {
+                    addSurface(previewOutputDeferrableSurface)
+                }
                 setImplementationOptions(
                     CaptureRequestOptions.Builder()
                         .setCaptureRequestOption(

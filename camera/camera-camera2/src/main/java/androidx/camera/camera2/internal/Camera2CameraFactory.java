@@ -27,10 +27,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.concurrent.Camera2CameraCoordinator;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
@@ -50,25 +52,37 @@ import java.util.Set;
 public final class Camera2CameraFactory implements CameraFactory {
     private static final String TAG = "Camera2CameraFactory";
     private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
+
+    @NonNull
+    private final Context mContext;
+
+    private final CameraCoordinator mCameraCoordinator;
     private final CameraThreadConfig mThreadConfig;
     private final CameraStateRegistry mCameraStateRegistry;
     private final CameraManagerCompat mCameraManager;
     private final List<String> mAvailableCameraIds;
     private final DisplayInfoManager mDisplayInfoManager;
+    private final long mCameraOpenRetryMaxTimeoutInMs;
     private final Map<String, Camera2CameraInfoImpl> mCameraInfos = new HashMap<>();
 
     /** Creates a Camera2 implementation of CameraFactory */
     public Camera2CameraFactory(@NonNull Context context,
             @NonNull CameraThreadConfig threadConfig,
-            @Nullable CameraSelector availableCamerasSelector) throws InitializationException {
+            @Nullable CameraSelector availableCamerasSelector,
+            long cameraOpenRetryMaxTimeoutInMs) throws InitializationException {
+        mContext = context;
         mThreadConfig = threadConfig;
-        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
         mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
         mDisplayInfoManager = DisplayInfoManager.getInstance(context);
 
         List<String> optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
                 this, availableCamerasSelector);
         mAvailableCameraIds = getBackwardCompatibleCameraIds(optimizedCameraIds);
+        mCameraCoordinator = new Camera2CameraCoordinator(mCameraManager);
+        mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
+                DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
+        mCameraCoordinator.addListener(mCameraStateRegistry);
+        mCameraOpenRetryMaxTimeoutInMs = cameraOpenRetryMaxTimeoutInMs;
     }
 
     @Override
@@ -78,13 +92,15 @@ public final class Camera2CameraFactory implements CameraFactory {
             throw new IllegalArgumentException(
                     "The given camera id is not on the available camera id list.");
         }
-        return new Camera2CameraImpl(mCameraManager,
+        return new Camera2CameraImpl(mContext, mCameraManager,
                 cameraId,
                 getCameraInfo(cameraId),
+                mCameraCoordinator,
                 mCameraStateRegistry,
                 mThreadConfig.getCameraExecutor(),
                 mThreadConfig.getSchedulerHandler(),
-                mDisplayInfoManager);
+                mDisplayInfoManager,
+                mCameraOpenRetryMaxTimeoutInMs);
     }
 
     Camera2CameraInfoImpl getCameraInfo(@NonNull String cameraId)
@@ -106,6 +122,12 @@ public final class Camera2CameraFactory implements CameraFactory {
     public Set<String> getAvailableCameraIds() {
         // Use a LinkedHashSet to preserve order
         return new LinkedHashSet<>(mAvailableCameraIds);
+    }
+
+    @NonNull
+    @Override
+    public CameraCoordinator getCameraCoordinator() {
+        return mCameraCoordinator;
     }
 
     @NonNull

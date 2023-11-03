@@ -30,16 +30,14 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.jetbrains.annotations.NotNull;
-
 /** The service that defines the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
 
-    @NotNull
+    @NonNull
     @Override
     protected ListenableFuture<WatchFace> createWatchFaceFuture(
-            @NotNull SurfaceHolder surfaceHolder,
-            @NotNull WatchState watchState,
+            @NonNull SurfaceHolder surfaceHolder,
+            @NonNull WatchState watchState,
             @NonNull ComplicationSlotsManager complicationSlotsManager,
             @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         Renderer renderer =

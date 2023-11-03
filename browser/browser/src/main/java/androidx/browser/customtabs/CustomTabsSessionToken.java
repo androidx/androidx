@@ -77,6 +77,14 @@ public class CustomTabsSessionToken {
         public void onActivityResized(int height, int width, Bundle extras) {}
 
         @Override
+        public void onWarmupCompleted(Bundle extras) {}
+
+        @Override
+        public void onActivityLayout(int left, int top, int right, int bottom,
+                @CustomTabsCallback.ActivityLayoutState int state,
+                @NonNull Bundle extras) {}
+
+        @Override
         public IBinder asBinder() {
             return this;
         }
@@ -198,6 +206,27 @@ public class CustomTabsSessionToken {
                     Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
                 }
             }
+
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onWarmupCompleted(@NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onWarmupCompleted(extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
+
+            @SuppressWarnings("NullAway")  // TODO: b/142938599
+            @Override
+            public void onActivityLayout(int left, int top, int right, int bottom,
+                    @ActivityLayoutState int state, @NonNull Bundle extras) {
+                try {
+                    mCallbackBinder.onActivityLayout(left, top, right, bottom, state, extras);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
+                }
+            }
         };
     }
 
@@ -219,7 +248,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasCallback() {
@@ -227,7 +255,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasId() {

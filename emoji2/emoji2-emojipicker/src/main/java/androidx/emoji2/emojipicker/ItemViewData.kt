@@ -20,7 +20,6 @@ internal enum class ItemType {
     CATEGORY_TITLE,
     PLACEHOLDER_TEXT,
     EMOJI,
-    PLACEHOLDER_EMOJI,
 }
 
 /**
@@ -49,8 +48,6 @@ internal data class EmojiViewData(
     // Needed to ensure uniqueness since we enabled stable Id.
     val dataIndex: Int = 0
 ) : ItemViewData(ItemType.EMOJI)
-
-internal object PlaceholderEmoji : ItemViewData(ItemType.PLACEHOLDER_EMOJI)
 
 internal object Extensions {
     internal fun Int.toItemType() = ItemType.values()[this]

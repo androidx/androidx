@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
 /**
  * Helper class for device boot count.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(LIBRARY)
 public class BootCountUtil {

@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
@@ -28,8 +29,6 @@ import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
 /**
  * This class decouples [BroadcastEventObserver]s from the actual broadcast event receivers to make
  * testing easier.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BroadcastsReceiver
@@ -63,24 +62,34 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
         /** Called when we receive [Intent.ACTION_SCREEN_OFF] */
         @UiThread public fun onActionScreenOff() {}
 
-        /** Called when we receive [Intent.ACTION_SCREEN_ON] */
-        @UiThread public fun onActionScreenOn() {}
-
         /** Called when we receive [Intent.ACTION_USER_PRESENT] */
         @UiThread public fun onActionUserPresent() {}
+
+        /** Called when we receive [ACTION_AMBIENT_STARTED] */
+        @UiThread public fun onActionAmbientStarted() {}
+
+        /** Called when we receive [ACTION_AMBIENT_STOPPED] */
+        @UiThread public fun onActionAmbientStopped() {}
     }
 
     companion object {
+        internal const val TAG = "BroadcastsReceiver"
+
         // The threshold used to judge whether the battery is low during initialization.  Ideally
         // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15f
+
+        internal const val ACTION_AMBIENT_STARTED =
+            "com.google.android.wearable.action.AMBIENT_STARTED"
+
+        internal const val ACTION_AMBIENT_STOPPED =
+            "com.google.android.wearable.action.AMBIENT_STOPPED"
     }
 
     internal val receiver: BroadcastReceiver =
         object : BroadcastReceiver() {
-            @SuppressWarnings("SyntheticAccessor")
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
                     Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()
@@ -91,9 +100,10 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
                     Intent.ACTION_TIME_TICK -> observer.onActionTimeTick()
                     Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
                     Intent.ACTION_SCREEN_OFF -> observer.onActionScreenOff()
-                    Intent.ACTION_SCREEN_ON -> observer.onActionScreenOn()
                     Intent.ACTION_USER_PRESENT -> observer.onActionUserPresent()
                     WatchFaceImpl.MOCK_TIME_INTENT -> observer.onMockTime(intent)
+                    ACTION_AMBIENT_STARTED -> observer.onActionAmbientStarted()
+                    ACTION_AMBIENT_STOPPED -> observer.onActionAmbientStopped()
                     else -> System.err.println("<< IGNORING $intent")
                 }
             }
@@ -113,7 +123,12 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
                 addAction(Intent.ACTION_POWER_DISCONNECTED)
                 addAction(Intent.ACTION_USER_PRESENT)
                 addAction(WatchFaceImpl.MOCK_TIME_INTENT)
-            }
+                addAction(ACTION_AMBIENT_STARTED)
+                addAction(ACTION_AMBIENT_STOPPED)
+            },
+            // Listen to broadcasts from the system or the app itself,
+            // so it does not have to be exported
+            Context.RECEIVER_NOT_EXPORTED
         )
     }
 
@@ -144,6 +159,10 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
     }
 
     public fun onDestroy() {
-        context.unregisterReceiver(receiver)
+        try {
+            context.unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception occurred in BroadcastsReceiver.onDestroy", e)
+        }
     }
 }

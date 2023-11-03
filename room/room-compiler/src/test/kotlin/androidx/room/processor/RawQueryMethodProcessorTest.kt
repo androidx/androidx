@@ -179,7 +179,7 @@ class RawQueryMethodProcessorTest {
 
     @Test
     fun pojo() {
-        val pojo = XClassName.get("foo.bar.MyClass", "MyPojo")
+        val pojo = XClassName.get("foo.bar", "MyClass", "MyPojo")
         singleQueryMethod(
             """
                 public class MyPojo {
@@ -423,7 +423,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         CommonTypeNames.STRING.canonicalName
                     )
                 )
@@ -441,7 +441,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         CommonTypeNames.STRING.canonicalName
                     )
                 )
@@ -459,7 +459,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         CommonTypeNames.STRING.canonicalName
                     )
                 )
@@ -477,7 +477,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    ProcessorErrors.mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -493,7 +493,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    ProcessorErrors.mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -509,7 +509,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(XTypeName.BOXED_LONG.canonicalName)
+                    ProcessorErrors.mayNeedMapColumn(XTypeName.BOXED_LONG.canonicalName)
                 )
             }
         }
@@ -526,7 +526,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.keyMayNeedMapInfo("java.util.Date")
+                    ProcessorErrors.mayNeedMapColumn("java.util.Date")
                 )
             }
         }
@@ -543,7 +543,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo("java.util.Date")
+                    ProcessorErrors.mayNeedMapColumn("java.util.Date")
                 )
             }
         }
@@ -560,9 +560,50 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.valueMayNeedMapInfo(
+                    ProcessorErrors.mayNeedMapColumn(
                         CommonTypeNames.STRING.canonicalName
                     )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testUseMapColumnWithColumnName() {
+        singleQueryMethod(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @RawQuery
+                abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap(
+                    SupportSQLiteQuery query
+                );
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasNoWarnings()
+            }
+        }
+    }
+
+    @Test
+    fun testCannotHaveMapInfoAndMapColumn() {
+        singleQueryMethod(
+            """
+                @SuppressWarnings(
+                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                )
+                @MapInfo(keyColumn = "uid", keyTable = "u")
+                @RawQuery
+                abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap(
+                    SupportSQLiteQuery query
+                );
+            """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY
                 )
             }
         }

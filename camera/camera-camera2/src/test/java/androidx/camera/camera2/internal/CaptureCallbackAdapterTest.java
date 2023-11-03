@@ -67,6 +67,13 @@ public final class CaptureCallbackAdapterTest {
     }
 
     @Test
+    public void onCaptureStarted() {
+        mCaptureCallbackAdapter.onCaptureStarted(
+                mCameraCaptureSession, mCaptureRequest, /*timestamp=*/0, /*frameNumber=*/0);
+        verify(mCameraCaptureCallback, times(1)).onCaptureStarted();
+    }
+
+    @Test
     public void onCaptureCompleted() {
         mCaptureCallbackAdapter.onCaptureCompleted(
                 mCameraCaptureSession, mCaptureRequest, mCaptureResult);

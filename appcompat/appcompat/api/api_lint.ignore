@@ -91,12 +91,8 @@ InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatTextView#setFilte
     Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatToggleButton#setFilters(android.text.InputFilter[]) parameter #0:
     Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.appcompat.widget.LinearLayoutCompat#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.ListPopupWindow#getListView():
     Invalid nullability on method `getListView` return. Overrides of unannotated super method cannot be Nullable.
-InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#draw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `draw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#getCustomSelectionActionModeCallback():
     Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#setFilters(android.text.InputFilter[]) parameter #0:
@@ -901,6 +897,10 @@ MissingNullability: androidx.appcompat.widget.Toolbar.SavedState#SavedState(andr
     Missing nullability on parameter `superState` in method `SavedState`
 MissingNullability: androidx.appcompat.widget.Toolbar.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `out` in method `writeToParcel`
+
+
+NotCloseable: androidx.appcompat.view.ActionMode:
+    Classes that release resources (finish()) should implement AutoCloseable and CloseGuard: class androidx.appcompat.view.ActionMode
 
 
 ParcelConstructor: androidx.appcompat.widget.Toolbar.SavedState#SavedState(android.os.Parcel):

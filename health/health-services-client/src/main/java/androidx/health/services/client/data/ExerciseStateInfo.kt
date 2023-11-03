@@ -72,7 +72,6 @@ public class ExerciseStateInfo(
         /**
          * Gets the [ExerciseEndReason] from the current [ExerciseState].
          *
-         * @hide
          */
         @ExerciseEndReason
         internal fun getEndReasonFromState(exerciseState: ExerciseState): Int =

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "version": "0.1",
+  "name": "AndroidX Benchmarks Extension",
+  "icons": {
+    "48": "dist/assets/icons/benchmark_48.png",
+    "128": "dist/assets/icons/benchmark_128.png",
+    "512": "dist/assets/icons/benchmark_512.png"
+  },
+  "action": {
+    "default_title": "Adds contextual links to Skia Dashboards"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://androidx-perf.skia.org/*"
+      ],
+      "all_frames": true,
+      "js": [
+        "dist/assets/content-scripts.js"
+      ]
+    }
+  ]
+}

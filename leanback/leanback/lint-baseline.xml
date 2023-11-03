@@ -1,40 +1,1327 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 18 (current min is 17): `android.view.ViewGroup#setLayoutMode`"
-        errorLine1="            mGridView.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                      ~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(500);"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"/>
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 18 (current min is 17): `android.view.ViewGroup#setLayoutMode`"
-        errorLine1="                viewGroup.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                          ~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"/>
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.widget.BackgroundHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                drawable.setAlpha(view.getBackground().getAlpha());"
-        errorLine2="                                                       ~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"/>
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.DatePicker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"/>
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/DatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        if (HUMAN_DELAY) Thread.sleep(delay);"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(300);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(10);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(50);"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(16);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(50);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(80);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(50);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(500);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/GridWidgetTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(2000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(HORIZONTAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(FINAL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(VERTICAL_SCROLL_WAIT);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedDatePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(2000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/wizard/GuidedStepAttributesTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(1000);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/testutils/LeakDetector.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TIME_SLICE);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/testutils/PollingCheck.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(100);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleSupportFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(100);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/SingleSupportFragmentTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(500);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(UPDATE_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TRANSITION_LENGTH);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/widget/picker/TimePickerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/VerticalGridFragmentTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/leanback/app/VerticalGridSupportFragmentTest.java"/>
     </issue>
 
     <issue
@@ -138,42 +1425,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
-        errorLine2="              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        slide.addTarget(R.id.browse_title_group);"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        slide.setInterpolator(AnimationUtils.loadInterpolator(context,"
-        errorLine2="              ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.transition.LeanbackTransitionHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        slide.addTarget(R.id.browse_title_group);"
-        errorLine2="              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.leanback.app.PermissionHelper is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            fragment.requestPermissions(permissions, requestCode);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
@@ -191,48 +1442,339 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.leanback.system.Settings is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mOutlineClippingDisabled = activityManager.isLowRamDevice();"
-        errorLine2="                                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/system/Settings.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            parent.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.StaticShadowHelper is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            shadowContainer.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/StaticShadowHelper.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.leanback.widget.picker.TimePicker is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? &quot;Hma&quot;"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"/>
-    </issue>
-
-    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class is missing private constructor"
         errorLine1="public class FocusHighlightHelper {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    int alpha = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/BackgroundManager.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="kitkat/androidx/leanback/transition/CustomChangeBounds.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 19 || Build.VERSION.SDK_INT >= 21) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 19 || Build.VERSION.SDK_INT >= 21) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/LeanbackTransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/PickerUtility.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="kitkat/androidx/leanback/transition/Scale.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="kitkat/androidx/leanback/transition/SlideKitkat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/transition/TransitionHelper.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v19`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `transition`.">
+        <location
+            file="src/main/res/transition-v19"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v18"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v19`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v19"/>
     </issue>
 
     <issue
@@ -1171,42 +2713,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/BrowseSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setHeaderPresenterSelector(PresenterSelector headerPresenterSelector) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -1747,42 +3253,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void setupPresenter(Presenter rowPresenter) {"
         errorLine2="                                  ~~~~~~~~~">
         <location
@@ -2028,15 +3498,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Rect getSource() {"
         errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/graphics/FitWidthBitmapDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/graphics/FitWidthBitmapDrawable.java"/>
     </issue>
@@ -5158,42 +6619,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                             Bundle savedInstanceState) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setHostCallback(PlaybackGlueHost.HostCallback hostCallback) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -6715,42 +8140,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                             Bundle savedInstanceState) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public RowsSupportFragment getRowsSupportFragment() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -7691,42 +9080,6 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Util.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateView("
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/VideoSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/VideoSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {"
-        errorLine2="                                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/VideoSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {"
-        errorLine2="                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/VideoSupportFragment.java"/>
     </issue>
 
     <issue

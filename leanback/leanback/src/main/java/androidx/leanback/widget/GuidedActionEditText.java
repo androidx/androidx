@@ -121,7 +121,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
             setBackground(mNoPaddingDrawable);
         }
         // Make the TextView focusable during editing, avoid the TextView gets accessibility focus
-        // before editing started. see also GuidedActionAdapterGroup where setFocusable(true).
+        // before editing started. See also GuidedActionAdapterGroup where setFocusable(true).
         if (!focused) {
             setFocusable(false);
         }
@@ -130,7 +130,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
     @RequiresApi(26)
     @Override
     public int getAutofillType() {
-        // make it always autofillable as Guided fragment switches InputType when user clicks
+        // Make it always autofillable as Guided fragment switches InputType when user clicks
         // on the field.
         return AUTOFILL_TYPE_TEXT;
     }

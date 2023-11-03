@@ -17,10 +17,10 @@
 package androidx.glance.action
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.Test
 
 class ActionParametersTest {
     @Test

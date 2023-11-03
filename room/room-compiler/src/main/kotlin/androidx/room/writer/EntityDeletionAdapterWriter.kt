@@ -60,7 +60,7 @@ class EntityDeletionAdapterWriter private constructor(
                 XFunSpec.builder(
                     language = language,
                     name = "createQuery",
-                    visibility = VisibilityModifier.PUBLIC,
+                    visibility = VisibilityModifier.PROTECTED,
                     isOverride = true
                 ).apply {
                     returns(CommonTypeNames.STRING)
@@ -73,7 +73,7 @@ class EntityDeletionAdapterWriter private constructor(
                 XFunSpec.builder(
                     language = language,
                     name = "bind",
-                    visibility = VisibilityModifier.PUBLIC,
+                    visibility = VisibilityModifier.PROTECTED,
                     isOverride = true
                 ).apply {
                     val stmtParam = "statement"

@@ -16,43 +16,51 @@
 
 package androidx.test.uiautomator;
 
+import android.os.Build;
 import android.util.Log;
 import android.util.Xml;
+import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+import androidx.test.uiautomator.util.Traces;
+import androidx.test.uiautomator.util.Traces.Section;
 
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- *
- * @hide
- */
 class AccessibilityNodeInfoDumper {
-    private AccessibilityNodeInfoDumper() { }
 
-    private static final String LOGTAG = AccessibilityNodeInfoDumper.class.getSimpleName();
+    private static final String TAG = AccessibilityNodeInfoDumper.class.getSimpleName();
     private static final String[] NAF_EXCLUDED_CLASSES = new String[] {
             android.widget.GridView.class.getName(), android.widget.GridLayout.class.getName(),
             android.widget.ListView.class.getName(), android.widget.TableLayout.class.getName()
     };
 
+    private AccessibilityNodeInfoDumper() { }
+
     public static void dumpWindowHierarchy(UiDevice device, OutputStream out) throws IOException {
-        XmlSerializer serializer = Xml.newSerializer();
-        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-        serializer.setOutput(out, "UTF-8");
+        try (Section ignored = Traces.trace("AccessibilityNodeInfoDumper.dumpWindowHierarchy")) {
+            XmlSerializer serializer = Xml.newSerializer();
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            serializer.setOutput(out, "UTF-8");
 
-        serializer.startDocument("UTF-8", true);
-        serializer.startTag("", "hierarchy"); // TODO(allenhair): Should we use a namespace?
-        serializer.attribute("", "rotation", Integer.toString(device.getDisplayRotation()));
+            serializer.startDocument("UTF-8", true);
+            serializer.startTag("", "hierarchy"); // TODO(allenhair): Should we use a namespace?
+            serializer.attribute("", "rotation", Integer.toString(device.getDisplayRotation()));
 
-        for (AccessibilityNodeInfo root : device.getWindowRoots()) {
-            dumpNodeRec(root, serializer, 0, device.getDisplayWidth(), device.getDisplayHeight());
+            for (AccessibilityNodeInfo root : device.getWindowRoots()) {
+                dumpNodeRec(root, serializer, 0, device.getDisplayWidth(),
+                        device.getDisplayHeight());
+            }
+
+            serializer.endTag("", "hierarchy");
+            serializer.endDocument();
         }
-
-        serializer.endTag("", "hierarchy");
-        serializer.endDocument();
     }
 
     private static void dumpNodeRec(AccessibilityNodeInfo node, XmlSerializer serializer,int index,
@@ -79,6 +87,17 @@ class AccessibilityNodeInfoDumper {
         serializer.attribute("", "visible-to-user", Boolean.toString(node.isVisibleToUser()));
         serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
                 node, width, height, false).toShortString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            serializer.attribute("", "drawing-order",
+                    Integer.toString(Api24Impl.getDrawingOrder(node)));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            serializer.attribute("", "hint", safeCharSeqToString(Api26Impl.getHintText(node)));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            serializer.attribute("", "display-id",
+                    Integer.toString(Api30Impl.getDisplayId(node)));
+        }
         int count = node.getChildCount();
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo child = node.getChild(i);
@@ -87,11 +106,10 @@ class AccessibilityNodeInfoDumper {
                     dumpNodeRec(child, serializer, i, width, height);
                     child.recycle();
                 } else {
-                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child));
+                    Log.i(TAG, String.format("Skipping invisible child: %s", child));
                 }
             } else {
-                Log.i(LOGTAG, String.format("Null child %d/%d, parent: %s",
-                        i, count, node));
+                Log.i(TAG, String.format("Null child %d/%d, parent: %s", i, count, node));
             }
         }
         serializer.endTag("", "node");
@@ -154,13 +172,17 @@ class AccessibilityNodeInfoDumper {
         int childCount = node.getChildCount();
         for (int x = 0; x < childCount; x++) {
             AccessibilityNodeInfo childNode = node.getChild(x);
-
+            if (childNode == null) {
+                continue;
+            }
             if (!safeCharSeqToString(childNode.getContentDescription()).isEmpty()
-                    || !safeCharSeqToString(childNode.getText()).isEmpty())
+                    || !safeCharSeqToString(childNode.getText()).isEmpty()) {
                 return true;
+            }
 
-            if (childNafCheck(childNode))
+            if (childNafCheck(childNode)) {
                 return true;
+            }
         }
         return false;
     }
@@ -187,5 +209,41 @@ class AccessibilityNodeInfoDumper {
             }
         }
         return ret.toString();
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+        }
+
+        @DoNotInline
+        static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getDrawingOrder();
+        }
+    }
+
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
+            CharSequence chars = accessibilityNodeInfo.getHintText();
+            return chars != null ? chars.toString() : null;
+        }
+    }
+
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() {
+        }
+
+        @DoNotInline
+        static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
+            AccessibilityWindowInfo accessibilityWindowInfo = accessibilityNodeInfo.getWindow();
+            return accessibilityWindowInfo == null ? Display.DEFAULT_DISPLAY :
+                    accessibilityWindowInfo.getDisplayId();
+        }
     }
 }

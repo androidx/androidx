@@ -44,12 +44,12 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

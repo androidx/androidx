@@ -25,7 +25,8 @@ import android.app.UiAutomation.AccessibilityEventFilter;
 public abstract class EventCondition<U> implements AccessibilityEventFilter {
 
     /**
-     * returns a value obtained after applying the condition to a series of events
+     * returns a value obtained after applying the condition to a series of events.
+     * A non-null/non-false value indicates that the condition is satisfied.
      */
     public abstract U getResult();
 }

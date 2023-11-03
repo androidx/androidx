@@ -40,10 +40,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import android.app.Fragment;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.app.Fragment;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.LeakDetector;
 import androidx.leanback.testutils.PollingCheck;
@@ -1430,16 +1428,23 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
             leakDetector.observeObject(gridView.getChildAt(i));
         }
         gridView = null;
-        EmptyFragment emptyFragment = new EmptyFragment();
-        activity.getFragmentManager().beginTransaction()
-                .replace(R.id.main_frame, emptyFragment)
-                .addToBackStack("BK")
-                .commit();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.getFragmentManager().beginTransaction()
+                               .replace(R.id.main_frame, new EmptyFragment())
+                               .addToBackStack("BK")
+                               .commit();
+                    }
+                }
+        );
 
         PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return emptyFragment.isResumed();
+                return activity.getFragmentManager()
+                        .findFragmentById(R.id.main_frame).isResumed();
             }
         });
         leakDetector.assertNoLeak();

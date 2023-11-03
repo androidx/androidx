@@ -63,7 +63,6 @@ public class ComplicationSlotBounds(
         perComplicationTypeBounds: Map<ComplicationType, RectF>
     ) : this(perComplicationTypeBounds, perComplicationTypeBounds.mapValues { RectF() })
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun write(dos: DataOutputStream) {
         perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
@@ -120,8 +119,6 @@ public class ComplicationSlotBounds(
         }
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         internal const val NODE_NAME = "ComplicationSlotBounds"
 
@@ -130,8 +127,6 @@ public class ComplicationSlotBounds(
          * RectF>, backfilling with empty [RectF]s. This method is necessary because there can be a
          * skew between the version of the library between the watch face and the system which would
          * otherwise be problematic if new complication types have been introduced.
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun createFromPartialMap(
@@ -153,6 +148,7 @@ public class ComplicationSlotBounds(
          * The [parser] should be inside a node with any number of ComplicationSlotBounds child
          * nodes. No other child nodes are expected.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun inflate(
             resources: Resources,
             parser: XmlResourceParser,

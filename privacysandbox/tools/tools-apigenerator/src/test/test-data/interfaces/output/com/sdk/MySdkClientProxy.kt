@@ -1,7 +1,5 @@
 package com.sdk
 
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import com.sdk.PrivacySandboxThrowableParcelConverter
 import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -42,7 +40,7 @@ public class MySdkClientProxy(
             }
             override fun onSuccess(result: IMySecondInterfaceCoreLibInfoAndBinderWrapper) {
                 it.resumeWith(Result.success(MySecondInterfaceClientProxy(result.binder,
-                        SandboxedUiAdapterFactory.createFromCoreLibInfo(result.coreLibInfo))))
+                        result.coreLibInfo)))
             }
             override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
                 it.resumeWithException(fromThrowableParcel(throwableParcel))

@@ -30,7 +30,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Wire format to encode a pair of id to {@link ComplicationStateWireFormat}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

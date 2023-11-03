@@ -206,11 +206,15 @@ if [ "$FLAGS_db" != "$defaultDb" ]; then
   devsiteCmd+=" --db=$FLAGS_db"
 fi
 
+# Step back to catch both reference/ docs and css styles in assets/
+cd ..
+
 # Directories to stage
-devsiteCmd+=" android/support"
-devsiteCmd+=" androidx"
-devsiteCmd+=" kotlin/android/support"
-devsiteCmd+=" kotlin/androidx"
+devsiteCmd+=" reference/android/support"
+devsiteCmd+=" reference/androidx"
+devsiteCmd+=" reference/kotlin/android/support"
+devsiteCmd+=" reference/kotlin/androidx"
+devsiteCmd+=" assets/css/reference-docs.css"
 
 printf "Running devsite command:\n"
 printf "$devsiteCmd\n"

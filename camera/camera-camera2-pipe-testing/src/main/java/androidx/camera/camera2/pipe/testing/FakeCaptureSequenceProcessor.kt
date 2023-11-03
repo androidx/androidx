@@ -111,6 +111,9 @@ class FakeCaptureSequenceProcessor(
                 return -1
             }
             queue.add(captureSequence)
+            if (captureSequence.repeating) {
+                repeatingRequestSequence = captureSequence
+            }
             check(
                 eventChannel
                     .trySend(Event(requestSequence = captureSequence, submit = true))

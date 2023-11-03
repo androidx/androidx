@@ -55,7 +55,6 @@ public final class RemoteInput {
     /** Extra added to a clip data intent object identifying the {@link Source} of the results. */
     private static final String EXTRA_RESULTS_SOURCE = "android.remoteinput.resultsSource";
 
-    /** @hide */
     @IntDef({SOURCE_FREE_FORM_INPUT, SOURCE_CHOICE})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
@@ -67,7 +66,6 @@ public final class RemoteInput {
     /** The user selected one of the choices from {@link #getChoices}. */
     public static final int SOURCE_CHOICE = 1;
 
-    /** @hide */
     @IntDef(value = {EDIT_CHOICES_BEFORE_SENDING_AUTO, EDIT_CHOICES_BEFORE_SENDING_DISABLED,
             EDIT_CHOICES_BEFORE_SENDING_ENABLED})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

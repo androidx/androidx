@@ -20,6 +20,9 @@ For frequently asked questions, see the
 To get started developing in AndroidX, see the
 [Getting started](/company/teams/androidx/onboarding.md) guide.
 
+For information on library and API design, see the
+[Library API Guidelines](/company/teams/androidx/api_guidelines/index.md).
+
 ## Quick links
 
 ### Filing an issue

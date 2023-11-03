@@ -59,7 +59,6 @@ public class DefaultComplicationDataSourcePolicy {
     /** The default [ComplicationType] for [systemDataSourceFallback]. */
     public val systemDataSourceFallbackDefaultType: ComplicationType
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         dataSources: List<ComponentName>,
@@ -240,7 +239,6 @@ public class DefaultComplicationDataSourcePolicy {
     public fun isEmpty(): Boolean =
         primaryDataSource == null && systemDataSourceFallback == NO_DEFAULT_PROVIDER
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun dataSourcesAsList(): ArrayList<ComponentName> =
         ArrayList<ComponentName>().apply {
@@ -248,7 +246,6 @@ public class DefaultComplicationDataSourcePolicy {
             secondaryDataSource?.let { add(it) }
         }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         wireFormat: DefaultComplicationDataSourcePolicyWireFormat
@@ -260,7 +257,6 @@ public class DefaultComplicationDataSourcePolicy {
         ComplicationType.fromWireType(wireFormat.mDefaultType)
     ) {}
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): DefaultComplicationDataSourcePolicyWireFormat {
         val systemDataSourceFallbackDefaultType =
@@ -311,11 +307,10 @@ public class DefaultComplicationDataSourcePolicy {
         return result
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun inflate(
             resources: Resources,
             parser: XmlResourceParser,

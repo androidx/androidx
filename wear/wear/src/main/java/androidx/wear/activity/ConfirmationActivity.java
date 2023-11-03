@@ -85,7 +85,7 @@ public class ConfirmationActivity extends Activity {
     public static final int OPEN_ON_PHONE_ANIMATION = 2;
     public static final int FAILURE_ANIMATION = 3;
 
-    /** Default animation duration in milliseconds. **/
+    /** Default animation duration in milliseconds. */
     static final int DEFAULT_ANIMATION_DURATION_MILLIS =
             ConfirmationOverlay.DEFAULT_ANIMATION_DURATION_MS;
 

@@ -16,14 +16,16 @@
 
 package androidx.activity.result
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.app.ActivityOptionsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
@@ -31,7 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4::class)
 class ActivityResultLauncherTest {
     private val registry = object : ActivityResultRegistry() {
@@ -65,6 +67,36 @@ class ActivityResultLauncherTest {
         assertWithMessage("the options passed to invoke were not null")
             .that(registry.invokeOptions)
             .isNull()
+    }
+
+    @Test
+    fun launchUnit() {
+        val expectedResult = "result"
+        val registry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                contract.createIntent(InstrumentationRegistry.getInstrumentation().context, input)
+                dispatchResult(requestCode, expectedResult)
+            }
+        }
+
+        val contract = object : ActivityResultContract<Unit, String?>() {
+            override fun createIntent(context: Context, input: Unit) = Intent()
+            override fun parseResult(resultCode: Int, intent: Intent?) = ""
+        }
+
+        var actualResult: String? = null
+
+        val launcher = registry.register("key", contract) {
+            actualResult = it
+        }
+
+        launcher.launch()
+        assertThat(actualResult).isEqualTo(expectedResult)
     }
 
     @SdkSuppress(minSdkVersion = 24) // Before API 24 getLaunchBounds returns null

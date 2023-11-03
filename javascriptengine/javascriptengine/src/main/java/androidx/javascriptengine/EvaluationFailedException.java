@@ -18,7 +18,9 @@ package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
 
-/** Wrapper for the exception thrown by the JS evaluation engine. */
+/**
+ * Indicates that an evaluation failed due to a syntax error or exception produced by the script.
+ */
 public final class EvaluationFailedException extends JavaScriptException {
     public EvaluationFailedException(@NonNull String error) {
         super(error);

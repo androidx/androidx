@@ -1,3 +1,13 @@
-# Please keep this list alphabetically sorted
-jmarkoff@google.com
-npattan@google.com
+# Bug component: 1248632
+# adservices.measurement OWNERS
+arpanah@google.com # Measurement Primary PoC
+lmohanan@google.com
+# adservices.customaudience, adservices.adselection OWNERS
+adigupt@google.com # FLEDGE Primary PoC
+galarragas@google.com
+# adservices.topics, .adid, .appsetid, .common OWNERS
+haoliuu@google.com # Primary PoC for Topics, Common
+npattan@google.com # Creator
+jmarkoff@google.com # DevRel Jetpack Lead
+carolinewang@google.com # DevRel TPM Lead
+ramarcus@google.com # Common PoC

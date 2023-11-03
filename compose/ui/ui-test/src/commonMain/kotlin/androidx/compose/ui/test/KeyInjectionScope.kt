@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 
@@ -56,7 +55,6 @@ private const val DefaultPauseDurationBetweenKeyPressesMillis = 50L
  *
  * @see InjectionScope
  */
-@ExperimentalTestApi
 @JvmDefaultWithCompatibility
 interface KeyInjectionScope : InjectionScope {
 
@@ -111,7 +109,6 @@ interface KeyInjectionScope : InjectionScope {
     fun isKeyDown(key: Key): Boolean
 }
 
-@ExperimentalTestApi
 internal class KeyInjectionScopeImpl(
     private val baseScope: MultiModalInjectionScopeImpl
 ) : KeyInjectionScope, InjectionScope by baseScope {
@@ -144,7 +141,6 @@ internal class KeyInjectionScopeImpl(
  * @param key The key to be pressed down.
  * @param pressDurationMillis Duration of press in milliseconds.
  */
-@ExperimentalTestApi
 fun KeyInjectionScope.pressKey(
     key: Key,
     pressDurationMillis: Long = DefaultKeyPressDurationMillis
@@ -163,7 +159,6 @@ fun KeyInjectionScope.pressKey(
  * @param key The key to be held down during injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given key down.
  */
-@ExperimentalTestApi
 fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit) {
     keyDown(key)
     block.invoke(this)
@@ -180,7 +175,6 @@ fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit)
  * @param keys List of keys to be held down during injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given keys down.
  */
-@ExperimentalTestApi
 // TODO(b/234011835): Refactor this and all functions that take List<Keys> to use vararg instead.
 fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     keys.forEach { keyDown(it) }
@@ -198,7 +192,6 @@ fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() 
  * @param key The key to be toggled around the injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given key down.
  */
-@ExperimentalTestApi
 fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Unit) {
     pressKey(key)
     block.invoke(this)
@@ -215,7 +208,6 @@ fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Un
  * @param keys The keys to be toggled around the injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given keys down.
  */
-@ExperimentalTestApi
 fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     pressKeys(keys)
     block.invoke(this)
@@ -227,9 +219,6 @@ fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.
  *
  * @return true if the function key is currently down, false otherwise.
  */
-@ExperimentalTestApi
-@get:ExperimentalTestApi
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isFnDown: Boolean
     get() = isKeyDown(Key.Function)
@@ -239,9 +228,6 @@ val KeyInjectionScope.isFnDown: Boolean
  *
  * @return true if a control key is currently down, false otherwise.
  */
-@ExperimentalTestApi
-@get:ExperimentalTestApi
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isCtrlDown: Boolean
     get() = isKeyDown(Key.CtrlLeft) || isKeyDown(Key.CtrlRight)
@@ -251,9 +237,6 @@ val KeyInjectionScope.isCtrlDown: Boolean
  *
  * @return true if an alt key is currently down, false otherwise.
  */
-@ExperimentalTestApi
-@get:ExperimentalTestApi
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isAltDown: Boolean
     get() = isKeyDown(Key.AltLeft) || isKeyDown(Key.AltRight)
@@ -263,9 +246,6 @@ val KeyInjectionScope.isAltDown: Boolean
  *
  * @return true if a meta key is currently down, false otherwise.
  */
-@ExperimentalTestApi
-@get:ExperimentalTestApi
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isMetaDown: Boolean
     get() = isKeyDown(Key.MetaLeft) || isKeyDown(Key.MetaRight)
@@ -275,9 +255,6 @@ val KeyInjectionScope.isMetaDown: Boolean
  *
  * @return true if a shift key is currently down, false otherwise.
  */
-@ExperimentalTestApi
-@get:ExperimentalTestApi
-@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isShiftDown: Boolean
     get() = isKeyDown(Key.ShiftLeft) || isKeyDown(Key.ShiftRight)
@@ -290,7 +267,6 @@ val KeyInjectionScope.isShiftDown: Boolean
  *
  * @param keys The list of keys to be pressed down.
  */
-@ExperimentalTestApi
 private fun KeyInjectionScope.pressKeys(keys: List<Key>) =
     keys.forEachIndexed { idx: Int, key: Key ->
         if (idx != 0) advanceEventTime(DefaultPauseDurationBetweenKeyPressesMillis)

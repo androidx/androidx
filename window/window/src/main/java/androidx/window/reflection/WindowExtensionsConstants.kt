@@ -53,6 +53,27 @@ internal object WindowExtensionsConstants {
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.layout.WindowLayoutComponent"
 
     /**
+     * Constant name for class [androidx.window.extensions.area.WindowAreaComponent]
+     * used for reflection
+     */
+    internal const val WINDOW_AREA_COMPONENT_CLASS =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.area.WindowAreaComponent"
+
+    /**
+     * Constant name for class [androidx.window.extensions.area.ExtensionWindowAreaStatus]
+     * used for reflection
+     */
+    internal const val EXTENSION_WINDOW_AREA_STATUS_CLASS =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.area.ExtensionWindowAreaStatus"
+
+    /**
+     * Constant name for class [androidx.window.extensions.area.ExtensionWindowAreaPresentation]
+     * used for reflection
+     */
+    internal const val EXTENSION_WINDOW_AREA_PRESENTATION_CLASS =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.area.ExtensionWindowAreaPresentation"
+
+    /**
      * Constant name for class [androidx.window.extensions.embedding.ActivityEmbeddingComponent]
      * used for reflection
      */

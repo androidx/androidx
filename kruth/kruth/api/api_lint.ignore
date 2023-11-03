@@ -1,0 +1,57 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.kruth.IterableSubject#containsAnyIn(Object[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.kruth.IterableSubject#containsAtLeastElementsIn(Object[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.kruth.IterableSubject#containsExactlyElementsIn(Object[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+ArrayReturn: androidx.kruth.IterableSubject#containsNoneIn(Object[]) parameter #0:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+
+
+AutoBoxing: androidx.kruth.KruthKt#assertThat(Boolean) parameter #0:
+    Must avoid boxed primitives (`java.lang.Boolean`)
+AutoBoxing: androidx.kruth.KruthKt#assertThat(Double) parameter #0:
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.kruth.KruthKt#assertThat(Integer) parameter #0:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
+    Must avoid boxed primitives (`java.lang.Boolean`)
+AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
+    Must avoid boxed primitives (`java.lang.Double`)
+
+
+BuilderSetStyle: androidx.kruth.SimpleSubjectBuilder#that(T):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.SimpleSubjectBuilder.that(T)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.Subject.Factory<? extends S,T>)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#fail():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.fail()
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#forCustomFailureStrategy(androidx.kruth.FailureStrategy):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.forCustomFailureStrategy(androidx.kruth.FailureStrategy)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Boolean)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Double):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Double)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Iterable<? extends T>)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(String)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(T):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(T)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(java.util.Map<K,? extends V>)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#withMessage(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.withMessage(String)
+
+
+MissingBuildMethod: androidx.kruth.SimpleSubjectBuilder:
+    androidx.kruth.SimpleSubjectBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.kruth.StandardSubjectBuilder:
+    androidx.kruth.StandardSubjectBuilder does not declare a `build()` method, but builder classes are expected to
+
+
+TopLevelBuilder: androidx.kruth.SimpleSubjectBuilder:
+    Builder should be defined as inner class: androidx.kruth.SimpleSubjectBuilder
+TopLevelBuilder: androidx.kruth.StandardSubjectBuilder:
+    Builder should be defined as inner class: androidx.kruth.StandardSubjectBuilder

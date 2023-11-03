@@ -58,11 +58,16 @@ interface CaptureSessionInterface {
      * @param opener        The opener to open the {@link SynchronizedCaptureSession}.
      * @return A {@link ListenableFuture} that will be completed once the
      * {@link CameraCaptureSession} has been configured.
+     * It may be set to a {@link java.util.concurrent.CancellationException} if a CaptureSession
+     * is closed while it is opening.
+     * It may be set to a {@link DeferrableSurface.SurfaceClosedException} if any of the supplied
+     * DeferrableSurface is closed that cannot be used to configure the
+     * {@link CameraCaptureSession}.
      */
     @NonNull
     ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
             @NonNull CameraDevice cameraDevice,
-            @NonNull SynchronizedCaptureSessionOpener opener);
+            @NonNull SynchronizedCaptureSession.Opener opener);
 
 
     /**

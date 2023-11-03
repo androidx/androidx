@@ -20,8 +20,9 @@ import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import java.lang.Override;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
+@SuppressWarnings("deprecation")
 @Generated("androidx.lifecycle.LifecycleProcessor")
 public class LibraryBaseObserver_LifecycleAdapter implements GenericLifecycleObserver {
     final LibraryBaseObserver mReceiver;

@@ -17,8 +17,8 @@
 package androidx.compose.ui.input.pointer
 
 import android.view.PointerIcon.TYPE_CROSSHAIR
-import android.view.PointerIcon.TYPE_HAND
 import android.view.PointerIcon.TYPE_DEFAULT
+import android.view.PointerIcon.TYPE_HAND
 import android.view.PointerIcon.TYPE_TEXT
 
 internal class AndroidPointerIconType(val type: Int) :

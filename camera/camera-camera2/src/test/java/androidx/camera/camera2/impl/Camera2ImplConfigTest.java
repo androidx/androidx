@@ -24,7 +24,7 @@ import android.os.Build;
 import android.util.Range;
 
 import androidx.camera.core.impl.Config;
-import androidx.camera.testing.fakes.FakeConfig;
+import androidx.camera.testing.impl.fakes.FakeConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +37,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class Camera2ImplConfigTest {
     private static final int INVALID_TEMPLATE_TYPE = -1;
     private static final int INVALID_COLOR_CORRECTION_MODE = -1;
-    private static final CameraEventCallbacks CAMERA_EVENT_CALLBACKS =
-            CameraEventCallbacks.createEmptyCallback();
 
     @Test
     public void emptyConfigurationDoesNotContainTemplateType() {
@@ -47,17 +45,6 @@ public class Camera2ImplConfigTest {
 
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE))
                 .isEqualTo(INVALID_TEMPLATE_TYPE);
-    }
-
-    @Test
-    public void canExtendWithCameraEventCallback() {
-        FakeConfig.Builder builder = new FakeConfig.Builder();
-
-        new Camera2ImplConfig.Extender<>(builder).setCameraEventCallback(CAMERA_EVENT_CALLBACKS);
-        Camera2ImplConfig config = new Camera2ImplConfig(builder.build());
-
-        assertThat(config.getCameraEventCallback(/*valueIfMissing=*/ null))
-                .isSameInstanceAs(CAMERA_EVENT_CALLBACKS);
     }
 
     @Test

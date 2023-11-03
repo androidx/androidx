@@ -1,0 +1,52 @@
+// Signature format: 4.0
+package androidx.glance.appwidget.testing.unit {
+
+  public sealed interface GlanceAppWidgetUnitTest extends androidx.glance.testing.GlanceNodeAssertionsProvider<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> {
+    method public void awaitIdle();
+    method public void provideComposable(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public void setAppWidgetSize(long size);
+    method public void setContext(android.content.Context context);
+    method public <T> void setState(T state);
+  }
+
+  public final class GlanceAppWidgetUnitTestDefaults {
+    method public androidx.glance.GlanceId glanceId();
+    method public int hostCategory();
+    method public long size();
+    field public static final androidx.glance.appwidget.testing.unit.GlanceAppWidgetUnitTestDefaults INSTANCE;
+  }
+
+  public final class GlanceAppWidgetUnitTestKt {
+    method public static void runGlanceAppWidgetUnitTest(optional long timeout, kotlin.jvm.functions.Function1<? super androidx.glance.appwidget.testing.unit.GlanceAppWidgetUnitTest,kotlin.Unit> block);
+  }
+
+  public final class UnitTestAssertionExtensionsKt {
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasSendBroadcastClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.ComponentName componentName);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasSendBroadcastClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.Intent intent);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasSendBroadcastClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, Class<? extends android.content.BroadcastReceiver> receiverClass);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasSendBroadcastClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String intentAction, optional android.content.ComponentName? componentName);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartServiceClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.ComponentName componentName, optional boolean isForegroundService);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartServiceClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.Intent intent, optional boolean isForegroundService);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartServiceClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, Class<? extends android.app.Service> serviceClass, optional boolean isForegroundService);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertIsChecked(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
+    method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertIsNotChecked(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
+  }
+
+  public final class UnitTestFiltersKt {
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasSendBroadcastAction(android.content.ComponentName componentName);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasSendBroadcastAction(android.content.Intent intent);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasSendBroadcastAction(Class<? extends android.content.BroadcastReceiver> receiverClass);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasSendBroadcastAction(String intentAction, optional android.content.ComponentName? componentName);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(android.content.Intent intent, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartServiceAction(android.content.Intent intent, optional boolean isForegroundService);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartServiceAction(Class<? extends android.app.Service> serviceClass, optional boolean isForegroundService);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isChecked();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isIndeterminateCircularProgressIndicator();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isIndeterminateLinearProgressIndicator();
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isLinearProgressIndicator(float progress);
+    method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> isNotChecked();
+  }
+
+}
+

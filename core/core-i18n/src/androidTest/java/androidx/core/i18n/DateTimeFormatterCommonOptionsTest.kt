@@ -18,7 +18,6 @@ package androidx.core.i18n
 
 import android.icu.text.DateFormat
 import android.os.Build
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -40,12 +39,7 @@ class DateTimeFormatterCommonOptionsTest {
     )
 
     @Test @SmallTest
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Do not run this test on pre-release Android U.
     fun test() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
         val commonFormats = mapOf(
             DateTimeFormatterCommonOptions.ABBR_MONTH_WEEKDAY_DAY to "Sun, Sep 19",
             DateTimeFormatterCommonOptions.ABBR_MONTH_DAY to "Sep 19",
@@ -65,7 +59,7 @@ class DateTimeFormatterCommonOptionsTest {
             DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "Sun, 9/19/2021"
         )
         val commonFormatsVersionDependent = when {
-            BuildCompat.isAtLeastU() -> mapOf(
+            Build.VERSION.SDK_INT >= 34 -> mapOf(
                 DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42\u202FPM",
                 DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12\u202FPM"
             )

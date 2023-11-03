@@ -18,6 +18,7 @@ package androidx.wear.protolayout.expression;
 
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RequiresOptIn.Level;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated String element, represents a logical
- * type and that its value should be one of the explicitly named constants.
+ * Denotes that the annotated String element, represents a logical type and that its value should be
+ * one of the explicitly named constants.
  *
  * Example:
  * ```
@@ -38,14 +38,13 @@ package androidx.annotation
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 public annotation class StringDef(
-    /** Defines the allowed constants for this element  */
+    /** Defines the allowed constants for this element */
     vararg val value: String = [],
     /**
-     * Whether any other values are allowed. Normally this is
-     * not the case, but this allows you to specify a set of
-     * expected constants, which helps code completion in the IDE
-     * and documentation generation and so on, but without
-     * flagging compilation warnings if other values are specified.
+     * Whether any other values are allowed. Normally this is not the case, but this allows you to
+     * specify a set of expected constants, which helps code completion in the IDE and documentation
+     * generation and so on, but without flagging compilation warnings if other values are
+     * specified.
      */
     val open: Boolean = false
 )

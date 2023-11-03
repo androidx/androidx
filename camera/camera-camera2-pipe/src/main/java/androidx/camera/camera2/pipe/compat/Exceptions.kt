@@ -20,7 +20,10 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraAccessException
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 
 /**
  * Thrown when an operation cannot be executed because underlying object is closed or in an unusable
@@ -30,7 +33,11 @@ internal class ObjectUnavailableException(e: Throwable) : Exception(e)
 
 /** Catch specific exceptions that are not normally thrown, log them, then rethrow. */
 @Throws(ObjectUnavailableException::class)
-internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T {
+internal inline fun <T> catchAndReportCameraExceptions(
+    cameraId: CameraId,
+    cameraErrorListener: CameraErrorListener,
+    crossinline block: () -> T
+): T? {
     // Camera2 has, at different points in time, thrown a large number of checked and/or
     // unchecked exceptions under different circumstances that are not listed in the
     // documentation. This method catches and recasts these exceptions into a common exception
@@ -49,17 +56,23 @@ internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T 
     try {
         return block()
     } catch (e: Exception) {
-        throw when (e) {
+        Log.warn { "Unexpected error: " + e.message }
+        when (e) {
             is IllegalArgumentException,
             is IllegalStateException,
             is CameraAccessException,
             is SecurityException,
-            is UnsupportedOperationException -> {
-                Log.debug(e) { "Rethrowing ${e::class.java.simpleName} from Camera2" }
-                ObjectUnavailableException(e)
+            is UnsupportedOperationException,
+            is NullPointerException -> {
+                cameraErrorListener.onCameraError(
+                    cameraId,
+                    CameraError.ERROR_GRAPH_CONFIG,
+                    willAttemptRetry = false
+                )
+                return null
             }
 
-            else -> e
+            else -> throw e
         }
     }
 }

@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCaptureSession
@@ -21,10 +24,11 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.impl.CAPTURE_REQUEST_ID_STEM
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.testing.fakes.FakeConfig
+import androidx.camera.testing.impl.fakes.FakeConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,6 +84,7 @@ class Camera2InteropTest {
         )
     }
 
+    @Config(minSdk = 33)
     @Test
     fun canExtendWithStreamUseCase() {
         // Arrange
@@ -237,6 +242,7 @@ class Camera2InteropTest {
         }
     }
 
+    @Config(minSdk = 28)
     @Test
     fun canExtendWithPhysicalCameraId() {
         // Arrange

@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -218,6 +219,27 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
     @Override
     public void beginDelayedTransition(@NonNull ViewGroup sceneRoot, @Nullable Object transition) {
         TransitionManager.beginDelayedTransition(sceneRoot, (Transition) transition);
+    }
+
+    @Override
+    public boolean isSeekingSupported() {
+        if (FragmentManager.isLoggingEnabled(Log.INFO)) {
+            Log.i(FragmentManager.TAG,
+                    "Predictive back not available using Framework Transitions. Please switch"
+                            + " to AndroidX Transition 1.5.0 or higher to enable seeking.");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSeekingSupported(@NonNull Object transition) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG,
+                    "Predictive back not available for framework transition "
+                            + transition + ". Please switch to AndroidX Transition 1.5.0 or higher "
+                            + "to enable seeking.");
+        }
+        return false;
     }
 
     @Override

@@ -172,12 +172,12 @@ public class DetailsSupportFragment extends androidx.leanback.app.DetailsSupport
 
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(ITEM, mPhotoItem);
     }
 
-    public void setItem(PhotoItem photoItem) {
+    public void setItem(@NonNull PhotoItem photoItem) {
         mPhotoItem = photoItem;
         updateAdapter();
     }

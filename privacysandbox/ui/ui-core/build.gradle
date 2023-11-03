@@ -24,7 +24,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation 'androidx.annotation:annotation:1.5.0'
+    api("androidx.annotation:annotation:1.1.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
@@ -39,6 +39,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    defaultConfig {
+        minSdk 21
+    }
 }
 
 androidx {
@@ -46,4 +49,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
+    metalavaK2UastEnabled = true
 }

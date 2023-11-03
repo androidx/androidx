@@ -46,7 +46,7 @@ public class DataDirectorySuffixActivity extends AppCompatActivity {
         }
         ProcessGlobalConfig config = new ProcessGlobalConfig();
         config.setDataDirectorySuffix(this,
-                "per_process_webview_data_test");
+                "data_directory_suffix_activity_suffix");
         ProcessGlobalConfig.apply(config);
         setContentView(R.layout.activity_data_directory_config);
         WebView wv = findViewById(R.id.data_directory_config_webview);

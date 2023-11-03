@@ -46,10 +46,10 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
-import androidx.camera.testing.HandlerUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.HandlerUtil;
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -106,8 +106,9 @@ public final class ZoomControlDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
+        String cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
         mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, cameraId);
         assumeTrue(getMaxDigitalZoom() >= 2.0);
 
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,

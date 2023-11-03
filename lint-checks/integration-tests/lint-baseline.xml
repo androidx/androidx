@@ -1,0 +1,940 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.core.app.JobIntentService`, was not found in the project or the libraries"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `android.view.View#getAccessibilityClassName`"
+        errorLine1="        return view.getAccessibilityClassName();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="public class ParcelableUsageJava implements Parcelable {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcelable {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity3ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity2ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity3ParamsMethod!!.invoke("
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling `Method.invoke` without an SDK check"
+        errorLine1="                        performStopActivity2ParamsMethod!!.invoke("
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mBackground.getOutline(outline);"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions(vararg);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 27; however, the containing class androidx.AutofixOnUnsafeCallWithImplicitVarArgsCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        adapter.setAutofillOptions(vararg1, vararg2, vararg3);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.AutofixUnsafeCallOnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallOnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getClipToPadding();"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            this.getClipToPadding();"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            super.getClipToPadding();"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Icon.createWithAdaptiveBitmap(null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return Icon.createWithAdaptiveBitmap(null);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeCallWithImplicitReturnCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        useStyle(new Notification.DecoratedCustomViewStyle());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.AutofixUnsafeConstructorQualifiedClass is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return new Notification.DecoratedCustomViewStyle();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.AutofixUnsafeConstructorReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.AutofixUnsafeGenericMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return context.getSystemService(serviceClass);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeGenericMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingClassJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        drawable.getOutline(null);"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeVoidMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeVoidMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(tint);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        return view.getAccessibilityClassName();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.CarExtender (introduced in API level 23) but it used as type android.app.Notification.Extender (introduced in API level 20). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.graphics.drawable.AdaptiveIconDrawable (introduced in API level 26) but it used as type android.graphics.drawable.Drawable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.DecoratedCustomViewStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        useStyle(new Notification.DecoratedCustomViewStyle());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t);"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t);"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                        LOG_TAG,"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t)"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="MetadataTagInsideApplicationTag"
+        message="Detected &lt;application>-level meta-data tag."
+        errorLine1="        &lt;meta-data android:name=&quot;name&quot; android:value=&quot;value&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingServiceExportedEqualsTrue"
+        message="Missing exported=true in &lt;service> tag"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @get:VisibleForTesting(NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo({Scope.TESTS, Scope.LIBRARY})"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @get:RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeStaticMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="     @RequiresApi(19)"
+        errorLine2="     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19 from outer annotation (`@RequiresApi(19)`)"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="@RequiresApi(16)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="@RequiresApi(16)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodNoArgs(BaseAdapter adapter) {"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodOneArg(BaseAdapter adapter, CharBuffer vararg) {"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodOneArg(BaseAdapter adapter, CharBuffer vararg) {"
+        errorLine2="                                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodManyArgs(BaseAdapter adapter, CharBuffer vararg1,"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void callVarArgsMethodManyArgs(BaseAdapter adapter, CharBuffer vararg1,"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CharBuffer vararg2, CharBuffer vararg3) {"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CharBuffer vararg2, CharBuffer vararg3) {"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void unsafeReferenceOnCastObject(Object secretDisplayCutout) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallOnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castReceiver(Notification.MessagingStyle style, Notification.Builder builder) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castReceiver(Notification.MessagingStyle style, Notification.Builder builder) {"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castParameter(Notification.Builder builder, Notification.CarExtender extender) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void castParameter(Notification.Builder builder, Notification.CarExtender extender) {"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Drawable createAdaptiveIconDrawableReturnDrawable() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AdaptiveIconDrawable createAndReturnAdaptiveIconDrawable() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Object methodReturnsIconAsObject() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Icon methodReturnsIconAsIcon() {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Notification.DecoratedCustomViewStyle callQualifiedConstructor() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeConstructorQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public PrintAttributes.Builder unsafeReferenceWithQualifiedClasses("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PrintAttributes.Builder builder,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            PrintAttributes.MediaSize mediaSize"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+</issues>

@@ -22,6 +22,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import java.lang.Character.isISOControl
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
@@ -40,9 +41,14 @@ import javax.lang.model.type.TypeMirror
 internal val JAVA_NONE_TYPE_NAME: JClassName =
     JClassName.get("androidx.room.compiler.processing.error", "NotAType")
 
-fun XAnnotation.toAnnotationSpec(): AnnotationSpec {
+@JvmOverloads
+fun XAnnotation.toAnnotationSpec(includeDefaultValues: Boolean = true): AnnotationSpec {
   val builder = AnnotationSpec.builder(className)
-  annotationValues.forEach { builder.addAnnotationValue(it) }
+  if (includeDefaultValues) {
+    annotationValues.forEach { builder.addAnnotationValue(it) }
+  } else {
+    declaredAnnotationValues.forEach { builder.addAnnotationValue(it) }
+  }
   return builder.build()
 }
 
@@ -156,9 +162,13 @@ object MethodSpecHelper {
      * * thrown types are copied if the backing element is from java
      */
     @JvmStatic
+    @JvmOverloads
     fun overriding(
         elm: XMethodElement,
-        owner: XType
+        owner: XType =
+            checkNotNull(elm.enclosingElement.type) {
+                "Cannot override method without enclosing class"
+            }
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
         return overriding(
@@ -174,13 +184,15 @@ object MethodSpecHelper {
     ): MethodSpec.Builder {
         return MethodSpec.methodBuilder(executableElement.jvmName).apply {
             addTypeVariables(
-                resolvedType.typeVariableNames
+                resolvedType.typeVariables.map { it.asTypeName().java as JTypeVariableName }
             )
             resolvedType.parameterTypes.forEachIndexed { index, paramType ->
                 addParameter(
                     ParameterSpec.builder(
                         paramType.asTypeName().java,
-                        executableElement.parameters[index].name,
+                        // The parameter name isn't guaranteed to be a valid java name, so we use
+                        // the jvmName instead, which should be a valid java name.
+                        executableElement.parameters[index].jvmName,
                         *paramModifiers
                     ).build()
                 )

@@ -44,17 +44,21 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
 
 private const val TIMEOUT_MS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 public class ListenableWatchFaceControlClientTest {
+
+    @get:Rule
+    val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
     @Mock private lateinit var surface: Surface
@@ -63,7 +67,6 @@ public class ListenableWatchFaceControlClientTest {
 
     @Before
     public fun setUp() {
-        MockitoAnnotations.initMocks(this)
         Mockito.`when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 400, 400))
         Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
     }

@@ -91,7 +91,6 @@ import androidx.annotation.VisibleForTesting;
  * <p>TextRenderer also hides characters and styling that may not be suitable for display in ambient
  * mode - for example full color emoji.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextRenderer {

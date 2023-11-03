@@ -128,6 +128,9 @@ class SplitPlaceholderRule : SplitRule {
          *
          * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
          * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
+         *
+         * @param minWidthDp the smallest value of width of the parent window when the split should
+         * be used, in DP.
          */
         fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder =
             apply { this.minWidthDp = minWidthDp }
@@ -144,6 +147,9 @@ class SplitPlaceholderRule : SplitRule {
          * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
          * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
          *
+         * @param minHeightDp the smallest value of height of the parent task window when the split
+         * should be used, in DP.
+         *
          * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
          * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
          */
@@ -152,12 +158,15 @@ class SplitPlaceholderRule : SplitRule {
 
         /**
          * Sets the smallest value of the smallest possible width of the parent window in any
-         * rotation  when the split should be used, in DP. When the window size is smaller than
+         * rotation when the split should be used, in DP. When the window size is smaller than
          * requested here, activities in the secondary container will be stacked on top of the
          * activities in the primary one, completely overlapping them.
          *
          * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
          * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
+         *
+         * @param minSmallestWidthDp the smallest value of the smallest possible width of the parent
+         * window in any rotation when the split should be used, in DP.
          */
         fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
             apply { this.minSmallestWidthDp = minSmallestWidthDp }
@@ -173,6 +182,9 @@ class SplitPlaceholderRule : SplitRule {
          * The default is [SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT] if the app doesn't set, which is
          * the recommend value to only allow split when the parent window is not too stretched in
          * portrait.
+         *
+         * @param aspectRatio the largest value of the aspect ratio, expressed as `height / width`
+         * in decimal form, of the parent window bounds in portrait when the split should be used.
          *
          * @see EmbeddingAspectRatio.ratio
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
@@ -192,6 +204,9 @@ class SplitPlaceholderRule : SplitRule {
          * The default is [SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT] if the app doesn't set, which
          * is the recommend value to always allow split when the parent window is in landscape.
          *
+         * @param aspectRatio the largest value of the aspect ratio, expressed as `width / height`
+         * in decimal form, of the parent window bounds in landscape when the split should be used.
+         *
          * @see EmbeddingAspectRatio.ratio
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
          * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
@@ -205,6 +220,9 @@ class SplitPlaceholderRule : SplitRule {
          *
          * **Note** that it is not valid to set [SplitRule.FinishBehavior.NEVER]
          *
+         * @param finishPrimaryWithPlaceholder the [SplitRule.FinishBehavior] of the primary
+         * container when all activities are finished in the associated placeholder container.
+         *
          * @see SplitRule.FinishBehavior.ALWAYS
          * @see SplitRule.FinishBehavior.ADJACENT
          */
@@ -216,6 +234,9 @@ class SplitPlaceholderRule : SplitRule {
         /**
          * Sets whether the placeholder will show on top in a smaller window size after it first
          * appeared in a split with sufficient minimum width.
+         *
+         * @param isSticky whether the placeholder will show on top in a smaller window size after
+         * it first appeared in a split with sufficient minimum width.
          */
         fun setSticky(isSticky: Boolean): Builder =
             apply { this.isSticky = isSticky }
@@ -224,6 +245,9 @@ class SplitPlaceholderRule : SplitRule {
          * Sets the default [SplitAttributes] to apply on the activity containers pair when the host
          * task bounds satisfy [minWidthDp], [minHeightDp], [minSmallestWidthDp],
          * [maxAspectRatioInPortrait] and [maxAspectRatioInLandscape] requirements.
+         *
+         * @param defaultSplitAttributes the default [SplitAttributes] to apply on the activity
+         * containers pair when the host task bounds satisfy all the rule requirements.
          */
         fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
             apply { this.defaultSplitAttributes = defaultSplitAttributes }
@@ -232,10 +256,17 @@ class SplitPlaceholderRule : SplitRule {
          * Sets a unique string to identify this [SplitPlaceholderRule], which defaults to `null`.
          * The suggested usage is to set the tag to be able to differentiate between different rules
          * in the [SplitAttributesCalculatorParams.splitRuleTag].
+         *
+         * @param tag unique string to identify this [SplitPlaceholderRule].
          */
         fun setTag(tag: String?): Builder =
             apply { this.tag = tag }
 
+        /**
+         * Builds a `SplitPlaceholderRule` instance.
+         *
+         * @return The new `SplitPlaceholderRule` instance.
+         */
         fun build() = SplitPlaceholderRule(
             tag,
             filters,

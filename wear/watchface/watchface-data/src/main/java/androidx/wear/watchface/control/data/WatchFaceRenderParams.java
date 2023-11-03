@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * Parameters for the various takeWatchfaceScreenshot AIDL methods.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

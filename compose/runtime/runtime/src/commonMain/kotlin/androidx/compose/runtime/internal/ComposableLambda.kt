@@ -23,6 +23,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.rol
 
 internal const val SLOTS_PER_INT = 10
 private const val BITS_PER_SLOT = 3
@@ -47,9 +48,267 @@ internal fun differentBits(slot: Int): Int = bitsForSlot(0b10, slot)
 /* ktlint-disable parameter-list-wrapping */ // TODO(https://github.com/pinterest/ktlint/issues/921): reenable
 internal expect class ComposableLambdaImpl(
     key: Int,
-    tracked: Boolean
+    tracked: Boolean,
+    block: Any?,
 ) : ComposableLambda {
     fun update(block: Any)
+
+    override operator fun invoke(c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, p2: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(p1: Any?, p2: Any?, p3: Any?, c: Composer, changed: Int): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        p18: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
 }
 
 internal fun RecomposeScope?.replacableWith(other: RecomposeScope) =
@@ -328,16 +587,21 @@ fun composableLambda(
     tracked: Boolean,
     block: Any
 ): ComposableLambda {
-    composer.startReplaceableGroup(key)
+    // Use a rolled version of the key to avoid the key being a duplicate of the function's
+    // key. This is particularly important for live edit scenarios where the groups will be
+    // invalidated by the key number. This ensures that invalidating the function will not
+    // also invalidate its lambda.
+    composer.startReplaceableGroup(key.rol(1))
     val slot = composer.rememberedValue()
     val result = if (slot === Composer.Empty) {
-        val value = ComposableLambdaImpl(key, tracked)
+        val value = ComposableLambdaImpl(key, tracked, block)
         composer.updateRememberedValue(value)
         value
     } else {
         slot as ComposableLambdaImpl
+        slot.update(block)
+        slot
     }
-    result.update(block)
     composer.endReplaceableGroup()
     return result
 }
@@ -349,4 +613,4 @@ fun composableLambdaInstance(
     tracked: Boolean,
     block: Any
 ): ComposableLambda =
-    ComposableLambdaImpl(key, tracked).apply { update(block) }
+    ComposableLambdaImpl(key, tracked, block)

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,26 +23,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.rememberCursorPositionProvider
 import androidx.compose.ui.window.rememberComponentRectPositionProvider
-import kotlinx.coroutines.delay
+import androidx.compose.ui.window.rememberCursorPositionProvider
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -102,7 +100,7 @@ fun TooltipArea(
 ) {
     val mousePosition = remember { mutableStateOf(IntOffset.Zero) }
     var parentBounds by remember { mutableStateOf(IntRect.Zero) }
-    var isVisible by remember { mutableStateOf(false) }
+    val state = rememberBasicTooltipState(initialIsVisible = false)
     val scope = rememberCoroutineScope()
     var job: Job? by remember { mutableStateOf(null) }
 
@@ -110,16 +108,18 @@ fun TooltipArea(
         job?.cancel()
         job = scope.launch {
             delay(delayMillis.toLong())
-            isVisible = true
+            state.show()
         }
     }
 
     fun hide() {
         job?.cancel()
-        isVisible = false
+        state.dismiss()
     }
 
-    Box(
+    BasicTooltipBox(
+        positionProvider = tooltipPlacement.positionProvider(),
+        tooltip = tooltip,
         modifier = modifier
             .onGloballyPositioned { coordinates ->
                 val size = coordinates.size
@@ -129,6 +129,9 @@ fun TooltipArea(
                 )
                 parentBounds = IntRect(position, size)
             }
+            /**
+             * TODO: b/296850580 Figure out touch input story for desktop
+             */
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
@@ -141,9 +144,11 @@ fun TooltipArea(
                                     position.y.toInt() + parentBounds.top
                                 )
                             }
+
                             PointerEventType.Enter -> {
                                 startShowing()
                             }
+
                             PointerEventType.Exit -> {
                                 hide()
                             }
@@ -155,19 +160,12 @@ fun TooltipArea(
                 detectDown {
                     hide()
                 }
-            }
-    ) {
-        content()
-        if (isVisible) {
-            @OptIn(ExperimentalFoundationApi::class)
-            Popup(
-                popupPositionProvider = tooltipPlacement.positionProvider(),
-                onDismissRequest = { isVisible = false }
-            ) {
-                tooltip()
-            }
-        }
-    }
+            },
+        focusable = false,
+        enableUserInput = true,
+        state = state,
+        content = content
+    )
 }
 
 private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {

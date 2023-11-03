@@ -58,9 +58,10 @@ android {
 }
 
 androidx {
-    name = "AndroidX RemoteViews Support"
+    name = "RemoteViews"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_REMOTEVIEWS
     inceptionYear = "2021"
     description = "AndroidX RemoteViews Support"
+    metalavaK2UastEnabled = true
 }

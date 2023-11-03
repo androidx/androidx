@@ -43,24 +43,23 @@ public class MediaRouterInitializationTest {
     @Test
     @MediumTest
     public void testEmptyUserRoute() throws Exception {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                final Context context = getApplicationContext();
-                android.media.MediaRouter router =
-                        (android.media.MediaRouter) context.getSystemService(
-                                Context.MEDIA_ROUTER_SERVICE);
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            final Context context = getApplicationContext();
+                            android.media.MediaRouter router =
+                                    (android.media.MediaRouter)
+                                            context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
 
-                // Add empty user route
-                android.media.MediaRouter.RouteCategory category =
-                        router.createRouteCategory("", false);
-                android.media.MediaRouter.UserRouteInfo routeInfo =
-                        router.createUserRoute(category);
-                router.addUserRoute(routeInfo);
+                            // Add empty user route
+                            android.media.MediaRouter.RouteCategory category =
+                                    router.createRouteCategory("", false);
+                            android.media.MediaRouter.UserRouteInfo routeInfo =
+                                    router.createUserRoute(category);
+                            router.addUserRoute(routeInfo);
 
-                MediaRouter mediaRouter = MediaRouter.getInstance(context);
-                assertTrue(mediaRouter.getDefaultRoute() != null);
-            }
-        });
+                            MediaRouter mediaRouter = MediaRouter.getInstance(context);
+                            assertTrue(mediaRouter.getDefaultRoute() != null);
+                        });
     }
 }

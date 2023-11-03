@@ -42,7 +42,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android WorkManager Inspector"
+    name = "WorkManager Inspector"
     type = LibraryType.IDE_PLUGIN
     inceptionYear = "2020"
     description = "The implementation of WorkManager Inspector."

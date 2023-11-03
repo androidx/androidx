@@ -28,7 +28,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.camera.core.UseCase;
-import androidx.camera.testing.DeferrableSurfacesUtil;
+import androidx.camera.testing.impl.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -54,8 +54,8 @@ public class UseCaseAttachStateTest {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         TestUseCaseDataProvider fakeUseCase = new TestUseCaseDataProvider();
 
-        useCaseAttachState.setUseCaseAttached(fakeUseCase.getName(),
-                fakeUseCase.getSessionConfig(), fakeUseCase.getUseCaseConfig());
+        useCaseAttachState.setUseCaseAttached(fakeUseCase.getName(), fakeUseCase.getSessionConfig(),
+                fakeUseCase.getUseCaseConfig(), null, null);
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
@@ -86,9 +86,9 @@ public class UseCaseAttachStateTest {
         TestUseCaseDataProvider fakeUseCase1 = new TestUseCaseDataProvider();
 
         useCaseAttachState.setUseCaseAttached(fakeUseCase0.getName(),
-                fakeUseCase0.getSessionConfig(), fakeUseCase0.getUseCaseConfig());
+                fakeUseCase0.getSessionConfig(), fakeUseCase0.getUseCaseConfig(), null, null);
         useCaseAttachState.setUseCaseAttached(fakeUseCase1.getName(),
-                fakeUseCase1.getSessionConfig(), fakeUseCase1.getUseCaseConfig());
+                fakeUseCase1.getSessionConfig(), fakeUseCase1.getUseCaseConfig(), null, null);
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
@@ -125,7 +125,8 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.setUseCaseActive(
                 fakeUseCase.getName(),
                 fakeUseCase.getSessionConfig(),
-                fakeUseCase.getUseCaseConfig());
+                fakeUseCase.getUseCaseConfig(),
+                null, null);
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
@@ -156,11 +157,13 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.setUseCaseAttached(
                 fakeUseCase.getName(),
                 fakeUseCase.getSessionConfig(),
-                fakeUseCase.getUseCaseConfig());
+                fakeUseCase.getUseCaseConfig(),
+                null, null);
         useCaseAttachState.setUseCaseActive(
                 fakeUseCase.getName(),
                 fakeUseCase.getSessionConfig(),
-                fakeUseCase.getUseCaseConfig());
+                fakeUseCase.getUseCaseConfig(),
+                null, null);
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
         SessionConfig sessionConfig = builder.build();
@@ -192,7 +195,8 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.setUseCaseAttached(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
         useCaseAttachState.setUseCaseDetached(testUseCaseDataProvider.getName());
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getAttachedBuilder();
@@ -225,11 +229,13 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.setUseCaseAttached(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
         useCaseAttachState.setUseCaseActive(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
         useCaseAttachState.setUseCaseInactive(testUseCaseDataProvider.getName());
 
         SessionConfig.ValidatingBuilder builder = useCaseAttachState.getActiveAndAttachedBuilder();
@@ -264,7 +270,8 @@ public class UseCaseAttachStateTest {
             useCaseAttachState.setUseCaseAttached(
                     fakeUseCase.getName(),
                     fakeUseCase.getSessionConfig(),
-                    fakeUseCase.getUseCaseConfig());
+                    fakeUseCase.getUseCaseConfig(),
+                    null, null);
             sessionConfigs.add(fakeUseCase.getSessionConfig());
         }
 
@@ -282,11 +289,13 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.setUseCaseAttached(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
         useCaseAttachState.setUseCaseActive(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
 
         // The original template should be PREVIEW.
         SessionConfig firstSessionConfig = useCaseAttachState.getActiveAndAttachedBuilder().build();
@@ -298,7 +307,8 @@ public class UseCaseAttachStateTest {
         useCaseAttachState.updateUseCase(
                 testUseCaseDataProvider.getName(),
                 testUseCaseDataProvider.getSessionConfig(),
-                testUseCaseDataProvider.getUseCaseConfig());
+                testUseCaseDataProvider.getUseCaseConfig(),
+                null, null);
 
         // The new template should be STILL_CAPTURE.
         SessionConfig secondSessionConfig =

@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Provides the render config for the given {@link TemplateSurfaceView}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class SurfaceWrapperProvider {

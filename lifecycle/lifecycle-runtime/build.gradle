@@ -33,8 +33,9 @@ dependencies {
 }
 
 androidx {
-    name "Android Lifecycle Runtime"
+    name = "Lifecycle Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear "2017"
     description "Android Lifecycle Runtime"
+    metalavaK2UastEnabled = true
 }

@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestApiVersion():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileAddedEvent():
@@ -14,8 +12,6 @@ AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileLeaveEvent():
 AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileRemovedEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestApiVersion():
-    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

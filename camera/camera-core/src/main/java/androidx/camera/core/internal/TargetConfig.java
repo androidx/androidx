@@ -37,7 +37,6 @@ public interface TargetConfig<T> extends ReadableConfig {
     /**
      * Option: camerax.core.target.name
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -45,7 +44,6 @@ public interface TargetConfig<T> extends ReadableConfig {
     /**
      * Option: camerax.core.target.class
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

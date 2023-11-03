@@ -23,15 +23,14 @@ import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.log.RLog
 import androidx.room.processor.Context
+import androidx.room.processor.Context.BooleanProcessorOptions.GENERATE_KOTLIN
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.util.SchemaFileResolver
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
-import java.io.File
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
@@ -45,9 +44,10 @@ class DatabaseProcessingStep : XProcessingStep {
         elementsByAnnotation: Map<String, Set<XElement>>,
         isLastRound: Boolean
     ): Set<XTypeElement> {
-        check(env.config == ENV_CONFIG) {
-            "Room Processor expected $ENV_CONFIG but was invoked with a different configuration:" +
-                "${env.config}"
+        check(env.config == getEnvConfig(env.options)) {
+            "Room Processor expected ${getEnvConfig(env.options)} " +
+                "but was invoked with a different " +
+                "configuration: ${env.config}"
         }
         val context = Context(env)
 
@@ -101,29 +101,29 @@ class DatabaseProcessingStep : XProcessingStep {
         databases?.forEach { db ->
             DatabaseWriter(db, context.codeLanguage).write(context.processingEnv)
             if (db.exportSchema) {
+                val qName = db.element.qualifiedName
+                val filename = "${db.version}.json"
+                val exportToResources =
+                    Context.BooleanProcessorOptions.EXPORT_SCHEMA_RESOURCE.getValue(env)
+                val schemaInFolderPath = context.schemaInFolderPath
                 val schemaOutFolderPath = context.schemaOutFolderPath
-                if (schemaOutFolderPath == null) {
-                    context.logger.w(
-                        Warning.MISSING_SCHEMA_LOCATION, db.element,
-                        ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY
+                if (exportToResources) {
+                    context.logger.w(ProcessorErrors.EXPORTING_SCHEMA_TO_RESOURCES)
+                    val schemaFileOutputStream = env.filer.writeResource(
+                        filePath = Path.of("schemas", qName, filename),
+                        originatingElements = listOf(db.element)
+                    )
+                    db.exportSchemaOnly(schemaFileOutputStream)
+                } else if (schemaInFolderPath != null && schemaOutFolderPath != null) {
+                    db.exportSchema(
+                        inputPath = Path.of(schemaInFolderPath, qName, filename),
+                        outputPath = Path.of(schemaOutFolderPath, qName, filename)
                     )
                 } else {
-                    val schemaOutFolder = SchemaFileResolver.RESOLVER.getFile(
-                        Path.of(schemaOutFolderPath)
-                    )
-                    if (!schemaOutFolder.exists()) {
-                        schemaOutFolder.mkdirs()
-                    }
-                    val qName = db.element.qualifiedName
-                    val dbSchemaFolder = File(schemaOutFolder, qName)
-                    if (!dbSchemaFolder.exists()) {
-                        dbSchemaFolder.mkdirs()
-                    }
-                    db.exportSchema(
-                        File(
-                            dbSchemaFolder,
-                            "${db.version}.json"
-                        )
+                    context.logger.w(
+                        warning = Warning.MISSING_SCHEMA_LOCATION,
+                        element = db.element,
+                        msg = ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY
                     )
                 }
             }
@@ -167,8 +167,9 @@ class DatabaseProcessingStep : XProcessingStep {
     }
 
     companion object {
-        internal val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(
-            excludeMethodsWithInvalidJvmSourceNames = true
-        )
+        internal fun getEnvConfig(options: Map<String, String>) =
+            XProcessingEnvConfig.DEFAULT.copy(
+                excludeMethodsWithInvalidJvmSourceNames = !GENERATE_KOTLIN.getValue(options)
+            )
     }
 }

@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -62,6 +63,62 @@ class WindowPropertiesTest {
                 getProperty(
                     activity,
                     WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED
+                )
+            )
+        }
+    }
+
+    @Test
+    fun test_property_allow_ignoring_orientation_request_when_loop_detected() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be false as defined in AndroidManifest.xml
+            assertFalse(
+                getProperty(
+                    activity,
+                    WindowProperties
+                        .PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED
+                )
+            )
+        }
+    }
+
+    @Test
+    fun test_property_allow_min_aspect_ratio_override() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be false as defined in AndroidManifest.xml
+            assertFalse(
+                getProperty(
+                    activity,
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun test_property_allow_resizeable_activity_overrides() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be false as defined in AndroidManifest.xml
+            assertFalse(
+                getProperty(
+                    activity,
+                    WindowProperties
+                        .PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
                 )
             )
         }

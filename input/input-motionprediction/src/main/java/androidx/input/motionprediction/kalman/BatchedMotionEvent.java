@@ -28,7 +28,6 @@ import java.util.Iterator;
 /**
  * This class contains a list of historical {@link MotionEvent.PointerCoords} for a given time
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class BatchedMotionEvent {

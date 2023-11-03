@@ -32,6 +32,9 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
     private boolean mOnMessageChannelReady;
     private ArrayList<String> mMessageList = new ArrayList<>();
     private boolean mOnResizedReceived;
+    private boolean mOnWarmupCompleted;
+    private boolean mOnActivityLayout;
+
     private ICustomTabsCallback.Stub mWrapper = new ICustomTabsCallback.Stub() {
         @Override
         public void onNavigationEvent(final int navigationEvent, final Bundle extras) {
@@ -73,6 +76,18 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         public void onActivityResized(int height, int width, Bundle extras) throws RemoteException {
             TestCustomTabsCallback.this.onActivityResized(height, width, extras);
         }
+
+        @Override
+        public void onWarmupCompleted(Bundle extras) {
+            TestCustomTabsCallback.this.onWarmupCompleted(extras);
+        }
+
+        @Override
+        public void onActivityLayout(
+                int left, int top, int right, int bottom, @ActivityLayoutState int state,
+                @NonNull Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onActivityLayout(left, top, right, bottom, state, extras);
+        }
     };
 
     /* package */ ICustomTabsCallback getStub() {
@@ -108,7 +123,33 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         mOnResizedReceived = true;
     }
 
+    @Override
+    public void onActivityLayout(
+            int left, int top, int right, int bottom, @ActivityLayoutState int state,
+            @NonNull Bundle extras) {
+        mOnActivityLayout = true;
+    }
+
     public boolean hasActivityBeenResized() {
         return mOnResizedReceived;
+    }
+
+    @Override
+    public void onWarmupCompleted(Bundle extras) {
+        mOnWarmupCompleted = true;
+    }
+
+    /**
+     * @return Whether warmup process is finished.
+     */
+    public boolean wasWarmupCompleted() {
+        return mOnWarmupCompleted;
+    }
+
+    /**
+     * @return Whether the activity has been laid out.
+     */
+    public boolean hasActivityBeenLaidOut() {
+        return mOnActivityLayout;
     }
 }

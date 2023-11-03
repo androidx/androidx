@@ -25,10 +25,8 @@ import androidx.annotation.RestrictTo
  * The API Packager will include these classes in the API descriptors.
  *
  * THIS ANNOTATION IS FOR INTERNAL USAGE ONLY.
- *
- * @suppress
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class GeneratedPublicApi
+public annotation class GeneratedPublicApi

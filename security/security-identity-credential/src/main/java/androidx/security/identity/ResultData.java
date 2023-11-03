@@ -60,10 +60,7 @@ public abstract class ResultData {
      */
     public static final int STATUS_NO_ACCESS_CONTROL_PROFILES = 6;
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected ResultData() {}
 
     /**
@@ -322,7 +319,6 @@ public abstract class ResultData {
 
     /**
      * The type of the entry status.
-     * @hide
      */
     @Retention(SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)

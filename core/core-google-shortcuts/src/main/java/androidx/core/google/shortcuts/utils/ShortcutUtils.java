@@ -41,7 +41,6 @@ import java.security.GeneralSecurityException;
 /**
  * Utility methods and constants used by the Google shortcuts library.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ShortcutUtils {

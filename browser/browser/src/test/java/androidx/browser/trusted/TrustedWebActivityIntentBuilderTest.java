@@ -26,10 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.RequiresApi;
 import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
@@ -42,7 +40,6 @@ import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Arrays;
@@ -53,9 +50,6 @@ import java.util.List;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// minSdk For Bundle#getBinder
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-@Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class TrustedWebActivityIntentBuilderTest {
 
     @SuppressWarnings("deprecation")

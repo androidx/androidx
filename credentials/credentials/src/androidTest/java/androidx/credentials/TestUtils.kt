@@ -16,8 +16,10 @@
 
 package androidx.credentials
 
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import androidx.credentials.provider.CallingAppInfo
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
 @Suppress("DEPRECATION")
@@ -44,13 +46,40 @@ fun equals(a: Bundle, b: Bundle): Boolean {
     return true
 }
 
+/**
+ * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently
+ * that is not needed.
+ */
+@Suppress("DEPRECATION")
+fun deepCopyBundle(bundle: Bundle): Bundle {
+    val newBundle = Bundle()
+    for (key in bundle.keySet()) {
+        val value = bundle.get(key)
+        if (value is Boolean) {
+            newBundle.putBoolean(key, value)
+        } else if (value is String) {
+            newBundle.putString(key, value)
+        }
+    }
+    return newBundle
+}
+
 /** Used to maintain compatibility across API levels. */
 const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 
 /** True if the device running the test is post framework api level,
  * false if pre framework api level. */
 fun isPostFrameworkApiLevel(): Boolean {
-    return !((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
-        !(Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL &&
-            Build.VERSION.PREVIEW_SDK_INT > 0))
+    return Build.VERSION.SDK_INT >= 34
+}
+
+fun equals(a: Icon, b: Icon): Boolean {
+    if (Build.VERSION.SDK_INT <= 28) {
+        return true
+    }
+    return a.type == b.type && a.resId == b.resId
+}
+
+fun equals(a: CallingAppInfo, b: CallingAppInfo): Boolean {
+    return a.packageName == b.packageName && a.origin == b.origin
 }

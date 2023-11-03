@@ -26,6 +26,7 @@ import java.time.ZoneOffset
  *
  * @see SleepSessionRecord
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SleepStageRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -94,7 +95,6 @@ public class SleepStageRecord(
 
     /**
      * Type of sleep stage.
-     * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(

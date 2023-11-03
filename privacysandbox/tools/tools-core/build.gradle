@@ -16,8 +16,8 @@
 
 import androidx.build.LibraryType
 import androidx.build.RunApiTasks
-import androidx.build.SupportConfig
 import androidx.build.SdkHelperKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -25,30 +25,39 @@ plugins {
     id("com.google.protobuf")
 }
 
+def buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
+def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
+
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.protobufLite)
+    api(libs.protobuf)
     api(libs.kotlinPoet)
+    implementation(libs.guava)
     implementation project(path: ':privacysandbox:tools:tools')
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     // Include android jar for compilation of generated sources.
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include: "android.jar"
-    ))
-    // Get AIDL compiler path and pass it to tests for code generation.
-    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
-    test {
-        inputs.files(aidlCompilerPath)
-                .withPropertyName("aidl_compiler_path")
-                .withPathSensitivity(PathSensitivity.NAME_ONLY)
-        doFirst {
-            systemProperty "aidl_compiler_path", aidlCompilerPath
-        }
+    testImplementation(SdkHelperKt.getSdkDependency(project))
+}
+
+// Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
+def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
+test {
+    inputs.files(aidlCompilerPath)
+            .withPropertyName("aidl_compiler_path")
+            .withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.files(frameworkAidlPath)
+            .withPropertyName("framework_aidl_path")
+            .withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
+    doFirst {
+        systemProperty "aidl_compiler_path", aidlCompilerPath
+        systemProperty "framework_aidl_path", frameworkAidlPath
     }
 }
 

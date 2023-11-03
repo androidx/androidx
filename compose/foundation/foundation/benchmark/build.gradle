@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +32,6 @@ dependencies {
     androidTestImplementation project(":compose:ui:ui-text:ui-text-benchmark")
     androidTestImplementation project(":compose:foundation:foundation-layout")
     androidTestImplementation project(":compose:foundation:foundation")
-    androidTestImplementation project(":compose:foundation:foundation-do-not-ship-newtext")
     androidTestImplementation project(":compose:material:material")
     androidTestImplementation project(":compose:benchmark-utils")
     androidTestImplementation(libs.testRules)
@@ -42,12 +42,17 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
+tasks.withType(KotlinCompile).configureEach {
+    it.kotlinOptions {
+        freeCompilerArgs += [
+                // Enable experimental benchmark APIs internally
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
+        ]
+    }
+}
+
 android {
     namespace "androidx.compose.foundation.benchmark"
-    defaultConfig {
-        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
-        testInstrumentationRunnerArguments["androidx.benchmark.profiling.mode"]= 'None'
-    }
 }
 
 androidx {

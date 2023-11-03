@@ -48,6 +48,7 @@ public class GridItemTest {
         assertThat(gridItem.getImageType()).isEqualTo(GridItem.IMAGE_TYPE_LARGE);
         assertThat(gridItem.getTitle()).isNotNull();
         assertThat(gridItem.getText()).isNull();
+        assertThat(gridItem.getBadge()).isNull();
     }
 
     @Test
@@ -162,14 +163,38 @@ public class GridItemTest {
     }
 
     @Test
+    public void create_setImagewithBadge() {
+        Badge b = new Badge.Builder().setHasDot(true).build();
+        GridItem gridItem =
+                new GridItem.Builder().setTitle("Title").setImage(BACK, b).build();
+
+        assertThat(gridItem.getBadge()).isEqualTo(b);
+    }
+
+    @Test
+    public void create_setImagewithTypeAndBadge() {
+        Badge b = new Badge.Builder().setHasDot(true).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title")
+                .setImage(BACK, GridItem.IMAGE_TYPE_ICON, b).build();
+
+        assertThat(gridItem.getBadge()).isEqualTo(b);
+    }
+
+    @Test
     public void equals() {
         String title = "title";
         String text = "text";
-        GridItem gridItem = new GridItem.Builder().setTitle(title).setText(text).setImage(
-                BACK).build();
+        Badge badge = new Badge.Builder().setHasDot(true).build();
+        GridItem g1 = new GridItem.Builder()
+                .setTitle(title)
+                .setText(text)
+                .setImage(BACK, badge).build();
+        GridItem g2 = new GridItem.Builder()
+                .setTitle(title)
+                .setText(text)
+                .setImage(BACK, badge).build();
 
-        assertThat(new GridItem.Builder().setTitle(title).setText(text).setImage(BACK).build())
-                .isEqualTo(gridItem);
+        assertThat(g1).isEqualTo(g2);
     }
 
     @Test
@@ -198,6 +223,16 @@ public class GridItemTest {
 
         assertThat(new GridItem.Builder().setImage(ALERT).setTitle("Title").build()).isNotEqualTo(
                 gridItem);
+    }
+
+    @Test
+    public void notEquals_differentBadge() {
+        Badge badge = new Badge.Builder().setHasDot(true).build();
+        GridItem withBadge = new GridItem.Builder()
+                .setTitle("Title").setImage(BACK, badge).build();
+        GridItem noBadge = new GridItem.Builder().setTitle("Title").setImage(BACK).build();
+
+        assertThat(withBadge).isNotEqualTo(noBadge);
     }
 
     @Test

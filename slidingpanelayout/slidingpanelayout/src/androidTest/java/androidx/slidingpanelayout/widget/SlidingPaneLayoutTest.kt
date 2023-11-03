@@ -16,7 +16,14 @@
 
 package androidx.slidingpanelayout.widget
 
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
+import android.view.LayoutInflater
 import android.view.View
+import android.view.View.MeasureSpec
+import android.view.View.MeasureSpec.EXACTLY
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -25,6 +32,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.slidingpanelayout.test.R
+import androidx.slidingpanelayout.widget.helpers.MeasureCountingView
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.slidingpanelayout.widget.helpers.isTwoPane
 import androidx.test.core.app.ActivityScenario
@@ -33,8 +41,10 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Test
@@ -204,5 +214,143 @@ class SlidingPaneLayoutTest {
                 assertThat(slidingPaneLayout.childCount).isEqualTo(1)
             }
         }
+    }
+
+    @Test
+    fun testSingleLayoutPassLpWidthAndWeight() {
+        testSingleLayoutPass(
+            SlidingPaneLayout.LayoutParams(100, MATCH_PARENT),
+            SlidingPaneLayout.LayoutParams(0, MATCH_PARENT).apply {
+                weight = 1f
+            }
+        )
+    }
+
+    @Test
+    fun testSingleLayoutPassLpWidthAndMatch() {
+        testSingleLayoutPass(
+            SlidingPaneLayout.LayoutParams(100, MATCH_PARENT),
+            SlidingPaneLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+    }
+
+    @Test
+    fun testSingleLayoutPassMinWidthAndMatch() {
+        testSingleLayoutPass(
+            SlidingPaneLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT),
+            SlidingPaneLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        ) {
+            minimumWidth = 100
+        }
+    }
+    @Test
+    fun testSingleLayoutPassMinWidthAndWeight() {
+        testSingleLayoutPass(
+            SlidingPaneLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT),
+            SlidingPaneLayout.LayoutParams(0, MATCH_PARENT).apply { weight = 1f }
+        ) {
+            minimumWidth = 100
+        }
+    }
+
+    @Test
+    fun userResizingConfiguration() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val view = SlidingPaneLayout(context)
+        val drawable = object : Drawable() {
+            var stateChanged = false
+                private set
+
+            override fun draw(canvas: Canvas) {}
+            override fun setAlpha(alpha: Int) {}
+            override fun setColorFilter(colorFilter: ColorFilter?) {}
+            @Suppress("DeprecatedCallableAddReplaceWith")
+            @Deprecated("Deprecated in Java")
+            override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+            override fun isStateful(): Boolean = true
+            override fun onStateChange(state: IntArray): Boolean {
+                stateChanged = true
+                return true
+            }
+        }
+
+        // Precondition - this should be false for a detached view
+        assertWithMessage("isSlideable")
+            .that(view.isSlideable)
+            .isFalse()
+
+        view.setUserResizingDividerDrawable(drawable)
+        assertWithMessage("drawable state changed")
+            .that(drawable.stateChanged)
+            .isTrue()
+
+        assertWithMessage("isUserResizable with drawable but not enabled")
+            .that(view.isUserResizable)
+            .isFalse()
+
+        view.isUserResizingEnabled = true
+
+        assertWithMessage("isUserResizable with drawable and enabled")
+            .that(view.isUserResizable)
+            .isTrue()
+
+        view.setUserResizingDividerDrawable(null)
+
+        assertWithMessage("isUserResizable with null drawable and enabled")
+            .that(view.isUserResizable)
+            .isFalse()
+    }
+
+    @Test
+    fun userResizingConfigurationInflated() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.user_resize_config, null) as SlidingPaneLayout
+        assertWithMessage("isUserResizingEnabled")
+            .that(view.isUserResizingEnabled)
+            .isTrue()
+        assertWithMessage("isUserResizable")
+            .that(view.isUserResizable)
+            .isTrue()
+    }
+}
+
+private fun View.measureAndLayout(
+    width: Int,
+    height: Int
+) {
+    measure(
+        MeasureSpec.makeMeasureSpec(width, EXACTLY),
+        MeasureSpec.makeMeasureSpec(height, EXACTLY)
+    )
+    layout(0, 0, measuredWidth, measuredHeight)
+}
+
+private fun testSingleLayoutPass(
+    firstLayoutParams: SlidingPaneLayout.LayoutParams,
+    secondLayoutParams: SlidingPaneLayout.LayoutParams,
+    configFirst: MeasureCountingView.() -> Unit = {}
+) {
+    val context = InstrumentationRegistry.getInstrumentation().context
+    val firstChild = MeasureCountingView(context).apply(configFirst)
+    val secondChild = MeasureCountingView(context)
+    val spl = SlidingPaneLayout(context).apply {
+        isOverlappingEnabled = false
+        addView(firstChild, firstLayoutParams)
+        addView(secondChild, secondLayoutParams)
+    }
+
+    spl.measureAndLayout(300, 300)
+
+    firstChild.assertReportingMeasureCallTraces {
+        assertWithMessage("first child measure count")
+            .that(measureCount)
+            .isEqualTo(1)
+    }
+    secondChild.assertReportingMeasureCallTraces {
+        assertWithMessage("second child measure count")
+            .that(measureCount)
+            .isEqualTo(1)
     }
 }

@@ -20,11 +20,11 @@ import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * The NavigatorState encapsulates the state shared between the [Navigator] and the
@@ -36,10 +36,8 @@ public abstract class NavigatorState {
     private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
         MutableStateFlow(setOf())
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var isNavigating = false
 
     /**

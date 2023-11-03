@@ -17,22 +17,34 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.IBinder
 import android.util.Log
+import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.WindowProperties
+import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.ExtensionEmbeddingBackend.Api31Impl.isSplitPropertyEnabled
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
+    private val applicationContext: Context,
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"
     ) var embeddingExtension: EmbeddingInterfaceCompat?
@@ -53,12 +65,16 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
+        fun getInstance(context: Context): EmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
+                        val applicationContext = context.applicationContext
                         val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
-                        globalInstance = ExtensionEmbeddingBackend(embeddingExtension)
+                        globalInstance = ExtensionEmbeddingBackend(
+                            applicationContext,
+                            embeddingExtension
+                        )
                     }
                 }
             }
@@ -121,7 +137,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     @GuardedBy("globalLock")
     override fun getRules(): Set<EmbeddingRule> {
-        globalLock.withLock { return ruleTracker.splitRules }
+        globalLock.withLock { return ruleTracker.splitRules.toSet() }
     }
 
     @GuardedBy("globalLock")
@@ -297,14 +313,31 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun isSplitSupported(): Boolean {
+    private fun areExtensionsAvailable(): Boolean {
         return embeddingExtension != null
+    }
+
+    override val splitSupportStatus: SplitController.SplitSupportStatus by lazy {
+        when {
+            !areExtensionsAvailable() -> {
+                SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                isSplitPropertyEnabled(applicationContext)
+            }
+            else -> {
+                // The PackageManager#getProperty API is not supported before S, assuming
+                // the property is enabled to keep the same behavior on earlier platforms.
+                SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+            }
+        }
     }
 
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -313,12 +346,87 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
         globalLock.withLock {
             embeddingExtension?.clearSplitAttributesCalculator()
         }
     }
 
-    override fun isSplitAttributesCalculatorSupported(): Boolean =
-        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
+    override fun getActivityStack(activity: Activity): ActivityStack? {
+        globalLock.withLock {
+            val lastInfo: List<SplitInfo> = splitInfoEmbeddingCallback.lastInfo ?: return null
+            for (info in lastInfo) {
+                if (activity !in info) {
+                    continue
+                }
+                if (activity in info.primaryActivityStack) {
+                    return info.primaryActivityStack
+                }
+                if (activity in info.secondaryActivityStack) {
+                    return info.secondaryActivityStack
+                }
+            }
+            return null
+        }
+    }
+
+    @RequiresWindowSdkExtension(3)
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    @RequiresWindowSdkExtension(3)
+    override fun invalidateTopVisibleSplitAttributes() {
+        embeddingExtension?.invalidateTopVisibleSplitAttributes()
+    }
+
+    @RequiresWindowSdkExtension(3)
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
+    }
+
+    @RequiresApi(31)
+    private object Api31Impl {
+        @DoNotInline
+        fun isSplitPropertyEnabled(context: Context): SplitController.SplitSupportStatus {
+            val property = try {
+                context.packageManager.getProperty(
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
+                    context.packageName
+                )
+            } catch (e: PackageManager.NameNotFoundException) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                    )
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            } catch (e: Exception) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    // This can happen when it is a test environment that doesn't support
+                    // getProperty.
+                    Log.e(TAG, "PackageManager.getProperty is not supported", e)
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            }
+            if (!property.isBoolean) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must have a boolean value"
+                    )
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            }
+            return if (property.boolean) {
+                SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+            } else {
+                SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
+        }
+    }
 }

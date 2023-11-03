@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -180,7 +181,7 @@ class FragmentAnim {
      */
     static class AnimationOrAnimator {
         public final Animation animation;
-        public final Animator animator;
+        public final AnimatorSet animator;
 
         AnimationOrAnimator(Animation animation) {
             this.animation = animation;
@@ -192,7 +193,8 @@ class FragmentAnim {
 
         AnimationOrAnimator(Animator animator) {
             this.animation = null;
-            this.animator = animator;
+            this.animator = new AnimatorSet();
+            this.animator.play(animator);
             if (animator == null) {
                 throw new IllegalStateException("Animator cannot be null");
             }

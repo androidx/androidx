@@ -555,37 +555,6 @@ public class UiObject {
     }
 
     /**
-     * Set the text content by sending individual key codes.
-     * @hide
-     */
-    public void legacySetText(@Nullable String text) throws UiObjectNotFoundException {
-        // Per framework convention, setText(null) means clearing it.
-        if (text == null) {
-            text = "";
-        }
-        // long click left + center
-        AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
-        if (node == null) {
-            throw new UiObjectNotFoundException(getSelector().toString());
-        }
-        Log.d(TAG, String.format("Setting text to '%s'.", text));
-        Rect rect = getVisibleBounds(node);
-        getInteractionController().longTapNoSync(rect.left + 20, rect.centerY());
-        // check if the edit menu is open
-        UiObject selectAll = new UiObject(new UiSelector().descriptionContains("Select all"));
-        if (selectAll.waitForExists(50)) {
-            selectAll.click();
-        }
-        // wait for the selection
-        SystemClock.sleep(250);
-        // delete it
-        getInteractionController().sendKey(KeyEvent.KEYCODE_DEL, 0);
-
-        // Send new text
-        getInteractionController().sendText(text);
-    }
-
-    /**
      * Sets the text in an editable field, after clearing the field's content.
      *
      * <p>

@@ -38,4 +38,25 @@ interface XFieldElement : XVariableElement, XHasModifiers {
 
     override val fallbackLocationText: String
         get() = "$name in ${enclosingElement.fallbackLocationText}"
+
+    /**
+     * The descriptor of this field in JVM.
+     */
+    val jvmDescriptor: String
+
+    /**
+     * Returns the getter method associated with this field or `null` if there isn't one.
+     *
+     * Note: This is expected to be `null` for java source, or if the field isn't associated with a
+     * kotlin property.
+     */
+    val getter: XMethodElement?
+
+    /**
+     * Returns the setter method associated with this field or `null` if there isn't one.
+     *
+     * Note: This is expected to be `null` for java source, or if the field isn't associated with a
+     * kotlin property.
+     */
+    val setter: XMethodElement?
 }

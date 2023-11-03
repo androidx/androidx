@@ -19,10 +19,12 @@ package androidx.appsearch.platformstorage.converter;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
@@ -32,7 +34,7 @@ import java.util.Map;
 /**
  * Translates between Platform and Jetpack versions of {@link SearchSpec}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -49,15 +51,20 @@ public final class SearchSpecToPlatformConverter {
             @NonNull SearchSpec jetpackSearchSpec) {
         Preconditions.checkNotNull(jetpackSearchSpec);
 
-        if (!jetpackSearchSpec.getAdvancedRankingExpression().isEmpty()) {
-            // TODO(b/261474063): Remove this once advanced ranking becomes available.
-            throw new UnsupportedOperationException(
-                    Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION
-                            + " is not available on this AppSearch implementation.");
-        }
-
         android.app.appsearch.SearchSpec.Builder platformBuilder =
                 new android.app.appsearch.SearchSpec.Builder();
+
+        if (!jetpackSearchSpec.getAdvancedRankingExpression().isEmpty()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                throw new UnsupportedOperationException(
+                        Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION
+                                + " is not available on this AppSearch implementation.");
+            }
+            ApiHelperForU.setRankingStrategy(
+                    platformBuilder, jetpackSearchSpec.getAdvancedRankingExpression());
+        } else {
+            platformBuilder.setRankingStrategy(jetpackSearchSpec.getRankingStrategy());
+        }
 
         platformBuilder
                 .setTermMatch(jetpackSearchSpec.getTermMatch())
@@ -65,14 +72,21 @@ public final class SearchSpecToPlatformConverter {
                 .addFilterNamespaces(jetpackSearchSpec.getFilterNamespaces())
                 .addFilterPackageNames(jetpackSearchSpec.getFilterPackageNames())
                 .setResultCountPerPage(jetpackSearchSpec.getResultCountPerPage())
-                .setRankingStrategy(jetpackSearchSpec.getRankingStrategy())
                 .setOrder(jetpackSearchSpec.getOrder())
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
-        //TODO(b/262512396): add the enabledFeatures set from the SearchSpec once it is synced
-        // across to platform.
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
+            // TODO(b/258715421): Add Build.VERSION.SDK_INT condition once there is an extservices
+            // sdk that includes SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA.
+            if (true) {
+                if ((jetpackSearchSpec.getResultGroupingTypeFlags()
+                        & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0) {
+                    throw new UnsupportedOperationException(
+                        Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA
+                            + " is not available on this AppSearch implementation.");
+                }
+            }
             platformBuilder.setResultGrouping(
                     jetpackSearchSpec.getResultGroupingTypeFlags(),
                     jetpackSearchSpec.getResultGroupingLimit());
@@ -82,13 +96,84 @@ public final class SearchSpecToPlatformConverter {
             platformBuilder.addProjection(projection.getKey(), projection.getValue());
         }
 
-        // TODO(b/203700301) : Update to reflect support in Android U+ once this
-        // feature is synced over into service-appsearch.
         if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {
-            throw new UnsupportedOperationException(
-                    "Property weights are not supported with this backend/Android API level "
-                            + "combination.");
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                throw new UnsupportedOperationException(
+                        "Property weights are not supported with this backend/Android API level "
+                                + "combination.");
+            }
+            ApiHelperForU.setPropertyWeights(platformBuilder,
+                    jetpackSearchSpec.getPropertyWeights());
+        }
+
+        if (!jetpackSearchSpec.getEnabledFeatures().isEmpty()) {
+            if (jetpackSearchSpec.isNumericSearchEnabled()
+                    || jetpackSearchSpec.isVerbatimSearchEnabled()
+                    || jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    throw new UnsupportedOperationException(
+                            "Advanced query features (NUMERIC_SEARCH, VERBATIM_SEARCH and "
+                                    + "LIST_FILTER_QUERY_LANGUAGE) are not supported with this "
+                                    + "backend/Android API level combination.");
+                }
+                ApiHelperForU.copyEnabledFeatures(platformBuilder, jetpackSearchSpec);
+            }
+        }
+
+        if (jetpackSearchSpec.getJoinSpec() != null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                throw new UnsupportedOperationException("JoinSpec is not available on this "
+                        + "AppSearch implementation.");
+            }
+            ApiHelperForU.setJoinSpec(platformBuilder, jetpackSearchSpec.getJoinSpec());
+        }
+
+        if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
+            // TODO(b/296088047): Remove this once property filters become available.
+            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
+                    + " is not available on this AppSearch implementation.");
         }
         return platformBuilder.build();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setJoinSpec(@NonNull android.app.appsearch.SearchSpec.Builder builder,
+                JoinSpec jetpackJoinSpec) {
+            builder.setJoinSpec(JoinSpecToPlatformConverter.toPlatformJoinSpec(jetpackJoinSpec));
+        }
+
+        @DoNotInline
+        static void setRankingStrategy(@NonNull android.app.appsearch.SearchSpec.Builder builder,
+                @NonNull String rankingExpression) {
+            builder.setRankingStrategy(rankingExpression);
+        }
+
+        @DoNotInline
+        static void copyEnabledFeatures(@NonNull android.app.appsearch.SearchSpec.Builder builder,
+                @NonNull SearchSpec jetpackSpec) {
+            if (jetpackSpec.isNumericSearchEnabled()) {
+                builder.setNumericSearchEnabled(true);
+            }
+            if (jetpackSpec.isVerbatimSearchEnabled()) {
+                builder.setVerbatimSearchEnabled(true);
+            }
+            if (jetpackSpec.isListFilterQueryLanguageEnabled()) {
+                builder.setListFilterQueryLanguageEnabled(true);
+            }
+        }
+
+        @DoNotInline
+        static void setPropertyWeights(@NonNull android.app.appsearch.SearchSpec.Builder builder,
+                @NonNull Map<String, Map<String, Double>> propertyWeightsMap) {
+            for (Map.Entry<String, Map<String, Double>> entry : propertyWeightsMap.entrySet()) {
+                builder.setPropertyWeights(entry.getKey(), entry.getValue());
+            }
+        }
     }
 }

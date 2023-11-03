@@ -50,7 +50,6 @@ public final class AsyncDifferConfig<T> {
         mDiffCallback = diffCallback;
     }
 
-    /** @hide */
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -94,7 +93,6 @@ public final class AsyncDifferConfig<T> {
          * @param executor The executor which can run tasks in the UI thread.
          * @return this
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull

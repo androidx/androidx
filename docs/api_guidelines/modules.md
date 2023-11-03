@@ -40,6 +40,45 @@ sidecars) that ship on-device and are referenced via the `<uses-library>` tag
 should follow the naming convention `com.android.extensions.<feature-name>` to
 avoid placing `androidx`-packaged code in the platform's boot classpath.
 
+#### Maven name and description
+
+The `name` and `description` fields of the `androidx` configuration block are
+used to generate Maven artifact metadata, which is displayed on the artifact's
+maven.google.com entry and d.android.com landing page.
+
+```
+androidx {
+    name = "WorkManager Kotlin Extensions"
+    description = "Kotlin-friendly extensions for WorkManager."
+}
+```
+
+The name should be a human-readable, title-cased representation of the
+artifact's Maven coordinate. All components of the name **must** appear in the
+artifact's Maven group or artifact ID, with some exceptions:
+
+-   Marketing names may be shortened when used in the Maven group or artifact
+    ID, ex. "WorkManager" as `work`, "Android for Cars" as `car`, or "Kotlin
+    Extensions" as `ktx`
+-   Long (>10 character) words may be truncated to a short (>5 character) prefix
+-   Pluralization may be changed, ex. "Views" as `view`
+-   The following descriptive terms may appear in the name:
+    -   "extension(s)"
+    -   "for"
+    -   "integration"
+    -   "with"
+
+**Do not** use the following terms in the name:
+
+-   "AndroidX"
+-   "Library"
+-   "Implementation"
+
+The description should be a single phrase that completes the sentence, "This
+library provides ...". This phrase should provide enough description that a
+developer can decide whether they might want to learn more about using your
+library. **Do not** simply repeat the name of the library.
+
 #### Project directory structure {#module-structure}
 
 Libraries developed in AndroidX follow a consistent project naming and directory
@@ -284,7 +323,7 @@ import androidx.build.KmpPlatformsKt
 ...
 
 androidx {
-    name = "Android Support Library collections"
+    name = "Collection"
     type = LibraryType.KMP_LIBRARY
     mavenGroup = LibraryGroups.COLLECTION
     mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP
@@ -296,14 +335,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**19** (Android 4.4, KitKat). This SDK was chosen to represent 99% of active
+**21** (Android 5.0, Lollipop). This SDK was chosen to represent 99% of active
 devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **14** (Android 4.0, Ice Cream Sandwich).
+default is **19** (Android 4.4, KitKat).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match
@@ -320,7 +359,25 @@ Note that this pattern is *not recommended* because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
 
-### Extension libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
+### Platform extension (sidecar JAR) libraries {#module-extension}
+
+Platform extension or "sidecar JAR" libraries ship as part of the Android system
+image and are made available to developers through the `<uses-library>` manifest
+tag.
+
+Interfaces for platform extension libraries *may* be defined in Jetpack, like
+`androidx.window.extensions`, but must be implemented in the Android platform
+via AOSP or by device manufacturers. See
+[WindowManager Extensions](https://source.android.com/docs/core/display/windowmanager-extensions)
+for more details on the platform-side implementation of extension libraries,
+including motivations for their use.
+
+See
+[Platform extension (sidecar JAR) dependencies](/company/teams/androidx/api_guidelines#dependencies-sidecar)
+for guidelines on depending on extension libraries defined externally or within
+Jetpack.
+
+### Framework- and language-specific libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
 
 New libraries should prefer Kotlin sources with built-in Java compatibility via
 `@JvmName` and other affordances of the Kotlin language. They may optionally

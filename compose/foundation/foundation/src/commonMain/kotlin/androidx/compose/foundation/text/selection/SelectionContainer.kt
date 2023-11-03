@@ -18,13 +18,13 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.ContextMenuArea
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
-import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -82,7 +82,10 @@ internal fun SelectionContainer(
     onSelectionChange: (Selection?) -> Unit,
     children: @Composable () -> Unit
 ) {
-    val registrarImpl = remember { SelectionRegistrarImpl() }
+    val registrarImpl = rememberSaveable(saver = SelectionRegistrarImpl.Saver) {
+        SelectionRegistrarImpl()
+    }
+
     val manager = remember { SelectionManager(registrarImpl) }
 
     manager.hapticFeedBack = LocalHapticFeedback.current
@@ -90,7 +93,6 @@ internal fun SelectionContainer(
     manager.textToolbar = LocalTextToolbar.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
-    manager.touchMode = isInTouchMode
 
     ContextMenuArea(manager) {
         CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
@@ -98,7 +100,10 @@ internal fun SelectionContainer(
             // cross-composable selection.
             SimpleLayout(modifier = modifier.then(manager.modifier)) {
                 children()
-                if (isInTouchMode && manager.hasFocus) {
+                if (manager.isInTouchMode &&
+                    manager.hasFocus &&
+                    !manager.isTriviallyCollapsedSelection()
+                ) {
                     manager.selection?.let {
                         listOf(true, false).fastForEach { isStartHandle ->
                             val observer = remember(isStartHandle) {
@@ -137,7 +142,8 @@ internal fun SelectionContainer(
 
     DisposableEffect(manager) {
         onDispose {
-            manager.hideSelectionToolbar()
+            manager.onRelease()
+            manager.hasFocus = false
         }
     }
 }

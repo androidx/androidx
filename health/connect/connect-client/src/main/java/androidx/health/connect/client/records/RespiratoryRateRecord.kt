@@ -31,7 +31,7 @@ public class RespiratoryRateRecord(
 ) : InstantaneousRecord {
     init {
         requireNonNegative(value = rate, name = "rate")
-        rate.requireNotMore(other = 100.0, name = "rate")
+        rate.requireNotMore(other = 1000.0, name = "rate")
     }
 
     override fun equals(other: Any?): Boolean {

@@ -18,7 +18,6 @@ package androidx.privacysandbox.tools.apigenerator
 
 import androidx.privacysandbox.tools.apipackager.PrivacySandboxApiPackager
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 import java.nio.file.Files.createTempDirectory
@@ -32,17 +31,13 @@ import kotlin.io.path.writeBytes
  *
  * @param descriptorResources map of extra resources that will be added to descriptors jar keyed by
  *      their relative path.
- * @param addLibraryStubs whether to include latest Android platform API stubs that support the
- * Privacy Sandbox.
  */
 fun compileIntoInterfaceDescriptorsJar(
     sources: List<Source>,
     descriptorResources: Map<Path, ByteArray> = mapOf(),
-    addLibraryStubs: Boolean = true,
 ): Path {
-    val testSources = if (addLibraryStubs) sources + allTestLibraryStubs else sources
     val tempDir = createTempDirectory("compile").also { it.toFile().deleteOnExit() }
-    val result = assertCompiles(testSources.toList())
+    val result = assertCompiles(sources.toList())
     val sdkInterfaceDescriptors = tempDir.resolve("sdk-interface-descriptors.jar")
     val outputClasspath = mergedClasspath(result)
     descriptorResources.forEach { (relativePath, contents) ->

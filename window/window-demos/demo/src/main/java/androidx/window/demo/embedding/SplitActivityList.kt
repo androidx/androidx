@@ -22,24 +22,38 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.util.Consumer
-import androidx.window.embedding.SplitController
-import androidx.window.embedding.SplitInfo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.demo.R
 import androidx.window.demo.embedding.SplitActivityDetail.Companion.EXTRA_SELECTED_ITEM
+import androidx.window.embedding.SplitController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class SplitActivityList : AppCompatActivity() {
-    lateinit var splitController: SplitController
-    val splitChangeListener = SplitStateChangeListener()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_split_activity_list_layout)
         findViewById<View>(R.id.root_split_activity_layout)
             .setBackgroundColor(Color.parseColor("#e0f7fa"))
+        val splitController = SplitController.getInstance(this)
 
-        splitController = SplitController.getInstance(this)
+        lifecycleScope.launch {
+            // The block passed to repeatOnLifecycle is executed when the lifecycle
+            // is at least STARTED and is cancelled when the lifecycle is STOPPED.
+            // It automatically restarts the block when the lifecycle is STARTED again.
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                splitController.splitInfoList(this@SplitActivityList)
+                    .collect { newSplitInfos ->
+                        withContext(Dispatchers.Main) {
+                            findViewById<View>(R.id.infoButton).visibility =
+                                if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
+                        }
+                    }
+            }
+        }
     }
 
     open fun onItemClick(view: View) {
@@ -47,30 +61,5 @@ open class SplitActivityList : AppCompatActivity() {
         val startIntent = Intent(this, SplitActivityDetail::class.java)
         startIntent.putExtra(EXTRA_SELECTED_ITEM, text)
         startActivity(startIntent)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        splitController.addSplitListener(
-            this,
-            ContextCompat.getMainExecutor(this),
-            splitChangeListener
-        )
-    }
-
-    override fun onStop() {
-        super.onStop()
-        splitController.removeSplitListener(
-            splitChangeListener
-        )
-    }
-
-    inner class SplitStateChangeListener : Consumer<List<SplitInfo>> {
-        override fun accept(newSplitInfos: List<SplitInfo>) {
-            runOnUiThread {
-                findViewById<View>(R.id.infoButton).visibility =
-                    if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
-            }
-        }
     }
 }

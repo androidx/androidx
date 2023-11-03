@@ -1,11 +1,23 @@
 // Baseline format: 1.0
-RemovedClass: androidx.wear.watchface.ComplicationSlotsManagerKt:
-    Removed class androidx.wear.watchface.ComplicationSlotsManagerKt
-RemovedClass: androidx.wear.watchface.RenderBufferTextureKt:
-    Removed class androidx.wear.watchface.RenderBufferTextureKt
-RemovedClass: androidx.wear.watchface.RendererKt:
-    Removed class androidx.wear.watchface.RendererKt
-RemovedClass: androidx.wear.watchface.WatchFaceKt:
-    Removed class androidx.wear.watchface.WatchFaceKt
-RemovedClass: androidx.wear.watchface.WatchFaceServiceKt:
-    Removed class androidx.wear.watchface.WatchFaceServiceKt
+AddedMethod: androidx.wear.watchface.ComplicationSlot#isFixedComplicationDataSource():
+    Added method androidx.wear.watchface.ComplicationSlot.isFixedComplicationDataSource()
+AddedMethod: androidx.wear.watchface.ComplicationSlot#isInitiallyEnabled():
+    Added method androidx.wear.watchface.ComplicationSlot.isInitiallyEnabled()
+AddedMethod: androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle#isTapEventsAccepted():
+    Added method androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle.isTapEventsAccepted()
+AddedMethod: androidx.wear.watchface.WatchState#hasBurnInProtection():
+    Added method androidx.wear.watchface.WatchState.hasBurnInProtection()
+AddedMethod: androidx.wear.watchface.WatchState#hasLowBitAmbient():
+    Added method androidx.wear.watchface.WatchState.hasLowBitAmbient()
+
+
+RemovedMethod: androidx.wear.watchface.ComplicationSlot#getFixedComplicationDataSource():
+    Removed method androidx.wear.watchface.ComplicationSlot.getFixedComplicationDataSource()
+RemovedMethod: androidx.wear.watchface.ComplicationSlot#getInitiallyEnabled():
+    Removed method androidx.wear.watchface.ComplicationSlot.getInitiallyEnabled()
+RemovedMethod: androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle#getTapEventsAccepted():
+    Removed method androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle.getTapEventsAccepted()
+RemovedMethod: androidx.wear.watchface.WatchState#getHasBurnInProtection():
+    Removed method androidx.wear.watchface.WatchState.getHasBurnInProtection()
+RemovedMethod: androidx.wear.watchface.WatchState#getHasLowBitAmbient():
+    Removed method androidx.wear.watchface.WatchState.getHasLowBitAmbient()

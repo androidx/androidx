@@ -22,7 +22,7 @@ pluginManagement {
         }
         gradlePluginPortal()
     }
-    includeBuild "../../playground-common/playground-plugin"
+    apply from: "../../playground-common/configure-plugin-management.gradle", to: it
 }
 plugins {
     id "playground"
@@ -34,8 +34,6 @@ playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->
         if (name.startsWith(":compose:compiler")) return true
-        if (isNeededForComposePlayground(name)) return true
         return false
     })
 }
-

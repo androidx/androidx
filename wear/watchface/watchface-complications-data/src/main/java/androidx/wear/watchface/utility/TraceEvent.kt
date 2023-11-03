@@ -29,8 +29,6 @@ import kotlinx.coroutines.launch
 /**
  * Wrapper around [Trace.beginSection] and [Trace.endSection] which helps reduce boilerplate by
  * taking advantage of RAII like [Closeable] in a try block.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TraceEvent(traceName: String) : Closeable {
@@ -46,8 +44,6 @@ public class TraceEvent(traceName: String) : Closeable {
 /**
  * Wrapper around [Trace.beginAsyncSection] which helps reduce boilerplate by taking advantage of
  * RAII like [Trace.endAsyncSection] in a try block, and by dealing with API version support.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AsyncTraceEvent(private val traceName: String) : Closeable {
@@ -88,11 +84,7 @@ public class AsyncTraceEvent(private val traceName: String) : Closeable {
     }
 }
 
-/**
- * Wrapper around [CoroutineScope.launch] with an async trace event.
- *
- * @hide
- */
+/** Wrapper around [CoroutineScope.launch] with an async trace event. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun CoroutineScope.launchWithTracing(
     traceEventName: String,

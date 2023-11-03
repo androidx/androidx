@@ -17,15 +17,15 @@
 package androidx.window.embedding
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
-import androidx.window.embedding.SplitAttributes.BackgroundColor
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
-import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 
 /**
  * Attributes that describe how the parent window (typically the activity task
@@ -51,46 +51,33 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEquall
  *     attributes are parsed as [SplitType], [LayoutDirection], and
  *     [BackgroundColor], respectively. Note that [SplitType.HingeSplitType]
  *     is not supported XML format.
- *   - Using
- *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
- *     the `SplitAttributes` for a given device and window state.
+ *   - Set `SplitAttributes` calculation function by
+ *     [SplitController.setSplitAttributesCalculator]
+ *     to customize the `SplitAttributes` for a given device and window state.
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @see SplitAttributes.BackgroundColor
  */
-class SplitAttributes internal constructor(
+class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
 
     /**
      * The split type attribute. Defaults to an equal split of the parent window
      * for the primary and secondary containers.
      */
-    val splitType: SplitType = splitEqually(),
+    val splitType: SplitType = SPLIT_TYPE_EQUAL,
 
     /**
      * The layout direction attribute for the parent window split. The default
      * is based on locale.
      */
     val layoutDirection: LayoutDirection = LOCALE,
-
-    /**
-     * The color to use for the background color during the animation of
-     * the split involving this `SplitAttributes` object if the animation
-     * requires a background.
-     *
-     * The default is to use the current theme window background color.
-     *
-     * @see BackgroundColor.color
-     * @see BackgroundColor.DEFAULT
-     */
-    val animationBackgroundColor: BackgroundColor = BackgroundColor.DEFAULT
 ) {
 
     /**
      * The type of parent window split, which defines the proportion of the
      * parent window occupied by the primary and secondary activity containers.
      */
-    open class SplitType internal constructor(
+    class SplitType internal constructor(
 
         /**
          * The description of this `SplitType`.
@@ -135,53 +122,9 @@ class SplitAttributes internal constructor(
         override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
         /**
-         * A window split that's based on the ratio of the size of the primary
-         * container to the size of the parent window.
-         *
-         * @see SplitAttributes.SplitType.ratio
-         */
-        class RatioSplitType internal constructor(
-
-            /**
-             * The proportion of the parent window occupied by the primary
-             * container of the split.
-             */
-            @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
-            val ratio: Float
-
-        ) : SplitType("ratio:$ratio", ratio)
-
-        /**
-         * A window split in which the primary and secondary activity containers
-         * each occupy the entire parent window.
-         *
-         * The secondary container overlays the primary container.
-         *
-         * @see SplitAttributes.SplitType.ExpandContainersSplitType
-         */
-        class ExpandContainersSplitType internal constructor() : SplitType("expandContainer", 0.0f)
-
-        /**
-         * A parent window split that conforms to a hinge or separating fold in
-         * the device display.
-         *
-         * @see SplitAttributes.SplitType.splitByHinge
-         */
-        class HingeSplitType internal constructor(
-
-            /**
-             * The split type to use if a split based on the device hinge or
-             * separating fold cannot be determined.
-             */
-            val fallbackSplitType: SplitType
-
-        ) : SplitType("hinge, fallback=$fallbackSplitType", -1.0f)
-
-        /**
          * Methods that create various split types.
          */
         companion object {
-
             /**
              * Creates a split type based on the proportion of the parent window
              * occupied by the primary container of the split.
@@ -197,13 +140,13 @@ class SplitAttributes internal constructor(
              *
              * @param ratio The proportion of the parent window occupied by the
              *     primary container of the split.
-             * @return An instance of [RatioSplitType] with the specified ratio.
+             * @return An instance of `SplitType` with the specified ratio.
              */
             @JvmStatic
             fun ratio(
                 @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
                 ratio: Float
-            ): RatioSplitType {
+            ): SplitType {
                 val checkedRatio = ratio.startSpecification(
                     TAG,
                     VerificationMode.STRICT
@@ -211,45 +154,37 @@ class SplitAttributes internal constructor(
                     "Use SplitType.expandContainers() instead of 0 or 1.") {
                     ratio in 0.0..1.0 && ratio !in arrayOf(0.0f, 1.0f)
                 }.compute()!!
-                return RatioSplitType(checkedRatio)
+                return SplitType("ratio:$checkedRatio", checkedRatio)
             }
 
-            private val EXPAND_CONTAINERS = ExpandContainersSplitType()
-
             /**
-             * Creates a split type in which the primary and secondary activity
-             * containers each expand to fill the parent window; the secondary
-             * container overlays the primary container.
+             * A split type in which the primary and secondary activity containers each expand to
+             * fill the parent window; the secondary container overlays the primary container.
              *
-             * Use this method with the function set in
+             * It is useful to use this `SplitType` with the function set in
              * [SplitController.setSplitAttributesCalculator] to expand the activity containers in
-             * some device states. The following sample shows how to always fill the parent bounds
-             * if the device is in portrait orientation:
+             * some device or window states. The following sample shows how to always fill the
+             * parent bounds if the device is in portrait orientation:
              *
              * @sample androidx.window.samples.embedding.expandContainersInPortrait
-             *
-             * @return An instance of [ExpandContainersSplitType].
              */
-            @JvmStatic
-            fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS
+            @JvmField
+            val SPLIT_TYPE_EXPAND = SplitType("expandContainers", 0.0f)
 
             /**
-             * Creates a split type in which the primary and secondary
-             * containers occupy equal portions of the parent window.
+             * A split type in which the primary and secondary containers occupy equal portions of
+             * the parent window.
              *
              * Serves as the default [SplitType].
-             *
-             * @return A `RatioSplitType` in which the activity containers
-             *     occupy equal portions of the parent window.
              */
-            @JvmStatic
-            fun splitEqually(): RatioSplitType = ratio(0.5f)
+            @JvmField
+            val SPLIT_TYPE_EQUAL = ratio(0.5f)
 
             /**
-             * Creates a split type in which the split ratio conforms to the
+             * A split type in which the split ratio conforms to the
              * position of a hinge or separating fold in the device display.
              *
-             * The split type is created only if:
+             * The split type works only if:
              * <ul>
              *     <li>The host task is not in multi-window mode (e.g.,
              *         split-screen mode or picture-in-picture mode)</li>
@@ -268,40 +203,29 @@ class SplitAttributes internal constructor(
              *     </li>
              * </ul>
              *
-             * Otherwise, the method falls back to `fallbackSplitType`.
+             * Otherwise, this `SplitType` fallback to show the split with [SPLIT_TYPE_EQUAL].
              *
-             * @param fallbackSplitType The split type to use if a split based
-             *     on the device hinge or separating fold cannot be determined.
-             *     Can be a [RatioSplitType] or [ExpandContainersSplitType].
-             *     Defaults to [SplitType.splitEqually].
-             * @return An instance of [HingeSplitType] with a fallback split
-             *     type.
+             * If the app wants to have another fallback `SplitType` if [SPLIT_TYPE_HINGE] cannot
+             * be applied. It is suggested to use [SplitController.setSplitAttributesCalculator] to
+             * customize the fallback `SplitType`.
+             *
+             * The following sample shows how to fallback to [SPLIT_TYPE_EXPAND]
+             * if there's no hinge area in the parent window container bounds.
+             *
+             * @sample androidx.window.samples.embedding.fallbackToExpandContainersForSplitTypeHinge
              */
-            @JvmStatic
-            fun splitByHinge(
-                fallbackSplitType: SplitType = splitEqually()
-            ): HingeSplitType {
-                val checkedType = fallbackSplitType.startSpecification(
-                    TAG,
-                    VerificationMode.STRICT
-                ).require(
-                    "FallbackSplitType must be a RatioSplitType or ExpandContainerSplitType"
-                ) {
-                    fallbackSplitType is RatioSplitType ||
-                        fallbackSplitType is ExpandContainersSplitType
-                }.compute()!!
-                return HingeSplitType(checkedType)
-            }
+            @JvmField
+            val SPLIT_TYPE_HINGE = SplitType("hinge", -1.0f)
 
+            // TODO(b/241044092): add XML support to SPLIT_TYPE_HINGE
             /**
              * Returns a `SplitType` with the given `value`.
              */
             @SuppressLint("Range") // value = 0.0 is covered.
-            @JvmStatic
             internal fun buildSplitTypeFromValue(
                 @FloatRange(from = 0.0, to = 1.0, toInclusive = false) value: Float
-            ) = if (value == EXPAND_CONTAINERS.value) {
-                    expandContainers()
+            ) = if (value == SPLIT_TYPE_EXPAND.value) {
+                    SPLIT_TYPE_EXPAND
                 } else {
                     ratio(value)
                 }
@@ -384,7 +308,8 @@ class SplitAttributes internal constructor(
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_ttb.png" alt="Activity A starts activity B to the bottom."/>
              *
              * If the horizontal layout direction is not supported on the
-             * device, layout direction falls back to `LOCALE`.
+             * device that [WindowSdkExtensions.extensionVersion] is less than 2, layout direction
+             * falls back to `LOCALE`.
              *
              * See also [layoutDirection].
              */
@@ -400,7 +325,8 @@ class SplitAttributes internal constructor(
              * <img width="70%" height="70%" src="/images/guide/topics/large-screens/activity-embedding/reference-docs/a_to_a_b_btt.png" alt="Activity A starts activity B to the top."/>
              *
              * If the horizontal layout direction is not supported on the
-             * device, layout direction falls back to `LOCALE`.
+             * device that [WindowSdkExtensions.extensionVersion] is less than 2, layout direction
+             * falls back to `LOCALE`.
              *
              * See also [layoutDirection].
              */
@@ -425,85 +351,6 @@ class SplitAttributes internal constructor(
     }
 
     /**
-     * Background color to be used for window transition animations in a split if the animation
-     * requires a background.
-     *
-     * @see SplitAttributes.animationBackgroundColor
-     */
-    class BackgroundColor private constructor(
-
-        /**
-         * The description of this `BackgroundColor`.
-         */
-        private val description: String,
-
-        /**
-         * [ColorInt] to represent the color to use as the background color.
-         */
-        @ColorInt
-        internal val value: Int,
-    ) {
-        override fun toString() = "BackgroundColor($description)"
-
-        override fun equals(other: Any?): Boolean {
-            if (other === this) return true
-            if (other !is BackgroundColor) return false
-            return value == other.value && description == other.description
-        }
-
-        override fun hashCode() = description.hashCode() + 31 * value.hashCode()
-
-        /**
-         * Methods that create various [BackgroundColor].
-         */
-        companion object {
-
-            /**
-             * Creates a [BackgroundColor] to represent the given [color].
-             *
-             * Only opaque color is supported.
-             *
-             * @param color [ColorInt] of an opaque color.
-             * @return the [BackgroundColor] representing the [color].
-             *
-             * @see [DEFAULT] for the default value, which means to use the
-             * current theme window background color.
-             */
-            @JvmStatic
-            fun color(
-                @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
-                @ColorInt
-                color: Int
-            ):
-                BackgroundColor {
-                require(Color.BLACK <= color && color <= Color.WHITE) {
-                    "Background color must be opaque"
-                }
-                return BackgroundColor("color:${Integer.toHexString(color)}", color)
-            }
-
-            /**
-             * The special [BackgroundColor] to represent the default value,
-             * which means to use the current theme window background color.
-             */
-            @JvmField
-            val DEFAULT = BackgroundColor("DEFAULT", 0)
-
-            /**
-             * Returns a [BackgroundColor] with the given [value]
-             */
-            internal fun buildFromValue(@ColorInt value: Int): BackgroundColor {
-                return if (Color.alpha(value) != 255) {
-                    // Treat any non-opaque color as the default.
-                    DEFAULT
-                } else {
-                    color(value)
-                }
-            }
-        }
-    }
-
-    /**
      * Non-public properties and methods.
      */
     companion object {
@@ -518,7 +365,6 @@ class SplitAttributes internal constructor(
     override fun hashCode(): Int {
         var result = splitType.hashCode()
         result = result * 31 + layoutDirection.hashCode()
-        result = result * 31 + animationBackgroundColor.hashCode()
         return result
     }
 
@@ -534,8 +380,7 @@ class SplitAttributes internal constructor(
         if (this === other) return true
         if (other !is SplitAttributes) return false
         return splitType == other.splitType &&
-            layoutDirection == other.layoutDirection &&
-            animationBackgroundColor == other.animationBackgroundColor
+            layoutDirection == other.layoutDirection
     }
 
     /**
@@ -545,8 +390,7 @@ class SplitAttributes internal constructor(
      */
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
-            "{splitType=$splitType, layoutDir=$layoutDirection," +
-            " animationBackgroundColor=$animationBackgroundColor"
+            "{splitType=$splitType, layoutDir=$layoutDirection }"
 
     /**
      * Builder for creating an instance of [SplitAttributes].
@@ -558,9 +402,8 @@ class SplitAttributes internal constructor(
      *    window background color.
      */
     class Builder {
-        private var splitType: SplitType = splitEqually()
+        private var splitType = SPLIT_TYPE_EQUAL
         private var layoutDirection = LOCALE
-        private var animationBackgroundColor = BackgroundColor.DEFAULT
 
         /**
          * Sets the split type attribute.
@@ -589,32 +432,11 @@ class SplitAttributes internal constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
-         * Sets the color to use for the background color during animation
-         * of the split involving this `SplitAttributes` object if the animation
-         * requires a background. Only opaque color is supported.
-         *
-         * The default is [BackgroundColor.DEFAULT], which means to use the
-         * current theme window background color.
-         *
-         * @param color The animation background color.
-         * @return This `Builder`.
-         *
-         * @see BackgroundColor.color
-         * @see BackgroundColor.DEFAULT
-         */
-        fun setAnimationBackgroundColor(color: BackgroundColor): Builder =
-            apply {
-                animationBackgroundColor = color
-            }
-
-        /**
          * Builds a `SplitAttributes` instance with the attributes specified by
-         * [setSplitType], [setLayoutDirection], and
-         * [setAnimationBackgroundColor].
+         * [setSplitType] and [setLayoutDirection].
          *
          * @return The new `SplitAttributes` instance.
          */
-        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection,
-            animationBackgroundColor)
+        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection)
     }
 }

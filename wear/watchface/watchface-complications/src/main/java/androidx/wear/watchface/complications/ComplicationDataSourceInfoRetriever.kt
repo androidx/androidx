@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.complications
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -47,7 +46,9 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.utility.TraceEvent
-import java.lang.IllegalArgumentException
+import androidx.wear.watchface.utility.aidlMethod
+import androidx.wear.watchface.utility.iconEquals
+import androidx.wear.watchface.utility.iconHashCode
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -79,33 +80,30 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     )
 
     private inner class ProviderInfoServiceConnection : ServiceConnection {
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             deferredService.complete(IProviderInfoService.Stub.asInterface(service))
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onBindingDied(name: ComponentName?) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
 
-    @SuppressLint("SyntheticAccessor")
     private val serviceConnection: ServiceConnection = ProviderInfoServiceConnection()
     private var context: Context? = null
     private val deferredService = CompletableDeferred<IProviderInfoService>()
     private val lock = Any()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var closed: Boolean = false
         private set
 
@@ -125,7 +123,6 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     /** Exception thrown if the service disconnects. */
     public class ServiceDisconnectedException : Exception()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(service: IProviderInfoService) {
@@ -225,13 +222,14 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
         override fun updateComplicationData(
             data: android.support.wearable.complications.ComplicationData?
-        ) {
-            safeUnlinkToDeath()
-            continuation!!.resume(data?.toApiComplicationData())
+        ) =
+            aidlMethod(TAG, "updateComplicationData") {
+                safeUnlinkToDeath()
+                continuation!!.resume(data?.toApiComplicationData())
 
-            // Re http://b/249121838 this is important, it prevents a memory leak.
-            continuation = null
-        }
+                // Re http://b/249121838 this is important, it prevents a memory leak.
+                continuation = null
+            }
 
         internal fun safeUnlinkToDeath() {
             try {
@@ -381,7 +379,7 @@ public class ComplicationDataSourceInfo(
         if (appName != other.appName) return false
         if (name != other.name) return false
         if (type != other.type) return false
-        if (icon != other.icon) return false
+        if (!(icon iconEquals other.icon)) return false
         if (componentName != other.componentName) return false
 
         return true
@@ -391,16 +389,12 @@ public class ComplicationDataSourceInfo(
         var result = appName.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + type.hashCode()
-        result = 31 * result + icon.hashCode()
+        result = 31 * result + icon.iconHashCode()
         result = 31 * result + componentName.hashCode()
         return result
     }
 
-    /**
-     * Converts this value to [WireComplicationProviderInfo] object used for serialization.
-     *
-     * @hide
-     */
+    /** Converts this value to [WireComplicationProviderInfo] object used for serialization. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationProviderInfo(): WireComplicationProviderInfo =
         WireComplicationProviderInfo(
@@ -412,7 +406,6 @@ public class ComplicationDataSourceInfo(
         )
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
     ComplicationDataSourceInfo(

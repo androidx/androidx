@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.updateChangedFlags
 
 /**
  * A Restart is created to hold composable lambdas to track when they are invoked allowing
@@ -36,9 +37,10 @@ import androidx.compose.runtime.Stable
 /* ktlint-disable parameter-list-wrapping */ // TODO(https://github.com/pinterest/ktlint/issues/921): reenable
 internal actual class ComposableLambdaImpl actual constructor(
     val key: Int,
-    private val tracked: Boolean
+    private val tracked: Boolean,
+    block: Any?
 ) : ComposableLambda {
-    private var _block: Any? = null
+    private var _block: Any? = block
     private var scope: RecomposeScope? = null
     private var scopes: MutableList<RecomposeScope>? = null
 
@@ -100,7 +102,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         }
     }
 
-    override operator fun invoke(c: Composer, changed: Int): Any? {
+    actual override operator fun invoke(c: Composer, changed: Int): Any? {
         val c = c.startRestartGroup(key)
         trackRead(c)
         val dirty = changed or if (c.changed(this)) differentBits(0) else sameBits(0)
@@ -109,7 +111,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         return result
     }
 
-    override operator fun invoke(p1: Any?, c: Composer, changed: Int): Any? {
+    actual override operator fun invoke(p1: Any?, c: Composer, changed: Int): Any? {
         val c = c.startRestartGroup(key)
         trackRead(c)
         val dirty = changed or if (c.changed(this)) differentBits(1) else sameBits(1)
@@ -124,11 +126,13 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
-    override operator fun invoke(p1: Any?, p2: Any?, c: Composer, changed: Int): Any? {
+    actual override operator fun invoke(p1: Any?, p2: Any?, c: Composer, changed: Int): Any? {
         val c = c.startRestartGroup(key)
         trackRead(c)
         val dirty = changed or if (c.changed(this)) differentBits(2) else sameBits(2)
@@ -138,11 +142,19 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, p2, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
-    override operator fun invoke(p1: Any?, p2: Any?, p3: Any?, c: Composer, changed: Int): Any? {
+    actual override operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        c: Composer,
+        changed: Int
+    ): Any? {
         val c = c.startRestartGroup(key)
         trackRead(c)
         val dirty = changed or if (c.changed(this)) differentBits(3) else sameBits(3)
@@ -161,11 +173,13 @@ internal actual class ComposableLambdaImpl actual constructor(
             c,
             dirty
         )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, p3, nc, changed or 0b1) }
+        c.endRestartGroup()?.updateScope { nc, _ ->
+            this(p1, p2, p3, nc, updateChangedFlags(changed) or 0b1)
+        }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -194,12 +208,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, nc, changed or 0b1)
+            this(p1, p2, p3, p4, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -231,12 +245,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -271,12 +285,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -314,12 +328,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, p7, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -360,12 +374,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, p7, p8, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -409,12 +423,12 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, nc, changed or 0b1)
+            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, nc, updateChangedFlags(changed) or 0b1)
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -469,7 +483,7 @@ internal actual class ComposableLambdaImpl actual constructor(
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -522,12 +536,25 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, nc, changed or 0b1, changed1)
+            this(
+                p1,
+                p2,
+                p3,
+                p4,
+                p5,
+                p6,
+                p7,
+                p8,
+                p9,
+                p10,
+                p11,
+                nc,
+                updateChangedFlags(changed) or 0b1, updateChangedFlags(changed1))
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -583,12 +610,28 @@ internal actual class ComposableLambdaImpl actual constructor(
             dirty
         )
         c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, nc, changed or 0b1, changed1)
+            this(
+                p1,
+                p2,
+                p3,
+                p4,
+                p5,
+                p6,
+                p7,
+                p8,
+                p9,
+                p10,
+                p11,
+                p12,
+                nc,
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
+            )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -662,14 +705,14 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p12,
                 p13,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -747,14 +790,14 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p13,
                 p14,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -836,14 +879,14 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p14,
                 p15,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -929,14 +972,14 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p15,
                 p16,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1026,14 +1069,14 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p16,
                 p17,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result
     }
 
-    override operator fun invoke(
+    actual override operator fun invoke(
         p1: Any?,
         p2: Any?,
         p3: Any?,
@@ -1127,8 +1170,8 @@ internal actual class ComposableLambdaImpl actual constructor(
                 p17,
                 p18,
                 nc,
-                changed or 0b1,
-                changed1
+                updateChangedFlags(changed) or 0b1,
+                updateChangedFlags(changed1)
             )
         }
         return result

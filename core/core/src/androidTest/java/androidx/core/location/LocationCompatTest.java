@@ -79,6 +79,8 @@ public class LocationCompatTest {
         LocationCompat.setVerticalAccuracyMeters(location, 1f);
         assertTrue(LocationCompat.hasVerticalAccuracy(location));
         assertEquals(1f, LocationCompat.getVerticalAccuracyMeters(location), 0f);
+        LocationCompat.removeVerticalAccuracy(location);
+        assertFalse(LocationCompat.hasVerticalAccuracy(location));
     }
 
     @Test
@@ -88,6 +90,8 @@ public class LocationCompatTest {
         LocationCompat.setSpeedAccuracyMetersPerSecond(location, 1f);
         assertTrue(LocationCompat.hasSpeedAccuracy(location));
         assertEquals(1f, LocationCompat.getSpeedAccuracyMetersPerSecond(location), 0f);
+        LocationCompat.removeSpeedAccuracy(location);
+        assertFalse(LocationCompat.hasSpeedAccuracy(location));
     }
 
     @Test
@@ -97,6 +101,8 @@ public class LocationCompatTest {
         LocationCompat.setBearingAccuracyDegrees(location, 1f);
         assertTrue(LocationCompat.hasBearingAccuracy(location));
         assertEquals(1f, LocationCompat.getBearingAccuracyDegrees(location), 0f);
+        LocationCompat.removeBearingAccuracy(location);
+        assertFalse(LocationCompat.hasBearingAccuracy(location));
     }
 
     @Test

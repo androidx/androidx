@@ -37,7 +37,7 @@ import java.util.List;
  *
  * <p>Documents can be manually changed by calling {@link #setDocuments}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentListItemAdapter extends

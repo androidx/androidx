@@ -57,7 +57,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
     private lateinit var testResults: TestResults
     private lateinit var cameraLensFacingMap: LinkedHashMap<String, Int>
     private lateinit var cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
-        LinkedHashMap<Int, Int>>
+        LinkedHashMap<Int, Pair<Int, String>>>
     private val extensionValidationActivityRequestCode =
         ExtensionValidationResultActivity::class.java.hashCode() % 1000
 
@@ -151,7 +151,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
 
     private fun isAnyExtensionModeSupported(testType: String, cameraId: String): Boolean {
         cameraExtensionResultMap[Pair(testType, cameraId)]?.forEach {
-            if (it.value != TEST_RESULT_NOT_SUPPORTED) {
+            if (it.value.first != TEST_RESULT_NOT_SUPPORTED) {
                 return true
             }
         }
@@ -159,6 +159,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

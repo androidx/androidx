@@ -50,6 +50,7 @@ public final class CompoundButtonCompat {
      * automatically mutate the drawable and apply the specified tint and tint
      * mode using {@link DrawableCompat#setTintList(Drawable, ColorStateList)}.
      *
+     * @param button button for which to apply the tint.
      * @param tint the tint to apply, may be {@code null} to clear tint
      *
      * @see #setButtonTintList(CompoundButton, ColorStateList)
@@ -84,6 +85,7 @@ public final class CompoundButtonCompat {
      * {@link #setButtonTintList(CompoundButton, ColorStateList)}} to the button drawable. The
      * default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
+     * @param button button for which to apply the tint mode.
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
      *

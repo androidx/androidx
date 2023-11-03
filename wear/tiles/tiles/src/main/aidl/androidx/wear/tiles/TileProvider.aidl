@@ -30,8 +30,8 @@ import androidx.wear.tiles.ResourcesRequestData;
   * Interface to be implemented by a service which provides Tiles to a Wear
   * device.
   *
-  * @hide
   */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface TileProvider {
 
     const int API_VERSION = 1;

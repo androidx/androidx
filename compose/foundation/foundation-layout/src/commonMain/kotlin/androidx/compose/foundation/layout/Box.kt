@@ -21,15 +21,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.NoInspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -81,20 +82,26 @@ inline fun Box(
 internal fun rememberBoxMeasurePolicy(
     alignment: Alignment,
     propagateMinConstraints: Boolean
-) = if (alignment == Alignment.TopStart && !propagateMinConstraints) {
+): MeasurePolicy = if (alignment == Alignment.TopStart && !propagateMinConstraints) {
     DefaultBoxMeasurePolicy
 } else {
     remember(alignment, propagateMinConstraints) {
-        boxMeasurePolicy(alignment, propagateMinConstraints)
+        BoxMeasurePolicy(alignment, propagateMinConstraints)
     }
 }
 
-internal val DefaultBoxMeasurePolicy: MeasurePolicy = boxMeasurePolicy(Alignment.TopStart, false)
+private val DefaultBoxMeasurePolicy: MeasurePolicy = BoxMeasurePolicy(Alignment.TopStart, false)
 
-internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boolean) =
-    MeasurePolicy { measurables, constraints ->
+private data class BoxMeasurePolicy(
+    private val alignment: Alignment,
+    private val propagateMinConstraints: Boolean
+) : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
         if (measurables.isEmpty()) {
-            return@MeasurePolicy layout(
+            return layout(
                 constraints.minWidth,
                 constraints.minHeight
             ) {}
@@ -122,7 +129,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
                     Constraints.fixed(constraints.minWidth, constraints.minHeight)
                 )
             }
-            return@MeasurePolicy layout(boxWidth, boxHeight) {
+            return layout(boxWidth, boxHeight) {
                 placeInBox(placeable, measurable, layoutDirection, boxWidth, boxHeight, alignment)
             }
         }
@@ -160,7 +167,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
         }
 
         // Specify the size of the Box and position its children.
-        layout(boxWidth, boxHeight) {
+        return layout(boxWidth, boxHeight) {
             placeables.forEachIndexed { index, placeable ->
                 placeable as Placeable
                 val measurable = measurables[index]
@@ -168,6 +175,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
             }
         }
     }
+}
 
 private fun Placeable.PlacementScope.placeInBox(
     placeable: Placeable,
@@ -177,7 +185,7 @@ private fun Placeable.PlacementScope.placeInBox(
     boxHeight: Int,
     alignment: Alignment
 ) {
-    val childAlignment = measurable.boxChildData?.alignment ?: alignment
+    val childAlignment = measurable.boxChildDataNode?.alignment ?: alignment
     val position = childAlignment.align(
         IntSize(placeable.width, placeable.height),
         IntSize(boxWidth, boxHeight),
@@ -198,7 +206,7 @@ private fun Placeable.PlacementScope.placeInBox(
  */
 @Composable
 fun Box(modifier: Modifier) {
-    Layout({}, measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
+    Layout(measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
 }
 
 internal val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
@@ -237,42 +245,46 @@ interface BoxScope {
 internal object BoxScopeInstance : BoxScope {
     @Stable
     override fun Modifier.align(alignment: Alignment) = this.then(
-        BoxChildData(
+        BoxChildDataElement(
             alignment = alignment,
             matchParentSize = false,
             inspectorInfo = debugInspectorInfo {
                 name = "align"
                 value = alignment
             }
-        )
-    )
+        ))
 
     @Stable
     override fun Modifier.matchParentSize() = this.then(
-        BoxChildData(
+        BoxChildDataElement(
             alignment = Alignment.Center,
             matchParentSize = true,
-            inspectorInfo = debugInspectorInfo { name = "matchParentSize" }
-        )
-    )
+            inspectorInfo = debugInspectorInfo {
+                name = "matchParentSize"
+            }
+        ))
 }
 
-private val Measurable.boxChildData: BoxChildData? get() = parentData as? BoxChildData
-private val Measurable.matchesParentSize: Boolean get() = boxChildData?.matchParentSize ?: false
+private val Measurable.boxChildDataNode: BoxChildDataNode? get() = parentData as? BoxChildDataNode
+private val Measurable.matchesParentSize: Boolean get() = boxChildDataNode?.matchParentSize ?: false
 
-private class BoxChildData(
-    var alignment: Alignment,
-    var matchParentSize: Boolean = false,
-    inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo
-) : ParentDataModifier, InspectorValueInfo(inspectorInfo) {
-    override fun Density.modifyParentData(parentData: Any?) = this@BoxChildData
+private class BoxChildDataElement(
+    val alignment: Alignment,
+    val matchParentSize: Boolean,
+    val inspectorInfo: InspectorInfo.() -> Unit
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        val otherModifier = other as? BoxChildData ?: return false
+) : ModifierNodeElement<BoxChildDataNode>() {
+    override fun create(): BoxChildDataNode {
+        return BoxChildDataNode(alignment, matchParentSize)
+    }
 
-        return alignment == otherModifier.alignment &&
-            matchParentSize == otherModifier.matchParentSize
+    override fun update(node: BoxChildDataNode) {
+        node.alignment = alignment
+        node.matchParentSize = matchParentSize
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
     }
 
     override fun hashCode(): Int {
@@ -281,6 +293,17 @@ private class BoxChildData(
         return result
     }
 
-    override fun toString(): String =
-        "BoxChildData(alignment=$alignment, matchParentSize=$matchParentSize)"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? BoxChildDataElement ?: return false
+        return alignment == otherModifier.alignment &&
+            matchParentSize == otherModifier.matchParentSize
+    }
+}
+
+private class BoxChildDataNode(
+    var alignment: Alignment,
+    var matchParentSize: Boolean,
+) : ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) = this@BoxChildDataNode
 }

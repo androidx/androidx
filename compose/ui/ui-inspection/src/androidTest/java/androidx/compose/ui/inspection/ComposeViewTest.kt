@@ -21,6 +21,7 @@ import androidx.compose.ui.inspection.rules.sendCommand
 import androidx.compose.ui.inspection.testdata.ComposeViewTestActivity
 import androidx.compose.ui.inspection.util.GetComposablesCommand
 import androidx.compose.ui.inspection.util.GetParametersByIdCommand
+import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
 import androidx.compose.ui.inspection.util.flatten
 import androidx.compose.ui.inspection.util.toMap
 import androidx.test.filters.LargeTest
@@ -37,6 +38,10 @@ class ComposeViewTest {
 
     @Test
     fun composeView(): Unit = runBlocking {
+        rule.inspectorTester.sendCommand(
+            GetUpdateSettingsCommand(reduceChildNesting = true)
+        ).updateSettingsResponse
+
         val response = rule.inspectorTester.sendCommand(
             GetComposablesCommand(rule.rootId, skipSystemComposables = false)
         ).getComposablesResponse
@@ -49,6 +54,17 @@ class ComposeViewTest {
         assertThat(firstText?.textParameter).isEqualTo("one")
         assertThat(secondText?.textParameter).isEqualTo("two")
         assertThat(thirdText?.textParameter).isEqualTo("three")
+
+        val nested1 = roots[2].nodesList.single()
+        assertThat(strings[nested1.name]).isEqualTo("Nested")
+        assertThat(nested1.flags).isEqualTo(ComposableNode.Flags.NESTED_SINGLE_CHILDREN_VALUE)
+        assertThat(nested1.childrenList.size).isAtLeast(3)
+        val nested2 = nested1.childrenList[0]
+        assertThat(nested2.name).isEqualTo(nested1.name)
+        val nested3 = nested1.childrenList[1]
+        assertThat(nested3.name).isEqualTo(nested1.name)
+        val nested4 = nested1.childrenList[2]
+        assertThat(nested4.name).isEqualTo(thirdText?.name)
     }
 
     private fun Iterable<ComposableNode>.findNode(

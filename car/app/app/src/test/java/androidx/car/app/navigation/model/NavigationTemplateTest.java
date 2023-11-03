@@ -65,6 +65,40 @@ public class NavigationTemplateTest {
                 () -> new NavigationTemplate.Builder().setMapActionStrip(mActionStrip));
     }
 
+    @Test
+    public void negativeValueInRemainingTimeSeconds_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> createMinimalTemplateWithRemainingSeconds(-100));
+    }
+
+    @Test
+    public void unknownValueInRemainingTimeSeconds_works() {
+        NavigationTemplate navigationTemplate =
+                createMinimalTemplateWithRemainingSeconds(TravelEstimate.REMAINING_TIME_UNKNOWN);
+
+        assertThat(
+                navigationTemplate.getDestinationTravelEstimate().getRemainingTimeSeconds())
+                .isEqualTo(TravelEstimate.REMAINING_TIME_UNKNOWN);
+    }
+
+
+    private NavigationTemplate createMinimalTemplateWithRemainingSeconds(long remainingSeconds) {
+        TravelEstimate travelEstimate =
+                new TravelEstimate.Builder(
+                        Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"))
+                        .setRemainingTimeSeconds(remainingSeconds).build();
+
+        return new NavigationTemplate.Builder()
+                .setNavigationInfo(
+                        new RoutingInfo.Builder().setCurrentStep(mCurrentStep,
+                                mCurrentDistance).build())
+                .setActionStrip(mActionStrip)
+                .setDestinationTravelEstimate(travelEstimate)
+                .build();
+    }
+
+
     /** Tests basic construction of a template with a minimal data. */
     @Test
     public void createMinimalInstance() {
@@ -209,10 +243,9 @@ public class NavigationTemplateTest {
     @Test
     public void notEquals_panModeListenerChange() {
         NavigationTemplate template = new NavigationTemplate.Builder().setActionStrip(
-                mActionStrip).setPanModeListener((isInPanMode) -> {}).build();
+                mActionStrip).setPanModeListener((isInPanMode) -> { }).build();
 
-        assertThat(template)
-                .isNotEqualTo(
+        assertThat(template).isNotEqualTo(
                         new NavigationTemplate.Builder()
                                 .setActionStrip(mActionStrip)
                                 .build());

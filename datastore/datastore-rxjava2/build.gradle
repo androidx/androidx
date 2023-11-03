@@ -52,9 +52,10 @@ dependencies {
 }
 
 androidx {
-    name = "Android DataStore Core RxJava2 Wrappers"
+    name = "DataStore RxJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android DataStore Core - contains wrappers for using DataStore using RxJava2"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }

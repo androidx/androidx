@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.lifecycle.LifecycleCoroutineScope:
-    Removed class androidx.lifecycle.LifecycleCoroutineScope
-RemovedClass: androidx.lifecycle.LifecycleKt:
-    Removed class androidx.lifecycle.LifecycleKt
-RemovedClass: androidx.lifecycle.LifecycleOwnerKt:
-    Removed class androidx.lifecycle.LifecycleOwnerKt
-RemovedClass: androidx.lifecycle.PausingDispatcherKt:
-    Removed class androidx.lifecycle.PausingDispatcherKt

@@ -16,7 +16,10 @@
 
 package androidx.tv.foundation.lazy.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,7 +38,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
-import androidx.tv.foundation.lazy.list.LazyListBeyondBoundsInfo.Interval
+import androidx.compose.ui.util.fastForEach
+import androidx.tv.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import kotlin.math.min
 
 /**
  * This modifier is used to measure and place additional items when the lazyList receives a
@@ -45,20 +50,24 @@ import androidx.tv.foundation.lazy.list.LazyListBeyondBoundsInfo.Interval
 @Composable
 internal fun Modifier.lazyListBeyondBoundsModifier(
     state: TvLazyListState,
-    beyondBoundsInfo: LazyListBeyondBoundsInfo,
+    beyondBoundsItemCount: Int,
     reverseLayout: Boolean,
     orientation: Orientation
 ): Modifier {
     val layoutDirection = LocalLayoutDirection.current
+    val beyondBoundsState = remember(state, beyondBoundsItemCount) {
+        LazyListBeyondBoundsState(state, beyondBoundsItemCount)
+    }
+    val beyondBoundsInfo = state.beyondBoundsInfo
     return this then remember(
-        state,
+        beyondBoundsState,
         beyondBoundsInfo,
         reverseLayout,
         layoutDirection,
         orientation
     ) {
-        LazyListBeyondBoundsModifierLocal(
-            state,
+        LazyLayoutBeyondBoundsModifierLocal(
+            beyondBoundsState,
             beyondBoundsInfo,
             reverseLayout,
             layoutDirection,
@@ -67,9 +76,71 @@ internal fun Modifier.lazyListBeyondBoundsModifier(
     }
 }
 
-private class LazyListBeyondBoundsModifierLocal(
-    private val state: TvLazyListState,
-    private val beyondBoundsInfo: LazyListBeyondBoundsInfo,
+internal class LazyListBeyondBoundsState(
+    val state: TvLazyListState,
+    val beyondBoundsItemCount: Int
+) : LazyLayoutBeyondBoundsState {
+
+    override fun remeasure() {
+        state.remeasurement?.forceRemeasure()
+    }
+
+    override val itemCount: Int
+        get() = state.layoutInfo.totalItemsCount
+    override val hasVisibleItems: Boolean
+        get() = state.layoutInfo.visibleItemsInfo.isNotEmpty()
+    override val firstPlacedIndex: Int
+        get() = maxOf(0, state.firstVisibleItemIndex - beyondBoundsItemCount)
+    override val lastPlacedIndex: Int
+        get() = minOf(
+            itemCount - 1,
+            state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount
+        )
+}
+
+internal interface LazyLayoutBeyondBoundsState {
+
+    fun remeasure()
+
+    val itemCount: Int
+
+    val hasVisibleItems: Boolean
+
+    val firstPlacedIndex: Int
+
+    val lastPlacedIndex: Int
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal fun LazyLayoutItemProvider.calculateLazyLayoutPinnedIndices(
+    pinnedItemList: LazyLayoutPinnedItemList,
+    beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
+): List<Int> {
+    if (!beyondBoundsInfo.hasIntervals() && pinnedItemList.isEmpty()) {
+        return emptyList()
+    } else {
+        val pinnedItems = mutableListOf<Int>()
+        val beyondBoundsRange = if (beyondBoundsInfo.hasIntervals()) {
+            beyondBoundsInfo.start..min(beyondBoundsInfo.end, itemCount - 1)
+        } else {
+            IntRange.EMPTY
+        }
+        pinnedItemList.fastForEach {
+            val index = findIndexByKey(it.key, it.index)
+            if (index in beyondBoundsRange) return@fastForEach
+            if (index !in 0 until itemCount) return@fastForEach
+            pinnedItems.add(index)
+        }
+        for (i in beyondBoundsRange) {
+            pinnedItems.add(i)
+        }
+        return pinnedItems
+    }
+}
+
+internal class LazyLayoutBeyondBoundsModifierLocal(
+    private val state: LazyLayoutBeyondBoundsState,
+    private val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
     private val reverseLayout: Boolean,
     private val layoutDirection: LayoutDirection,
     private val orientation: Orientation
@@ -90,16 +161,17 @@ private class LazyListBeyondBoundsModifierLocal(
     ): T? {
         // If the lazy list is empty, or if it does not have any visible items (Which implies
         // that there isn't space to add a single item), we don't attempt to layout any more items.
-        if (state.layoutInfo.totalItemsCount <= 0 || state.layoutInfo.visibleItemsInfo.isEmpty()) {
+        if (state.itemCount <= 0 || !state.hasVisibleItems) {
             return block.invoke(emptyBeyondBoundsScope)
         }
 
         // We use a new interval each time because this function is re-entrant.
-        var interval = beyondBoundsInfo.addInterval(
-            state.firstVisibleItemIndex,
-            state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: state.firstVisibleItemIndex
-        )
-
+        val startIndex = if (direction.isForward()) {
+            state.lastPlacedIndex
+        } else {
+            state.firstPlacedIndex
+        }
+        var interval = beyondBoundsInfo.addInterval(startIndex, startIndex)
         var found: T? = null
         while (found == null && interval.hasMoreContent(direction)) {
 
@@ -107,7 +179,7 @@ private class LazyListBeyondBoundsModifierLocal(
             interval = addNextInterval(interval, direction).also {
                 beyondBoundsInfo.removeInterval(interval)
             }
-            state.remeasurement?.forceRemeasure()
+            state.remeasure()
 
             // When we invoke this block, the beyond bounds items are present.
             found = block.invoke(
@@ -120,53 +192,46 @@ private class LazyListBeyondBoundsModifierLocal(
 
         // Dispose the items that are beyond the visible bounds.
         beyondBoundsInfo.removeInterval(interval)
-        state.remeasurement?.forceRemeasure()
+        state.remeasure()
         return found
     }
 
-    private fun addNextInterval(
-        currentInterval: Interval,
-        direction: BeyondBoundsLayout.LayoutDirection
-    ): Interval {
-        var start = currentInterval.start
-        var end = currentInterval.end
-        when (direction) {
-            Before -> start--
-            After -> end++
-            Above -> if (reverseLayout) end++ else start--
-            Below -> if (reverseLayout) start-- else end++
+    private fun BeyondBoundsLayout.LayoutDirection.isForward(): Boolean =
+        when (this) {
+            Before -> false
+            After -> true
+            Above -> reverseLayout
+            Below -> !reverseLayout
             Left -> when (layoutDirection) {
-                Ltr -> if (reverseLayout) end++ else start--
-                Rtl -> if (reverseLayout) start-- else end++
+                Ltr -> reverseLayout
+                Rtl -> !reverseLayout
             }
             Right -> when (layoutDirection) {
-                Ltr -> if (reverseLayout) start-- else end++
-                Rtl -> if (reverseLayout) end++ else start--
+                Ltr -> !reverseLayout
+                Rtl -> reverseLayout
             }
             else -> unsupportedDirection()
+        }
+
+    private fun addNextInterval(
+        currentInterval: LazyLayoutBeyondBoundsInfo.Interval,
+        direction: BeyondBoundsLayout.LayoutDirection
+    ): LazyLayoutBeyondBoundsInfo.Interval {
+        var start = currentInterval.start
+        var end = currentInterval.end
+        if (direction.isForward()) {
+            end++
+        } else {
+            start--
         }
         return beyondBoundsInfo.addInterval(start, end)
     }
 
-    private fun Interval.hasMoreContent(direction: BeyondBoundsLayout.LayoutDirection): Boolean {
-        fun hasMoreItemsBefore() = start > 0
-        fun hasMoreItemsAfter() = end < state.layoutInfo.totalItemsCount - 1
+    private fun LazyLayoutBeyondBoundsInfo.Interval.hasMoreContent(
+        direction: BeyondBoundsLayout.LayoutDirection
+    ): Boolean {
         if (direction.isOppositeToOrientation()) return false
-        return when (direction) {
-            Before -> hasMoreItemsBefore()
-            After -> hasMoreItemsAfter()
-            Above -> if (reverseLayout) hasMoreItemsAfter() else hasMoreItemsBefore()
-            Below -> if (reverseLayout) hasMoreItemsBefore() else hasMoreItemsAfter()
-            Left -> when (layoutDirection) {
-                Ltr -> if (reverseLayout) hasMoreItemsAfter() else hasMoreItemsBefore()
-                Rtl -> if (reverseLayout) hasMoreItemsBefore() else hasMoreItemsAfter()
-            }
-            Right -> when (layoutDirection) {
-                Ltr -> if (reverseLayout) hasMoreItemsBefore() else hasMoreItemsAfter()
-                Rtl -> if (reverseLayout) hasMoreItemsAfter() else hasMoreItemsBefore()
-            }
-            else -> unsupportedDirection()
-        }
+        return if (direction.isForward()) end < state.itemCount - 1 else start > 0
     }
 
     private fun BeyondBoundsLayout.LayoutDirection.isOppositeToOrientation(): Boolean {

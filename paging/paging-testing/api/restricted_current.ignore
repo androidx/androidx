@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+DefaultValueChange: androidx.paging.testing.PagerFlowSnapshotKt#asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, androidx.paging.testing.LoadErrorHandler, kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?>, kotlin.coroutines.Continuation<java.util.List<Value>>) parameter #3:
+    Attempted to remove default value from parameter arg4 in androidx.paging.testing.PagerFlowSnapshotKt.asSnapshot
+DefaultValueChange: androidx.paging.testing.TestPager#refresh(Key, kotlin.coroutines.Continuation<androidx.paging.PagingSource.LoadResult<Key,Value>>) parameter #1:
+    Attempted to remove default value from parameter arg2 in androidx.paging.testing.TestPager.refresh

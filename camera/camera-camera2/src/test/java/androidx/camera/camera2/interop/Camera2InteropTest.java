@@ -31,8 +31,7 @@ import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
 import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks;
 import androidx.camera.camera2.internal.CameraDeviceStateCallbacks;
 import androidx.camera.core.impl.Config;
-import androidx.camera.testing.fakes.FakeConfig;
-import androidx.test.filters.SdkSuppress;
+import androidx.camera.testing.impl.fakes.FakeConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +66,7 @@ public final class Camera2InteropTest {
                 .isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
     }
 
-    @SdkSuppress(minSdkVersion = 33)
+    @org.robolectric.annotation.Config(minSdk = 33)
     @Test
     public void canExtendWithTStreamUseCase() {
         FakeConfig.Builder builder = new FakeConfig.Builder();
@@ -188,6 +187,7 @@ public final class Camera2InteropTest {
                 });
     }
 
+    @org.robolectric.annotation.Config(minSdk = 28)
     @Test
     public void canExtendWithPhysicalCameraId() {
         FakeConfig.Builder builder = new FakeConfig.Builder();

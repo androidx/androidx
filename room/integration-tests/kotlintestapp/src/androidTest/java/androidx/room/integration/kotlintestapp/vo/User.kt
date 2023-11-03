@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.vo
+package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Embedded
 import androidx.room.Entity

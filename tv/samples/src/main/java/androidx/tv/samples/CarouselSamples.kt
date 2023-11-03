@@ -18,6 +18,12 @@ package androidx.tv.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -30,58 +36,94 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.rememberCarouselState
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun SimpleCarousel() {
+    @Composable
+    fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier {
+        var isVisible by remember { mutableStateOf(false) }
+        LaunchedEffect(isVisible) {
+            if (isVisible) onGainingVisibility()
+        }
+
+        return onPlaced { isVisible = true }
+    }
+
+    @Composable
+    fun Modifier.requestFocusOnFirstGainingVisibility(): Modifier {
+        val focusRequester = remember { FocusRequester() }
+        return focusRequester(focusRequester)
+            .onFirstGainingVisibility { focusRequester.requestFocus() }
+    }
+
     val backgrounds = listOf(
         Color.Red.copy(alpha = 0.3f),
         Color.Yellow.copy(alpha = 0.3f),
         Color.Green.copy(alpha = 0.3f)
     )
 
+    var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .onFocusChanged { carouselFocused = it.isFocused },
+        contentTransformEndToStart =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselItem(
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
-                        .fillMaxSize()
-                )
-            }
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .border(2.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
         ) {
-            var isFocused by remember { mutableStateOf(false) }
+            var buttonFocused by remember { mutableStateOf(false) }
+            val buttonModifier =
+                if (carouselFocused) {
+                    Modifier.requestFocusOnFirstGainingVisibility()
+                } else {
+                    Modifier
+                }
 
             Button(
                 onClick = { },
-                modifier = Modifier
-                    .onFocusChanged { isFocused = it.isFocused }
+                modifier = buttonModifier
+                    .onFocusChanged { buttonFocused = it.isFocused }
                     .padding(40.dp)
                     .border(
                         width = 2.dp,
-                        color = if (isFocused) Color.Red else Color.Transparent,
+                        color = if (buttonFocused) Color.Red else Color.Transparent,
                         shape = RoundedCornerShape(50)
+                    )
+                    // Duration of animation here should be less than or equal to carousel's
+                    // contentTransform duration to ensure the item below does not disappear
+                    // abruptly.
+                    .animateEnterExit(
+                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                        exit = slideOutHorizontally(animationSpec = tween(1000))
                     )
                     .padding(vertical = 2.dp, horizontal = 5.dp)
             ) {
@@ -100,18 +142,18 @@ fun CarouselIndicatorWithRectangleShape() {
         Color.Yellow.copy(alpha = 0.3f),
         Color.Green.copy(alpha = 0.3f)
     )
-    val carouselState = remember { CarouselState() }
+    val carouselState = rememberCarouselState()
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselState = carouselState,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                slideCount = backgrounds.size,
-                activeSlideIndex = carouselState.activeSlideIndex,
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -128,24 +170,30 @@ fun CarouselIndicatorWithRectangleShape() {
                     )
                 }
             )
-        }
+        },
+        contentTransformEndToStart =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd =
+        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
-        CarouselItem(
-            background = {
-                Box(
-                    modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .border(2.dp, Color.White.copy(alpha = 0.5f))
-                        .fillMaxSize()
-                )
-            }
+        Box(
+            modifier = Modifier
+                .background(backgrounds[itemIndex])
+                .border(2.dp, Color.White.copy(alpha = 0.5f))
+                .fillMaxSize()
         ) {
             var isFocused by remember { mutableStateOf(false) }
-
             Button(
                 onClick = { },
                 modifier = Modifier
                     .onFocusChanged { isFocused = it.isFocused }
+                    // Duration of animation here should be less than or equal to carousel's
+                    // contentTransform duration to ensure the item below does not disappear
+                    // abruptly.
+                    .animateEnterExit(
+                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                        exit = slideOutHorizontally(animationSpec = tween(1000))
+                    )
                     .padding(40.dp)
                     .border(
                         width = 2.dp,

@@ -61,17 +61,10 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rememberedColorScheme = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colorScheme]
-        // provided, and overwrite the values set in it.
-        colorScheme.copy()
-    }.apply {
-        updateColorSchemeFrom(colorScheme)
-    }
     val rippleIndication = rememberRipple()
-    val selectionColors = rememberTextSelectionColors(rememberedColorScheme)
+    val selectionColors = rememberTextSelectionColors(colorScheme)
     CompositionLocalProvider(
-        LocalColorScheme provides rememberedColorScheme,
+        LocalColorScheme provides colorScheme,
         LocalIndication provides rippleIndication,
         LocalRippleTheme provides MaterialRippleTheme,
         LocalShapes provides shapes,

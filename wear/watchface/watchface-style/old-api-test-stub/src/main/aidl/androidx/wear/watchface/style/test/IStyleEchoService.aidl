@@ -20,9 +20,8 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
 /**
  * Interface of a service that allows testing of IPC round trips vs an old binary.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IStyleEchoService {
     /**
      * Returns the UserStyleSchemaWireFormat after converting to and from API format.

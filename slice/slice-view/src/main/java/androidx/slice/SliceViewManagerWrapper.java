@@ -40,10 +40,10 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = 28)
+@Deprecated
 class SliceViewManagerWrapper extends SliceViewManagerBase {
     private static final String TAG = "SliceViewManagerWrapper"; // exactly 23
 

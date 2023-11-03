@@ -25,7 +25,6 @@ import androidx.work.Data
 /**
  * A Database entity which stores progress of a given [WorkSpec] id.
  *
- * @hide
  */
 @Entity(
     foreignKeys = [ForeignKey(

@@ -24,9 +24,10 @@ android {
 }
 
 androidx {
-    name = "Android Support TV Provider"
+    name = "TV Provider"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

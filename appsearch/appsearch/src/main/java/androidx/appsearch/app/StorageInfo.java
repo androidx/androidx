@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.core.util.Preconditions;
 
 /** The response class of {@code AppSearchSession#getStorageInfo}. */
@@ -37,7 +38,7 @@ public class StorageInfo {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -78,6 +79,7 @@ public class StorageInfo {
         private int mAliveNamespacesCount;
 
         /** Sets the size in bytes. */
+        @CanIgnoreReturnValue
         @NonNull
         public StorageInfo.Builder setSizeBytes(long sizeBytes) {
             mSizeBytes = sizeBytes;
@@ -85,6 +87,7 @@ public class StorageInfo {
         }
 
         /** Sets the number of alive documents. */
+        @CanIgnoreReturnValue
         @NonNull
         public StorageInfo.Builder setAliveDocumentsCount(int aliveDocumentsCount) {
             mAliveDocumentsCount = aliveDocumentsCount;
@@ -92,6 +95,7 @@ public class StorageInfo {
         }
 
         /** Sets the number of alive namespaces. */
+        @CanIgnoreReturnValue
         @NonNull
         public StorageInfo.Builder setAliveNamespacesCount(int aliveNamespacesCount) {
             mAliveNamespacesCount = aliveNamespacesCount;

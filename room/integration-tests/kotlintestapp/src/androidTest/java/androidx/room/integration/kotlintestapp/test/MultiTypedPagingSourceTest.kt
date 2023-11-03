@@ -16,24 +16,24 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room.awaitPendingRefresh
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -246,6 +246,7 @@ class MultiTypedPagingSourceTest(
     }
 
     @Test
+    @Ignore // b/287517337, b/287477564, b/287366097, b/287085166
     fun prependWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
         db.getDao().insert(items)

@@ -18,6 +18,7 @@ package androidx.tv.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -28,31 +29,35 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
+import androidx.tv.foundation.lazy.list.TvLazyListState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
-@Suppress("ComposableModifierFactory", "ModifierInspectorInfo")
+@Suppress("ComposableModifierFactory")
 @Composable
 internal fun Modifier.lazyLayoutSemantics(
-    itemProvider: LazyLayoutItemProvider,
+    itemProviderLambda: () -> LazyLayoutItemProvider,
     state: LazyLayoutSemanticState,
     orientation: Orientation,
-    userScrollEnabled: Boolean
+    userScrollEnabled: Boolean,
+    reverseScrolling: Boolean
 ): Modifier {
     val coroutineScope = rememberCoroutineScope()
     return this.then(
         remember(
-            itemProvider,
+            itemProviderLambda,
             state,
             orientation,
             userScrollEnabled
         ) {
             val isVertical = orientation == Orientation.Vertical
             val indexForKeyMapping: (Any) -> Int = { needle ->
+                val itemProvider = itemProviderLambda()
                 var result = -1
                 for (index in 0 until itemProvider.itemCount) {
                     if (itemProvider.getKey(index) == needle) {
@@ -63,7 +68,27 @@ internal fun Modifier.lazyLayoutSemantics(
                 result
             }
 
-            val accessibilityScrollState = state.scrollAxisRange()
+            val accessibilityScrollState = ScrollAxisRange(
+                value = {
+                    // This is a simple way of representing the current position without
+                    // needing any lazy items to be measured. It's good enough so far, because
+                    // screen-readers care mostly about whether scroll position changed or not
+                    // rather than the actual offset in pixels.
+                    state.currentPosition
+                },
+                maxValue = {
+                    val itemProvider = itemProviderLambda()
+                    if (state.canScrollForward) {
+                        // If we can scroll further, we don't know the end yet,
+                        // but it's upper bounded by #items + 1
+                        itemProvider.itemCount + 1f
+                    } else {
+                        // If we can't scroll further, the current value is the max
+                        state.currentPosition
+                    }
+                },
+                reverseScrolling = reverseScrolling
+            )
 
             val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {
                 { x, y ->
@@ -84,6 +109,7 @@ internal fun Modifier.lazyLayoutSemantics(
 
             val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {
                 { index ->
+                    val itemProvider = itemProviderLambda()
                     require(index >= 0 && index < itemProvider.itemCount) {
                         "Can't scroll to index $index, it is out of " +
                             "bounds [0, ${itemProvider.itemCount})"
@@ -100,6 +126,7 @@ internal fun Modifier.lazyLayoutSemantics(
             val collectionInfo = state.collectionInfo()
 
             Modifier.semantics {
+                isTraversalGroup = true
                 indexForKey(indexForKeyMapping)
 
                 if (isVertical) {
@@ -123,8 +150,35 @@ internal fun Modifier.lazyLayoutSemantics(
 }
 
 internal interface LazyLayoutSemanticState {
-    fun scrollAxisRange(): ScrollAxisRange
+    val currentPosition: Float
+    val canScrollForward: Boolean
     fun collectionInfo(): CollectionInfo
     suspend fun animateScrollBy(delta: Float)
     suspend fun scrollToItem(index: Int)
+}
+
+internal fun LazyLayoutSemanticState(
+    state: TvLazyListState,
+    isVertical: Boolean
+): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
+
+    override val currentPosition: Float
+        get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
+    override val canScrollForward: Boolean
+        get() = state.canScrollForward
+
+    override suspend fun animateScrollBy(delta: Float) {
+        state.animateScrollBy(delta)
+    }
+
+    override suspend fun scrollToItem(index: Int) {
+        state.scrollToItem(index)
+    }
+
+    override fun collectionInfo(): CollectionInfo =
+        if (isVertical) {
+            CollectionInfo(rowCount = -1, columnCount = 1)
+        } else {
+            CollectionInfo(rowCount = 1, columnCount = -1)
+        }
 }

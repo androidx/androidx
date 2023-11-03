@@ -7,19 +7,19 @@ public interface TestSandboxSdk {
         third: Long,
     ): Boolean
 
-    public fun echoBoolean(input: Boolean): Unit
+    public fun echoBoolean(input: Boolean)
 
-    public fun echoChar(input: Char): Unit
+    public fun echoChar(input: Char)
 
-    public fun echoDouble(input: Double): Unit
+    public fun echoDouble(input: Double)
 
-    public fun echoFloat(input: Float): Unit
+    public fun echoFloat(input: Float)
 
-    public fun echoInt(input: Int): Unit
+    public fun echoInt(input: Int)
 
-    public fun echoLong(input: Long): Unit
+    public fun echoLong(input: Long)
 
-    public fun echoString(input: String): Unit
+    public fun echoString(input: String)
 
     public suspend fun processBooleanList(x: List<Boolean>): List<Boolean>
 
@@ -39,13 +39,13 @@ public interface TestSandboxSdk {
 
     public suspend fun processStringList(x: List<String>): List<String>
 
-    public fun receiveAndReturnNothing(): Unit
+    public fun receiveAndReturnNothing()
 
-    public suspend fun receiveAndReturnNothingAsync(): Unit
+    public suspend fun receiveAndReturnNothingAsync()
 
     public fun receiveMultipleArguments(
         first: Int,
         second: String,
         third: Long,
-    ): Unit
+    )
 }

@@ -17,11 +17,11 @@
 package androidx.core.i18n
 
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month
-import androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year
 
 /** Used to support common styles, similar to the ones defined in Closure / Material.

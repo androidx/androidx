@@ -15,7 +15,12 @@
  */
 package androidx.work
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import androidx.annotation.IntDef
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
+import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
 import androidx.work.WorkInfo.State
 import java.util.UUID
 
@@ -72,6 +77,55 @@ class WorkInfo @JvmOverloads constructor(
      * [Constraints] of this worker.
      */
     val constraints: Constraints = Constraints.NONE,
+
+    /** The initial delay for this work set in the [WorkRequest] */
+    val initialDelayMillis: Long = 0,
+
+    /**
+     * For periodic work, the period and flex duration set in the [PeriodicWorkRequest].
+     *
+     * Null if this is onetime work.
+     */
+    val periodicityInfo: PeriodicityInfo? = null,
+
+    /**
+     * The earliest time this work is eligible to run next, if this work is [State.ENQUEUED].
+     *
+     * This is the earliest [System.currentTimeMillis] time that WorkManager would consider running
+     * this work, regardless of any other system. It only represents the time that the
+     * initialDelay, periodic configuration, and backoff criteria are considered to be met.
+     *
+     * Work will almost never run at this time in the real world. This method is intended for use
+     * in scheduling tests or to check set schedules in app. Work run times are dependent on
+     * many factors like the underlying system scheduler, doze and power saving modes of the OS, and
+     * meeting any configured constraints. This is expected and is not considered a bug.
+     *
+     * The returned value may be in the past if the work was not able to run at that time. It will
+     * be eligible to run any time after that time.
+     *
+     * Defaults to [Long.MAX_VALUE] for all other states, including if the work is currently
+     * [State.RUNNING] or [State.BLOCKED] on prerequisite work.
+     *
+     * Even if this value is set, the work may not be registered with the system scheduler if
+     * there are limited scheduling slots or other factors.
+     */
+    val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
+
+    /**
+     * The reason why this worker was stopped on the previous run attempt.
+     *
+     * For a worker being stopped, at first it should have attempted to run, i.e. its state
+     * should be == RUNNING and then [ListenableWorker.onStopped] should have been called,
+     * resulting in this worker's state going back [WorkInfo.State.ENQUEUED]. In this situation
+     * (`runAttemptCount > 0` and `state == ENQUEUED`) this `stopReason` property could be checked
+     * to see for additional information. Please note, that this state (`runAttemptCount > 0` and
+     * `state == ENQUEUED`) can happen not only because a worker was stopped, but also when
+     * a worker returns `ListenableWorker.Result.retry()`. In this situation this property will
+     * return [STOP_REASON_NOT_STOPPED].
+     */
+    @StopReason
+    @get:RequiresApi(31)
+    val stopReason: Int = STOP_REASON_NOT_STOPPED
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -83,6 +137,10 @@ class WorkInfo @JvmOverloads constructor(
         if (state != workInfo.state) return false
         if (outputData != workInfo.outputData) return false
         if (constraints != workInfo.constraints) return false
+        if (initialDelayMillis != workInfo.initialDelayMillis) return false
+        if (periodicityInfo != workInfo.periodicityInfo) return false
+        if (nextScheduleTimeMillis != workInfo.nextScheduleTimeMillis) return false
+        if (stopReason != workInfo.stopReason) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -95,13 +153,21 @@ class WorkInfo @JvmOverloads constructor(
         result = 31 * result + runAttemptCount
         result = 31 * result + generation
         result = 31 * result + constraints.hashCode()
+        result = 31 * result + initialDelayMillis.hashCode()
+        result = 31 * result + periodicityInfo.hashCode()
+        result = 31 * result + nextScheduleTimeMillis.hashCode()
+        result = 31 * result + stopReason.hashCode()
         return result
     }
 
     override fun toString(): String {
         return ("WorkInfo{id='$id', state=$state, " +
             "outputData=$outputData, tags=$tags, progress=$progress, " +
-            "runAttemptCount=$runAttemptCount, generation=$generation, constraints=$constraints}")
+            "runAttemptCount=$runAttemptCount, generation=$generation, " +
+            "constraints=$constraints, initialDelayMillis=$initialDelayMillis, " +
+            "periodicityInfo=$periodicityInfo, " +
+            "nextScheduleTimeMillis=$nextScheduleTimeMillis}, " +
+            "stopReason=$stopReason")
     }
 
     /**
@@ -151,4 +217,171 @@ class WorkInfo @JvmOverloads constructor(
         val isFinished: Boolean
             get() = this == SUCCEEDED || this == FAILED || this == CANCELLED
     }
+
+    /** A periodic work's interval and flex duration */
+    class PeriodicityInfo(
+        /**
+         * The periodic work's configured repeat interval in millis, as configured in
+         * [PeriodicWorkRequest.Builder]
+         */
+        val repeatIntervalMillis: Long,
+        /**
+         * The duration in millis in which this work repeats from the end of the `repeatInterval`,
+         * as configured in [PeriodicWorkRequest.Builder].
+         */
+        val flexIntervalMillis: Long
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || javaClass != other.javaClass) return false
+            val period = other as PeriodicityInfo
+            return period.repeatIntervalMillis == repeatIntervalMillis &&
+                period.flexIntervalMillis == flexIntervalMillis
+        }
+
+        override fun hashCode(): Int {
+            return 31 * repeatIntervalMillis.hashCode() + flexIntervalMillis.hashCode()
+        }
+
+        override fun toString(): String {
+            return "PeriodicityInfo{repeatIntervalMillis=$repeatIntervalMillis, " +
+                "flexIntervalMillis=$flexIntervalMillis}"
+        }
+    }
+
+    companion object {
+        /**
+         * Additional stop reason, that is returned from [WorkInfo.stopReason] in cases when
+         * a worker in question wasn't stopped. E.g. when a worker was just enqueued, but didn't
+         * run yet.
+         */
+        const val STOP_REASON_NOT_STOPPED = -256
+
+        /**
+         * Stop reason that is used in cases when worker did stop, but the reason for
+         * this is unknown. For example, when the app abruptly stopped due to a crash or when a
+         * device suddenly ran out of the battery.
+         */
+        const val STOP_REASON_UNKNOWN = -512
+
+        /**
+         * The worker was cancelled directly by the app, either by calling cancel methods, e.g.
+         * [WorkManager.cancelUniqueWork], or enqueueing uniquely named worker with
+         * with a policy that cancels an existing worker, e.g. [ExistingWorkPolicy.REPLACE].
+         */
+        const val STOP_REASON_CANCELLED_BY_APP = 1
+
+        /**
+         * The job was stopped to run a higher priority job of the app.
+         */
+        const val STOP_REASON_PREEMPT = 2
+
+        /**
+         * The worker used up its maximum execution time and timed out. Each individual worker
+         * has a maximum execution time limit, regardless of how much total quota the app has.
+         * See the note on [JobScheduler] for the execution time limits.
+         */
+        const val STOP_REASON_TIMEOUT = 3
+
+        /**
+         * The device state (eg. Doze, battery saver, memory usage, etc) requires
+         * WorkManager to stop this worker.
+         */
+        const val STOP_REASON_DEVICE_STATE = 4
+
+        /**
+         * The requested battery-not-low constraint is no longer satisfied.
+         *
+         * @see JobInfo.Builder.setRequiresBatteryNotLow
+         */
+        const val STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW = 5
+
+        /**
+         * The requested charging constraint is no longer satisfied.
+         *
+         * @see JobInfo.Builder.setRequiresCharging
+         */
+        const val STOP_REASON_CONSTRAINT_CHARGING = 6
+
+        /**
+         * The requested connectivity constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_CONNECTIVITY = 7
+
+        /**
+         * The requested idle constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_DEVICE_IDLE = 8
+
+        /**
+         * The requested storage-not-low constraint is no longer satisfied.
+         */
+        const val STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW = 9
+
+        /**
+         * The app has consumed all of its current quota. Each app is assigned a quota of how much
+         * it can run workers within a certain time frame.
+         * The quota is informed, in part, by app standby buckets.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_QUOTA
+         */
+        const val STOP_REASON_QUOTA = 10
+
+        /**
+         * The app is restricted from running in the background.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_BACKGROUND_RESTRICTION
+         */
+        const val STOP_REASON_BACKGROUND_RESTRICTION = 11
+
+        /**
+         * The current standby bucket requires that the job stop now.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_APP_STANDBY
+         */
+        const val STOP_REASON_APP_STANDBY = 12
+
+        /**
+         * The user stopped the job. This can happen either through force-stop, adb shell commands,
+         * uninstalling, or some other UI.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_USER
+         */
+        const val STOP_REASON_USER = 13
+
+        /**
+         * The system is doing some processing that requires stopping this job.
+         *
+         * @see android.app.job.JobParameters.STOP_REASON_SYSTEM_PROCESSING
+         */
+        const val STOP_REASON_SYSTEM_PROCESSING = 14
+
+        /**
+         * The system's estimate of when the app will be launched changed significantly enough to
+         * decide this worker shouldn't be running right now.
+         */
+        const val STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED = 15
+    }
 }
+
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    STOP_REASON_NOT_STOPPED,
+    WorkInfo.STOP_REASON_UNKNOWN,
+    WorkInfo.STOP_REASON_CANCELLED_BY_APP,
+    WorkInfo.STOP_REASON_PREEMPT,
+    WorkInfo.STOP_REASON_TIMEOUT,
+    WorkInfo.STOP_REASON_DEVICE_STATE,
+    WorkInfo.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW,
+    WorkInfo.STOP_REASON_CONSTRAINT_CHARGING,
+    WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY,
+    WorkInfo.STOP_REASON_CONSTRAINT_DEVICE_IDLE,
+    WorkInfo.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW,
+    WorkInfo.STOP_REASON_QUOTA,
+    WorkInfo.STOP_REASON_BACKGROUND_RESTRICTION,
+    WorkInfo.STOP_REASON_APP_STANDBY,
+    WorkInfo.STOP_REASON_USER,
+    WorkInfo.STOP_REASON_SYSTEM_PROCESSING,
+    WorkInfo.STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED
+)
+internal annotation class StopReason

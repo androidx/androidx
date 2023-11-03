@@ -33,6 +33,7 @@ import androidx.work.WorkInfo.State.ENQUEUED
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.taskexecutor.SerialExecutor
+import androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode.PRESERVE_EXECUTORS
 import androidx.work.testing.workers.CountingTestWorker
 import androidx.work.testing.workers.RetryWorker
 import androidx.work.testing.workers.TestWorker
@@ -49,7 +50,7 @@ class TestSchedulerRealExecutorTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
 
     init {
-        WorkManagerTestInitHelper.initializeTestWorkManagerWithRealExecutors(context)
+        WorkManagerTestInitHelper.initializeTestWorkManager(context, PRESERVE_EXECUTORS)
         CountingTestWorker.COUNT.set(0)
     }
 
@@ -110,6 +111,10 @@ class TestSchedulerRealExecutorTest {
         wm.enqueue(request).result.get()
         driver.setInitialDelayMet(request.id)
         awaitPeriodicRunOnce(request.id)
+        driver.setPeriodDelayMet(request.id)
+        awaitCondition(request.id) {
+            it.state == WorkInfo.State.ENQUEUED && CountingTestWorker.COUNT.get() == 2
+        }
     }
 
     @Test

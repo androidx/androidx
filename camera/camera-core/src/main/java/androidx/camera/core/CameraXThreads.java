@@ -24,12 +24,10 @@ import androidx.annotation.RestrictTo.Scope;
  * Static tag for creating CameraX threads. TODO(b/115747543): Remove this class when migration from
  * threads to executors is complete.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraXThreads {
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final String TAG = "CameraX-";
 

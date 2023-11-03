@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * A very naive implementation of a set of
  * {@link androidx.core.view.ViewPropertyAnimatorCompat}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ViewPropertyAnimatorCompatSet {

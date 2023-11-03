@@ -21,9 +21,11 @@ import android.content.Context
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.window.layout.adapter.WindowBackend
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * An implementation of [WindowInfoTracker] that provides the [WindowLayoutInfo] and
@@ -48,7 +50,7 @@ internal class WindowInfoTrackerImpl(
             awaitClose {
                 windowBackend.unregisterLayoutChangeCallback(listener)
             }
-        }
+        }.flowOn(Dispatchers.Main)
     }
 
     /**
@@ -61,10 +63,6 @@ internal class WindowInfoTrackerImpl(
             awaitClose {
                 windowBackend.unregisterLayoutChangeCallback(listener)
             }
-        }
-    }
-
-    internal companion object {
-        private const val BUFFER_CAPACITY = 10
+        }.flowOn(Dispatchers.Main)
     }
 }

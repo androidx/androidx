@@ -34,10 +34,10 @@ import androidx.annotation.RestrictTo;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public abstract class SliceViewManagerBase extends SliceViewManager {
     private final ArrayMap<Pair<Uri, SliceCallback>, SliceListenerImpl> mListenerLookup =
             new ArrayMap<>();

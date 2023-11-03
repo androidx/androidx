@@ -16,6 +16,23 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static android.app.job.JobParameters.STOP_REASON_APP_STANDBY;
+import static android.app.job.JobParameters.STOP_REASON_BACKGROUND_RESTRICTION;
+import static android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_DEVICE_IDLE;
+import static android.app.job.JobParameters.STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW;
+import static android.app.job.JobParameters.STOP_REASON_DEVICE_STATE;
+import static android.app.job.JobParameters.STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED;
+import static android.app.job.JobParameters.STOP_REASON_PREEMPT;
+import static android.app.job.JobParameters.STOP_REASON_QUOTA;
+import static android.app.job.JobParameters.STOP_REASON_SYSTEM_PROCESSING;
+import static android.app.job.JobParameters.STOP_REASON_TIMEOUT;
+import static android.app.job.JobParameters.STOP_REASON_UNDEFINED;
+import static android.app.job.JobParameters.STOP_REASON_USER;
+
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_GENERATION;
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 
@@ -34,10 +51,14 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.WorkInfo;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.Processor;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.StartStopTokens;
+import androidx.work.impl.WorkLauncher;
+import androidx.work.impl.WorkLauncherImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkGenerationalId;
 
@@ -47,8 +68,6 @@ import java.util.Map;
 
 /**
  * Service invoked by {@link JobScheduler} to run work tasks.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -57,13 +76,17 @@ public class SystemJobService extends JobService implements ExecutionListener {
     private WorkManagerImpl mWorkManagerImpl;
     private final Map<WorkGenerationalId, JobParameters> mJobParameters = new HashMap<>();
     private final StartStopTokens mStartStopTokens = new StartStopTokens();
+    private WorkLauncher mWorkLauncher;
 
     @Override
     public void onCreate() {
         super.onCreate();
         try {
             mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
-            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+            Processor processor = mWorkManagerImpl.getProcessor();
+            mWorkLauncher = new WorkLauncherImpl(processor,
+                    mWorkManagerImpl.getWorkTaskExecutor());
+            processor.addExecutionListener(this);
         } catch (IllegalStateException e) {
             // This can occur if...
             // 1. The app is performing an auto-backup.  Prior to O, JobScheduler could erroneously
@@ -79,7 +102,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 // indicates we are either performing auto-backup or the user never used a custom
                 // Application class (or both).
                 throw new IllegalStateException("WorkManager needs to be initialized via a "
-                        + "ContentProvider#onCreate() or an Application#onCreate().");
+                        + "ContentProvider#onCreate() or an Application#onCreate().", e);
             }
             Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because "
                     + "an auto-backup is in progress. Ignoring JobScheduler commands for now. "
@@ -150,7 +173,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         // In such cases, we rely on SystemJobService to ask for a reschedule by calling
         // jobFinished(params, true) in onExecuted(...);
         // For more information look at b/123211993
-        mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workGenerationalId), runtimeExtras);
+        mWorkLauncher.startWork(mStartStopTokens.tokenFor(workGenerationalId), runtimeExtras);
         return true;
     }
 
@@ -174,7 +197,14 @@ public class SystemJobService extends JobService implements ExecutionListener {
         }
         StartStopToken runId = mStartStopTokens.remove(workGenerationalId);
         if (runId != null) {
-            mWorkManagerImpl.stopWork(runId);
+            int stopReason;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                stopReason = Api31Impl.getStopReason(params);
+            } else {
+                stopReason = WorkInfo.STOP_REASON_UNKNOWN;
+            }
+            //
+            mWorkLauncher.stopWorkWithReason(runId, stopReason);
         }
         return !mWorkManagerImpl.getProcessor().isCancelled(workGenerationalId.getWorkSpecId());
     }
@@ -236,5 +266,45 @@ public class SystemJobService extends JobService implements ExecutionListener {
         static Network getNetwork(JobParameters jobParameters) {
             return jobParameters.getNetwork();
         }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl {
+        private Api31Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getStopReason(JobParameters jobParameters) {
+            return stopReason(jobParameters.getStopReason());
+        }
+    }
+
+    // making sure that we return only values that WorkManager is aware of.
+    static int stopReason(int jobReason) {
+        int reason;
+        switch (jobReason) {
+            case STOP_REASON_APP_STANDBY:
+            case STOP_REASON_BACKGROUND_RESTRICTION:
+            case STOP_REASON_CANCELLED_BY_APP:
+            case STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW:
+            case STOP_REASON_CONSTRAINT_CHARGING:
+            case STOP_REASON_CONSTRAINT_CONNECTIVITY:
+            case STOP_REASON_CONSTRAINT_DEVICE_IDLE:
+            case STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW:
+            case STOP_REASON_DEVICE_STATE:
+            case STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED:
+            case STOP_REASON_PREEMPT:
+            case STOP_REASON_QUOTA:
+            case STOP_REASON_SYSTEM_PROCESSING:
+            case STOP_REASON_TIMEOUT:
+            case STOP_REASON_UNDEFINED:
+            case STOP_REASON_USER:
+                reason = jobReason;
+                break;
+            default:
+                reason = WorkInfo.STOP_REASON_UNKNOWN;
+        }
+        return reason;
     }
 }

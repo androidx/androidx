@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -48,14 +49,14 @@ public final class GetSchemaResponse {
     /**
      * This Set contains all schemas that are not displayed by the system. All values in the set are
      * prefixed with the package-database prefix. We do lazy fetch, the object will be created
-     * when the user first time fetch it.
+     * when you first time fetch it.
      */
     @Nullable
     private Set<String> mSchemasNotDisplayedBySystem;
     /**
      * This map contains all schemas and {@link PackageIdentifier} that has access to the schema.
      * All keys in the map are prefixed with the package-database prefix. We do lazy fetch, the
-     * object will be created when the user first time fetch it.
+     * object will be created when you first time fetch it.
      */
     @Nullable
     private Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
@@ -63,7 +64,7 @@ public final class GetSchemaResponse {
     /**
      * This map contains all schemas and Android Permissions combinations that are required to
      * access the schema. All keys in the map are prefixed with the package-database prefix. We
-     * do lazy fetch, the object will be created when the user first time fetch it.
+     * do lazy fetch, the object will be created when you first time fetch it.
      * The Map is constructed in ANY-ALL cases. The querier could read the {@link GenericDocument}
      * objects under the {@code schemaType} if they holds ALL required permissions of ANY
      * combinations.
@@ -81,7 +82,7 @@ public final class GetSchemaResponse {
 
     /**
      * Returns the {@link Bundle} populated by this builder.
-     * @hide
+     * @exportToFramework:hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,6 +121,10 @@ public final class GetSchemaResponse {
     /**
      * Returns all the schema types that are opted out of being displayed and visible on any
      * system UI surface.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -141,6 +146,10 @@ public final class GetSchemaResponse {
     /**
      * Returns a mapping of schema types to the set of packages that have access
      * to that schema type.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -194,6 +203,10 @@ public final class GetSchemaResponse {
      *         {@link SetSchemaRequest#READ_EXTERNAL_STORAGE},
      *         {@link SetSchemaRequest#READ_HOME_APP_SEARCH_DATA} and
      *         {@link SetSchemaRequest#READ_ASSISTANT_APP_SEARCH_DATA}.
+     * <!--@exportToFramework:ifJetpack()-->
+     * @throws UnsupportedOperationException if {@link Builder#setVisibilitySettingSupported} was
+     * called with false.
+     * <!--@exportToFramework:else()-->
      */
     // @exportToFramework:startStrip()
     @RequiresFeature(
@@ -228,8 +241,8 @@ public final class GetSchemaResponse {
 
     private void checkGetVisibilitySettingSupported() {
         if (!mBundle.containsKey(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD)) {
-            throw new UnsupportedOperationException("Get visibility setting is not supported with"
-                    + " this backend/Android API level combination.");
+            throw new UnsupportedOperationException("Get visibility setting is not supported with "
+                    + "this backend/Android API level combination.");
         }
     }
 
@@ -249,26 +262,7 @@ public final class GetSchemaResponse {
 
         /** Create a {@link Builder} object} */
         public Builder() {
-            this(/*getVisibilitySettingSupported=*/true);
-        }
-
-        /**
-         * Create a {@link Builder} object}.
-         *
-         * <p>This constructor should only be used in Android API below than T.
-         *
-         * @param getVisibilitySettingSupported whether supported
-         * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
-         *                                      backend/Android API level.
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Builder(boolean getVisibilitySettingSupported) {
-            if (getVisibilitySettingSupported) {
-                mSchemasNotDisplayedBySystem = new ArrayList<>();
-                mSchemasVisibleToPackages = new Bundle();
-                mSchemasVisibleToPermissions = new Bundle();
-            }
+            setVisibilitySettingSupported(true);
         }
 
         /**
@@ -276,6 +270,7 @@ public final class GetSchemaResponse {
          *
          * <p>Default version is 0
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setVersion(@IntRange(from = 0) int version) {
             resetIfBuilt();
@@ -284,6 +279,7 @@ public final class GetSchemaResponse {
         }
 
         /**  Adds one {@link AppSearchSchema} to the schema list.  */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addSchema(@NonNull AppSearchSchema schema) {
             Preconditions.checkNotNull(schema);
@@ -300,6 +296,7 @@ public final class GetSchemaResponse {
          *                   {@link GetSchemaResponse}, which won't be displayed by system.
          */
         // Getter getSchemaTypesNotDisplayedBySystem returns plural objects.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder addSchemaTypeNotDisplayedBySystem(@NonNull String schemaType) {
@@ -331,6 +328,7 @@ public final class GetSchemaResponse {
          *                                 schema type.
          */
         // Getter getSchemaTypesVisibleToPackages returns a map contains all schema types.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSchemaTypeVisibleToPackages(
@@ -378,6 +376,7 @@ public final class GetSchemaResponse {
          *                               the given schema.
          */
         // Getter getRequiredPermissionsForSchemaTypeVisibility returns a map for all schemaTypes.
+        @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setRequiredPermissionsForSchemaTypeVisibility(
@@ -400,6 +399,35 @@ public final class GetSchemaResponse {
             }
             mSchemasVisibleToPermissions.putParcelableArrayList(schemaType,
                     visibleToPermissionsBundle);
+            return this;
+        }
+
+        /**
+         * Method to set visibility setting. If this is called with false,
+         * {@link #getRequiredPermissionsForSchemaTypeVisibility()},
+         * {@link #getSchemaTypesNotDisplayedBySystem()}}, and
+         * {@link #getSchemaTypesVisibleToPackages()} calls will throw an
+         * {@link UnsupportedOperationException}. If called with true, visibility information for
+         * all schemas will be cleared.
+         *
+         * @param visibilitySettingSupported whether supported
+         * {@link Features#ADD_PERMISSIONS_AND_GET_VISIBILITY} by this
+         *                                      backend/Android API level.
+         * @exportToFramework:hide
+         */
+         // Visibility setting is determined by SDK version, so it won't be needed in framework
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setVisibilitySettingSupported(boolean visibilitySettingSupported) {
+            if (visibilitySettingSupported) {
+                mSchemasNotDisplayedBySystem = new ArrayList<>();
+                mSchemasVisibleToPackages = new Bundle();
+                mSchemasVisibleToPermissions = new Bundle();
+            } else {
+                mSchemasNotDisplayedBySystem = null;
+                mSchemasVisibleToPackages = null;
+                mSchemasVisibleToPermissions = null;
+            }
             return this;
         }
 

@@ -75,7 +75,7 @@ class EntityInsertionAdapterWriter private constructor(
                 XFunSpec.builder(
                     language = language,
                     name = "createQuery",
-                    visibility = VisibilityModifier.PUBLIC,
+                    visibility = VisibilityModifier.PROTECTED,
                     isOverride = true
                 ).apply {
                     returns(CommonTypeNames.STRING)
@@ -105,7 +105,7 @@ class EntityInsertionAdapterWriter private constructor(
                 XFunSpec.builder(
                     language = language,
                     name = "bind",
-                    visibility = VisibilityModifier.PUBLIC,
+                    visibility = VisibilityModifier.PROTECTED,
                     isOverride = true
                 ).apply {
                     returns(XTypeName.UNIT_VOID)

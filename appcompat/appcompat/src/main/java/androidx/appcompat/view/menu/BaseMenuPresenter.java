@@ -32,7 +32,6 @@ import java.util.ArrayList;
  * similarly to an AdapterView in that existing item views will be reused if possible when items
  * change.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class BaseMenuPresenter implements MenuPresenter {

@@ -1,0 +1,32 @@
+<!--
+  Copyright 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="preview_front">Front Camera</string>
+    <string name="preview_back">Back Camera</string>
+    <string name="switch_mode">Switch Mode</string>
+    <string name="change_layout">Change Layout</string>
+    <string name="toggle_camera">Toggle Camera</string>
+    <string name="toggle">Toggle</string>
+    <string name="finish">Finish</string>
+    <string name="is_front_primary">IsFrontPrimary</string>
+    <string name="permission_warning">Permissions not granted by the user.</string>
+    <string name="concurrent_not_supported_warning">Concurrent camera not supported</string>
+    <string name="record_button_idling">Start</string>
+    <string name="record_button_recording">Recording</string>
+    <string name="duration_label">Duration (ms)</string>
+    <string name="switch_time_label">Switch Time (ms)</string>
+</resources>
