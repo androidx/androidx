@@ -722,7 +722,9 @@ import java.util.Set;
                 if (sourceIndex < 0) {
                     // 1. Add the route to the list.
                     String uniqueId = assignRouteUniqueId(provider, id);
-                    MediaRouter.RouteInfo route = new MediaRouter.RouteInfo(provider, id, uniqueId);
+                    MediaRouter.RouteInfo route =
+                            new MediaRouter.RouteInfo(
+                                    provider, id, uniqueId, routeDescriptor.isSystemRoute());
 
                     provider.mRoutes.add(targetIndex++, route);
                     mRoutes.add(route);
