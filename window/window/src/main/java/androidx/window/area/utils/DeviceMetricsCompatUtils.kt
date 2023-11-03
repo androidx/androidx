@@ -18,7 +18,6 @@ package androidx.window.area.utils
 
 import android.os.Build
 import android.util.DisplayMetrics
-import androidx.annotation.RequiresApi
 import androidx.window.area.WindowAreaController
 import androidx.window.extensions.area.WindowAreaComponent
 
@@ -30,7 +29,6 @@ import androidx.window.extensions.area.WindowAreaComponent
  * method. This object can expand to include any differences that have to be taken into account that
  * vary from the standard behavior.
  */
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 internal object DeviceMetricsCompatUtils {
 
     private val deviceMetricsList = listOf(DeviceMetrics("google", "pixel fold",
