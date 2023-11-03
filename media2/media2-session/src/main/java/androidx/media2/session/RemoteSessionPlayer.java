@@ -31,10 +31,14 @@ import java.util.concurrent.Future;
 /**
  * Base interface for all remote media players that want media session and playback happens on the
  * remote device through MediaRouter.
- * <p>
- * If you use this to the {@link MediaSession}, session would dispatch incoming volume change event
- * to the player instead of changing device stream volume.
+ *
+ * <p>If you use this to the {@link MediaSession}, session would dispatch incoming volume change
+ * event to the player instead of changing device stream volume.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public abstract class RemoteSessionPlayer extends SessionPlayer {
     /**
      */
@@ -123,12 +127,16 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
     public abstract int getVolumeControlType();
 
     /**
-     * A callback class to receive notifications for events on the remote session player. See
-     * {@link #registerPlayerCallback(Executor, PlayerCallback)} to register this callback.
-     * <p>
-     * This is registered by {@link MediaSession} to notify volume changes to the
-     * {@link MediaController}.
+     * A callback class to receive notifications for events on the remote session player. See {@link
+     * #registerPlayerCallback(Executor, PlayerCallback)} to register this callback.
+     *
+     * <p>This is registered by {@link MediaSession} to notify volume changes to the {@link
+     * MediaController}.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static class Callback extends SessionPlayer.PlayerCallback {
         /**
          * Called to indicate that the volume has changed.

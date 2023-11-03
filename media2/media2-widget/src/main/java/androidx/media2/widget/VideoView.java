@@ -31,15 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.media2.common.BaseResult;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.SessionPlayer.TrackInfo;
-import androidx.media2.common.SubtitleData;
-import androidx.media2.common.VideoSize;
-import androidx.media2.session.MediaController;
-import androidx.media2.session.MediaSession;
 import androidx.palette.graphics.Palette;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -54,109 +45,129 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A high level view for media playback that can be integrated with either a {@link SessionPlayer}
- * or a {@link MediaController}. Developers can easily implement a video rendering application
- * using this class. By default, a {@link MediaControlView} is attached so the playback
- * control buttons are displayed on top of VideoView.
- * <p>
- * Contents:
+ * A high level view for media playback that can be integrated with either a {@link
+ * androidx.media2.common.SessionPlayer} or a {@link androidx.media2.session.MediaController}.
+ * Developers can easily implement a video rendering application using this class. By default, a
+ * {@link MediaControlView} is attached so the playback control buttons are displayed on top of
+ * VideoView.
+ *
+ * <p>Contents:
+ *
  * <ol>
- *     <li><a href="UseCases">Using VideoView with SessionPlayer or MediaController</a>
- *     <li><a href="UseWithMCV">Using VideoView with MediaControlView</a>
- *     <li><a href="ViewType">Choosing a view type</a>
- *     <li><a href="LegacyVideoView">Comparison with android.widget.VideoView</a>
- *     <li><a href="DisplayMetadata">Displaying Metadata</a>
+ *   <li><a href="UseCases">Using VideoView with androidx.media2.common.SessionPlayer or
+ *       androidx.media2.session.MediaController</a>
+ *   <li><a href="UseWithMCV">Using VideoView with MediaControlView</a>
+ *   <li><a href="ViewType">Choosing a view type</a>
+ *   <li><a href="LegacyVideoView">Comparison with android.widget.VideoView</a>
+ *   <li><a href="DisplayMetadata">Displaying Metadata</a>
  * </ol>
  *
- * <h3 id="UseCases">Using VideoView with SessionPlayer or MediaController</h3>
+ * <h3 id="UseCases">Using VideoView with androidx.media2.common.SessionPlayer or
+ * androidx.media2.session.MediaController</h3>
+ *
  * <ul>
- *     <li> For simple use cases that do not require communication with a {@link MediaSession},
- *     apps need to create a player instance that extends {@link SessionPlayer} (e.g.
- *     {@link androidx.media2.player.MediaPlayer}) and link it to this view by calling
- *     {@link #setPlayer}.
- *     <li> For more advanced use cases that require a {@link MediaSession} (e.g. handling media
- *     key events, integrating with other MediaSession apps as Assistant), apps need to create
- *     a {@link MediaController} that's attached to the {@link MediaSession} and link it to this
- *     view by calling {@link #setMediaController}.
+ *   <li>For simple use cases that do not require communication with a {@link
+ *       androidx.media2.session.MediaSession}, apps need to create a player instance that extends
+ *       {@link androidx.media2.common.SessionPlayer} (e.g. {@link
+ *       androidx.media2.player.MediaPlayer}) and link it to this view by calling {@link
+ *       #setPlayer}.
+ *   <li>For more advanced use cases that require a {@link androidx.media2.session.MediaSession}
+ *       (e.g. handling media key events, integrating with other
+ *       androidx.media2.session.MediaSession apps as Assistant), apps need to create a {@link
+ *       androidx.media2.session.MediaController} that's attached to the {@link
+ *       androidx.media2.session.MediaSession} and link it to this view by calling {@link
+ *       #setMediaController}.
  * </ul>
  *
  * <h3 id="UseWithMCV">Using VideoView with MediaControlView</h3>
- * {@link VideoView} is working with {@link MediaControlView} and a MediaControlView
- * instance is attached to VideoView by default.
- * <p>
- * If you want to attach a custom {@link MediaControlView}, assign the custom media
- * control widget using {@link #setMediaControlView}.
- * <p>
- * If you don't want to use {@link MediaControlView}, set
- * the VideoView attribute {@link androidx.media2.widget.R.attr#enableControlView} to false.
+ *
+ * {@link VideoView} is working with {@link MediaControlView} and a MediaControlView instance is
+ * attached to VideoView by default.
+ *
+ * <p>If you want to attach a custom {@link MediaControlView}, assign the custom media control
+ * widget using {@link #setMediaControlView}.
+ *
+ * <p>If you don't want to use {@link MediaControlView}, set the VideoView attribute {@link
+ * androidx.media2.widget.R.attr#enableControlView} to false.
  *
  * <h3 id="ViewType">Choosing a view type</h3>
- * VideoView can render videos on a TextureView or SurfaceView. The
- * default is SurfaceView which can be changed by using the {@link #setViewType(int)} method or
- * by setting the {@link androidx.media2.widget.R.attr#viewType} attribute in the layout file.
- * <p> SurfaceView is recommended in most cases for saving battery life.
- * TextureView might be preferred for supporting various UIs such as animation and translucency.
+ *
+ * VideoView can render videos on a TextureView or SurfaceView. The default is SurfaceView which can
+ * be changed by using the {@link #setViewType(int)} method or by setting the {@link
+ * androidx.media2.widget.R.attr#viewType} attribute in the layout file.
+ *
+ * <p>SurfaceView is recommended in most cases for saving battery life. TextureView might be
+ * preferred for supporting various UIs such as animation and translucency.
  *
  * <h3 id="LegacyVideoView">Comparison with android.widget.VideoView</h3>
+ *
  * These are the main differences between the media2 VideoView widget and the older android widget:
+ *
  * <ul>
- * <li>
- *     {@link android.widget.VideoView android.widget.VideoView} creates a
- *     {@link android.media.MediaPlayer} instance internally and wraps playback APIs around it.
- *     <p>
- *     {@link VideoView androidx.media2.widget.VideoView} does not create a player instance
- *     internally. Instead, either a {@link SessionPlayer} or a {@link MediaController} instance
- *     should be created externally and link to {@link VideoView} using
- *     {@link #setPlayer(SessionPlayer)} or {@link #setMediaController(MediaController)},
- *     respectively.
- * <li>
- *     {@link android.widget.VideoView android.widget.VideoView} inherits from the SurfaceView
- *     class.
- *     <p>
- *     {@link VideoView androidx.media2.widget.VideoView} inherits from ViewGroup and can render
- *     videos using SurfaceView or TextureView, depending on your choice.
- * <li>
- *     A {@link VideoView} can respond to media key events if you call {@link #setMediaController}
- *     to link it to a {@link MediaController} that's connected to an active {@link MediaSession}.
+ *   <li>{@link android.widget.VideoView android.widget.VideoView} creates a {@link
+ *       android.media.MediaPlayer} instance internally and wraps playback APIs around it.
+ *       <p>{@link VideoView androidx.media2.widget.VideoView} does not create a player instance
+ *       internally. Instead, either a {@link androidx.media2.common.SessionPlayer} or a {@link
+ *       androidx.media2.session.MediaController} instance should be created externally and link to
+ *       {@link VideoView} using {@link #setPlayer(androidx.media2.common.SessionPlayer)} or {@link
+ *       #setMediaController(androidx.media2.session.MediaController)}, respectively.
+ *   <li>{@link android.widget.VideoView android.widget.VideoView} inherits from the SurfaceView
+ *       class.
+ *       <p>{@link VideoView androidx.media2.widget.VideoView} inherits from ViewGroup and can
+ *       render videos using SurfaceView or TextureView, depending on your choice.
+ *   <li>A {@link VideoView} can respond to media key events if you call {@link #setMediaController}
+ *       to link it to a {@link androidx.media2.session.MediaController} that's connected to an
+ *       active {@link androidx.media2.session.MediaSession}.
  * </ul>
  *
  * <h3 id="DisplayMetadata">Displaying Metadata</h3>
+ *
  * When you play music only (sound with no video), VideoView can display album art and other
- * metadata by calling {@link MediaItem#setMetadata(MediaMetadata)}.
- * The following table shows the metadata displayed by the VideoView, and the default values
- * assigned if the keys are not set:
+ * metadata by calling {@link
+ * androidx.media2.common.MediaItem#setMetadata(androidx.media2.common.MediaMetadata)}. The
+ * following table shows the metadata displayed by the VideoView, and the default values assigned if
+ * the keys are not set:
+ *
  * <table>
  *     <tr><th>Key</th><th>Default</th></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_TITLE}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_TITLE}</td>
  *     <td>{@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}</td></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_ARTIST}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_ARTIST}</td>
  *     <td>{@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}</td></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
  *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
  *     </table>
- * <p>
- * Note: VideoView does not retain its full state when going into the background. In particular, it
- * does not save, and does not restore the current play state, play position, selected tracks.
- * Applications should save and restore these on their own in
- * {@link android.app.Activity#onSaveInstanceState} and
- * {@link android.app.Activity#onRestoreInstanceState}.
- * <p> Attributes :
+ *
+ * <p>Note: VideoView does not retain its full state when going into the background. In particular,
+ * it does not save, and does not restore the current play state, play position, selected tracks.
+ * Applications should save and restore these on their own in {@link
+ * android.app.Activity#onSaveInstanceState} and {@link
+ * android.app.Activity#onRestoreInstanceState}.
+ *
+ * <p>Attributes :
+ *
  * <ul>
- *     <li> {@link androidx.media2.widget.R.attr#enableControlView}
- *     <li> {@link androidx.media2.widget.R.attr#viewType}
+ *   <li>{@link androidx.media2.widget.R.attr#enableControlView}
+ *   <li>{@link androidx.media2.widget.R.attr#viewType}
  * </ul>
- * <p> Example of attributes for a VideoView with TextureView and no attached control view:
- * <pre> {@code
- *  <androidx.media2.widget.VideoView
- *      android:id="@+id/video_view"
- *      widget:enableControlView="false"
- *      widget:viewType="textureView"
- *  />}</pre>
+ *
+ * <p>Example of attributes for a VideoView with TextureView and no attached control view:
+ *
+ * <pre>{@code
+ * <androidx.media2.widget.VideoView
+ *     android:id="@+id/video_view"
+ *     widget:enableControlView="false"
+ *     widget:viewType="textureView"
+ * />
+ * }</pre>
  *
  * @see MediaControlView
- * @see SessionPlayer
- * @see MediaController
+ * @see androidx.media2.common.SessionPlayer
+ * @see androidx.media2.session.MediaController
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class VideoView extends SelectiveLayout {
     @IntDef({
             VIEW_TYPE_TEXTUREVIEW,
@@ -198,11 +209,11 @@ public class VideoView extends SelectiveLayout {
 
     int mVideoTrackCount;
     int mAudioTrackCount;
-    Map<TrackInfo, SubtitleTrack> mSubtitleTracks;
+    Map<androidx.media2.common.SessionPlayer.TrackInfo, SubtitleTrack> mSubtitleTracks;
     SubtitleController mSubtitleController;
 
     // selected subtitle track info as MediaPlayer returns
-    TrackInfo mSelectedSubtitleTrackInfo;
+    androidx.media2.common.SessionPlayer.TrackInfo mSelectedSubtitleTrackInfo;
 
     SubtitleAnchorView mSubtitleAnchorView;
 
@@ -289,30 +300,34 @@ public class VideoView extends SelectiveLayout {
         mSubtitleAnchorView.setBackgroundColor(0);
         addView(mSubtitleAnchorView, mSelectiveLayoutParams);
 
-        SubtitleController.Listener listener = new SubtitleController.Listener() {
-            @Override
-            public void onSubtitleTrackSelected(SubtitleTrack track) {
-                // Track deselected
-                if (track == null) {
-                    mSelectedSubtitleTrackInfo = null;
-                    mSubtitleAnchorView.setVisibility(View.GONE);
-                    return;
-                }
+        SubtitleController.Listener listener =
+                new SubtitleController.Listener() {
+                    @Override
+                    public void onSubtitleTrackSelected(SubtitleTrack track) {
+                        // Track deselected
+                        if (track == null) {
+                            mSelectedSubtitleTrackInfo = null;
+                            mSubtitleAnchorView.setVisibility(View.GONE);
+                            return;
+                        }
 
-                // Track selected
-                TrackInfo info = null;
-                for (Map.Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
-                    if (pair.getValue() == track) {
-                        info = pair.getKey();
-                        break;
+                        // Track selected
+                        androidx.media2.common.SessionPlayer.TrackInfo info = null;
+                        for (Map.Entry<
+                                        androidx.media2.common.SessionPlayer.TrackInfo,
+                                        SubtitleTrack>
+                                pair : mSubtitleTracks.entrySet()) {
+                            if (pair.getValue() == track) {
+                                info = pair.getKey();
+                                break;
+                            }
+                        }
+                        if (info != null) {
+                            mSelectedSubtitleTrackInfo = info;
+                            mSubtitleAnchorView.setVisibility(View.VISIBLE);
+                        }
                     }
-                }
-                if (info != null) {
-                    mSelectedSubtitleTrackInfo = info;
-                    mSubtitleAnchorView.setVisibility(View.VISIBLE);
-                }
-            }
-        };
+                };
         mSubtitleController = new SubtitleController(context, null, listener);
         mSubtitleController.registerRenderer(new Cea608CaptionRenderer(context));
         mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
@@ -355,21 +370,26 @@ public class VideoView extends SelectiveLayout {
     }
 
     /**
-     * Sets {@link MediaController} to display media content.
-     * Setting a {@link MediaController} will unset any {@link MediaController} or
-     * {@link SessionPlayer} that was previously set.
-     * <p>
-     * If VideoView has a {@link MediaControlView} instance, this controller will also be set to it.
-     * <p>
-     * Calling this method will automatically set VideoView's surface to {@link MediaController}
-     * by calling {@link MediaController#setSurface(Surface)}. If the {@link MediaController} is
-     * connected to a {@link MediaSession} and that {@link MediaSession} is associated with a
-     * {@link SessionPlayer}, VideoView's surface will be set to that {@link SessionPlayer}.
+     * Sets {@link androidx.media2.session.MediaController} to display media content. Setting a
+     * {@link androidx.media2.session.MediaController} will unset any {@link
+     * androidx.media2.session.MediaController} or {@link androidx.media2.common.SessionPlayer} that
+     * was previously set.
+     *
+     * <p>If VideoView has a {@link MediaControlView} instance, this controller will also be set to
+     * it.
+     *
+     * <p>Calling this method will automatically set VideoView's surface to {@link
+     * androidx.media2.session.MediaController} by calling {@link
+     * androidx.media2.session.MediaController#setSurface(Surface)}. If the {@link
+     * androidx.media2.session.MediaController} is connected to a {@link
+     * androidx.media2.session.MediaSession} and that {@link androidx.media2.session.MediaSession}
+     * is associated with a {@link androidx.media2.common.SessionPlayer}, VideoView's surface will
+     * be set to that {@link androidx.media2.common.SessionPlayer}.
      *
      * @param controller the controller
      * @see #setPlayer
      */
-    public void setMediaController(@NonNull MediaController controller) {
+    public void setMediaController(@NonNull androidx.media2.session.MediaController controller) {
         if (controller == null) {
             throw new NullPointerException("controller must not be null");
         }
@@ -392,21 +412,21 @@ public class VideoView extends SelectiveLayout {
         }
     }
 
-
     /**
-     * Sets {@link SessionPlayer} to display media content.
-     * Setting a SessionPlayer will unset any MediaController or SessionPlayer that was previously
-     * set.
-     * <p>
-     * If VideoView has a {@link MediaControlView} instance, this player will also be set to it.
-     * <p>
-     * Calling this method will automatically set VideoView's surface to {@link SessionPlayer}
-     * by calling {@link SessionPlayer#setSurface(Surface)}.
+     * Sets {@link androidx.media2.common.SessionPlayer} to display media content. Setting a
+     * androidx.media2.common.SessionPlayer will unset any androidx.media2.session.MediaController
+     * or androidx.media2.common.SessionPlayer that was previously set.
+     *
+     * <p>If VideoView has a {@link MediaControlView} instance, this player will also be set to it.
+     *
+     * <p>Calling this method will automatically set VideoView's surface to {@link
+     * androidx.media2.common.SessionPlayer} by calling {@link
+     * androidx.media2.common.SessionPlayer#setSurface(Surface)}.
      *
      * @param player the player
      * @see #setMediaController
      */
-    public void setPlayer(@NonNull SessionPlayer player) {
+    public void setPlayer(@NonNull androidx.media2.common.SessionPlayer player) {
         if (player == null) {
             throw new NullPointerException("player must not be null");
         }
@@ -430,16 +450,17 @@ public class VideoView extends SelectiveLayout {
     }
 
     /**
-     * Sets {@link MediaControlView} instance. It will replace the previously assigned
-     * {@link MediaControlView} instance if any.
-     * <p>
-     * If a {@link MediaController} or a {@link SessionPlayer} instance has been set to
-     * {@link VideoView}, the same instance will be set to {@link MediaControlView}.
+     * Sets {@link MediaControlView} instance. It will replace the previously assigned {@link
+     * MediaControlView} instance if any.
+     *
+     * <p>If a {@link androidx.media2.session.MediaController} or a {@link
+     * androidx.media2.common.SessionPlayer} instance has been set to {@link VideoView}, the same
+     * instance will be set to {@link MediaControlView}.
      *
      * @param mediaControlView a {@link MediaControlView} instance.
      * @param intervalMs time interval in milliseconds until {@link MediaControlView} transitions
-     *                   into a different mode. -1 can be set to disable all UI transitions. See
-     *                   {@link MediaControlView} Javadoc Section "UI transitions" for details.
+     *     into a different mode. -1 can be set to disable all UI transitions. See {@link
+     *     MediaControlView} Javadoc Section "UI transitions" for details.
      */
     public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
         if (mMediaControlView != null) {
@@ -578,15 +599,17 @@ public class VideoView extends SelectiveLayout {
     ///////////////////////////////////////////////////
     boolean isMediaPrepared() {
         return mPlayer != null
-                && mPlayer.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR
-                && mPlayer.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE;
+                && mPlayer.getPlayerState()
+                        != androidx.media2.common.SessionPlayer.PLAYER_STATE_ERROR
+                && mPlayer.getPlayerState()
+                        != androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     boolean hasActualVideo() {
         if (mVideoTrackCount > 0) {
             return true;
         }
-        VideoSize videoSize = mPlayer.getVideoSize();
+        androidx.media2.common.VideoSize videoSize = mPlayer.getVideoSize();
         if (videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
             Log.w(TAG, "video track count is zero, but it renders video. size: "
                     + videoSize.getWidth() + "/" + videoSize.getHeight());
@@ -599,42 +622,54 @@ public class VideoView extends SelectiveLayout {
         return !hasActualVideo() && mAudioTrackCount > 0;
     }
 
-    void updateTracks(PlayerWrapper player, List<TrackInfo> trackInfos) {
+    void updateTracks(
+            PlayerWrapper player, List<androidx.media2.common.SessionPlayer.TrackInfo> trackInfos) {
         mSubtitleTracks = new LinkedHashMap<>();
         mVideoTrackCount = 0;
         mAudioTrackCount = 0;
         for (int i = 0; i < trackInfos.size(); i++) {
-            TrackInfo trackInfo = trackInfos.get(i);
+            androidx.media2.common.SessionPlayer.TrackInfo trackInfo = trackInfos.get(i);
             int trackType = trackInfos.get(i).getTrackType();
-            if (trackType == TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
+            if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
                 mVideoTrackCount++;
-            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+            } else if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 mAudioTrackCount++;
-            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            } else if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfo.getFormat());
                 if (track != null) {
                     mSubtitleTracks.put(trackInfo, track);
                 }
             }
         }
-        mSelectedSubtitleTrackInfo = player.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        mSelectedSubtitleTrackInfo =
+                player.getSelectedTrack(
+                        androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
     }
 
-    void updateMusicView(MediaItem item) {
+    void updateMusicView(androidx.media2.common.MediaItem item) {
         boolean shouldShowMusicView = item != null && isCurrentItemMusic();
         if (shouldShowMusicView) {
             mMusicView.setVisibility(View.VISIBLE);
 
-            MediaMetadata metadata = item.getMetadata();
+            androidx.media2.common.MediaMetadata metadata = item.getMetadata();
             Resources resources = getResources();
 
             Drawable albumDrawable = getAlbumArt(metadata,
                     ContextCompat.getDrawable(
                             getContext(), R.drawable.media2_widget_ic_default_album_image));
-            String title = getString(metadata, MediaMetadata.METADATA_KEY_TITLE,
-                    resources.getString(R.string.mcv2_music_title_unknown_text));
-            String artist = getString(metadata, MediaMetadata.METADATA_KEY_ARTIST,
-                    resources.getString(R.string.mcv2_music_artist_unknown_text));
+            String title =
+                    getString(
+                            metadata,
+                            androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE,
+                            resources.getString(R.string.mcv2_music_title_unknown_text));
+            String artist =
+                    getString(
+                            metadata,
+                            androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST,
+                            resources.getString(R.string.mcv2_music_artist_unknown_text));
 
             mMusicView.setAlbumDrawable(albumDrawable);
             mMusicView.setTitleText(title);
@@ -652,7 +687,7 @@ public class VideoView extends SelectiveLayout {
         try {
             int resultCode = mPlayer.setSurface(null).get(100, TimeUnit.MILLISECONDS)
                     .getResultCode();
-            if (resultCode != BaseResult.RESULT_SUCCESS) {
+            if (resultCode != androidx.media2.common.BaseResult.RESULT_SUCCESS) {
                 Log.e(TAG, "calling setSurface(null) was not "
                         + "successful. ResultCode: " + resultCode);
             }
@@ -663,30 +698,39 @@ public class VideoView extends SelectiveLayout {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void resetPlayerSurfaceWithNullAsync() {
-        ListenableFuture<? extends BaseResult> future = mPlayer.setSurface(null);
+        ListenableFuture<? extends androidx.media2.common.BaseResult> future =
+                mPlayer.setSurface(null);
         future.addListener(
                 new Runnable() {
                     @Override
                     public void run() {
                         try {
                             int resultCode = future.get().getResultCode();
-                            if (resultCode != BaseResult.RESULT_SUCCESS) {
-                                Log.e(TAG, "calling setSurface(null) was not "
-                                        + "successful. ResultCode: " + resultCode);
+                            if (resultCode != androidx.media2.common.BaseResult.RESULT_SUCCESS) {
+                                Log.e(
+                                        TAG,
+                                        "calling setSurface(null) was not "
+                                                + "successful. ResultCode: "
+                                                + resultCode);
                             }
                         } catch (ExecutionException | InterruptedException e) {
                             Log.e(TAG, "calling setSurface(null) was not successful.", e);
                         }
                     }
-                }, ContextCompat.getMainExecutor(getContext()));
+                },
+                ContextCompat.getMainExecutor(getContext()));
     }
 
-    private Drawable getAlbumArt(@NonNull MediaMetadata metadata, Drawable defaultDrawable) {
+    private Drawable getAlbumArt(
+            @NonNull androidx.media2.common.MediaMetadata metadata, Drawable defaultDrawable) {
         Drawable drawable = defaultDrawable;
         Bitmap bitmap = null;
 
-        if (metadata != null && metadata.containsKey(MediaMetadata.METADATA_KEY_ALBUM_ART)) {
-            bitmap = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
+        if (metadata != null
+                && metadata.containsKey(
+                        androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ART)) {
+            bitmap =
+                    metadata.getBitmap(androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ART);
         }
         if (bitmap != null) {
             Palette.Builder builder = Palette.from(bitmap);
@@ -705,7 +749,9 @@ public class VideoView extends SelectiveLayout {
         return drawable;
     }
 
-    private String getString(@NonNull MediaMetadata metadata, String stringKey,
+    private String getString(
+            @NonNull androidx.media2.common.MediaMetadata metadata,
+            String stringKey,
             String defaultValue) {
         String value = (metadata == null) ? defaultValue : metadata.getString(stringKey);
         return value == null ? defaultValue : value;
@@ -724,14 +770,17 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.VideoSize videoSize) {
             if (DEBUG) {
-                Log.d(TAG, "onVideoSizeChanged(): size: " + videoSize);
+                Log.d(TAG, "onandroidx.media2.common.VideoSizeChanged(): size: " + videoSize);
             }
             if (shouldIgnoreCallback(player)) return;
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
                 if (isMediaPrepared()) {
-                    List<TrackInfo> trackInfos = player.getTracks();
+                    List<androidx.media2.common.SessionPlayer.TrackInfo> trackInfos =
+                            player.getTracks();
                     if (trackInfos != null) {
                         updateTracks(player, trackInfos);
                     }
@@ -743,16 +792,25 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onSubtitleData(@NonNull PlayerWrapper player, @NonNull MediaItem item,
-                @NonNull TrackInfo track, @NonNull SubtitleData data) {
+        void onSubtitleData(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.MediaItem item,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo track,
+                @NonNull androidx.media2.common.SubtitleData data) {
             if (DEBUG) {
-                Log.d(TAG, "onSubtitleData():"
-                        + " TrackInfo: " + track
-                        + ", getCurrentPosition: " + player.getCurrentPosition()
-                        + ", getStartTimeUs(): " + data.getStartTimeUs()
-                        + ", diff: "
-                        + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
-                        + "ms, getDurationUs(): " + data.getDurationUs());
+                Log.d(
+                        TAG,
+                        "onandroidx.media2.common.SubtitleData():"
+                                + " androidx.media2.common.SessionPlayer.TrackInfo: "
+                                + track
+                                + ", getCurrentPosition: "
+                                + player.getCurrentPosition()
+                                + ", getStartTimeUs(): "
+                                + data.getStartTimeUs()
+                                + ", diff: "
+                                + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
+                                + "ms, getDurationUs(): "
+                                + data.getDurationUs());
             }
             if (shouldIgnoreCallback(player)) return;
             if (!track.equals(mSelectedSubtitleTrackInfo)) {
@@ -770,15 +828,20 @@ public class VideoView extends SelectiveLayout {
                 Log.d(TAG, "onPlayerStateChanged(): state: " + state);
             }
             if (shouldIgnoreCallback(player)) return;
-            if (state == SessionPlayer.PLAYER_STATE_ERROR) {
+            if (state == androidx.media2.common.SessionPlayer.PLAYER_STATE_ERROR) {
                 // TODO: Show error state (b/123498635)
             }
         }
 
         @Override
-        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player, @Nullable MediaItem item) {
+        void onCurrentMediaItemChanged(
+                @NonNull PlayerWrapper player, @Nullable androidx.media2.common.MediaItem item) {
             if (DEBUG) {
-                Log.d(TAG, "onCurrentMediaItemChanged(): MediaItem: " + item);
+                Log.d(
+                        TAG,
+                        "onCurrentMediaItemChanged():"
+                                + " androidx.media2.common.MediaItem: "
+                                + item);
             }
             if (shouldIgnoreCallback(player)) return;
 
@@ -786,9 +849,14 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
+        void onTracksChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull List<androidx.media2.common.SessionPlayer.TrackInfo> tracks) {
             if (DEBUG) {
-                Log.d(TAG, "onTrackInfoChanged(): tracks: " + tracks);
+                Log.d(
+                        TAG,
+                        "onandroidx.media2.common.SessionPlayer.TrackInfoChanged(): tracks: "
+                                + tracks);
             }
             if (shouldIgnoreCallback(player)) return;
             updateTracks(player, tracks);
@@ -796,7 +864,9 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onTrackSelected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+        void onTrackSelected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             if (DEBUG) {
                 Log.d(TAG, "onTrackSelected(): selected track: " + trackInfo);
             }
@@ -808,7 +878,9 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        void onTrackDeselected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+        void onTrackDeselected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             if (DEBUG) {
                 Log.d(TAG, "onTrackDeselected(): deselected track: " + trackInfo);
             }
@@ -838,7 +910,11 @@ public class VideoView extends SelectiveLayout {
 
     /**
      * Interface definition of a callback to be invoked when the view type has been changed.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public interface OnViewTypeChangedListener {
         /**
          * Called when the view type has been changed.

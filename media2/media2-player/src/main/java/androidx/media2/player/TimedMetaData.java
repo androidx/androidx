@@ -24,12 +24,15 @@ import androidx.annotation.RestrictTo;
  * Class that embodies one timed metadata access unit, including
  *
  * <ul>
- * <li> a time stamp, and </li>
- * <li> raw uninterpreted byte-array extracted directly from the container. </li>
+ *   <li>a time stamp, and
+ *   <li>raw uninterpreted byte-array extracted directly from the container.
  * </ul>
  *
  * @see MediaPlayer.PlayerCallback#onTimedMetaDataAvailable
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class TimedMetaData {
     private static final String TAG = "TimedMetaData";
 

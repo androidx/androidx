@@ -31,9 +31,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test {@link VideoView} without any {@link androidx.media2.common.SessionPlayer} or
- * {@link androidx.media2.session.MediaController}.
+ * Test {@link VideoView} without any {@link androidx.media2.common.SessionPlayer} or {@link
+ * androidx.media2.session.MediaController}.
  */
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class VideoView_WithoutPlayerTest extends MediaWidgetTestBase {
