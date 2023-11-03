@@ -6,7 +6,6 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.appendPlaceholders
-import androidx.room.util.createCancellationSignal
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
 import androidx.room.util.query
@@ -144,7 +143,7 @@ public class MyDao_Impl(
             }
             _argIndex++
         }
-        val _cancellationSignal: CancellationSignal? = createCancellationSignal()
+        val _cancellationSignal: CancellationSignal = CancellationSignal()
         return execute(__db, false, _cancellationSignal, object : Callable<List<MyEntity>> {
             public override fun call(): List<MyEntity> {
                 val _cursor: Cursor = query(__db, _statement, false, null)

@@ -8,7 +8,6 @@ import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.guava.GuavaRoom
 import androidx.room.util.appendPlaceholders
-import androidx.room.util.createCancellationSignal
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.newStringBuilder
 import androidx.room.util.query
@@ -166,7 +165,7 @@ public class MyDao_Impl(
             }
             _argIndex++
         }
-        val _cancellationSignal: CancellationSignal? = createCancellationSignal()
+        val _cancellationSignal: CancellationSignal = CancellationSignal()
         return GuavaRoom.createListenableFuture(__db, false, object : Callable<MyEntity> {
             public override fun call(): MyEntity {
                 val _cursor: Cursor = query(__db, _statement, false, _cancellationSignal)
@@ -210,7 +209,7 @@ public class MyDao_Impl(
             }
             _argIndex++
         }
-        val _cancellationSignal: CancellationSignal? = createCancellationSignal()
+        val _cancellationSignal: CancellationSignal = CancellationSignal()
         return GuavaRoom.createListenableFuture(__db, false, object : Callable<MyEntity?> {
             public override fun call(): MyEntity? {
                 val _cursor: Cursor = query(__db, _statement, false, _cancellationSignal)

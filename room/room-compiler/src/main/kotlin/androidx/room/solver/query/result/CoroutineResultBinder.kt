@@ -18,7 +18,6 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
@@ -46,11 +45,13 @@ class CoroutineResultBinder(
         scope: CodeGenScope
     ) {
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
-        scope.builder.addLocalVal(
-            cancellationSignalVar,
-            AndroidTypeNames.CANCELLATION_SIGNAL.copy(nullable = true),
-            "%M()",
-            RoomTypeNames.DB_UTIL.packageMember("createCancellationSignal")
+        scope.builder.addLocalVariable(
+            name = cancellationSignalVar,
+            typeName = AndroidTypeNames.CANCELLATION_SIGNAL,
+            assignExpr = XCodeBlock.ofNewInstance(
+                scope.language,
+                AndroidTypeNames.CANCELLATION_SIGNAL,
+            ),
         )
 
         val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {

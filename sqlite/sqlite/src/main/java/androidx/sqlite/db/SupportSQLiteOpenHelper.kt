@@ -16,12 +16,10 @@
 package androidx.sqlite.db
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
-import android.os.Build
 import android.util.Log
 import android.util.Pair
-import androidx.annotation.RequiresApi
-import androidx.sqlite.db.SupportSQLiteCompat.Api16Impl.deleteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Factory
 import java.io.Closeable
@@ -52,7 +50,6 @@ interface SupportSQLiteOpenHelper : Closeable {
      * @param enabled True if write-ahead logging should be enabled, false if it
      * should be disabled.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     fun setWriteAheadLoggingEnabled(enabled: Boolean)
 
     /**
@@ -254,18 +251,7 @@ interface SupportSQLiteOpenHelper : Closeable {
             }
             Log.w(TAG, "deleting the database file: $fileName")
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    deleteDatabase(File(fileName))
-                } else {
-                    try {
-                        val deleted = File(fileName).delete()
-                        if (!deleted) {
-                            Log.e(TAG, "Could not delete the database file $fileName")
-                        }
-                    } catch (error: Exception) {
-                        Log.e(TAG, "error while deleting corrupted database file", error)
-                    }
-                }
+                SQLiteDatabase.deleteDatabase(File(fileName))
             } catch (e: Exception) {
                 /* print warning and ignore exception */
                 Log.w(TAG, "delete failed: ", e)
