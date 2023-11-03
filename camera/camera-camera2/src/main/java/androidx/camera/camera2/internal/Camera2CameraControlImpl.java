@@ -662,6 +662,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
 
+        // Flash modes other than screen flash will override this AE mode later
         if (mFocusMeteringControl.isExternalFlashAeModeEnabled()) {
             aeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
         }

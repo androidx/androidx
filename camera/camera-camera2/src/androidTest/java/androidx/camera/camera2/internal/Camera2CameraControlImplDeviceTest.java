@@ -345,6 +345,9 @@ public final class Camera2CameraControlImplDeviceTest {
         assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
                 mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                 equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        // Other flash modes may override the external flash AE mode
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
 
         mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
 
@@ -367,6 +370,8 @@ public final class Camera2CameraControlImplDeviceTest {
         assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
                 mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                 equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
 
         mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
         HandlerUtil.waitForLooperToIdle(mHandler);
