@@ -33,6 +33,11 @@ import android.view.ViewTreeObserver
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.customview.poolingcontainer.PoolingContainerListener
+import androidx.customview.poolingcontainer.addPoolingContainerListener
+import androidx.customview.poolingcontainer.isPoolingContainer
+import androidx.customview.poolingcontainer.isWithinPoolingContainer
+import androidx.customview.poolingcontainer.removePoolingContainerListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Active
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Idle
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState.Loading
@@ -99,6 +104,11 @@ sealed class SandboxedSdkUiSessionState private constructor() {
 class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     ViewGroup(context, attrs) {
 
+    // TODO(b/284147223): Remove this logic in V+
+    private val surfaceView = SurfaceView(context).apply {
+        visibility = GONE
+    }
+
     // This will only be invoked when the content view has been set and the window is attached.
     private val surfaceChangedCallback = object : SurfaceHolder.Callback {
         override fun surfaceCreated(p0: SurfaceHolder) {
@@ -131,6 +141,8 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var previousHeight = -1
     private var currentClippingBounds = Rect()
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
+    private var poolingContainerChild: View? = null
+    private var poolingContainerListener = PoolingContainerListener {}
 
     /**
      * Adds a state change listener to the UI session and immediately reports the current
@@ -319,6 +331,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        if (this.isWithinPoolingContainer) {
+            attachPoolingContainerListener()
+        }
         // We will not call client?.notifyResized for the first onLayout call
         // and the case in which the width and the height remain unchanged.
         if ((previousWidth != (right - left) || previousHeight != (bottom - top)) &&
@@ -337,16 +352,51 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         checkClientOpenSession()
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        CompatImpl.deriveInputTokenAndOpenSession(context, this)
-    }
-
-    override fun onDetachedFromWindow() {
+    private fun closeClient() {
         client?.close()
         client = null
         windowInputToken = null
         removeCallbacks()
+    }
+
+    private fun attachPoolingContainerListener() {
+        val listener = PoolingContainerListener {
+            closeClient()
+            poolingContainerChild
+                ?.removePoolingContainerListener(poolingContainerListener)
+        }
+
+        var currentView = this as View
+        var parentView = parent
+
+        while (parentView != null && !(parentView as View).isPoolingContainer) {
+            currentView = parentView
+            parentView = currentView.parent
+        }
+
+        if (currentView == poolingContainerChild) {
+            return
+        }
+
+        poolingContainerChild
+            ?.removePoolingContainerListener(poolingContainerListener)
+        currentView.addPoolingContainerListener(listener)
+        poolingContainerChild = currentView
+        poolingContainerListener = listener
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (this.isWithinPoolingContainer) {
+            attachPoolingContainerListener()
+        }
+        CompatImpl.deriveInputTokenAndOpenSession(context, this)
+    }
+
+    override fun onDetachedFromWindow() {
+        if (!this.isWithinPoolingContainer) {
+            closeClient()
+        }
         super.onDetachedFromWindow()
     }
 
