@@ -165,7 +165,8 @@ fun Switch(
                 orientation = Orientation.Horizontal,
                 enabled = enabled && onCheckedChange != null,
                 reverseDirection = isRtl,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
+                startDragImmediately = false
             )
             .wrapContentSize(Alignment.Center)
             .padding(DefaultSwitchPadding)
